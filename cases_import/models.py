@@ -15,6 +15,7 @@ import phenopackets
 from phenopackets import Family
 from projectroles.models import Project
 
+from cases.models import Disease, Individual, Pedigree, PhenotypicFeature
 from cases_files.models import (
     AbstractFile,
     IndividualExternalFile,
@@ -22,7 +23,8 @@ from cases_files.models import (
     PedigreeExternalFile,
     PedigreeInternalFile,
 )
-from cases_import.proto import get_case_name_from_family_payload
+from cases_import.proto import Assay, get_case_name_from_family_payload
+from seqmeta.models import TargetBedFile
 from varfish.utils import JSONField
 from variants.models import Case
 
@@ -210,6 +212,36 @@ def release_from_family(family: Family) -> typing.Optional[str]:
     return None
 
 
+#: Mapping of assay ID from phenopackets to representation in Individual.
+ASSAY_MAP = {
+    Assay.PANEL_SEQ: Individual.ASSAY_PANEL,
+    Assay.WES: Individual.ASSAY_WES,
+    Assay.WGS: Individual.ASSAY_WGS,
+}
+
+#: Mapping of karyotypic sex from phenopackets to representation in Individual.
+KARYOTYPIC_SEX_MAP = {
+    phenopackets.KaryotypicSex.UNKNOWN_KARYOTYPE: Individual.KARYOTYPE_UNKNOWN,
+    phenopackets.KaryotypicSex.XX: Individual.KARYOTYPE_XX,
+    phenopackets.KaryotypicSex.XY: Individual.KARYOTYPE_XY,
+    phenopackets.KaryotypicSex.XO: Individual.KARYOTYPE_XO,
+    phenopackets.KaryotypicSex.XXY: Individual.KARYOTYPE_XXY,
+    phenopackets.KaryotypicSex.XXX: Individual.KARYOTYPE_XXX,
+    phenopackets.KaryotypicSex.XXYY: Individual.KARYOTYPE_XXYY,
+    phenopackets.KaryotypicSex.XXXY: Individual.KARYOTYPE_XXXY,
+    phenopackets.KaryotypicSex.XXXX: Individual.KARYOTYPE_XXXX,
+    phenopackets.KaryotypicSex.XYY: Individual.KARYOTYPE_XYY,
+    phenopackets.KaryotypicSex.OTHER_KARYOTYPE: Individual.KARYOTYPE_OTHER,
+}
+
+#: Mapping of sex from phenopackets to representation in Individual.
+SEX_MAP = {
+    phenopackets.Sex.MALE: Individual.SEX_MALE,
+    phenopackets.Sex.FEMALE: Individual.SEX_FEMALE,
+    phenopackets.Sex.OTHER_SEX: Individual.SEX_OTHER,
+}
+
+
 class CaseImportBackgroundJobExecutor:
     """Implementation of ``CaseImportBackgroundJob`` execution."""
 
@@ -247,26 +279,6 @@ class CaseImportBackgroundJobExecutor:
             )
 
     def _run_create_or_update(self):
-        # Creation of the new, empty case or updating the case state of an existing one is
-        # done in a transaction as that's quick and we cannot use in-flight issues.
-        with transaction.atomic():
-            # Create a new case or update the existing on'es state to "updating".
-            case = self._create_or_update_case()
-        if not case:
-            return  # break out, logging happend in ``self._create_or_update_case()``.
-        if self.caseimportbackgroundjob.caseimportaction.action == CaseImportAction.ACTION_UPDATE:
-            # Clear the external and internal files, will be re-created during import.
-            self._clear_files(case)
-        # Create the external files entries.
-        self._create_external_files(case)
-        # Actually perform the seqvars annotation with mehari.
-        self._run_seqvars_annotation(case)
-        # Actually perform the strucvars annotation with mehari.
-        self._run_strucvars_annotation(case)
-        # Update the case state to "done".
-        self._update_case_state(case)
-
-    def _create_or_update_case(self) -> typing.Optional[Case]:
         caseimportaction = self.caseimportbackgroundjob.caseimportaction
         try:
             family: Family = ParseDict(js_dict=caseimportaction.payload, message=Family())
@@ -276,6 +288,28 @@ class CaseImportBackgroundJobExecutor:
             )
             raise
 
+        # Creation of the new, empty case or updating the case state of an existing one is
+        # done in a transaction as that's quick and we cannot use in-flight issues.
+        with transaction.atomic():
+            # Create a new case or update the existing on'es state to "updating".
+            case = self._create_or_update_case(family)
+        if not case:
+            return  # break out, logging happend in ``self._create_or_update_case()``.
+
+        if self.caseimportbackgroundjob.caseimportaction.action == CaseImportAction.ACTION_UPDATE:
+            # Clear the external and internal files, will be re-created during import.
+            self._clear_files(case)
+        # Create the external files entries.
+        self._create_external_files(case, family)
+        # Actually perform the seqvars annotation with mehari.
+        self._run_seqvars_annotation(case)
+        # Actually perform the strucvars annotation with mehari.
+        self._run_strucvars_annotation(case)
+        # Update the case state to "done".
+        self._update_case_state(case)
+
+    def _create_or_update_case(self, family: Family) -> typing.Optional[Case]:
+        caseimportaction = self.caseimportbackgroundjob.caseimportaction
         if caseimportaction.action == CaseImportAction.ACTION_CREATE:
             self.caseimportbackgroundjob.add_log_entry("Creating new case")
             return self._create_case(family)
@@ -285,7 +319,7 @@ class CaseImportBackgroundJobExecutor:
 
     def _create_case(self, family: Family) -> Case:
         caseimportaction = self.caseimportbackgroundjob.caseimportaction
-        return Case.objects.create(
+        case = Case.objects.create(
             case_version=2,
             state=Case.STATE_IMPORTING,
             project=self.caseimportbackgroundjob.project,
@@ -294,6 +328,65 @@ class CaseImportBackgroundJobExecutor:
             index=family.proband.id,
             pedigree=build_legacy_pedigree(family),
         )
+        self._create_pedigree(case, family)
+        return case
+
+    def _family_helper(
+        self, family: Family
+    ) -> typing.Tuple[
+        typing.Dict[str, str],
+        typing.Dict[str, str],
+        typing.Dict[str, str],
+        typing.Dict[str, typing.List[typing.Any]],
+        typing.Dict[str, typing.List[typing.Any]],
+    ]:
+        assay = {
+            family.proband.id: ASSAY_MAP[family.proband.measurements[0].assay.id],
+        }
+        karyotypic_sex = {
+            family.proband.id: KARYOTYPIC_SEX_MAP[family.proband.subject.karyotypic_sex],
+        }
+        targetbedfile_uris = {
+            family.proband.id: family.proband.files[0].uri,
+        }
+        diseases = {family.proband.id: family.proband.diseases}
+        features = {family.proband.id: family.proband.phenotypic_features}
+        for relative in family.relatives:
+            assay[relative.id] = ASSAY_MAP[relative.measurements[0].assay.id]
+            karyotypic_sex[relative.id] = KARYOTYPIC_SEX_MAP[relative.subject.karyotypic_sex]
+            targetbedfile_uris[relative.id] = relative.files[0].uri
+            diseases[relative.id] = relative.proband.diseases
+            features[relative.id] = relative.phenotypic_features
+        return assay, karyotypic_sex, targetbedfile_uris
+
+    def _create_pedigree(self, case: Case, family: Family) -> Pedigree:
+        assay, karyotypic_sex, targetbedfile_uris, diseases, features = self._family_helper(family)
+        pedigree = Pedigree.object.create(case=case)
+        for person in family.pedigree.persons:
+            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
+            individual = Individual.objects.create(
+                pedigree=pedigree,
+                name=person.individualId,
+                sex=SEX_MAP[person.sex],
+                karyotypic_sex=KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]],
+                assay=ASSAY_MAP[assay[person.id]],
+                enrichmentkit=targetbedfile.enrichmentkit,
+            )
+            for disease in diseases:
+                Disease.objects.create(
+                    individual=individual,
+                    term_id=disease.term.id,
+                    term_label=disease.term.label,
+                    excluded=bool(disease.excluded),
+                )
+            for feature in features:
+                PhenotypicFeature.objects.create(
+                    individual=individual,
+                    term_id=feature.term.id,
+                    term_label=feature.term.label,
+                    excluded=bool(feature.excluded),
+                )
+        return pedigree
 
     def _update_case(self, family: Family) -> typing.Optional[Case]:
         caseimportaction = self.caseimportbackgroundjob.caseimportaction
@@ -311,8 +404,87 @@ class CaseImportBackgroundJobExecutor:
         case.index = family.proband.id
         case.pedigree = build_legacy_pedigree(family)
         case.save()
+        self._update_pedigree(case, family)
 
         return case
+
+    def _update_pedigree(self, case: Case, family: Family):
+        assay, karyotypic_sex, targetbedfile_uris, diseases, features = self._family_helper(family)
+        family_names = set(assay.keys())
+
+        pedigree = Pedigree.objects.get(case=case)
+        individuals = {
+            individual.name: individuals
+            for individual in Individual.objects.find(pedigree=pedigree)
+        }
+        pedigree_names = set(individuals.keys())
+
+        # Get names of missing and abundant individuals and those to keep.
+        missing = family_names - pedigree_names
+        abundant = pedigree_names - family_names
+        keep = family_names & pedigree_names
+
+        # Remove abundant individuals.
+        for name in abundant:
+            individuals[name].delete()
+
+        # Add missing individuals.
+        for person in family.pedigree.persons:
+            if person.id not in missing:
+                continue
+            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
+            individual = Individual.objects.create(
+                pedigree=pedigree,
+                name=person.individualId,
+                sex=SEX_MAP[person.sex],
+                karyotypic_sex=KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]],
+                assay=ASSAY_MAP[assay[person.id]],
+                enrichmentkit=targetbedfile.enrichmentkit,
+            )
+            for disease in diseases:
+                Disease.objects.create(
+                    individual=individual,
+                    term_id=disease.term.id,
+                    term_label=disease.term.label,
+                    excluded=bool(disease.excluded),
+                )
+            for feature in features:
+                PhenotypicFeature.objects.create(
+                    individual=individual,
+                    term_id=feature.term.id,
+                    term_label=feature.term.label,
+                    excluded=bool(feature.excluded),
+                )
+
+        # Update existing individuals.
+        for person in family.pedigree.persons:
+            if person.id not in keep:
+                continue
+            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
+            individual = individuals[name]
+            individual.sex = SEX_MAP[person.sex]
+            individual.karyotypic_sex = KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]]
+            individual.assay = ASSAY_MAP[assay[person.id]]
+            individual.enrichmentkit = targetbedfile.enrichmentkit
+            individual.save()
+
+            if self.caseimportbackgroundjob.caseimportaction.overwrite_terms:
+                Disease.objects.find(individual=individual).delete()
+                PhenotypicFeature.objects.find(individual=individual).delete()
+                for disease in diseases:
+                    Disease.objects.create(
+                        individual=individual,
+                        term_id=disease.term.id,
+                        term_label=disease.term.label,
+                        excluded=bool(disease.excluded),
+                    )
+                for feature in features:
+                    PhenotypicFeature.objects.create(
+                        individual=individual,
+                        term_id=feature.term.id,
+                        term_label=feature.term.label,
+                        excluded=bool(feature.excluded),
+                    )
 
     def _clear_files(self, case: Case):
         pedigree = case.pedigree_obj
@@ -330,7 +502,7 @@ class CaseImportBackgroundJobExecutor:
         for obj in internal_files + external_files:
             obj.delete()
 
-    def _create_external_files(self, case: Case):
+    def _create_external_files(self, case: Case, family: Family):
         assert False, "Implement me!"  # 1
 
     def _run_seqvars_annotation(self, case: Case):

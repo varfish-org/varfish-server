@@ -4,8 +4,8 @@ from phenopackets import Family
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 import yaml
-from cases_files.models import AbstractFile
 
+from cases_files.models import AbstractFile
 from cases_import.models import (
     CaseImportAction,
     CaseImportBackgroundJob,
