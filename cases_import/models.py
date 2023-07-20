@@ -1,26 +1,25 @@
 import typing
 import uuid as uuid_object
 
-from google.protobuf.json_format import ParseDict, ParseError
-from phenopackets import Family
-from django.db import transaction
 from bgjobs.models import (
-    BackgroundJob,
-    JobModelMessageMixin,
+    LOG_LEVEL_ERROR,
     LOG_LEVEL_INFO,
     LOG_LEVEL_WARNING,
-    LOG_LEVEL_ERROR,
+    BackgroundJob,
+    JobModelMessageMixin,
 )
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
+from google.protobuf.json_format import ParseDict, ParseError
+from phenopackets import Family
 from projectroles.models import Project
+
 from cases_files.models import (
     IndividualExternalFile,
     IndividualInternalFile,
     PedigreeExternalFile,
     PedigreeInternalFile,
 )
-
 from cases_import.proto import get_case_name_from_family_payload
 from varfish.utils import JSONField
 from variants.models import Case
@@ -285,10 +284,10 @@ class CaseImportBackgroundJobExecutor:
         assert False, "Implement me!"  # 1
 
     def _run_seqvars_annotation(self, case: Case):
-        assert False, "Implement me!"
+        self.caseimportbackgroundjob.add_log_entry("seqvars annotation not implemented yet")
 
     def _run_strucvars_annotation(self, case: Case):
-        assert False, "Implement me!"
+        self.caseimportbackgroundjob.add_log_entry("strucvars annotation not implemented yet")
 
     def _update_case_state(self, case):
         case.state = Case.STATE_DONE

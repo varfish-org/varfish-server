@@ -3,7 +3,7 @@ import uuid as uuid_object
 
 from django.db import models
 
-from cases.models import Pedigree, Individual
+from cases.models import Individual, Pedigree
 from cases_import.proto import FileDesignation
 from variants.models import Case
 
