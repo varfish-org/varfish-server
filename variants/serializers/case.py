@@ -269,6 +269,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "relatedness",
             "sex_errors",
             "presetset",
+            "case_version",
         )
         read_only_fields = (
             "sodar_uuid",

@@ -75,6 +75,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "project",
             "release",
             "presetset",  # made writable in to_internal_value
+            "state",
         )
 
 

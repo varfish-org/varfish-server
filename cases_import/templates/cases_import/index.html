@@ -1,1 +1,14 @@
-CASES IMPORT
+{% extends 'projectroles/base.html' %}
+{% load projectroles_common_tags %}
+
+{% block title %}
+  Cases Imports for {{ project.name }}
+{% endblock title %}
+
+{% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+
+  <p>
+    Nothing to see here (yet)
+  </p>
+{% endblock %}

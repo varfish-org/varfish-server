@@ -1,6 +1,6 @@
-# from django.contrib import admin
+from django.contrib import admin
 
-# from cases_import.models import CaseImportAction
+from cases_import.models import CaseImportAction, CaseImportBackgroundJob
 
-# Register your models here.
-# admin.site.register(CaseImportAction)
+admin.site.register(CaseImportAction)
+admin.site.register(CaseImportBackgroundJob)

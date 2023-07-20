@@ -1,6 +1,8 @@
+from bgjobs.plugins import BackgroundJobsPluginPoint
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 
+from cases_import.models import CaseImportBackgroundJob
 from cases_import.urls import urlpatterns
 
 # Global SODAR constants
@@ -16,13 +18,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     plugin_ordering = 1000
 
-    icon = "mdi:cloud-update"
+    icon = "mdi:cloud-upload"
 
-    entry_point_url_id = "cases:entrypoint"
+    entry_point_url_id = "cases_import:index"
 
     description = "Case Import Info"
 
-    app_permission = "cases.view_data"
+    app_permission = "cases_import.view_data"
 
     app_settings = {
         "import_data_protocol": {
@@ -73,3 +75,17 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             ),
         },
     }
+
+
+class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
+    """Plugin for registering background jobs with ``bgjobs`` app."""
+
+    name = "cases_import"
+    title = "Cases Import Background Jobs"
+
+    job_specs = {
+        CaseImportBackgroundJob.spec_name: CaseImportBackgroundJob,
+    }
+
+    def get_extra_data_link(self, _extra_data, _name):
+        return None

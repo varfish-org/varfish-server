@@ -83,7 +83,7 @@ INSTALLED_APPS += ["django_extensions"]
 
 # TESTING
 # ------------------------------------------------------------------------------
-TEST_RUNNER = "django.test.runner.DiscoverRunner"
+TEST_RUNNER = "snapshottest.django.TestRunner"
 
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------

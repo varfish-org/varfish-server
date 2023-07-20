@@ -24,7 +24,6 @@ exclude = [
     "tests",
     ".*.py",
     "wrapper.py",
-    "versioneer.py",
     "docs_manual/src",
     "src",
     "varfish/vueapp/node_modules",

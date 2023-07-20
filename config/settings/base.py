@@ -114,6 +114,7 @@ LOCAL_APPS = [
     "templatetags.apps.TemplatetagsConfig",
     "seqmeta.apps.SeqmetaConfig",
     "cases_import.apps.CasesImportConfig",
+    "cases_files.apps.CasesFilesConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
