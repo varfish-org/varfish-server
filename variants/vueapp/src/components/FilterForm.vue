@@ -40,21 +40,15 @@ const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
 
-const moreHasError = computed(() => {
-  return (
-    effectHasError.value ||
-    qualityHasError.value ||
-    geneHasError.value ||
-    exportHasError.value
-  )
-})
-
 const anyHasError = computed(() => {
   return (
     genotypeHasError.value ||
     frequencyHasError.value ||
     prioritizationHasError.value ||
-    moreHasError.value
+    effectHasError.value ||
+    qualityHasError.value ||
+    geneHasError.value ||
+    exportHasError.value
   )
 })
 
@@ -130,7 +124,7 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="frequencyHasError" />
             </a>
           </li>
-          <li class="nav-item d-none d-md-block">
+          <li class="nav-item">
             <a
               class="nav-link"
               :class="{ 'border-danger text-danger': prioritizationHasError }"
@@ -144,78 +138,71 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="prioritizationHasError" />
             </a>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
             <a
-              class="nav-link dropdown-toggle"
-              :class="{ 'text-danger': moreHasError }"
-              id="more-tab"
-              data-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="true"
-              aria-expanded="false"
+              class="nav-link"
+              :class="{ 'text-danger': effectHasError }"
+              id="effect-tab"
+              data-toggle="tab"
+              href="#panel-effect"
+              role="tab"
+              title="Variant types/effects, coding/non-coding transcripts"
             >
-              More ...
-              <i-mdi-alert-circle-outline v-if="moreHasError" />
+              Variants &amp; Effects
+              <i-mdi-alert-circle-outline v-if="effectHasError" />
             </a>
-            <div class="dropdown-menu" style="z-index: 1030">
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': effectHasError }"
-                id="effect-tab"
-                data-toggle="tab"
-                href="#panel-effect"
-                role="tab"
-                title="Variant types/effects, coding/non-coding transcripts"
-              >
-                Variants &amp; Effects
-                <i-mdi-alert-circle-outline v-if="effectHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': qualityHasError }"
-                id="quality-tab"
-                data-toggle="tab"
-                href="#panel-quality"
-                role="tab"
-                title="Quality, allelic balance, coverage"
-              >
-                Quality
-                <i-mdi-alert-circle-outline v-if="qualityHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                id="clinvar-tab"
-                data-toggle="tab"
-                href="#panel-clinvar"
-                role="tab"
-                title="Filter based on ClinVar"
-              >
-                ClinVar
-              </a>
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': geneHasError }"
-                id="allowlist-tab"
-                data-toggle="tab"
-                href="#panel-allowlist"
-                role="tab"
-                title="Allow-list genes and genomic regions"
-              >
-                Gene Lists &amp; Regions
-                <i-mdi-alert-circle-outline v-if="geneHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                id="flags-tab"
-                data-toggle="tab"
-                href="#panel-flags"
-                role="tab"
-                title="Filter for user flags and comments"
-              >
-                Flags &amp; Comments
-              </a>
-            </div>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'text-danger': qualityHasError }"
+              id="quality-tab"
+              data-toggle="tab"
+              href="#panel-quality"
+              role="tab"
+              title="Quality, allelic balance, coverage"
+            >
+              Quality
+              <i-mdi-alert-circle-outline v-if="qualityHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="clinvar-tab"
+              data-toggle="tab"
+              href="#panel-clinvar"
+              role="tab"
+              title="Filter based on ClinVar"
+            >
+              ClinVar
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'text-danger': geneHasError }"
+              id="allowlist-tab"
+              data-toggle="tab"
+              href="#panel-allowlist"
+              role="tab"
+              title="Allow-list genes and genomic regions"
+            >
+              Gene Lists &amp; Regions
+              <i-mdi-alert-circle-outline v-if="geneHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="flags-tab"
+              data-toggle="tab"
+              href="#panel-flags"
+              role="tab"
+              title="Filter for user flags and comments"
+            >
+              Flags &amp; Comments
+            </a>
           </li>
         </ul>
       </div>

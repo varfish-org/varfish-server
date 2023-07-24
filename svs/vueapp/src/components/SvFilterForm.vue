@@ -44,10 +44,6 @@ const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
 
-const moreHasError = computed(() => {
-  return regulatoryHasError.value || tadsHasError.value
-})
-
 const anyHasError = computed(() => {
   return (
     effectHasError.value ||
@@ -55,7 +51,8 @@ const anyHasError = computed(() => {
     criteriaDefsHasError.value ||
     frequencyHasError.value ||
     tadsHasError.value ||
-    moreHasError.value
+    regulatoryHasError.value ||
+    tadsHasError.value
   )
 })
 
@@ -171,73 +168,67 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="effectHasError" />
             </a>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
             <a
-              class="nav-link dropdown-toggle"
-              :class="{ 'text-danger': moreHasError }"
-              id="more-tab"
-              data-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="true"
-              aria-expanded="false"
+              class="nav-link"
+              :class="{ 'text-danger': tadsHasError }"
+              id="regulatory-tab"
+              data-toggle="tab"
+              href="#panel-regulatory"
+              role="tab"
+              title="Regulatory elements"
             >
-              More ...
-              <i-mdi-alert-circle-outline v-if="moreHasError" />
+              Regulatory
             </a>
-            <div class="dropdown-menu" style="z-index: 1030">
-              <a
-                class="dropdown-item"
-                id="regulatory-tab"
-                data-toggle="tab"
-                href="#panel-regulatory"
-                role="tab"
-                title="Regulatory elements"
-              >
-                Regulatory
-              </a>
-              <a
-                ref="tadsPaneRef"
-                :class="{ 'text-danger': tadsHasError }"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-tads"
-                role="tab"
-                title="Configure TADs annotation"
-                data-placement="left"
-              >
-                TADs
-                <i-mdi-alert-circle-outline v-if="tadsHasError" />
-              </a>
-              <a
-                ref="pathoPaneRef"
-                :class="{ 'text-danger': pathoHasError }"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-patho"
-                role="tab"
-                title="Configure ClinVar/known pathologic SVs annotation"
-                data-placement="left"
-              >
-                ClinVar &amp; Known Patho. SVs
-                <i-mdi-alert-circle-outline v-if="pathoHasError" />
-              </a>
-              <a
-                v-if="svFilterStore.filtrationComplexityMode === 'dev'"
-                ref="devPaneRef"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-dev"
-                role="tab"
-                title="Perform changes in JSON (wear a hard hat!)"
-                data-placement="left"
-              >
-                Developer Settings
-              </a>
-            </div>
+          </li>
+          <li class="nav-item">
+            <a
+              ref="tadsPaneRef"
+              class="nav-link"
+              :class="{ 'text-danger': tadsHasError }"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-tads"
+              role="tab"
+              title="Configure TADs annotation"
+              data-placement="left"
+            >
+              TADs
+              <i-mdi-alert-circle-outline v-if="tadsHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              ref="pathoPaneRef"
+              class="nav-link"
+              :class="{ 'text-danger': pathoHasError }"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-patho"
+              role="tab"
+              title="Configure ClinVar/known pathologic SVs annotation"
+              data-placement="left"
+            >
+              ClinVar &amp; Known Patho. SVs
+              <i-mdi-alert-circle-outline v-if="pathoHasError" />
+            </a>
+          </li>
+          <li
+            class="nav-item"
+            v-if="svFilterStore.filtrationComplexityMode === 'dev'"
+          >
+            <a
+              ref="devPaneRef"
+              class="nav-link"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-dev"
+              role="tab"
+              title="Perform changes in JSON (wear a hard hat!)"
+              data-placement="left"
+            >
+              Developer Settings
+            </a>
           </li>
         </ul>
       </div>
