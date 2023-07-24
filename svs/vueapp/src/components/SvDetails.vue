@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
@@ -15,10 +16,12 @@ import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
 import GenomeBrowser from './GenomeBrowser.vue'
 
 const props = defineProps({
-  activeScreen: String,
+  resultRowUuid: String,
+  selectedTab: String,
 })
 
-const emit = defineEmits(['update:activeScreen'])
+/** The currently used router. */
+const router = useRouter()
 
 // Get reference to store detailsSv
 const caseDetailsStore = useCaseDetailsStore()
@@ -64,13 +67,21 @@ const svLocus = (record) => {
   return locus
 }
 
-// Enumeration for the screens.
-const Screen = Object.freeze({
-  info: 'info',
-  commentsFlags: 'commentsFlags',
-  flags: 'flags',
-  genomeBrowser: 'genomeBrowser',
-})
+/** Event handler for clicking on the given tab.
+ *
+ * Will select the tab by pushing a route.
+ */
+const onTabClick = (selectedTab) => {
+  router.push({
+    name: 'svs-filter-details',
+    params: {
+      case: svFilterStore.caseUuid,
+      query: svFilterStore.previousQueryDetails.sodar_uuid,
+      row: props.resultRowUuid,
+      selectedTab: selectedTab,
+    },
+  })
+}
 </script>
 
 <template>
@@ -79,9 +90,9 @@ const Screen = Object.freeze({
       <li class="nav-item" role="presentation">
         <a
           class="nav-link"
+          :class="{ active: props.selectedTab === 'info' }"
+          @click="onTabClick('info')"
           type="button"
-          @click="emit('update:activeScreen', Screen.info)"
-          :class="{ active: activeScreen === Screen.info }"
         >
           Info
         </a>
@@ -89,9 +100,9 @@ const Screen = Object.freeze({
       <li class="nav-item" role="presentation">
         <a
           class="nav-link"
+          :class="{ active: props.selectedTab === 'comments-flags' }"
+          @click="onTabClick('comments-flags')"
           type="button"
-          @click="emit('update:activeScreen', Screen.commentsFlags)"
-          :class="{ active: activeScreen === Screen.commentsFlags }"
         >
           Comments &amp; Flags
         </a>
@@ -99,16 +110,16 @@ const Screen = Object.freeze({
       <li class="nav-item" role="presentation">
         <a
           class="nav-link"
+          :class="{ active: props.selectedTab === 'genome-browser' }"
+          @click="onTabClick('genome-browser')"
           type="button"
-          @click="emit('update:activeScreen', Screen.genomeBrowser)"
-          :class="{ active: activeScreen === Screen.genomeBrowser }"
         >
           Browser
         </a>
       </li>
     </ul>
 
-    <div v-if="activeScreen === 'info'">
+    <div v-if="props.selectedTab === 'info'">
       <div class="card">
         <div class="card-body pb-2 pt-2">
           Precise coordinates:
@@ -130,7 +141,7 @@ const Screen = Object.freeze({
         </div>
       </div>
     </div>
-    <div v-else-if="activeScreen === Screen.commentsFlags">
+    <div v-else-if="props.selectedTab === 'comments-flags'">
       <VariantDetailsFlags
         :details-store="detailsStore"
         :flags-store="flagsStore"
@@ -142,7 +153,7 @@ const Screen = Object.freeze({
         :variant="detailsStore.currentSvRecord"
       />
     </div>
-    <div v-else-if="activeScreen === Screen.genomeBrowser">
+    <div v-else-if="props.selectedTab === 'genome-browser'">
       <GenomeBrowser
         :case-uuid="caseUuid"
         :genome="genomeRelease"

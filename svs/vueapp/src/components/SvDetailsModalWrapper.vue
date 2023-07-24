@@ -1,50 +1,35 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { formatLargeInt } from '@varfish/helpers.js'
+import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
+import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import SvDetails from '@svs/components/SvDetails.vue'
+import svsApi from '@svs/api/svs.js'
 
-import SvDetails from './SvDetails.vue'
+const props = defineProps({
+  visible: Boolean,
+  resultRowUuid: String,
+  selectedTab: String,
+})
 
-const props = defineProps(['svRecord', 'fetched', 'previousQueryDetails'])
+const router = useRouter()
 
+/** Ref for the modal component. */
 const modalRef = ref(null)
-const modalContentRef = ref(null)
 
-// The currently active details screen.
-const activeDetailsScreen = ref('info')
+const svRecord = ref(null)
 
-const showModal = () => {
-  activeDetailsScreen.value = 'info'
-  $(modalRef.value).modal('show')
-}
+const svDetailsStore = useSvDetailsStore()
+const svFilterStore = useSvFilterStore()
 
-const downloadModalContent = async () => {
-  const browserWidth = modalContentRef.value.clientWidth
-  const browserHeight = modalContentRef.value.clientHeight
-  const paperWidth = 190 // A4=210mm, 10mm horizontal margin
-
-  const canvas = await html2canvas(modalContentRef.value)
-  const imgData = canvas.toDataURL('image/png')
-
-  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' })
-  doc.addImage(
-    imgData,
-    'PNG',
-    10,
-    10,
-    190,
-    (paperWidth / browserWidth) * browserHeight
-  )
-  doc.save('varfish-sv-info.pdf')
-}
-
-const svDescription = computed(() => {
-  if (props.svRecord) {
-    const start = formatLargeInt(props.svRecord.start)
-    const end = formatLargeInt(props.svRecord.end)
-    const result = `${props.svRecord.chromosome}:${start}-${end}:${props.svRecord.sv_type}`
+/** Return the label to show on top of the details modal. */
+const svLabel = computed(() => {
+  if (svRecord.value) {
+    const start = formatLargeInt(svRecord.value.start)
+    const end = formatLargeInt(svRecord.value.end)
+    const result = `${svRecord.value.chromosome}:${start}-${end}:${svRecord.value.sv_type}`
     if (!result.startsWith('chr')) {
       return `chr${result}`
     } else {
@@ -53,8 +38,64 @@ const svDescription = computed(() => {
   }
 })
 
-defineExpose({
-  showModal,
+/** Called when the modal is shown; will fetch variant details. */
+const showModal = async () => {
+  if (!modalRef.value) {
+    return
+  }
+
+  $(modalRef.value).modal('show')
+
+  await svFilterStore.initializeRes
+
+  const resultRow = await svsApi.retrieveSvQueryResultRow(
+    svFilterStore.csrfToken,
+    props.resultRowUuid
+  )
+  svRecord.value = resultRow
+  svDetailsStore.fetchSvDetails(
+    resultRow,
+    svFilterStore.previousQueryDetails.query_settings.database_select
+  )
+}
+
+/** Watch the "visible" prop and map to jQuery calls. */
+watch(
+  [() => props.visible, () => props.resultRowUuid],
+  async ([newVisible, _oldVisible], [_newUuid, _oldUuid]) => {
+    if (!modalRef.value) {
+      return
+    }
+
+    if (newVisible === true) {
+      showModal()
+    } else {
+      $(modalRef.value).modal('hide')
+    }
+  }
+)
+
+/** Event handler called when the modal is hidden.
+ *
+ * This pushes a route to the variant filtration again.
+ */
+const modalHiddenHandler = () => {
+  router.push({
+    name: 'svs-filter',
+    params: {
+      case: svFilterStore.caseUuid,
+      query: svFilterStore.previousQueryDetails.sodar_uuid,
+    },
+  })
+}
+
+onMounted(() => {
+  // Ensure that the modal is shown when the component is initialized with visible=True
+  if (props.visible) {
+    showModal()
+  }
+  // Register handler for the modal disappearing
+  $(modalRef.value).on('hide.bs.modal', modalHiddenHandler)
 })
 </script>
 
@@ -72,12 +113,12 @@ defineExpose({
       role="document"
       style="max-width: 100%; margin: 10px"
     >
-      <div class="modal-content" ref="modalContentRef">
+      <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title" id="variantDetailsModalLabel">
             SV Details for
-            <template v-if="props.svRecord">
-              {{ svDescription }}
+            <template v-if="svRecord">
+              {{ svLabel }}
             </template>
             <span v-else>
               ...
@@ -85,14 +126,6 @@ defineExpose({
             </span>
           </h3>
           <span class="close">
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-dark"
-              @click="downloadModalContent"
-            >
-              <i-mdi-download />
-              Download This
-            </button>
             <button
               type="button"
               class="close"
@@ -110,7 +143,10 @@ defineExpose({
           </span>
         </div>
         <div class="modal-body">
-          <SvDetails v-model:active-screen="activeDetailsScreen" />
+          <SvDetails
+            :result-row-uuid="props.resultRowUuid"
+            :selected-tab="props.selectedTab"
+          />
         </div>
       </div>
     </div>

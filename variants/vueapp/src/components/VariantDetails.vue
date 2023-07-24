@@ -1,4 +1,6 @@
 <script setup>
+import { useRouter } from 'vue-router'
+
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantCommentsStore } from '@variants/stores/variantComments.js'
@@ -19,6 +21,14 @@ import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
 import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
 
+const props = defineProps({
+  resultRowUuid: String,
+  selectedTab: String,
+})
+
+/** The currently used router. */
+const router = useRouter()
+
 const detailsStore = useVariantDetailsStore()
 const queryStore = useFilterQueryStore()
 const flagsStore = useVariantFlagsStore()
@@ -28,10 +38,21 @@ commentsStore.initialize(
   queryStore.caseUuid
 )
 
-$(function () {
-  $('#' + detailsStore.modalTab).tab('show')
-  detailsStore.modalTab = 'info-tab'
-})
+/** Event handler for clicking on the given tab.
+ *
+ * Will select the tab by pushing a route.
+ */
+const onTabClick = (selectedTab) => {
+  router.push({
+    name: 'variants-filter-details',
+    params: {
+      case: queryStore.caseUuid,
+      query: queryStore.previousQueryDetails.sodar_uuid,
+      row: props.resultRowUuid,
+      selectedTab: selectedTab,
+    },
+  })
+}
 </script>
 
 <template>
@@ -41,10 +62,9 @@ $(function () {
         <ul class="nav nav-pills">
           <li class="nav-item" role="presentation">
             <a
-              class="nav-link active"
-              id="info-tab"
-              data-toggle="tab"
-              data-target="#info"
+              class="nav-link"
+              :class="{ active: props.selectedTab === 'info' }"
+              @click="onTabClick('info')"
               type="button"
               role="tab"
               aria-controls="info"
@@ -56,9 +76,8 @@ $(function () {
           <li class="nav-item" role="presentation">
             <a
               class="nav-link"
-              id="comments-flags-tab"
-              data-toggle="tab"
-              data-target="#comments-flags"
+              :class="{ active: props.selectedTab === 'comments-flags' }"
+              @click="onTabClick('comments-flags')"
               type="button"
               role="tab"
               aria-controls="comments-flags"
@@ -70,9 +89,8 @@ $(function () {
           <li class="nav-item" role="presentation">
             <a
               class="nav-link"
-              id="acmg-rating-tab"
-              data-toggle="tab"
-              data-target="#acmg-rating"
+              :class="{ active: props.selectedTab === 'acmg-rating' }"
+              @click="onTabClick('acmg-rating')"
               type="button"
               role="tab"
               aria-controls="acmg-rating"
@@ -84,9 +102,8 @@ $(function () {
           <li class="nav-item" role="presentation">
             <a
               class="nav-link"
-              id="second-hit-tab"
-              data-toggle="tab"
-              data-target="#second-hit"
+              :class="{ active: props.selectedTab === 'second-hit' }"
+              @click="onTabClick('second-hit')"
               type="button"
               role="tab"
               aria-controls="second-hit"
@@ -98,9 +115,8 @@ $(function () {
           <li class="nav-item" role="presentation">
             <a
               class="nav-link"
-              id="other-carriers-tab"
-              data-toggle="tab"
-              data-target="#other-carriers"
+              :class="{ active: props.selectedTab === 'other-carriers' }"
+              @click="onTabClick('other-carriers')"
               type="button"
               role="tab"
               aria-controls="other-carriers"
@@ -112,9 +128,8 @@ $(function () {
           <li class="nav-item" role="presentation">
             <a
               class="nav-link"
-              id="variant-validator-tab"
-              data-toggle="tab"
-              data-target="#variant-validator"
+              :class="{ active: props.selectedTab === 'variant-validator' }"
+              @click="onTabClick('variant-validator')"
               type="button"
               role="tab"
               aria-controls="variant-validator"
@@ -128,8 +143,8 @@ $(function () {
       <div class="card-body">
         <div class="tab-content">
           <div
-            class="tab-pane fade show active"
-            id="info"
+            class="tab-pane fade"
+            :class="{ 'active show': props.selectedTab === 'info' }"
             role="tabpanel"
             aria-labelledby="info-tab"
           >
@@ -202,7 +217,7 @@ $(function () {
           </div>
           <div
             class="tab-pane fade"
-            id="comments-flags"
+            :class="{ 'active show': props.selectedTab === 'comments-flags' }"
             role="tabpanel"
             aria-labelledby="comments-flags-tab"
           >
@@ -219,7 +234,7 @@ $(function () {
           </div>
           <div
             class="tab-pane fade"
-            id="acmg-rating"
+            :class="{ 'active show': props.selectedTab === 'acmg-rating' }"
             role="tabpanel"
             aria-labelledby="acmg-rating-tab"
           >
@@ -227,7 +242,7 @@ $(function () {
           </div>
           <div
             class="tab-pane fade"
-            id="second-hit"
+            :class="{ 'active show': props.selectedTab === 'second-hit' }"
             role="tabpanel"
             aria-labelledby="second-hit-tab"
           >
@@ -238,7 +253,7 @@ $(function () {
           </div>
           <div
             class="tab-pane fade"
-            id="other-carriers"
+            :class="{ 'active show': props.selectedTab === 'other-carriers' }"
             role="tabpanel"
             aria-labelledby="other-carriers-tab"
           >
@@ -249,7 +264,9 @@ $(function () {
           </div>
           <div
             class="tab-pane fade"
-            id="variant-validator"
+            :class="{
+              'active show': props.selectedTab === 'variant-validator',
+            }"
             role="tabpanel"
             aria-labelledby="variant-validator-tab"
           >

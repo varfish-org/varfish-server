@@ -55,9 +55,29 @@ const routes = [
     component: FilterApp,
   },
   {
+    name: 'variants-filter-details',
+    path: '/variants/filter-details/:case/:query/:row/:selectedTab?',
+    component: FilterApp,
+    props: (route) => ({
+      detailsModalVisible: true,
+      detailsModalResultRowUuid: route.params.row,
+      detailsModalSelectedTab: route.params.selectedTab || 'info',
+    }),
+  },
+  {
     name: 'svs-filter',
-    path: '/svs/filter/:case',
+    path: '/svs/filter/:case/:query?',
     component: SvFilterApp,
+  },
+  {
+    name: 'svs-filter-details',
+    path: '/svs/filter-details/:case/:query/:row/:selectedTab?',
+    component: SvFilterApp,
+    props: (route) => ({
+      detailsModalVisible: true,
+      detailsModalResultRowUuid: route.params.row,
+      detailsModalSelectedTab: route.params.selectedTab || 'info',
+    }),
   },
 ]
 

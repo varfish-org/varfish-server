@@ -1,27 +1,93 @@
 <script setup>
-import VariantDetails from './VariantDetails.vue'
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-const props = defineProps(['smallVariant', 'fetched', 'previousQueryDetails'])
+import variantsApi from '@variants/api/variants.js'
+import VariantDetails from '@variants/components/VariantDetails.vue'
+import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 
-const components = {
-  VariantDetails,
-}
+const props = defineProps({
+  visible: Boolean,
+  resultRowUuid: String,
+  selectedTab: String,
+})
 
-const smallVariantLabel = () => {
-  const smallVariant = props.smallVariant
-  const start = smallVariant.start.toLocaleString()
-  return `${smallVariant.chromosome}:${start}${smallVariant.reference}>${smallVariant.alternative}`
-}
+const router = useRouter()
 
+/** Ref for the modal component. */
 const modalRef = ref(null)
 
-const showModal = () => {
-  $(modalRef.value).modal('show')
+const smallVariant = ref(null)
+
+const variantDetailsStore = useVariantDetailsStore()
+const filterQueryStore = useFilterQueryStore()
+
+/** Return the label to show on top of the details modal. */
+const smallVariantLabel = () => {
+  const theVar = smallVariant.value
+  const start = theVar.start.toLocaleString()
+  return `${theVar.chromosome}:${start}${theVar.reference}>${theVar.alternative}`
 }
 
-defineExpose({
-  showModal,
+/** Called when the modal is shown; will fetch variant details. */
+const showModal = async () => {
+  if (!modalRef.value) {
+    return
+  }
+
+  $(modalRef.value).modal('show')
+
+  await filterQueryStore.initializeRes
+
+  const resultRow = await variantsApi.retrieveQueryResultRow(
+    filterQueryStore.csrfToken,
+    props.resultRowUuid
+  )
+  smallVariant.value = resultRow.payload
+  variantDetailsStore.fetchVariantDetails(
+    resultRow.payload,
+    filterQueryStore.previousQueryDetails.query_settings.database_select
+  )
+}
+
+/** Watch the "visible" prop and map to jQuery calls. */
+watch(
+  [() => props.visible, () => props.resultRowUuid],
+  async ([newVisible, _oldVisible], [_newUuid, _oldUuid]) => {
+    if (!modalRef.value) {
+      return
+    }
+
+    if (newVisible === true) {
+      showModal()
+    } else {
+      $(modalRef.value).modal('hide')
+    }
+  }
+)
+
+/** Event handler called when the modal is hidden.
+ *
+ * This pushes a route to the variant filtration again.
+ */
+const modalHiddenHandler = () => {
+  router.push({
+    name: 'variants-filter',
+    params: {
+      case: filterQueryStore.caseUuid,
+      query: filterQueryStore.previousQueryDetails.sodar_uuid,
+    },
+  })
+}
+
+onMounted(() => {
+  // Ensure that the modal is shown when the component is initialized with visible=True
+  if (props.visible) {
+    showModal()
+  }
+  // Register handler for the modal disappearing
+  $(modalRef.value).on('hide.bs.modal', modalHiddenHandler)
 })
 </script>
 
@@ -43,7 +109,7 @@ defineExpose({
         <div class="modal-header">
           <h3 class="modal-title" id="variantDetailsModalLabel">
             Variant Details for
-            <template v-if="props.smallVariant">
+            <template v-if="smallVariant">
               {{ smallVariantLabel() }}
             </template>
             <span v-else>
@@ -69,8 +135,11 @@ defineExpose({
           </span>
         </div>
         <div class="modal-body">
-          <span v-if="props.fetched">
-            <VariantDetails />
+          <span v-if="variantDetailsStore.fetched">
+            <VariantDetails
+              :result-row-uuid="props.resultRowUuid"
+              :selected-tab="props.selectedTab"
+            />
           </span>
           <div v-else class="alert alert-info">
             <i-fa-solid-circle-notch class="spin" />

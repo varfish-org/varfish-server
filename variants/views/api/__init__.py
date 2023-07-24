@@ -451,6 +451,38 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
         return "variants.view_data"
 
 
+class SmallVariantQueryResultRowViewPermission(SODARAPIProjectPermission):
+    def get_project(self, request=None, kwargs=None):
+        smallvariantqueryresultrow = SmallVariantQueryResultRow.objects.get(
+            sodar_uuid=kwargs["smallvariantqueryresultrow"]
+        )
+        return smallvariantqueryresultrow.smallvariantqueryresultset.smallvariantquery.case.project
+
+
+class SmallVariantQueryResultRowRetrieveApiView(RetrieveAPIView):
+    """API endpoint for retrieving one result row.
+
+    **URL:** ``/variants/api/query-result-row/retrieve/{smallvariantqueryresultrow.sodar_uuid}/``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "smallvariantqueryresultrow"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    permission_classes = [SmallVariantQueryResultRowViewPermission]
+
+    serializer_class = SmallVariantQueryResultRowSerializer
+
+    def get_queryset(self):
+        return SmallVariantQueryResultRow.objects.all()
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
 class SmallVariantQuerySettingsShortcutApiView(
     CaseApiMixin,
     RetrieveAPIView,

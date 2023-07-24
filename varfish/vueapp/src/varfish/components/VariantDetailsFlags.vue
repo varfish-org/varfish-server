@@ -73,6 +73,7 @@ const resetFlags = () => {
       props.flagsStore.flags.flag_phenotype_match
     flagsToSubmit.value.flag_summary = props.flagsStore.flags.flag_summary
   } else {
+    console.log('assigning default')
     flagsToSubmit.value = { ...props.flagsStore.initialFlagsTemplate }
   }
 }

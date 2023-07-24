@@ -492,81 +492,84 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     exomiserEnabled.value = appContext.exomiser_enabled
     caddEnabled.value = appContext.cadd_enabled
 
-    // Fetch caseObj first
-    caseObj.value = await variantsApi.retrieveCase(
-      csrfToken.value,
-      caseUuid.value
-    )
-
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
     // trigger the loading of any previous results.
-    initializeRes.value = Promise.all([
-      // 1. fetch default settings
-      fetchDefaultSettings(
-        csrfToken.value,
-        caseUuid.value,
-        querySettingsPresets,
-        querySettings
-      ),
-      // 2. fetch previous query UUID
-      fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
-        .then((response) => {
-          if (response) {
-            // Retrieve query details and extract query settings.
-            queryUuid.value = response
-          }
-          if (queryUuid.value) {
-            return variantsApi.retrieveQuery(csrfToken.value, queryUuid.value)
-          }
-        })
-        // 2.1 once we have previous query UUID, fetch query details
-        .then((result) => {
-          if (result) {
-            previousQueryDetails.value = result
-            querySettings.value = previousQueryDetailsToQuerySettings(
-              caseObj.value,
-              previousQueryDetails.value
-            )
-          }
-        })
-        // 2.2 once we have the query details, assume running state and launch the fetch loop
-        .then(() => {
-          if (previousQueryDetails.value) {
-            queryState.value = QueryStates.Resuming.value
-            nextTick()
-            runFetchLoop(previousQueryDetails.value.sodar_uuid)
-          }
-        })
-        // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
-        .then(() => {
-          if (querySettings.value?.prio_hpo_terms.length > 0) {
-            hpoNames.value = fetchHpoTerms(
-              csrfToken.value,
-              querySettings.value.prio_hpo_terms
-            )
-          }
-        }),
-      // 3. fetch quick presets etc.
-      fetchPresets(
-        csrfToken.value,
-        caseObj.value,
-        quickPresets,
-        categoryPresets
-      ),
-      // 4. fetch extra anno fields
-      fetchExtraAnnoFields(csrfToken.value).then((result) => {
-        extraAnnoFields.value = result
-      }),
-    ])
-      .then(() => {
-        serverInteractions.value -= 1
-        storeState.value = StoreState.active
-      })
-      .catch((err) => {
-        console.error('Problem initializing filterQuery store', err)
-        serverInteractions.value -= 1
-        storeState.value = StoreState.error
+    initializeRes.value = variantsApi
+      .retrieveCase(csrfToken.value, caseUuid.value)
+      .then((result) => {
+        caseObj.value = result
+
+        return Promise.all([
+          // 1. fetch default settings
+          fetchDefaultSettings(
+            csrfToken.value,
+            caseUuid.value,
+            querySettingsPresets,
+            querySettings
+          ),
+          // 2. fetch previous query UUID
+          fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
+            .then((response) => {
+              if (response) {
+                // Retrieve query details and extract query settings.
+                queryUuid.value = response
+              }
+              if (queryUuid.value) {
+                return variantsApi.retrieveQuery(
+                  csrfToken.value,
+                  queryUuid.value
+                )
+              }
+            })
+            // 2.1 once we have previous query UUID, fetch query details
+            .then((result) => {
+              if (result) {
+                previousQueryDetails.value = result
+                querySettings.value = previousQueryDetailsToQuerySettings(
+                  caseObj.value,
+                  previousQueryDetails.value
+                )
+              }
+            })
+            // 2.2 once we have the query details, assume running state and launch the fetch loop
+            .then(() => {
+              if (previousQueryDetails.value) {
+                queryState.value = QueryStates.Resuming.value
+                nextTick()
+                runFetchLoop(previousQueryDetails.value.sodar_uuid)
+              }
+            })
+            // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
+            .then(() => {
+              if (querySettings.value?.prio_hpo_terms.length > 0) {
+                hpoNames.value = fetchHpoTerms(
+                  csrfToken.value,
+                  querySettings.value.prio_hpo_terms
+                )
+              }
+            }),
+          // 3. fetch quick presets etc.
+          fetchPresets(
+            csrfToken.value,
+            caseObj.value,
+            quickPresets,
+            categoryPresets
+          ),
+          // 4. fetch extra anno fields
+          fetchExtraAnnoFields(csrfToken.value).then((result) => {
+            extraAnnoFields.value = result
+          }),
+        ])
+          .then(() => {
+            serverInteractions.value -= 1
+            storeState.value = StoreState.active
+          })
+          .catch((err) => {
+            console.error('Problem initializing filterQuery store', err)
+            serverInteractions.value -= 1
+            storeState.value = StoreState.error
+          })
       })
 
     return initializeRes.value

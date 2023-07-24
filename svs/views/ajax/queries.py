@@ -121,7 +121,7 @@ class SvQueryRetrieveUpdateDestroyAjaxView(RetrieveUpdateDestroyAPIView):
 class SvQueryResultSetListAjaxView(ListAPIView):
     """AJAX endpoint for listing query result sets for a query.
 
-    **URL:** ``/svs/ajax/sv-query-result-set/list/{svquery.sodar_uuid}/``
+    **URL:** ``/svs/ajax/sv-query-result-set/list/{svqueryresultset.sodar_uuid}/``
 
     **Methods:** ``GET``
     """
@@ -221,6 +221,37 @@ class SvQueryResultRowListAjaxView(ListAPIView):
         if order_by:
             qs = qs.order_by(*order_by)
         return qs
+
+    def get_permission_required(self):
+        return "svs.view_data"
+
+
+class SvQueryResultRowPermission(SODARAPIProjectPermission):
+    def get_project(self, request=None, kwargs=None):
+        svqueryresultrow = SvQueryResultRow.objects.get(sodar_uuid=kwargs["svqueryresultrow"])
+        return svqueryresultrow.svqueryresultset.svquery.case.project
+
+
+class SvQueryResultRowRetrieveAjaxView(RetrieveAPIView):
+    """AJAX endpoint for retreiving query result row for a query.
+
+    **URL:** ``/svs/ajax/sv-query-result-row/retrieve/{svqueryresultrow.sodar_uuid}/``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "svqueryresultrow"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    permission_classes = [SvQueryResultRowPermission]
+    pagination_class = PageNumberPagination
+
+    serializer_class = SvQueryResultRowSerializer
+
+    def get_queryset(self):
+        return SvQueryResultRow.objects.all().select_related("svqueryresultset")
 
     def get_permission_required(self):
         return "svs.view_data"

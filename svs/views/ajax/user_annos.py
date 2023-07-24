@@ -116,22 +116,31 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
 
     def get_queryset(self):
         serializer_context = self.get_serializer_context()
+        print(f"serializer_context = {serializer_context}")
         qs = super().get_queryset()
-        keys = ("release", "chromosome", "sv_type", "sv_sub_type")
+        keys = ("case", "release", "chromosome", "sv_type", "sv_sub_type")
+        query_args = {}
         for key in keys:
-            query_args = {}
             if key in serializer_context:
                 query_args[key] = serializer_context[key]
+        if query_args:
             qs = qs.filter(**query_args)
         return qs
 
 
 class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
-    StructuralVariantFlagsAjaxMixin, RetrieveUpdateDestroyAPIView
+    SvApiBaseMixin, RetrieveUpdateDestroyAPIView
 ):
     lookup_url_kwarg = "structuralvariantflags"
 
+    serializer_class = StructuralVariantFlagsSerializer
     permission_classes = [SvUserAnnotationRetrieveUpdateDestroyPermission]
+
+    def get_queryset(self):
+        return StructuralVariantFlags.objects.all()
+
+    def get_permission_required(self):
+        return "variants.update_data"
 
 
 class StructuralVariantCommentAjaxMixin(SvApiBaseMixin):
@@ -165,8 +174,8 @@ class StructuralVariantCommentListCreateAjaxView(
         serializer_context = self.get_serializer_context()
         qs = super().get_queryset()
         keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        query_args = {}
         for key in keys:
-            query_args = {}
             if key in serializer_context:
                 query_args[key] = serializer_context[key]
             qs = qs.filter(**query_args)
@@ -174,8 +183,15 @@ class StructuralVariantCommentListCreateAjaxView(
 
 
 class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
-    StructuralVariantCommentAjaxMixin, RetrieveUpdateDestroyAPIView
+    SvApiBaseMixin, RetrieveUpdateDestroyAPIView
 ):
     lookup_url_kwarg = "structuralvariantcomment"
 
+    serializer_class = StructuralVariantFlagsSerializer
     permission_classes = [SvUserAnnotationRetrieveUpdateDestroyPermission]
+
+    def get_queryset(self):
+        return StructuralVariantFlags.objects.all()
+
+    def get_permission_required(self):
+        return "variants.update_data"

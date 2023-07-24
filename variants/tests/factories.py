@@ -749,10 +749,7 @@ class SmallVariantQueryResultRowFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def bin(self):
-        if self.chromosome == self.chromosome2:
-            return binning.assign_bin(self.start, self.end)
-        else:
-            return binning.assign_bin(self.start, self.start + 1)
+        return binning.assign_bin(self.start - 1, self.end)
 
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)

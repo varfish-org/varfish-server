@@ -91,6 +91,14 @@ export default {
     )
     return await response.json()
   },
+  async retrieveSvQueryResultRow(csrfToken, queryResultRowUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/svs/sv-query-result-row/retrieve/${queryResultRowUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
   /** List comments for the given case, optionally for the given `sv`. */
   async listComment(csrfToken, caseUuid, sv = null) {
     let query = ''
