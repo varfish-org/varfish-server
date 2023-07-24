@@ -1,8 +1,6 @@
 <script setup>
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
-import { useRoute } from 'vue-router'
-
-import variantsApi from '@variants/api/variants.js'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
@@ -23,6 +21,15 @@ import FilterAppHeader from './FilterAppHeader.vue'
 import FilterForm from './FilterForm.vue'
 import FilterResultsTable from './FilterResultsTable.vue'
 
+const props = defineProps({
+  /** Whether to show the variant details modal. */
+  detailsModalVisible: Boolean,
+  /** The UUID of the result row to show in details modal. */
+  detailsModalResultRowUuid: String,
+  /** Which tab to show in the variant details modal. */
+  detailsModalSelectedTab: String,
+})
+
 const components = {
   VariantDetailsModalWrapper,
   FilterForm,
@@ -38,6 +45,8 @@ const appContext = JSON.parse(
     '{}'
 )
 
+/** The currently used router. */
+const router = useRouter()
 /** The currently used route. */
 const route = useRoute()
 
@@ -50,20 +59,15 @@ const casesStore = useCasesStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 const showModal = async (event) => {
-  const resultRow = await variantsApi.retrieveQueryResultRow(
-    filterQueryStore.csrfToken,
-    event.smallvariantresultrow
-  )
-  currentSmallVariant.value = resultRow.payload
-  if (event.selectedTab) {
-    detailsStore.modalTab = event.selectedTab
-  }
-
-  smallVariantDetailsModalWrapperRef.value.showModal()
-  variantDetailsStore.fetchVariantDetails(
-    resultRow.payload,
-    filterQueryStore.previousQueryDetails.query_settings.database_select
-  )
+  router.push({
+    name: 'variants-filter-details',
+    params: {
+      case: filterQueryStore.caseUuid,
+      query: filterQueryStore.previousQueryDetails.sodar_uuid,
+      row: event.smallvariantresultrow,
+      selectedTab: event.selectedTab ?? null,
+    },
+  })
 }
 
 /** Whether the form is visible. */
@@ -278,8 +282,9 @@ onBeforeMount(() => {
 
   <VariantDetailsModalWrapper
     ref="smallVariantDetailsModalWrapperRef"
-    :small-variant="currentSmallVariant"
-    :fetched="variantDetailsStore.fetched"
+    :visible="props.detailsModalVisible"
+    :result-row-uuid="props.detailsModalResultRowUuid"
+    :selected-tab="props.detailsModalSelectedTab"
   />
 </template>
 

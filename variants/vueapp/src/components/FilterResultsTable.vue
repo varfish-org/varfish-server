@@ -389,14 +389,14 @@ const showVariantDetails = (sodarUuid) => {
 const showCommentsFlags = (sodarUuid) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: 'comments-flags-tab',
+    selectedTab: 'comments-flags',
   })
 }
 
 const showAcmgRating = (sodarUuid) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: 'acmg-rating-tab',
+    selectedTab: 'acmg-rating',
   })
 }
 
