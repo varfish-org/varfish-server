@@ -1236,9 +1236,6 @@ class SmallVariantCommentListCreateApiView(
 
 
 class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
-    lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "case"
-
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
