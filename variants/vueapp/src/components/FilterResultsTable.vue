@@ -382,18 +382,22 @@ const getClinvarSignificanceBadge = (patho) => {
   return 'badge-secondary'
 }
 
-const showVariantDetails = (item) => {
-  emit('variantSelected', item)
+const showVariantDetails = (sodarUuid) => {
+  emit('variantSelected', { smallvariantresultrow: sodarUuid })
 }
 
-const showCommentsFlags = (item) => {
-  detailsStore.modalTab = 'comments-flags-tab'
-  showVariantDetails(item)
+const showCommentsFlags = (sodarUuid) => {
+  emit('variantSelected', {
+    smallvariantresultrow: sodarUuid,
+    selectedTab: 'comments-flags-tab',
+  })
 }
 
-const showAcmgRating = (item) => {
-  detailsStore.modalTab = 'acmg-rating-tab'
-  showVariantDetails(item)
+const showAcmgRating = (sodarUuid) => {
+  emit('variantSelected', {
+    smallvariantresultrow: sodarUuid,
+    selectedTab: 'acmg-rating-tab',
+  })
 }
 
 const displayAmbiguousFrequencyWarning = (item) => {
@@ -537,39 +541,39 @@ watch(
         show-index
         buttons-pagination
       >
-        <template #item-variant_icons="{ payload }">
+        <template #item-variant_icons="{ sodar_uuid, payload }">
           <i-fa-solid-search
             class="text-muted"
-            @click="showVariantDetails(payload)"
+            @click="showVariantDetails(sodar_uuid)"
           />
           <i-fa-solid-bookmark
             v-if="flagsStore.getFlags(payload)"
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(payload)"
+            @click="showCommentsFlags(sodar_uuid)"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(payload)"
+            @click="showCommentsFlags(sodar_uuid)"
           />
 
           <i-fa-solid-comment
             v-if="commentsStore.hasComments(payload)"
             class="text-muted ml-1"
-            @click="showCommentsFlags(payload)"
+            @click="showCommentsFlags(sodar_uuid)"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted ml-1"
-            @click="showCommentsFlags(payload)"
+            @click="showCommentsFlags(sodar_uuid)"
           />
 
           <span
             title="ACMG rating"
             :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
-            @click="showAcmgRating(payload)"
+            @click="showAcmgRating(sodar_uuid)"
             >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
           >
 

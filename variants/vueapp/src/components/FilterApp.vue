@@ -49,11 +49,19 @@ const filterQueryStore = useFilterQueryStore()
 const casesStore = useCasesStore()
 const caseDetailsStore = useCaseDetailsStore()
 
-const showModal = (smallVariant) => {
-  currentSmallVariant.value = smallVariant
+const showModal = async (event) => {
+  const resultRow = await variantsApi.retrieveQueryResultRow(
+    filterQueryStore.csrfToken,
+    event.smallvariantresultrow
+  )
+  currentSmallVariant.value = resultRow.payload
+  if (event.selectedTab) {
+    detailsStore.modalTab = event.selectedTab
+  }
+
   smallVariantDetailsModalWrapperRef.value.showModal()
   variantDetailsStore.fetchVariantDetails(
-    smallVariant,
+    resultRow.payload,
     filterQueryStore.previousQueryDetails.query_settings.database_select
   )
 }

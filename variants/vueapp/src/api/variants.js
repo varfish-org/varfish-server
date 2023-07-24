@@ -99,6 +99,14 @@ export default {
     )
     return await response.json()
   },
+  async retrieveQueryResultRow(csrfToken, queryResultRowUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-result-row/retrieve/${queryResultRowUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
   async listCaseVariantsUserAnnotated(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,

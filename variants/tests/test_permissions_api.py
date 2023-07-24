@@ -8,6 +8,7 @@ from variants.models import SmallVariantQuery
 from variants.tests.factories import (
     CaseFactory,
     SmallVariantQueryFactory,
+    SmallVariantQueryResultRowFactory,
     SmallVariantQueryResultSetFactory,
     SmallVariantSetFactory,
 )
@@ -189,6 +190,33 @@ class TestSmallVariantQueryResultRowListApiView(TestProjectAPIPermissionBase):
         url = reverse(
             "variants:api-query-result-row-list",
             kwargs={"smallvariantqueryresultset": self.smallvariantqueryresultset.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.contributor_as.user,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestSmallVariantQueryResultRowRetrieveApiView(TestProjectAPIPermissionBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.smallvariantqueryresultrow = SmallVariantQueryResultRowFactory(
+            smallvariantqueryresultset__smallvariantquery__case=self.case
+        )
+
+    def test_get(self):
+        url = reverse(
+            "variants:api-query-result-row-retrieve",
+            kwargs={"smallvariantqueryresultrow": self.smallvariantqueryresultrow.sodar_uuid},
         )
         good_users = [
             self.superuser,

@@ -194,6 +194,11 @@ ajax_urlpatterns = [
         name="ajax-query-result-row-list",
     ),
     url(
+        regex=r"^ajax/query-result-row/retrieve/(?P<smallvariantqueryresultrow>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryResultRowRetrieveAjaxView.as_view(),
+        name="ajax-query-result-row-retrieve",
+    ),
+    url(
         r"^ajax/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",
         view=views_ajax.SmallVariantQuerySettingsShortcutAjaxView.as_view(),
         name="ajax-query-settings-shortcut",
@@ -334,6 +339,11 @@ api_urlpatterns = [
         regex=r"^api/query-result-row/list/(?P<smallvariantqueryresultset>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantQueryResultRowListApiView.as_view(),
         name="api-query-result-row-list",
+    ),
+    url(
+        regex=r"^api/query-result-row/retrieve/(?P<smallvariantqueryresultrow>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryResultRowRetrieveApiView.as_view(),
+        name="api-query-result-row-retrieve",
     ),
     url(
         regex=r"^api/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",

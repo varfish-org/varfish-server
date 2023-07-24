@@ -21,6 +21,7 @@ from variants.views.api import (
     SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
     SmallVariantQueryListCreateApiView,
+    SmallVariantQueryResultRowRetrieveApiView,
     SmallVariantQueryResultRowListApiView,
     SmallVariantQueryResultSetListApiView,
     SmallVariantQueryResultSetRetrieveApiView,
@@ -120,7 +121,22 @@ class SmallVariantQueryResultSetRetrieveAjaxView(SmallVariantQueryResultSetRetri
 class SmallVariantQueryResultRowListAjaxView(SmallVariantQueryResultRowListApiView):
     """Create or list small variant query
 
-    **URL:** ``/variants/ajax/query-result-set/retrieve/{smallvariantqueryresultset.uuid}``
+    **URL:** ``/variants/ajax/query-result-row/list/{smallvariantqueryresultset.uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryResultRowRetrieveAjaxView(SmallVariantQueryResultRowRetrieveApiView):
+    """Create or list small variant query
+
+    **URL:** ``/variants/ajax/query-result-row/retrieve/{smallvariantqueryresultrow.uuid}``
 
     **Methods:** See base API class.
 
