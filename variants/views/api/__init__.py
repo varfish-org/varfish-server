@@ -24,7 +24,6 @@ from rest_framework import views
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
     DestroyAPIView,
-    RetrieveAPIView,
     ListAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
