@@ -4,7 +4,7 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from svs.models import SvQuery
-from svs.tests.factories import SvQueryFactory, SvQueryResultSetFactory
+from svs.tests.factories import SvQueryFactory, SvQueryResultRowFactory, SvQueryResultSetFactory
 from variants.tests.factories import CaseFactory
 
 
@@ -168,6 +168,31 @@ class TestSvQueryResultRowListAjaxView(TestProjectAPIPermissionBase):
         url = reverse(
             "svs:ajax-svqueryresultrow-list",
             kwargs={"svqueryresultset": self.svqueryresultset.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.contributor_as.user,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestSvQueryResultRowRetrieveView(TestProjectAPIPermissionBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.svqueryresultrow = SvQueryResultRowFactory(svqueryresultset__svquery__case=self.case)
+
+    def test_get(self):
+        url = reverse(
+            "svs:ajax-svqueryresultrow-retrieve",
+            kwargs={"svqueryresultrow": self.svqueryresultrow.sodar_uuid},
         )
         good_users = [
             self.superuser,

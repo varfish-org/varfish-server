@@ -78,6 +78,11 @@ urlpatterns_ajax = [
         view=views.SvQueryResultRowListAjaxView.as_view(),
         name="ajax-svqueryresultrow-list",
     ),
+    url(
+        regex=r"^sv-query-result-row/retrieve/(?P<svqueryresultrow>[0-9a-f-]+)/$",
+        view=views.SvQueryResultRowRetrieveAjaxView.as_view(),
+        name="ajax-svqueryresultrow-retrieve",
+    ),
     # URLs user annotations (flags, comments)
     url(
         regex=r"^ajax/structural-variant-flags/list-create/(?P<case>[0-9a-f-]+)/$",

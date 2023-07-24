@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, watch, ref } from 'vue'
+import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
 
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
@@ -27,9 +27,15 @@ const emit = defineEmits([
   'variantSelected', // sv row clicked, arg is SvQueryResultRowRow UUID
 ])
 
-// Handle click of row
-const onShowDetailsClicked = (item) => {
-  emit('variantSelected', item)
+const onShowDetailsClicked = (sodarUuid) => {
+  emit('variantSelected', { svresultrow: sodarUuid })
+}
+
+const onShowFlagsCommentsClicked = (sodarUuid) => {
+  emit('variantSelected', {
+    svresultrow: sodarUuid,
+    selectedTab: 'comments-flags',
+  })
 }
 
 // Initialize stores
@@ -163,8 +169,8 @@ const geneTitle = (gene) => {
 const loadFromServer = async () => {
   const transmogrify = (row) => {
     row.chromosome = row.chromosome.startsWith('chr')
-      ? row.chromosome
-      : `chr${row.chromosome}`
+      ? row.chromosome.slice(3)
+      : row.chromosome
     row.callInfos = (props.caseObj?.pedigree || []).map((member) => {
       return row.payload.call_info[member.name].genotype
     })
@@ -308,6 +314,17 @@ const tableRowClassName = (item, _rowNumber) => {
   return ''
 }
 
+onBeforeMount(() => {
+  tableLoading.value = true
+  const appContext = { csrf_token: svFilterStore.csrfToken }
+  Promise.all([
+    svFlagsStore.initialize(appContext, svFilterStore.caseUuid),
+    svCommentsStore.initialize(appContext, svFilterStore.caseUuid),
+  ]).then(() => {
+    tableLoading.value = false
+  })
+})
+
 /** Load data when mounted. */
 onMounted(() => {
   loadFromServer()
@@ -392,18 +409,22 @@ watch(
       buttons-pagination
       show-index
     >
-      <template #item-icons="{ chromosome, start, end, sv_type, payload }">
+      <template
+        #item-icons="{ sodar_uuid, chromosome, start, end, sv_type, payload }"
+      >
         <div class="text-nowrap">
           <!-- flags -->
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
+            @click="onShowFlagsCommentsClicked(sodar_uuid)"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted icon-inactive"
             title="flags & bookmarks"
+            @click="onShowFlagsCommentsClicked(sodar_uuid)"
           />
           <!-- comments -->
           <i-fa-solid-comment
@@ -411,8 +432,13 @@ watch(
               svCommentsStore.hasComment({ chromosome, start, end, sv_type })
             "
             class="text-muted ml-1"
+            @click="onShowFlagsCommentsClicked(sodar_uuid)"
           />
-          <i-fa-regular-comment v-else class="text-muted icon-inactive ml-1" />
+          <i-fa-regular-comment
+            v-else
+            class="text-muted icon-inactive ml-1"
+            @click="onShowFlagsCommentsClicked(sodar_uuid)"
+          />
           <!-- tool -->
           <span :title="payload.caller">
             <i-fa-solid-car class="text-muted ml-1" />
@@ -429,7 +455,7 @@ watch(
           },
         }"
       >
-        {{ chromosome }}:{{ formatLargeInt(start) }}
+        chr{{ chromosome }}:{{ formatLargeInt(start) }}
         <span
           v-if="repeat > 0 || segdup > 0"
           class="text-danger"
@@ -573,7 +599,7 @@ watch(
       <template #item-actions="svRecord">
         <div class="btn-group sodar-list-btn-group">
           <button
-            @click.prevent="onShowDetailsClicked(svRecord)"
+            @click.prevent="onShowDetailsClicked(svRecord.sodar_uuid)"
             type="button"
             title="Show SV Details"
             class="btn sodar-list-btn btn-primary"
@@ -602,7 +628,7 @@ watch(
               :href="
                 ucscUrl(
                   svRecord.release,
-                  svRecord.chromosome,
+                  `chr{svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -616,7 +642,7 @@ watch(
               :href="
                 ensemblUrl(
                   svRecord.release,
-                  svRecord.chromosome,
+                  `chr{svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -630,7 +656,7 @@ watch(
               :href="
                 dgvUrl(
                   svRecord.release,
-                  svRecord.chromosome,
+                  `chr{svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -649,7 +675,7 @@ watch(
               :href="
                 gnomadUrl(
                   svRecord.release,
-                  svRecord.chromosome,
+                  `chr{svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )

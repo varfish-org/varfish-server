@@ -15,6 +15,9 @@ const props = defineProps({
 
 const router = useRouter()
 
+/** Ref for the modal component. */
+const modalRef = ref(null)
+
 const smallVariant = ref(null)
 
 const variantDetailsStore = useVariantDetailsStore()
@@ -48,11 +51,6 @@ const showModal = async () => {
   )
 }
 
-/** Ref for the modal component. */
-const modalRef = ref(null)
-
-filterQueryStore
-
 /** Watch the "visible" prop and map to jQuery calls. */
 watch(
   [() => props.visible, () => props.resultRowUuid],
@@ -85,7 +83,9 @@ const modalHiddenHandler = () => {
 
 onMounted(() => {
   // Ensure that the modal is shown when the component is initialized with visible=True
-  showModal()
+  if (props.visible) {
+    showModal()
+  }
   // Register handler for the modal disappearing
   $(modalRef.value).on('hide.bs.modal', modalHiddenHandler)
 })

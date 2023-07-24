@@ -295,62 +295,62 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
     caseUuid.value = theCaseUuid
     csrfToken.value = appContext.csrf_token
 
-    // Fetch caseObj first
-    caseObj.value = await variantsApi.retrieveCase(
-      csrfToken.value,
-      caseUuid.value
-    )
-
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
     // trigger the loading of any previous results.
-    initializeRes.value = Promise.all([
-      // 1. fetch default settings
-      fetchDefaultSettings(
-        csrfToken.value,
-        caseUuid.value,
-        querySettingsPresets,
-        querySettings
-      ),
-      // 2. fetch previous query UUID
-      fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
-        .then((queryUuid) => {
-          if (queryUuid) {
-            // Retrieve query details and extract query settings.
-            return svsApi.retrieveSvQuery(csrfToken.value, queryUuid)
-          }
-        })
-        // 2.1 once we have previous query UUID, fetch query details
-        .then((result) => {
-          if (result) {
-            previousQueryDetails.value = result
-            querySettings.value = copy(result.query_settings)
-          }
-        })
-        // 2.2 once we have the query details, change into resuming query state and launch the fetch loop
-        .then(() => {
-          if (previousQueryDetails.value) {
-            queryState.value = QueryStates.Resuming.value
-            nextTick()
-            runFetchLoop(previousQueryDetails.value.sodar_uuid)
-          }
-        }),
-      // 3. fetch quick presets etc.
-      fetchPresets(
-        csrfToken.value,
-        caseObj.value,
-        quickPresets,
-        categoryPresets
-      ),
-    ])
-      .then(() => {
-        serverInteractions.value -= 1
-        storeState.value = StoreState.active
-      })
-      .catch((err) => {
-        console.error('Problem initializing filterQuery store', err)
-        serverInteractions.value -= 1
-        storeState.value = StoreState.error
+    initializeRes.value = variantsApi
+      .retrieveCase(csrfToken.value, caseUuid.value)
+      .then((result) => {
+        caseObj.value = result
+
+        return Promise.all([
+          // 1. fetch default settings
+          fetchDefaultSettings(
+            csrfToken.value,
+            caseUuid.value,
+            querySettingsPresets,
+            querySettings
+          ),
+          // 2. fetch previous query UUID
+          fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
+            .then((queryUuid) => {
+              if (queryUuid) {
+                // Retrieve query details and extract query settings.
+                return svsApi.retrieveSvQuery(csrfToken.value, queryUuid)
+              }
+            })
+            // 2.1 once we have previous query UUID, fetch query details
+            .then((result) => {
+              if (result) {
+                previousQueryDetails.value = result
+                querySettings.value = copy(result.query_settings)
+              }
+            })
+            // 2.2 once we have the query details, change into resuming query state and launch the fetch loop
+            .then(() => {
+              if (previousQueryDetails.value) {
+                queryState.value = QueryStates.Resuming.value
+                nextTick()
+                runFetchLoop(previousQueryDetails.value.sodar_uuid)
+              }
+            }),
+          // 3. fetch quick presets etc.
+          fetchPresets(
+            csrfToken.value,
+            caseObj.value,
+            quickPresets,
+            categoryPresets
+          ),
+        ])
+          .then(() => {
+            serverInteractions.value -= 1
+            storeState.value = StoreState.active
+          })
+          .catch((err) => {
+            console.error('Problem initializing filterQuery store', err)
+            serverInteractions.value -= 1
+            storeState.value = StoreState.error
+          })
       })
 
     return initializeRes.value

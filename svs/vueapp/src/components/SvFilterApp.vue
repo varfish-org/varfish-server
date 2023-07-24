@@ -1,6 +1,6 @@
 <script setup>
 import { watch, ref, onMounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
 import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
@@ -14,6 +14,15 @@ import SvFilterForm from './SvFilterForm.vue'
 import SvFilterResultsTable from './SvFilterResultsTable.vue'
 import SvDetailsModalWrapper from './SvDetailsModalWrapper.vue'
 
+const props = defineProps({
+  /** Whether to show the variant details modal. */
+  detailsModalVisible: Boolean,
+  /** The UUID of the result row to show in details modal. */
+  detailsModalResultRowUuid: String,
+  /** Which tab to show in the variant details modal. */
+  detailsModalSelectedTab: String,
+})
+
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}'
@@ -21,6 +30,8 @@ const appContext = JSON.parse(
 
 /** The currently used route. */
 const route = useRoute()
+/** The currently used router. */
+const router = useRouter()
 
 /** The currently displayed case's UUID, updated from route. */
 const caseUuidRef = ref(route.params.case)
@@ -38,6 +49,18 @@ casesStore.initialize(appContext)
 const caseDetailsStore = useCaseDetailsStore()
 caseDetailsStore.initialize(caseUuidRef.value)
 
+const showModal = async (event) => {
+  router.push({
+    name: 'svs-filter-details',
+    params: {
+      case: svFilterStore.caseUuid,
+      query: svFilterStore.previousQueryDetails.sodar_uuid,
+      row: event.svresultrow,
+      selectedTab: event.selectedTab ?? null,
+    },
+  })
+}
+
 /** Whether the form is visible. */
 const formVisible = ref(true)
 /** Whether the query logs are visible. */
@@ -50,15 +73,6 @@ const toggleForm = () => {
 
 // Ref to modal used to show the SV details
 const svDetailsModalWrapperRef = ref(null)
-
-// Display modal for the given variant. */
-const showModal = (svRecord) => {
-  svDetailsModalWrapperRef.value.showModal()
-  svDetailsStore.fetchSvDetails(
-    svRecord,
-    svFilterStore.previousQueryDetails.query_settings.database
-  )
-}
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -224,8 +238,9 @@ onMounted(() => {
 
   <SvDetailsModalWrapper
     ref="svDetailsModalWrapperRef"
-    :sv-record="svDetailsStore.currentSvRecord"
-    :fetched="svDetailsStore.fetched"
+    :visible="props.detailsModalVisible"
+    :result-row-uuid="props.detailsModalResultRowUuid"
+    :selected-tab="props.detailsModalSelectedTab"
   />
 </template>
 

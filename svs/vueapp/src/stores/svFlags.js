@@ -200,6 +200,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     sv,
     flags,
     caseFlags,
+    emptyFlagsTemplate,
+    initialFlagsTemplate,
     // functions
     initialize,
     retrieveFlags,

@@ -30,14 +30,6 @@ const props = defineProps({
   detailsModalSelectedTab: String,
 })
 
-const components = {
-  VariantDetailsModalWrapper,
-  FilterForm,
-  FilterResultsTable,
-}
-
-const currentSmallVariant = ref(null)
-
 const smallVariantDetailsModalWrapperRef = ref(null)
 
 const appContext = JSON.parse(
@@ -45,10 +37,10 @@ const appContext = JSON.parse(
     '{}'
 )
 
-/** The currently used router. */
-const router = useRouter()
 /** The currently used route. */
 const route = useRoute()
+/** The currently used router. */
+const router = useRouter()
 
 /** The currently displayed case's UUID, updated from route. */
 const caseUuidRef = ref(route.params.case)
