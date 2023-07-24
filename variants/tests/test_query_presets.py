@@ -1151,7 +1151,7 @@ class TestEnumImpact(TestCase):
                 "var_type_mnv": True,
                 "var_type_indel": True,
                 "transcripts_coding": True,
-                "transcripts_noncoding": False,
+                "transcripts_noncoding": True,
                 "effects": [
                     "3_prime_UTR_exon_variant",
                     "3_prime_UTR_intron_variant",
@@ -1162,6 +1162,7 @@ class TestEnumImpact(TestCase):
                     "direct_tandem_duplication",
                     "disruptive_inframe_deletion",
                     "disruptive_inframe_insertion",
+                    "downstream_gene_variant",
                     "exon_loss_variant",
                     "feature_truncation",
                     "frameshift_elongation",
@@ -1172,6 +1173,8 @@ class TestEnumImpact(TestCase):
                     "internal_feature_elongation",
                     "missense_variant",
                     "mnv",
+                    "non_coding_transcript_exon_variant",
+                    "non_coding_transcript_intron_variant",
                     "splice_acceptor_variant",
                     "splice_donor_variant",
                     "splice_region_variant",
@@ -1182,6 +1185,7 @@ class TestEnumImpact(TestCase):
                     "structural_variant",
                     "synonymous_variant",
                     "transcript_ablation",
+                    "upstream_gene_variant",
                 ],
             },
         )
