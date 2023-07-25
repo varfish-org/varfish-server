@@ -168,12 +168,7 @@ class SmallVariantQueryApiMixin(VariantsApiBaseMixin):
     serializer_class = SmallVariantQuerySerializer
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
-            return SmallVariantQuery.objects.all()
-        elif self.request.user.is_anonymous:
-            return SmallVariantQuery.objects.none()
-        else:
-            return SmallVariantQuery.objects.filter(Q(user=self.request.user) | Q(public=True))
+        return SmallVariantQuery.objects.filter(Q(user=self.request.user) | Q(public=True))
 
     def get_permission_required(self):
         return "variants.view_data"
