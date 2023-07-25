@@ -216,6 +216,20 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
         actual = list(map(dict, response.data))
         self.assertEqual(actual, expected)
 
+    def test_get_admin(self):
+        _queries = [
+            SmallVariantQueryFactory(case=self.case, user=self.user_contributor),
+            SmallVariantQueryFactory(case=self.case, user=self.user_owner),
+        ]
+
+        url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
+        response = self.request_knox(url, token=self.get_token(self.superuser))
+
+        self.assertEqual(response.status_code, 200)
+        expected = []
+        actual = list(map(dict, response.data))
+        self.assertEqual(actual, expected)
+
     def test_get_access_allowed(self):
         _queries = [
             SmallVariantQueryFactory(case=self.case, user=self.guest_as.user),
