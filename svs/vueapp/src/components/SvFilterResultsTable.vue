@@ -107,7 +107,9 @@ const tableServerOptions = ref({
 
 /** Return list of genes with symbol. */
 const withSymbol = (lst) => {
-  return lst.filter((elem) => elem.gene?.symbol ?? elem.gen)
+  return lst.filter((elem) => {
+    return elem.gene?.symbol ?? elem.symbol
+  })
 }
 
 /** Whether has tad genes and should display tad genes. */
@@ -550,7 +552,7 @@ watch(
             ><span v-if="index + 1 < tx_effects.length">, </span>
           </template>
           <span
-            v-if="withSymbol(ovl_genes).length && showTadGenes(tad_genes)"
+            v-if="tx_effects.length && showTadGenes(tad_genes)"
             class="text-muted"
             >,
           </span>
@@ -575,7 +577,7 @@ watch(
           v-if="withSymbol(tad_genes).length && !showTadGenes(tad_genes)"
           class="text-muted font-italic"
         >
-          <template v-if="withSymbol(ovl_genes).length"> +</template>
+          <template v-if="tx_effects.length"> +</template>
           {{ withSymbol(tad_genes).length }} in TAD
           <template v-if="tad_disease_gene">
             <span
