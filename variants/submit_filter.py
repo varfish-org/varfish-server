@@ -54,7 +54,7 @@ class FilterBase:
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
-        self.job.add_log_entry("Storing results ...")
+        self.job.add_log_entry("Storing results ({} rows)...".format(len(results)))
         # Obtain smallvariant ids to store them in ManyToMany field
         smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
