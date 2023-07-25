@@ -154,6 +154,7 @@ const optionalColumns = () => {
   return props.displayColumns.map((field) => ({
     text: optionalColumnTexts[field],
     value: field,
+    sortable: field.startsWith('extra_anno'),
   }))
 }
 

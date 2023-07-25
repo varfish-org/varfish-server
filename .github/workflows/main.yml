@@ -115,7 +115,7 @@ jobs:
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --categories=packges,dev-packages
+          pipenv install --categories=packages,dev-packages
 
       - name: Check import order with isort
         run: |
