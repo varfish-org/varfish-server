@@ -115,6 +115,9 @@ class GenotypeChoiceV1(Enum):
     VARIANT = "variant"
     NON_VARIANT = "non-variant"
     NON_REFERENCE = "non-reference"
+    COMPHET_INDEX = "comphet-index"
+    RECESSIVE_INDEX = "recessive-index"
+    RECESSIVE_PARENT = "recessive-parent"
 
 
 @attr.s(auto_attribs=True, frozen=True)
