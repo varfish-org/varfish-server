@@ -396,6 +396,10 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
     serializer_class = SmallVariantQueryResultRowSerializer
 
     def get_queryset(self):
+        ea_field_to_idx = {
+            f"extra_anno{field.field}": idx
+            for idx, field in enumerate(ExtraAnnoField.objects.all().order_by("field"))
+        }
         order_by_str = self.request.query_params.get("order_by", "chromosome_no,start")
         order_dir = self.request.query_params.get("order_dir", "asc")
 
@@ -432,6 +436,12 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
         elif order_by_str.startswith("genotype_"):
             name = order_by_str[len("genotype_") :]
             order_by_raw = RawSQL("COALESCE((payload->'genotype'->%s->>'gt')::text, NULL)", (name,))
+            if order_dir == "desc":
+                order_by_raw = order_by_raw.desc()
+            order_by = [order_by_raw]
+        elif order_by_str in ea_field_to_idx:
+            idx = ea_field_to_idx[order_by_str]
+            order_by_raw = RawSQL("COALESCE((payload->'extra_annos'->>%s)::text, NULL)", (idx,))
             if order_dir == "desc":
                 order_by_raw = order_by_raw.desc()
             order_by = [order_by_raw]
