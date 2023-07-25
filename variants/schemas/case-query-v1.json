@@ -1445,7 +1445,10 @@
                 "non-hom",
                 "variant",
                 "non-variant",
-                "non-reference"
+                "non-reference",
+                "comphet-index",
+                "recessive-index",
+                "recessive-parent"
               ]
             }
           ]
