@@ -441,7 +441,7 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
             order_by = [order_by_raw]
         elif order_by_str in ea_field_to_idx:
             idx = ea_field_to_idx[order_by_str]
-            order_by_raw = RawSQL("COALESCE((payload->'extra_annos'->>%s)::text, NULL)", (idx,))
+            order_by_raw = RawSQL("COALESCE((payload->'extra_annos'->0->>%s)::float, NULL)", (idx,))
             if order_dir == "desc":
                 order_by_raw = order_by_raw.desc()
             order_by = [order_by_raw]
