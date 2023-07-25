@@ -419,6 +419,7 @@ const getFrequencies = () => {
             <template v-for="(row, index2) in rows" :key="index2">
               <tr v-if="row.display" :class="row.rowClasses">
                 <th :class="row.titleClasses">
+                  {{ row.title }}
                   <i-mdi-arrow-up-circle
                     v-if="row.titleIcon === 'mdi:arrow-up-circle'"
                   />
