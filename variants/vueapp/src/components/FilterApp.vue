@@ -146,7 +146,6 @@ onBeforeMount(() => {
           .forEach((value) => {
             displayColumns.value.push(`extra_anno${value.field}`)
           })
-        displayColumns.value = displayColumns.value.concat(moreColumns)
       }),
     // Initialize cases store.
     casesStore.initialize(appContext),
