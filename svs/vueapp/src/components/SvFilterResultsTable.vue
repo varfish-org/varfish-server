@@ -628,7 +628,7 @@ watch(
               :href="
                 ucscUrl(
                   svRecord.release,
-                  `chr{svRecord.chromosome}`,
+                  `chr${svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -642,7 +642,7 @@ watch(
               :href="
                 ensemblUrl(
                   svRecord.release,
-                  `chr{svRecord.chromosome}`,
+                  `chr${svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -656,7 +656,7 @@ watch(
               :href="
                 dgvUrl(
                   svRecord.release,
-                  `chr{svRecord.chromosome}`,
+                  `chr${svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
@@ -675,7 +675,7 @@ watch(
               :href="
                 gnomadUrl(
                   svRecord.release,
-                  `chr{svRecord.chromosome}`,
+                  `chr${svRecord.chromosome}`,
                   svRecord.start,
                   svRecord.end
                 )
