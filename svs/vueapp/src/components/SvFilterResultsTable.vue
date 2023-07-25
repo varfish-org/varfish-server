@@ -107,7 +107,7 @@ const tableServerOptions = ref({
 
 /** Return list of genes with symbol. */
 const withSymbol = (lst) => {
-  return lst.filter((elem) => elem.gene.symbol)
+  return lst.filter((elem) => elem.gene?.symbol ?? elem.gen)
 }
 
 /** Whether has tad genes and should display tad genes. */
@@ -134,8 +134,15 @@ const geneTitle = (gene) => {
 /** Load data from table as configured by tableServerOptions. */
 const loadFromServer = async () => {
   const sortGene = (genes) => {
-    const res = genes.toSorted(sortBy('-is_acmg', '-is_disease_gene', 'symbol'))
-    return res
+    if (genes.length === 0) {
+      return genes
+    } else if (genes[0].gene) {
+      return genes.toSorted(
+        sortBy('-gene.is_acmg', '-gene.is_disease_gene', 'gene.symbol')
+      )
+    } else {
+      return genes.toSorted(sortBy('-is_acmg', '-is_disease_gene', 'symbol'))
+    }
   }
 
   const transmogrify = (row) => {
@@ -404,7 +411,10 @@ watch(
         #item-icons="{ sodar_uuid, chromosome, start, end, sv_type, payload }"
       >
         <div class="text-nowrap">
-          <!-- flags -->
+          <i-fa-solid-search
+            class="text-muted"
+            @click.prevent="onShowDetailsClicked(sodar_uuid)"
+          />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
             class="text-muted"
@@ -469,23 +479,75 @@ watch(
           },
         }"
       >
-        <template
-          v-if="tx_effects.length || showTadGenes(tad_genes)"
-        >
+        <template v-if="tx_effects.length || showTadGenes(tad_genes)">
           <template v-for="(item, index) in tx_effects">
-            <span>{{ item }}</span>
-            <span v-if="index > 0">, </span>
             <span
               class="text-nowrap"
               :class="geneClass(item.gene, 'text-danger')"
               :title="geneTitle(item.gene)"
             >
-              <!-- <span v-if="item.transcript_effects.contains('transcript_variant')">
-                tx
-              </span> -->
-              {{ item.gene.symbol }}
-              <i-mdi-hospital-box v-if="item.gene.is_disease_gene || item.gene.is_acmg"
-            /></span>
+              <template
+                v-if="
+                  (item.transcript_effects ?? []).includes('transcript_variant')
+                "
+              >
+                <span
+                  class="badge badge-danger"
+                  title="whole transcript is affected"
+                  >tx</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('exon_variant')
+                "
+              >
+                <span class="badge badge-danger" title="exonic for gene"
+                  >ex</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes(
+                    'splice_region_variant'
+                  )
+                "
+              >
+                <span class="badge badge-danger" title="splice region for gene"
+                  >sr</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('intron_variant')
+                "
+              >
+                <span class="badge badge-warning" title="intronic for gene"
+                  >in</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('upstream_variant')
+                "
+              >
+                <span class="badge badge-secondary" title="upstream of gene"
+                  >up</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('downstream_variant')
+                "
+              >
+                <span class="badge badge-secondary" title="downstream of gene"
+                  >dw</span
+                >
+              </template>
+              {{ item.gene.symbol
+              }}<span v-if="item.gene.is_disease_gene || item.gene.is_acmg">
+                <i-mdi-hospital-box /></span></span
+            ><span v-if="index + 1 < tx_effects.length">, </span>
           </template>
           <span
             v-if="withSymbol(ovl_genes).length && showTadGenes(tad_genes)"
@@ -501,7 +563,9 @@ watch(
                 :title="geneTitle(item)"
               >
                 {{ item.symbol }}
-                <i-mdi-hospital-box v-if="item.is_disease_gene || item.is_acmg" />
+                <i-mdi-hospital-box
+                  v-if="item.is_disease_gene || item.is_acmg"
+                />
               </span>
             </template>
           </template>
@@ -527,9 +591,8 @@ watch(
       <template #item-sv_type="{ sv_type, payload }">
         <span
           :class="{
-            'text-danger':
-              payload.clinvar_ovl_vcvs.length
-              // || payload.known_pathogenic.length
+            'text-danger': payload.clinvar_ovl_vcvs.length,
+            // || payload.known_pathogenic.length
           }"
         >
           {{ sv_type }}
@@ -594,15 +657,6 @@ watch(
 
       <template #item-actions="svRecord">
         <div class="btn-group sodar-list-btn-group">
-          <button
-            @click.prevent="onShowDetailsClicked(svRecord.sodar_uuid)"
-            type="button"
-            title="Show SV Details"
-            class="btn sodar-list-btn btn-primary"
-          >
-            <i-mdi-eye />
-            Details
-          </button>
           <button
             @click.prevent="goToLocus(svRecord)"
             type="button"
