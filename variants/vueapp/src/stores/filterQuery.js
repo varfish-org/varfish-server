@@ -126,7 +126,7 @@ const fetchDefaultSettings = async (
     querySettings.value.patho_enabled = false
   }
   if (querySettings.value.patho_score === undefined) {
-    querySettings.value.patho_score = 'mutationtaster'
+    querySettings.value.patho_score = 'cadd'
   }
 }
 
