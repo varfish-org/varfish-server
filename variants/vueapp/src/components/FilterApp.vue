@@ -131,11 +131,23 @@ onBeforeMount(() => {
     // Initialize variant details store.
     variantDetailsStore.initialize(appContext),
     // Initialize filter query store.
-    filterQueryStore.initialize(
-      appContext,
-      caseUuidRef.value,
-      route.params.query
-    ),
+    filterQueryStore
+      .initialize(appContext, caseUuidRef.value, route.params.query)
+      .then(() => {
+        const maybeAdd = [
+          'SpliceAI-acc-gain',
+          'SpliceAI-acc-loss',
+          'SpliceAI-don-loss',
+          'SpliceAI-don-gain',
+          'CADD-PHRED',
+        ]
+        filterQueryStore.extraAnnoFields
+          .filter((value) => maybeAdd.includes(value.label))
+          .forEach((value) => {
+            displayColumns.value.push(`extra_anno${value.field}`)
+          })
+        displayColumns.value = displayColumns.value.concat(moreColumns)
+      }),
     // Initialize cases store.
     casesStore.initialize(appContext),
     // Initialize case details store.
