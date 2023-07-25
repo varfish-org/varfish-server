@@ -7,7 +7,7 @@
  * @param payload (Optional) payload to use
  * @returns {Promise<Response>}
  */
-export async function apiFetch(csrfToken, url, method = 'GET', payload) {
+export async function apiFetch(csrfToken, url, method = 'GET', payload = null) {
   const response = await fetch(url, {
     method,
     credentials: 'same-origin',

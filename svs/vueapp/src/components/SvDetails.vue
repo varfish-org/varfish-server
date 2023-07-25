@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -7,18 +7,22 @@ import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useSvFilterStore } from '@svs/stores/filterSvs'
-import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
+import { useSvDetailsStore } from '@svs/stores/detailsSv'
 import { useSvFlagsStore } from '@svs/stores/svFlags.js'
 import { useSvCommentsStore } from '@svs/stores/svComments.js'
 
 import SvDetailsGenes from './SvDetailsGenes.vue'
+import SvDetailsClinvar from './SvDetailsClinvar.vue'
 import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
 import GenomeBrowser from './GenomeBrowser.vue'
 
-const props = defineProps({
-  resultRowUuid: String,
-  selectedTab: String,
-})
+/** `SVRecord` is a type alias for easier future interface definition. */
+type SvRecord = any
+
+const props = defineProps<{
+  resultRowUuid?: string
+  selectedTab?: string
+}>()
 
 /** The currently used router. */
 const router = useRouter()
@@ -48,12 +52,12 @@ const genomeRelease = computed(() => {
 const caseUuid = computed(() => caseDetailsStore.caseObj?.sodar_uuid)
 
 // Pretty display of coordinates.
-const svLocus = (record) => {
+const svLocus = (record: SvRecord): string | null => {
   if (!record) {
     return null
   }
 
-  let locus
+  let locus: string
   if (record.sv_type === 'BND' || record.sv_type === 'INS') {
     locus = `${record.chromosome}:${record.start - 1000}-${record.start + 1000}`
   } else {
@@ -71,7 +75,7 @@ const svLocus = (record) => {
  *
  * Will select the tab by pushing a route.
  */
-const onTabClick = (selectedTab) => {
+const onTabClick = (selectedTab: string) => {
   router.push({
     name: 'svs-filter-details',
     params: {
@@ -128,13 +132,20 @@ const onTabClick = (selectedTab) => {
       </div>
 
       <div class="row">
-        <div class="col-6 pl-0">
+        <div class="col pl-0 pr-0">
           <SvDetailsGenes
             :genes-infos="detailsStore.genesInfos"
             :current-sv-record="detailsStore.currentSvRecord"
           />
         </div>
-        <div class="col-6 pr-0">
+      </div>
+      <div class="row">
+        <div class="col pl-0 pr-0">
+          <SvDetailsClinvar />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col pl-0 pr-0">
           <SvDetailsGenotypeCall
             :current-sv-record="detailsStore.currentSvRecord"
           />

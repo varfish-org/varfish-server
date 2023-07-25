@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "allowJs": true,
+    "paths": {
+      "@varfish/*": ["./src/varfish/*"],
+      "@clinvarexport/*": ["./src/clinvarexport/*"],
+      "@variants/*": ["./src/variants/*"],
+      "@svs/*": ["./src/svs/*"],
+      "@cases/*": ["./src/cases/*"],
+      "@cohorts/*": ["./src/cohorts/*"]
+    }
+  }
+}

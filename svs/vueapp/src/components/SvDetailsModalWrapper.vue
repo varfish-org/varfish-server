@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { formatLargeInt } from '@varfish/helpers.js'
-import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
+import { useSvDetailsStore } from '@svs/stores/detailsSv'
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
 import SvDetails from '@svs/components/SvDetails.vue'
 import svsApi from '@svs/api/svs.js'
@@ -53,10 +53,7 @@ const showModal = async () => {
     props.resultRowUuid
   )
   svRecord.value = resultRow
-  svDetailsStore.fetchSvDetails(
-    resultRow,
-    svFilterStore.previousQueryDetails.query_settings.database_select
-  )
+  svDetailsStore.fetchSvDetails(resultRow)
 }
 
 /** Watch the "visible" prop and map to jQuery calls. */
