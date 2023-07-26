@@ -1,4 +1,5 @@
 <script setup>
+import sortBy from 'sort-by'
 import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
 
 import EasyDataTable from 'vue3-easy-data-table'
@@ -50,53 +51,17 @@ const tableHeaders = computed(() => {
     { text: 'Icons', value: 'icons', width: 50 },
     { text: 'Position', value: 'chrom-pos', width: 150, sortable: true },
     { text: 'Length', value: 'payload.sv_length', width: 50, sortable: true },
-    { text: 'SV Type', value: 'sv_type', width: 100 },
-    { text: 'Genes', value: 'genes', width: 200 },
+    { text: 'Type', value: 'sv_type', width: 50 },
+    { text: 'Genes', value: 'genes' },
     {
-      text: 'In-House',
+      text: 'in-house frequency',
       value: 'payload.overlap_counts.inhouse',
-      width: _popWidth,
+      width: 50,
       sortable: true,
     },
     {
-      text: 'ExAC',
-      value: 'payload.overlap_counts.exac',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: '1000G',
-      value: 'payload.overlap_counts.g1k',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: 'gnomAD',
+      text: 'gnomAD frequency',
       value: 'payload.overlap_counts.gnomad',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: 'dbVar',
-      value: 'payload.overlap_counts.dbvar',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: 'DGV',
-      value: 'payload.overlap_counts.dgv',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: 'DGV GS',
-      value: 'payload.overlap_counts.dgv_gs',
-      width: _popWidth,
-      sortable: true,
-    },
-    {
-      text: 'TAD dist.',
-      value: 'payload.tad_boundary_distance',
       width: 50,
       sortable: true,
     },
@@ -105,6 +70,7 @@ const tableHeaders = computed(() => {
     result.push({
       text: displayName(row.name),
       value: `callInfo.${index}`,
+      width: 50,
     })
   }
   result.push({
@@ -141,7 +107,9 @@ const tableServerOptions = ref({
 
 /** Return list of genes with symbol. */
 const withSymbol = (lst) => {
-  return lst.filter((elem) => elem.symbol)
+  return lst.filter((elem) => {
+    return elem.gene?.symbol ?? elem.symbol
+  })
 }
 
 /** Whether has tad genes and should display tad genes. */
@@ -167,6 +135,18 @@ const geneTitle = (gene) => {
 
 /** Load data from table as configured by tableServerOptions. */
 const loadFromServer = async () => {
+  const sortGene = (genes) => {
+    if (genes.length === 0) {
+      return genes
+    } else if (genes[0].gene) {
+      return genes.toSorted(
+        sortBy('-gene.is_acmg', '-gene.is_disease_gene', 'gene.symbol')
+      )
+    } else {
+      return genes.toSorted(sortBy('-is_acmg', '-is_disease_gene', 'symbol'))
+    }
+  }
+
   const transmogrify = (row) => {
     row.chromosome = row.chromosome.startsWith('chr')
       ? row.chromosome.slice(3)
@@ -176,6 +156,15 @@ const loadFromServer = async () => {
     })
     if (!('masked_breakpoints' in row.payload)) {
       row.payload.masked_breakpoints = { repeat: null, segdup: null }
+    }
+    if (row.payload.ovl_genes) {
+      row.payload.ovl_genes = sortGene(row.payload.ovl_genes)
+    }
+    if (row.payload.tad_genes) {
+      row.payload.tad_genes = sortGene(row.payload.tad_genes)
+    }
+    if (row.payload.tx_effects) {
+      row.payload.tx_effects = sortGene(row.payload.tx_effects)
     }
     return row
   }
@@ -409,11 +398,25 @@ watch(
       buttons-pagination
       show-index
     >
+      <template #[`header-payload.overlap_counts.inhouse`]="header">
+        <div :title="header.text">
+          <i-mdi-house />
+        </div>
+      </template>
+      <template #[`header-payload.overlap_counts.gnomad`]="header">
+        <div :title="header.text">
+          <i-mdi-earth />
+        </div>
+      </template>
+
       <template
         #item-icons="{ sodar_uuid, chromosome, start, end, sv_type, payload }"
       >
         <div class="text-nowrap">
-          <!-- flags -->
+          <i-fa-solid-search
+            class="text-muted"
+            @click.prevent="onShowDetailsClicked(sodar_uuid)"
+          />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
             class="text-muted"
@@ -458,10 +461,10 @@ watch(
         chr{{ chromosome }}:{{ formatLargeInt(start) }}
         <span
           v-if="repeat > 0 || segdup > 0"
-          class="text-danger"
+          class="text-info"
           :title="`Breakpoints overlap with repetitive sequence (repeats: ${repeat}, segmental duplications: ${segdup}). Such calls are not reliable for short-read data.`"
         >
-          <i-mdi-alert-box />
+          <i-mdi-line-scan />
         </span>
       </template>
 
@@ -472,27 +475,84 @@ watch(
             tad_genes,
             ovl_disease_gene,
             tad_disease_gene,
+            tx_effects,
             clinvar_ovl_vcvs,
             known_pathogenic,
           },
         }"
       >
-        <template
-          v-if="withSymbol(ovl_genes).length || showTadGenes(tad_genes)"
-        >
-          <template v-for="(item, index) in withSymbol(ovl_genes)">
-            <span v-if="index > 0">, </span>
+        <template v-if="tx_effects.length || showTadGenes(tad_genes)">
+          <template v-for="(item, index) in tx_effects">
             <span
               class="text-nowrap"
-              :class="geneClass(item, 'text-danger')"
-              :title="geneTitle(item)"
+              :class="geneClass(item.gene, 'text-danger')"
+              :title="geneTitle(item.gene)"
             >
-              {{ item.symbol }}
-              <i-mdi-alert-box v-if="item.is_disease_gene || item.is_acmg"
-            /></span>
+              <template
+                v-if="
+                  (item.transcript_effects ?? []).includes('transcript_variant')
+                "
+              >
+                <span
+                  class="badge badge-danger"
+                  title="whole transcript is affected"
+                  >tx</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('exon_variant')
+                "
+              >
+                <span class="badge badge-danger" title="exonic for gene"
+                  >ex</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes(
+                    'splice_region_variant'
+                  )
+                "
+              >
+                <span class="badge badge-danger" title="splice region for gene"
+                  >sr</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('intron_variant')
+                "
+              >
+                <span class="badge badge-warning" title="intronic for gene"
+                  >in</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('upstream_variant')
+                "
+              >
+                <span class="badge badge-secondary" title="upstream of gene"
+                  >up</span
+                >
+              </template>
+              <template
+                v-else-if="
+                  (item.transcript_effects ?? []).includes('downstream_variant')
+                "
+              >
+                <span class="badge badge-secondary" title="downstream of gene"
+                  >dw</span
+                >
+              </template>
+              {{ item.gene.symbol
+              }}<span v-if="item.gene.is_disease_gene || item.gene.is_acmg">
+                <i-mdi-hospital-box /></span></span
+            ><span v-if="index + 1 < tx_effects.length">, </span>
           </template>
           <span
-            v-if="withSymbol(ovl_genes).length && showTadGenes(tad_genes)"
+            v-if="tx_effects.length && showTadGenes(tad_genes)"
             class="text-muted"
             >,
           </span>
@@ -505,7 +565,9 @@ watch(
                 :title="geneTitle(item)"
               >
                 {{ item.symbol }}
-                <i-mdi-alert-box v-if="item.is_disease_gene || item.is_acmg" />
+                <i-mdi-hospital-box
+                  v-if="item.is_disease_gene || item.is_acmg"
+                />
               </span>
             </template>
           </template>
@@ -515,14 +577,14 @@ watch(
           v-if="withSymbol(tad_genes).length && !showTadGenes(tad_genes)"
           class="text-muted font-italic"
         >
-          <template v-if="withSymbol(ovl_genes).length"> +</template>
+          <template v-if="tx_effects.length"> +</template>
           {{ withSymbol(tad_genes).length }} in TAD
           <template v-if="tad_disease_gene">
             <span
               title="Overlapping TAD contains disease gene!"
               class="text-info"
             >
-              <i-mdi-alert-box />
+              <i-mdi-hospital-box />
             </span>
           </template>
         </span>
@@ -531,9 +593,8 @@ watch(
       <template #item-sv_type="{ sv_type, payload }">
         <span
           :class="{
-            'text-danger':
-              payload.clinvar_ovl_vcvs.length ||
-              payload.known_pathogenic.length,
+            'text-danger': payload.clinvar_ovl_vcvs.length,
+            // || payload.known_pathogenic.length
           }"
         >
           {{ sv_type }}
@@ -545,7 +606,7 @@ watch(
               <i-mdi-hospital-building />
             </span>
           </template>
-          <template v-if="payload.known_pathogenic.length">
+          <!-- <template v-if="payload.known_pathogenic.length">
             <span
               :title="`Overlapping with known pathogenic variant(s): ${payload.known_pathogenic
                 .map((elem) => elem.id)
@@ -554,7 +615,7 @@ watch(
             >
               <i-mdi-lightning-bolt />
             </span>
-          </template>
+          </template> -->
         </span>
       </template>
 
@@ -598,15 +659,6 @@ watch(
 
       <template #item-actions="svRecord">
         <div class="btn-group sodar-list-btn-group">
-          <button
-            @click.prevent="onShowDetailsClicked(svRecord.sodar_uuid)"
-            type="button"
-            title="Show SV Details"
-            class="btn sodar-list-btn btn-primary"
-          >
-            <i-mdi-eye />
-            Details
-          </button>
           <button
             @click.prevent="goToLocus(svRecord)"
             type="button"

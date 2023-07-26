@@ -101,7 +101,7 @@ urlpatterns += [
     url(
         r"^proxy/varfish/annonars/(?P<url>.*)$",
         HttpProxy.as_view(
-            base_url=settings.VARFISH_BACKEND_URL_NGINX,
+            base_url=settings.VARFISH_BACKEND_URL_ANNONARS,
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),

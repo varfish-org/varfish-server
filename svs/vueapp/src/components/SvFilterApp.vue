@@ -3,7 +3,7 @@ import { watch, ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
-import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
+import { useSvDetailsStore } from '@svs/stores/detailsSv'
 import { useCasesStore } from '@cases/stores/cases.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 import { updateUserSetting } from '@varfish/user-settings.js'
