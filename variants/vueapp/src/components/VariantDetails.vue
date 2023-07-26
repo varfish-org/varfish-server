@@ -1,5 +1,6 @@
-<script setup>
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
@@ -8,6 +9,7 @@ import { useVariantFlagsStore } from '@variants/stores/variantFlags.js'
 
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
+import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
@@ -21,12 +23,14 @@ import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
 import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
 
-const props = defineProps({
-  resultRowUuid: String,
-  selectedTab: String,
-})
+import { allNavItems } from './VariantDetails.fields'
 
-/** The currently used router. */
+const props = defineProps<{
+  resultRowUuid?: string
+  selectedTab?: string
+}>()
+
+const route = useRoute()
 const router = useRouter()
 
 const detailsStore = useVariantDetailsStore()
@@ -38,249 +42,161 @@ commentsStore.initialize(
   queryStore.caseUuid
 )
 
+const navItems = allNavItems.filter((navItem) => {
+  if (navItem.name === 'beacon-network') {
+    return queryStore.ga4ghBeaconNetworkWidgetEnabled
+  } else {
+    return true
+  }
+})
+
 /** Event handler for clicking on the given tab.
  *
  * Will select the tab by pushing a route.
  */
-const onTabClick = (selectedTab) => {
+const onTabClick = (selectedTab: string) => {
   router.push({
     name: 'variants-filter-details',
     params: {
       case: queryStore.caseUuid,
       query: queryStore.previousQueryDetails.sodar_uuid,
       row: props.resultRowUuid,
-      selectedTab: selectedTab,
+      selectedTab,
     },
   })
 }
+
+/** When mounted, scroll to the selected element if any.
+ */
+onMounted(() => {
+  document.querySelector(`#${route.params.selectedTab}`)?.scrollIntoView()
+})
 </script>
 
 <template>
-  <div style="font-size: 0.9em">
-    <div class="card">
-      <div class="card-header" style="font-size: 1.2em">
-        <ul class="nav nav-pills">
-          <li class="nav-item" role="presentation">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-10 pl-0 pr-0 pt-2">
+        <SimpleCard id="link-outs" title="Link-Outs">
+          <VariantDetailsLinkOuts
+            :gene="detailsStore.gene"
+            :small-variant="detailsStore.smallVariant"
+            :hgmd-pro-enabled="queryStore.hgmdProEnabled"
+            :hgmd-pro-prefix="queryStore.hgmdProPrefix"
+            :umd-predictor-api-token="queryStore.umdPredictorApiToken"
+          />
+        </SimpleCard>
+        <SimpleCard id="gene" title="Gene">
+          <VariantDetailsGene
+            :gene="detailsStore.gene"
+            :hgmd-pro-enabled="queryStore.hgmdProEnabled"
+            :hgmd-pro-prefix="queryStore.hgmdProPrefix"
+          />
+        </SimpleCard>
+        <SimpleCard
+          id="beacon-network"
+          title="Beacon Network"
+          v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
+        >
+          <VariantDetailsGa4ghBeacons
+            :small-variant="detailsStore.smallVariant"
+          />
+        </SimpleCard>
+        <SimpleCard id="clinvar" title="ClinVar">
+          <VariantDetailsClinvar />
+        </SimpleCard>
+        <SimpleCard
+          id="freqs"
+          title="Population Frequencies"
+          v-if="
+            (detailsStore.populations && detailsStore.popFreqs) ||
+            detailsStore.mitochondrialFreqs
+          "
+        >
+          <VariantDetailsFreqs
+            :small-variant="detailsStore.smallVariant"
+            :mitochondrial-freqs="detailsStore.mitochondrialFreqs"
+            :populations="detailsStore.populations"
+            :inhouse-freq="detailsStore.inhouseFreq"
+            :pop-freqs="detailsStore.popFreqs"
+          />
+        </SimpleCard>
+        <SimpleCard id="extra-annos" title="Extra Annotations">
+          <VariantDetailsExtraAnnos :extra-annos="detailsStore.extraAnnos" />
+        </SimpleCard>
+        <SimpleCard id="transcripts" title="Transcripts">
+          <VariantDetailsTranscripts
+            :effect-details="detailsStore.effectDetails"
+          />
+        </SimpleCard>
+        <SimpleCard id="call-details" title="Call Details">
+          <VariantDetailsCallDetails
+            :case-description="queryStore.caseObj"
+            :small-variant="detailsStore.smallVariant"
+          />
+        </SimpleCard>
+        <SimpleCard id="conservation" title="Conservation">
+          <VariantDetailsConservation
+            v-if="detailsStore.knownGeneAa"
+            :known-gene-aa="detailsStore.knownGeneAa"
+          />
+        </SimpleCard>
+        <SimpleCard id="flags" title="Flags">
+          <VariantDetailsFlags
+            :details-store="detailsStore"
+            :flags-store="flagsStore"
+            :variant="detailsStore.smallVariant"
+          />
+        </SimpleCard>
+        <SimpleCard id="comments" title="Comments">
+          <VariantDetailsComments
+            :details-store="detailsStore"
+            :comments-store="commentsStore"
+            :variant="detailsStore.smallVariant"
+          />
+        </SimpleCard>
+        <SimpleCard id="acmg-rating" title="ACMG Rating">
+          <VariantDetailsAcmgRating />
+        </SimpleCard>
+        <SimpleCard id="second-hit" title="Second Hit">
+          <div class="alert alert-secondary">
+            <i-mdi-clock />
+            Work in progress ...
+          </div>
+        </SimpleCard>
+        <SimpleCard id="other-carriers" title="OtherCarriers">
+          <div class="alert alert-secondary">
+            <i-mdi-clock />
+            Work in progress ...
+          </div>
+        </SimpleCard>
+        <SimpleCard id="variant-validator" title="VariantValidator">
+          <VariantDetailsVariantValidator
+            :small-variant="detailsStore.smallVariant"
+            v-model:variant-validator-state="detailsStore.variantValidatorState"
+            v-model:variant-validator-results="
+              detailsStore.variantValidatorResults
+            "
+          />
+        </SimpleCard>
+      </div>
+
+      <div class="col-2">
+        <ul
+          class="nav flex-column nav-pills position-sticky pt-2"
+          style="top: 0px"
+        >
+          <li class="nav-item mt-0" v-for="{ name, title } in navItems">
             <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'info' }"
-              @click="onTabClick('info')"
+              class="nav-link user-select-none"
+              :class="{ active: props.selectedTab === name }"
+              @click="onTabClick(name)"
               type="button"
-              role="tab"
-              aria-controls="info"
-              aria-selected="true"
             >
-              Info
-            </a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'comments-flags' }"
-              @click="onTabClick('comments-flags')"
-              type="button"
-              role="tab"
-              aria-controls="comments-flags"
-              aria-selected="false"
-            >
-              Comments & Flags
-            </a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'acmg-rating' }"
-              @click="onTabClick('acmg-rating')"
-              type="button"
-              role="tab"
-              aria-controls="acmg-rating"
-              aria-selected="false"
-            >
-              ACMG Rating
-            </a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'second-hit' }"
-              @click="onTabClick('second-hit')"
-              type="button"
-              role="tab"
-              aria-controls="second-hit"
-              aria-selected="false"
-            >
-              Second Hit
-            </a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'other-carriers' }"
-              @click="onTabClick('other-carriers')"
-              type="button"
-              role="tab"
-              aria-controls="other-carriers"
-              aria-selected="false"
-            >
-              Other Carriers
-            </a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a
-              class="nav-link"
-              :class="{ active: props.selectedTab === 'variant-validator' }"
-              @click="onTabClick('variant-validator')"
-              type="button"
-              role="tab"
-              aria-controls="variant-validator"
-              aria-selected="false"
-            >
-              Variant Validator
+              {{ title }}
             </a>
           </li>
         </ul>
-      </div>
-      <div class="card-body">
-        <div class="tab-content">
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': props.selectedTab === 'info' }"
-            role="tabpanel"
-            aria-labelledby="info-tab"
-          >
-            <VariantDetailsLinkOuts
-              :gene="detailsStore.gene"
-              :small-variant="detailsStore.smallVariant"
-              :hgmd-pro-enabled="queryStore.hgmdProEnabled"
-              :hgmd-pro-prefix="queryStore.hgmdProPrefix"
-              :umd-predictor-api-token="queryStore.umdPredictorApiToken"
-            />
-            <div class="row">
-              <div class="col-12 col-xl-6 pl-0 pr-2">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">Gene</h4>
-                  </div>
-                  <VariantDetailsGene
-                    :gene="detailsStore.gene"
-                    :release="detailsStore.smallVariant?.release"
-                    :refseq-gene-id="detailsStore.smallVariant?.refseq_gene_id"
-                    :ensembl-gene-id="
-                      detailsStore.smallVariant?.ensembl_gene_id
-                    "
-                  />
-                </div>
-              </div>
-              <div class="col-12 col-xl-6 pl-2 pr-0">
-                <VariantDetailsGa4ghBeacons
-                  v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
-                  :small-variant="detailsStore.smallVariant"
-                />
-                <VariantDetailsClinvar />
-                <VariantDetailsFreqs
-                  v-if="
-                    (detailsStore.populations && detailsStore.popFreqs) ||
-                    detailsStore.mitochondrialFreqs
-                  "
-                  :small-variant="detailsStore.smallVariant"
-                  :mitochondrial-freqs="detailsStore.mitochondrialFreqs"
-                  :populations="detailsStore.populations"
-                  :inhouse-freq="detailsStore.inhouseFreq"
-                  :pop-freqs="detailsStore.popFreqs"
-                />
-                <VariantDetailsExtraAnnos
-                  :extra-annos="detailsStore.extraAnnos"
-                />
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-12 col-xl-6 pl-0 pr-2">
-                <VariantDetailsTranscripts
-                  :effect-details="detailsStore.effectDetails"
-                />
-              </div>
-              <div class="col-12 col-xl-6 pl-2 pr-0">
-                <VariantDetailsCallDetails
-                  :case-description="queryStore.caseObj"
-                  :small-variant="detailsStore.smallVariant"
-                />
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-12 pl-0 pr-0">
-                <VariantDetailsConservation
-                  v-if="detailsStore.knownGeneAa"
-                  :known-gene-aa="detailsStore.knownGeneAa"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': props.selectedTab === 'comments-flags' }"
-            role="tabpanel"
-            aria-labelledby="comments-flags-tab"
-          >
-            <VariantDetailsFlags
-              :details-store="detailsStore"
-              :flags-store="flagsStore"
-              :variant="detailsStore.smallVariant"
-            />
-            <VariantDetailsComments
-              :details-store="detailsStore"
-              :comments-store="commentsStore"
-              :variant="detailsStore.smallVariant"
-            />
-          </div>
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': props.selectedTab === 'acmg-rating' }"
-            role="tabpanel"
-            aria-labelledby="acmg-rating-tab"
-          >
-            <VariantDetailsAcmgRating />
-          </div>
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': props.selectedTab === 'second-hit' }"
-            role="tabpanel"
-            aria-labelledby="second-hit-tab"
-          >
-            <div class="alert alert-secondary">
-              <i-mdi-clock />
-              Work in progress ...
-            </div>
-          </div>
-          <div
-            class="tab-pane fade"
-            :class="{ 'active show': props.selectedTab === 'other-carriers' }"
-            role="tabpanel"
-            aria-labelledby="other-carriers-tab"
-          >
-            <div class="alert alert-secondary">
-              <i-mdi-clock />
-              Work in progress ...
-            </div>
-          </div>
-          <div
-            class="tab-pane fade"
-            :class="{
-              'active show': props.selectedTab === 'variant-validator',
-            }"
-            role="tabpanel"
-            aria-labelledby="variant-validator-tab"
-          >
-            <VariantDetailsVariantValidator
-              :small-variant="detailsStore.smallVariant"
-              v-model:variant-validator-state="
-                detailsStore.variantValidatorState
-              "
-              v-model:variant-validator-results="
-                detailsStore.variantValidatorResults
-              "
-            />
-          </div>
-        </div>
       </div>
     </div>
   </div>

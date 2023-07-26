@@ -383,14 +383,10 @@ const getClinvarSignificanceBadge = (patho) => {
   return 'badge-secondary'
 }
 
-const showVariantDetails = (sodarUuid) => {
-  emit('variantSelected', { smallvariantresultrow: sodarUuid })
-}
-
-const showCommentsFlags = (sodarUuid) => {
+const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: 'comments-flags',
+    selectedTab: section ?? 'gene',
   })
 }
 
@@ -551,30 +547,30 @@ watch(
             v-if="flagsStore.getFlags(payload)"
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
           />
 
           <i-fa-solid-comment
             v-if="commentsStore.hasComments(payload)"
             class="text-muted ml-1"
-            @click="showCommentsFlags(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted ml-1"
-            @click="showCommentsFlags(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
           />
 
           <span
             title="ACMG rating"
             :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
-            @click="showAcmgRating(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
             >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
           >
 

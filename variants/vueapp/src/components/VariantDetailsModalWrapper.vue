@@ -106,7 +106,7 @@ onMounted(() => {
       style="max-width: 100%; margin: 10px"
     >
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header pt-1 pb-1">
           <h3 class="modal-title" id="variantDetailsModalLabel">
             Variant Details for
             <template v-if="smallVariant">
@@ -134,7 +134,7 @@ onMounted(() => {
             </button>
           </span>
         </div>
-        <div class="modal-body">
+        <div class="modal-body pt-0">
           <span v-if="variantDetailsStore.fetched">
             <VariantDetails
               :result-row-uuid="props.resultRowUuid"
