@@ -16,7 +16,7 @@ const selAnnos = computed(() => {
 })
 
 const noCohort = computed(() => {
-  for (const elem of selAnnos?.value.allele_counts ?? []) {
+  for (const elem of selAnnos.value?.allele_counts ?? []) {
     if (!elem.cohort) {
       return elem
     }
@@ -30,7 +30,7 @@ const bySex = computed(() => {
 
 const byPop = computed(() => {
   const res = {}
-  for (const record of noCohort.value?.by_population) {
+  for (const record of noCohort.value?.by_population ?? []) {
     res[record.population] = record
   }
   return res
@@ -56,15 +56,41 @@ const sexExpanded = ref({})
 
 <template>
   <div>
-    <div class="font-weight-bolder mb-3" style="font-size: 120%">
-      <template v-if="props.dataset === 'gnomad-exomes'">
-        gnomAD Exomes
-      </template>
-      <template v-if="props.dataset === 'gnomad-genomes'">
-        gnomAD Genomes
-      </template>
+    <div class="ml-2 mr-2 mb-3 mt-2">
+      <span class="font-weight-bolder" style="font-size: 120%">
+        <template v-if="props.dataset === 'gnomad-exomes'">
+          gnomAD Exomes
+        </template>
+        <template v-if="props.dataset === 'gnomad-genomes'">
+          gnomAD Genomes
+        </template>
+      </span>
+      <a
+        :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
+          /^chr/,
+          ''
+        )}-${smallVar.start}-${smallVar.reference}-${
+          smallVar.alternative
+        }?dataset=gnomad_r2_1`"
+        v-if="smallVar.release == 'GRCh37'"
+      >
+        <i-mdi-launch />
+        @gnomAD
+      </a>
+      <a
+        :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
+          /^chr/,
+          ''
+        )}-${smallVar.start}-${smallVar.reference}-${
+          smallVar.alternative
+        }?dataset=gnomad_r3`"
+        v-if="smallVar.release == 'GRCh38'"
+      >
+        <i-mdi-launch />
+        @gnomAD
+      </a>
     </div>
-    <table class="table table-reactive">
+    <table class="table table-reactive" v-if="selAnnos">
       <thead>
         <tr>
           <th>Population</th>
@@ -76,7 +102,7 @@ const sexExpanded = ref({})
       </thead>
       <tbody>
         <template v-for="(label, key) of allPopLabels">
-          <template v-if="byPop[key].counts?.overall?.an">
+          <template v-if="byPop[key]?.counts?.overall?.an">
             <tr>
               <td>
                 {{ label }}
@@ -92,14 +118,14 @@ const sexExpanded = ref({})
               </td>
               <td></td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key].counts?.overall?.an) }}
+                {{ sep(byPop[key]?.counts?.overall?.an) }}
               </td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key].counts?.overall?.nhomalt) }}
+                {{ sep(byPop[key]?.counts?.overall?.nhomalt) }}
               </td>
               <td
                 class="text-right text-nowrap"
-                v-html="roundIt(byPop[key].counts?.overall?.af, FREQ_DIGITS)"
+                v-html="roundIt(byPop[key]?.counts?.overall?.af, FREQ_DIGITS)"
               ></td>
             </tr>
             <tr
@@ -110,14 +136,14 @@ const sexExpanded = ref({})
               <td></td>
               <td class="text-right text-nowrap">XX</td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key].counts?.xx?.an) }}
+                {{ sep(byPop[key]?.counts?.xx?.an) }}
               </td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key].counts?.xx?.nhomalt) }}
+                {{ sep(byPop[key]?.counts?.xx?.nhomalt) }}
               </td>
               <td
                 class="text-right text-nowrap"
-                v-html="roundIt(byPop[key].counts?.xx?.af, FREQ_DIGITS)"
+                v-html="roundIt(byPop[key]?.counts?.xx?.af, FREQ_DIGITS)"
               ></td>
             </tr>
             <tr
@@ -177,5 +203,34 @@ const sexExpanded = ref({})
         </tr>
       </tbody>
     </table>
+
+    <div class="text-muted text-center font-italic pb-3" v-else>
+      No allele frequency information available in local database.
+      Try to lookup the variant directly:
+      <a
+        :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
+          /^chr/,
+          ''
+        )}-${smallVar.start}-${smallVar.reference}-${
+          smallVar.alternative
+        }?dataset=gnomad_r2_1`"
+        v-if="smallVar.release == 'GRCh37'"
+      >
+        <i-mdi-launch />
+        gnomAD
+      </a>
+      <a
+        :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
+          /^chr/,
+          ''
+        )}-${smallVar.start}-${smallVar.reference}-${
+          smallVar.alternative
+        }?dataset=gnomad_r3`"
+        v-if="smallVar.release == 'GRCh38'"
+      >
+        <i-mdi-launch />
+        gnomAD
+      </a>
+    </div>
   </div>
 </template>

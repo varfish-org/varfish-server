@@ -25,16 +25,16 @@ export const allNavItems: NavItem[] = [
     title: 'Frequencies',
   },
   {
-    name: 'extra-annos',
-    title: 'Extra Annos',
+    name: 'precomputed-scores',
+    title: 'Precomputed Scores',
   },
   {
-    name: 'transcripts',
-    title: 'Transcripts',
+    name: 'tx-csq',
+    title: 'Consequences',
   },
   {
     name: 'call-details',
-    title: 'Call Details',
+    title: 'Variant Call and Genotype Details',
   },
   {
     name: 'conservation',

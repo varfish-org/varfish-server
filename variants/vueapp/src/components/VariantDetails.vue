@@ -16,9 +16,9 @@ import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
-import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
+import VariantDetailsPrecomputedScores from './VariantDetailsPrecomputedScores.vue'
 import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
-import VariantDetailsTranscripts from './VariantDetailsTranscripts.vue'
+import VariantDetailsTxCsq from './VariantDetailsTxCsq.vue'
 import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
 import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
@@ -111,13 +111,11 @@ onMounted(() => {
             :var-annos="detailsStore.varAnnos"
           />
         </SimpleCard>
-        <SimpleCard id="extra-annos" title="Extra Annotations">
-          <VariantDetailsExtraAnnos :extra-annos="detailsStore.extraAnnos" />
+        <SimpleCard id="precomputed-scores" title="Precomputed Scores">
+          <VariantDetailsPrecomputedScores :var-annos="detailsStore.varAnnos" />
         </SimpleCard>
-        <SimpleCard id="transcripts" title="Transcripts">
-          <VariantDetailsTranscripts
-            :effect-details="detailsStore.effectDetails"
-          />
+        <SimpleCard id="tx-csq" title="Consequences">
+          <VariantDetailsTxCsq :tx-csq="detailsStore.txCsq" />
         </SimpleCard>
         <SimpleCard id="call-details" title="Call Details">
           <VariantDetailsCallDetails
@@ -127,8 +125,7 @@ onMounted(() => {
         </SimpleCard>
         <SimpleCard id="conservation" title="Conservation">
           <VariantDetailsConservation
-            v-if="detailsStore.knownGeneAa"
-            :known-gene-aa="detailsStore.knownGeneAa"
+            :var-annos="detailsStore.varAnnos"
           />
         </SimpleCard>
         <SimpleCard id="flags" title="Flags">

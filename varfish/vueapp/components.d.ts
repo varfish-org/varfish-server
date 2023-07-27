@@ -101,6 +101,7 @@ declare module '@vue/runtime-core' {
     IMdiHospitalBuilding: typeof import('~icons/mdi/hospital-building')['default']
     IMdiHouse: typeof import('~icons/mdi/house')['default']
     IMdiInformation: typeof import('~icons/mdi/information')['default']
+    IMdiInformationOutline: typeof import('~icons/mdi/information-outline')['default']
     IMdiLaunch: typeof import('~icons/mdi/launch')['default']
     IMdiLightningBolt: typeof import('~icons/mdi/lightning-bolt')['default']
     IMdiLineScan: typeof import('~icons/mdi/line-scan')['default']

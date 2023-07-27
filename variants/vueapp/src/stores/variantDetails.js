@@ -1,4 +1,5 @@
 import { AnnonarsApiClient } from '@varfish/api/annonars'
+import { MehariApiClient } from '@varfish/api/mehari'
 import variantsApi from '@variants/api/variants.js'
 import { VariantValidatorStates } from '@variants/enums'
 import { defineStore } from 'pinia'
@@ -21,6 +22,8 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
   const gene = ref(null)
   /** Variant-related information from annonars. */
   const varAnnos = ref(null)
+  /** Transcript consequence information from mehari. */
+  const txCsq = ref(null)
   const ncbiSummary = ref(null)
   const ncbiGeneRifs = ref(null)
   const variantValidatorResults = ref(null)
@@ -45,13 +48,13 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     variantValidatorState.value = VariantValidatorStates.Initial
 
     const annonarsClient = new AnnonarsApiClient(csrfToken.value)
+    const mehariClient = new MehariApiClient(csrfToken.value)
+    const hgncId = smallVariantRecord$.payload.hgnc_id
 
     await Promise.all([
-      annonarsClient
-        .retrieveGeneInfos([smallVariantRecord$.payload.hgnc_id])
-        .then((result) => {
-          gene.value = result[0]
-        }),
+      annonarsClient.retrieveGeneInfos([hgncId]).then((result) => {
+        gene.value = result[0]
+      }),
       annonarsClient
         .retrieveVariantAnnos(
           smallVariantRecord$.release.toLowerCase(),
@@ -62,6 +65,18 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
         )
         .then((result) => {
           varAnnos.value = result.result
+        }),
+      mehariClient
+        .retrieveTxCsq(
+          smallVariantRecord$.release.toLowerCase(),
+          smallVariantRecord$.chromosome,
+          smallVariantRecord$.start,
+          smallVariantRecord$.reference,
+          smallVariantRecord$.alternative,
+          hgncId
+        )
+        .then((result) => {
+          txCsq.value = result.result
         }),
       variantsApi
         .retrieveVariantDetails(
@@ -99,6 +114,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     mitochondrialFreqs,
     gene,
     varAnnos,
+    txCsq,
     ncbiSummary,
     ncbiGeneRifs,
     variantValidatorResults,

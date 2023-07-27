@@ -422,7 +422,7 @@ const displayAmbiguousFrequencyWarning = (item) => {
 const displayAmbiguousFrequencyWarningMsg = (item) => {
   const tables = displayAmbiguousFrequencyWarning(item)
   const tablesStr = tables.join(' ')
-  return `Table(s) {tablesStr} contain(s) freq > 0.1 or #hom > 50`
+  return `Table(s) ${tablesStr} contain(s) freq > 0.1 or #hom > 50`
 }
 
 /** Load data from table as configured by tableServerOptions. */
@@ -542,35 +542,41 @@ watch(
           <i-fa-solid-search
             class="text-muted"
             @click="showVariantDetails(sodar_uuid)"
+            role="button"
           />
           <i-fa-solid-bookmark
             v-if="flagsStore.getFlags(payload)"
             class="text-muted ml-1"
             title="flags & bookmarks"
             @click="showVariantDetails(sodar_uuid, 'flags')"
+            role="button"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted ml-1"
             title="flags & bookmarks"
             @click="showVariantDetails(sodar_uuid, 'flags')"
+            role="button"
           />
 
           <i-fa-solid-comment
             v-if="commentsStore.hasComments(payload)"
             class="text-muted ml-1"
             @click="showVariantDetails(sodar_uuid, 'comments')"
+            role="button"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted ml-1"
             @click="showVariantDetails(sodar_uuid, 'comments')"
+            role="button"
           />
 
           <span
             title="ACMG rating"
             :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
             @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
+            role="button"
             >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
           >
 
@@ -586,18 +592,20 @@ watch(
           </a>
           <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
 
-          <a
-            v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
-            target="_blank"
-            :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + payload.vcv"
+          <span
+            @click="showVariantDetails(sodar_uuid, 'clinvar')"
+            role="button"
           >
-            <i-fa-regular-hospital class="ml-1 text-muted" />
-          </a>
-          <i-fa-regular-hospital
-            v-else
-            title="Not in local ClinVar copy"
-            class="ml-1 text-muted icon-inactive"
-          />
+            <i-fa-regular-hospital
+              v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
+              class="ml-1 text-muted"
+            />
+            <i-fa-regular-hospital
+              v-else
+              title="Not in local ClinVar copy"
+              class="ml-1 text-muted icon-inactive"
+            />
+          </span>
 
           <a
             v-if="payload.hgmd_public_overlap"
@@ -648,22 +656,41 @@ watch(
           </span>
           <span v-else class="badge badge-light">-</span>
         </template>
-        <template #item-frequency="{ payload }">
-          {{ displayFrequencyContent(payload) }}
-          <i-bi-exclamation-circle
-            class="text-muted"
-            v-if="displayAmbiguousFrequencyWarning(payload).length > 0"
+        <template #item-frequency="{ sodar_uuid, payload }">
+          <abbr
+            v-if="displayAmbiguousFrequencyWarning(payload)?.length"
             :title="displayAmbiguousFrequencyWarningMsg(payload)"
-          />
+            @click="showVariantDetails(sodar_uuid, 'freqs')"
+            role="button"
+          >
+            {{ displayFrequencyContent(payload) }}
+            <i-mdi-information-outline />
+          </abbr>
+          <span
+            @click="showVarintDetails(sodar_uuid, 'freqs')"
+            role="button"
+            v-else
+          >
+            {{ displayFrequencyContent(payload) }}
+          </span>
         </template>
-        <template #item-homozygous="{ payload }">
-          {{ displayHomozygousContent(payload) }}
+        <template #item-homozygous="{ sodar_uuid, payload }">
+          <span @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+            {{ displayHomozygousContent(payload) }}
+          </span>
         </template>
         <template #item-constraints="{ payload }">
           {{ displayConstraintsContent(payload) }}
         </template>
-        <template #item-gene="{ payload }">
-          {{ getSymbol(payload) }}
+        <template #item-gene="{ sodar_uuid, payload }">
+          <span
+            class="user-select-none"
+            href="#"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            role="button"
+          >
+            {{ getSymbol(payload) }}
+          </span>
         </template>
         <template #item-gene_icons="{ payload }">
           <i-fa-solid-user-md
@@ -692,9 +719,11 @@ watch(
             >
           </span>
         </template>
-        <template #item-effect_summary="{ payload }">
+        <template #item-effect_summary="{ sodar_uuid, payload }">
           <span
             :title="`${effectSummary(payload)} [${payload.effect.join(', ')}]`"
+            @click="showVariantDetails(sodar_uuid, 'tx-csq')"
+            role="button"
           >
             {{ truncateText(effectSummary(payload), 12) }}
           </span>
@@ -742,6 +771,7 @@ watch(
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               @click="flagsStore.flagAsArtifact(payload)"
+              role="button"
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>
@@ -760,6 +790,7 @@ watch(
               title="Go to locus in IGV"
               style="font-size: 80%"
               class="btn btn-sm btn-secondary"
+              role="button"
             >
               IGV
             </button>

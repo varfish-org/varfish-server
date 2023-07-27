@@ -41,7 +41,7 @@ export const separateIt = (value: number, separator: string = ' '): string => {
     for (let i = 0; i <= cardinal.length; i += 3) {
       arr.push(cardinal.slice(offset + i, offset + i + 3))
     }
-    splitString[0] = arr.join(' ')
+    splitString[0] = arr.join(separator)
   }
   return splitString.join('.')
 }

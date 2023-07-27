@@ -60,7 +60,7 @@ export class AnnonarsApiClient {
   }
 
   /**
-   * Retrieve variant infomration via annonars REST API.
+   * Retrieve variant information via annonars REST API.
    */
   async retrieveVariantAnnos(
     genomeRelease: string,
