@@ -44,7 +44,6 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
 
     await Promise.all([
       annonarsApi.retrieveGeneInfos([smallVariant$.hgnc_id]).then((result) => {
-        console.log('gene info = ', result[0])
         gene.value = result[0]
       }),
       variantsApi

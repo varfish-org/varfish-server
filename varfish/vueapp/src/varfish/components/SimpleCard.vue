@@ -15,7 +15,7 @@ const props = defineProps<{
       <div class="p-2 card-header font-weight-bolder">
         {{ props.title }}
       </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         <slot></slot>
       </div>
     </div>

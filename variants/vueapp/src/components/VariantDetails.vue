@@ -89,6 +89,7 @@ onMounted(() => {
         <SimpleCard id="gene" title="Gene">
           <VariantDetailsGene
             :gene="detailsStore.gene"
+            :small-var="detailsStore.smallVariant"
             :hgmd-pro-enabled="queryStore.hgmdProEnabled"
             :hgmd-pro-prefix="queryStore.hgmdProPrefix"
           />
