@@ -1,4 +1,4 @@
-import annonarsApi from '@varfish/api/annonars'
+import { AnnonarsApiClient } from '@varfish/api/annonars'
 import { defineStore } from 'pinia'
 import { Ref, ref } from 'vue'
 
@@ -47,7 +47,8 @@ export const useSvDetailsStore = defineStore('detailsSv', () => {
     // Fetch new details
     currentSvRecord.value = svRecord
     const hgncIds = svRecord.payload.tx_effects.map((item) => item.gene.hgnc_id)
-    genesInfos.value = await annonarsApi.retrieveGeneInfos(hgncIds)
+    const annonarsClient = new AnnonarsApiClient(csrfToken.value)
+    genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)?.result
   }
 
   /** Initialize the store from the appContext. */

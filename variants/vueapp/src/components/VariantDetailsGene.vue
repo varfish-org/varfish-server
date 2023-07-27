@@ -4,6 +4,8 @@
   The component uses a wrapping list of cards to present the information.
 -->
 <script setup lang="ts">
+import { roundIt } from '@varfish/more-utils'
+
 const props = defineProps<{
   /** Gene information from annonars. */
   gene: any
@@ -14,24 +16,6 @@ const props = defineProps<{
   /** The URL prefix to HGMD Pro. */
   hgmdProPrefix: string
 }>()
-
-/**
- * Round `value` to `digits` and return an `<abbr>` tag that has the original value
- * as the `@title` and the rounded value as the inner text.  Optionally add a `label`
- * to the `@title`
- *
- * @param value  The value to use and round.
- * @param digits The number of digits to round to.
- * @param label  The optional label to add.
- */
-const roundIt = (value: number, digits: number = 2, label?: string): string => {
-  if (!value) {
-    return `<abbr title='${value}'>NaN</abbr>`
-  }
-  const roundedValue = value.toFixed(digits)
-  const useLabel = label ? `${label}: ` : ''
-  return `<abbr title="${useLabel}${value}">${roundedValue}</abbr>`
-}
 </script>
 
 <template>
@@ -66,7 +50,7 @@ const roundIt = (value: number, digits: number = 2, label?: string): string => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col mb-2 pl-2 pr-0" v-if="gene?.gnomad_constraints">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -428,7 +412,7 @@ const roundIt = (value: number, digits: number = 2, label?: string): string => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col mb-2 pl-2 pr-0" v-if="gene?.acmg_sf">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">

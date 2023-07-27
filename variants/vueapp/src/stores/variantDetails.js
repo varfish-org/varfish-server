@@ -1,4 +1,4 @@
-import annonarsApi from '@varfish/api/annonars'
+import { AnnonarsApiClient } from '@varfish/api/annonars'
 import variantsApi from '@variants/api/variants.js'
 import { VariantValidatorStates } from '@variants/enums'
 import { defineStore } from 'pinia'
@@ -19,6 +19,8 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
   const mitochondrialFreqs = ref(null)
   /** Gene-related information from annonars. */
   const gene = ref(null)
+  /** Variant-related information from annonars. */
+  const varAnnos = ref(null)
   const ncbiSummary = ref(null)
   const ncbiGeneRifs = ref(null)
   const variantValidatorResults = ref(null)
@@ -34,18 +36,33 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     csrfToken.value = appContext.csrf_token
   }
 
-  const fetchVariantDetails = async (smallVariant$, database$) => {
+  const fetchVariantDetails = async (smallVariantRecord$, database$) => {
     database.value = database$
-    smallVariant.value = smallVariant$
+    smallVariant.value = smallVariantRecord$.payload
     variantValidatorResults.value = null
     beaconAddress.value = null
     fetched.value = false
     variantValidatorState.value = VariantValidatorStates.Initial
 
+    const annonarsClient = new AnnonarsApiClient(csrfToken.value)
+
     await Promise.all([
-      annonarsApi.retrieveGeneInfos([smallVariant$.hgnc_id]).then((result) => {
-        gene.value = result[0]
-      }),
+      annonarsClient
+        .retrieveGeneInfos([smallVariantRecord$.payload.hgnc_id])
+        .then((result) => {
+          gene.value = result[0]
+        }),
+      annonarsClient
+        .retrieveVariantAnnos(
+          smallVariantRecord$.release.toLowerCase(),
+          smallVariantRecord$.chromosome,
+          smallVariantRecord$.start,
+          smallVariantRecord$.reference,
+          smallVariantRecord$.alternative
+        )
+        .then((result) => {
+          varAnnos.value = result.result
+        }),
       variantsApi
         .retrieveVariantDetails(
           csrfToken.value,
@@ -81,6 +98,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     inhouseFreq,
     mitochondrialFreqs,
     gene,
+    varAnnos,
     ncbiSummary,
     ncbiGeneRifs,
     variantValidatorResults,

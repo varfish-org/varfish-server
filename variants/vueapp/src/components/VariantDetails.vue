@@ -7,17 +7,17 @@ import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantCommentsStore } from '@variants/stores/variantComments.js'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags.js'
 
+import VariantDetailsGene from './VariantDetailsGene.vue'
+import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
+import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
-import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
 import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
-import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
 import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
-import VariantDetailsGene from './VariantDetailsGene.vue'
 import VariantDetailsTranscripts from './VariantDetailsTranscripts.vue'
 import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
@@ -83,7 +83,6 @@ onMounted(() => {
             :small-variant="detailsStore.smallVariant"
             :hgmd-pro-enabled="queryStore.hgmdProEnabled"
             :hgmd-pro-prefix="queryStore.hgmdProPrefix"
-            :umd-predictor-api-token="queryStore.umdPredictorApiToken"
           />
         </SimpleCard>
         <SimpleCard id="gene" title="Gene">
@@ -106,20 +105,10 @@ onMounted(() => {
         <SimpleCard id="clinvar" title="ClinVar">
           <VariantDetailsClinvar />
         </SimpleCard>
-        <SimpleCard
-          id="freqs"
-          title="Population Frequencies"
-          v-if="
-            (detailsStore.populations && detailsStore.popFreqs) ||
-            detailsStore.mitochondrialFreqs
-          "
-        >
+        <SimpleCard id="freqs" title="Population Frequencies">
           <VariantDetailsFreqs
-            :small-variant="detailsStore.smallVariant"
-            :mitochondrial-freqs="detailsStore.mitochondrialFreqs"
-            :populations="detailsStore.populations"
-            :inhouse-freq="detailsStore.inhouseFreq"
-            :pop-freqs="detailsStore.popFreqs"
+            :small-var="detailsStore.smallVariant"
+            :var-annos="detailsStore.varAnnos"
           />
         </SimpleCard>
         <SimpleCard id="extra-annos" title="Extra Annotations">
