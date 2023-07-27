@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { roundIt } from '@varfish/more-utils'
+import { roundIt, separateIt as sep } from '@varfish/more-utils'
 
 const props = defineProps<{
   smallVar: any
   varAnnos: any
   dataset: string
 }>()
+
+const FREQ_DIGITS = 5
 
 const selAnnos = computed(() => {
   return props.varAnnos[props.dataset]
@@ -35,11 +37,11 @@ const byPop = computed(() => {
 })
 
 const allPopLabels = {
-  afr: 'African',
+  afr: 'African-American/African',
   asj: 'Ashkenazy Jewish',
   eas: 'East Asian',
   fin: 'European (Finnish)',
-  nfe: 'European (Non-Finnish)',
+  nfe: 'European (North-Western)',
   amr: 'Latino/Admixed American',
   sas: 'South Asian',
   oth: 'Other',
@@ -67,86 +69,111 @@ const sexExpanded = ref({})
         <tr>
           <th>Population</th>
           <th></th>
-          <th class="text-right">Allele Count</th>
-          <th class="text-right">Homozygotes</th>
-          <th class="text-right">Allele Frequency</th>
+          <th class="text-right text-nowrap">Allele Count</th>
+          <th class="text-right text-nowrap">Homozygotes</th>
+          <th class="text-right text-nowrap">Allele Frequency</th>
         </tr>
       </thead>
       <tbody>
         <template v-for="(label, key) of allPopLabels">
-          <tr>
-            <td>
-              {{ label }}
-              <a
-                @click.prevent="sexExpanded[key] = true"
-                v-if="!sexExpanded[key]"
-              >
-                <i-mdi-chevron-right />
-              </a>
-              <a @click.prevent="sexExpanded[key] = false" v-else>
-                <i-mdi-chevron-down />
-              </a>
-            </td>
-            <td></td>
-            <td class="text-right">{{ byPop[key].counts.overall.an }}</td>
-            <td class="text-right">{{ byPop[key].counts.overall.nhomalt }}</td>
-            <td
-              class="text-right"
-              v-html="roundIt(byPop[key].counts.overall.af, 4)"
-            ></td>
-          </tr>
-          <tr
-            :id="idKey(key) + '-xx'"
-            class="bg-light"
-            :class="{ 'd-none': !sexExpanded[key] }"
-          >
-            <td></td>
-            <td class="text-right">XX</td>
-            <td class="text-right">{{ byPop[key].counts.xx.an }}</td>
-            <td class="text-right">{{ byPop[key].counts.xx.nhomalt }}</td>
-            <td
-              class="text-right"
-              v-html="roundIt(byPop[key].counts.xx.af, 4)"
-            ></td>
-          </tr>
-          <tr
-            :id="idKey(key) + '-xy'"
-            class="bg-light"
-            :class="{ 'd-none': !sexExpanded[key] }"
-          >
-            <td></td>
-            <td class="text-right">XY</td>
-            <td class="text-right">{{ byPop[key].counts.xy.an }}</td>
-            <td class="text-right">{{ byPop[key].counts.xy.nhomalt }}</td>
-            <td
-              class="text-right"
-              v-html="roundIt(byPop[key].counts.xy.af, 4)"
-            ></td>
-          </tr>
+          <template v-if="byPop[key].counts?.overall?.an">
+            <tr>
+              <td>
+                {{ label }}
+                <a
+                  @click.prevent="sexExpanded[key] = true"
+                  v-if="!sexExpanded[key]"
+                >
+                  <i-mdi-chevron-right />
+                </a>
+                <a @click.prevent="sexExpanded[key] = false" v-else>
+                  <i-mdi-chevron-down />
+                </a>
+              </td>
+              <td></td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.overall?.an) }}
+              </td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.overall?.nhomalt) }}
+              </td>
+              <td
+                class="text-right text-nowrap"
+                v-html="roundIt(byPop[key].counts?.overall?.af, FREQ_DIGITS)"
+              ></td>
+            </tr>
+            <tr
+              :id="idKey(key) + '-xx'"
+              class="bg-light"
+              :class="{ 'd-none': !sexExpanded[key] }"
+            >
+              <td></td>
+              <td class="text-right text-nowrap">XX</td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.xx?.an) }}
+              </td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.xx?.nhomalt) }}
+              </td>
+              <td
+                class="text-right text-nowrap"
+                v-html="roundIt(byPop[key].counts?.xx?.af, FREQ_DIGITS)"
+              ></td>
+            </tr>
+            <tr
+              :id="idKey(key) + '-xy'"
+              class="bg-light"
+              :class="{ 'd-none': !sexExpanded[key] }"
+            >
+              <td></td>
+              <td class="text-right text-nowrap">XY</td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.xy?.an) }}
+              </td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.xy?.nhomalt) }}
+              </td>
+              <td
+                class="text-right text-nowrap"
+                v-html="roundIt(byPop[key].counts?.xy?.af, FREQ_DIGITS)"
+              ></td>
+            </tr>
+          </template>
         </template>
 
         <tr>
           <th>Total</th>
           <td></td>
-          <td class="text-right">{{ bySex?.overall?.an }}</td>
-          <td class="text-right">{{ bySex?.overall?.nhomalt }}</td>
-          <td class="text-right" v-html="roundIt(bySex?.overall?.af, 5)"></td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.overall?.an) }}</td>
+          <td class="text-right text-nowrap">
+            {{ sep(bySex?.overall?.nhomalt) }}
+          </td>
+          <td
+            class="text-right text-nowrap"
+            v-html="roundIt(bySex?.overall?.af, FREQ_DIGITS)"
+          ></td>
         </tr>
 
         <tr>
           <td></td>
-          <td class="text-right">XY</td>
-          <td class="text-right">{{ bySex?.xy?.an }}</td>
-          <td class="text-right">{{ bySex?.xy?.nhomalt }}</td>
-          <td class="text-right" v-html="roundIt(bySex?.xy?.af, 5)"></td>
+          <td class="text-right text-nowrap">XX</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xx?.an) }}</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xx?.nhomalt) }}</td>
+          <td
+            class="text-right text-nowrap"
+            v-html="roundIt(bySex?.xx?.af, FREQ_DIGITS)"
+          ></td>
         </tr>
 
         <tr>
           <td></td>
-          <td class="text-right">XX</td>
-          <td class="text-right">{{ bySex?.xx?.an }}</td>
-          <td class="text-right">{{ bySex?.xx?.nhomalt }}</td>
-          <td class="text-right" v-html="roundIt(bySex?.xx?.af, 5)"></td>
+          <td class="text-right text-nowrap">XY</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xy?.an) }}</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xy?.nhomalt) }}</td>
+          <td
+            class="text-right text-nowrap"
+            v-html="roundIt(bySex?.xy?.af, FREQ_DIGITS)"
+          ></td>
         </tr>
       </tbody>
     </table>

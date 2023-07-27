@@ -21,6 +21,32 @@ export const roundIt = (
 }
 
 /**
+ * Converts a number to a string with thousands separator.
+ *
+ * @param value     The number to separate.
+ * @param separator The separator to use.
+ */
+export const separateIt = (value: number, separator: string = ' '): string => {
+  const asString = `${value}`
+  if (!asString.length) {
+    return '0'
+  }
+  const splitString = asString.split('.', 1)
+  const cardinal = splitString[0]
+  if (!cardinal?.length) {
+    splitString[0] = '0'
+  } else {
+    const offset = cardinal.length % 3
+    const arr = [cardinal.slice(0, offset)]
+    for (let i = 0; i <= cardinal.length; i += 3) {
+      arr.push(cardinal.slice(offset + i, offset + i + 3))
+    }
+    splitString[0] = arr.join(' ')
+  }
+  return splitString.join('.')
+}
+
+/**
  * Returns whether the given variant looks mitochondrial.
  * @param smallVar Small variant to check.
  * @returns whether the position is on the mitochondrial genome
