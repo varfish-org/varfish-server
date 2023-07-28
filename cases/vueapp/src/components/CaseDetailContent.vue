@@ -6,6 +6,7 @@ import CaseDetailPaneQc from './CaseDetailPaneQc.vue'
 import CaseDetailPaneAnnotations from './CaseDetailPaneAnnotations.vue'
 import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
+import { useRouter } from 'vue-router'
 
 /** Define emits. */
 const emit = defineEmits([
@@ -19,14 +20,23 @@ const emit = defineEmits([
   'updateCasePhenotypeTermsClick',
 ])
 
+const props = defineProps({
+  /** Whether to show the variant details modal. */
+  variantDetailsModalVisible: Boolean,
+  /** The UUID of the result row to show in details modal. */
+  variantDetailsModalResultRowUuid: String,
+  /** Which tab to show in the variant details modal. */
+  variantDetailsModalSelectedTab: String,
+  /** The currently selected tab. */
+  caseDetailsSelectedTab: String,
+})
+
 const Tabs = Object.freeze({
   overview: 'overview',
   qc: 'qc',
   annotation: 'annotation',
   browser: 'browser',
 })
-
-const currentTab = ref('overview')
 
 const caseDetailsStore = useCaseDetailsStore()
 
@@ -43,30 +53,29 @@ const annoCount = computed(() => {
   }
 })
 
+/** The router. */
+const router = useRouter()
+
 /** Update the current tab. */
 const updateCurrentTab = (newValue) => {
-  currentTab.value = newValue
+  router.push({
+    name: newValue,
+  })
 }
-
-defineExpose({
-  currentTab,
-})
 </script>
 
 <template>
   <div
     :class="{
-      'flex-grow-1 d-flex flex-column': currentTab === Tabs.annotation,
+      'flex-grow-1 d-flex flex-column': props.currentTab === Tabs.annotation,
     }"
   >
     <ul class="nav nav-tabs" id="case-tab" role="tablist">
       <li class="nav-item">
         <a
-          class="nav-link active"
-          id="overview-tab"
-          data-toggle="tab"
-          href="#overview"
-          role="tab"
+          class="nav-link"
+          :class="{ active: props.caseDetailsSelectedTab === Tabs.overview }"
+          role="button"
           @click="updateCurrentTab(Tabs.overview)"
         >
           <i-mdi-account />
@@ -76,10 +85,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="qc-tab"
-          data-toggle="tab"
-          href="#qc"
-          role="tab"
+          :class="{ active: props.caseDetailsSelectedTab === Tabs.qc }"
+          role="button"
           @click="updateCurrentTab(Tabs.qc)"
         >
           <i-mdi-chart-multiple />
@@ -89,10 +96,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="annotation-tab"
-          data-toggle="tab"
-          href="#annotation"
-          role="tab"
+          :class="{ active: props.caseDetailsSelectedTab === Tabs.annotation }"
+          role="button"
           @click="updateCurrentTab(Tabs.annotation)"
         >
           <i-mdi-bookmark-multiple />
@@ -109,10 +114,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="browser-tab"
-          data-toggle="tab"
-          href="#browser"
-          role="tab"
+          :class="{ active: props.caseDetailsSelectedTab === Tabs.browser }"
+          role="button"
           @click="updateCurrentTab(Tabs.browser)"
         >
           <i-mdi-safety-goggles />
@@ -123,7 +126,7 @@ defineExpose({
     </ul>
     <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
       <div
-        v-if="currentTab === Tabs.overview"
+        v-if="props.caseDetailsSelectedTab === Tabs.overview"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
@@ -142,7 +145,7 @@ defineExpose({
         />
       </div>
       <div
-        v-if="currentTab === Tabs.qc"
+        v-if="props.caseDetailsSelectedTab === Tabs.qc"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
@@ -150,15 +153,19 @@ defineExpose({
         <CaseDetailPaneQc />
       </div>
       <div
-        v-if="currentTab === Tabs.annotation"
+        v-if="props.caseDetailsSelectedTab === Tabs.annotation"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
       >
-        <CaseDetailPaneAnnotations />
+        <CaseDetailPaneAnnotations
+          :detailsModalVisible="props.detailsModalVisible"
+          :detailsModalResultRowUuid="props.detailsModalResultRowUuid"
+          :detailsModalSelectedTab="props.detailsModalSelectedTab"
+        />
       </div>
       <div
-        v-if="currentTab === Tabs.browser"
+        v-if="props.caseDetailsSelectedTab === Tabs.browser"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"

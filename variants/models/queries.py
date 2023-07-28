@@ -159,6 +159,8 @@ class SmallVariantQueryResultSet(models.Model):
     elapsed_seconds = models.FloatField(help_text="Elapsed seconds")
 
     def get_project(self):
+        if self.case:
+            return self.case.project
         return self.smallvariantquery.case.project
 
     class Meta:

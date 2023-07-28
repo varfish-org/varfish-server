@@ -29,6 +29,17 @@ const route = useRoute()
 /** The currently displayed case's UUID, updated from route. */
 const caseUuidRef = ref(route.params.case)
 
+const props = defineProps({
+  /** Whether to show the variant details modal. */
+  variantDetailsModalVisible: Boolean,
+  /** The UUID of the result row to show in details modal. */
+  variantDetailsModalResultRowUuid: String,
+  /** Which tab to show in the variant details modal. */
+  variantDetailsModalSelectedTab: String,
+  /** The currently selected tab. */
+  caseDetailsSelectedTab: String,
+})
+
 connectTopRowControls()
 
 // We can only finish initialization once the caseDetailsStore has completed loading as we need to initialize
@@ -360,6 +371,10 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
       class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
     >
       <CaseDetailContent
+        :variantDetailsModalVisible="props.variantDetailsModalVisible"
+        :variantDetailsModalResultRowUuid="props.variantDetailsModalResultRowUuid"
+        :variantDetailsModalSelectedTab="props.variantDetailsModalSelectedTab"
+        :caseDetailsSelectedTab="props.caseDetailsSelectedTab"
         @edit-case-status-click="handleEditCaseStatusClicked"
         @edit-case-notes-click="handleEditCaseNotesClicked"
         @edit-query-presets-click="handleEditQueryPresetsClicked"

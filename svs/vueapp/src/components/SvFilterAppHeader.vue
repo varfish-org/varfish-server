@@ -86,7 +86,7 @@ watch(
         class="btn btn-secondary"
         @click.prevent="
           router.push({
-            name: 'case-detail',
+            name: 'case-detail-overview',
             params: { case: caseDetailsStore.caseObj.sodar_uuid },
           })
         "

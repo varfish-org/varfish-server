@@ -165,6 +165,11 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     relatedness = serializers.SerializerMethodField("get_relatedness")
     sex_errors = serializers.SerializerMethodField("get_sex_errors")
     presetset = serializers.ReadOnlyField(source="presetset.sodar_uuid")
+    smallvariantqueryresultset = serializers.SerializerMethodField()
+
+    def get_smallvariantqueryresultset(self, obj):
+        from variants.serializers import SmallVariantQueryResultSetSerializer
+        return SmallVariantQueryResultSetSerializer(obj.smallvariantqueryresultset_set.first()).data
 
     def create(self, validated_data):
         """Make project and release writeable on creation."""
@@ -270,6 +275,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "sex_errors",
             "presetset",
             "case_version",
+            "smallvariantqueryresultset"
         )
         read_only_fields = (
             "sodar_uuid",

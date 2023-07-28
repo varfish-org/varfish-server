@@ -1,5 +1,6 @@
 """API views for ``variants`` app."""
 import contextlib
+import uuid
 from itertools import chain
 import re
 import typing
@@ -1288,6 +1289,19 @@ class SmallVariantFlagsListCreateApiView(
             if key in self.request.query_params:
                 result[key] = self.request.query_params[key]
         return result
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        result_row = SmallVariantQueryResultRow.objects.get(
+            sodar_uuid=self.request.data.get("sodar_uuid")
+        )
+        result_row.pk = None
+        result_row.sodar_uuid = uuid.uuid4()
+        result_row.smallvariantqueryresultset = case.smallvariantqueryresultset_set.first()
+        result_row.save()
+        result_row.smallvariantqueryresultset.result_row_count += 1
+        result_row.smallvariantqueryresultset.save()
 
 
 class SmallVariantFlagsUpdateApiView(

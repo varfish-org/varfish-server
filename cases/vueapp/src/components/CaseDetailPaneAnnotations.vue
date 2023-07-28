@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import variantsApi from '@variants/api/variants.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details.js'
@@ -36,20 +37,34 @@ const smallVariantDetailsModalWrapperRef = ref(null)
 
 const variantDetailsStore = useVariantDetailsStore()
 
+const filterQueryStore = useFilterQueryStore()
+
 const previousQueryDetails = ref(null)
 
-const showModal = ({ gridRow, gridApi, smallVariant }) => {
-  currentSmallVariant.value = smallVariant
-  smallVariantDetailsModalWrapperRef.value.showModal()
-  variantDetailsStore.fetchVariantDetails(
-    gridRow,
-    gridApi,
-    smallVariant,
-    'refseq'
-  )
-}
+const props = defineProps({
+  /** Whether to show the variant details modal. */
+  variantDetailsModalVisible: Boolean,
+  /** The UUID of the result row to show in details modal. */
+  variantDetailsModalResultRowUuid: String,
+  /** Which tab to show in the variant details modal. */
+  variantDetailsModalSelectedTab: String,
+})
 
-const filterQueryStore = useFilterQueryStore()
+/** The currently used route. */
+const route = useRoute()
+/** The currently used router. */
+const router = useRouter()
+
+const showModal = async (event) => {
+  router.push({
+    name: 'case-detail-variant-detail',
+    params: {
+      case: caseDetailsStore.caseObj.sodar_uuid,
+      row: event.smallvariantresultrow,
+      selectedTab: event.selectedTab ?? null,
+    },
+  })
+}
 
 onMounted(async () => {
   const csrfToken = casesStore.appContext.csrfToken
@@ -69,7 +84,7 @@ onMounted(async () => {
       <template v-if="filterQueryStore.queryResults">
         <FilterResultsTable
           :case="caseDetailsStore.caseObj"
-          :query-results="filterQueryStore.queryResults"
+          :query-result-set="caseDetailsStore.caseObj.smallvariantqueryresultset"
           :extra-anno-fields="extraAnnoFields"
           v-model:display-details="displayDetails"
           v-model:display-frequency="displayFrequency"
@@ -83,8 +98,9 @@ onMounted(async () => {
 
     <VariantDetailsModalWrapper
       ref="smallVariantDetailsModalWrapperRef"
-      :small-variant="currentSmallVariant"
-      :fetched="variantDetailsStore.fetched"
+      :visible="props.variantDetailsModalVisible"
+      :result-row-uuid="props.variantDetailsModalResultRowUuid"
+      :selected-tab="props.variantDetailsModalSelectedTab"
     />
   </div>
 </template>

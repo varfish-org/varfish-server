@@ -42,7 +42,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     const res = await variantsApi.retrieveVariantDetails(
       csrfToken.value,
       database.value,
-      smallVariant.value
+      smallVariant.value,
     )
     fetched.value = true
     gene.value = res.gene

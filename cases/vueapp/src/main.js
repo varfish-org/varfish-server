@@ -45,9 +45,59 @@ const routes = [
     }),
   },
   {
-    name: 'case-detail',
-    path: '/detail/:case',
+    name: 'case-detail-overview',
+    path: '/detail/:case/overview',
     component: CaseDetail,
+    props: (route) => ({
+      caseDetailSelectedTab: 'overview',
+      variantDetailsModalVisible: false,
+      variantDetailsModalResultRowUuid: null,
+      variantDetailsModalSelectedTab: null,
+    }),
+  },
+  {
+    name: 'case-detail-qc',
+    path: '/detail/:case/qc',
+    component: CaseDetail,
+    props: (route) => ({
+      caseDetailSelectedTab: 'qc',
+      variantDetailsModalVisible: false,
+      variantDetailsModalResultRowUuid: null,
+      variantDetailsModalSelectedTab: null,
+    }),
+  },
+  {
+    name: 'case-detail-annotation',
+    path: '/detail/:case/annotation',
+    component: CaseDetail,
+    props: (route) => ({
+      caseDetailSelectedTab: 'annotation',
+      variantDetailsModalVisible: false,
+      variantDetailsModalResultRowUuid: null,
+      variantDetailsModalSelectedTab: null,
+    }),
+  },
+  {
+    name: 'case-detail-annotation-variant-detail',
+    path: '/detail/:case/annotation/:row/:selectedTab?',
+    component: CaseDetail,
+    props: (route) => ({
+      caseDetailSelectedTab: 'annotation',
+      variantDetailsModalVisible: true,
+      variantDetailsModalResultRowUuid: route.params.row,
+      variantDetailsModalSelectedTab: route.params.selectedTab || 'info',
+    }),
+  },
+  {
+    name: 'case-detail-browser',
+    path: '/detail/:case/browser',
+    component: CaseDetail,
+    props: (route) => ({
+      caseDetailSelectedTab: 'browser',
+      variantDetailsModalVisible: false,
+      variantDetailsModalResultRowUuid: null,
+      variantDetailsModalSelectedTab: null,
+    }),
   },
   {
     name: 'variants-filter',

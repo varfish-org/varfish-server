@@ -208,6 +208,7 @@ onBeforeMount(() => {
     >
       <FilterResultsTable
         :case="filterQueryStore.caseObj"
+        :query-result-set="filterQueryStore.queryResultSet"
         :extra-anno-fields="filterQueryStore.extraAnnoFields"
         v-model:display-details="displayDetails"
         v-model:display-frequency="displayFrequency"

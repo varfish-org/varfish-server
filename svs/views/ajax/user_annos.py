@@ -116,7 +116,6 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
 
     def get_queryset(self):
         serializer_context = self.get_serializer_context()
-        print(f"serializer_context = {serializer_context}")
         qs = super().get_queryset()
         keys = ("case", "release", "chromosome", "sv_type", "sv_sub_type")
         query_args = {}

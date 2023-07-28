@@ -13,6 +13,7 @@ from variants.views.api import (
     SmallVariantCommentUpdateApiView,
     SmallVariantDetailsApiView,
     SmallVariantFlagsDeleteApiView,
+    SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsUpdateApiView,
     SmallVariantQueryDownloadGenerateApiView,
     SmallVariantQueryDownloadServeApiView,
@@ -25,7 +26,7 @@ from variants.views.api import (
     SmallVariantQueryResultSetListApiView,
     SmallVariantQueryResultSetRetrieveApiView,
     SmallVariantQueryRetrieveUpdateDestroyApiView,
-    SmallVariantQuerySettingsShortcutApiView, SmallVariantFlagsListCreateApiView,
+    SmallVariantQuerySettingsShortcutApiView,
 )
 
 

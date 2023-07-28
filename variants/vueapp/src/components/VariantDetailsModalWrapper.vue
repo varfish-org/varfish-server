@@ -45,7 +45,7 @@ const showModal = async () => {
     props.resultRowUuid
   )
   smallVariant.value = resultRow.payload
-  variantDetailsStore.fetchVariantDetails(
+  await variantDetailsStore.fetchVariantDetails(
     resultRow.payload,
     filterQueryStore.previousQueryDetails.query_settings.database_select
   )

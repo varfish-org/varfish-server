@@ -12,7 +12,6 @@ import { getAcmgBadge } from '@variants/helpers.js'
 import variantsApi from '@variants/api/variants.js'
 import ColumnControl from './ColumnControl.vue'
 import ExportResults from './ExportResults.vue'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useFilterQueryStore } from '@variants/stores/filterQuery'
@@ -46,6 +45,8 @@ const props = defineProps({
   pathoEnabled: Boolean,
   /** The phenotype score enabled. */
   prioEnabled: Boolean,
+  /** The query result set object. */
+  queryResultSet: Object,
 })
 
 /**
@@ -89,7 +90,6 @@ const context = ref(null)
 /**
  * Setup stores before mounting the component.
  */
-const detailsStore = useVariantDetailsStore()
 const queryStore = useFilterQueryStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
@@ -125,11 +125,6 @@ onBeforeMount(() => {
     tableLoading.value = false
   })
 })
-
-// const displayConstraintText = computed(() => {
-//   /** TODO Somehow it displays the string with quotes ... :/ */
-//   return DisplayConstraintsToText[displayConstraintWrapper.value]
-// })
 
 /**
  * Setup for easy-data-table.
@@ -444,7 +439,7 @@ const loadFromServer = async () => {
   tableLoading.value = true
   const response = await variantsApi.listQueryResultRow(
     queryStore.csrfToken,
-    queryStore.queryResultSet.sodar_uuid,
+    props.queryResultSet.sodar_uuid,
     {
       pageNo: tableServerOptions.value.page,
       pageSize: tableServerOptions.value.rowsPerPage,
@@ -513,7 +508,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary" id="results-button">
-            {{ queryStore.queryResultSet.result_row_count }}
+            {{ props.queryResultSet.result_row_count }}
           </span>
         </div>
       </div>
@@ -532,7 +527,7 @@ watch(
         table-class-name="customize-table"
         :loading="tableLoading"
         :body-row-class-name="tableRowClassName"
-        :server-items-length="queryStore.queryResultSet.result_row_count"
+        :server-items-length="props.queryResultSet.result_row_count"
         :headers="tableHeaders"
         :items="tableRows"
         :rows-items="[20, 50, 200, 1000]"
@@ -740,26 +735,26 @@ watch(
         <template #item-patho_pheno_score="{ payload }">
           {{ formatFloat(payload.patho_pheno_score, 3) }}
         </template>
-        <template #item-igv="{ payload }">
+        <template #item-igv="item">
           <div class="btn-group btn-group-sm">
             <div
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
-              @click="flagsStore.flagAsArtifact(payload)"
+              @click="flagsStore.flagAsArtifact(item)"
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>
             <a
-              :href="mtLink(payload)"
+              :href="mtLink(item.payload)"
               target="_blank"
               style="font-size: 80%"
               class="btn btn-sm btn-outline-secondary"
-              :class="mtLink(payload) === '#' ? 'disabled' : ''"
+              :class="mtLink(item.payload) === '#' ? 'disabled' : ''"
             >
               MT
             </a>
             <button
-              @click="goToLocus(payload)"
+              @click="goToLocus(item.payload)"
               type="button"
               title="Go to locus in IGV"
               style="font-size: 80%"
