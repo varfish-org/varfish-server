@@ -105,17 +105,20 @@ def run_query_bg_job(pk):
             del payload["id"]
 
             if pathogenicity_scores:
-                payload["pathogenicity_score"] = pathogenicity_scores[
-                    (line.chromosome, line.start, line.reference, line.alternative)
-                ]
+                payload["pathogenicity_score"] = pathogenicity_scores.get(
+                    (line.chromosome, line.start, line.reference, line.alternative), -1
+                )
 
             if phenotype_scores and line.entrez_id:
-                payload["phenotype_score"] = phenotype_scores[line.entrez_id]
+                payload["phenotype_score"] = phenotype_scores.get(line.entrez_id, -1)
 
             if pathogenicity_scores and phenotype_scores and line.entrez_id:
-                payload["patho_pheno_score"] = (
-                    payload["pathogenicity_score"] * payload["phenotype_score"]
-                )
+                if payload["pathogenicity_score"] == -1 or payload["phenotype_score"] == -1:
+                    payload["patho_pheno_score"] = -1
+                else:
+                    payload["patho_pheno_score"] = (
+                        payload["pathogenicity_score"] * payload["phenotype_score"]
+                    )
 
             yield SmallVariantQueryResultRow(
                 smallvariantqueryresultset=smallvariantqueryresultset,
