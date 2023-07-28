@@ -85,7 +85,7 @@ watch(
   <div
     class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
   >
-    <div class="card">
+    <div>
       <ul
         v-if="commentsStore.comments?.length"
         class="list-group list-group-flush list"
@@ -186,13 +186,16 @@ watch(
           No comments.
         </p>
       </div>
-      <div class="card-footer" v-if="editCommentMode === EditCommentModes.Off">
+      <div
+        class="card-footer pl-2 pr-2 text-right"
+        v-if="editCommentMode === EditCommentModes.Off"
+      >
         <textarea
           v-model="commentToSubmit"
-          class="form-control"
+          class="form-control mb-2"
           placeholder="Comment variant here ..."
         ></textarea>
-        <div class="btn-group">
+        <div class="btn-group ml-auto mb-2">
           <button class="btn btn-secondary" @click="commentToSubmit = ''">
             Clear
           </button>

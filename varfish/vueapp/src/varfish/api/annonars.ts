@@ -28,7 +28,7 @@ export class AnnonarsApiClient {
     const hgncIdChunks = chunks(hgncIds, chunkSize ?? this.defaultChunkSize)
 
     const promises = hgncIdChunks.map((chunk) => {
-      const url = `${this.baseUrl}/genes/info?hgnc-id=${chunk.join(',')}`
+      const url = `${this.baseUrl}/genes/info?hgnc_id=${chunk.join(',')}`
 
       const headers = {
         Accept: 'application/json',
@@ -70,7 +70,7 @@ export class AnnonarsApiClient {
     alternative: string
   ): Promise<any> {
     const url =
-      `${this.baseUrl}/annos/variant?genome-release=${genomeRelease}&` +
+      `${this.baseUrl}/annos/variant?genome_release=${genomeRelease}&` +
       `chromosome=${chromosome}&pos=${pos}&reference=${reference}&` +
       `alternative=${alternative}`
 

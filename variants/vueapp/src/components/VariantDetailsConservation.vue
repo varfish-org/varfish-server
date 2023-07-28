@@ -3,13 +3,13 @@ import { computed, ref, watch, onMounted } from 'vue'
 import { separateIt as sepIt } from '@varfish/more-utils'
 
 const props = defineProps<{
-varAnnos: any
+  varAnnos: any
 }>()
 
 /** Return the conservation records. */
 const ucscConservation = computed(() => {
-  if (props.varAnnos["ucsc-conservation"]?.length) {
-    return props.varAnnos["ucsc-conservation"][0].records
+  if (props.varAnnos?.ucsc_conservation?.length) {
+    return props.varAnnos?.ucsc_conservation[0].records
   } else {
     return []
   }
@@ -25,7 +25,13 @@ const transcriptIds = computed(() => {
 const consInfo = computed(() => {
   let seen = new Set()
   let res = {}
-  for (const { chromosome, enst_id, start, stop, alignment} of ucscConservation.value) {
+  for (const {
+    chromosome,
+    enst_id,
+    start,
+    stop,
+    alignment,
+  } of ucscConservation.value) {
     const key = `${enst_id}-${chromosome}-${enst_id}-${start}-${stop}`
     if (!seen.has(key)) {
       seen.add(key)
@@ -47,8 +53,10 @@ const selectedTranscript = ref(null)
 
 const initSelectedTranscript = () => {
   if (transcriptIds.value?.length) {
-    if (!selectedTranscript.value || (transcriptIds.value || []).includes(selectedTranscript.value)) {
-
+    if (
+      !selectedTranscript.value ||
+      (transcriptIds.value || []).includes(selectedTranscript.value)
+    ) {
       selectedTranscript.value = transcriptIds.value[0]
     }
   }
@@ -62,7 +70,10 @@ onMounted(initSelectedTranscript)
   <div class="m-2">
     <div v-if="ucscConservation">
       <div class="float-right">
-        <select v-model="selectedTranscript" class="form-control custom-select custom-select-sm">
+        <select
+          v-model="selectedTranscript"
+          class="form-control custom-select custom-select-sm"
+        >
           <option v-for="transcript in transcriptIds" :value="transcript">
             {{ transcript }}
           </option>
@@ -73,8 +84,7 @@ onMounted(initSelectedTranscript)
 <template v-for="row in consInfo[selectedTranscript]">{{ row.chromosome.padStart(5) }} {{ sepIt(row.start, ',').padStart(11) }}-{{ sepIt(row.stop, ',').padEnd(11) }}  |  {{ row.alignment }}
 </template></pre>
     </div>
-    <div v-else class="text-muted text-center font-italic">
-    </div>
+    <div v-else class="text-muted text-center font-italic"></div>
   </div>
   <!-- <div class="card">
     <div class="card-header">

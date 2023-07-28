@@ -25,8 +25,8 @@ export const allNavItems: NavItem[] = [
     title: 'Frequencies',
   },
   {
-    name: 'precomputed-scores',
-    title: 'Precomputed Scores',
+    name: 'variant-scores',
+    title: 'Variant Scores / Tools',
   },
   {
     name: 'tx-csq',
@@ -34,7 +34,7 @@ export const allNavItems: NavItem[] = [
   },
   {
     name: 'call-details',
-    title: 'Variant Call and Genotype Details',
+    title: 'Call / Genotype',
   },
   {
     name: 'conservation',

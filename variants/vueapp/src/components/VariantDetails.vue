@@ -16,12 +16,11 @@ import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
-import VariantDetailsPrecomputedScores from './VariantDetailsPrecomputedScores.vue'
+import VariantDetailsVariantScores from './VariantDetailsVariantScores.vue'
 import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
 import VariantDetailsTxCsq from './VariantDetailsTxCsq.vue'
 import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
-import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
 
 import { allNavItems } from './VariantDetails.fields'
 
@@ -77,14 +76,6 @@ onMounted(() => {
   <div class="container-fluid">
     <div class="row">
       <div class="col-10 pl-0 pr-0 pt-2">
-        <SimpleCard id="link-outs" title="Link-Outs">
-          <VariantDetailsLinkOuts
-            :gene="detailsStore.gene"
-            :small-variant="detailsStore.smallVariant"
-            :hgmd-pro-enabled="queryStore.hgmdProEnabled"
-            :hgmd-pro-prefix="queryStore.hgmdProPrefix"
-          />
-        </SimpleCard>
         <SimpleCard id="gene" title="Gene">
           <VariantDetailsGene
             :gene="detailsStore.gene"
@@ -111,8 +102,8 @@ onMounted(() => {
             :var-annos="detailsStore.varAnnos"
           />
         </SimpleCard>
-        <SimpleCard id="precomputed-scores" title="Precomputed Scores">
-          <VariantDetailsPrecomputedScores :var-annos="detailsStore.varAnnos" />
+        <SimpleCard id="variant-scores" title="Variant Scores">
+          <VariantDetailsVariantScores :small-var="detailsStore.smallVariant" :var-annos="detailsStore.varAnnos" />
         </SimpleCard>
         <SimpleCard id="tx-csq" title="Consequences">
           <VariantDetailsTxCsq :tx-csq="detailsStore.txCsq" />
@@ -124,9 +115,7 @@ onMounted(() => {
           />
         </SimpleCard>
         <SimpleCard id="conservation" title="Conservation">
-          <VariantDetailsConservation
-            :var-annos="detailsStore.varAnnos"
-          />
+          <VariantDetailsConservation :var-annos="detailsStore.varAnnos" />
         </SimpleCard>
         <SimpleCard id="flags" title="Flags">
           <VariantDetailsFlags

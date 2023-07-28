@@ -205,8 +205,8 @@ const sexExpanded = ref({})
     </table>
 
     <div class="text-muted text-center font-italic pb-3" v-else>
-      No allele frequency information available in local database.
-      Try to lookup the variant directly:
+      No allele frequency information available in local database. Try to lookup
+      the variant directly:
       <a
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
