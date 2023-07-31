@@ -4,22 +4,50 @@ import en from 'javascript-time-ago/locale/en'
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
-export function reciprocalOverlap(lhs, rhs) {
+export function overlapLength(lhs, rhs) {
   if (lhs.chromosome !== rhs.chromosome) {
     return 0.0
   }
-
   const begin = Math.max(lhs.start - 1, rhs.start - 1)
   const end = Math.min(lhs.end, rhs.end)
+
   if (begin >= end) {
     return 0.0
   } else {
-    return Math.min(
-      (end - begin) / (rhs.end - rhs.start + 1),
-      (end - begin) / (lhs.end - lhs.start + 1)
-    )
+    console.log(begin, end, end - begin)
+    return end - begin
   }
 }
+
+export function bndInsOverlap(lhs, rhs, radius) {
+  console.log(
+    {
+      chromosome: lhs.chromosome,
+      start: lhs.start - radius,
+      end: lhs.start + radius,
+    },
+    { chromosome: rhs.chromosome, start: rhs.start, end: rhs.start + 1 }
+  )
+  return (
+    overlapLength(
+      {
+        chromosome: lhs.chromosome,
+        start: lhs.start - radius,
+        end: lhs.start + radius,
+      },
+      { chromosome: rhs.chromosome, start: rhs.start, end: rhs.start + 1 }
+    ) > 0
+  )
+}
+
+export function reciprocalOverlap(lhs, rhs) {
+  const overlap = overlapLength(lhs, rhs)
+  return Math.min(
+    overlap / (rhs.end - rhs.start + 1),
+    overlap / (lhs.end - lhs.start + 1)
+  )
+}
+
 export function displayName(name) {
   if (name) {
     const re = /-N\d+-(DNA|RNA)\d+-(WES|WGS|Panel_seq)\d+$/
