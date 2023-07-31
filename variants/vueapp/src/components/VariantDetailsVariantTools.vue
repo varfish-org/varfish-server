@@ -8,6 +8,7 @@ import ScoreDisplay from '@varfish/components/ScoreDisplay.vue'
 const props = defineProps<{
   smallVar: any
   varAnnos: any
+  umdPredictorApiToken: string,
 }>()
 
 const bestOf = (obj: any, keys: string[]) => {
@@ -104,6 +105,10 @@ const revelScore = computed((): number | null =>
   decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.REVEL_score)
 )
 
+const polyphenScore = computed((): number | null =>
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.Polyphen2_HVAR_score)
+)
+
 const ucscLinkout = computed((): str => {
   if (!props.smallVar) {
     return '#'
@@ -121,9 +126,7 @@ const ensemblLinkout = computed((): str => {
   if (!props.smallVar) {
     return '#'
   }
-  const loc = (
-    `${props.smallVar.chromosome}:${props.smallVar.start}-${props.smallVar.end}`
-  )
+  const loc = `${props.smallVar.chromosome}:${props.smallVar.start}-${props.smallVar.end}`
   if (props.smallVar.release === 'GRCh37') {
     return `https://grch37.ensembl.org/Homo_sapiens/Location/View?r=${loc}`
   } else if (smallVariant.release === 'GRCh38') {
@@ -131,22 +134,23 @@ const ensemblLinkout = computed((): str => {
   }
 })
 
-const dgvLinkout = computed(():str => {
+const dgvLinkout = computed((): str => {
   if (!props.smallVar) {
     return '#'
   }
   const db = props.smallVar.release === 'GRCh37' ? 'hg19' : 'hg38'
   return (
-      `http://dgv.tcag.ca/gb2/gbrowse/dgv2_${db}/?name=${props.smallVar.chromosome}:` +
-      `${props.smallVar.start}-${props.smallVar.end};search=Search`
+    `http://dgv.tcag.ca/gb2/gbrowse/dgv2_${db}/?name=${props.smallVar.chromosome}:` +
+    `${props.smallVar.start}-${props.smallVar.end};search=Search`
   )
 })
 
-const gnomadLinkout = computed(():str => {
+const gnomadLinkout = computed((): str => {
   if (!props.smallVar) {
     return '#'
   }
-  const dataset = props.smallVar.release === 'GRCh37' ? 'gnomad_r2_1' : 'gnomad_r3'
+  const dataset =
+    props.smallVar.release === 'GRCh37' ? 'gnomad_r2_1' : 'gnomad_r3'
   return (
     `https://gnomad.broadinstitute.org/region/${props.smallVar.chromosome}:` +
     `${props.smallVar.start}-${props.smallVar.end}?dataset=${dataset}`
@@ -175,6 +179,39 @@ const mt2021Linkout = computed((): str => {
     return (
       `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${props.smallVar.chromosome}` +
       `&position=${props.smallVar.start}&ref=${props.smallVar.reference}&alt=${props.smallVar.alternative}`
+    )
+  } else {
+    return null
+  }
+})
+
+const varsomeLinkout = computed((): str => {
+  if (!props.smallVar) {
+    return '#'
+  }
+  const urlRelease = props.smallVar.release === 'GRCh37' ? 'hg19' : 'hg38'
+  const chrom = props.smallVar.chromosome.startsWith('chr')
+    ? props.smallVar.chromosome
+    : `chr${props.smallVar.chromosome}`
+  return (
+    `https://varsome.com/variant/${urlRelease}/${chrom}:${props.smallVar.start}:` +
+    `${props.smallVar.reference}:${props.smallVar.alternative}`
+  )
+})
+
+const umdpredictorLinkout = computed((): str => {
+  if (!props.umdPredictorApiToken.length || !props.smallVar) {
+    return '#'
+  }
+
+  if (!props.smallVar) {
+    return '#'
+  }
+  if (props.smallVar.release === 'GRCh37') {
+    return (
+      `https://www.umd.be/HSF3/variants.php?search=1&chrom=${props.smallVar.chromosome}` +
+      `&start=${props.smallVar.start}&end=${props.smallVar.end}&ref=${props.smallVar.reference}` +
+      `&alt=${props.smallVar.alternative}`
     )
   } else {
     return null
@@ -225,7 +262,8 @@ const mt2021Linkout = computed((): str => {
               <i-mdi-launch />
               MutationTaster 85
             </span>
-          </div>        <div>
+          </div>
+          <div>
             <a v-if="mt2021Linkout" :href="mt2021Linkout" target="_blank">
               <i-mdi-launch />
               MutationTaster 2021
@@ -236,24 +274,33 @@ const mt2021Linkout = computed((): str => {
             </span>
           </div>
           <div>
-            <i-mdi-launch />
-            TODO: VarSeak
+            <a
+              :href="`https://varseak.bio/ssp.php?gene={{ smallVar.symbol }}&hgvs={{ smallVar.hgvs_c }}`"
+              target="_blank"
+            >
+              <i-mdi-launch />
+              VarSeak Splice Site Predictor
+            </a>
           </div>
           <div>
-            <i-mdi-launch />
-            TODO: Varsome
+            <a :href="varsomeLinkout" target="_blank">
+              <i-mdi-launch />
+              varsome
+            </a>
           </div>
           <div>
-            <i-mdi-launch />
-            TODO: Polyphen
-          </div>
-          <div>
-            <i-mdi-launch />
-            TODO: UMD Predictor
-          </div>
-          <div>
-            <i-mdi-launch />
-            TODO: more more more?
+            <a v-if="props.umdPredictorApiToken" :href="umdpredictorLinkout" target="_blank">
+              <i-mdi-launch />
+              UMD Predictor
+            </a>
+            <span v-else-if="smallVar?.release !== 'GRCh37'" class="text-muted">
+              <i-mdi-launch />
+              UMD Predictor (not available for GRCh38)
+            </span>
+            <span v-else class="text-muted">
+              <i-mdi-launch />
+              UMD Predictor (API token not configured)
+            </span>
           </div>
         </div>
       </div>
@@ -333,7 +380,7 @@ const mt2021Linkout = computed((): str => {
                       props.varAnnos?.dbnsfp?.BayesDel_addAF_score >= 0.27 &&
                       props.varAnnos?.dbnsfp?.BayesDel_addAF_score < 0.5
                     "
-                    class="pathogenic-supporting"
+                    class="pathogenic-moderat"
                   >
                     pathogenic moderate
                   </span>
@@ -375,7 +422,7 @@ const mt2021Linkout = computed((): str => {
                 </td>
                 <td class="text-center align-middle">
                   <span
-                    v-if="varAnnos?.cadd?.PHRED <= 0.15"
+                    v-if="varAnnos?.cadd?.PHRED < 0.15"
                     class="benign-strong"
                   >
                     benign strong
@@ -451,13 +498,13 @@ const mt2021Linkout = computed((): str => {
                     benign supporting
                   </span>
                   <span
-                    v-else-if="fathmmScore >= -5.04 && fathmmScore < -4.14"
+                    v-else-if="fathmmScore > -5.04 && fathmmScore <= -4.14"
                     class="pathogenic-supporting"
                   >
                     pathogenic supporting
                   </span>
                   <span
-                    v-else-if="fathmmScore <= -4.04"
+                    v-else-if="fathmmScore <= -5.04"
                     class="pathogenic-moderate"
                   >
                     pathogenic moderate
@@ -565,6 +612,55 @@ const mt2021Linkout = computed((): str => {
             </tr>
 
             <tr>
+              <th class="align-middle">PolyPhen2</th>
+              <template v-if="polyphenScore !== null">
+                <td class="text-center align-middle">
+                  {{ polyphenScore }}
+                </td>
+                <td class="text-center align-middle">
+                  <ScoreDisplay
+                    :range-lower="-20"
+                    :range-upper="30"
+                    :height="12"
+                    font-size="10px"
+                    :value="polyphenScore"
+                    :benign-moderate-upper="0.009"
+                    :benign-supporting-upper="0.113"
+                    :pathogenic-supporting-lower="0.978"
+                    :pathogenic-moderate-lower="0.999"
+                  />
+                </td>
+                <td class="text-center align-middle">
+                  <span v-if="polyphenScore <= 0.009" class="benign-moderate">
+                    benign moderate
+                  </span>
+                  <span
+                    v-else-if="polyphenScore > 0.009 && polyphenScore <= 0.113"
+                    class="benign-supporting"
+                  >
+                    benign supporting
+                  </span>
+                  <span
+                    v-else-if="polyphenScore >= 0.978 && polyphenScore < 0.999"
+                    class="pathogenic-supporting"
+                  >
+                    pathogenic supporting
+                  </span>
+                  <span
+                    v-else-if="polyphenScore >= 0.999"
+                    class="pathogenic-moderate"
+                  >
+                    pathogenic moderate
+                  </span>
+                  <span v-else class="not-predictive"> &mdash; </span>
+                </td>
+              </template>
+              <td v-else colspan="4" class="text-muted text-center font-italic">
+                PolyPhen2 HVAR prediction not available.
+              </td>
+            </tr>
+
+            <tr>
               <th class="align-middle">PhyloP-100</th>
               <template v-if="props.varAnnos?.dbnsfp?.phyloP100way_vertebrate">
                 <td class="text-center align-middle">
@@ -586,7 +682,7 @@ const mt2021Linkout = computed((): str => {
                 <td class="text-center align-middle">
                   <span
                     v-if="
-                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate >= 0.362
+                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate <= 0.021
                     "
                     class="benign-moderate"
                   >
@@ -594,8 +690,8 @@ const mt2021Linkout = computed((): str => {
                   </span>
                   <span
                     v-else-if="
-                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate < 0.362 &&
-                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate >= 1.879
+                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate > 0.021 &&
+                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate <= 1.879
                     "
                     class="benign-supporting"
                   >
@@ -613,7 +709,7 @@ const mt2021Linkout = computed((): str => {
                   </span>
                   <span
                     v-else-if="
-                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate <= 9.741
+                      props.varAnnos?.dbnsfp?.phyloP100way_vertebrate >= 9.741
                     "
                     class="pathogenic-moderate"
                   >
@@ -649,15 +745,15 @@ const mt2021Linkout = computed((): str => {
                 </td>
                 <td class="text-center align-middle">
                   <span
-                    v-if="props.varAnnos?.dbnsfp?.PrimateAI_score >= 0.362"
+                    v-if="props.varAnnos?.dbnsfp?.PrimateAI_score <= 0.362"
                     class="benign-moderate"
                   >
                     benign moderate
                   </span>
                   <span
                     v-else-if="
-                      props.varAnnos?.dbnsfp?.PrimateAI_score < 0.362 &&
-                      props.varAnnos?.dbnsfp?.PrimateAI_score >= 0.483
+                      props.varAnnos?.dbnsfp?.PrimateAI_score > 0.362 &&
+                      props.varAnnos?.dbnsfp?.PrimateAI_score <= 0.483
                     "
                     class="benign-supporting"
                   >
@@ -673,7 +769,7 @@ const mt2021Linkout = computed((): str => {
                     pathogenic supporting
                   </span>
                   <span
-                    v-else-if="props.varAnnos?.dbnsfp?.PrimateAI_score <= 0.867"
+                    v-else-if="props.varAnnos?.dbnsfp?.PrimateAI_score >= 0.867"
                     class="pathogenic-moderate"
                   >
                     pathogenic moderate
@@ -782,19 +878,19 @@ const mt2021Linkout = computed((): str => {
                     benign very strong
                   </span>
                   <span
-                    v-else-if="revelScore >= 0.003 && revelScore < 0.016"
+                    v-else-if="revelScore > 0.003 && revelScore <= 0.016"
                     class="benign-strong"
                   >
                     benign strong
                   </span>
                   <span
-                    v-else-if="revelScore >= 0.016 && revelScore < 0.183"
+                    v-else-if="revelScore > 0.016 && revelScore <= 0.183"
                     class="benign-moderate"
                   >
                     benign moderate
                   </span>
                   <span
-                    v-else-if="revelScore >= 0.183 && revelScore < 0.29"
+                    v-else-if="revelScore > 0.183 && revelScore <= 0.29"
                     class="benign-supporting"
                   >
                     benign supporting
@@ -834,36 +930,41 @@ const mt2021Linkout = computed((): str => {
 <style scoped>
 .benign-very-strong {
   padding: 2px;
-  background-color: hsla(0, 100%, 50%, 0.65);
+  background-color: hsla(120, 100%, 50%, 0.65);
 }
 
 .benign-strong {
   padding: 2px;
-  background-color: hsla(14.4, 100%, 50%, 0.65);
+  background-color: hsla(105.6, 100%, 50%, 0.65);
 }
 
 .benign-moderate {
   padding: 2px;
-  background-color: hsla(28.8, 100%, 50%, 0.65);
+  background-color: hsla(91.2, 100%, 50%, 0.65);
 }
 
 .benign-supporting {
+  padding: 2px;
+  background-color: hsla(76.8, 100%, 50%, 0.65);
+}
+
+.pathogenic-supporting {
   padding: 2px;
   background-color: hsla(43.2, 100%, 50%, 0.65);
 }
 
 .pathogenic-moderate {
   padding: 2px;
-  background-color: hsla(76.8, 100%, 50%, 0.65);
+  background-color: hsla(28.8, 100%, 50%, 0.65);
 }
 
 .pathogenic-strong {
   padding: 2px;
-  background-color: hsla(91.2, 100%, 50%, 0.65);
+  background-color: hsla(14.4, 100%, 50%, 0.65);
 }
 
 .pathogenic-very-strong {
   padding: 2px;
-  background-color: hsla(120, 100%, 50%, 0.65);
+  background-color: hsla(0, 100%, 50%, 0.65);
 }
 </style>

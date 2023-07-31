@@ -16,7 +16,7 @@ import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
-import VariantDetailsVariantScores from './VariantDetailsVariantScores.vue'
+import VariantDetailsVariantTools from './VariantDetailsVariantTools.vue'
 import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
 import VariantDetailsTxCsq from './VariantDetailsTxCsq.vue'
 import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
@@ -102,8 +102,12 @@ onMounted(() => {
             :var-annos="detailsStore.varAnnos"
           />
         </SimpleCard>
-        <SimpleCard id="variant-scores" title="Variant Scores">
-          <VariantDetailsVariantScores :small-var="detailsStore.smallVariant" :var-annos="detailsStore.varAnnos" />
+        <SimpleCard id="variant-tools" title="Variant Tools">
+          <VariantDetailsVariantTools
+            :small-var="detailsStore.smallVariant"
+            :var-annos="detailsStore.varAnnos"
+            :umd-predictor-api-token="queryStore.umdPredictorApiToken"
+          />
         </SimpleCard>
         <SimpleCard id="tx-csq" title="Consequences">
           <VariantDetailsTxCsq :tx-csq="detailsStore.txCsq" />

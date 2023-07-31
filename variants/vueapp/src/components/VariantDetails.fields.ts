@@ -25,8 +25,8 @@ export const allNavItems: NavItem[] = [
     title: 'Frequencies',
   },
   {
-    name: 'variant-scores',
-    title: 'Variant Scores / Tools',
+    name: 'variant-tools',
+    title: 'Variant Tools',
   },
   {
     name: 'tx-csq',
