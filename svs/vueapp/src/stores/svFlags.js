@@ -4,7 +4,7 @@
 
 import { StoreState } from '@cases/stores/cases.js'
 import svsApi from '@svs/api/svs.js'
-import { reciprocalOverlap } from '@varfish/helpers.js'
+import { bndInsOverlap, reciprocalOverlap } from '@varfish/helpers.js'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -179,9 +179,17 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Return first matching flag for the given `sv`.
    */
   const getFlag = (sv) => {
+    const bndInsRadius = 50
     const minReciprocalOverlap = 0.8
     for (const flag of Object.values(caseFlags.value)) {
       if (
+        ['BND', 'INS'].includes(flag.sv_type) &&
+        flag.sv_type === sv.sv_type &&
+        bndInsOverlap(flag, sv, bndInsRadius)
+      ) {
+        console.log('flag', flag)
+        return flag
+      } else if (
         flag.sv_type === sv.sv_type &&
         reciprocalOverlap(flag, sv) >= minReciprocalOverlap
       ) {
