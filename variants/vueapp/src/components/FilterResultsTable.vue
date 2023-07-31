@@ -539,96 +539,115 @@ watch(
         buttons-pagination
       >
         <template #item-variant_icons="{ sodar_uuid, payload }">
-          <i-fa-solid-search
-            class="text-muted"
-            @click="showVariantDetails(sodar_uuid)"
-            role="button"
-          />
-          <i-fa-solid-bookmark
-            v-if="flagsStore.getFlags(payload)"
-            class="text-muted ml-1"
-            title="flags & bookmarks"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
-            role="button"
-          />
-          <i-fa-regular-bookmark
-            v-else
-            class="text-muted ml-1"
-            title="flags & bookmarks"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
-            role="button"
-          />
-
-          <i-fa-solid-comment
-            v-if="commentsStore.hasComments(payload)"
-            class="text-muted ml-1"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
-            role="button"
-          />
-          <i-fa-regular-comment
-            v-else
-            class="text-muted ml-1"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
-            role="button"
-          />
-
-          <span
-            title="ACMG rating"
-            :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
-            @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
-            role="button"
-            >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
-          >
-
-          <a
-            v-if="payload.rsid"
-            target="_blank"
-            :href="
-              'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
-              payload.rsid.slice(2)
-            "
-          >
-            <i-fa-solid-database class="ml-1 text-muted" />
-          </a>
-          <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
-
-          <span
-            @click="showVariantDetails(sodar_uuid, 'clinvar')"
-            role="button"
-          >
-            <i-fa-regular-hospital
-              v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
-              class="ml-1 text-muted"
+          <span class="text-nowrap">
+            <i-fa-solid-search
+              class="text-muted"
+              @click="showVariantDetails(sodar_uuid)"
+              role="button"
             />
-            <i-fa-regular-hospital
+            <i-fa-solid-bookmark
+              v-if="flagsStore.getFlags(payload)"
+              class="text-muted ml-1"
+              title="flags & bookmarks"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
+              role="button"
+            />
+            <i-fa-regular-bookmark
               v-else
-              title="Not in local ClinVar copy"
-              class="ml-1 text-muted icon-inactive"
+              class="text-muted ml-1"
+              title="flags & bookmarks"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
+              role="button"
             />
-          </span>
 
-          <a
-            v-if="payload.hgmd_public_overlap"
-            target="_blank"
-            :href="
-              'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
-              getSymbol(payload) +
-              '&accession=' +
-              payload.hgmd_accession
-            "
+            <i-fa-solid-comment
+              v-if="commentsStore.hasComments(payload)"
+              class="text-muted ml-1"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
+              role="button"
+            />
+            <i-fa-regular-comment
+              v-else
+              class="text-muted ml-1"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
+              role="button"
+            />
+
+            <span
+              title="ACMG rating"
+              :class="
+                getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))
+              "
+              @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
+              role="button"
+              >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
+            >
+
+            <a
+              v-if="payload.rsid"
+              target="_blank"
+              :href="
+                'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
+                payload.rsid.slice(2)
+              "
+            >
+              <i-fa-solid-database class="ml-1 text-muted" />
+            </a>
+            <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
+
+            <span
+              @click="showVariantDetails(sodar_uuid, 'clinvar')"
+              role="button"
+            >
+              <i-fa-regular-hospital
+                v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
+                class="ml-1 text-muted"
+              />
+              <i-fa-regular-hospital
+                v-else
+                title="Not in local ClinVar copy"
+                class="ml-1 text-muted icon-inactive"
+              />
+            </span>
+
+            <a
+              v-if="payload.hgmd_public_overlap"
+              target="_blank"
+              :href="
+                'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
+                getSymbol(payload) +
+                '&accession=' +
+                payload.hgmd_accession
+              "
+            >
+              <i-fa-solid-globe class="ml-1 text-muted" />
+            </a>
+            <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
+          </span>
+        </template>
+        <template #item-position="{ sodar_uuid, position }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
           >
-            <i-fa-solid-globe class="ml-1 text-muted" />
-          </a>
-          <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
+            {{ position }}
+          </div>
         </template>
-        <template #item-position="{ position }">
-          {{ position }}
+        <template #item-reference="{ sodar_uuid, reference }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
+          >
+            <span :title="reference">{{ truncateText(reference, 5) }}</span>
+          </div>
         </template>
-        <template #item-reference="{ reference }">
-          <span :title="reference">{{ truncateText(reference, 5) }}</span>
-        </template>
-        <template #item-alternative="{ alternative }">
-          <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+        <template #item-alternative="{ sodar_uuid, alternative }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
+          >
+            <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+          </div>
         </template>
         <template #item-clinvar="{ payload }">
           <span class="badge-group" v-if="payload.summary_pathogenicity_label">
@@ -657,30 +676,31 @@ watch(
           <span v-else class="badge badge-light">-</span>
         </template>
         <template #item-frequency="{ sodar_uuid, payload }">
-          <abbr
-            v-if="displayAmbiguousFrequencyWarning(payload)?.length"
-            :title="displayAmbiguousFrequencyWarningMsg(payload)"
-            @click="showVariantDetails(sodar_uuid, 'freqs')"
-            role="button"
-          >
-            {{ displayFrequencyContent(payload) }}
-            <i-mdi-information-outline />
-          </abbr>
-          <span
-            @click="showVarintDetails(sodar_uuid, 'freqs')"
-            role="button"
-            v-else
-          >
-            {{ displayFrequencyContent(payload) }}
-          </span>
+          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+            <abbr
+              v-if="displayAmbiguousFrequencyWarning(payload)?.length"
+              :title="displayAmbiguousFrequencyWarningMsg(payload)"
+            >
+              {{ displayFrequencyContent(payload) }}
+              <i-mdi-information-outline />
+            </abbr>
+            <span v-else>
+              {{ displayFrequencyContent(payload) }}
+            </span>
+          </div>
         </template>
         <template #item-homozygous="{ sodar_uuid, payload }">
-          <span @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
             {{ displayHomozygousContent(payload) }}
-          </span>
+          </div>
         </template>
         <template #item-constraints="{ payload }">
-          {{ displayConstraintsContent(payload) }}
+          <div
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            role="button"
+          >
+            {{ displayConstraintsContent(payload) }}
+          </div>
         </template>
         <template #item-gene="{ sodar_uuid, payload }">
           <span

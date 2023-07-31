@@ -1455,6 +1455,13 @@ class AcmgCriteriaRatingListCreateApiView(
 
     serializer_class = AcmgCriteriaRatingSerializer
 
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .order_by("release", "chromosome", "start", "end", "reference", "alternative")
+        )
+
     def get_serializer_context(self):
         result = super().get_serializer_context()
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])

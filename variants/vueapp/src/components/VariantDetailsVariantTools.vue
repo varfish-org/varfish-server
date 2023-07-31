@@ -8,7 +8,7 @@ import ScoreDisplay from '@varfish/components/ScoreDisplay.vue'
 const props = defineProps<{
   smallVar: any
   varAnnos: any
-  umdPredictorApiToken: string,
+  umdPredictorApiToken: string
 }>()
 
 const bestOf = (obj: any, keys: string[]) => {
@@ -289,7 +289,11 @@ const umdpredictorLinkout = computed((): str => {
             </a>
           </div>
           <div>
-            <a v-if="props.umdPredictorApiToken" :href="umdpredictorLinkout" target="_blank">
+            <a
+              v-if="props.umdPredictorApiToken"
+              :href="umdpredictorLinkout"
+              target="_blank"
+            >
               <i-mdi-launch />
               UMD Predictor
             </a>

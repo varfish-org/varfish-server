@@ -5,10 +5,6 @@ export type NavItem = {
 
 export const allNavItems: NavItem[] = [
   {
-    name: 'link-outs',
-    title: 'Link-Outs',
-  },
-  {
     name: 'gene',
     title: 'Gene',
   },

@@ -4,6 +4,7 @@
     "allowJs": true,
     "paths": {
       "@varfish/*": ["./src/varfish/*"],
+      "@variantsTest/*": ["./tests/variants/*"],
       "@clinvarexport/*": ["./src/clinvarexport/*"],
       "@variants/*": ["./src/variants/*"],
       "@svs/*": ["./src/svs/*"],

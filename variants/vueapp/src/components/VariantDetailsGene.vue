@@ -217,6 +217,7 @@ const props = defineProps<{
                 :href="`https://www.ncbi.nlm.nih.gov/nuccore/?term=${accession}+AND+srcdb_refseq[PROP]`"
                 target="_blank"
               >
+                <i-mdi-launch />
                 {{ accession }}
               </a>
             </template>
@@ -241,6 +242,7 @@ const props = defineProps<{
                 :href="`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`"
                 target="_blank"
               >
+                <i-mdi-launch />
                 {{ pmid }}
               </a>
             </template>
@@ -253,6 +255,7 @@ const props = defineProps<{
                 :href="`https://www.informatics.jax.org/marker/${mgd_id}`"
                 target="_blank"
               >
+                <i-mdi-launch />
                 {{ mgd_id }}
               </a>
             </template>
