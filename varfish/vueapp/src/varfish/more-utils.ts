@@ -10,7 +10,7 @@
 export const roundIt = (
   value: number,
   digits: number = 2,
-  label?: string
+  label?: string,
 ): string => {
   if (!value) {
     return `<abbr title='${value}'>NaN</abbr>`

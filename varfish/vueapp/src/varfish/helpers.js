@@ -26,7 +26,7 @@ export function bndInsOverlap(lhs, rhs, radius) {
         start: lhs.start - radius,
         end: lhs.start + radius,
       },
-      { chromosome: rhs.chromosome, start: rhs.start, end: rhs.start + 1 }
+      { chromosome: rhs.chromosome, start: rhs.start, end: rhs.start + 1 },
     ) > 0
   )
 }
@@ -35,7 +35,7 @@ export function reciprocalOverlap(lhs, rhs) {
   const overlap = overlapLength(lhs, rhs)
   return Math.min(
     overlap / (rhs.end - rhs.start + 1),
-    overlap / (lhs.end - lhs.start + 1)
+    overlap / (lhs.end - lhs.start + 1),
   )
 }
 

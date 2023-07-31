@@ -11,7 +11,7 @@ const props = defineProps({
 
 /** Whether to show the overlay. */
 const overlayShow = computed(
-  () => (props.commentsStore?.serverInteractions ?? 0) > 0
+  () => (props.commentsStore?.serverInteractions ?? 0) > 0,
 )
 
 props.commentsStore.retrieveComments(props.variant)
@@ -50,12 +50,12 @@ const onClickSubmitComment = async () => {
   if (editCommentMode.value === EditCommentModes.Edit) {
     await props.commentsStore.updateComment(
       editCommentUuid.value,
-      commentToSubmit.value
+      commentToSubmit.value,
     )
   } else {
     await props.commentsStore.createComment(
       props.variant,
-      commentToSubmit.value
+      commentToSubmit.value,
     )
   }
   unsetEditComment()
@@ -77,7 +77,7 @@ watch(
     commentToSubmit.value = ''
     editCommentMode.value = EditCommentModes.Off
     editCommentUuid.value = ''
-  }
+  },
 )
 </script>
 

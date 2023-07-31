@@ -1,5 +1,5 @@
 <script setup>
-import sortBy from 'sort-by'
+import sortBy from 'sort-by-typescript'
 import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
 
 import EasyDataTable from 'vue3-easy-data-table'

@@ -17,7 +17,7 @@ describe('VariantDetailsTxCsq.vue', () => {
   test('transcripts disabled/empty', () => {
     const wrapper = shallowMount(VariantDetailsTxCsq, {
       props: {
-        effectDetails: null,
+        txCsq: null,
       },
     })
 
