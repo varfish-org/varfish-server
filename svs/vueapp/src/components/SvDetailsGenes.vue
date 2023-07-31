@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { computed, ComputedRef } from 'vue'
+import { computed, ComputedRef, Ref, ref } from 'vue'
+import { roundIt } from '@varfish/more-utils'
 
 import EasyDataTable from 'vue3-easy-data-table'
-import type { Header, Item } from 'vue3-easy-data-table'
+import type { ClickRowArgument, Header, Item } from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
+
+import VariantDetailsGene from '@variants/components/VariantDetailsGene.vue'
 
 /** `GeneInfo` is a type alias for easier future interface definition. */
 type GeneInfo = any
@@ -15,6 +18,18 @@ const props = defineProps<{
   genesInfos?: GeneInfo[]
   currentSvRecord?: SvRecord
 }>()
+
+const currentGeneInfos: Ref<any> = ref(null)
+
+const genesInfosByHgnc: ComputedRef<Map<string, any>> = computed(
+  (): Map<string, any> => {
+    const result = new Map()
+    for (const record of props.genesInfos ?? []) {
+      result.set(record.hgnc.hgnc_id, record)
+    }
+    return result
+  }
+)
 
 const headers: Header[] = [
   {
@@ -142,75 +157,84 @@ const formatFunctions = (strs: string[]): string => {
   })
   return mapped.join(' // ')
 }
+
+const onRowClicked = (item: ClickRowArgument) => {
+  currentGeneInfos.value = item
+}
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-header">
-      <h4 class="card-title">Genes</h4>
+  <div>
+    <div class="p-2">
+      <EasyDataTable
+        :headers="headers"
+        :items="items"
+        :loading="!items"
+        buttons-pagination
+        show-index
+        @click-row="onRowClicked"
+      >
+        <template #item-dbnsfp.gene_name="geneInfo">
+          <span v-html="geneInfoBadge(geneInfo)" />
+          <span :class="geneInfoClass(geneInfo)">
+            {{ geneInfo.dbnsfp.gene_name }}
+          </span>
+        </template>
+
+        <template #item-dbnsfp.mim_disease.length="geneInfo">
+          <template v-if="geneInfo.dbnsfp.mim_disease.length">
+            {{ geneInfo.dbnsfp.mim_disease.join(' // ') }}
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-dbnsfp.orphanet_disorder.length="geneInfo">
+          <template v-if="geneInfo.dbnsfp.orphanet_disorder.length">
+            {{ geneInfo.dbnsfp.orphanet_disorder.join(' // ') }}
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-gnomad_constraints.pli="{ gnomad_constraints }">
+          <template v-if="gnomad_constraints">
+            <span v-html="roundIt(gnomad_constraints.pli, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template
+          #item-gnomad_constraints.oe_lof_upper="{ gnomad_constraints }"
+        >
+          <template v-if="gnomad_constraints">
+            <span v-html="roundIt(gnomad_constraints.oe_lof_upper, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-dbnsfp.haploinsufficiency="{ dbnsfp }">
+          <template v-if="dbnsfp?.haploinsufficiency">
+            <span v-html="roundIt(dbnsfp.haploinsufficiency, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+      </EasyDataTable>
     </div>
-    <EasyDataTable
-      :headers="headers"
-      :items="items"
-      :loading="!items"
-      buttons-pagination
-      show-index
-    >
-      <template #item-dbnsfp.gene_name="geneInfo">
-        <span v-html="geneInfoBadge(geneInfo)" />
-        <span :class="geneInfoClass(geneInfo)">
-          {{ geneInfo.dbnsfp.gene_name }}
-        </span>
-      </template>
 
-      <template #item-dbnsfp.mim_disease.length="geneInfo">
-        <template v-if="geneInfo.dbnsfp.mim_disease.length">
-          {{ geneInfo.dbnsfp.mim_disease.join(' // ') }}
-        </template>
-        <template v-else> &mdash; </template>
-      </template>
-
-      <template #item-dbnsfp.orphanet_disorder.length="geneInfo">
-        <template v-if="geneInfo.dbnsfp.orphanet_disorder.length">
-          {{ geneInfo.dbnsfp.orphanet_disorder.join(' // ') }}
-        </template>
-        <template v-else> &mdash; </template>
-      </template>
-
-      <template #expand="geneInfo">
-        <div style="padding: 15px">
-          {{ geneInfo.hgnc.hgnc_id }}
-          <br />
-
-          <span v-if="geneInfo.dbnsfp.function_description.length">
-            <strong>Function: </strong>
-            <span
-              v-html="formatFunctions(geneInfo.dbnsfp.function_description)"
-            />
-          </span>
-          <span v-else class="text-muted">
-            <i>No function information.</i>
-          </span>
-          <br />
-
-          <span v-if="geneInfo.dbnsfp.pathway_kegg_full.length">
-            <strong>KEGG: </strong>
-            {{ geneInfo.dbnsfp.pathway_kegg_full.toSorted().join(' // ') }}
-          </span>
-          <span v-else class="text-muted">
-            <i>No pathway information.</i>
-          </span>
-          <br />
-
-          <span v-if="geneInfo.dbnsfp.expression_gnf_atlas.length">
-            <strong>GNF Atlas: </strong>
-            {{ geneInfo.dbnsfp.expression_gnf_atlas.toSorted().join(' // ') }}
-          </span>
-          <span v-else class="text-muted">
-            <i>No GNF expression information.</i>
-          </span>
-        </div>
-      </template>
-    </EasyDataTable>
+    <div v-if="currentGeneInfos">
+      <div
+        class="ml-2 mr-2"
+        style="
+          font-weight: bolder;
+          font-size: 120%;
+          border-bottom: 1px solid #aaaaaa;
+        "
+      >
+        Gene Details: {{ currentGeneInfos.hgnc.symbol }}
+      </div>
+      <VariantDetailsGene :gene="currentGeneInfos" />
+    </div>
+    <div v-else class="text-muted text-center font-italic pt-2">
+      Select gene in table above to see details.
+    </div>
   </div>
 </template>

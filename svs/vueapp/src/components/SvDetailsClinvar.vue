@@ -10,12 +10,8 @@ const vcvUrl = (vcv: string): string => {
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-header">
-      <h4 class="card-title">Overlapping ClinVar SVs</h4>
-    </div>
-    <div
-      class="card-body"
+  <div class="p-2">
+    <template
       v-if="detailsStore.currentSvRecord?.payload?.clinvar_ovl_vcvs?.length"
     >
       <p>
@@ -33,11 +29,11 @@ const vcvUrl = (vcv: string): string => {
           </a>
         </li>
       </ul>
-    </div>
-    <div class="card-body" v-else>
-      <p>
-        No overlapping (likely) pathogenic ClinVar SVs found in local database.
-      </p>
-    </div>
+    </template>
+    <template v-else>
+      <div class="text-muted text-center font-italic">
+        SV has not been annotated with (likely) pathogenic ClinVar SV records.
+      </div>
+    </template>
   </div>
 </template>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
+import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useSvFilterStore } from '@svs/stores/filterSvs'
@@ -15,6 +16,7 @@ import SvDetailsGenes from './SvDetailsGenes.vue'
 import SvDetailsClinvar from './SvDetailsClinvar.vue'
 import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
 import GenomeBrowser from './GenomeBrowser.vue'
+import { allNavItems as navItems } from './SvDetails.fields'
 
 /** `SVRecord` is a type alias for easier future interface definition. */
 type SvRecord = any
@@ -24,7 +26,7 @@ const props = defineProps<{
   selectedTab?: string
 }>()
 
-/** The currently used router. */
+const route = useRoute()
 const router = useRouter()
 
 // Get reference to store detailsSv
@@ -86,90 +88,76 @@ const onTabClick = (selectedTab: string) => {
     },
   })
 }
+
+/** When mounted, scroll to the selected element if any.
+ */
+onMounted(() => {
+  document.querySelector(`#${route.params.selectedTab}`)?.scrollIntoView()
+})
 </script>
 
 <template>
-  <div>
-    <ul class="nav nav-pills mb-3">
-      <li class="nav-item" role="presentation">
-        <a
-          class="nav-link"
-          :class="{ active: props.selectedTab === 'info' }"
-          @click="onTabClick('info')"
-          type="button"
-        >
-          Info
-        </a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a
-          class="nav-link"
-          :class="{ active: props.selectedTab === 'comments-flags' }"
-          @click="onTabClick('comments-flags')"
-          type="button"
-        >
-          Comments &amp; Flags
-        </a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a
-          class="nav-link"
-          :class="{ active: props.selectedTab === 'genome-browser' }"
-          @click="onTabClick('genome-browser')"
-          type="button"
-        >
-          Browser
-        </a>
-      </li>
-    </ul>
-
-    <div v-if="props.selectedTab === 'info'">
-      <div class="card">
-        <div class="card-body pb-2 pt-2">
-          Precise coordinates:
-          <code> {{ svLocus(detailsStore.currentSvRecord) }} </code>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col pl-0 pr-0">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-10 pl-0 pr-0 pt-2">
+        <SimpleCard id="genes" title="Genes">
           <SvDetailsGenes
             :genes-infos="detailsStore.genesInfos"
             :current-sv-record="detailsStore.currentSvRecord"
           />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col pl-0 pr-0">
+        </SimpleCard>
+        <SimpleCard id="clinvar" title="ClinVar">
           <SvDetailsClinvar />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col pl-0 pr-0">
+        </SimpleCard>
+        <SimpleCard id="call-details" title="Genotype Call">
+          <div class="p-2">
+            Precise coordinates:
+            <code> {{ svLocus(detailsStore.currentSvRecord) }} </code>
+          </div>
           <SvDetailsGenotypeCall
             :current-sv-record="detailsStore.currentSvRecord"
           />
-        </div>
+        </SimpleCard>
+        <SimpleCard id="flags" title="Flags">
+          <VariantDetailsFlags
+            :details-store="detailsStore"
+            :flags-store="flagsStore"
+            :variant="detailsStore.currentSvRecord"
+          />
+        </SimpleCard>
+        <SimpleCard id="comments" title="Comments">
+          <VariantDetailsComments
+            :details-store="detailsStore"
+            :comments-store="commentsStore"
+            :variant="detailsStore.currentSvRecord"
+          />
+        </SimpleCard>
+        <SimpleCard id="genome-browser" title="Genome Browser">
+          <GenomeBrowser
+            :case-uuid="caseUuid"
+            :genome="genomeRelease"
+            :locus="svLocus(detailsStore.currentSvRecord)"
+          />
+        </SimpleCard>
       </div>
-    </div>
-    <div v-else-if="props.selectedTab === 'comments-flags'">
-      <VariantDetailsFlags
-        :details-store="detailsStore"
-        :flags-store="flagsStore"
-        :variant="detailsStore.currentSvRecord"
-      />
-      <VariantDetailsComments
-        :details-store="detailsStore"
-        :comments-store="commentsStore"
-        :variant="detailsStore.currentSvRecord"
-      />
-    </div>
-    <div v-else-if="props.selectedTab === 'genome-browser'">
-      <GenomeBrowser
-        :case-uuid="caseUuid"
-        :genome="genomeRelease"
-        :locus="svLocus(detailsStore.currentSvRecord)"
-      />
+
+      <div class="col-2">
+        <ul
+          class="nav flex-column nav-pills position-sticky pt-2"
+          style="top: 0px"
+        >
+          <li class="nav-item mt-0" v-for="{ name, title } in navItems">
+            <a
+              class="nav-link user-select-none"
+              :class="{ active: props.selectedTab === name }"
+              @click="onTabClick(name)"
+              type="button"
+            >
+              {{ title }}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>

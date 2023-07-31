@@ -68,8 +68,10 @@ watch(
 watch(
   () => caseDetailsStore.caseObj,
   (_newCase, _oldCase) => {
-    igvBrowser.value.removeTrackByName('Case SVs')
-    addCaseTracks(igvBrowser.value)
+    if (igvBrowser.value) {
+      igvBrowser.value.removeTrackByName('Case SVs')
+      addCaseTracks(igvBrowser.value)
+    }
   }
 )
 

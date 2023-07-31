@@ -6,16 +6,22 @@
 <script setup lang="ts">
 import { roundIt } from '@varfish/more-utils'
 
-const props = defineProps<{
+export interface Props {
   /** Gene information from annonars. */
   gene: any
-  /** Small variant information record. */
-  smallVar: any
+  /** Small variant information record (used for UMD linkout). */
+  smallVar?: any
   /** Whether HGMD Pro display is enabled. */
-  hgmdProEnabled: boolean
+  hgmdProEnabled?: boolean
   /** The URL prefix to HGMD Pro. */
-  hgmdProPrefix: string
-}>()
+  hgmdProPrefix?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  smallVar: null,
+  hgmdProEnabled: false,
+  hgmdProPrefix: '',
+})
 </script>
 
 <template>
@@ -358,7 +364,7 @@ const props = defineProps<{
                   HGMD Pro
                 </span>
               </div>
-              <div>
+              <div v-if="props.smallVar">
                 <a
                   :href="`https://stuart.radboudumc.nl/metadome/dashboard/transcript/${smallVar.ensembl_transcript_id}`"
                 >

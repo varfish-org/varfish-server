@@ -1,7 +1,5 @@
 import VariantDetailsTxCsq from '@variants/components/VariantDetailsTxCsq.vue'
-
 import brca1Txcsq from '@variantsTest/data/var-brca1-missense-benign-txcsq.json'
-
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 
