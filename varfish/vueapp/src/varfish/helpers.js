@@ -14,20 +14,11 @@ export function overlapLength(lhs, rhs) {
   if (begin >= end) {
     return 0.0
   } else {
-    console.log(begin, end, end - begin)
     return end - begin
   }
 }
 
 export function bndInsOverlap(lhs, rhs, radius) {
-  console.log(
-    {
-      chromosome: lhs.chromosome,
-      start: lhs.start - radius,
-      end: lhs.start + radius,
-    },
-    { chromosome: rhs.chromosome, start: rhs.start, end: rhs.start + 1 }
-  )
   return (
     overlapLength(
       {
