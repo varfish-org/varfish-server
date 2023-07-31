@@ -11,6 +11,8 @@ import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags.js'
 import { useSvCommentsStore } from '@svs/stores/svComments.js'
 import { formatLargeInt, displayName } from '@varfish/helpers.js'
 
+const MAX_GENES = 20
+
 const sortedList = (lst, unique = true) => {
   const tmp = unique ? new Set(lst) : lst
   const result = Array.from(tmp).filter((str) => str?.length)
@@ -492,7 +494,7 @@ watch(
           role="button"
         >
           <template v-if="tx_effects.length || showTadGenes(tad_genes)">
-            <template v-for="(item, index) in tx_effects">
+            <template v-for="(item, index) in tx_effects.slice(0, MAX_GENES)">
               <span
                 class="text-nowrap"
                 :class="geneClass(item.gene, 'text-danger')"
@@ -565,7 +567,12 @@ watch(
                 {{ item.gene.symbol
                 }}<span v-if="item.gene.is_disease_gene || item.gene.is_acmg">
                   <i-mdi-hospital-box /></span></span
-              ><span v-if="index + 1 < tx_effects.length">, </span>
+              ><span v-if="index + 1 < Math.min(MAX_GENES, tx_effects.length)"
+                >,
+              </span>
+            </template>
+            <template v-if="tx_effects.length > MAX_GENES">
+              + {{ tx_effects.length - MAX_GENES }} genes
             </template>
             <span
               v-if="tx_effects.length && showTadGenes(tad_genes)"

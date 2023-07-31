@@ -187,7 +187,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         flag.sv_type === sv.sv_type &&
         bndInsOverlap(flag, sv, bndInsRadius)
       ) {
-        console.log('flag', flag)
         return flag
       } else if (
         flag.sv_type === sv.sv_type &&

@@ -177,20 +177,20 @@ const onRowClicked = (item: ClickRowArgument) => {
         <template #item-dbnsfp.gene_name="geneInfo">
           <span v-html="geneInfoBadge(geneInfo)" />
           <span :class="geneInfoClass(geneInfo)">
-            {{ geneInfo.dbnsfp.gene_name }}
+            {{ geneInfo.dbnsfp?.gene_name }}
           </span>
         </template>
 
         <template #item-dbnsfp.mim_disease.length="geneInfo">
-          <template v-if="geneInfo.dbnsfp.mim_disease.length">
-            {{ geneInfo.dbnsfp.mim_disease.join(' // ') }}
+          <template v-if="geneInfo.dbnsfp?.mim_disease.length">
+            {{ geneInfo.dbnsfp?.mim_disease.join(' // ') }}
           </template>
           <template v-else> &mdash; </template>
         </template>
 
         <template #item-dbnsfp.orphanet_disorder.length="geneInfo">
-          <template v-if="geneInfo.dbnsfp.orphanet_disorder.length">
-            {{ geneInfo.dbnsfp.orphanet_disorder.join(' // ') }}
+          <template v-if="geneInfo.dbnsfp?.orphanet_disorder.length">
+            {{ geneInfo.dbnsfp?.orphanet_disorder.join(' // ') }}
           </template>
           <template v-else> &mdash; </template>
         </template>
