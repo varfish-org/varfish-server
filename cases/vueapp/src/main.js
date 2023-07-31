@@ -61,7 +61,7 @@ const routes = [
     props: (route) => ({
       detailsModalVisible: true,
       detailsModalResultRowUuid: route.params.row,
-      detailsModalSelectedTab: route.params.selectedTab || 'info',
+      detailsModalSelectedTab: route.params.selectedTab || 'link-outs',
     }),
   },
   {
@@ -84,6 +84,15 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.name === 'variants-filter-details' && to.params.selectedTab) {
+      const res = { el: `#${to.params.selectedTab}` }
+      document.querySelector(res.el)?.scrollIntoView()
+      return res
+    } else {
+      return savedPosition || { x: 0, y: 0 }
+    }
+  },
 })
 
 const pinia = createPinia()

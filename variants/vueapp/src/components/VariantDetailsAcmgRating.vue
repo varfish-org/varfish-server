@@ -232,7 +232,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row p-2">
     <div class="col px-0">
       <div class="row">
         <div class="col px-0">

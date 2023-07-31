@@ -383,14 +383,10 @@ const getClinvarSignificanceBadge = (patho) => {
   return 'badge-secondary'
 }
 
-const showVariantDetails = (sodarUuid) => {
-  emit('variantSelected', { smallvariantresultrow: sodarUuid })
-}
-
-const showCommentsFlags = (sodarUuid) => {
+const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: 'comments-flags',
+    selectedTab: section ?? 'gene',
   })
 }
 
@@ -426,7 +422,7 @@ const displayAmbiguousFrequencyWarning = (item) => {
 const displayAmbiguousFrequencyWarningMsg = (item) => {
   const tables = displayAmbiguousFrequencyWarning(item)
   const tablesStr = tables.join(' ')
-  return `Table(s) {tablesStr} contain(s) freq > 0.1 or #hom > 50`
+  return `Table(s) ${tablesStr} contain(s) freq > 0.1 or #hom > 50`
 }
 
 /** Load data from table as configured by tableServerOptions. */
@@ -543,88 +539,115 @@ watch(
         buttons-pagination
       >
         <template #item-variant_icons="{ sodar_uuid, payload }">
-          <i-fa-solid-search
-            class="text-muted"
-            @click="showVariantDetails(sodar_uuid)"
-          />
-          <i-fa-solid-bookmark
-            v-if="flagsStore.getFlags(payload)"
-            class="text-muted ml-1"
-            title="flags & bookmarks"
-            @click="showCommentsFlags(sodar_uuid)"
-          />
-          <i-fa-regular-bookmark
-            v-else
-            class="text-muted ml-1"
-            title="flags & bookmarks"
-            @click="showCommentsFlags(sodar_uuid)"
-          />
+          <span class="text-nowrap">
+            <i-fa-solid-search
+              class="text-muted"
+              @click="showVariantDetails(sodar_uuid)"
+              role="button"
+            />
+            <i-fa-solid-bookmark
+              v-if="flagsStore.getFlags(payload)"
+              class="text-muted ml-1"
+              title="flags & bookmarks"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
+              role="button"
+            />
+            <i-fa-regular-bookmark
+              v-else
+              class="text-muted ml-1"
+              title="flags & bookmarks"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
+              role="button"
+            />
 
-          <i-fa-solid-comment
-            v-if="commentsStore.hasComments(payload)"
-            class="text-muted ml-1"
-            @click="showCommentsFlags(sodar_uuid)"
-          />
-          <i-fa-regular-comment
-            v-else
-            class="text-muted ml-1"
-            @click="showCommentsFlags(sodar_uuid)"
-          />
+            <i-fa-solid-comment
+              v-if="commentsStore.hasComments(payload)"
+              class="text-muted ml-1"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
+              role="button"
+            />
+            <i-fa-regular-comment
+              v-else
+              class="text-muted ml-1"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
+              role="button"
+            />
 
-          <span
-            title="ACMG rating"
-            :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
-            @click="showAcmgRating(sodar_uuid)"
-            >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
-          >
+            <span
+              title="ACMG rating"
+              :class="
+                getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))
+              "
+              @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
+              role="button"
+              >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
+            >
 
-          <a
-            v-if="payload.rsid"
-            target="_blank"
-            :href="
-              'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
-              payload.rsid.slice(2)
-            "
-          >
-            <i-fa-solid-database class="ml-1 text-muted" />
-          </a>
-          <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
+            <a
+              v-if="payload.rsid"
+              target="_blank"
+              :href="
+                'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
+                payload.rsid.slice(2)
+              "
+            >
+              <i-fa-solid-database class="ml-1 text-muted" />
+            </a>
+            <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
 
-          <a
-            v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
-            target="_blank"
-            :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + payload.vcv"
-          >
-            <i-fa-regular-hospital class="ml-1 text-muted" />
-          </a>
-          <i-fa-regular-hospital
-            v-else
-            title="Not in local ClinVar copy"
-            class="ml-1 text-muted icon-inactive"
-          />
+            <span
+              @click="showVariantDetails(sodar_uuid, 'clinvar')"
+              role="button"
+            >
+              <i-fa-regular-hospital
+                v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
+                class="ml-1 text-muted"
+              />
+              <i-fa-regular-hospital
+                v-else
+                title="Not in local ClinVar copy"
+                class="ml-1 text-muted icon-inactive"
+              />
+            </span>
 
-          <a
-            v-if="payload.hgmd_public_overlap"
-            target="_blank"
-            :href="
-              'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
-              getSymbol(payload) +
-              '&accession=' +
-              payload.hgmd_accession
-            "
-          >
-            <i-fa-solid-globe class="ml-1 text-muted" />
-          </a>
-          <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
+            <a
+              v-if="payload.hgmd_public_overlap"
+              target="_blank"
+              :href="
+                'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
+                getSymbol(payload) +
+                '&accession=' +
+                payload.hgmd_accession
+              "
+            >
+              <i-fa-solid-globe class="ml-1 text-muted" />
+            </a>
+            <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
+          </span>
         </template>
-        <template #item-position="{ position }">
-          {{ position }}
+        <template #item-position="{ sodar_uuid, position }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
+          >
+            {{ position }}
+          </div>
         </template>
-        <template #item-reference="{ reference }">
-          <span :title="reference">{{ truncateText(reference, 5) }}</span>
+        <template #item-reference="{ sodar_uuid, reference }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
+          >
+            <span :title="reference">{{ truncateText(reference, 5) }}</span>
+          </div>
         </template>
-        <template #item-alternative="{ alternative }">
-          <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+        <template #item-alternative="{ sodar_uuid, alternative }">
+          <div
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            role="button"
+          >
+            <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+          </div>
         </template>
         <template #item-clinvar="{ payload }">
           <span class="badge-group" v-if="payload.summary_pathogenicity_label">
@@ -652,22 +675,42 @@ watch(
           </span>
           <span v-else class="badge badge-light">-</span>
         </template>
-        <template #item-frequency="{ payload }">
-          {{ displayFrequencyContent(payload) }}
-          <i-bi-exclamation-circle
-            class="text-muted"
-            v-if="displayAmbiguousFrequencyWarning(payload).length > 0"
-            :title="displayAmbiguousFrequencyWarningMsg(payload)"
-          />
+        <template #item-frequency="{ sodar_uuid, payload }">
+          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+            <abbr
+              v-if="displayAmbiguousFrequencyWarning(payload)?.length"
+              :title="displayAmbiguousFrequencyWarningMsg(payload)"
+            >
+              {{ displayFrequencyContent(payload) }}
+              <i-mdi-information-outline />
+            </abbr>
+            <span v-else>
+              {{ displayFrequencyContent(payload) }}
+            </span>
+          </div>
         </template>
-        <template #item-homozygous="{ payload }">
-          {{ displayHomozygousContent(payload) }}
+        <template #item-homozygous="{ sodar_uuid, payload }">
+          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+            {{ displayHomozygousContent(payload) }}
+          </div>
         </template>
         <template #item-constraints="{ payload }">
-          {{ displayConstraintsContent(payload) }}
+          <div
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            role="button"
+          >
+            {{ displayConstraintsContent(payload) }}
+          </div>
         </template>
-        <template #item-gene="{ payload }">
-          {{ getSymbol(payload) }}
+        <template #item-gene="{ sodar_uuid, payload }">
+          <span
+            class="user-select-none"
+            href="#"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            role="button"
+          >
+            {{ getSymbol(payload) }}
+          </span>
         </template>
         <template #item-gene_icons="{ payload }">
           <i-fa-solid-user-md
@@ -696,9 +739,11 @@ watch(
             >
           </span>
         </template>
-        <template #item-effect_summary="{ payload }">
+        <template #item-effect_summary="{ sodar_uuid, payload }">
           <span
             :title="`${effectSummary(payload)} [${payload.effect.join(', ')}]`"
+            @click="showVariantDetails(sodar_uuid, 'tx-csq')"
+            role="button"
           >
             {{ truncateText(effectSummary(payload), 12) }}
           </span>
@@ -746,6 +791,7 @@ watch(
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               @click="flagsStore.flagAsArtifact(payload)"
+              role="button"
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>
@@ -764,6 +810,7 @@ watch(
               title="Go to locus in IGV"
               style="font-size: 80%"
               class="btn btn-sm btn-secondary"
+              role="button"
             >
               IGV
             </button>

@@ -49,9 +49,6 @@ const allKeys = computed(() => {
 
 <template>
   <div class="card">
-    <div class="card-header">
-      <h4 class="card-title">Genotype and Call Infos</h4>
-    </div>
     <table class="table table-striped table-hover" v-if="currentSvRecord">
       <thead>
         <tr>

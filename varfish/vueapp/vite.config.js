@@ -40,6 +40,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@varfish': resolve(__dirname, './src/varfish'),
+      '@variantsTest': resolve(__dirname, './tests/variants'),
       '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
       '@variants': resolve(__dirname, './src/variants'),
       '@svs': resolve(__dirname, './src/svs'),

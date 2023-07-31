@@ -1,8 +1,19 @@
 import { chunks } from '@reactgular/chunks'
 
 const ANNONARS_BASE_URL = '/proxy/varfish/annonars'
+const DEFAULT_CHUNK_SIZE = 100
 
-export default {
+export class AnnonarsApiClient {
+  baseUrl: string
+  defaultChunkSize: number
+  csrfToken?: string
+
+  constructor(csrfToken?: string, defaultChunkSize?: number, baseUrl?: string) {
+    this.csrfToken = csrfToken
+    this.baseUrl = baseUrl ?? ANNONARS_BASE_URL
+    this.defaultChunkSize = defaultChunkSize ?? DEFAULT_CHUNK_SIZE
+  }
+
   /**
    * Retrieve gene information via annonars REST API.
    *
@@ -12,20 +23,25 @@ export default {
    */
   async retrieveGeneInfos(
     hgncIds: Array<string>,
-    chunkSize: number = 100
+    chunkSize?: number
   ): Promise<Array<any>> {
-    const hgncIdChunks = chunks(hgncIds, chunkSize)
+    const hgncIdChunks = chunks(hgncIds, chunkSize ?? this.defaultChunkSize)
 
     const promises = hgncIdChunks.map((chunk) => {
-      const url = `${ANNONARS_BASE_URL}/genes/info?hgnc-id=${chunk.join(',')}`
+      const url = `${this.baseUrl}/genes/info?hgnc_id=${chunk.join(',')}`
+
+      const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+      if (this.csrfToken) {
+        headers['X-CSRFToken'] = this.csrfToken
+      }
 
       return fetch(url, {
         method: 'GET',
         credentials: 'same-origin',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
     })
 
@@ -41,5 +57,37 @@ export default {
       }
     })
     return result
-  },
+  }
+
+  /**
+   * Retrieve variant information via annonars REST API.
+   */
+  async retrieveVariantAnnos(
+    genomeRelease: string,
+    chromosome: string,
+    pos: number,
+    reference: string,
+    alternative: string
+  ): Promise<any> {
+    const url =
+      `${this.baseUrl}/annos/variant?genome_release=${genomeRelease}&` +
+      `chromosome=${chromosome}&pos=${pos}&reference=${reference}&` +
+      `alternative=${alternative}`
+
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    }
+    if (this.csrfToken) {
+      headers['X-CSRFToken'] = this.csrfToken
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers,
+    })
+
+    return await response.json()
+  }
 }

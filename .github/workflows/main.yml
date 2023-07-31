@@ -44,6 +44,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
       - name: Install Python
         uses: actions/setup-python@v4
@@ -103,6 +105,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
       - name: Install Python
         uses: actions/setup-python@v4
@@ -135,6 +139,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
       - name: Install javascript dependencies
         run: |
@@ -150,6 +156,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
       - name: Install javascript dependencies
         run: |
