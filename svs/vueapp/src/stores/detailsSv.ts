@@ -48,7 +48,7 @@ export const useSvDetailsStore = defineStore('detailsSv', () => {
     currentSvRecord.value = svRecord
     const hgncIds = svRecord.payload.tx_effects.map((item) => item.gene.hgnc_id)
     const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-    genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)?.result
+    genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
   }
 
   /** Initialize the store from the appContext. */

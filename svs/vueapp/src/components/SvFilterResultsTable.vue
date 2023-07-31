@@ -24,18 +24,12 @@ const props = defineProps({
 })
 
 /** Define emits. */
-const emit = defineEmits([
-  'variantSelected', // sv row clicked, arg is SvQueryResultRowRow UUID
-])
+const emit = defineEmits(['variantSelected'])
 
-const onShowDetailsClicked = (sodarUuid) => {
-  emit('variantSelected', { svresultrow: sodarUuid })
-}
-
-const onShowFlagsCommentsClicked = (sodarUuid) => {
+const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     svresultrow: sodarUuid,
-    selectedTab: 'comments-flags',
+    selectedTab: section ?? 'gene',
   })
 }
 
@@ -415,19 +409,22 @@ watch(
         <div class="text-nowrap">
           <i-fa-solid-search
             class="text-muted"
-            @click.prevent="onShowDetailsClicked(sodar_uuid)"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            role="button"
           />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
-            @click="onShowFlagsCommentsClicked(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
+            role="button"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted icon-inactive"
             title="flags & bookmarks"
-            @click="onShowFlagsCommentsClicked(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
+            role="button"
           />
           <!-- comments -->
           <i-fa-solid-comment
@@ -435,12 +432,14 @@ watch(
               svCommentsStore.hasComment({ chromosome, start, end, sv_type })
             "
             class="text-muted ml-1"
-            @click="onShowFlagsCommentsClicked(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
+            role="button"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted icon-inactive ml-1"
-            @click="onShowFlagsCommentsClicked(sodar_uuid)"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
+            role="button"
           />
           <!-- tool -->
           <span :title="payload.caller">
@@ -451,6 +450,7 @@ watch(
 
       <template
         #item-chrom-pos="{
+          sodar_uuid,
           chromosome,
           start,
           payload: {
@@ -458,18 +458,24 @@ watch(
           },
         }"
       >
-        chr{{ chromosome }}:{{ formatLargeInt(start) }}
-        <span
-          v-if="repeat > 0 || segdup > 0"
-          class="text-info"
-          :title="`Breakpoints overlap with repetitive sequence (repeats: ${repeat}, segmental duplications: ${segdup}). Such calls are not reliable for short-read data.`"
+        <div
+          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
+          role="button"
         >
-          <i-mdi-line-scan />
-        </span>
+          chr{{ chromosome }}:{{ formatLargeInt(start) }}
+          <span
+            v-if="repeat > 0 || segdup > 0"
+            class="text-info"
+            :title="`Breakpoints overlap with repetitive sequence (repeats: ${repeat}, segmental duplications: ${segdup}). Such calls are not reliable for short-read data.`"
+          >
+            <i-mdi-line-scan />
+          </span>
+        </div>
       </template>
 
       <template
         #item-genes="{
+          sodar_uuid,
           payload: {
             ovl_genes,
             tad_genes,
@@ -481,113 +487,124 @@ watch(
           },
         }"
       >
-        <template v-if="tx_effects.length || showTadGenes(tad_genes)">
-          <template v-for="(item, index) in tx_effects">
-            <span
-              class="text-nowrap"
-              :class="geneClass(item.gene, 'text-danger')"
-              :title="geneTitle(item.gene)"
-            >
-              <template
-                v-if="
-                  (item.transcript_effects ?? []).includes('transcript_variant')
-                "
-              >
-                <span
-                  class="badge badge-danger"
-                  title="whole transcript is affected"
-                  >tx</span
-                >
-              </template>
-              <template
-                v-else-if="
-                  (item.transcript_effects ?? []).includes('exon_variant')
-                "
-              >
-                <span class="badge badge-danger" title="exonic for gene"
-                  >ex</span
-                >
-              </template>
-              <template
-                v-else-if="
-                  (item.transcript_effects ?? []).includes(
-                    'splice_region_variant'
-                  )
-                "
-              >
-                <span class="badge badge-danger" title="splice region for gene"
-                  >sr</span
-                >
-              </template>
-              <template
-                v-else-if="
-                  (item.transcript_effects ?? []).includes('intron_variant')
-                "
-              >
-                <span class="badge badge-warning" title="intronic for gene"
-                  >in</span
-                >
-              </template>
-              <template
-                v-else-if="
-                  (item.transcript_effects ?? []).includes('upstream_variant')
-                "
-              >
-                <span class="badge badge-secondary" title="upstream of gene"
-                  >up</span
-                >
-              </template>
-              <template
-                v-else-if="
-                  (item.transcript_effects ?? []).includes('downstream_variant')
-                "
-              >
-                <span class="badge badge-secondary" title="downstream of gene"
-                  >dw</span
-                >
-              </template>
-              {{ item.gene.symbol
-              }}<span v-if="item.gene.is_disease_gene || item.gene.is_acmg">
-                <i-mdi-hospital-box /></span></span
-            ><span v-if="index + 1 < tx_effects.length">, </span>
-          </template>
-          <span
-            v-if="tx_effects.length && showTadGenes(tad_genes)"
-            class="text-muted"
-            >,
-          </span>
-          <template v-if="showTadGenes(tad_genes)">
-            <template v-for="(item, index) in withSymbol(tad_genes)">
-              <span class="text-muted" v-if="index > 0">, </span>
+        <div
+          @click="showVariantDetails(sodar_uuid, 'call-details')"
+          role="button"
+        >
+          <template v-if="tx_effects.length || showTadGenes(tad_genes)">
+            <template v-for="(item, index) in tx_effects">
               <span
-                class="font-italic text-nowrap"
-                :class="geneClass(item, 'text-info', 'text-muted')"
-                :title="geneTitle(item)"
+                class="text-nowrap"
+                :class="geneClass(item.gene, 'text-danger')"
+                :title="geneTitle(item.gene)"
               >
-                {{ item.symbol }}
-                <i-mdi-hospital-box
-                  v-if="item.is_disease_gene || item.is_acmg"
-                />
-              </span>
+                <template
+                  v-if="
+                    (item.transcript_effects ?? []).includes(
+                      'transcript_variant'
+                    )
+                  "
+                >
+                  <span
+                    class="badge badge-danger"
+                    title="whole transcript is affected"
+                    >tx</span
+                  >
+                </template>
+                <template
+                  v-else-if="
+                    (item.transcript_effects ?? []).includes('exon_variant')
+                  "
+                >
+                  <span class="badge badge-danger" title="exonic for gene"
+                    >ex</span
+                  >
+                </template>
+                <template
+                  v-else-if="
+                    (item.transcript_effects ?? []).includes(
+                      'splice_region_variant'
+                    )
+                  "
+                >
+                  <span
+                    class="badge badge-danger"
+                    title="splice region for gene"
+                    >sr</span
+                  >
+                </template>
+                <template
+                  v-else-if="
+                    (item.transcript_effects ?? []).includes('intron_variant')
+                  "
+                >
+                  <span class="badge badge-warning" title="intronic for gene"
+                    >in</span
+                  >
+                </template>
+                <template
+                  v-else-if="
+                    (item.transcript_effects ?? []).includes('upstream_variant')
+                  "
+                >
+                  <span class="badge badge-secondary" title="upstream of gene"
+                    >up</span
+                  >
+                </template>
+                <template
+                  v-else-if="
+                    (item.transcript_effects ?? []).includes(
+                      'downstream_variant'
+                    )
+                  "
+                >
+                  <span class="badge badge-secondary" title="downstream of gene"
+                    >dw</span
+                  >
+                </template>
+                {{ item.gene.symbol
+                }}<span v-if="item.gene.is_disease_gene || item.gene.is_acmg">
+                  <i-mdi-hospital-box /></span></span
+              ><span v-if="index + 1 < tx_effects.length">, </span>
+            </template>
+            <span
+              v-if="tx_effects.length && showTadGenes(tad_genes)"
+              class="text-muted"
+              >,
+            </span>
+            <template v-if="showTadGenes(tad_genes)">
+              <template v-for="(item, index) in withSymbol(tad_genes)">
+                <span class="text-muted" v-if="index > 0">, </span>
+                <span
+                  class="font-italic text-nowrap"
+                  :class="geneClass(item, 'text-info', 'text-muted')"
+                  :title="geneTitle(item)"
+                >
+                  {{ item.symbol }}
+                  <i-mdi-hospital-box
+                    v-if="item.is_disease_gene || item.is_acmg"
+                  />
+                </span>
+              </template>
             </template>
           </template>
-        </template>
-        <template v-else> &mdash; </template>
-        <span
-          v-if="withSymbol(tad_genes).length && !showTadGenes(tad_genes)"
-          class="text-muted font-italic"
-        >
-          <template v-if="tx_effects.length"> +</template>
-          {{ withSymbol(tad_genes).length }} in TAD
-          <template v-if="tad_disease_gene">
-            <span
-              title="Overlapping TAD contains disease gene!"
-              class="text-info"
-            >
-              <i-mdi-hospital-box />
-            </span>
-          </template>
-        </span>
+          <template v-else> &mdash; </template>
+          <span
+            v-if="withSymbol(tad_genes).length && !showTadGenes(tad_genes)"
+            class="text-muted font-italic"
+          >
+            <template v-if="tx_effects.length"> +</template>
+            {{ withSymbol(tad_genes).length }} in TAD
+            <template v-if="tad_disease_gene">
+              <span
+                title="Overlapping TAD contains disease gene!"
+                class="text-info"
+              >
+                <i-mdi-hospital-box />
+              </span>
+            </template>
+          </span>
+        </div>
       </template>
 
       <template #item-sv_type="{ sv_type, payload }">
@@ -619,8 +636,12 @@ watch(
         </span>
       </template>
 
-      <template #item-payload.sv_length="{ payload }">
-        <div class="text-right text-nowrap space">
+      <template #item-payload.sv_length="{ sodar_uuid, payload }">
+        <div
+          class="text-right text-nowrap space"
+          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
+          role="button"
+        >
           {{ formatLargeInt(payload.sv_length) }}
           <span class="text-muted">bp</span>
         </div>

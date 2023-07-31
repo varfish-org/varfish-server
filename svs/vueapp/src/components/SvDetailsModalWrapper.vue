@@ -53,7 +53,7 @@ const showModal = async () => {
     props.resultRowUuid
   )
   svRecord.value = resultRow
-  svDetailsStore.fetchSvDetails(resultRow)
+  await svDetailsStore.fetchSvDetails(resultRow)
 }
 
 /** Watch the "visible" prop and map to jQuery calls. */
@@ -111,7 +111,7 @@ onMounted(() => {
       style="max-width: 100%; margin: 10px"
     >
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header pt-1 pb-1">
           <h3 class="modal-title" id="variantDetailsModalLabel">
             SV Details for
             <template v-if="svRecord">
@@ -139,7 +139,7 @@ onMounted(() => {
             </button>
           </span>
         </div>
-        <div class="modal-body">
+        <div class="modal-body pt-0">
           <SvDetails
             :result-row-uuid="props.resultRowUuid"
             :selected-tab="props.selectedTab"

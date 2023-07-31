@@ -85,7 +85,10 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    if (to.name === 'variants-filter-details' && to.params.selectedTab) {
+    if (
+      ['variants-filter-details', 'svs-filter-details'].includes(to.name) &&
+      to.params.selectedTab
+    ) {
       const res = { el: `#${to.params.selectedTab}` }
       document.querySelector(res.el)?.scrollIntoView()
       return res
