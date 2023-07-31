@@ -55,7 +55,7 @@ export const connectTopRowControls = () => {
         )
       }
       const elem = $('#vueapp-filtration-complexity-mode')
-      if (elem) {
+      if (elem && elem.val(newValue)) {
         elem.val(newValue).change()
       }
     }

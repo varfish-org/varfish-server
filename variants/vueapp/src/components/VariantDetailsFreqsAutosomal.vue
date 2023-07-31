@@ -12,7 +12,11 @@ const props = defineProps<{
 const FREQ_DIGITS = 5
 
 const selAnnos = computed(() => {
-  return props.varAnnos[props.dataset]
+  if (!props.varAnnos) {
+    return null
+  } else {
+    return props.varAnnos[props.dataset]
+  }
 })
 
 const noCohort = computed(() => {

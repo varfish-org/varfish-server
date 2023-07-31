@@ -18,7 +18,7 @@ export class MehariApiClient {
     pos: number,
     reference: string,
     alternative: string,
-    hgncId?: string
+    hgncId?: string,
   ): Promise<any> {
     const hgncSuffix = hgncId ? `&hgnc-id=${hgncId}` : ''
     const url =

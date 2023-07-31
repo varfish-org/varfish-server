@@ -23,7 +23,7 @@ export class AnnonarsApiClient {
    */
   async retrieveGeneInfos(
     hgncIds: Array<string>,
-    chunkSize?: number
+    chunkSize?: number,
   ): Promise<Array<any>> {
     const hgncIdChunks = chunks(hgncIds, chunkSize ?? this.defaultChunkSize)
 
@@ -47,7 +47,7 @@ export class AnnonarsApiClient {
 
     const responses = await Promise.all(promises)
     const results = await Promise.all(
-      responses.map((response) => response.json())
+      responses.map((response) => response.json()),
     )
 
     const result = []
@@ -67,7 +67,7 @@ export class AnnonarsApiClient {
     chromosome: string,
     pos: number,
     reference: string,
-    alternative: string
+    alternative: string,
   ): Promise<any> {
     const url =
       `${this.baseUrl}/annos/variant?genome_release=${genomeRelease}&` +

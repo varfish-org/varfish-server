@@ -30,7 +30,7 @@ describe('CaseListPaneCases.vue', () => {
     // Disable warnings
     vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Set reproducible time
-    vi.useFakeTimers('modern')
+    vi.useFakeTimers()
     vi.setSystemTime(new Date(2020, 3, 1))
   })
 

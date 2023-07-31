@@ -64,14 +64,13 @@ describe('FilterFormQualityPaneRow.vue', () => {
     await inputs[5].setValue(666)
     await select.setValue('ignore')
 
-    // TODO: bug in happy-dom or vue-test? The 0-th one is not set.
+    // TODO: bug in happy-dom or vue-test? The 0-th equals "10"
     // expect(inputs[0].element.value).toEqual('111')
-    expect(inputs[1].element.value).toEqual(222)
-    expect(inputs[2].element.value).toEqual(0.333)
-    expect(inputs[3].element.value).toEqual(444)
-    expect(inputs[4].element.value).toEqual(555)
-    expect(inputs[5].element.value).toEqual(666)
-    // TODO: Bug in happy-dom? Value is "" in tests.
-    // expect(select.element.value).toEqual('ignore')
+    expect(inputs[1].element.value).toEqual("222")
+    expect(inputs[2].element.value).toEqual("0.333")
+    expect(inputs[3].element.value).toEqual("444")
+    expect(inputs[4].element.value).toEqual("555")
+    expect(inputs[5].element.value).toEqual("666")
+    expect(select.element.value).toEqual('ignore')
   })
 })

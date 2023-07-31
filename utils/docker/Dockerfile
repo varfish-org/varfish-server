@@ -31,7 +31,7 @@ RUN git clone --depth 1 --branch $WORKER_GIT_TREEISH $WORKER_GIT_URL \
 # NodeJS Base Image
 # ---------------------------------------------------------------------------
 
-FROM node:16-slim AS node-base
+FROM node:20-slim AS node-base
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

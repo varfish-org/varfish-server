@@ -14,7 +14,7 @@ const props = defineProps({
 
 /** Whether to show the overlay. */
 const overlayShow = computed(
-  () => (props.flagsStore?.serverInteractions ?? 0) > 0
+  () => (props.flagsStore?.serverInteractions ?? 0) > 0,
 )
 
 const flagsToSubmit = ref(copy({ ...props.flagsStore.initialFlagsTemplate }))
@@ -80,7 +80,7 @@ const resetFlags = () => {
 const onSubmitFlags = async () => {
   const flagsToSubmitEmpty = isEqual(
     flagsToSubmit.value,
-    props.flagsStore.emptyFlagsTemplate
+    props.flagsStore.emptyFlagsTemplate,
   )
   if (props.flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags

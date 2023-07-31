@@ -6,11 +6,19 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     'no-unused-vars': [
       'error',
-      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      },
     ],
   },
   ignorePatterns: ['static/**'],
-  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
+  extends: [
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
+    'prettier',
+    'plugin:storybook/recommended',
+  ],
   root: true,
   env: {
     node: true,
