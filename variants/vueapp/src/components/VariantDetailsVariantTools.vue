@@ -230,21 +230,15 @@ const umdpredictorLinkout = computed((): str => {
         </div>
         <div class="card-body p-2">
           <div>
-            <a :href="ucscLinkout" target="_blank">
+            <a :href="dgvLinkout" target="_blank">
               <i-mdi-launch />
-              UCSC Genome Browser
+              DGV
             </a>
           </div>
           <div>
             <a :href="ensemblLinkout" target="_blank">
               <i-mdi-launch />
               ENSEBML
-            </a>
-          </div>
-          <div>
-            <a :href="dgvLinkout" target="_blank">
-              <i-mdi-launch />
-              DGV
             </a>
           </div>
           <div>
@@ -275,21 +269,6 @@ const umdpredictorLinkout = computed((): str => {
           </div>
           <div>
             <a
-              :href="`https://varseak.bio/ssp.php?gene={{ smallVar.symbol }}&hgvs={{ smallVar.hgvs_c }}`"
-              target="_blank"
-            >
-              <i-mdi-launch />
-              VarSeak Splice Site Predictor
-            </a>
-          </div>
-          <div>
-            <a :href="varsomeLinkout" target="_blank">
-              <i-mdi-launch />
-              varsome
-            </a>
-          </div>
-          <div>
-            <a
               v-if="props.umdPredictorApiToken"
               :href="umdpredictorLinkout"
               target="_blank"
@@ -305,6 +284,27 @@ const umdpredictorLinkout = computed((): str => {
               <i-mdi-launch />
               UMD Predictor (API token not configured)
             </span>
+          </div>
+          <div>
+            <a :href="ucscLinkout" target="_blank">
+              <i-mdi-launch />
+              UCSC Genome Browser
+            </a>
+          </div>
+          <div>
+            <a
+              :href="`https://varseak.bio/ssp.php?gene={{ smallVar.symbol }}&hgvs={{ smallVar.hgvs_c }}`"
+              target="_blank"
+            >
+              <i-mdi-launch />
+              VarSeak Splice Site Predictor
+            </a>
+          </div>
+          <div>
+            <a :href="varsomeLinkout" target="_blank">
+              <i-mdi-launch />
+              varsome
+            </a>
           </div>
         </div>
       </div>
