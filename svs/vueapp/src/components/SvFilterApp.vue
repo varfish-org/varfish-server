@@ -12,7 +12,7 @@ import { QueryStates, QueryStateToText } from '@variants/enums'
 import SvFilterAppHeader from '@svs/components/SvFilterAppHeader.vue'
 import SvFilterForm from '@svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
-import SvDetailsModalWrapper from '@svs/components/SvDetailsModalWrapper.vue'
+import SvDetailsModalWrapper from '@svs/components/SvDetails/ModalWrapper.vue'
 
 const props = defineProps({
   /** Whether to show the variant details modal. */
