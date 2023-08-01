@@ -713,30 +713,32 @@ watch(
           </span>
         </template>
         <template #item-gene_icons="{ payload }">
-          <i-fa-solid-user-md
-            :class="{
-              'text-danger': isOnAcmgList(payload),
-              'text-muted icon-inactive': !isOnAcmgList(payload),
-            }"
-            title="Gene in ACMG incidental finding list"
-          />
-          <i-fa-solid-lightbulb
-            v-if="isDiseaseGene(payload)"
-            class="text-danger align-baseline"
-            title="Known disease gene"
-          />
-          <i-fa-regular-lightbulb
-            v-if="!isDiseaseGene(payload)"
-            class="text-muted icon-inactive align-baseline"
-            title="Not a known disease gene"
-          />
-          <span v-if="payload.modes_of_inheritance">
-            <span
-              v-for="(mode, index) in sortedModesOfInheritance(payload)"
-              :key="index"
-              class="badge badge-info ml-1"
-              >{{ mode }}</span
-            >
+          <span class="text-nowrap">
+            <i-fa-solid-user-md
+              :class="{
+                'text-danger': isOnAcmgList(payload),
+                'text-muted icon-inactive': !isOnAcmgList(payload),
+              }"
+              title="Gene in ACMG incidental finding list"
+            />
+            <i-fa-solid-lightbulb
+              v-if="isDiseaseGene(payload)"
+              class="text-danger align-baseline"
+              title="Known disease gene"
+            />
+            <i-fa-regular-lightbulb
+              v-if="!isDiseaseGene(payload)"
+              class="text-muted icon-inactive align-baseline"
+              title="Not a known disease gene"
+            />
+            <span v-if="payload.modes_of_inheritance">
+              <span
+                v-for="(mode, index) in sortedModesOfInheritance(payload)"
+                :key="index"
+                class="badge badge-info ml-1"
+                >{{ mode }}</span
+              >
+            </span>
           </span>
         </template>
         <template #item-effect_summary="{ sodar_uuid, payload }">
