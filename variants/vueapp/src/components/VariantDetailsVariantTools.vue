@@ -58,13 +58,13 @@ const decodeMultiDbnsfp = (s: string): number | null => {
       ...s
         .split(';')
         .filter((s) => s != '.')
-        .map(parseFloat)
+        .map(parseFloat),
     )
   }
 }
 
 const siftScore = computed((): number | null =>
-  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.SIFT_score)
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.SIFT_score),
 )
 
 const translatedSiftScore = computed((): number | null => {
@@ -77,7 +77,7 @@ const translatedSiftScore = computed((): number | null => {
 })
 
 const fathmmScore = computed((): number | null =>
-  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.FATHMM_score)
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.FATHMM_score),
 )
 
 const translatedFathmmScore = computed((): number | null => {
@@ -98,15 +98,15 @@ const gerpScore = computed((): number | null => {
 })
 
 const mpcScore = computed((): number | null =>
-  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.MPC_score)
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.MPC_score),
 )
 
 const revelScore = computed((): number | null =>
-  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.REVEL_score)
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.REVEL_score),
 )
 
 const polyphenScore = computed((): number | null =>
-  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.Polyphen2_HVAR_score)
+  decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.Polyphen2_HVAR_score),
 )
 
 const ucscLinkout = computed((): str => {

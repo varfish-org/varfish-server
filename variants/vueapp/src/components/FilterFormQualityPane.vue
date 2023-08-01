@@ -33,7 +33,7 @@ const keyMap = {
 const v$ = useVuelidate(rules, tplValues)
 
 const membersWithGtEntries = props.caseObj.pedigree.filter(
-  (member) => member.has_gt_entries
+  (member) => member.has_gt_entries,
 )
 
 const childRefs = ref([])

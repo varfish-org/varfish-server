@@ -59,7 +59,7 @@ const anyHasError = computed(() => {
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(svFilterStore.storeState)
+  ['initial', 'initializing'].includes(svFilterStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {

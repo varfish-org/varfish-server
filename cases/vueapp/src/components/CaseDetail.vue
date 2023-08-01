@@ -43,7 +43,7 @@ casesStore.initializeRes.then(() => {
           if (newParams.case && newParams.case !== oldParams.case) {
             caseDetailsStore.initialize(caseUuidRef.value)
           }
-        }
+        },
       )
     })
     .catch((err) => {
@@ -75,7 +75,7 @@ const handleEditQueryPresetsClicked = async () => {
     allPresets.map((p) => ({
       value: p.sodar_uuid,
       label: p.label,
-    }))
+    })),
   )
 
   try {
@@ -301,11 +301,11 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
     let origTerms = []
     if (casePhenotypeTermsUuid) {
       const casePhenotypeTerms = caseDetailsStore.getCasePhenotypeTerms(
-        casePhenotypeTermsUuid
+        casePhenotypeTermsUuid,
       )
       if (!casePhenotypeTerms) {
         throw new Error(
-          `Could not fetch case phenotype terms ${casePhenotypeTermsUuid}`
+          `Could not fetch case phenotype terms ${casePhenotypeTermsUuid}`,
         )
       }
       origTerms = casePhenotypeTerms.terms
@@ -326,7 +326,7 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
         {
           individual,
           terms,
-        }
+        },
       )
     }
 

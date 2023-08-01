@@ -155,7 +155,7 @@ const props = withDefaults(defineProps<Props>(), {
                         roundIt(
                           gene?.gnomad_constraints?.oe_lof_upper,
                           2,
-                          'LOEUF'
+                          'LOEUF',
                         )
                       "
                     />)

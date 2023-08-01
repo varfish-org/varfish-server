@@ -314,7 +314,7 @@ export function defineColumnDefs({
       field: 'hgvs_p',
       headerName: 'hgvs_p',
       hide: !(displayColumns || []).includes(
-        DisplayColumns.EffectProtein.value
+        DisplayColumns.EffectProtein.value,
       ),
     },
     {
@@ -326,7 +326,7 @@ export function defineColumnDefs({
       field: 'exon_dist',
       headerName: 'exon dist',
       hide: !(displayColumns || []).includes(
-        DisplayColumns.DistanceSplicesite.value
+        DisplayColumns.DistanceSplicesite.value,
       ),
     },
     ...extraAnnoColumnDefs,

@@ -12,13 +12,13 @@ const loadSettings = () => {
   rawFilterCriteriaRef.value.value = JSON.stringify(
     props.querySettings.genotype_criteria,
     null,
-    2
+    2,
   )
 }
 
 const applySettings = () => {
   props.querySettings.genotype_criteria = JSON.parse(
-    rawFilterCriteriaRef.value.value
+    rawFilterCriteriaRef.value.value,
   )
 }
 </script>

@@ -65,12 +65,12 @@ const getRole = (name) => {
 
 /** Precomputed mapping of father for each pedigree member. */
 const memberToFather = Object.fromEntries(
-  props.caseObj.pedigree.map((member) => [member.name, member.father])
+  props.caseObj.pedigree.map((member) => [member.name, member.father]),
 )
 
 /** Precomputed mapping of mother for each pedigree member. */
 const memberToMother = Object.fromEntries(
-  props.caseObj.pedigree.map((member) => [member.name, member.mother])
+  props.caseObj.pedigree.map((member) => [member.name, member.mother]),
 )
 
 /** Build a wrapper to go into `genotypeWrappers` below. */
@@ -96,7 +96,7 @@ const makeGenotypeWrapper = (name) =>
             key !== memberToFather[name] &&
             key !== memberToMother[name] &&
             ['comphet-index', 'recessive-index', 'recessive-parent'].includes(
-              value
+              value,
             )
           ) {
             props.querySettings[key] = 'any'
@@ -140,8 +140,8 @@ const genotypeWrappers = reactive(
     props.caseObj.pedigree.map((member) => [
       member.name,
       makeGenotypeWrapper(member.name),
-    ])
-  )
+    ]),
+  ),
 )
 
 /** Initialize vuelidate. */

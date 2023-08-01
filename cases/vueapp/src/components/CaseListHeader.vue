@@ -5,11 +5,11 @@ import { useCasesStore } from '../stores/cases.js'
 const casesStore = useCasesStore()
 
 const projectTitle = computed(() =>
-  casesStore.project ? casesStore.project.title : 'PROJECT MISSING'
+  casesStore.project ? casesStore.project.title : 'PROJECT MISSING',
 )
 
 const projectUuid = computed(() =>
-  casesStore.project ? casesStore.project.sodar_uuid : 'no-uuid'
+  casesStore.project ? casesStore.project.sodar_uuid : 'no-uuid',
 )
 </script>
 

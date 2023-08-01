@@ -59,7 +59,7 @@ const gnomadMtDna = computed(() => {
             v-html="
               roundIt(
                 (gnomadMtDna?.ac_het + gnomadMtDna?.ac_hom) / gnomadMtDna?.an,
-                4
+                4,
               )
             "
           />
@@ -78,7 +78,7 @@ const gnomadMtDna = computed(() => {
               roundIt(
                 (helixMtDb?.num_het + helixMtDb?.num_hom) /
                   helixMtDb?.num_total,
-                4
+                4,
               )
             "
           />

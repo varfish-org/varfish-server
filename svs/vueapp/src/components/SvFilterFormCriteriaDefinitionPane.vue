@@ -67,7 +67,7 @@ const initSelectedCriteriaDef = () => {
 
 watch(
   () => props.querySettings.genotype_criteria,
-  (newValue, _oldValue) => initSelectedCriteriaDef()
+  (newValue, _oldValue) => initSelectedCriteriaDef(),
 )
 onMounted(() => initSelectedCriteriaDef())
 </script>

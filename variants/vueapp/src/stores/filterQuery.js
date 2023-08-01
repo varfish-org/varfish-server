@@ -20,7 +20,7 @@ const fetchPresets = async (
   csrfToken,
   caseObj,
   quickPresets,
-  categoryPresets
+  categoryPresets,
 ) => {
   // TODO: move fetch calls into queryPresetsApi
   const fetchFactoryPresets = async () => {
@@ -40,7 +40,7 @@ const fetchPresets = async (
             .then((presets) => {
               categoryPresets.value[category] = presets
             })
-        }
+        },
       ),
     ])
   }
@@ -64,7 +64,7 @@ const fetchPresets = async (
                 flagsetc: qp.flagsetc,
                 database: apiPresetSet.database,
               },
-            ])
+            ]),
           )
 
           const categories = [
@@ -82,7 +82,7 @@ const fetchPresets = async (
               apiPresetSet[`${category2}presets_set`].map((ps) => [
                 ps.sodar_uuid,
                 ps,
-              ])
+              ]),
             )
           }
         }),
@@ -108,7 +108,7 @@ const fetchDefaultSettings = async (
   csrfToken,
   caseUuid,
   querySettingsPresets,
-  querySettings
+  querySettings,
 ) => {
   const resJson = await variantsApi.fetchQueryShortcuts(csrfToken, caseUuid)
   querySettingsPresets.value = resJson.presets
@@ -160,7 +160,7 @@ const fetchHpoTerms = async (csrfToken, hpoTerms) => {
           console.warn(
             "Multiple terms for HPO ID '" +
               hpoTerm +
-              "' found. Taking first one."
+              "' found. Taking first one.",
           )
         }
         _hpoNames.push(res[0].name)
@@ -276,7 +276,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     try {
       const queryStatus = await variantsApi.retrieveQuery(
         csrfToken.value,
-        queryUuid
+        queryUuid,
       )
       queryLogs.value = queryStatus.logs
       queryState.value = apiQueryStateToQueryState(queryStatus.query_state)
@@ -289,7 +289,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       failuresSeen += 1
       console.warn(
         `There was a problem retrieving the query status (${failuresSeen} / ${FETCH_LOOP_ALLOW_FAILURES}`,
-        err
+        err,
       )
       if (failuresSeen > FETCH_LOOP_ALLOW_FAILURES) {
         queryState.value = QueryStates.Error.value
@@ -304,7 +304,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       // List the results
       const responseResultSetList = await variantsApi.listQueryResultSet(
         csrfToken.value,
-        queryUuid
+        queryUuid,
       )
       if (!responseResultSetList.length) {
         console.error('ERROR: no results in response')
@@ -330,7 +330,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     previousQueryDetails.value = await variantsApi.createQuery(
       csrfToken.value,
       caseUuid.value,
-      { query_settings: copy(querySettings.value) }
+      { query_settings: copy(querySettings.value) },
     )
     queryState.value = QueryStates.Running.value
     downloadStatusTsv.value = null
@@ -341,7 +341,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     exportJobUuidXlsx.value = null
     hpoNames.value = await fetchHpoTerms(
       csrfToken.value,
-      querySettings.value.prio_hpo_terms
+      querySettings.value.prio_hpo_terms,
     )
     await nextTick()
     await runFetchLoop(previousQueryDetails.value.sodar_uuid)
@@ -406,13 +406,13 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const runFetchDownloadLoop = async (
     exportJobUuid,
     fileType,
-    failuresSeen = 0
+    failuresSeen = 0,
   ) => {
     // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
     try {
       const response = await variantsApi.statusDownloadResults(
         csrfToken.value,
-        exportJobUuid
+        exportJobUuid,
       )
       if (fileType === 'tsv') {
         downloadStatusTsv.value = response.status
@@ -432,7 +432,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       failuresSeen += 1
       console.warn(
         `There was a problem retrieving the download status (${failuresSeen} / ${FETCH_LOOP_ALLOW_FAILURES}`,
-        err
+        err,
       )
       if (failuresSeen > FETCH_LOOP_ALLOW_FAILURES) {
         if (fileType === 'tsv') {
@@ -460,7 +460,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       FETCH_LOOP_DELAY,
       exportJobUuid,
       fileType,
-      failuresSeen
+      failuresSeen,
     )
   }
 
@@ -506,7 +506,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
             csrfToken.value,
             caseUuid.value,
             querySettingsPresets,
-            querySettings
+            querySettings,
           ),
           // 2. fetch previous query UUID
           fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
@@ -518,7 +518,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
               if (queryUuid.value) {
                 return variantsApi.retrieveQuery(
                   csrfToken.value,
-                  queryUuid.value
+                  queryUuid.value,
                 )
               }
             })
@@ -528,7 +528,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
                 previousQueryDetails.value = result
                 querySettings.value = previousQueryDetailsToQuerySettings(
                   caseObj.value,
-                  previousQueryDetails.value
+                  previousQueryDetails.value,
                 )
               }
             })
@@ -545,7 +545,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
               if (querySettings.value?.prio_hpo_terms.length > 0) {
                 hpoNames.value = fetchHpoTerms(
                   csrfToken.value,
-                  querySettings.value.prio_hpo_terms
+                  querySettings.value.prio_hpo_terms,
                 )
               }
             }),
@@ -554,7 +554,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
             csrfToken.value,
             caseObj.value,
             quickPresets,
-            categoryPresets
+            categoryPresets,
           ),
           // 4. fetch extra anno fields
           fetchExtraAnnoFields(csrfToken.value).then((result) => {

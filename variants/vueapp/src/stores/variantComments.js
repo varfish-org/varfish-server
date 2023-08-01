@@ -50,7 +50,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     try {
       const res = await variantsApi.listComment(csrfToken.value, caseUuid.value)
       caseComments.value = Object.fromEntries(
-        res.map((comments) => [comments.sodar_uuid, comments])
+        res.map((comments) => [comments.sodar_uuid, comments]),
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -71,7 +71,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       comments.value = await variantsApi.listComment(
         csrfToken.value,
         caseUuid.value,
-        smallVariant$
+        smallVariant$,
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -94,7 +94,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
         csrfToken.value,
         caseUuid.value,
         smallVariant,
-        { ...smallVariant, text }
+        { ...smallVariant, text },
       )
     } finally {
       serverInteractions.value -= 1
@@ -146,7 +146,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     delete caseComments.value[commentUuid]
     comments.value = comments.value.filter(
-      (comment) => comment.sodar_uuid !== commentUuid
+      (comment) => comment.sodar_uuid !== commentUuid,
     )
   }
 

@@ -50,7 +50,7 @@ const showModal = async () => {
 
   const resultRow = await svsApi.retrieveSvQueryResultRow(
     svFilterStore.csrfToken,
-    props.resultRowUuid
+    props.resultRowUuid,
   )
   svRecord.value = resultRow
   await svDetailsStore.fetchSvDetails(resultRow)
@@ -69,7 +69,7 @@ watch(
     } else {
       $(modalRef.value).modal('hide')
     }
-  }
+  },
 )
 
 /** Event handler called when the modal is hidden.

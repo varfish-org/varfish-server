@@ -71,7 +71,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     try {
       const res = await svsApi.listFlags(csrfToken.value, caseUuid.value)
       caseFlags.value = Object.fromEntries(
-        res.map((flags) => [flags.sodar_uuid, flags])
+        res.map((flags) => [flags.sodar_uuid, flags]),
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -144,7 +144,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         {
           ...sv,
           ...payload,
-        }
+        },
       )
     } finally {
       serverInteractions.value -= 1

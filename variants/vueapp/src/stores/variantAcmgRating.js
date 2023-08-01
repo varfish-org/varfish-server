@@ -51,10 +51,10 @@ export const useVariantAcmgRatingStore = defineStore(
       try {
         const res = await variantsApi.listAcmgRating(
           csrfToken.value,
-          caseUuid.value
+          caseUuid.value,
         )
         caseAcmgRatings.value = Object.fromEntries(
-          res.map((acmgRating) => [acmgRating.sodar_uuid, acmgRating])
+          res.map((acmgRating) => [acmgRating.sodar_uuid, acmgRating]),
         )
       } catch (err) {
         storeState.value = StoreState.error
@@ -75,7 +75,7 @@ export const useVariantAcmgRatingStore = defineStore(
         const res = await variantsApi.listAcmgRating(
           csrfToken.value,
           caseUuid.value,
-          smallVariant$
+          smallVariant$,
         )
         if (res.length) {
           acmgRating.value = res[0]
@@ -103,7 +103,7 @@ export const useVariantAcmgRatingStore = defineStore(
           csrfToken.value,
           caseUuid.value,
           smallVariant,
-          { ...smallVariant, ...payload }
+          { ...smallVariant, ...payload },
         )
       } finally {
         serverInteractions.value -= 1
@@ -132,7 +132,7 @@ export const useVariantAcmgRatingStore = defineStore(
           {
             ...smallVariant,
             ...payload,
-          }
+          },
         )
       } finally {
         serverInteractions.value -= 1
@@ -156,7 +156,7 @@ export const useVariantAcmgRatingStore = defineStore(
       try {
         await variantsApi.deleteAcmgRating(
           csrfToken.value,
-          acmgRating.value.sodar_uuid
+          acmgRating.value.sodar_uuid,
         )
       } finally {
         serverInteractions.value -= 1
@@ -205,5 +205,5 @@ export const useVariantAcmgRatingStore = defineStore(
       deleteAcmgRating,
       getAcmgRating,
     }
-  }
+  },
 )

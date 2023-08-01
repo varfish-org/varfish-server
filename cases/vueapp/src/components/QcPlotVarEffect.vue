@@ -57,7 +57,7 @@ const vegaData = computed(() => {
     const result = []
     for (const [sampleName, stats] of Object.entries(props.variantStats)) {
       for (const [variantEffect, variantCount] of Object.entries(
-        stats.ontarget_effect_counts
+        stats.ontarget_effect_counts,
       )) {
         const variantCountLabel = variantCount.toLocaleString('en-US')
         if (variantCount > 0) {

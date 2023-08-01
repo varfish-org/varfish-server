@@ -35,14 +35,14 @@ export const connectTopRowControls = () => {
         updateUserSetting(
           cohortsStore.appContext.csrf_token,
           'vueapp.filtration_inline_help',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-inline-help')
       if (elem) {
         elem.prop('checked', newValue)
       }
-    }
+    },
   )
   watch(
     () => cohortsStore.complexityMode,
@@ -51,14 +51,14 @@ export const connectTopRowControls = () => {
         updateUserSetting(
           cohortsStore.appContext.csrf_token,
           'vueapp.filtration_complexity_mode',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-complexity-mode')
       if (elem) {
         elem.val(newValue).change()
       }
-    }
+    },
   )
 
   // Vice versa.
@@ -66,10 +66,10 @@ export const connectTopRowControls = () => {
     const handleUpdate = () => {
       const cohortsStore = useCohortsStore()
       cohortsStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
-        'checked'
+        'checked',
       )
       cohortsStore.complexityMode = $(
-        '#vueapp-filtration-complexity-mode'
+        '#vueapp-filtration-complexity-mode',
       ).val()
     }
     nextTick(() => {

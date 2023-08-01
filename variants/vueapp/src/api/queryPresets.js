@@ -17,7 +17,7 @@ const constructApiFragment = (entityName, options = {}) => {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/${entityNameLower}/list-create/${projectUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   }
@@ -27,7 +27,7 @@ const constructApiFragment = (entityName, options = {}) => {
       csrfToken,
       `/variants/ajax/${entityNameLower}/list-create/${projectUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   }
@@ -36,7 +36,7 @@ const constructApiFragment = (entityName, options = {}) => {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/${entityNameLower}/retrieve-update-destroy/${entityUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   }
@@ -46,7 +46,7 @@ const constructApiFragment = (entityName, options = {}) => {
       csrfToken,
       `/variants/ajax/${entityNameLower}/retrieve-update-destroy/${entityUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   }
@@ -55,7 +55,7 @@ const constructApiFragment = (entityName, options = {}) => {
     await apiFetch(
       csrfToken,
       `/variants/ajax/${entityNameLower}/retrieve-update-destroy/${entityUuid}/`,
-      'DELETE'
+      'DELETE',
     )
   }
 
@@ -66,7 +66,7 @@ const constructApiFragment = (entityName, options = {}) => {
           csrfToken,
           `/variants/ajax/${entityNameLower}/clone-factory-presets/`,
           'POST',
-          payload
+          payload,
         )
         return await result.json()
       }
@@ -74,13 +74,13 @@ const constructApiFragment = (entityName, options = {}) => {
       result[`cloneFactory${entityName}`] = async (
         csrfToken,
         name,
-        payload
+        payload,
       ) => {
         const result = await apiFetch(
           csrfToken,
           `/variants/ajax/${entityNameLower}/clone-factory-presets/${name}/`,
           'POST',
-          payload
+          payload,
         )
         return await result.json()
       }
@@ -90,13 +90,13 @@ const constructApiFragment = (entityName, options = {}) => {
   result[`cloneOther${entityName}`] = async (
     csrfToken,
     entityUuid,
-    payload
+    payload,
   ) => {
     const result = await apiFetch(
       csrfToken,
       `/variants/ajax/${entityNameLower}/clone-other/${entityUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await result.json()
   }
@@ -118,7 +118,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/presetset/list/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },

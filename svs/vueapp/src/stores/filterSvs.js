@@ -20,7 +20,7 @@ const fetchPresets = async (
   csrfToken,
   caseObj,
   quickPresets,
-  categoryPresets
+  categoryPresets,
 ) => {
   // TODO: move fetch calls into queryPresetsApi
   const fetchFactoryPresets = async () => {
@@ -48,7 +48,7 @@ const fetchPresets = async (
           svsApi.fetchCategoryPresets(csrfToken, category).then((presets) => {
             categoryPresets.value[camelCase(category)] = presets
           })
-        })
+        }),
     )
   }
 
@@ -64,11 +64,11 @@ const fetchDefaultSettings = async (
   csrfToken,
   caseUuid,
   querySettingsPresets,
-  querySettings
+  querySettings,
 ) => {
   const resJson = await svsApi.retrieveQuerySettingsShortcut(
     csrfToken,
-    caseUuid
+    caseUuid,
   )
   querySettingsPresets.value = resJson.presets
   querySettings.value = resJson.query_settings
@@ -182,7 +182,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
     try {
       const queryStatus = await svsApi.retrieveSvQuery(
         csrfToken.value,
-        svQueryUuid
+        svQueryUuid,
       )
       queryLogs.value = queryStatus.logs
       queryState.value = apiQueryStateToQueryState(queryStatus.query_state)
@@ -195,7 +195,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
       failuresSeen += 1
       console.warn(
         `There was a problem retrieving the query status (${failuresSeen} / ${FETCH_LOOP_ALLOW_FAILURES}`,
-        err
+        err,
       )
       if (failuresSeen > FETCH_LOOP_ALLOW_FAILURES) {
         queryState.value = QueryStates.Error.value
@@ -210,7 +210,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
       // List the results
       const responseResultSetList = await svsApi.listSvQueryResultSet(
         csrfToken.value,
-        svQueryUuid
+        svQueryUuid,
       )
       if (!responseResultSetList.length) {
         console.log('ERROR: no results in response')
@@ -256,13 +256,13 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
         Object.entries(querySettings.value).map(([key, value]) => [
           key,
           convert(key, value),
-        ])
+        ]),
       ),
     }
     previousQueryDetails.value = await svsApi.createSvQuery(
       csrfToken.value,
       caseUuid.value,
-      payload
+      payload,
     )
     queryState.value = QueryStates.Initial.value
     await nextTick()
@@ -309,7 +309,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
             csrfToken.value,
             caseUuid.value,
             querySettingsPresets,
-            querySettings
+            querySettings,
           ),
           // 2. fetch previous query UUID
           fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
@@ -339,7 +339,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
             csrfToken.value,
             caseObj.value,
             quickPresets,
-            categoryPresets
+            categoryPresets,
           ),
         ])
           .then(() => {

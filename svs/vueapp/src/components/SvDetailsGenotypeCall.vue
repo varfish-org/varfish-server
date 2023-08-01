@@ -33,12 +33,12 @@ const allKeys = computed(() => {
 
   let tmp = []
   for (let call_info of Object.values(
-    props.currentSvRecord.payload.call_info
+    props.currentSvRecord.payload.call_info,
   )) {
     tmp = tmp.concat(
       Object.entries(call_info)
         .filter(([_, value]) => value !== null)
-        .map(([key, _]) => key)
+        .map(([key, _]) => key),
     )
   }
   let result = Array.from(new Set(tmp))

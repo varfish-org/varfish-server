@@ -45,7 +45,7 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
     gridRow,
     gridApi,
     smallVariant,
-    'refseq'
+    'refseq',
   )
 }
 
@@ -55,7 +55,7 @@ onMounted(async () => {
   const csrfToken = casesStore.appContext.csrfToken
   const apiQueryResults = await variantsApi.listCaseVariantsUserAnnotated(
     csrfToken,
-    caseDetailsStore.caseObj.sodar_uuid
+    caseDetailsStore.caseObj.sodar_uuid,
   )
   filterQueryStore.queryResults = apiQueryResults.rows
 })

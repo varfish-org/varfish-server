@@ -51,24 +51,24 @@ const formState = {
 
 /** The names of male individuals. */
 const males = computed(() =>
-  props.pedigree.filter((entry) => entry.sex === 1).map((entry) => entry.name)
+  props.pedigree.filter((entry) => entry.sex === 1).map((entry) => entry.name),
 )
 const females = computed(() =>
-  props.pedigree.filter((entry) => entry.sex === 2).map((entry) => entry.name)
+  props.pedigree.filter((entry) => entry.sex === 2).map((entry) => entry.name),
 )
 
 /** Custom validators. */
 const selfCannotBeParent = helpers.withMessage(
   'Cannot be their own parent',
-  (value) => value !== props.name
+  (value) => value !== props.name,
 )
 const fatherSexFits = helpers.withMessage(
   `Sex of father must be male`,
-  (value) => value === '0' || males.value.includes(value)
+  (value) => value === '0' || males.value.includes(value),
 )
 const motherSexFits = helpers.withMessage(
   `Sex of mother must be female`,
-  (value) => value === '0' || females.value.includes(value)
+  (value) => value === '0' || females.value.includes(value),
 )
 
 /** Single-row validation roles. */

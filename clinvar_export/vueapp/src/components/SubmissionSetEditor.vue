@@ -18,11 +18,11 @@ const currentSubmissionSet = ref(store.currentSubmissionSet)
 
 // These values are used in the form and validation.
 const submitterUuids = computed(() =>
-  Array.from(Object.values(store.submitters), (o) => o.sodar_uuid)
+  Array.from(Object.values(store.submitters), (o) => o.sodar_uuid),
 )
 const orgOptions = computed(() => {
   let result = Object.fromEntries(
-    Object.values(store.organisations).map((o) => [o.sodar_uuid, o.name])
+    Object.values(store.organisations).map((o) => [o.sodar_uuid, o.name]),
   )
   return result
 })
@@ -44,7 +44,7 @@ const _vuelidateWrappers = (keys) =>
           }
         },
       }),
-    ])
+    ]),
   )
 
 // Define object with the data to edit in the form.  We construct custom wrappers so we can easily pass this into vuelidate.
@@ -61,7 +61,7 @@ const formState = {
       const result = currentSubmissionSet.value.submitting_orgs.map(
         (soUuid) =>
           store.organisations[store.submittingOrgs[soUuid].organisation]
-            .sodar_uuid
+            .sodar_uuid,
       )
       return result
     },

@@ -26,7 +26,7 @@ const inheritanceRef = ref(null)
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshInheritanceRef = () => {
   for (const [presetName, presetValues] of Object.entries(
-    props.categoryPresets.inheritance
+    props.categoryPresets.inheritance,
   )) {
     let isCompatible = true
     for (const member of Object.values(props.case.pedigree)) {
@@ -45,7 +45,7 @@ const refreshInheritanceRef = () => {
         ) &&
         !isEqual(
           props.querySettings.genotype[member.name],
-          presetValues.genotype[member.name]
+          presetValues.genotype[member.name],
         )
       ) {
         isCompatible = false
@@ -55,7 +55,7 @@ const refreshInheritanceRef = () => {
     if (
       !isEqual(
         props.querySettings.recessive_index,
-        presetValues.recessive_index
+        presetValues.recessive_index,
       ) ||
       !isEqual(props.querySettings.recessive_mode, presetValues.recessive_mode)
     ) {
@@ -78,7 +78,7 @@ const inheritanceWrapper = computed({
   set(newValue) {
     if (newValue !== 'custom') {
       props.querySettings.genotype = copy(
-        props.categoryPresets.inheritance[newValue].genotype
+        props.categoryPresets.inheritance[newValue].genotype,
       )
       const recessiveIndex =
         props.categoryPresets.inheritance[newValue].recessive_index
@@ -117,14 +117,14 @@ const _keysToStrip = [
 /** Return copy of obj without keys. */
 const _objectWithoutKeys = (obj, keys) => {
   return Object.fromEntries(
-    Object.entries(obj).filter(([key, _value]) => !keys.includes(key))
+    Object.entries(obj).filter(([key, _value]) => !keys.includes(key)),
   )
 }
 
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshQualityRef = () => {
   for (const [presetName, presetValues] of Object.entries(
-    props.categoryPresets.quality
+    props.categoryPresets.quality,
   )) {
     const strippedPresetValues = _objectWithoutKeys(presetValues, _keysToStrip)
     let isCompatible = true
@@ -154,7 +154,7 @@ const qualityWrapper = computed({
       for (const member of Object.values(props.case.pedigree)) {
         props.querySettings.quality[member.name] = _objectWithoutKeys(
           props.categoryPresets.quality[newValue],
-          _keysToStrip
+          _keysToStrip,
         )
       }
       refreshQualityRef()
@@ -179,7 +179,7 @@ const refreshValueRefs = () => {
       continue // not fully loaded yet
     }
     for (const [presetName, presetValues] of Object.entries(
-      props.categoryPresets[category]
+      props.categoryPresets[category],
     )) {
       isCompatible = true
       for (const [key, value] of Object.entries(presetValues)) {
@@ -216,7 +216,7 @@ const makeWrapper = (name) =>
         const oldBlockRefresh = blockRefresh.value
         blockRefresh.value = true
         for (const [key, value] of Object.entries(
-          props.categoryPresets[name][newValue]
+          props.categoryPresets[name][newValue],
         )) {
           if (!_keysToStrip.includes(key)) {
             props.querySettings[key] = value

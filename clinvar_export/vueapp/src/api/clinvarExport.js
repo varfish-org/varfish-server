@@ -13,7 +13,7 @@ async function apiFetch(
   { baseUrl, csrfToken },
   { entity, uuid },
   method,
-  payload
+  payload,
 ) {
   const url = `${baseUrl}/${entity}/${uuid ? uuid + '/' : ''}`
   const response = await fetch(url, {
@@ -41,12 +41,12 @@ async function apiDelete(entity, uuid, appContext) {
   const response = await apiFetch(
     appContext,
     { entity: entityToken, uuid },
-    'DELETE'
+    'DELETE',
   )
   /* istanbul ignore next */
   if (!response.ok) {
     throw new Error(
-      `Problem with request: ${response.status} ${response.statusText}`
+      `Problem with request: ${response.status} ${response.statusText}`,
     )
   }
 }
@@ -61,12 +61,12 @@ async function _apiCreateUpdate(create, entity, uuid, payload, appContext) {
     appContext,
     { entity: entityToken, uuid: create ? undefined : uuid },
     method,
-    payload
+    payload,
   )
   /* istanbul ignore next */
   if (!response.ok) {
     throw new Error(
-      `Problem with request: ${response.status} ${response.statusText}`
+      `Problem with request: ${response.status} ${response.statusText}`,
     )
   } else {
     return await response.json()
@@ -113,7 +113,7 @@ async function genericTermQueryImpl(
   { baseUrl, csrfToken },
   name,
   label,
-  termId
+  termId,
 ) {
   const response = await fetch(
     `${baseUrl}/query-${name}/?query=${encodeURIComponent(termId)}`,
@@ -126,7 +126,7 @@ async function genericTermQueryImpl(
         'X-CSRFToken': csrfToken,
       },
       body: null,
-    }
+    },
   )
   return await response.json()
 }
@@ -187,7 +187,7 @@ export default {
       'submission_set',
       submissionSet.sodar_uuid,
       submissionSet,
-      appContext
+      appContext,
     )
   },
 
@@ -195,7 +195,7 @@ export default {
     return await apiDelete(
       'submission_set',
       submissionSet.sodar_uuid,
-      appContext
+      appContext,
     )
   },
 
@@ -212,7 +212,7 @@ export default {
       'submission',
       submission.sodar_uuid,
       submission,
-      appContext
+      appContext,
     )
   },
 
@@ -232,7 +232,7 @@ export default {
     return await apiCreate(
       'submission_individual',
       submissionIndividual,
-      appContext
+      appContext,
     )
   },
 
@@ -241,7 +241,7 @@ export default {
       'submission_individual',
       submissionIndividual.sodar_uuid,
       submissionIndividual,
-      appContext
+      appContext,
     )
   },
 
@@ -249,7 +249,7 @@ export default {
     return await apiDelete(
       'submission_individual',
       submissionIndividual.sodar_uuid,
-      appContext
+      appContext,
     )
   },
 
@@ -266,7 +266,7 @@ export default {
       'submitting_org',
       submittingOrg.sodar_uuid,
       submittingOrg,
-      appContext
+      appContext,
     )
   },
 
@@ -274,7 +274,7 @@ export default {
     return await apiDelete(
       'submitting_org',
       submittingOrg.sodar_uuid,
-      appContext
+      appContext,
     )
   },
 
@@ -290,7 +290,7 @@ export default {
           'X-CSRFToken': appContext.csrfToken,
         },
         body: null,
-      }
+      },
     )
     return await response.json()
   },
@@ -319,7 +319,7 @@ export default {
           'X-CSRFToken': appContext.csrfToken,
         },
         body: JSON.stringify({ report_url: reportUrl }),
-      }
+      },
     )
     return response
   },

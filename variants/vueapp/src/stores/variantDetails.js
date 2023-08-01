@@ -61,7 +61,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
           smallVariantRecord$.chromosome,
           smallVariantRecord$.start,
           smallVariantRecord$.reference,
-          smallVariantRecord$.alternative
+          smallVariantRecord$.alternative,
         )
         .then((result) => {
           varAnnos.value = result.result
@@ -73,7 +73,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
           smallVariantRecord$.start,
           smallVariantRecord$.reference,
           smallVariantRecord$.alternative,
-          hgncId
+          hgncId,
         )
         .then((result) => {
           txCsq.value = result.result
@@ -82,7 +82,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
         .retrieveVariantDetails(
           csrfToken.value,
           database.value,
-          smallVariant.value
+          smallVariant.value,
         )
         .then((res) => {
           fetched.value = true

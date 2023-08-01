@@ -67,7 +67,7 @@ const _vuelidateWrappers = (keys) =>
           }
         },
       }),
-    ])
+    ]),
   )
 // Define object with the data to edit in the form.  We construct custom wrappers so we can easily pass this into vuelidate.
 const formState = {

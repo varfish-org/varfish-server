@@ -29,7 +29,7 @@ const refreshInheritanceRef = () => {
     return // not fully loaded yet
   }
   for (const [presetName, presetValues] of Object.entries(
-    props.categoryPresets.inheritance
+    props.categoryPresets.inheritance,
   )) {
     let isCompatible = true
     for (const member of Object.values(props.case.pedigree)) {
@@ -48,7 +48,7 @@ const refreshInheritanceRef = () => {
         ) &&
         !isEqual(
           props.querySettings.genotype[member.name],
-          presetValues.genotype[member.name]
+          presetValues.genotype[member.name],
         )
       ) {
         isCompatible = false
@@ -58,7 +58,7 @@ const refreshInheritanceRef = () => {
     if (
       !isEqual(
         props.querySettings.recessive_index,
-        presetValues.recessive_index
+        presetValues.recessive_index,
       ) ||
       !isEqual(props.querySettings.recessive_mode, presetValues.recessive_mode)
     ) {
@@ -81,7 +81,7 @@ const inheritanceWrapper = computed({
   set(newValue) {
     if (newValue !== 'custom') {
       props.querySettings.genotype = copy(
-        props.categoryPresets.inheritance[newValue].genotype
+        props.categoryPresets.inheritance[newValue].genotype,
       )
       const recessiveIndex =
         props.categoryPresets.inheritance[newValue].recessive_index
@@ -117,7 +117,7 @@ const _keysToStrip = [
 /** Return copy of obj without keys. */
 const _objectWithoutKeys = (obj, keys) => {
   return Object.fromEntries(
-    Object.entries(obj).filter(([key, _value]) => !keys.includes(key))
+    Object.entries(obj).filter(([key, _value]) => !keys.includes(key)),
   )
 }
 
@@ -149,13 +149,13 @@ const refreshValueRefs = () => {
       continue // not fully loaded yet
     }
     for (const [presetName, presetValues] of Object.entries(
-      props.categoryPresets[category]
+      props.categoryPresets[category],
     )) {
       if (category === 'genotypeCriteria') {
         if (svFilterStore.querySettings !== null) {
           isCompatible = isEqual(
             svFilterStore.querySettings.genotype_criteria,
-            presetValues
+            presetValues,
           )
         }
       } else {
@@ -199,11 +199,11 @@ const makeWrapper = (name) =>
         blockRefresh.value = true
         if (name === 'genotypeCriteria') {
           props.querySettings.genotype_criteria = copy(
-            props.categoryPresets.genotypeCriteria[newValue]
+            props.categoryPresets.genotypeCriteria[newValue],
           )
         } else {
           for (const [key, value] of Object.entries(
-            props.categoryPresets[name][newValue]
+            props.categoryPresets[name][newValue],
           )) {
             if (!_keysToStrip.includes(key)) {
               props.querySettings[key] = value
@@ -250,7 +250,7 @@ const refreshQuickPreset = () => {
       isEqual(regulatoryWrapper.value, theQuickPresets.regulatory) &&
       isEqual(
         genotypeCriteriaWrapper.value,
-        theQuickPresets.genotype_criteria
+        theQuickPresets.genotype_criteria,
       ) &&
       isEqual(tadWrapper.value, theQuickPresets.tad) &&
       isEqual(knownPathoWrapper.value, theQuickPresets.known_patho)

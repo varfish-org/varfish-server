@@ -51,7 +51,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     try {
       const res = await svsApi.listComment(csrfToken.value, caseUuid.value)
       caseComments.value = Object.fromEntries(
-        res.map((comment) => [comment.sodar_uuid, comment])
+        res.map((comment) => [comment.sodar_uuid, comment]),
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -72,7 +72,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       comments.value = await svsApi.listComment(
         csrfToken.value,
         caseUuid.value,
-        sv$
+        sv$,
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -146,7 +146,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     delete caseComments.value[commentUuid]
 
     comments.value = comments.value.filter(
-      (comment) => comment.sodar_uuid !== commentUuid
+      (comment) => comment.sodar_uuid !== commentUuid,
     )
   }
 

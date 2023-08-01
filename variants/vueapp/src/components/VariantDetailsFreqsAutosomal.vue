@@ -72,7 +72,7 @@ const sexExpanded = ref({})
       <a
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
-          ''
+          '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r2_1`"
@@ -84,7 +84,7 @@ const sexExpanded = ref({})
       <a
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
-          ''
+          '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r3`"
@@ -214,7 +214,7 @@ const sexExpanded = ref({})
       <a
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
-          ''
+          '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r2_1`"
@@ -226,7 +226,7 @@ const sexExpanded = ref({})
       <a
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
-          ''
+          '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r3`"

@@ -89,7 +89,7 @@ const allelicBalance = (value) => {
             <td class="text-center">
               {{
                 allelicBalance(
-                  props.smallVariant.genotype[member.name]
+                  props.smallVariant.genotype[member.name],
                 ).toFixed(2)
               }}
             </td>

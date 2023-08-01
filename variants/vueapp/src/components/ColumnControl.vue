@@ -37,7 +37,7 @@ const staticColumnOptions = Object.values(DisplayColumns).map(
       value: value,
       label: text,
     }
-  }
+  },
 )
 
 // The columns for extra_annos.
@@ -45,7 +45,7 @@ const extraColumnOptions = (props.extraAnnoFields ?? []).map(
   ({ field, label }) => ({
     value: `extra_anno${field}`,
     label: label,
-  })
+  }),
 )
 
 // Concatenate to column options.

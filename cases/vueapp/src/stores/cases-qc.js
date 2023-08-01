@@ -15,7 +15,7 @@ export const useCasesQcStore = defineStore('casesQc', () => {
     if (qcValues.value === null) {
       qcValues.value = await casesApi.loadProjectQcValues(
         casesStore.appContext.csrf_token,
-        casesStore.project.sodar_uuid
+        casesStore.project.sodar_uuid,
       )
     }
   }

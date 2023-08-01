@@ -17,20 +17,20 @@ const emit = defineEmits([
 const variantValidatorStateWrapper = declareWrapper(
   props,
   'variantValidatorState',
-  emit
+  emit,
 )
 /** Wrapper around {@code variantValidatorResults} prop. */
 const variantValidatorResultsWrapper = declareWrapper(
   props,
   'variantValidatorResults',
-  emit
+  emit,
 )
 
 const queryVariantValidatorApi = async () => {
   variantValidatorResultsWrapper.value = null
   variantValidatorStateWrapper.value = VariantValidatorStates.Running
   const res = await fetch(
-    `/proxy/variantvalidator/${props.smallVariant.release}/${props.smallVariant.chromosome}-${props.smallVariant.start}-${props.smallVariant.reference}-${props.smallVariant.alternative}/all?content-type=application%2Fjson`
+    `/proxy/variantvalidator/${props.smallVariant.release}/${props.smallVariant.chromosome}-${props.smallVariant.start}-${props.smallVariant.reference}-${props.smallVariant.alternative}/all?content-type=application%2Fjson`,
   )
   if (res.ok) {
     variantValidatorResultsWrapper.value = await res.json()

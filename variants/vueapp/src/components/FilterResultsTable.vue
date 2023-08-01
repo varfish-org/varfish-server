@@ -72,7 +72,7 @@ const displayFrequencyWrapper = declareWrapper(props, 'displayFrequency', emit)
 const displayConstraintWrapper = declareWrapper(
   props,
   'displayConstraint',
-  emit
+  emit,
 )
 /** Wrapper around {@code displayColumns} prop. */
 const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
@@ -355,7 +355,7 @@ const goToLocus = async (item) => {
     ? item.chromosome
     : `chr${item.chromosome}`
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${item.start}-${item.end}`
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${item.start}-${item.end}`,
   ).catch((e) => {
     const msg =
       "Couldn't connect to IGV. Please make sure IGV is running and try again."
@@ -461,7 +461,7 @@ const loadFromServer = async () => {
           ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
           : tableServerOptions.value.sortBy,
       orderDir: tableServerOptions.value.sortType,
-    }
+    },
   )
   tableRows.value = response.results.map((row) => transmogrify(row))
   tableLoading.value = false
@@ -478,7 +478,7 @@ watch(
   (_newValue, _oldValue) => {
     loadFromServer()
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(
@@ -486,7 +486,7 @@ watch(
   (_newValue, _oldValue) => {
     loadFromServer()
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(
@@ -494,7 +494,7 @@ watch(
   (_newValue, _oldValue) => {
     loadFromServer()
   },
-  { deep: true }
+  { deep: true },
 )
 </script>
 

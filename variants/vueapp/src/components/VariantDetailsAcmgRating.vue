@@ -204,7 +204,7 @@ const onSubmitAcmgRating = async () => {
   delete acmgRatingToSubmitNoAuto['class_auto']
   const acmgRatingToSubmitEmpty = isEqual(
     acmgRatingToSubmitNoAuto,
-    emptyAcmgRatingTemplate
+    emptyAcmgRatingTemplate,
   )
   if (acmgRatingStore.acmgRating && acmgRatingToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the ACMG rating
@@ -219,7 +219,7 @@ const onSubmitAcmgRating = async () => {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(
       detailsStore.smallVariant,
-      acmgRatingToSubmit.value
+      acmgRatingToSubmit.value,
     )
   }
 }

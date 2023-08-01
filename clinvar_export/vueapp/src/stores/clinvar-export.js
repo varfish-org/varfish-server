@@ -175,7 +175,7 @@ export const VARIANT_TYPE = Object.freeze([
 export function extractVariantZygosity(
   smallVariant,
   individualUuids,
-  individuals
+  individuals,
 ) {
   function getVariantZygosity(variantAlleleCount, isRecessive) {
     if (variantAlleleCount === 2) {
@@ -296,7 +296,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         clinvarExportApi
           .getAssertionMethods(this.appContext)
           .then(
-            (res) => (this.assertionMethods = sodarObjectListToObject(res))
+            (res) => (this.assertionMethods = sodarObjectListToObject(res)),
           ),
         clinvarExportApi
           .getSubmissionSets(this.appContext)
@@ -310,7 +310,8 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         clinvarExportApi
           .getSubmissionIndividuals(this.appContext)
           .then(
-            (res) => (this.submissionIndividuals = sodarObjectListToObject(res))
+            (res) =>
+              (this.submissionIndividuals = sodarObjectListToObject(res)),
           ),
         clinvarExportApi
           .getFamilies(this.appContext)
@@ -322,7 +323,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         (_response) => {
           for (const submissionSet of Object.values(this.submissionSets)) {
             submissionSet.organisations = submissionSet.submitting_orgs.map(
-              (subOrgUuid) => this.submittingOrgs[subOrgUuid].organisation
+              (subOrgUuid) => this.submittingOrgs[subOrgUuid].organisation,
             )
           }
           this.saveOldModel()
@@ -331,9 +332,9 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         (error) => {
           /* istanbul ignore next */
           throw new Error(
-            `Problem loading application this from API: ${error}\n\n${error.stack}`
+            `Problem loading application this from API: ${error}\n\n${error.stack}`,
           )
-        }
+        },
       )
     },
     /**
@@ -350,7 +351,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
      */
     createNewSubmissionSet() {
       const titles = Object.values(this.submissionSets).map(
-        (submissionSet) => submissionSet.title
+        (submissionSet) => submissionSet.title,
       )
       let title = 'New Submission Set'
       let i = 2
@@ -391,13 +392,13 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         if (submissionSetExists) {
           const res = await clinvarExportApi.updateSubmissionSet(
             this.currentSubmissionSet,
-            this.appContext
+            this.appContext,
           )
           return res
         } else {
           const apiSet = await clinvarExportApi.createSubmissionSet(
             this.currentSubmissionSet,
-            this.appContext
+            this.appContext,
           )
           // Add submission set from API.  Then change the list to first remove the just added apiSet and replace the
           // old one with the one from the API.
@@ -407,7 +408,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
             .map((ss) =>
               ss.sodar_uuid === this.currentSubmissionSet.sodar_uuid
                 ? apiSet
-                : ss
+                : ss,
             )
           return apiSet
         }
@@ -423,14 +424,14 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
             if (!(localSubmittingOrgUuid in this.submittingOrgs)) {
               await clinvarExportApi.deleteSubmittingOrg(
                 this.oldModel.submittingOrgs[localSubmittingOrgUuid],
-                this.appContext
+                this.appContext,
               )
             }
           }
         }
         // Create and update appropriate submitting orgs with API.
         const submitting_orgs = Array.from(
-          this.currentSubmissionSet.submitting_orgs
+          this.currentSubmissionSet.submitting_orgs,
         )
         this.currentSubmissionSet.submitting_orgs = []
         for (let i = 0; i < submitting_orgs.length; i++) {
@@ -441,7 +442,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
                 ...JSON.parse(JSON.stringify(this.submittingOrgs[localUuid])),
                 sort_order: i,
               },
-              this.appContext
+              this.appContext,
             )
             this.currentSubmissionSet.submitting_orgs.push(submitting_orgs[i])
           } else {
@@ -451,11 +452,11 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
                 sort_order: i,
                 submission_set: apiSet.sodar_uuid,
               },
-              this.appContext
+              this.appContext,
             )
             this.submittingOrgs[apiSubmittingOrg.sodar_uuid] = apiSubmittingOrg
             this.submissionSets[apiSet.sodar_uuid].submitting_orgs.push(
-              apiSubmittingOrg.sodar_uuid
+              apiSubmittingOrg.sodar_uuid,
             )
             delete this.submittingOrgs[localUuid]
           }
@@ -465,7 +466,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       const _wizardSaveSubmission = async (
         apiSet,
         sortOrder,
-        localSubmissionUuid
+        localSubmissionUuid,
       ) => {
         const submissionExists =
           localSubmissionUuid in this.oldModel.submissions
@@ -477,7 +478,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
               ...JSON.parse(JSON.stringify(localSubmission)),
               sort_order: sortOrder,
             },
-            this.appContext
+            this.appContext,
           )
         } else {
           apiSubmission = await clinvarExportApi.createSubmission(
@@ -486,12 +487,12 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
               sort_order: sortOrder,
               submission_set: apiSet.sodar_uuid,
             },
-            this.appContext
+            this.appContext,
           )
           // Register submission from API.
           this.submissions[apiSubmission.sodar_uuid] = apiSubmission
           this.submissionSets[apiSet.sodar_uuid].submissions.push(
-            apiSubmission.sodar_uuid
+            apiSubmission.sodar_uuid,
           )
         }
 
@@ -507,12 +508,12 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
             const localIndividualUuid = oldSubmission.submission_individuals[i]
             if (
               !localSubmission.submission_individuals.includes(
-                localIndividualUuid
+                localIndividualUuid,
               )
             ) {
               await clinvarExportApi.deleteSubmissionIndividual(
                 this.oldModel.submissionIndividuals[localIndividualUuid],
-                this.appContext
+                this.appContext,
               )
             }
           }
@@ -533,7 +534,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
                   ...JSON.parse(JSON.stringify(localSI)),
                   sort_order: i,
                 },
-                this.appContext
+                this.appContext,
               )
           } else {
             apiSubmissionIndividual =
@@ -543,7 +544,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
                   sort_order: i,
                   submission: apiSubmission.sodar_uuid,
                 },
-                this.appContext
+                this.appContext,
               )
 
             // Register submission individual from API.
@@ -589,13 +590,13 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
                 this.oldModel.submissionIndividuals[
                   oldSubmissionIndividualUuid
                 ],
-                this.appContext
+                this.appContext,
               )
               this.deleteSubmissionIndividual(oldSubmissionIndividualUuid)
             }
             await clinvarExportApi.deleteSubmission(
               oldSubmission,
-              this.appContext
+              this.appContext,
             )
             this.deleteSubmission(oldSubmissionUuid)
           }
@@ -627,7 +628,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         if (submittingOrgUuid in this.oldModel.submittingOrgs) {
           await clinvarExportApi.deleteSubmittingOrg(
             this.submittingOrgs[submittingOrgUuid],
-            this.appContext
+            this.appContext,
           )
         }
         delete this.submittingOrgs[submittingOrgUuid]
@@ -636,13 +637,13 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       const submissionUuids = Array.from(this.currentSubmissionSet.submissions)
       for (const submissionUuid of submissionUuids) {
         const submissionInvidualUuids = Array.from(
-          this.submissions[submissionUuid].submission_individuals
+          this.submissions[submissionUuid].submission_individuals,
         )
         for (const submissionInvidualUuid of submissionInvidualUuids) {
           if (submissionInvidualUuid in this.oldModel.submissionIndividuals) {
             await clinvarExportApi.deleteSubmissionIndividual(
               this.submissionIndividuals[submissionInvidualUuid],
-              this.appContext
+              this.appContext,
             )
           }
           this.deleteSubmissionIndividual(submissionInvidualUuid)
@@ -650,7 +651,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         if (submissionUuid in this.oldModel.submissions) {
           await clinvarExportApi.deleteSubmission(
             this.submissions[submissionUuid],
-            this.appContext
+            this.appContext,
           )
         }
         this.deleteSubmission(submissionUuid)
@@ -661,7 +662,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       ) {
         await clinvarExportApi.deleteSubmissionSet(
           this.submissionSets[this.currentSubmissionSet.sodar_uuid],
-          this.appContext
+          this.appContext,
         )
       }
       this.deleteSubmissionSet(this.currentSubmissionSet.sodar_uuid)
@@ -730,7 +731,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
      */
     deleteCurrentSubmission() {
       const submissionInvidualUuids = Array.from(
-        this.currentSubmission.submission_individuals
+        this.currentSubmission.submission_individuals,
       )
       for (const submissionInvidualUuid of submissionInvidualUuids) {
         this.deleteSubmissionIndividual(submissionInvidualUuid)
@@ -745,10 +746,10 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       this.serverInteraction = true
       const res = await clinvarExportApi.getUserAnnotations(
         this.appContext,
-        individual.family
+        individual.family,
       )
       const smallVariants = Object.fromEntries(
-        res.small_variants.map((v) => [getVariantId(v), v])
+        res.small_variants.map((v) => [getVariantId(v), v]),
       )
       this.addIndividualToCurrentSubmissionImpl({
         individual,
@@ -763,7 +764,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       console.assert(
         submissionIndividual.sodar_uuid in this.submissionIndividuals,
         this.submissionIndividuals,
-        submissionIndividual.sodar_uuid
+        submissionIndividual.sodar_uuid,
       )
       const obj = this.submissionIndividuals[submissionIndividual.sodar_uuid]
       obj[key] = value
@@ -795,14 +796,14 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
     removeSubmissionIndividualFromCurrentSubmission(submissionIndividual) {
       this.currentSubmission.submission_individuals =
         this.currentSubmission.submission_individuals.filter(
-          (uuid) => uuid !== submissionIndividual.sodar_uuid
+          (uuid) => uuid !== submissionIndividual.sodar_uuid,
         )
     },
     setCurrentSubmissionSet(submissionSetUuid) {
       console.assert(
         submissionSetUuid === null || submissionSetUuid in this.submissionSets,
         submissionSetUuid,
-        this.submissionSets
+        this.submissionSets,
       )
       if (submissionSetUuid === null) {
         this.currentSubmissionSet = null
@@ -815,7 +816,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
      */
     saveOldModel() {
       this.oldModel = JSON.parse(
-        JSON.stringify(Object.fromEntries(MODEL_KEYS.map((k) => [k, this[k]])))
+        JSON.stringify(Object.fromEntries(MODEL_KEYS.map((k) => [k, this[k]]))),
       )
     },
     /**
@@ -846,7 +847,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         ) {
           submission.submission_individuals =
             submission.submission_individuals.filter(
-              (uuid) => uuid !== submissionInvidualUuid
+              (uuid) => uuid !== submissionInvidualUuid,
             )
         }
       }
@@ -855,7 +856,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
     deleteSubmission(submissionUuid) {
       for (const submissionSet of Object.values(this.submissionSets)) {
         submissionSet.submissions = submissionSet.submissions.filter(
-          (o) => o !== submissionUuid
+          (o) => o !== submissionUuid,
         )
       }
       if (
@@ -875,7 +876,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       }
       delete this.submissionSets[submissionSetUuid]
       this.submissionSetList = this.submissionSetList.filter(
-        (ss) => ss.sodar_uuid !== submissionSetUuid
+        (ss) => ss.sodar_uuid !== submissionSetUuid,
       )
     },
     setCurrentSubmission(submissionUuid) {
@@ -907,17 +908,17 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       const { variantAlleleCount, variantZygosity } = extractVariantZygosity(
         smallVariant,
         individualUuids,
-        this.individuals
+        this.individuals,
       )
 
       for (const individualUuid of individualUuids) {
         const individual = this.individuals[individualUuid]
         const phenotypes = JSON.parse(
-          JSON.stringify(individual.phenotype_terms || [])
+          JSON.stringify(individual.phenotype_terms || []),
         ).filter(
           (term) =>
             !HPO_INHERITANCE_MODE.has(term.term_id) &&
-            !isDiseaseTerm(term.term_id)
+            !isDiseaseTerm(term.term_id),
         )
         const newSubmissionIndividual = {
           sodar_uuid: uuidv4(),
@@ -934,7 +935,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         this.submissionIndividuals[newSubmissionIndividual.sodar_uuid] =
           newSubmissionIndividual
         newSubmission.submission_individuals.push(
-          newSubmissionIndividual.sodar_uuid
+          newSubmissionIndividual.sodar_uuid,
         )
       }
 
@@ -946,24 +947,24 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       // Build symmetric difference in terms of organisation UUIDs.
       const currUuids = new Set(this.currentSubmissionSet.organisations)
       const removeUuids = new Set(
-        Array.from(currUuids).filter((uuid) => !shouldUuids.includes(uuid))
+        Array.from(currUuids).filter((uuid) => !shouldUuids.includes(uuid)),
       )
       const addUuids = new Set(
-        Array.from(shouldUuids).filter((uuid) => !currUuids.has(uuid))
+        Array.from(shouldUuids).filter((uuid) => !currUuids.has(uuid)),
       )
 
       // Remove submitting orgs as needed.
       const removeSOUuids = new Set(
         this.currentSubmissionSet.submitting_orgs.filter((soUuid) =>
-          removeUuids.has(this.submittingOrgs[soUuid].organisation)
-        )
+          removeUuids.has(this.submittingOrgs[soUuid].organisation),
+        ),
       )
       for (const uuid of removeSOUuids) {
         delete this.submittingOrgs[uuid]
       }
       this.currentSubmissionSet.submitting_orgs =
         this.currentSubmissionSet.submitting_orgs.filter(
-          (soUuid) => !removeSOUuids.has(soUuid)
+          (soUuid) => !removeSOUuids.has(soUuid),
         )
 
       // Add submitting orgs as needed.
@@ -976,7 +977,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         }
         this.submittingOrgs[newSubmittingOrg.sodar_uuid] = newSubmittingOrg
         this.currentSubmissionSet.submitting_orgs.push(
-          newSubmittingOrg.sodar_uuid
+          newSubmittingOrg.sodar_uuid,
         )
       }
 
@@ -984,7 +985,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       this.currentSubmissionSet.organisations = shouldUuids
       // Adjust the sort order.
       const orgUuidToSortOrder = Object.fromEntries(
-        shouldUuids.map((orgUuid, i) => [orgUuid, i])
+        shouldUuids.map((orgUuid, i) => [orgUuid, i]),
       )
       for (const soUuid of this.currentSubmissionSet.submitting_orgs) {
         this.submittingOrgs[soUuid].sort_order =
@@ -1002,7 +1003,7 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
       const { variantAlleleCount, variantZygosity } = extractVariantZygosity(
         smallVariant,
         [individual.sodar_uuid],
-        this.individuals
+        this.individuals,
       )
 
       const newUuid = uuidv4()
@@ -1014,8 +1015,8 @@ export const useClinvarExportStore = defineStore('clinvarExport', {
         submission: this.currentSubmission.sodar_uuid,
         phenotypes: JSON.parse(
           JSON.stringify(
-            this.individuals[individual.sodar_uuid].phenotype_terms
-          )
+            this.individuals[individual.sodar_uuid].phenotype_terms,
+          ),
         ),
         variant_zygosity: variantZygosity,
         variant_allele_count: variantAlleleCount,

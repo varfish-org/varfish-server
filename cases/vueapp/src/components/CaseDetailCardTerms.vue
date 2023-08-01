@@ -74,7 +74,7 @@ watch(
   () => termLabels.value,
   (_newValue, _oldValue) => {
     fetchTermLabels()
-  }
+  },
 )
 
 onMounted(() => {

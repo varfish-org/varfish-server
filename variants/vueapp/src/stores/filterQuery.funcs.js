@@ -5,7 +5,7 @@ import { copy } from '@variants/helpers'
 // This function can be removed once support for the fold forms is removed.
 export function previousQueryDetailsToQuerySettings(
   caseObj,
-  previousQueryDetails
+  previousQueryDetails,
 ) {
   const freqKeys = [
     'exac_enabled',
@@ -80,7 +80,7 @@ export function previousQueryDetailsToQuerySettings(
       `${name}_dp_hom`,
       `${name}_gq`,
       `${name}_fail`,
-      `${name}_gt`
+      `${name}_gt`,
     )
   }
 

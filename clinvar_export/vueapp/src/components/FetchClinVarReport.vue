@@ -20,7 +20,7 @@ const doFetch = () => {
     .fetchClinVarReport(
       props.appContext,
       props.submissionSet.sodar_uuid,
-      clinVarReportUrl.value
+      clinVarReportUrl.value,
     )
     .then(() => {
       isFetching.value = false

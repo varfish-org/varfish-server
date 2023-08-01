@@ -69,7 +69,7 @@ const refreshTextValue = async (termsArray) => {
       } else {
         return null
       }
-    })
+    }),
   )
   const withLabel = withLabelUnfiltered.filter((elem) => elem !== null)
   textValue.value = withLabel.join('; ')
@@ -133,7 +133,7 @@ watch(
   () => props.modelValue,
   (newValue, _oldValue) => {
     refreshTextValue(newValue)
-  }
+  },
 )
 
 onMounted(() => {

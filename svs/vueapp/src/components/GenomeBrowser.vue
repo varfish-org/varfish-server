@@ -61,7 +61,7 @@ watch(
       .then((browser) => {
         addTracks(browser)
       })
-  }
+  },
 )
 
 // Watch changes to the case (requires track reload).
@@ -72,7 +72,7 @@ watch(
       igvBrowser.value.removeTrackByName('Case SVs')
       addCaseTracks(igvBrowser.value)
     }
-  }
+  },
 )
 
 // Watch changes to the locus (jumping is enough).
@@ -80,7 +80,7 @@ watch(
   () => props.locus,
   (_newValue, _oldValue) => {
     igvBrowser.value.search(props.locus)
-  }
+  },
 )
 
 // Construct igv.js browser when mounted.

@@ -59,7 +59,7 @@ const regexRegion = new RegExp(
     '(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|MT)' + // chrom name
     ')' + // close chrom
     '(:(?<start>(\\d+(,\\d+)*))-(?<stop>(\\d+(,\\d+)*)))?' + // optional range
-    '$' // end
+    '$', // end
 )
 
 /** Load Genome England PanelApp presets. */
@@ -73,19 +73,19 @@ const loadPanelPage = async (page) => {
             label: `${panel.name} (v${panel.version})`,
             value: panel,
           }
-        })
+        }),
       )
       if (responseJson.next) {
         await loadPanelPage(page + 1)
       }
-    }
+    },
   )
 }
 
 /** Insert genomics england panel. */
 const insertGenomicsEnglandPanel = async (panel) => {
   await fetch(
-    `/proxy/panelapp/v1/panels/${panel.id}/?version=${panel.version}`
+    `/proxy/panelapp/v1/panels/${panel.id}/?version=${panel.version}`,
   ).then(async (response) => {
     const responseJson = await response.json()
     let symbols = []
@@ -207,7 +207,7 @@ const loadGenePanelCategories = async () => {
   await fetch('/geneinfo/api/genepanel-category/list/').then(
     async (response) => {
       genePanelCategories.value = await response.json()
-    }
+    },
   )
 }
 

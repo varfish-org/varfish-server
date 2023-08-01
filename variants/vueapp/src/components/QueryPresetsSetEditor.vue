@@ -161,7 +161,7 @@ const handleRevertClicked = async (category, presetsUuid) => {
       await queryPresetsStore.revertPresets(
         category,
         props.presetSetUuid,
-        presetsUuid
+        presetsUuid,
       )
     }
     toastRef.value.show({
@@ -189,14 +189,14 @@ const handleSaveClicked = async (category, presetsUuid) => {
     if (category === 'presetset') {
       await queryPresetsStore.updatePresetSet(
         props.presetSetUuid,
-        presetSet.value.label
+        presetSet.value.label,
       )
     } else {
       await queryPresetsStore.updatePresets(
         category,
         props.presetSetUuid,
         presetsUuid,
-        selectedPresets.value
+        selectedPresets.value,
       )
     }
     toastRef.value.show({
@@ -251,7 +251,7 @@ const handleAddClicked = async (category) => {
     await queryPresetsStore.createPresets(
       category,
       props.presetSetUuid,
-      payload
+      payload,
     )
     toastRef.value.show({
       level: 'success',
@@ -288,7 +288,7 @@ const handleRenameClicked = async (category, presetsUuid) => {
       category,
       props.presetSetUuid,
       presetsUuid,
-      { label }
+      { label },
     )
     toastRef.value.show({
       level: 'success',
@@ -348,7 +348,7 @@ const handleCloneClicked = async (category, presetsUuid) => {
       category,
       props.presetSetUuid,
       presetsUuid,
-      label
+      label,
     )
     toastRef.value.show({
       level: 'success',
@@ -380,7 +380,7 @@ const handleDeleteClicked = async (category, presetsUuid) => {
     await queryPresetsStore.destroyPresets(
       category,
       props.presetSetUuid,
-      presetsUuid
+      presetsUuid,
     )
     toastRef.value.show({
       level: 'success',
@@ -403,7 +403,7 @@ onBeforeMount(() => {
     queryPresetsStore
       .initialize(
         casesStore.appContext.csrf_token,
-        casesStore.appContext.project.sodar_uuid
+        casesStore.appContext.project.sodar_uuid,
       )
       .then(() => {
         handleCategoryClicked('presetset')
@@ -416,7 +416,7 @@ watch(
   () => props.presetSetUuid,
   (newValue) => {
     handleCategoryClicked('presetset')
-  }
+  },
 )
 </script>
 

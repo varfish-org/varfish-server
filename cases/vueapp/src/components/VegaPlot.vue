@@ -74,7 +74,7 @@ watch(
       vegaViewRef.value.change(props.dataName, changeset).run()
       vegaViewRef.value.resize()
     }
-  }
+  },
 )
 
 /** `ref` to `vegaEmbed()` result so we can `await` the rendering. */
@@ -88,7 +88,7 @@ onMounted(() => {
   vegaEmbedPromiseRef.value = vegaEmbed(
     plotDivRef.value,
     vegaLiteSpec.value,
-    vegaOpts
+    vegaOpts,
   )
   vegaEmbedPromiseRef.value.then(({ view }) => {
     vegaViewRef.value = view

@@ -35,7 +35,7 @@ watch(
     try {
       const presetSet = await queryPresetsApi.retrievePresetSet(
         csrfToken,
-        newValue
+        newValue,
       )
       presetSetLabel.value = presetSet.label
     } catch (err) {
@@ -43,7 +43,7 @@ watch(
     } finally {
       presetSetLoading.value = false
     }
-  }
+  },
 )
 </script>
 

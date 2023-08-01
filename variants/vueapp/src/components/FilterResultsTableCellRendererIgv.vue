@@ -8,7 +8,7 @@ const goToLocus = async () => {
     ? props.params.data.chromosome
     : `chr${props.params.data.chromosome}`
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.params.data.start}-${props.params.data.end}`
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.params.data.start}-${props.params.data.end}`,
   ).catch((e) => {
     console.error('IGV not available')
   })

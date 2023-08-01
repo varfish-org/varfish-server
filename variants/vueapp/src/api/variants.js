@@ -5,7 +5,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       '/variants/api/query-case/quick-presets/',
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -13,7 +13,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/api/query-case/inheritance-presets/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -21,7 +21,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/api/query-case/category-presets/${category}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -29,7 +29,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-case/query-settings-shortcut/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -37,7 +37,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-case/list/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -45,7 +45,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/case/retrieve/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -54,7 +54,7 @@ export default {
       csrfToken,
       `/variants/ajax/query/list-create/${caseUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -62,7 +62,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query/retrieve-update-destroy/${queryUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -70,7 +70,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-result-set/list/${queryUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -78,7 +78,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-result-set/retrieve/${queryResultUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -95,7 +95,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-result-row/list/${queryResultSetUuid}/${urlQuery}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -103,7 +103,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-result-row/retrieve/${queryResultRowUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -111,7 +111,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/smallvariant/user-annotated-case/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -127,13 +127,13 @@ export default {
       reference,
       alternative,
       gene_id,
-    }
+    },
   ) {
     const varDesc = `${release}-${chromosome}-${start}-${end}-${reference}-${alternative}`
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-details/${case_uuid}/${varDesc}/${database}/${gene_id}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -149,7 +149,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-comment/list-create/${caseUuid}/${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -157,7 +157,7 @@ export default {
     csrfToken,
     caseUuid,
     { release, chromosome, start, end, reference, alternative },
-    payload
+    payload,
   ) {
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -166,7 +166,7 @@ export default {
       csrfToken,
       `/variants/ajax/small-variant-comment/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -175,7 +175,7 @@ export default {
       csrfToken,
       `/variants/ajax/small-variant-comment/update/${commentUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -183,7 +183,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-comment/delete/${commentUuid}/`,
-      'DELETE'
+      'DELETE',
     )
     await response
   },
@@ -200,7 +200,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-flags/list-create/${caseUuid}/${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -208,7 +208,7 @@ export default {
     csrfToken,
     caseUuid,
     { release, chromosome, start, end, reference, alternative },
-    payload
+    payload,
   ) {
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -217,7 +217,7 @@ export default {
       csrfToken,
       `/variants/ajax/small-variant-flags/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -226,7 +226,7 @@ export default {
       csrfToken,
       `/variants/ajax/small-variant-flags/update/${flagsUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -234,7 +234,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-flags/delete/${flagsUuid}/`,
-      'DELETE'
+      'DELETE',
     )
     await response
   },
@@ -251,7 +251,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -259,7 +259,7 @@ export default {
     csrfToken,
     caseUuid,
     { release, chromosome, start, end, reference, alternative },
-    payload
+    payload,
   ) {
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -268,7 +268,7 @@ export default {
       csrfToken,
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -277,7 +277,7 @@ export default {
       csrfToken,
       `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -285,7 +285,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/acmg-criteria-rating/delete/${acmgRatingUuid}/`,
-      'DELETE'
+      'DELETE',
     )
     await response
   },
@@ -293,7 +293,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-case/download/generate/${fileType}/${queryUuid}`, // no trailing slash!!!
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -301,7 +301,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/query-case/download/status/${jobUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -309,7 +309,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/extra-anno-fields/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -317,7 +317,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/hpo-terms/?query=${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },

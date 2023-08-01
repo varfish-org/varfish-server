@@ -28,7 +28,7 @@ const genesInfosByHgnc: ComputedRef<Map<string, any>> = computed(
       result.set(record.hgnc.hgnc_id, record)
     }
     return result
-  }
+  },
 )
 
 const headers: Header[] = [

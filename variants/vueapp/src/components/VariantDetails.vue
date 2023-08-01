@@ -38,7 +38,7 @@ const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
 commentsStore.initialize(
   { csrf_token: queryStore.csrfToken },
-  queryStore.caseUuid
+  queryStore.caseUuid,
 )
 
 const navItems = allNavItems.filter((navItem) => {
