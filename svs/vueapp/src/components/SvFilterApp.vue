@@ -9,7 +9,7 @@ import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { updateUserSetting } from '@varfish/user-settings'
 import { QueryStates, QueryStateToText } from '@variants/enums'
 
-import SvFilterAppHeader from '@svs/components/SvFilterAppHeader.vue'
+import SvFilterApp/Header from '@svs/components/SvFilterApp/Header.vue'
 import SvFilterForm from '@svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
 import SvDetailsModalWrapper from '@svs/components/SvDetails/ModalWrapper.vue'
@@ -124,7 +124,7 @@ onMounted(() => {
 <template>
   <div v-if="svFilterStore.caseObj !== null" class="d-flex flex-column h-100">
     <!-- title etc. -->
-    <SvFilterAppHeader
+    <SvFilterApp/Header
       :form-visible="formVisible"
       @toggle-form="toggleForm()"
     />
