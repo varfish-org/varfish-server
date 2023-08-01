@@ -29,8 +29,8 @@ watch(
   ],
   (
     [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
-    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType]
-  ) => cohortsStore.loadFromServer()
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
+  ) => cohortsStore.loadFromServer(),
 )
 
 /** Debounced version for reloading the table from server */
@@ -43,7 +43,7 @@ const debouncedLoadFromServer = debounce(cohortsStore.loadFromServer, 1000, {
 /** Update display when search term changed. */
 watch(
   () => cohortsStore.searchTerm,
-  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer()
+  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer(),
 )
 
 const headers = [
@@ -123,7 +123,7 @@ const handleDeleteCohortClicked = async (cohortUuid) => {
 const getMemberCount = (cases) => {
   return cases.reduce(
     (accumulator, kase) => accumulator + kase.pedigree.length,
-    0
+    0,
   )
 }
 

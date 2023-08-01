@@ -34,7 +34,7 @@ const buildEffectWrapper = (key) => {
           props.querySettings.effects.push(key)
         } else if (!newValue && isSet) {
           props.querySettings.effects = props.querySettings.effects.filter(
-            (val) => val !== key
+            (val) => val !== key,
           )
         }
       }
@@ -54,7 +54,7 @@ const buildGroupWrapper = (key) => {
     get() {
       const currentEffects = new Set(props.querySettings.effects)
       const allSet = effectGroups[key].every((value) =>
-        currentEffects.has(value)
+        currentEffects.has(value),
       )
       return allSet
     },
@@ -82,7 +82,7 @@ const buildGroupIndeterminate = (key) => {
     const currentEffects = new Set(props.querySettings.effects)
     const allSet = effectGroups[key].every((value) => currentEffects.has(value))
     const noneSet = effectGroups[key].every(
-      (value) => !currentEffects.has(value)
+      (value) => !currentEffects.has(value),
     )
     return !allSet && !noneSet
   })

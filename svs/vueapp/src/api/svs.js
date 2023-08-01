@@ -5,7 +5,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       '/svs/ajax/query-case/quick-presets/',
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -13,7 +13,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/query-case/inheritance-presets/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -21,7 +21,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/query-case/category-presets/${category}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -29,7 +29,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/query-case/query-settings-shortcut/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -37,7 +37,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/sv-query/list-create/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -46,7 +46,7 @@ export default {
       csrfToken,
       `/svs/ajax/sv-query/list-create/${caseUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -54,7 +54,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/sv-query/retrieve-update-destroy/${svQueryUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -62,7 +62,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/sv-query-result-set/list/${svQueryUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -70,7 +70,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/sv-query-result-set/retrieve/${svQueryResultUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -87,7 +87,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/sv-query-result-row/list/${svQueryResultSetUuid}/${urlQuery}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -95,7 +95,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/sv-query-result-row/retrieve/${queryResultRowUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -112,7 +112,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/structural-variant-comment/list-create/${caseUuid}/${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -120,7 +120,7 @@ export default {
     csrfToken,
     caseUuid,
     { release, chromosome, start, end, sv_type, sv_sub_type },
-    payload
+    payload,
   ) {
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -129,7 +129,7 @@ export default {
       csrfToken,
       `/svs/ajax/structural-variant-comment/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -138,7 +138,7 @@ export default {
       csrfToken,
       `/svs/ajax/structural-variant-comment/retrieve-update-destroy/${commentUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -146,7 +146,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/structural-variant-comment/retrieve-update-destroy/${commentUuid}/`,
-      'DELETE'
+      'DELETE',
     )
     await response
   },
@@ -163,7 +163,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/${query}`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -171,7 +171,7 @@ export default {
     csrfToken,
     caseUuid,
     { release, chromosome, start, end, sv_type, sv_sub_type },
-    payload
+    payload,
   ) {
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -180,7 +180,7 @@ export default {
       csrfToken,
       `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -189,7 +189,7 @@ export default {
       csrfToken,
       `/svs/ajax/structural-variant-flags/retrieve-update-destroy/${flagsUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -197,7 +197,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/svs/ajax/structural-variant-flags/retrieve-update-destroy/${flagsUuid}/`,
-      'DELETE'
+      'DELETE',
     )
     await response
   },

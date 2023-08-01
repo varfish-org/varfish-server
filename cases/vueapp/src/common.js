@@ -35,14 +35,14 @@ export const connectTopRowControls = () => {
         updateUserSetting(
           casesStore.appContext.csrf_token,
           'vueapp.filtration_inline_help',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-inline-help')
       if (elem) {
         elem.prop('checked', newValue)
       }
-    }
+    },
   )
   watch(
     () => casesStore.complexityMode,
@@ -51,14 +51,14 @@ export const connectTopRowControls = () => {
         updateUserSetting(
           casesStore.appContext.csrf_token,
           'vueapp.filtration_complexity_mode',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-complexity-mode')
       if (elem && elem.val(newValue)) {
         elem.val(newValue).change()
       }
-    }
+    },
   )
 
   // Vice versa.
@@ -66,7 +66,7 @@ export const connectTopRowControls = () => {
     const handleUpdate = () => {
       const casesStore = useCasesStore()
       casesStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
-        'checked'
+        'checked',
       )
       casesStore.complexityMode = $('#vueapp-filtration-complexity-mode').val()
     }
@@ -89,7 +89,7 @@ export const tsTvRatio = (entry) => {
 export const downloadFile = (
   filename,
   contents,
-  mimeType = 'application/octet-stream'
+  mimeType = 'application/octet-stream',
 ) => {
   const element = document.createElement('a')
   element.setAttribute('href', 'data:' + mimeType + ';base64,' + btoa(contents))

@@ -70,7 +70,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     try {
       const res = await variantsApi.listFlags(csrfToken.value, caseUuid.value)
       caseFlags.value = Object.fromEntries(
-        res.map((flags) => [flags.sodar_uuid, flags])
+        res.map((flags) => [flags.sodar_uuid, flags]),
       )
     } catch (err) {
       storeState.value = StoreState.error
@@ -91,7 +91,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       const res = await variantsApi.listFlags(
         csrfToken.value,
         caseUuid.value,
-        smallVariant$
+        smallVariant$,
       )
       if (res.length) {
         flags.value = res[0]
@@ -119,7 +119,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         csrfToken.value,
         caseUuid.value,
         smallVariant,
-        { ...smallVariant, ...payload }
+        { ...smallVariant, ...payload },
       )
     } finally {
       serverInteractions.value -= 1
@@ -148,7 +148,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         {
           ...smallVariant,
           ...payload,
-        }
+        },
       )
     } finally {
       serverInteractions.value -= 1

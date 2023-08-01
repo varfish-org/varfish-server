@@ -4,7 +4,7 @@ export default {
   async listCohort(
     csrfToken,
     projectUuid,
-    { pageNo, pageSize, orderBy, orderDir, queryString }
+    { pageNo, pageSize, orderBy, orderDir, queryString },
   ) {
     let queryArr = []
     if (pageNo !== undefined) {
@@ -29,7 +29,7 @@ export default {
     const queryStr = queryArr.length ? '?' + queryArr.join('&') : ''
     const response = await apiFetch(
       csrfToken,
-      `/cohorts/ajax/cohort/list-create/${projectUuid}/${queryStr}`
+      `/cohorts/ajax/cohort/list-create/${projectUuid}/${queryStr}`,
     )
     return await response.json()
   },
@@ -39,7 +39,7 @@ export default {
       csrfToken,
       `/cohorts/ajax/cohort/list-create/${projectUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -48,7 +48,7 @@ export default {
     const response = await apiFetch(
       null,
       `/cohorts/ajax/accessible-projects-cases/list/${projectUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -58,7 +58,7 @@ export default {
       csrfToken,
       `/cohorts/ajax/cohort/retrieve-update-destroy/${cohortUuid}/`,
       'PUT',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -67,7 +67,7 @@ export default {
     await apiFetch(
       csrfToken,
       `/cohorts/ajax/cohort/retrieve-update-destroy/${cohortUuid}/`,
-      'DELETE'
+      'DELETE',
     )
   },
 
@@ -76,7 +76,7 @@ export default {
       csrfToken,
       `/cohorts/ajax/cohortcase/create/${projectUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -85,7 +85,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/cohorts/ajax/cohortcase/list/${cohortUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -94,14 +94,14 @@ export default {
     await apiFetch(
       csrfToken,
       `/cohorts/ajax/cohortcase/destroy/${cohortCaseUuid}/`,
-      'DELETE'
+      'DELETE',
     )
   },
 
   async fetchPermissions(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cohorts/ajax/user-permissions/${projectUuid}/`
+      `/cohorts/ajax/user-permissions/${projectUuid}/`,
     )
     return await response.json()
   },

@@ -31,7 +31,7 @@ const currentTab = ref('overview')
 const caseDetailsStore = useCaseDetailsStore()
 
 const annosLoading = computed(
-  () => caseDetailsStore.varAnnos === null || caseDetailsStore.svAnnos === null
+  () => caseDetailsStore.varAnnos === null || caseDetailsStore.svAnnos === null,
 )
 const annoCount = computed(() => {
   if (annosLoading) {

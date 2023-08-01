@@ -42,12 +42,12 @@ const showModal = async () => {
 
   const resultRow = await variantsApi.retrieveQueryResultRow(
     filterQueryStore.csrfToken,
-    props.resultRowUuid
+    props.resultRowUuid,
   )
   smallVariant.value = resultRow.payload
   variantDetailsStore.fetchVariantDetails(
     resultRow,
-    filterQueryStore.previousQueryDetails.query_settings.database_select
+    filterQueryStore.previousQueryDetails.query_settings.database_select,
   )
 }
 
@@ -64,7 +64,7 @@ watch(
     } else {
       $(modalRef.value).modal('hide')
     }
-  }
+  },
 )
 
 /** Event handler called when the modal is hidden.

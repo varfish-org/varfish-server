@@ -34,7 +34,7 @@ const tableServerOptions = ref(
     rowsPerPage: 20,
     sortBy: null,
     sortType: 'asc',
-  })
+  }),
 )
 /** The current search term. */
 const searchTerm = ref('')
@@ -57,7 +57,7 @@ const loadFromServer = async () => {
       orderBy: tableServerOptions.value.sortBy,
       orderDir: tableServerOptions.value.sortType,
       queryString: searchTerm.value,
-    }
+    },
   )
   tableRows.value = response.results.map((row) => transmogrify(row))
   tableLoading.value = false
@@ -73,8 +73,8 @@ watch(
   ],
   (
     [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
-    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType]
-  ) => loadFromServer()
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
+  ) => loadFromServer(),
 )
 
 const getIndividuals = (pedigree) => {
@@ -103,7 +103,7 @@ const debouncedLoadFromServer = debounce(loadFromServer, 1000, {
 /** Update display when search term changed. */
 watch(
   () => searchTerm.value,
-  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer()
+  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer(),
 )
 
 /** Load from server when mounted. */

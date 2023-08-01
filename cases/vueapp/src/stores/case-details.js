@@ -115,7 +115,7 @@ export const useCaseDetailsStore = defineStore(
         }),
         casesApi.fetchCaseVariantStats(csrfToken, caseUuid$).then((res) => {
           caseVariantStats.value = Object.fromEntries(
-            res.map((line) => [line.sample_name, line])
+            res.map((line) => [line.sample_name, line]),
           )
         }),
         casesApi.fetchCaseRelatedness(csrfToken, caseUuid$).then((res) => {
@@ -165,7 +165,7 @@ export const useCaseDetailsStore = defineStore(
         caseObj.value = await casesApi.updateCase(
           csrfToken,
           caseObj.value.sodar_uuid,
-          payload
+          payload,
         )
       } finally {
         casesStore.serverInteractions -= 1
@@ -191,7 +191,7 @@ export const useCaseDetailsStore = defineStore(
         const apiCaseComment = await casesApi.createCaseComment(
           csrfToken,
           caseObj.value.sodar_uuid,
-          payload
+          payload,
         )
         caseComments.value.push(apiCaseComment)
       } finally {
@@ -208,7 +208,7 @@ export const useCaseDetailsStore = defineStore(
         const apiCaseComment = await casesApi.updateCaseComment(
           csrfToken,
           caseCommentUuid,
-          payload
+          payload,
         )
         for (let i = 0; i < caseComments.value.length; ++i) {
           if (caseComments.value[i].sodar_uuid === apiCaseComment.sodar_uuid) {
@@ -251,7 +251,7 @@ export const useCaseDetailsStore = defineStore(
     /** Update case phenotype terms via API and in store. */
     const updateCasePhenotypeTerms = async (
       casePhenotypeTermsUuid,
-      payload
+      payload,
     ) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
@@ -260,7 +260,7 @@ export const useCaseDetailsStore = defineStore(
         const apiCasePhenotypeTerms = await casesApi.updateCasePhenotypeTerms(
           csrfToken,
           casePhenotypeTermsUuid,
-          payload
+          payload,
         )
         for (let i = 0; i < casePhenotypeTerms.value.length; ++i) {
           if (
@@ -284,7 +284,7 @@ export const useCaseDetailsStore = defineStore(
         const apiCasePhenotypeTerms = await casesApi.createCasePhenotypeTerms(
           csrfToken,
           caseUuid,
-          payload
+          payload,
         )
         casePhenotypeTerms.value.push(apiCasePhenotypeTerms)
       } finally {
@@ -323,5 +323,5 @@ export const useCaseDetailsStore = defineStore(
       updateCasePhenotypeTerms,
       createCasePhenotypeTerms,
     }
-  }
+  },
 )

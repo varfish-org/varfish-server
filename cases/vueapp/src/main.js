@@ -106,7 +106,7 @@ app.mount('#app')
 
 const rawAppContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}'
+    '{}',
 )
 
 const casesStore = useCasesStore()

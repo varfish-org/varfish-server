@@ -38,7 +38,7 @@ const props = defineProps({
             >
               <i-bi-exclamation-circle
                 :title="`On-target Ts/Tv ratio should be between 2.0 and 2.9 but was ${tsTvRatio(
-                  entry
+                  entry,
                 )}.`"
               />
               {{ tsTvRatio(entry).toFixed(2) }}

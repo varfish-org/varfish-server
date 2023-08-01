@@ -66,7 +66,7 @@ const _vuelidateWrappers = (keys) =>
           }
         },
       }),
-    ])
+    ]),
   )
 
 // Helper function to build wrappers for array valued fields.
@@ -107,7 +107,7 @@ const buildSvTypeGroupWrapper = (key) => {
     get() {
       const currentSvSubTypes = new Set(props.querySettings.sv_sub_types)
       const allSet = svTypeGroups[key].every((value) =>
-        currentSvSubTypes.has(value)
+        currentSvSubTypes.has(value),
       )
       return allSet
     },
@@ -171,7 +171,7 @@ const buildTxEffectsWrapper = (key) => {
         }
       } else {
         props.querySettings.tx_effects = props.querySettings.tx_effects.filter(
-          (val) => val !== key
+          (val) => val !== key,
         )
       }
     },

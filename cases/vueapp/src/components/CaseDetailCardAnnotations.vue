@@ -40,11 +40,11 @@ const buildComputedAnnoCountByFlag = (theList) => {
 }
 
 const varAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.varAnnoList
+  caseDetailsStore.varAnnoList,
 )
 
 const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.svrAnnoList
+  caseDetailsStore.svrAnnoList,
 )
 </script>
 

@@ -66,7 +66,7 @@ export default {
     submissionList: {
       get() {
         const lst = this.currentSubmissionSet.submissions.map(
-          (k) => this.submissions[k]
+          (k) => this.submissions[k],
         )
         lst.sort((lhs, rhs) => lhs.sort_order - rhs.sort_order)
         return lst
@@ -118,7 +118,7 @@ export default {
             for (const smallVar of res.small_variants) {
               if (getVariantId(smallVar) in smallVariants) {
                 smallVariants[getVariantId(smallVar)].caseNames.push(
-                  smallVar.case_name
+                  smallVar.case_name,
                 )
                 smallVariants[getVariantId(smallVar)].genotype = {
                   ...smallVariants[getVariantId(smallVar)].genotype,
@@ -147,7 +147,7 @@ export default {
             this.rawModalUserAnnotationsCount =
               Object.keys(smallVariants).length
             this.modalUserAnnotations = this._computeUserAnnotations(
-              this.rawModalUserAnnotations
+              this.rawModalUserAnnotations,
             )
             this.loadingVariants = false
           })
@@ -224,7 +224,7 @@ export default {
         })
       smallVariants.sort(
         (a, b) =>
-          a.chromosome_no * c + a.start - (b.chromosome_no * c + b.start)
+          a.chromosome_no * c + a.start - (b.chromosome_no * c + b.start),
       )
       return smallVariants
     },
@@ -243,7 +243,7 @@ export default {
       let names = item.submission_individuals.map((uuid) =>
         this.individuals[
           this.submissionIndividuals[uuid].individual
-        ].name.replace(/-N.-DNA.-....$/, '')
+        ].name.replace(/-N.-DNA.-....$/, ''),
       )
       if (names.length > 2) {
         names = names.slice(0, 2) + ['...']
@@ -270,7 +270,7 @@ export default {
     getAcmgRating(items) {
       const res = Math.max.apply(
         0,
-        items.rating.map((x) => x.class_override || x.class_auto || 0)
+        items.rating.map((x) => x.class_override || x.class_auto || 0),
       )
       if (isFinite(res)) {
         return res || 'N/A'
@@ -308,7 +308,7 @@ export default {
           const variantDesc = this.getVariantDesc(smallVariant)
           if (this.selectedSmallVariants.includes(variantDesc)) {
             this.createSubmissionInCurrentSubmissionSet(
-              this.getSubmissionData(smallVariant)
+              this.getSubmissionData(smallVariant),
             )
           }
         }
@@ -752,10 +752,10 @@ export default {
                   <span
                     :class="{
                       'badge badge-dark': item.flags.some(
-                        (x) => x.flag_final_causative
+                        (x) => x.flag_final_causative,
                       ),
                       'badge badge-light': !item.flags.some(
-                        (x) => x.flag_final_causative
+                        (x) => x.flag_final_causative,
                       ),
                     }"
                     :title="`${
@@ -768,10 +768,10 @@ export default {
                   <span
                     :class="{
                       'badge badge-dark': item.flags.some(
-                        (x) => x.flag_candidate
+                        (x) => x.flag_candidate,
                       ),
                       'badge badge-light': !item.flags.some(
-                        (x) => x.flag_candidate
+                        (x) => x.flag_candidate,
                       ),
                     }"
                     :title="`${

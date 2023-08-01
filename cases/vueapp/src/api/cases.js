@@ -4,7 +4,7 @@ export default {
   async listCase(
     csrfToken,
     projectUuid,
-    { pageNo, pageSize, orderBy, orderDir, queryString }
+    { pageNo, pageSize, orderBy, orderDir, queryString },
   ) {
     let queryArr = []
     if (pageNo !== undefined) {
@@ -29,7 +29,7 @@ export default {
     const queryStr = queryArr.length ? '?' + queryArr.join('&') : ''
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/case/list/${projectUuid}/${queryStr}`
+      `/cases/ajax/case/list/${projectUuid}/${queryStr}`,
     )
     return await response.json()
   },
@@ -39,7 +39,7 @@ export default {
       csrfToken,
       `/cases/ajax/case/retrieve-update/${caseUuid}/`,
       'GET',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -49,7 +49,7 @@ export default {
       csrfToken,
       `/cases/ajax/case/retrieve-update/${caseUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -57,7 +57,7 @@ export default {
   async loadProjectQcValues(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/project/qc/${projectUuid}/`
+      `/variants/ajax/project/qc/${projectUuid}/`,
     )
     return await response.json()
   },
@@ -86,7 +86,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/cases/ajax/case-comment/list-create/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -96,7 +96,7 @@ export default {
       csrfToken,
       `/cases/ajax/case-comment/list-create/${caseUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -105,7 +105,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -115,7 +115,7 @@ export default {
       csrfToken,
       `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -124,7 +124,7 @@ export default {
     await apiFetch(
       csrfToken,
       `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
-      'DELETE'
+      'DELETE',
     )
   },
 
@@ -132,7 +132,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/cases/ajax/case-phenotype-terms/list-create/${caseUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -142,7 +142,7 @@ export default {
       csrfToken,
       `/cases/ajax/case-phenotype-terms/list-create/${caseUuid}/`,
       'POST',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -151,7 +151,7 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
-      'GET'
+      'GET',
     )
     return await response.json()
   },
@@ -161,7 +161,7 @@ export default {
       csrfToken,
       `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
       'PATCH',
-      payload
+      payload,
     )
     return await response.json()
   },
@@ -170,14 +170,14 @@ export default {
     await apiFetch(
       csrfToken,
       `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
-      'DELETE'
+      'DELETE',
     )
   },
 
   async fetchAnnotationReleaseInfos(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/annotation-release-info/list/${caseUuid}/`
+      `/cases/api/annotation-release-info/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -185,7 +185,7 @@ export default {
   async fetchSvAnnotationReleaseInfos(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/sv-annotation-release-info/list/${caseUuid}/`
+      `/cases/api/sv-annotation-release-info/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -193,7 +193,7 @@ export default {
   async fetchCaseGeneAnnotation(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/case-gene-annotation/list/${caseUuid}/`
+      `/cases/api/case-gene-annotation/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -201,7 +201,7 @@ export default {
   async fetchCaseAlignmentStats(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/case-alignment-stats/list/${caseUuid}/`
+      `/cases/api/case-alignment-stats/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -209,7 +209,7 @@ export default {
   async fetchCaseVariantStats(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/case-variant-stats/list/${caseUuid}/`
+      `/cases/api/case-variant-stats/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -217,7 +217,7 @@ export default {
   async fetchCaseRelatedness(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/api/case-relatedness/list/${caseUuid}/`
+      `/cases/api/case-relatedness/list/${caseUuid}/`,
     )
     return await response.json()
   },
@@ -225,7 +225,7 @@ export default {
   async fetchPermissions(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/user-permissions/${projectUuid}/`
+      `/cases/ajax/user-permissions/${projectUuid}/`,
     )
     return await response.json()
   },

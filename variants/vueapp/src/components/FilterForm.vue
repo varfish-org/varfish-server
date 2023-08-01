@@ -55,7 +55,7 @@ const anyHasError = computed(() => {
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(filterQueryStore.storeState)
+  ['initial', 'initializing'].includes(filterQueryStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {

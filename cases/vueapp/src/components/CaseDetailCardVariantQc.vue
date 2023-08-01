@@ -14,7 +14,7 @@ const tsTv = (member) => {
   ) {
     const stats = caseDetailsStore.caseVariantStats[member.name]
     return (stats.ontarget_transitions / stats.ontarget_transversions).toFixed(
-      2
+      2,
     )
   } else {
     return 0
@@ -49,7 +49,7 @@ const tsTv = (member) => {
                 {{
                   formatLargeInt(
                     caseDetailsStore.caseVariantStats[member.name]
-                      .ontarget_transitions
+                      .ontarget_transitions,
                   )
                 }}
               </td>
@@ -57,7 +57,7 @@ const tsTv = (member) => {
                 {{
                   formatLargeInt(
                     caseDetailsStore.caseVariantStats[member.name]
-                      .ontarget_transversions
+                      .ontarget_transversions,
                   )
                 }}
               </td>
@@ -71,7 +71,7 @@ const tsTv = (member) => {
                 v-else
                 class="text-right text-danger font-weight-bold"
                 :title="`Ts/Tv ratio should be within 2.0-2.9 but is ${tsTv(
-                  member
+                  member,
                 )}`"
               >
                 <i-bi-exclamation-circle />

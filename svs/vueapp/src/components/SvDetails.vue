@@ -36,12 +36,12 @@ const detailsStore = useSvDetailsStore()
 const flagsStore = useSvFlagsStore()
 flagsStore.initialize(
   { csrf_token: svFilterStore.csrfToken },
-  svFilterStore.caseUuid
+  svFilterStore.caseUuid,
 )
 const commentsStore = useSvCommentsStore()
 commentsStore.initialize(
   { csrf_token: svFilterStore.csrfToken },
-  svFilterStore.caseUuid
+  svFilterStore.caseUuid,
 )
 
 // Safely return case release.

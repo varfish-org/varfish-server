@@ -65,7 +65,7 @@ const relatednessData = computed(() => {
           label: `${sample0} - ${sample1}`,
           relationship: getRel(parentChild, sibSib),
         }
-      }
+      },
     )
   }
 })

@@ -118,7 +118,7 @@ const handleCloneClicked = async () => {
     } else {
       clonedPresetSet = await queryPresetsStore.cloneOtherPresetSet(
         presetSetModel.value,
-        label
+        label,
       )
     }
     presetSetModel.value = clonedPresetSet.sodar_uuid
@@ -181,7 +181,7 @@ const handleEditClicked = async () => {
 const showOverlay = computed(
   () =>
     queryPresetsStore.storeState !== StoreState.active ||
-    queryPresetsStore.serverInteractions > 0
+    queryPresetsStore.serverInteractions > 0,
 )
 
 /** Initialize store on first mount. */
@@ -189,7 +189,7 @@ onBeforeMount(() => {
   casesStore.initializeRes.then(() => {
     queryPresetsStore.initialize(
       casesStore.appContext.csrf_token,
-      casesStore.appContext.project.sodar_uuid
+      casesStore.appContext.project.sodar_uuid,
     )
   })
 })

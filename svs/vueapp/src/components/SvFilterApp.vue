@@ -25,7 +25,7 @@ const props = defineProps({
 
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}'
+    '{}',
 )
 
 /** The currently used route. */
@@ -82,11 +82,11 @@ watch(
       updateUserSetting(
         svFilterStore.csrfToken,
         'vueapp.filtration_inline_help',
-        newValue
+        newValue,
       )
     }
     $('#vueapp-filtration-inline-help').prop('checked', newValue)
-  }
+  },
 )
 watch(
   () => svFilterStore.filtrationComplexityMode,
@@ -95,11 +95,11 @@ watch(
       updateUserSetting(
         svFilterStore.csrfToken,
         'vueapp.filtration_complexity_mode',
-        newValue
+        newValue,
       )
     }
     $('#vueapp-filtration-complexity-mode').val(newValue).change()
-  }
+  },
 )
 
 // Vice versa.
@@ -107,10 +107,10 @@ onMounted(() => {
   const handleUpdate = () => {
     const svFilterStore = useSvFilterStore()
     svFilterStore.showFiltrationInlineHelp = $(
-      '#vueapp-filtration-inline-help'
+      '#vueapp-filtration-inline-help',
     ).prop('checked')
     svFilterStore.filtrationComplexityMode = $(
-      '#vueapp-filtration-complexity-mode'
+      '#vueapp-filtration-complexity-mode',
     ).val()
   }
   nextTick(() => {

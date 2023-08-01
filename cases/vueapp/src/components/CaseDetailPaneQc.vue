@@ -23,7 +23,7 @@ const relData = computed(() => {
   }
   const pedigree = caseDetailsStore.caseObj.pedigree
   const pedLineBySample = Object.fromEntries(
-    pedigree.map((line) => [line.name, line])
+    pedigree.map((line) => [line.name, line]),
   )
 
   const getRel = (sample1, sample2) => {
@@ -68,7 +68,7 @@ const relData = computed(() => {
         sample1: sample1$,
         ...relationship,
       }
-    }
+    },
   )
 })
 
@@ -83,7 +83,7 @@ const dpHetData = computed(() => {
           y: het_ratio,
           sample: displayName(sample),
         }
-      }
+      },
     )
   }
 })
@@ -91,14 +91,14 @@ const dpHetData = computed(() => {
 const hetRatioQuantiles = computed(() => {
   return quantiles(
     dpHetData.value.map(({ y }) => y),
-    [0.0, 0.25, 0.5, 0.75, 1.0]
+    [0.0, 0.25, 0.5, 0.75, 1.0],
   )
 })
 
 const dpQuantiles = computed(() => {
   return quantiles(
     dpHetData.value.map(({ x }) => x),
-    [0.0, 0.25, 0.5, 0.75, 1.0]
+    [0.0, 0.25, 0.5, 0.75, 1.0],
   )
 })
 
@@ -116,7 +116,7 @@ const chrXHetHomRatio = computed(() => {
     return null
   } else {
     const resultEntries = Object.entries(caseDetailsStore.caseVariantStats).map(
-      ([name, stats]) => [name, stats.chrx_het_hom]
+      ([name, stats]) => [name, stats.chrx_het_hom],
     )
     return reactive(Object.fromEntries(resultEntries))
   }
@@ -132,7 +132,7 @@ const varStats = computed(() => {
           sample_name: displayName(name),
           ...stats,
         }
-      }
+      },
     )
   }
 })

@@ -16,7 +16,7 @@ const store = useClinvarExportStore()
 
 const rawAppContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}'
+    '{}',
 )
 store.initialize({
   baseUrl: rawAppContext.base_url,
@@ -24,7 +24,7 @@ store.initialize({
 })
 
 const showOverlay = computed(
-  () => store.appState === AppState.initializing || store.serverInteraction
+  () => store.appState === AppState.initializing || store.serverInteraction,
 )
 </script>
 

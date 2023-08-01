@@ -52,7 +52,7 @@ const _vuelidateWrappers = (keys) =>
           }
         },
       }),
-    ])
+    ]),
   )
 
 // Define the form state.

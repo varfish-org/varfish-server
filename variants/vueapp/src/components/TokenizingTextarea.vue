@@ -148,7 +148,7 @@ const highlightToken = (token) => {
               validationResults[token].state = 'rejected'
               updateIsValidationRunning()
               runValidationAndUpdateBackdrop()
-            }
+            },
           )
         }).then(),
       }
@@ -157,7 +157,7 @@ const highlightToken = (token) => {
       validationResults[token].result = cbResult
     } else {
       throw new Error(
-        'Invalid result, not boolean, or has valid, or is Promise! ' + cbResult
+        'Invalid result, not boolean, or has valid, or is Promise! ' + cbResult,
       )
     }
   }
@@ -249,7 +249,7 @@ const runValidationAndUpdateBackdrop = debounce(
     leading: true,
     maxWait: 2,
     trailing: true,
-  }
+  },
 )
 
 /** Event handler that keeps the textarea's and backdrop's scrolling in sync. */
@@ -288,7 +288,7 @@ watch(
   () => props.modelValue,
   (newValue, _oldValue) => {
     modelValueWrapper.value = newValue
-  }
+  },
 )
 
 /** Define the exposed functions. */

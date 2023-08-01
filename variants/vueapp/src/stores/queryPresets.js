@@ -72,7 +72,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
         .then((result) => {
           serverInteractions.value -= 1
           presetSets.value = Object.fromEntries(
-            result.map((presetSet) => [presetSet.sodar_uuid, presetSet])
+            result.map((presetSet) => [presetSet.sodar_uuid, presetSet]),
           )
           storeState.value = StoreState.active
           resolve()
@@ -95,7 +95,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     try {
       resultPresetSet = await queryPresetsApi.cloneFactoryPresetSet(
         csrfToken.value,
-        { project: projectUuid.value, label }
+        { project: projectUuid.value, label },
       )
       presetSets.value[resultPresetSet.sodar_uuid] = resultPresetSet
     } finally {
@@ -113,7 +113,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       resultPresetSet = await queryPresetsApi.cloneOtherPresetSet(
         csrfToken.value,
         presetSetUuid,
-        { project: projectUuid.value, label }
+        { project: projectUuid.value, label },
       )
       presetSets.value[resultPresetSet.sodar_uuid] = resultPresetSet
     } finally {
@@ -130,7 +130,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     try {
       revertedPresetSet = await queryPresetsApi.retrievePresetSet(
         csrfToken.value,
-        presetSetUuid
+        presetSetUuid,
       )
       presetSets.value[presetSetUuid] = revertedPresetSet
     } finally {
@@ -148,7 +148,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       updatedPresetSet = await queryPresetsApi.updatePresetSet(
         csrfToken.value,
         presetSetUuid,
-        { label }
+        { label },
       )
       presetSets.value[presetSetUuid] = updatedPresetSet
     } finally {
@@ -179,7 +179,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       createdPresets = await queryPresetsApi[`create${cat.name}`](
         csrfToken.value,
         presetSetUuid,
-        payload
+        payload,
       )
       presetSets.value[presetSetUuid][`${category}_set`] = presetSets.value[
         presetSetUuid
@@ -199,7 +199,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       resultPresets = await queryPresetsApi[`cloneOther${cat.name}`](
         csrfToken.value,
         presetsUuid,
-        { label, presetset: presetSetUuid }
+        { label, presetset: presetSetUuid },
       )
       presetSets.value[presetSetUuid][`${category}_set`] = presetSets.value[
         presetSetUuid
@@ -218,7 +218,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     try {
       revertedPresets = await queryPresetsApi[`retrieve${cat.name}`](
         csrfToken.value,
-        presetUuid
+        presetUuid,
       )
       const presetsSet = presetSets.value[presetSetUuid][`${category}_set`]
       for (let i = 0; i < presetsSet.length; i++) {
@@ -238,7 +238,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     category,
     presetSetUuid,
     presetsUuid,
-    presetsObj
+    presetsObj,
   ) => {
     const cat = Category[category]
     storeStateMessage.value = `Updating ${cat.title}...`
@@ -248,7 +248,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       updatedPresets = await queryPresetsApi[`update${cat.name}`](
         csrfToken.value,
         presetsUuid,
-        presetsObj
+        presetsObj,
       )
       const presetsSet = presetSets.value[presetSetUuid][`${category}_set`]
       for (let i = 0; i < presetsSet.length; i++) {

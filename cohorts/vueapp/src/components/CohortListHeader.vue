@@ -6,11 +6,11 @@ import { useCohortsStore } from '@cohorts/stores/cohorts.js'
 const cohortsStore = useCohortsStore()
 
 const projectTitle = computed(() =>
-  cohortsStore.project ? cohortsStore.project.title : 'PROJECT MISSING'
+  cohortsStore.project ? cohortsStore.project.title : 'PROJECT MISSING',
 )
 
 const projectUuid = computed(() =>
-  cohortsStore.project ? cohortsStore.project.sodar_uuid : 'no-uuid'
+  cohortsStore.project ? cohortsStore.project.sodar_uuid : 'no-uuid',
 )
 
 /** Define emits. */

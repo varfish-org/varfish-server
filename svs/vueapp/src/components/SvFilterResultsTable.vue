@@ -136,7 +136,7 @@ const loadFromServer = async () => {
       return genes
     } else if (genes[0].gene) {
       return genes.toSorted(
-        sortBy('-gene.is_acmg', '-gene.is_disease_gene', 'gene.symbol')
+        sortBy('-gene.is_acmg', '-gene.is_disease_gene', 'gene.symbol'),
       )
     } else {
       return genes.toSorted(sortBy('-is_acmg', '-is_disease_gene', 'symbol'))
@@ -177,7 +177,7 @@ const loadFromServer = async () => {
           ? 'chromosome_no,start'
           : tableServerOptions.value.sortBy,
       orderDir: tableServerOptions.value.sortType,
-    }
+    },
   )
   tableRows.value = response.results.map((row) => transmogrify(row))
   tableLoading.value = false
@@ -188,7 +188,7 @@ const goToLocus = async ({ chromosome, start, end }) => {
     ? chromosome
     : `chr${chromosome}`
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${start}-${end}`
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${start}-${end}`,
   )
 }
 
@@ -321,7 +321,7 @@ watch(
   (_newValue, _oldValue) => {
     loadFromServer()
   },
-  { deep: true }
+  { deep: true },
 )
 </script>
 
@@ -503,7 +503,7 @@ watch(
                 <template
                   v-if="
                     (item.transcript_effects ?? []).includes(
-                      'transcript_variant'
+                      'transcript_variant',
                     )
                   "
                 >
@@ -525,7 +525,7 @@ watch(
                 <template
                   v-else-if="
                     (item.transcript_effects ?? []).includes(
-                      'splice_region_variant'
+                      'splice_region_variant',
                     )
                   "
                 >
@@ -556,7 +556,7 @@ watch(
                 <template
                   v-else-if="
                     (item.transcript_effects ?? []).includes(
-                      'downstream_variant'
+                      'downstream_variant',
                     )
                   "
                 >
@@ -710,7 +710,7 @@ watch(
                   svRecord.release,
                   `chr${svRecord.chromosome}`,
                   svRecord.start,
-                  svRecord.end
+                  svRecord.end,
                 )
               "
               target="_blank"
@@ -724,7 +724,7 @@ watch(
                   svRecord.release,
                   `chr${svRecord.chromosome}`,
                   svRecord.start,
-                  svRecord.end
+                  svRecord.end,
                 )
               "
               target="_blank"
@@ -738,7 +738,7 @@ watch(
                   svRecord.release,
                   `chr${svRecord.chromosome}`,
                   svRecord.start,
-                  svRecord.end
+                  svRecord.end,
                 )
               "
               target="_blank"
@@ -757,7 +757,7 @@ watch(
                   svRecord.release,
                   `chr${svRecord.chromosome}`,
                   svRecord.start,
-                  svRecord.end
+                  svRecord.end,
                 )
               "
               target="_blank"

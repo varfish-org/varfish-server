@@ -7,8 +7,8 @@
     "test:unit": "vitest run",
     "test:unit-coverage": "vitest run --coverage",
     "lint": "eslint . --fix",
-    "prettier-check": "npx prettier --check .",
-    "prettier-write": "npx prettier --write .",
+    "prettier-check": "npx prettier --check src/*/**",
+    "prettier-write": "npx prettier --write src/*/**",
     "serve": "vite --port 3000",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build"
