@@ -4,7 +4,10 @@ import igv from 'igv'
 
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 
-import { genCaseTrack, publicTracks } from './GenomeBrowser.tracks.js'
+import {
+  genCaseTrack,
+  publicTracks,
+} from '@svs/components/GenomeBrowser.tracks'
 
 // Define the props.
 const props = defineProps({

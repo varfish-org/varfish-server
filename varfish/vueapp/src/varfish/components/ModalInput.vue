@@ -11,8 +11,8 @@
 
 import { onMounted, computed, reactive, ref } from 'vue'
 
-import ModalBase from './ModalBase.vue'
-import { randomString } from '../common.js'
+import ModalBase from '@varfish/components/ModalBase.vue'
+import { randomString } from '@varfish/common'
 import { useVuelidate } from '@vuelidate/core'
 import { copy } from '@varfish/helpers'
 

@@ -1,7 +1,6 @@
-import { updateUserSetting } from '@varfish/user-settings.js'
+import { StoreState, useCohortsStore } from '@cohorts/stores/cohorts'
+import { updateUserSetting } from '@varfish/user-settings'
 import { computed, nextTick, onMounted, watch } from 'vue'
-
-import { StoreState, useCohortsStore } from './stores/cohorts'
 
 export const overlayShow = computed(() => {
   const cohortsStore = useCohortsStore()

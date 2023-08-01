@@ -3,8 +3,8 @@
  * This includes user annotations of variants.
  */
 
-import casesApi from '@cases/api/cases.js'
-import { useCasesStore } from '@cases/stores/cases.js'
+import casesApi from '@cases/api/cases'
+import { useCasesStore } from '@cases/stores/cases'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 

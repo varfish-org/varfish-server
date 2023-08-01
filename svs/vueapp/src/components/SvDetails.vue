@@ -2,21 +2,21 @@
 import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
-import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
+import VariantDetailsComments from '@varfish/components/VariantDetails/Comments.vue'
+import VariantDetailsFlags from '@varfish/components/VariantDetails/Flags.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useSvFilterStore } from '@svs/stores/filterSvs'
 import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useSvFlagsStore } from '@svs/stores/svFlags.js'
-import { useSvCommentsStore } from '@svs/stores/svComments.js'
+import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvCommentsStore } from '@svs/stores/svComments'
 
-import SvDetailsGenes from './SvDetailsGenes.vue'
-import SvDetailsClinvar from './SvDetailsClinvar.vue'
-import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
-import GenomeBrowser from './GenomeBrowser.vue'
-import { allNavItems as navItems } from './SvDetails.fields'
+import SvDetailsGenes from '@svs/components/SvDetails/Genes.vue'
+import SvDetailsClinvar from '@svs/components/SvDetails/Clinvar.vue'
+import SvDetailsGenotypeCall from '@svs/components/SvDetails/GenotypeCall.vue'
+import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
+import { allNavItems as navItems } from '@svs/components/SvDetails.fields'
 
 /** `SVRecord` is a type alias for easier future interface definition. */
 type SvRecord = any

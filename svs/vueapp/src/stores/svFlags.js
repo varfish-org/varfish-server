@@ -2,9 +2,9 @@
  * Pinia store for handling per-SV flags.
  */
 
-import { StoreState } from '@cases/stores/cases.js'
-import svsApi from '@svs/api/svs.js'
-import { bndInsOverlap, reciprocalOverlap } from '@varfish/helpers.js'
+import { StoreState } from '@cases/stores/cases'
+import svsApi from '@svs/api/svs'
+import { bndInsOverlap, reciprocalOverlap } from '@varfish/helpers'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

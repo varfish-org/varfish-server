@@ -2,11 +2,11 @@
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
-import { useCasesStore } from '@cases/stores/cases.js'
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
-import { updateUserSetting } from '@varfish/user-settings.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { updateUserSetting } from '@varfish/user-settings'
 import {
   DisplayColumns,
   DisplayConstraints,
@@ -16,10 +16,10 @@ import {
   QueryStateToText,
 } from '@variants/enums'
 
-import VariantDetailsModalWrapper from './VariantDetailsModalWrapper.vue'
-import FilterAppHeader from './FilterAppHeader.vue'
-import FilterForm from './FilterForm.vue'
-import FilterResultsTable from './FilterResultsTable.vue'
+import VariantDetailsModalWrapper from '@variants/components/VariantDetails/ModalWrapper.vue'
+import Header from '@variants/components/FilterApp/Header.vue'
+import FilterForm from '@variants/components/FilterForm.vue'
+import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 
 const props = defineProps({
   /** Whether to show the variant details modal. */
@@ -164,7 +164,7 @@ onBeforeMount(() => {
     class="d-flex flex-column h-100"
   >
     <!-- title etc. -->
-    <FilterAppHeader :form-visible="formVisible" @toggle-form="toggleForm()" />
+    <Header :form-visible="formVisible" @toggle-form="toggleForm()" />
 
     <!-- query form -->
     <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">

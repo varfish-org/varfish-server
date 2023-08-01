@@ -13,7 +13,7 @@ import { onMounted, computed, reactive, ref } from 'vue'
 
 import ModalBase from '@varfish/components/ModalBase.vue'
 import HpoTermInput from '@variants/components/HpoTermInput.vue'
-import { randomString } from '@varfish/common.js'
+import { randomString } from '@varfish/common'
 import { useVuelidate } from '@vuelidate/core'
 import { copy } from '@varfish/helpers'
 

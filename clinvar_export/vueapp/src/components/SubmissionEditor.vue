@@ -17,7 +17,7 @@ import {
   VARIANT_TYPE,
 } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionCaseList from './SubmissionCaseList.vue'
+import SubmissionCaseList from '@clinvarexport/components/SubmissionCaseList.vue'
 import { ref, computed, onMounted } from 'vue'
 
 const components = { Multiselect, SubmissionCaseList }

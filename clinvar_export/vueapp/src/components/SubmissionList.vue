@@ -15,8 +15,8 @@ import {
 } from '@clinvarexport/helpers'
 import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
-import clinvarExport from '../api/clinvarExport'
-import SubmissionEditor from './SubmissionEditor.vue'
+import clinvarExport from '@clinvarexport/api/clinvarExport'
+import SubmissionEditor from '@clinvarexport/components/SubmissionEditor.vue'
 
 export default {
   components: { VueDraggableNext, SubmissionEditor, Multiselect },

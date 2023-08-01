@@ -14,9 +14,9 @@ import { onMounted, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 
 import ModalBase from '@varfish/components/ModalBase.vue'
-import ModalPedigreeEditorRow from './ModalPedigreeEditorRow.vue'
-import { randomString } from '@varfish/common.js'
-import { copy } from '@varfish/helpers.js'
+import Row from '@cases/components/ModalPedigreeEditor/Row.vue'
+import { randomString } from '@varfish/common'
+import { copy } from '@varfish/helpers'
 
 const props = defineProps({
   title: {
@@ -139,7 +139,7 @@ defineExpose({ show, hide })
         </thead>
         <tbody>
           <template v-for="(_row, index) in propsCopy.modelValue">
-            <ModalPedigreeEditorRow
+            <Row
               :name="propsCopy.modelValue[index].name"
               :pedigree="propsCopy.modelValue"
               v-model:father="propsCopy.modelValue[index].father"

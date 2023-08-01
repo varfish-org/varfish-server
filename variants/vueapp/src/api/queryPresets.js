@@ -1,4 +1,4 @@
-import { apiFetch } from '@varfish/api-utils.js'
+import { apiFetch } from '@varfish/api-utils'
 
 /**
  * Construct API object fragment for the given entity.

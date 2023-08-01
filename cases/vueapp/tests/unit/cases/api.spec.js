@@ -1,4 +1,4 @@
-import casesApi from '@cases/api/cases.js'
+import casesApi from '@cases/api/cases'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 

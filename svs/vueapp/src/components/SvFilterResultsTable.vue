@@ -5,11 +5,11 @@ import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import svsApi from '@svs/api/svs.js'
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
-import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags.js'
-import { useSvCommentsStore } from '@svs/stores/svComments.js'
-import { formatLargeInt, displayName } from '@varfish/helpers.js'
+import svsApi from '@svs/api/svs'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags'
+import { useSvCommentsStore } from '@svs/stores/svComments'
+import { formatLargeInt, displayName } from '@varfish/helpers'
 
 const MAX_GENES = 20
 

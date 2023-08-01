@@ -1,5 +1,5 @@
 <script setup>
-import { useFilterQueryStore } from '../stores/filterQuery'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 const filterQueryStore = useFilterQueryStore()
 

@@ -2,7 +2,7 @@ import SubmissionSetWizard from '@clinvarexport/components/SubmissionSetWizard.v
 import {
   useClinvarExportStore,
   WizardState,
-} from '@clinvarexport/stores/clinvar-export.js'
+} from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
@@ -18,9 +18,9 @@ import {
   vi,
 } from 'vitest'
 
-import { copy } from '../../testUtils.js'
-import { clinvarExportEmptyState } from '../fixtures.js'
-import { firstSubmissionSet, rawAppContext } from '../fixtures.js'
+import { copy } from '../../testUtils'
+import { clinvarExportEmptyState } from '../fixtures'
+import { firstSubmissionSet, rawAppContext } from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState) => {

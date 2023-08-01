@@ -1,4 +1,4 @@
-import { apiFetch } from '@varfish/api-utils.js'
+import { apiFetch } from '@varfish/api-utils'
 
 export default {
   async listCase(

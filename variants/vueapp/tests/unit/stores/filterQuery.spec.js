@@ -1,5 +1,5 @@
 import { createTestingPinia } from '@pinia/testing'
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 import { setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
