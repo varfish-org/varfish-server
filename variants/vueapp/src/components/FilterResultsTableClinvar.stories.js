@@ -1,4 +1,4 @@
-import FilterResultsTableClinvar from './FilterResultsTableClinvar.vue'
+import FilterResultsTableClinvar from '@variants/components/FilterResultsTableClinvar.vue'
 
 export default {
   title: 'Variants / Result Table Cell ClinVar',

@@ -1,13 +1,12 @@
-import trioCaseData from '@variantsTest/data/case-trio.json'
-import trioVariantsData from '@variantsTest/data/variants-trio.json'
-
+import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 import {
   DisplayColumns,
   DisplayConstraints,
   DisplayDetails,
   DisplayFrequencies,
-} from '../enums.js'
-import FilterResultsTable from './FilterResultsTable.vue'
+} from '@variants/enums'
+import trioCaseData from '@variantsTest/data/case-trio.json'
+import trioVariantsData from '@variantsTest/data/variants-trio.json'
 
 export default {
   title: 'Variants / Result Table',

@@ -3,11 +3,11 @@ import { computed, ref } from 'vue'
 
 import Toast from '@varfish/components/Toast.vue'
 
-import { connectTopRowControls } from '@cohorts/common.js'
-import CohortListHeader from '@cohorts/components/CohortListHeader.vue'
-import CohortListTable from '@cohorts/components/CohortListTable.vue'
+import { connectTopRowControls } from '@cohorts/common'
+import Header from '@cohorts/components/CohortList/Header.vue'
+import Table from '@cohorts/components/CohortList/Table.vue'
 import ModalCohortEditor from '@cohorts/components/ModalCohortEditor.vue'
-import { useCohortsStore } from '@cohorts/stores/cohorts.js'
+import { useCohortsStore } from '@cohorts/stores/cohorts'
 import Overlay from '@varfish/components/Overlay.vue'
 
 const props = defineProps({})
@@ -59,12 +59,12 @@ const handleCreateCohortClicked = async () => {
 
 <template>
   <div class="d-flex flex-column h-100">
-    <CohortListHeader @create-cohort-click="handleCreateCohortClicked" />
+    <Header @create-cohort-click="handleCreateCohortClicked" />
 
     <div
       class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
     >
-      <CohortListTable />
+      <Table />
     </div>
     <ModalCohortEditor ref="modalCohortEditorRef" />
     <Toast ref="toastRef" :autohide="false" />

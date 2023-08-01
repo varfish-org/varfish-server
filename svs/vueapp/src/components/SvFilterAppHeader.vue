@@ -2,11 +2,11 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
-import { useCasesStore } from '@cases/stores/cases.js'
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
 // TODO: change to sv presets
-import queryPresetsApi from '@variants/api/queryPresets.js'
+import queryPresetsApi from '@variants/api/queryPresets'
 
 const router = useRouter()
 

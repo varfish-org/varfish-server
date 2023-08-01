@@ -1,7 +1,6 @@
+import VariantDetailsCallDetails from '@variants/components/VariantDetailsCallDetails.vue'
 import trioCaseData from '@variantsTest/data/case-trio.json'
 import trioVariantsData from '@variantsTest/data/variants-trio.json'
-
-import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 
 export default {
   title: 'Variants / Small Variant Details Calls',

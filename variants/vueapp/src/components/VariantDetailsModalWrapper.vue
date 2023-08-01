@@ -2,10 +2,10 @@
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import variantsApi from '@variants/api/variants.js'
+import variantsApi from '@variants/api/variants'
 import VariantDetails from '@variants/components/VariantDetails.vue'
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 
 const props = defineProps({
   visible: Boolean,

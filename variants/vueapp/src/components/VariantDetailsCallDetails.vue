@@ -1,5 +1,5 @@
 <script setup>
-import { displayName } from '@varfish/helpers.js'
+import { displayName } from '@varfish/helpers'
 
 const props = defineProps({
   /** Case description object. */

@@ -1,6 +1,6 @@
 <script setup>
 import { VariantValidatorStates } from '@variants/enums'
-import { declareWrapper } from '../helpers'
+import { declareWrapper } from '@variants/helpers'
 
 const props = defineProps({
   smallVariant: Object,

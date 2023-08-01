@@ -4,7 +4,7 @@
  */
 
 import { uuidv4 } from '@clinvarexport/helpers'
-import cohortsApi from '@cohorts/api/cohorts.js'
+import cohortsApi from '@cohorts/api/cohorts'
 import difference from 'lodash/difference'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

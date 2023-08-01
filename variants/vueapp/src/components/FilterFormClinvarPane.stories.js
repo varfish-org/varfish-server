@@ -1,6 +1,5 @@
+import FilterFormClinvarPane from '@variants/components/FilterFormClinvarPane.vue'
 import { reactive } from 'vue'
-
-import FilterFormClinvarPane from './FilterFormClinvarPane.vue'
 
 export default {
   title: 'Variants / Filter Form ClinVar',

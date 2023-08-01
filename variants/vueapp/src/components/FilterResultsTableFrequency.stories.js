@@ -1,4 +1,4 @@
-import FilterResultsTableFrequency from './FilterResultsTableFrequency.vue'
+import FilterResultsTableFrequency from '@variants/components/FilterResultsTableFrequency.vue'
 
 export default {
   title: 'Variants / Result Table Cell Frequency',

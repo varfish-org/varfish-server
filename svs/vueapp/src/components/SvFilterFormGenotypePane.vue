@@ -3,7 +3,7 @@ import { computed, reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
 
-import { displayName } from '@varfish/helpers.js'
+import { displayName } from '@varfish/helpers'
 import FilterFormGenotypePaneSex from '@variants/components/FilterFormGenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from '@variants/components/FilterFormGenotypePaneAffected.vue'
 

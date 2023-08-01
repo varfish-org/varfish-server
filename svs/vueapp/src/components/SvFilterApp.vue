@@ -2,17 +2,17 @@
 import { watch, ref, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
 import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useCasesStore } from '@cases/stores/cases.js'
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
-import { updateUserSetting } from '@varfish/user-settings.js'
+import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { updateUserSetting } from '@varfish/user-settings'
 import { QueryStates, QueryStateToText } from '@variants/enums'
 
-import SvFilterAppHeader from './SvFilterAppHeader.vue'
-import SvFilterForm from './SvFilterForm.vue'
-import SvFilterResultsTable from './SvFilterResultsTable.vue'
-import SvDetailsModalWrapper from './SvDetailsModalWrapper.vue'
+import SvFilterAppHeader from '@svs/components/SvFilterAppHeader.vue'
+import SvFilterForm from '@svs/components/SvFilterForm.vue'
+import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
+import SvDetailsModalWrapper from '@svs/components/SvDetailsModalWrapper.vue'
 
 const props = defineProps({
   /** Whether to show the variant details modal. */

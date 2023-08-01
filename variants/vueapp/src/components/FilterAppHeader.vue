@@ -2,10 +2,10 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
-import { useCasesStore } from '@cases/stores/cases.js'
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
-import queryPresetsApi from '@variants/api/queryPresets.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
+import queryPresetsApi from '@variants/api/queryPresets'
 
 const router = useRouter()
 

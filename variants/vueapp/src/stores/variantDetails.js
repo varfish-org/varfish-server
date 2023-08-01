@@ -1,6 +1,6 @@
 import { AnnonarsApiClient } from '@varfish/api/annonars'
 import { MehariApiClient } from '@varfish/api/mehari'
-import variantsApi from '@variants/api/variants.js'
+import variantsApi from '@variants/api/variants'
 import { VariantValidatorStates } from '@variants/enums'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

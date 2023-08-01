@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { declareWrapper } from '../helpers.js'
-import { QueryStates } from '../enums.js'
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { declareWrapper } from '@variants/helpers'
+import { QueryStates } from '@variants/enums'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 const props = defineProps({
   filtrationComplexityMode: String,

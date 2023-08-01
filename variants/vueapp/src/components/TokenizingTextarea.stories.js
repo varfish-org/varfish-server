@@ -1,6 +1,5 @@
+import TokenizingTextarea from '@variants/components/TokenizingTextarea.vue'
 import { reactive } from 'vue'
-
-import TokenizingTextarea from './TokenizingTextarea.vue'
 
 export default {
   title: 'Variants / Tokenizing Text Area',

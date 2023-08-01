@@ -2,7 +2,7 @@ import ClinvarExportApp from '@clinvarexport/components/ClinvarExportApp.vue'
 import {
   AppState,
   useClinvarExportStore,
-} from '@clinvarexport/stores/clinvar-export.js'
+} from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import {
@@ -15,7 +15,7 @@ import {
   vi,
 } from 'vitest'
 
-import { rawAppContext } from '../fixtures.js'
+import { rawAppContext } from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState, extraArgs) => {

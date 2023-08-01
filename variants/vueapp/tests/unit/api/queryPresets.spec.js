@@ -1,4 +1,4 @@
-import queryPresetsApi from '@variants/api/queryPresets.js'
+import queryPresetsApi from '@variants/api/queryPresets'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 

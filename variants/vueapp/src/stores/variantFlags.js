@@ -2,8 +2,8 @@
  * Pinia store for handling per-variant flags.
  */
 
-import { StoreState } from '@cases/stores/cases.js'
-import variantsApi from '@variants/api/variants.js'
+import { StoreState } from '@cases/stores/cases'
+import variantsApi from '@variants/api/variants'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

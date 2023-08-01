@@ -14,8 +14,8 @@ import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 
 import ModalBase from '@varfish/components/ModalBase.vue'
-import { randomString } from '@varfish/common.js'
-import { copy } from '@varfish/helpers.js'
+import { randomString } from '@varfish/common'
+import { copy } from '@varfish/helpers'
 
 const props = defineProps({
   title: {

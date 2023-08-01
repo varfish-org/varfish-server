@@ -8,7 +8,7 @@ import {
   svSubTypeGroups,
   svTypeGroups,
   svTypeFields,
-} from './SvFilterFormImpactPane.fields.js'
+} from '@svs/components/SvFilterFormImpactPane.fields'
 
 // Define the component's props.
 const props = defineProps({

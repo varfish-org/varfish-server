@@ -1,7 +1,6 @@
-import { updateUserSetting } from '@varfish/user-settings.js'
+import { StoreState, useCasesStore } from '@cases/stores/cases'
+import { updateUserSetting } from '@varfish/user-settings'
 import { computed, nextTick, onMounted, watch } from 'vue'
-
-import { StoreState, useCasesStore } from './stores/cases'
 
 export const overlayShow = computed(() => {
   const casesStore = useCasesStore()

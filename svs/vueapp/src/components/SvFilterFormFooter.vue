@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { declareWrapper } from '@variants/helpers.js'
-import { QueryStates } from '@variants/enums.js'
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import { declareWrapper } from '@variants/helpers'
+import { QueryStates } from '@variants/enums'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
 
 const props = defineProps({
   filtrationComplexityMode: String,

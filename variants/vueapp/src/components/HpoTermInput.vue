@@ -2,8 +2,11 @@
 import Multiselect from '@vueform/multiselect'
 import { onMounted, ref, watch } from 'vue'
 
-import { hpoInheritance, hpoAgeOfOnset } from './HpoTermInput.values'
-import { declareWrapper } from '../helpers.js'
+import {
+  hpoInheritance,
+  hpoAgeOfOnset,
+} from '@variants/components/HpoTermInput.values'
+import { declareWrapper } from '@variants/helpers'
 
 const props = defineProps({
   apiEndpoint: {

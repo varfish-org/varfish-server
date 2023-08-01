@@ -1,6 +1,5 @@
+import FilterFormFlagsPane from '@variants/components/FilterFormFlagsPane.vue'
 import querySettingsSingleton from '@variantsTest/data/query-settings-singleton.json'
-
-import FilterFormFlagsPane from './FilterFormFlagsPane.vue'
 
 export default {
   title: 'Variants / Filter Form Flags',

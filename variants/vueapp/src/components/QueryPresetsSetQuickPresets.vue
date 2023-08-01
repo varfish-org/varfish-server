@@ -2,7 +2,7 @@
 /** Editor component for quick presets.
  */
 
-import { randomString } from '@varfish/common.js'
+import { randomString } from '@varfish/common'
 
 /** Define props. */
 const props = defineProps({

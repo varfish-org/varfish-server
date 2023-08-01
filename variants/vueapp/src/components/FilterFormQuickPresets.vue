@@ -1,9 +1,9 @@
 <script setup>
 import isEqual from 'lodash.isequal'
 import { onMounted, watch, computed, reactive, ref } from 'vue'
-import { copy } from '../helpers.js'
-import { useFilterQueryStore } from '../stores/filterQuery'
-import { randomString } from '@varfish/common.js'
+import { copy } from '@variants/helpers'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { randomString } from '@varfish/common'
 
 const filterQueryStore = useFilterQueryStore()
 

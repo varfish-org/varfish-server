@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionCaseListEntry from './SubmissionCaseListEntry.vue'
+import SubmissionCaseListEntry from '@clinvarexport/components/SubmissionCaseListEntry.vue'
 
 const components = { SubmissionCaseListEntry }
 

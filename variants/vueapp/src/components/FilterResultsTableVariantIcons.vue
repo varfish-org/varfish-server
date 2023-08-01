@@ -1,6 +1,6 @@
 <script setup>
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { getAcmgBadge } from '@variants/helpers.js'
+import { getAcmgBadge } from '@variants/helpers'
 
 const detailsStore = useVariantDetailsStore()
 

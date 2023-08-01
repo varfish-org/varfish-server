@@ -1,11 +1,10 @@
 /** Store for the project-wide quality control.
  */
 
-import casesApi from '@cases/api/cases.js'
+import casesApi from '@cases/api/cases'
+import { useCasesStore } from '@cases/stores/cases'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
-import { useCasesStore } from './cases.js'
 
 export const useCasesQcStore = defineStore('casesQc', () => {
   const casesStore = useCasesStore()

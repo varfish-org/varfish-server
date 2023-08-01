@@ -1,4 +1,4 @@
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { createPinia, setActivePinia } from 'pinia'
 import {
   afterEach,

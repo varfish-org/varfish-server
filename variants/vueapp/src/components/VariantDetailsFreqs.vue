@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { isVariantMt } from '@varfish/more-utils'
 
-import VariantDetailsFreqsAutosomal from './VariantDetailsFreqsAutosomal.vue'
-import VariantDetailsFreqsMitochondrial from './VariantDetailsFreqsMitochondrial.vue'
+import VariantDetailsFreqsAutosomal from '@variants/components/VariantDetailsFreqsAutosomal.vue'
+import VariantDetailsFreqsMitochondrial from '@variants/components/VariantDetailsFreqsMitochondrial.vue'
 
 const props = defineProps<{
   smallVar: any

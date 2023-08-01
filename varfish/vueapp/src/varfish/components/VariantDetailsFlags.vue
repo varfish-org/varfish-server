@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import isEqual from 'lodash.isequal'
 
-import { copy } from '@varfish/helpers.js'
+import { copy } from '@varfish/helpers'
 import Overlay from '@varfish/components/Overlay.vue'
 
 /** The stores and small/large variant are handed in via props. */

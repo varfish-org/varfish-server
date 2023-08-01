@@ -1,7 +1,7 @@
 <script setup>
-import HpoTermInput from './HpoTermInput.vue'
+import HpoTermInput from '@variants/components/HpoTermInput.vue'
 
-import { declareWrapper } from '../helpers.js'
+import { declareWrapper } from '@variants/helpers'
 import { useVuelidate } from '@vuelidate/core'
 
 const props = defineProps({

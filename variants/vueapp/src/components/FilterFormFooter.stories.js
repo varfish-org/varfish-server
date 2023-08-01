@@ -1,5 +1,5 @@
-import { QueryStates } from '../enums'
-import FilterFormFooter from './FilterFormFooter.vue'
+import FilterFormFooter from '@variants/components/FilterFormFooter.vue'
+import { QueryStates } from '@variants/enums'
 
 export default {
   title: 'Variants / Filter Form Footer',

@@ -1,7 +1,6 @@
+import VariantDetailsAcmgRating from '@variants/components/VariantDetailsAcmgRating.vue'
 import trioCaseData from '@variantsTest/data/case-trio.json'
 import trioVariantsData from '@variantsTest/data/variants-trio.json'
-
-import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
 
 export default {
   title: 'Variants / Small Variant Details ACMG',

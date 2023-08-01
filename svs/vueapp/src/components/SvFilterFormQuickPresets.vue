@@ -1,9 +1,9 @@
 <script setup>
 import isEqual from 'lodash.isequal'
 import { onMounted, computed, ref } from 'vue'
-import { copy } from '@varfish/helpers.js'
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
-import { randomString } from '@varfish/common.js'
+import { copy } from '@varfish/helpers'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { randomString } from '@varfish/common'
 
 const svFilterStore = useSvFilterStore()
 

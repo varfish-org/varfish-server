@@ -2,11 +2,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { formatLargeInt } from '@varfish/helpers.js'
+import { formatLargeInt } from '@varfish/helpers'
 import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import { useSvFilterStore } from '@svs/stores/filterSvs'
 import SvDetails from '@svs/components/SvDetails.vue'
-import svsApi from '@svs/api/svs.js'
+import svsApi from '@svs/api/svs'
 
 const props = defineProps({
   visible: Boolean,

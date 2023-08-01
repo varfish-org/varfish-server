@@ -2,27 +2,27 @@
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
-import { useVariantCommentsStore } from '@variants/stores/variantComments.js'
-import { useVariantFlagsStore } from '@variants/stores/variantFlags.js'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantCommentsStore } from '@variants/stores/variantComments'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 
-import VariantDetailsGene from './VariantDetailsGene.vue'
-import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
-import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
+import VariantDetailsGene from '@variants/components/VariantDetailsGene.vue'
+import VariantDetailsClinvar from '@variants/components/VariantDetailsClinvar.vue'
+import VariantDetailsFreqs from '@variants/components/VariantDetailsFreqs.vue'
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
-import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
-import VariantDetailsConservation from './VariantDetailsConservation.vue'
-import VariantDetailsVariantTools from './VariantDetailsVariantTools.vue'
-import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
-import VariantDetailsTxCsq from './VariantDetailsTxCsq.vue'
-import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
-import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
+import VariantDetailsCallDetails from '@variants/components/VariantDetailsCallDetails.vue'
+import VariantDetailsConservation from '@variants/components/VariantDetailsConservation.vue'
+import VariantDetailsVariantTools from '@variants/components/VariantDetailsVariantTools.vue'
+import VariantDetailsGa4ghBeacons from '@variants/components/VariantDetailsGa4ghBeacons.vue'
+import VariantDetailsTxCsq from '@variants/components/VariantDetailsTxCsq.vue'
+import VariantDetailsVariantValidator from '@variants/components/VariantDetailsVariantValidator.vue'
+import VariantDetailsAcmgRating from '@variants/components/VariantDetailsAcmgRating.vue'
 
-import { allNavItems } from './VariantDetails.fields'
+import { allNavItems } from '@variants/components/VariantDetails.fields'
 
 const props = defineProps<{
   resultRowUuid?: string

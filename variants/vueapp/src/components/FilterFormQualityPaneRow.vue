@@ -1,6 +1,6 @@
 <script setup>
-import { declareWrapper } from '../helpers.js'
-import { displayName } from '@varfish/helpers.js'
+import { declareWrapper } from '@variants/helpers'
+import { displayName } from '@varfish/helpers'
 import { onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import {
@@ -8,7 +8,7 @@ import {
   failValues,
   rules,
   allKeys,
-} from './FilterFormQualityPane.values.js'
+} from '@variants/components/FilterFormQualityPane.values'
 
 const props = defineProps({
   index: Number,

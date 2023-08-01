@@ -1,4 +1,4 @@
-import VariantDetailsTxCsq from './VariantDetailsTxCsq.vue'
+import VariantDetailsTxCsq from '@variants/components/VariantDetailsTxCsq.vue'
 
 export default {
   title: 'Variants / Small Variant Details Transcripts',

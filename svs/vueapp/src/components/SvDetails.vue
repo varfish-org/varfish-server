@@ -9,14 +9,14 @@ import SimpleCard from '@varfish/components/SimpleCard.vue'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useSvFilterStore } from '@svs/stores/filterSvs'
 import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useSvFlagsStore } from '@svs/stores/svFlags.js'
-import { useSvCommentsStore } from '@svs/stores/svComments.js'
+import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvCommentsStore } from '@svs/stores/svComments'
 
-import SvDetailsGenes from './SvDetailsGenes.vue'
-import SvDetailsClinvar from './SvDetailsClinvar.vue'
-import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
-import GenomeBrowser from './GenomeBrowser.vue'
-import { allNavItems as navItems } from './SvDetails.fields'
+import SvDetailsGenes from '@svs/components/SvDetailsGenes.vue'
+import SvDetailsClinvar from '@svs/components/SvDetailsClinvar.vue'
+import SvDetailsGenotypeCall from '@svs/components/SvDetailsGenotypeCall.vue'
+import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
+import { allNavItems as navItems } from '@svs/components/SvDetails.fields'
 
 /** `SVRecord` is a type alias for easier future interface definition. */
 type SvRecord = any

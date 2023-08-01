@@ -1,10 +1,10 @@
-import { copy } from '@varfish/helpers.js'
-import queryPresetsApi from '@variants/api/queryPresets.js'
+import { copy } from '@varfish/helpers'
+import queryPresetsApi from '@variants/api/queryPresets'
 import {
   Category,
   StoreState,
   useQueryPresetsStore,
-} from '@variants/stores/queryPresets.js'
+} from '@variants/stores/queryPresets'
 import { createPinia, setActivePinia } from 'pinia'
 import {
   afterEach,

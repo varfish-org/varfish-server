@@ -1,6 +1,5 @@
+import VariantDetailsConservation from '@variants/components/VariantDetailsConservation.vue'
 import knownGeneAaData from '@variantsTest/data/known-gene-aa.json'
-
-import VariantDetailsConservation from './VariantDetailsConservation.vue'
 
 export default {
   title: 'Variants / Small Variant Details Conservation',

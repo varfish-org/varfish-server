@@ -3,7 +3,7 @@
  * Holds the major app state as well as the overall case list.
  */
 
-import casesApi from '@cases/api/cases.js'
+import casesApi from '@cases/api/cases'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

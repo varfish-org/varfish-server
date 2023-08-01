@@ -6,8 +6,8 @@ import {
   useClinvarExportStore,
 } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionSetList from './SubmissionSetList.vue'
-import SubmissionSetWizard from './SubmissionSetWizard.vue'
+import SubmissionSetList from '@clinvarexport/components/SubmissionSetList.vue'
+import SubmissionSetWizard from '@clinvarexport/components/SubmissionSetWizard.vue'
 
 /* eslint-disable no-unused-vars */
 const components = { SubmissionSetWizard, SubmissionSetList }

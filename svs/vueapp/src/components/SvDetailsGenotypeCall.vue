@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-import { displayName } from '@varfish/helpers.js'
+import { displayName } from '@varfish/helpers'
 
 const props = defineProps({
   currentSvRecord: Object,

@@ -8,20 +8,20 @@
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
 
-import { useCasesStore } from '@cases/stores/cases.js'
-import { useQueryPresetsStore } from '@variants/stores/queryPresets.js'
+import { useCasesStore } from '@cases/stores/cases'
+import { useQueryPresetsStore } from '@variants/stores/queryPresets'
 
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
 import Toast from '@varfish/components/Toast.vue'
-import FilterFormFrequencyPane from './FilterFormFrequencyPane.vue'
-import FilterFormGenesRegionsPane from './FilterFormGenesRegionsPane.vue'
-import FilterFormEffectPane from './FilterFormEffectPane.vue'
-import FilterFormFlagsPane from './FilterFormFlagsPane.vue'
-import FilterFormClinvarPane from './FilterFormClinvarPane.vue'
-import QueryPresetsSetProperties from './QueryPresetsSetProperties.vue'
-import QueryPresetsSetQuickPresets from './QueryPresetsSetQuickPresets.vue'
-import QueryPresetsQualityPane from './QueryPresetsQualityPane.vue'
+import FilterFormFrequencyPane from '@variants/components/FilterFormFrequencyPane.vue'
+import FilterFormGenesRegionsPane from '@variants/components/FilterFormGenesRegionsPane.vue'
+import FilterFormEffectPane from '@variants/components/FilterFormEffectPane.vue'
+import FilterFormFlagsPane from '@variants/components/FilterFormFlagsPane.vue'
+import FilterFormClinvarPane from '@variants/components/FilterFormClinvarPane.vue'
+import QueryPresetsSetProperties from '@variants/components/QueryPresetsSetProperties.vue'
+import QueryPresetsSetQuickPresets from '@variants/components/QueryPresetsSetQuickPresets.vue'
+import QueryPresetsQualityPane from '@variants/components/QueryPresetsQualityPane.vue'
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])

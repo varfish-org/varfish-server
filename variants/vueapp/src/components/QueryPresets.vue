@@ -8,10 +8,10 @@ import { computed, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { minLength, required } from '@vuelidate/validators'
 
-import { StoreState, useQueryPresetsStore } from '../stores/queryPresets.js'
-import { useCasesStore } from '@cases/stores/cases.js'
+import { StoreState, useQueryPresetsStore } from '@variants/stores/queryPresets'
+import { useCasesStore } from '@cases/stores/cases'
 
-import QueryPresetsSetEditor from './QueryPresetsSetEditor.vue'
+import QueryPresetsSetEditor from '@variants/components/QueryPresetsSetEditor.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'

@@ -1,9 +1,8 @@
+import VariantDetailsFreqs from '@variants/components/VariantDetailsFreqs.vue'
 import brca1SmallVar from '@variantsTest/data/data/var-brca1-missense-benign-smallvar.json'
 import mtdnaSmallVar from '@variantsTest/data/data/var-brca1-missense-benign-smallvar.json'
 import brca1VarAnnos from '@variantsTest/data/data/var-brca1-missense-benign-varanno.json'
 import mtdnaVarAnnos from '@variantsTest/data/data/var-brca1-missense-benign-varannos.json'
-
-import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
 
 export default {
   title: 'Variants / Small Variant Details Frequencies',

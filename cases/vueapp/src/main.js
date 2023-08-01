@@ -1,19 +1,18 @@
+import App from '@cases/App.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-
-import App from './App.vue'
-const CaseList = () => import('./components/CaseList.vue')
-const CaseDetail = () => import('./components/CaseDetail.vue')
+const CaseListApp = () => import('./components/CaseListApp.vue')
+const CaseDetailApp = () => import('./components/CaseDetailApp.vue')
 const FilterApp = () => import('@variants/components/FilterApp.vue')
 const SvFilterApp = () => import('@svs/components/SvFilterApp.vue')
-import { useCasesStore } from './stores/cases'
+import { useCasesStore } from '@cases/stores/cases'
 
 const routes = [
   {
     name: 'case-list',
     path: '/',
-    component: CaseList,
+    component: CaseListApp,
     props: {
       currentTab: 'case-list',
     },
@@ -21,7 +20,7 @@ const routes = [
   {
     name: 'case-list-qc',
     path: '/qc',
-    component: CaseList,
+    component: CaseListApp,
     props: {
       currentTab: 'case-list-qc',
     },
@@ -29,7 +28,7 @@ const routes = [
   {
     name: 'case-list-query-presets',
     path: '/query-presets',
-    component: CaseList,
+    component: CaseListApp,
     props: {
       currentTab: 'case-list-query-presets',
       presetSet: 'factory-defaults',
@@ -38,7 +37,7 @@ const routes = [
   {
     name: 'case-list-query-presets-non-factory',
     path: '/query-presets/:presetSet',
-    component: CaseList,
+    component: CaseListApp,
     props: (route) => ({
       currentTab: 'case-list-query-presets',
       presetSet: route.params.presetSet,
@@ -47,7 +46,7 @@ const routes = [
   {
     name: 'case-detail',
     path: '/detail/:case',
-    component: CaseDetail,
+    component: CaseDetailApp,
   },
   {
     name: 'variants-filter',

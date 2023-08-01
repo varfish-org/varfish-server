@@ -2,7 +2,7 @@ import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 
-import { rawAppContext } from '../fixtures.js'
+import { rawAppContext } from '../fixtures'
 
 const fetchMock = createFetchMock(vi)
 fetchMock.enableMocks()

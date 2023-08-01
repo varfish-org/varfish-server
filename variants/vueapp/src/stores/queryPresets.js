@@ -1,4 +1,4 @@
-import queryPresetsApi from '@variants/api/queryPresets.js'
+import queryPresetsApi from '@variants/api/queryPresets'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

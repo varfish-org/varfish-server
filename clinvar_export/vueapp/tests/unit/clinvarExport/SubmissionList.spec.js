@@ -3,7 +3,7 @@ import SubmissionList from '@clinvarexport/components/SubmissionList.vue'
 import {
   useClinvarExportStore,
   WizardState,
-} from '@clinvarexport/stores/clinvar-export.js'
+} from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
@@ -18,7 +18,7 @@ import {
 } from 'vitest'
 import { nextTick } from 'vue'
 
-import { copy } from '../../testUtils.js'
+import { copy } from '../../testUtils'
 import {
   clinvarExportEmptyState,
   firstAssertionMethod,
@@ -35,7 +35,7 @@ import {
   secondSubmission,
   secondSubmissionIndividual,
   secondSubmittingOrg,
-} from '../fixtures.js'
+} from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState) => {

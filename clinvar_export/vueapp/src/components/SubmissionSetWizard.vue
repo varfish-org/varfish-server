@@ -6,9 +6,9 @@ import {
   WizardState,
 } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionList from './SubmissionList.vue'
-import SubmissionSetEditor from './SubmissionSetEditor.vue'
-import SubmissionSetWizardFooter from './SubmissionSetWizardFooter.vue'
+import SubmissionList from '@clinvarexport/components/SubmissionList.vue'
+import SubmissionSetEditor from '@clinvarexport/components/SubmissionSetEditor.vue'
+import SubmissionSetWizardFooter from '@clinvarexport/components/SubmissionSetWizardFooter.vue'
 
 const components = {
   SubmissionSetEditor,

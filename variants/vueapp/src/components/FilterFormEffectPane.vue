@@ -5,7 +5,7 @@ import {
   effectGroupsFields,
   detailedEffectGroups,
   effectGroups,
-} from './FilterFormEffectPane.fields.js'
+} from '@variants/components/FilterFormEffectPane.fields'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
 import { computed, onMounted } from 'vue'

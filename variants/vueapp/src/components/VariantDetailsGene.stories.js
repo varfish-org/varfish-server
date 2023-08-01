@@ -1,9 +1,8 @@
+import VariantDetailsGene from '@variants/components/VariantDetailsGene.vue'
 import brca1GeneInfo from '@variantsTest/data/data/gene-brca1-geneinfo.json'
 import mtdnaGeneinfo from '@variantsTest/data/data/gene-mtdna-geneinfo.json'
 import brca1SmallVar from '@variantsTest/data/data/var-brca1-missense-benign-smallvar.json'
 import mtdnaSmallVar from '@variantsTest/data/data/var-brca1-missense-benign-smallvar.json'
-
-import VariantDetailsGene from './VariantDetailsGene.vue'
 
 export default {
   title: 'Variants / Small Variant Details Gene',

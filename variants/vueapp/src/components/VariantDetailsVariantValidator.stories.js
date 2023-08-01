@@ -1,8 +1,7 @@
+import VariantDetailsVariantValidator from '@variants/components/VariantDetailsVariantValidator.vue'
+import { VariantValidatorStates } from '@variants/enums'
 import variantValidatorResultsData from '@variantsTest/data/variant-validator.json'
 import trioVariantsData from '@variantsTest/data/variants-trio.json'
-
-import { VariantValidatorStates } from '../enums'
-import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
 
 export default {
   title: 'Variants / Small Variant Details VariantValidator',

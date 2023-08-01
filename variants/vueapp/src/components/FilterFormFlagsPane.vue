@@ -4,7 +4,7 @@ import {
   simpleFlags,
   flagNames,
   flagValues,
-} from './FilterFormFlagsPane.fields.js'
+} from '@variants/components/FilterFormFlagsPane.fields'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

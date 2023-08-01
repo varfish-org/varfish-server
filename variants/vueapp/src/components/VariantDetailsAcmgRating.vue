@@ -1,10 +1,10 @@
 <script setup>
 import isEqual from 'lodash.isequal'
-import { getAcmgBadge } from '@variants/helpers.js'
+import { getAcmgBadge } from '@variants/helpers'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { computed, onMounted, ref, watch } from 'vue'
-import { copy } from '../helpers'
+import { copy } from '@variants/helpers'
 
 const acmgRatingStore = useVariantAcmgRatingStore()
 const detailsStore = useVariantDetailsStore()

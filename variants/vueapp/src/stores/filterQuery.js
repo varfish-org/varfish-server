@@ -1,8 +1,8 @@
-import queryPresetsApi from '@variants/api/queryPresets.js'
-import variantsApi from '@variants/api/variants.js'
-import { apiQueryStateToQueryState, QueryStates } from '@variants/enums.js'
-import { copy } from '@variants/helpers.js'
-import { previousQueryDetailsToQuerySettings } from '@variants/stores/filterQuery.funcs.js'
+import queryPresetsApi from '@variants/api/queryPresets'
+import variantsApi from '@variants/api/variants'
+import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
+import { copy } from '@variants/helpers'
+import { previousQueryDetailsToQuerySettings } from '@variants/stores/filterQuery.funcs'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
 

@@ -1,5 +1,5 @@
-import casesApi from '@cases/api/cases.js'
-import { StoreState, useCasesStore } from '@cases/stores/cases.js'
+import casesApi from '@cases/api/cases'
+import { StoreState, useCasesStore } from '@cases/stores/cases'
 import flushPromises from 'flush-promises'
 import { createPinia, setActivePinia } from 'pinia'
 import {

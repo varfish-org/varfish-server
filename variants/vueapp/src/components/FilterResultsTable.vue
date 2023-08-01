@@ -7,17 +7,17 @@ import {
   formatLargeInt,
   formatFloat,
   truncateText,
-} from '@varfish/helpers.js'
-import { getAcmgBadge } from '@variants/helpers.js'
-import variantsApi from '@variants/api/variants.js'
-import ColumnControl from './ColumnControl.vue'
-import ExportResults from './ExportResults.vue'
+} from '@varfish/helpers'
+import { getAcmgBadge } from '@variants/helpers'
+import variantsApi from '@variants/api/variants'
+import ColumnControl from '@variants/components/ColumnControl.vue'
+import ExportResults from '@variants/components/ExportResults.vue'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useFilterQueryStore } from '@variants/stores/filterQuery'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { copy, declareWrapper } from '../helpers'
+import { copy, declareWrapper } from '@variants/helpers'
 import {
   DisplayConstraints,
   DisplayConstraintsToText,

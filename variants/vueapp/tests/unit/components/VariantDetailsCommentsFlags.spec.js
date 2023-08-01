@@ -4,7 +4,7 @@
 //   emptyAcmgCriteriaRatingTemplate,
 //   initialFlagsTemplate,
 //   VariantValidatorStates,
-// } from '@variants/enums.js'
+// } from '@variants/enums'
 // import { shallowMount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, test /*, vi*/ } from 'vitest'

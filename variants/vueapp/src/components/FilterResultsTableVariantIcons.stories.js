@@ -1,4 +1,4 @@
-import FilterResultsTableVariantIcons from './FilterResultsTableVariantIcons.vue'
+import FilterResultsTableVariantIcons from '@variants/components/FilterResultsTableVariantIcons.vue'
 
 export default {
   title: 'Variants / Result Table Cell Variant Icons',

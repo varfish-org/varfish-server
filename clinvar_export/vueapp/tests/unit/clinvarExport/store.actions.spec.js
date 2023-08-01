@@ -18,7 +18,7 @@ import {
   vi,
 } from 'vitest'
 
-import { copy } from '../../testUtils.js'
+import { copy } from '../../testUtils'
 import {
   clinvarExportEmptyState,
   firstAssertionMethod,
@@ -36,7 +36,7 @@ import {
   secondOrganisation,
   secondSubmission,
   secondSubmissionIndividual,
-} from '../fixtures.js'
+} from '../fixtures'
 
 const MOCK_UUID_VALUE = 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock'
 
