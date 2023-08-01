@@ -196,16 +196,6 @@ const props = withDefaults(defineProps<Props>(), {
         </div>
         <div class="card-body pb-2 pt-2">
           <div>
-            <strong> HGNC: </strong>
-            <a
-              :href="`https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${gene?.hgnc?.hgnc_id}`"
-              target="_blank"
-            >
-              <i-mdi-launch />
-              {{ gene?.hgnc?.hgnc_id }}
-            </a>
-          </div>
-          <div>
             <strong> ENSEMBL: </strong>
             <a
               :href="`https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${gene?.hgnc?.ensembl_gene_id}`"
@@ -215,43 +205,15 @@ const props = withDefaults(defineProps<Props>(), {
               {{ gene?.hgnc?.ensembl_gene_id }}
             </a>
           </div>
-          <div v-if="gene?.hgnc?.refseq_accession?.length">
-            <strong> RefSeq: </strong>
-            <template v-for="(accession, index) in gene.hgnc.refseq_accession">
-              <template v-if="index > 0">, </template>
-              <a
-                :href="`https://www.ncbi.nlm.nih.gov/nuccore/?term=${accession}+AND+srcdb_refseq[PROP]`"
-                target="_blank"
-              >
-                <i-mdi-launch />
-                {{ accession }}
-              </a>
-            </template>
-          </div>
-          <div v-if="gene?.hgnc?.uniprot_ids?.length">
-            <strong> UniProt: </strong>
-            <template v-for="(uniprotid, index) in gene.hgnc.uniprot_ids">
-              <template v-if="index > 0">, </template>
-              <a
-                :href="`https://www.uniprot.org/uniprotkb/${uniprotid}/entry`"
-                target="_blank"
-              >
-                {{ uniprotid }}
-              </a>
-            </template>
-          </div>
-          <div v-if="gene?.hgnc?.pubmed_id?.length">
-            <strong>Primary PMID: </strong>
-            <template v-for="(pmid, index) in gene.hgnc.pubmed_id">
-              <template v-if="index > 0">, </template>
-              <a
-                :href="`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`"
-                target="_blank"
-              >
-                <i-mdi-launch />
-                {{ pmid }}
-              </a>
-            </template>
+          <div>
+            <strong> HGNC: </strong>
+            <a
+              :href="`https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${gene?.hgnc?.hgnc_id}`"
+              target="_blank"
+            >
+              <i-mdi-launch />
+              {{ gene?.hgnc?.hgnc_id }}
+            </a>
           </div>
           <div v-if="gene?.hgnc?.mgd_id?.length">
             <strong>MGI: </strong>
@@ -267,6 +229,47 @@ const props = withDefaults(defineProps<Props>(), {
             </template>
           </div>
           <span class="text-muted" v-else> No MGI </span>
+          <div v-if="gene?.hgnc?.pubmed_id?.length">
+            <strong>Primary PMID: </strong>
+            <template v-for="(pmid, index) in gene.hgnc.pubmed_id">
+              <template v-if="index > 0">, </template>
+              <a
+                :href="`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`"
+                target="_blank"
+              >
+                <i-mdi-launch />
+                {{ pmid }}
+              </a>
+            </template>
+          </div>
+          <div v-else class="text-muted">No primary PMID</div>
+          <div v-if="gene?.hgnc?.refseq_accession?.length">
+            <strong> RefSeq: </strong>
+            <template v-for="(accession, index) in gene.hgnc.refseq_accession">
+              <template v-if="index > 0">, </template>
+              <a
+                :href="`https://www.ncbi.nlm.nih.gov/nuccore/?term=${accession}+AND+srcdb_refseq[PROP]`"
+                target="_blank"
+              >
+                <i-mdi-launch />
+                {{ accession }}
+              </a>
+            </template>
+          </div>
+          <div v-else class="text-muted">No RefSeq</div>
+          <div v-if="gene?.hgnc?.uniprot_ids?.length">
+            <strong> UniProt: </strong>
+            <template v-for="(uniprotid, index) in gene.hgnc.uniprot_ids">
+              <template v-if="index > 0">, </template>
+              <a
+                :href="`https://www.uniprot.org/uniprotkb/${uniprotid}/entry`"
+                target="_blank"
+              >
+                {{ uniprotid }}
+              </a>
+            </template>
+          </div>
+          <div class="text-muted" v-else>No UniProt</div>
         </div>
       </div>
     </div>
@@ -283,6 +286,18 @@ const props = withDefaults(defineProps<Props>(), {
             <div class="col-6 p-0">
               <div>
                 <a
+                  :href="`https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${gene?.hgnc?.cosmic}`"
+                  target="_blank"
+                  v-if="gene?.hgnc?.cosmic"
+                >
+                  <i-mdi-launch />
+                  COSMIC
+                </a>
+                <span v-else>COSMIC</span>
+              </div>
+
+              <div>
+                <a
                   :href="`https://www.deciphergenomics.org/gene/${gene?.hgnc?.symbol}`"
                   target="_blank"
                 >
@@ -292,14 +307,35 @@ const props = withDefaults(defineProps<Props>(), {
               </div>
               <div>
                 <a
-                  :href="`https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${gene?.hgnc?.cosmic}`"
+                  :href="`https://search.thegencc.org/genes/${gene?.hgnc?.hgnc_id}`"
                   target="_blank"
-                  v-if="gene?.hgnc?.cosmic"
                 >
                   <i-mdi-launch />
-                  COSMIC
+                  GenCC
                 </a>
-                <span v-else>COSMIC</span>
+              </div>
+              <div>
+                <a
+                  :href="`${props.hgmdProPrefix}/gene.php?gene=${gene?.hgnc?.symbol}`"
+                  target="_blank"
+                  v-if="props.hgmdProEnabled"
+                >
+                  <i-mdi-launch />
+                  HGMD Pro
+                </a>
+                <span class="text-muted" v-else>
+                  <i-mdi-launch />
+                  HGMD Pro
+                </span>
+              </div>
+              <div>
+                <a
+                  :href="`https://www.kegg.jp/kegg-bin/search_pathway_text?map=map&keyword=${gene?.hgnc?.symbol}&mode=1&viewImage=true`"
+                  target="_blank"
+                >
+                  <i-mdi-launch />
+                  KEGG
+                </a>
               </div>
               <div>
                 <a
@@ -321,6 +357,18 @@ const props = withDefaults(defineProps<Props>(), {
                 </a>
                 <span v-else>OMIM</span>
               </div>
+            </div>
+            <div class="col-6 p-0">
+              <div>
+                <a
+                  :href="`https://pubmed.ncbi.nlm.nih.gov/?term=${gene?.hgnc?.hgnc_id}`"
+                  target="_blank"
+                >
+                  <i-mdi-launch />
+                  PubMed
+                </a>
+              </div>
+
               <div>
                 <a
                   :href="`https://www.malacards.org/search/results?query=+[GE]+${gene?.hgnc?.symbol}`"
@@ -339,31 +387,7 @@ const props = withDefaults(defineProps<Props>(), {
                   MASTERMIND
                 </a>
               </div>
-              <div>
-                <a
-                  :href="`https://www.kegg.jp/kegg-bin/search_pathway_text?map=map&keyword=${gene?.hgnc?.symbol}&mode=1&viewImage=true`"
-                  target="_blank"
-                >
-                  <i-mdi-launch />
-                  KEGG
-                </a>
-              </div>
-            </div>
-            <div class="col-6 p-0">
-              <div>
-                <a
-                  :href="`${props.hgmdProPrefix}/gene.php?gene=${gene?.hgnc?.symbol}`"
-                  target="_blank"
-                  v-if="props.hgmdProEnabled"
-                >
-                  <i-mdi-launch />
-                  HGMD Pro
-                </a>
-                <span class="text-muted" v-else>
-                  <i-mdi-launch />
-                  HGMD Pro
-                </span>
-              </div>
+
               <div v-if="props.smallVar">
                 <a
                   :href="`https://stuart.radboudumc.nl/metadome/dashboard/transcript/${smallVar.ensembl_transcript_id}`"
@@ -372,15 +396,7 @@ const props = withDefaults(defineProps<Props>(), {
                   MetaDome
                 </a>
               </div>
-              <div>
-                <a
-                  :href="`https://search.thegencc.org/genes/${gene?.hgnc?.hgnc_id}`"
-                  target="_blank"
-                >
-                  <i-mdi-launch />
-                  GenCC
-                </a>
-              </div>
+
               <div>
                 <template v-if="gene?.hgnc?.uniprot_ids?.length">
                   <template v-for="(uniprotid, index) in gene.hgnc.uniprot_ids">
@@ -404,15 +420,6 @@ const props = withDefaults(defineProps<Props>(), {
                 >
                   <i-mdi-launch />
                   VarSome
-                </a>
-              </div>
-              <div>
-                <a
-                  :href="`https://pubmed.ncbi.nlm.nih.gov/?term=${gene?.hgnc?.hgnc_id}`"
-                  target="_blank"
-                >
-                  <i-mdi-launch />
-                  PubMed
                 </a>
               </div>
             </div>
