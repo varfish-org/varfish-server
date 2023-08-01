@@ -1,6 +1,6 @@
 <script setup>
-import FilterFormGenotypePaneAffected from '@variants/components/FilterFormGenotypePaneAffected.vue'
-import FilterFormGenotypePaneSex from '@variants/components/FilterFormGenotypePaneSex.vue'
+import FilterFormGenotypePaneAffected from '@variants/components/FilterForm/GenotypePaneAffected.vue'
+import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
 import { displayName } from '@varfish/helpers'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useCasesStore } from '@cases/stores/cases'

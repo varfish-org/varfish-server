@@ -4,6 +4,16 @@
         "clinvar_export/vueapp": true,
         "cohorts/vueapp": true,
         "svs/vueapp": true,
-        "variants/vueapp": true
+        "variants/vueapp": true,
+        "cases/vueapp/coverage": true,
+        "varfish/vueapp/coverage": true
+    },
+    "files.exclude": {
+        "cases/vueapp": true,
+        "clinvar_export/vueapp": true,
+        "svs/vueapp": true,
+        "variants/vueapp": true,
+        "cases/vueapp/coverage": true,
+        "varfish/vueapp/coverage": true
     }
 }

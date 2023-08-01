@@ -13,7 +13,7 @@ import {
   DisplayFrequencies,
 } from '@variants/enums'
 import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
-import VariantDetailsModalWrapper from '@variants/components/VariantDetailsModalWrapper.vue'
+import VariantDetailsModalWrapper from '@variants/components/VariantDetails/ModalWrapper.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 
 /** The details columns to show. */

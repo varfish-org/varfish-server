@@ -16,8 +16,8 @@ import {
   QueryStateToText,
 } from '@variants/enums'
 
-import VariantDetailsModalWrapper from '@variants/components/VariantDetailsModalWrapper.vue'
-import FilterAppHeader from '@variants/components/FilterAppHeader.vue'
+import VariantDetailsModalWrapper from '@variants/components/VariantDetails/ModalWrapper.vue'
+import Header from '@variants/components/FilterApp/Header.vue'
 import FilterForm from '@variants/components/FilterForm.vue'
 import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 
@@ -164,7 +164,7 @@ onBeforeMount(() => {
     class="d-flex flex-column h-100"
   >
     <!-- title etc. -->
-    <FilterAppHeader :form-visible="formVisible" @toggle-form="toggleForm()" />
+    <Header :form-visible="formVisible" @toggle-form="toggleForm()" />
 
     <!-- query form -->
     <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">

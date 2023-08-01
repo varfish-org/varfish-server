@@ -5,10 +5,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 
-// import trioCaseData from '../../data/case-trio.json'
-// import trioVariantsData from '../../data/variants-trio.json'
-// import listQueryResultSetResult from '../../data/listQueryResultSetResult.json'
-// import listQueryResultRowResult from '../../data/listQueryResultRowResult.json'
+// import trioCaseData from '../../../data/case-trio.json'
+// import trioVariantsData from '../../../data/variants-trio.json'
+// import listQueryResultSetResult from '../../../data/listQueryResultSetResult.json'
+// import listQueryResultRowResult from '../../../data/listQueryResultRowResult.json'
 // import listFrequencyPresetsResponse from "../../data/listFrequencyPresetsResponse.json";
 
 const fetchMock = createFetchMock(vi)

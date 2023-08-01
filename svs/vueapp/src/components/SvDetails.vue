@@ -2,8 +2,8 @@
 import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
-import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
+import VariantDetailsComments from '@varfish/components/VariantDetails/Comments.vue'
+import VariantDetailsFlags from '@varfish/components/VariantDetails/Flags.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/case-details'

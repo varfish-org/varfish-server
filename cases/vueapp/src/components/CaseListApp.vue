@@ -4,8 +4,8 @@ import {
   overlayMessage,
   connectTopRowControls,
 } from '@cases/common'
-import CaseListHeader from '@cases/components/CaseList//Header.vue'
-import CaseListContent from '@cases/components/CaseList//Content.vue'
+import CaseListHeader from '@cases/components/CaseList/Header.vue'
+import CaseListContent from '@cases/components/CaseList/Content.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 
 const props = defineProps({
