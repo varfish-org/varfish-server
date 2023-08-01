@@ -16,7 +16,7 @@ import SvDetailsGenes from '@svs/components/SvDetails/Genes.vue'
 import SvDetailsClinvar from '@svs/components/SvDetails/Clinvar.vue'
 import SvDetailsGenotypeCall from '@svs/components/SvDetails/GenotypeCall.vue'
 import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
-import { allNavItems as navItems } from '@svs/components/SvDetails/.fields'
+import { allNavItems as navItems } from '@svs/components/SvDetails.fields'
 
 /** `SVRecord` is a type alias for easier future interface definition. */
 type SvRecord = any

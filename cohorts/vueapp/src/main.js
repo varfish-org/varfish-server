@@ -1,4 +1,4 @@
-import App from '@cohorts/components/App.vue'
+import App from '@cohorts/App.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'

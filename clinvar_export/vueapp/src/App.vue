@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import ClinvarExportApp from '@clinvarexport/components/components/ClinvarExportApp.vue'
+import ClinvarExportApp from '@clinvarexport/components/ClinvarExportApp.vue'
 
 const components = { ClinvarExportApp }
 </script>
