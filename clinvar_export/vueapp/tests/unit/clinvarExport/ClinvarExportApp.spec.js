@@ -93,7 +93,7 @@ describe('ClinvarExportApp.vue', () => {
   test('showOverlay', async () => {
     const wrapper = makeWrapper(
       {},
-      { attachTo: document.getElementById('app') }
+      { attachTo: document.getElementById('app') },
     )
     store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
     const clinvarExportApp = wrapper.vm

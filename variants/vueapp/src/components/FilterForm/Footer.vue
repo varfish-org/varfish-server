@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { declareWrapper } from '@variants/helpers'
 import { QueryStates } from '@variants/enums'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 
 const props = defineProps({
   filtrationComplexityMode: String,
@@ -53,12 +53,12 @@ const filterButtonColor = computed(() => {
   return color
 })
 
-const filterQueryStore = useFilterQueryStore()
+const variantQueryStore = useVariantQueryStore()
 
 const devStoreState = () => {
   return {
-    storeState: filterQueryStore.storeState,
-    queryState: filterQueryStore.queryState,
+    storeState: variantQueryStore.storeState,
+    queryState: variantQueryStore.queryState,
   }
 }
 </script>

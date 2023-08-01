@@ -2,16 +2,16 @@
 import FilterFormGenotypePaneAffected from '@variants/components/FilterForm/GenotypePaneAffected.vue'
 import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
 import { displayName } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@cases/stores/caseList'
 
 /** Define emits. */
 const emit = defineEmits(['editPedigreeClick'])
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 
 const userHasPerms = (perm) =>
-  casesStore.userPerms && casesStore.userPerms.includes(perm)
+  caseListStore.userPerms && caseListStore.userPerms.includes(perm)
 
 const caseDetailsStore = useCaseDetailsStore()
 </script>

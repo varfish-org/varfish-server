@@ -24,7 +24,7 @@ describe('QcPlotIndelSize.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with indel sizes for each sample/
+      /Histograms with indel sizes for each sample/,
     )
   })
 
@@ -47,7 +47,7 @@ describe('QcPlotIndelSize.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with indel sizes for each sample/
+      /Histograms with indel sizes for each sample/,
     )
   })
 })

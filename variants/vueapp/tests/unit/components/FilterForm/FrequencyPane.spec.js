@@ -23,7 +23,7 @@ describe('FilterFormFrequencyPane.vue', () => {
     expect(rows.length).toBe(9)
     expect(inputs.length).toBe(40)
 
-    // Bug in vue-test-utils? This should technically work but seems to be a bug in vue test utils.
+    // Bug in vue-testUtils? This should technically work but seems to be a bug in vue test utils.
     // expect(rows[1].isVisible()).toBe(false)
     // expect(rows[2].isVisible()).toBe(false)
     expect(rows[1].attributes('style')).toBe('display: none;')
@@ -56,20 +56,20 @@ describe('FilterFormFrequencyPane.vue', () => {
     expect(inputs[35].element.checked).toBeFalsy()
 
     // Check homozygous count
-    expect(inputs[1].element.value).toBe("0")
-    expect(inputs[6].element.value).toBe("0")
-    expect(inputs[11].element.value).toBe("0")
-    expect(inputs[16].element.value).toBe("0")
+    expect(inputs[1].element.value).toBe('0')
+    expect(inputs[6].element.value).toBe('0')
+    expect(inputs[11].element.value).toBe('0')
+    expect(inputs[16].element.value).toBe('0')
     expect(inputs[21].element.value).toBe('')
-    expect(inputs[26].element.value).toBe("10")
-    expect(inputs[31].element.value).toBe("200")
+    expect(inputs[26].element.value).toBe('10')
+    expect(inputs[31].element.value).toBe('200')
     expect(inputs[36].element.value).toBe('')
 
     // Check heterozygous count
-    expect(inputs[2].element.value).toBe("4")
-    expect(inputs[7].element.value).toBe("10")
-    expect(inputs[12].element.value).toBe("20")
-    expect(inputs[17].element.value).toBe("4")
+    expect(inputs[2].element.value).toBe('4')
+    expect(inputs[7].element.value).toBe('10')
+    expect(inputs[12].element.value).toBe('20')
+    expect(inputs[17].element.value).toBe('4')
     expect(inputs[22].element.value).toBe('')
     expect(inputs[27].element.disabled).toBeTruthy()
     expect(inputs[32].element.value).toBe('')
@@ -86,13 +86,13 @@ describe('FilterFormFrequencyPane.vue', () => {
     expect(inputs[38].element.disabled).toBeTruthy()
 
     // Check frequency
-    expect(inputs[4].element.value).toBe("0.002")
-    expect(inputs[9].element.value).toBe("0.002")
-    expect(inputs[14].element.value).toBe("0.002")
-    expect(inputs[19].element.value).toBe("0.002")
-    expect(inputs[24].element.value).toBe("20")
-    expect(inputs[29].element.value).toBe("0.01")
-    expect(inputs[34].element.value).toBe("0.01")
+    expect(inputs[4].element.value).toBe('0.002')
+    expect(inputs[9].element.value).toBe('0.002')
+    expect(inputs[14].element.value).toBe('0.002')
+    expect(inputs[19].element.value).toBe('0.002')
+    expect(inputs[24].element.value).toBe('20')
+    expect(inputs[29].element.value).toBe('0.01')
+    expect(inputs[34].element.value).toBe('0.01')
     expect(inputs[39].element.value).toBe('')
   })
 
@@ -147,14 +147,14 @@ describe('FilterFormFrequencyPane.vue', () => {
     await inputs[31].setValue(123)
     await inputs[36].setValue(123)
 
-    expect(inputs[1].element.value).toBe("123")
-    expect(inputs[6].element.value).toBe("123")
-    expect(inputs[11].element.value).toBe("123")
-    expect(inputs[16].element.value).toBe("123")
-    expect(inputs[21].element.value).toBe("123")
-    expect(inputs[26].element.value).toBe("123")
-    expect(inputs[31].element.value).toBe("123")
-    expect(inputs[36].element.value).toBe("123")
+    expect(inputs[1].element.value).toBe('123')
+    expect(inputs[6].element.value).toBe('123')
+    expect(inputs[11].element.value).toBe('123')
+    expect(inputs[16].element.value).toBe('123')
+    expect(inputs[21].element.value).toBe('123')
+    expect(inputs[26].element.value).toBe('123')
+    expect(inputs[31].element.value).toBe('123')
+    expect(inputs[36].element.value).toBe('123')
   })
 
   test('frequency change heterozygous count', async () => {
@@ -175,12 +175,12 @@ describe('FilterFormFrequencyPane.vue', () => {
     await inputs[22].setValue(123)
     await inputs[32].setValue(123)
 
-    expect(inputs[2].element.value).toBe("123")
+    expect(inputs[2].element.value).toBe('123')
     expect(inputs[7].element.value).toBe('123')
-    expect(inputs[12].element.value).toBe("123")
-    expect(inputs[17].element.value).toBe("123")
-    expect(inputs[22].element.value).toBe("123")
-    expect(inputs[32].element.value).toBe("123")
+    expect(inputs[12].element.value).toBe('123')
+    expect(inputs[17].element.value).toBe('123')
+    expect(inputs[22].element.value).toBe('123')
+    expect(inputs[32].element.value).toBe('123')
   })
 
   test('frequency change hemizygous count', async () => {
@@ -200,11 +200,11 @@ describe('FilterFormFrequencyPane.vue', () => {
     await inputs[18].setValue(123)
     await inputs[23].setValue(123)
 
-    expect(inputs[3].element.value).toBe("123")
-    expect(inputs[8].element.value).toBe("123")
-    expect(inputs[13].element.value).toBe("123")
-    expect(inputs[18].element.value).toBe("123")
-    expect(inputs[23].element.value).toBe("123")
+    expect(inputs[3].element.value).toBe('123')
+    expect(inputs[8].element.value).toBe('123')
+    expect(inputs[13].element.value).toBe('123')
+    expect(inputs[18].element.value).toBe('123')
+    expect(inputs[23].element.value).toBe('123')
   })
 
   test('frequency change frequency', async () => {
@@ -227,14 +227,14 @@ describe('FilterFormFrequencyPane.vue', () => {
     await inputs[34].setValue(123)
     await inputs[39].setValue(123)
 
-    expect(inputs[4].element.value).toBe("123")
-    expect(inputs[9].element.value).toBe("123")
-    expect(inputs[14].element.value).toBe("123")
-    expect(inputs[19].element.value).toBe("123")
-    expect(inputs[24].element.value).toBe("123")
-    expect(inputs[29].element.value).toBe("123")
-    expect(inputs[34].element.value).toBe("123")
-    expect(inputs[39].element.value).toBe("123")
+    expect(inputs[4].element.value).toBe('123')
+    expect(inputs[9].element.value).toBe('123')
+    expect(inputs[14].element.value).toBe('123')
+    expect(inputs[19].element.value).toBe('123')
+    expect(inputs[24].element.value).toBe('123')
+    expect(inputs[29].element.value).toBe('123')
+    expect(inputs[34].element.value).toBe('123')
+    expect(inputs[39].element.value).toBe('123')
   })
 
   test('frequency dev mode', async () => {

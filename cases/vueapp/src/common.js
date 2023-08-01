@@ -1,81 +1,34 @@
-import { StoreState, useCasesStore } from '@cases/stores/cases'
-import { updateUserSetting } from '@varfish/user-settings'
 import { computed, nextTick, onMounted, watch } from 'vue'
 
+import { State } from '@varfish/storeUtils'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+
 export const overlayShow = computed(() => {
-  const casesStore = useCasesStore()
+  const caseListStore = useCaseListStore()
+  const caseDetailsStore = useCaseDetailsStore()
   return (
-    !casesStore.storeState ||
-    casesStore.storeState.value === StoreState.initializing ||
-    casesStore.serverInteractions.value
+    (caseListStore?.storeState?.serverInteractions ?? 0) > 0 ||
+    (caseDetailsStore?.storeState?.serverInteractions ?? 0) > 0
   )
 })
 
 export const overlayMessage = computed(() => {
-  const casesStore = useCasesStore()
-  if (
-    !casesStore.storeState ||
-    casesStore.storeState.value === StoreState.initializing
-  ) {
-    return 'initializing...'
-  } else {
-    return 'communication with server...'
+  const caseListStore = useCaseListStore()
+  switch (caseListStore.storeState.state) {
+    case State.Initial:
+      return 'initializing...'
+    case State.Fetching:
+      return 'communication with server...'
+    case State.Active:
+      return 'all data has been loaded successfully'
+    case State.Error:
+      return 'an error occured'
+    default:
+      console.error('unknown store state', caseListStore.storeState.state)
+      return 'UNKNOWN STATE'
   }
 })
-
-export const connectTopRowControls = () => {
-  const casesStore = useCasesStore()
-
-  // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
-  watch(
-    () => casesStore.showInlineHelp,
-    (newValue, oldValue) => {
-      if (newValue !== oldValue && casesStore.appContext) {
-        updateUserSetting(
-          casesStore.appContext.csrf_token,
-          'vueapp.filtration_inline_help',
-          newValue,
-        )
-      }
-      const elem = $('#vueapp-filtration-inline-help')
-      if (elem) {
-        elem.prop('checked', newValue)
-      }
-    },
-  )
-  watch(
-    () => casesStore.complexityMode,
-    (newValue, oldValue) => {
-      if (newValue !== oldValue && casesStore.appContext) {
-        updateUserSetting(
-          casesStore.appContext.csrf_token,
-          'vueapp.filtration_complexity_mode',
-          newValue,
-        )
-      }
-      const elem = $('#vueapp-filtration-complexity-mode')
-      if (elem && elem.val(newValue)) {
-        elem.val(newValue).change()
-      }
-    },
-  )
-
-  // Vice versa.
-  onMounted(() => {
-    const handleUpdate = () => {
-      const casesStore = useCasesStore()
-      casesStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
-        'checked',
-      )
-      casesStore.complexityMode = $('#vueapp-filtration-complexity-mode').val()
-    }
-    nextTick(() => {
-      handleUpdate()
-      $('#vueapp-filtration-inline-help').change(handleUpdate)
-      $('#vueapp-filtration-complexity-mode').change(handleUpdate)
-    })
-  })
-}
 
 export const tsTvRatio = (entry) => {
   if (!entry.ontarget_transversions) {

@@ -1,6 +1,6 @@
 /** Common code for the CaseDetail*.spec.js tests. */
 
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseListStore } from '@cases/stores/caseList'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { vi } from 'vitest'
@@ -12,7 +12,7 @@ export const makeWrapper = (
   initialState = {},
   props = {},
   appContext,
-  documentInnerHtml = null
+  documentInnerHtml = null,
 ) => {
   // Define default app context.
   appContext = appContext ?? {
@@ -41,8 +41,8 @@ export const makeWrapper = (
   })
 
   // Mark case details store as initialized.
-  const casesStore = useCasesStore()
-  casesStore.initializeRes = Promise.resolve()
+  const caseListStore = useCaseListStore()
+  caseListStore.initializeRes = Promise.resolve()
 
   const result = mount(component, {
     props,

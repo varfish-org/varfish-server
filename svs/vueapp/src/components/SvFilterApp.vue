@@ -1,26 +1,22 @@
 <script setup>
-import { watch, ref, onMounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { useSvFilterStore } from '@svs/stores/filterSvs'
-import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useCasesStore } from '@cases/stores/cases'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { updateUserSetting } from '@varfish/user-settings'
+import { State } from '@varfish/storeUtils'
+import { useSvQueryStore } from '@svs/stores/svQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { updateUserSetting } from '@varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@variants/enums'
 
 import SvFilterAppHeader from '@svs/components/SvFilterApp/Header.vue'
 import SvFilterForm from '@svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
-import SvDetailsModalWrapper from '@svs/components/SvDetails/ModalWrapper.vue'
+import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvCommentsStore } from '@svs/stores/svComments'
 
 const props = defineProps({
-  /** Whether to show the variant details modal. */
-  detailsModalVisible: Boolean,
-  /** The UUID of the result row to show in details modal. */
-  detailsModalResultRowUuid: String,
-  /** Which tab to show in the variant details modal. */
-  detailsModalSelectedTab: String,
+  /** The case UUID. */
+  caseUuid: String,
 })
 
 const appContext = JSON.parse(
@@ -28,35 +24,19 @@ const appContext = JSON.parse(
     '{}',
 )
 
-/** The currently used route. */
-const route = useRoute()
-/** The currently used router. */
 const router = useRouter()
 
-/** The currently displayed case's UUID, updated from route. */
-const caseUuidRef = ref(route.params.case)
-
-// Initialize filter query store.
-const svFilterStore = useSvFilterStore()
-svFilterStore.initialize(appContext, caseUuidRef.value)
-// Initialize SV details store.
-const svDetailsStore = useSvDetailsStore()
-svDetailsStore.initialize(appContext)
-// Initialize cases store.
-const casesStore = useCasesStore()
-casesStore.initialize(appContext)
-// Initialize case details store.
+const svQueryStore = useSvQueryStore()
+const svFlagsStore = useSvFlagsStore()
+const svCommentsStore = useSvCommentsStore()
 const caseDetailsStore = useCaseDetailsStore()
-caseDetailsStore.initialize(caseUuidRef.value)
 
-const showModal = async (event) => {
+const showDetails = async (event) => {
   router.push({
-    name: 'svs-filter-details',
+    name: 'sv-details',
     params: {
-      case: svFilterStore.caseUuid,
-      query: svFilterStore.previousQueryDetails.sodar_uuid,
       row: event.svresultrow,
-      selectedTab: event.selectedTab ?? null,
+      selectedSection: event.selectedSection ?? null,
     },
   })
 }
@@ -71,16 +51,13 @@ const toggleForm = () => {
   formVisible.value = !formVisible.value
 }
 
-// Ref to modal used to show the SV details
-const svDetailsModalWrapperRef = ref(null)
-
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
-  () => svFilterStore.showFiltrationInlineHelp,
+  () => svQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
       updateUserSetting(
-        svFilterStore.csrfToken,
+        appContext.csrf_token,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -89,11 +66,11 @@ watch(
   },
 )
 watch(
-  () => svFilterStore.filtrationComplexityMode,
+  () => svQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        svFilterStore.csrfToken,
+        appContext.csrf_token,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -105,11 +82,11 @@ watch(
 // Vice versa.
 onMounted(() => {
   const handleUpdate = () => {
-    const svFilterStore = useSvFilterStore()
-    svFilterStore.showFiltrationInlineHelp = $(
+    const svQueryStore = useSvQueryStore()
+    svQueryStore.showFiltrationInlineHelp = $(
       '#vueapp-filtration-inline-help',
     ).prop('checked')
-    svFilterStore.filtrationComplexityMode = $(
+    svQueryStore.filtrationComplexityMode = $(
       '#vueapp-filtration-complexity-mode',
     ).val()
   }
@@ -119,10 +96,53 @@ onMounted(() => {
     $('#vueapp-filtration-complexity-mode').change(handleUpdate)
   })
 })
+
+/** Refresh the stores. */
+const refreshStores = async () => {
+  if (!props.caseUuid) {
+    return
+  }
+
+  await caseDetailsStore.initialize(
+    appContext.csrf_token,
+    appContext.project?.sodar_uuid,
+    props.caseUuid,
+  )
+  await Promise.all([
+    svFlagsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
+    ),
+    svCommentsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
+    ),
+    svQueryStore.initialize(
+      appContext.csrf_token,
+      appContext?.project?.sodar_uuid,
+      props.caseUuid,
+      appContext,
+    ),
+  ])
+}
+
+// Initialize (=refresh) stores when mounted.
+onBeforeMount(() => refreshStores())
+
+// Refresh stores when the case UUID changes.
+watch(
+  () => props.caseUuid,
+  () => refreshStores(),
+)
 </script>
 
 <template>
-  <div v-if="svFilterStore.caseObj !== null" class="d-flex flex-column h-100">
+  <div
+    v-if="svQueryStore.storeState.state === State.Active"
+    class="d-flex flex-column h-100"
+  >
     <!-- title etc. -->
     <SvFilterAppHeader
       :form-visible="formVisible"
@@ -132,7 +152,7 @@ onMounted(() => {
     <!-- query form -->
     <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
       <div
-        v-if="svFilterStore.showFiltrationInlineHelp"
+        v-if="svQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
       >
         <i-mdi-information />
@@ -161,17 +181,17 @@ onMounted(() => {
         </strong>
       </div>
 
-      <SvFilterForm v-model:store="svFilterStore" />
+      <SvFilterForm v-model:store="svQueryStore" />
     </div>
 
     <!-- table to fill when query finished -->
     <div
-      v-if="svFilterStore.queryState === QueryStates.Fetched.value"
+      v-if="svQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
       <SvFilterResultsTable
-        :case-obj="svFilterStore.caseObj"
-        @variant-selected="showModal"
+        :case-obj="svQueryStore.caseObj"
+        @variant-selected="showDetails"
       />
     </div>
     <div
@@ -181,13 +201,13 @@ onMounted(() => {
           QueryStates.Resuming.value,
           QueryStates.Finished.value,
           QueryStates.Fetching.value,
-        ].includes(svFilterStore.queryState)
+        ].includes(svQueryStore.queryState)
       "
       class="alert alert-info"
     >
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2"
-        >{{ QueryStateToText[svFilterStore.queryState] }} ...</strong
+        >{{ QueryStateToText[svQueryStore.queryState] }} ...</strong
       >
       <button
         class="ml-3 btn btn-sm btn-info"
@@ -196,27 +216,27 @@ onMounted(() => {
         {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
       </button>
       <pre v-show="queryLogsVisible">{{
-        svFilterStore.queryLogs?.join('\n')
+        svQueryStore.queryLogs?.join('\n')
       }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
-        <template v-if="svFilterStore.queryState === QueryStates.None.value">
+        <template v-if="svQueryStore.queryState === QueryStates.None.value">
           No query has been submitted to the server yet.
         </template>
-        <template v-if="svFilterStore.queryState === QueryStates.Initial.value">
+        <template v-if="svQueryStore.queryState === QueryStates.Initial.value">
           The query is sitting in the queue.
         </template>
         <template
-          v-else-if="svFilterStore.queryState === QueryStates.Cancelled.value"
+          v-else-if="svQueryStore.queryState === QueryStates.Cancelled.value"
         >
           The query has been canceled.
         </template>
-        <template v-if="svFilterStore.queryState === QueryStates.Error.value">
+        <template v-if="svQueryStore.queryState === QueryStates.Error.value">
           An error has occurred in the query!
-          {{ svFilterStore.queryStateMsg }}
+          {{ svQueryStore.queryStateMsg }}
         </template>
-        <template v-if="svFilterStore.queryState === QueryStates.Timeout.value">
+        <template v-if="svQueryStore.queryState === QueryStates.Timeout.value">
           The query has been terminated after running too long.
         </template>
       </strong>
@@ -236,12 +256,12 @@ onMounted(() => {
     <strong class="pl-2">Loading site ...</strong>
   </div>
 
-  <SvDetailsModalWrapper
+  <!-- <SvDetailsModalWrapper
     ref="svDetailsModalWrapperRef"
     :visible="props.detailsModalVisible"
     :result-row-uuid="props.detailsModalResultRowUuid"
-    :selected-tab="props.detailsModalSelectedTab"
-  />
+    :selected-section="props.detailsModalselectedSection"
+  /> -->
 </template>
 
 <style scoped></style>

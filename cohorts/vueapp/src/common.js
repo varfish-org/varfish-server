@@ -1,5 +1,6 @@
-import { StoreState, useCohortsStore } from '@cohorts/stores/cohorts'
-import { updateUserSetting } from '@varfish/user-settings'
+import { StoreState, State } from '@varfish/storeUtils'
+import { useCohortsStore } from '@cohorts/stores/cohorts'
+import { updateUserSetting } from '@varfish/userSettings'
 import { computed, nextTick, onMounted, watch } from 'vue'
 
 export const overlayShow = computed(() => {
@@ -30,9 +31,9 @@ export const connectTopRowControls = () => {
   watch(
     () => cohortsStore.showInlineHelp,
     (newValue, oldValue) => {
-      if (newValue !== oldValue && cohortsStore.appContext) {
+      if (newValue !== oldValue && cohortsStore.csfrToken) {
         updateUserSetting(
-          cohortsStore.appContext.csrf_token,
+          cohortsStore.csfrToken,
           'vueapp.filtration_inline_help',
           newValue,
         )
@@ -46,9 +47,9 @@ export const connectTopRowControls = () => {
   watch(
     () => cohortsStore.complexityMode,
     (newValue, oldValue) => {
-      if (newValue !== oldValue && cohortsStore.appContext) {
+      if (newValue !== oldValue && cohortsStore.csfrToken) {
         updateUserSetting(
-          cohortsStore.appContext.csrf_token,
+          cohortsStore.csfrToken,
           'vueapp.filtration_complexity_mode',
           newValue,
         )

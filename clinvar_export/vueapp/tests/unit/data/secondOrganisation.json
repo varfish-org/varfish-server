@@ -1,7 +1,3 @@
-{
-  "sodar_uuid": "33333333-3333-3333-3333-111111111111",
-  "date_created": "2020-11-09 13:37",
-  "date_modified": "2020-11-09 13:37",
-  "clinvar_id": 457,
-  "name": "Second Organisation"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:a2b321a6511802d091da5e8dc4d64c1d736b05b97ac064a064748e5fac878148
+size 191

@@ -2,7 +2,7 @@ import CaseDetailPaneCase from '@cases/components/CaseDetail/PaneCase.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
-import casesStoreData from '../../../data/casesStoreData.json'
+import caseListStoreData from '../../../data/caseListStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
 
 describe('CaseDetailPaneCase.vue', () => {
@@ -17,25 +17,25 @@ describe('CaseDetailPaneCase.vue', () => {
     expect(wrapper.findAll('case-detail-card-case-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-pedigree-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-variants-info-stub').length).toBe(
-      1
+      1,
     )
     expect(wrapper.findAll('case-detail-card-sv-info-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-case-comments-stub').length).toBe(
-      1
+      1,
     )
     expect(wrapper.findAll('case-detail-card-terms-stub').length).toBe(1)
     expect(
-      wrapper.findAll('case-detail-card-case-annotations-stub').length
+      wrapper.findAll('case-detail-card-case-annotations-stub').length,
     ).toBe(1)
     expect(wrapper.findAll('case-detail-card-alignment-qc-stub').length).toBe(1)
     expect(
-      wrapper.findAll('case-detail-card-gene-annotations-stub').length
+      wrapper.findAll('case-detail-card-gene-annotations-stub').length,
     ).toBe(1)
   })
 
   test('test with case detail store data', async () => {
     const initialState = {
-      cases: casesStoreData,
+      cases: caseListStoreData,
       caseDetails: caseDetailsStoreData,
     }
     const wrapper = makeWrapper(CaseDetailPaneCase, initialState)
@@ -43,19 +43,19 @@ describe('CaseDetailPaneCase.vue', () => {
     expect(wrapper.findAll('case-detail-card-case-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-pedigree-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-variants-info-stub').length).toBe(
-      1
+      1,
     )
     expect(wrapper.findAll('case-detail-card-sv-info-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-case-comments-stub').length).toBe(
-      1
+      1,
     )
     expect(wrapper.findAll('case-detail-card-terms-stub').length).toBe(1)
     expect(
-      wrapper.findAll('case-detail-card-case-annotations-stub').length
+      wrapper.findAll('case-detail-card-case-annotations-stub').length,
     ).toBe(1)
     expect(wrapper.findAll('case-detail-card-alignment-qc-stub').length).toBe(1)
     expect(
-      wrapper.findAll('case-detail-card-gene-annotations-stub').length
+      wrapper.findAll('case-detail-card-gene-annotations-stub').length,
     ).toBe(1)
   })
 })

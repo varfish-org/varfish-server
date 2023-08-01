@@ -2,10 +2,10 @@
 import isEqual from 'lodash.isequal'
 import { onMounted, computed, ref } from 'vue'
 import { copy } from '@varfish/helpers'
-import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useSvQueryStore } from '@svs/stores/svQuery'
 import { randomString } from '@varfish/common'
 
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
 
 /** The props for this component. */
 const props = defineProps({
@@ -152,9 +152,9 @@ const refreshValueRefs = () => {
       props.categoryPresets[category],
     )) {
       if (category === 'genotypeCriteria') {
-        if (svFilterStore.querySettings !== null) {
+        if (svQueryStore.querySettings !== null) {
           isCompatible = isEqual(
-            svFilterStore.querySettings.genotype_criteria,
+            svQueryStore.querySettings.genotype_criteria,
             presetValues,
           )
         }
@@ -163,8 +163,8 @@ const refreshValueRefs = () => {
         for (const [key, value] of Object.entries(presetValues)) {
           if (
             !_keysToStrip.includes(key) &&
-            svFilterStore.querySettings !== null &&
-            !helperIsEqual(svFilterStore.querySettings[key], value)
+            svQueryStore.querySettings !== null &&
+            !helperIsEqual(svQueryStore.querySettings[key], value)
           ) {
             isCompatible = false
           }
@@ -297,9 +297,9 @@ const refreshAllRefs = () => {
 
 /** React to store changes by adjusting the selection fields. */
 onMounted(() => {
-  svFilterStore.initializeRes.then(() => {
+  svQueryStore.initializeRes.then(() => {
     refreshAllRefs()
-    svFilterStore.$subscribe((_mutation, _state) => {
+    svQueryStore.$subscribe((_mutation, _state) => {
       if (!blockRefresh.value) {
         refreshAllRefs()
       }

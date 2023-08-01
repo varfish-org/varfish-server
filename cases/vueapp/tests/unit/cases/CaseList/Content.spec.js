@@ -25,7 +25,7 @@ describe('CaseListContent.vue', () => {
     vi.spyOn(console, 'warn').mockImplementation(vi.fn())
   })
 
-  const casesStoreData = {
+  const caseListStoreData = {
     project: { sodar_uuid: 'fake-uuid', title: 'Project Title' },
   }
 
@@ -42,7 +42,7 @@ describe('CaseListContent.vue', () => {
   })
 
   test('render cases tab', async () => {
-    const wrapper = makeWrapper(casesStoreData, { currentTab: 'case-list' })
+    const wrapper = makeWrapper(caseListStoreData, { currentTab: 'case-list' })
 
     expect(wrapper.findAll('.alert-secondary').length).toBe(0)
 
@@ -55,7 +55,9 @@ describe('CaseListContent.vue', () => {
   })
 
   test('render qc tab', async () => {
-    const wrapper = makeWrapper(casesStoreData, { currentTab: 'case-list-qc' })
+    const wrapper = makeWrapper(caseListStoreData, {
+      currentTab: 'case-list-qc',
+    })
 
     expect(wrapper.findAll('.alert-secondary').length).toBe(0)
 
@@ -68,7 +70,7 @@ describe('CaseListContent.vue', () => {
   })
 
   test('render filter tab', async () => {
-    const wrapper = makeWrapper(casesStoreData, {
+    const wrapper = makeWrapper(caseListStoreData, {
       currentTab: 'case-list-query-presets',
     })
 

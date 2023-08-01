@@ -1,23 +1,20 @@
 <script setup>
 import { computed, reactive } from 'vue'
-import { CaseStates, useCasesStore } from '@cases/stores/cases'
+
+import { CaseStates } from '@cases/stores/caseList'
 import {
   displayName,
   formatTime,
   formatTimeAgo,
   formatLargeInt,
 } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-/** Define emits. */
 const emit = defineEmits(['editCaseStatusClick', 'editCaseNotesClick'])
 
-const caseDetailsStore = useCaseDetailsStore()
-const casesStore = useCasesStore()
+// Store-related.
 
-/** Whether the user has the given permissions. */
-const userHasPerms = (perm) =>
-  casesStore.userPerms && casesStore.userPerms.includes(perm)
+const caseDetailsStore = useCaseDetailsStore()
 
 const caseObj = computed(() => {
   if (caseDetailsStore.caseObj) {
@@ -37,7 +34,7 @@ const individuals = computed(() => {
 
 const badgeStatusColor = computed(() => {
   if (caseObj.value && caseObj.value.status) {
-    return 'badge-' + CaseStates[caseObj.value.status].color
+    return 'badge-' + CaseStates.get(caseObj.value.status).color
   } else {
     return ''
   }

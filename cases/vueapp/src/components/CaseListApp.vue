@@ -1,19 +1,75 @@
-<script setup>
-import {
-  overlayShow,
-  overlayMessage,
-  connectTopRowControls,
-} from '@cases/common'
+<script setup lang="ts">
+import { watch, onMounted, nextTick } from 'vue'
+
+import { overlayShow, overlayMessage } from '@cases/common'
+import { useCaseListStore } from '@cases/stores/caseList'
 import CaseListHeader from '@cases/components/CaseList/Header.vue'
 import CaseListContent from '@cases/components/CaseList/Content.vue'
 import Overlay from '@varfish/components/Overlay.vue'
+import { updateUserSetting } from '@varfish/userSettings'
 
-const props = defineProps({
-  currentTab: String,
-  presetSet: String, // if (currentTab === "query-presets")
+const props = defineProps<{
+  currentTab: string
+  presetSet?: string
+}>()
+
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
+
+const caseListStore = useCaseListStore()
+caseListStore.initialize(appContext.csrf_token, appContext.project.sodar_uuid)
+
+// Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
+watch(
+  () => caseListStore.showInlineHelp,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue && caseListStore.csrfToken) {
+      updateUserSetting(
+        caseListStore.csrfToken,
+        'vueapp.filtration_inline_help',
+        newValue,
+      )
+    }
+    const elem = $('#vueapp-filtration-inline-help')
+    if (elem) {
+      elem.prop('checked', newValue)
+    }
+  },
+)
+watch(
+  () => caseListStore.complexityMode,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue && caseListStore.csrfToken) {
+      updateUserSetting(
+        caseListStore.csrfToken,
+        'vueapp.filtration_complexity_mode',
+        newValue,
+      )
+    }
+    const elem = $('#vueapp-filtration-complexity-mode')
+    if (elem && elem.val(newValue)) {
+      elem.val(newValue).change()
+    }
+  },
+)
+
+// Vice versa.
+onMounted(() => {
+  const handleUpdate = () => {
+    const caseListStore = useCaseListStore()
+    caseListStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
+      'checked',
+    )
+    caseListStore.complexityMode = $('#vueapp-filtration-complexity-mode').val()
+  }
+  nextTick(() => {
+    handleUpdate()
+    $('#vueapp-filtration-inline-help').change(handleUpdate)
+    $('#vueapp-filtration-complexity-mode').change(handleUpdate)
+  })
 })
-
-connectTopRowControls()
 </script>
 
 <template>

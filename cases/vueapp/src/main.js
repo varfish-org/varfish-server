@@ -5,8 +5,10 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const CaseListApp = () => import('./components/CaseListApp.vue')
 const CaseDetailApp = () => import('./components/CaseDetailApp.vue')
 const FilterApp = () => import('@variants/components/FilterApp.vue')
+const VariantDetails = () => import('@variants/components/VariantDetails.vue')
 const SvFilterApp = () => import('@svs/components/SvFilterApp.vue')
-import { useCasesStore } from '@cases/stores/cases'
+const SvDetails = () => import('@svs/components/SvDetails.vue')
+import { useHistoryStore } from '@varfish/stores/history'
 
 const routes = [
   {
@@ -47,35 +49,42 @@ const routes = [
     name: 'case-detail',
     path: '/detail/:case',
     component: CaseDetailApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+    }),
   },
   {
     name: 'variants-filter',
     path: '/variants/filter/:case/:query?',
     component: FilterApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+    }),
   },
   {
-    name: 'variants-filter-details',
-    path: '/variants/filter-details/:case/:query/:row/:selectedTab?',
-    component: FilterApp,
+    name: 'variant-details',
+    path: '/variants/details/:row/:selectedSection?',
+    component: VariantDetails,
     props: (route) => ({
-      detailsModalVisible: true,
-      detailsModalResultRowUuid: route.params.row,
-      detailsModalSelectedTab: route.params.selectedTab || 'link-outs',
+      resultRowUuid: route.params.row,
+      selectedSection: route.params.selectedSection || 'genes',
     }),
   },
   {
     name: 'svs-filter',
     path: '/svs/filter/:case/:query?',
     component: SvFilterApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+    }),
   },
   {
-    name: 'svs-filter-details',
-    path: '/svs/filter-details/:case/:query/:row/:selectedTab?',
-    component: SvFilterApp,
+    name: 'sv-details',
+    path: '/svs/details/:row/:selectedSection?',
+    component: SvDetails,
     props: (route) => ({
-      detailsModalVisible: true,
-      detailsModalResultRowUuid: route.params.row,
-      detailsModalSelectedTab: route.params.selectedTab || 'info',
+      resultRowUuid: route.params.row,
+      selectedSection: route.params.selectedSection || 'genes',
     }),
   },
 ]
@@ -85,10 +94,10 @@ const router = createRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (
-      ['variants-filter-details', 'svs-filter-details'].includes(to.name) &&
-      to.params.selectedTab
+      ['variant-details', 'sv-details'].includes(to.name) &&
+      to.params.selectedSection
     ) {
-      const res = { el: `#${to.params.selectedTab}` }
+      const res = { el: `#${to.params.selectedSection}` }
       document.querySelector(res.el)?.scrollIntoView()
       return res
     } else {
@@ -103,10 +112,8 @@ app.use(router)
 app.use(pinia)
 app.mount('#app')
 
-const rawAppContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
-const casesStore = useCasesStore()
-casesStore.initialize(rawAppContext)
+router.beforeEach((_to, from) => {
+  // Push history element, initial will be swallowed by store.
+  const historyStore = useHistoryStore()
+  historyStore.pushPath(from)
+})

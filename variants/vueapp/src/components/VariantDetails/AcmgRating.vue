@@ -1,13 +1,18 @@
 <script setup>
 import isEqual from 'lodash.isequal'
+import { State } from '@varfish/storeUtils'
 import { getAcmgBadge } from '@variants/helpers'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { computed, onMounted, ref, watch } from 'vue'
 import { copy } from '@variants/helpers'
 
+const props = defineProps({
+  smallVariant: Object,
+})
+
 const acmgRatingStore = useVariantAcmgRatingStore()
-const detailsStore = useVariantDetailsStore()
+const variantDetailsStore = useVariantDetailsStore()
 
 const emptyAcmgRatingTemplate = {
   pvs1: 0,
@@ -218,16 +223,26 @@ const onSubmitAcmgRating = async () => {
   } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(
-      detailsStore.smallVariant,
+      variantDetailsStore.smallVariant,
       acmgRatingToSubmit.value,
     )
   }
 }
 
-onMounted(() => {
-  acmgRatingStore.retrieveAcmgRating(detailsStore.smallVariant).then(() => {
+watch(
+  () => [props.smallVariant, acmgRatingStore.storeState],
+  async () => {
+    if (props.smallVariant && acmgRatingStore.storeState === State.Active) {
+      await acmgRatingStore.retrieveAcmgRating(props.smallVariant)
+      resetAcmgRating()
+    }
+  },
+)
+onMounted(async () => {
+  if (props.smallVariant) {
+    await acmgRatingStore.retrieveAcmgRating(props.smallVariant)
     resetAcmgRating()
-  })
+  }
 })
 </script>
 

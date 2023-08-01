@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { roundIt, separateIt as sep } from '@varfish/more-utils'
+import { roundIt, separateIt as sep } from '@varfish/moreUtils'
 
 const props = defineProps<{
   smallVar: any
@@ -70,25 +70,27 @@ const sexExpanded = ref({})
         </template>
       </span>
       <a
+        v-if="smallVar.release == 'GRCh37'"
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
           '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r2_1`"
-        v-if="smallVar.release == 'GRCh37'"
+        target="_blank"
       >
         <i-mdi-launch />
         @gnomAD
       </a>
       <a
+        v-if="smallVar.release == 'GRCh38'"
         :href="`https://gnomad.broadinstitute.org/variant/${smallVar.chromosome.replace(
           /^chr/,
           '',
         )}-${smallVar.start}-${smallVar.reference}-${
           smallVar.alternative
         }?dataset=gnomad_r3`"
-        v-if="smallVar.release == 'GRCh38'"
+        target="_blank"
       >
         <i-mdi-launch />
         @gnomAD

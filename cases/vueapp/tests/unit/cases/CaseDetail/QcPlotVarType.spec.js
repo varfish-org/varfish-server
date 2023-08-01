@@ -26,7 +26,7 @@ describe('QcPlotVarType.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with variant type counts for each sample/
+      /Histograms with variant type counts for each sample/,
     )
   })
 
@@ -42,7 +42,7 @@ describe('QcPlotVarType.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with variant type counts for each sample/
+      /Histograms with variant type counts for each sample/,
     )
   })
 })

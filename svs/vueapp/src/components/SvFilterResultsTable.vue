@@ -1,24 +1,17 @@
 <script setup>
-import sortBy from 'sort-by-typescript'
+import { sortBy } from 'sort-by-typescript'
 import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
 
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import svsApi from '@svs/api/svs'
-import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { SvClient } from '@svs/api/svClient'
+import { useSvQueryStore } from '@svs/stores/svQuery'
 import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { formatLargeInt, displayName } from '@varfish/helpers'
 
 const MAX_GENES = 20
-
-const sortedList = (lst, unique = true) => {
-  const tmp = unique ? new Set(lst) : lst
-  const result = Array.from(tmp).filter((str) => str?.length)
-  result.sort()
-  return result
-}
 
 /** Define props. */
 const props = defineProps({
@@ -31,12 +24,12 @@ const emit = defineEmits(['variantSelected'])
 const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     svresultrow: sodarUuid,
-    selectedTab: section ?? 'gene',
+    selectedSection: section ?? 'genes',
   })
 }
 
 // Initialize stores
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
 
@@ -166,9 +159,9 @@ const loadFromServer = async () => {
   }
 
   tableLoading.value = true
-  const response = await svsApi.listSvQueryResultRow(
-    svFilterStore.csrfToken,
-    svFilterStore.queryResultSet.sodar_uuid,
+  const svClient = new SvClient(svQueryStore.csrfToken)
+  const response = await svClient.listSvQueryResultRow(
+    svQueryStore.queryResultSet.sodar_uuid,
     {
       pageNo: tableServerOptions.value.page,
       pageSize: tableServerOptions.value.rowsPerPage,
@@ -299,12 +292,23 @@ const tableRowClassName = (item, _rowNumber) => {
   return ''
 }
 
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
 onBeforeMount(() => {
   tableLoading.value = true
-  const appContext = { csrf_token: svFilterStore.csrfToken }
   Promise.all([
-    svFlagsStore.initialize(appContext, svFilterStore.caseUuid),
-    svCommentsStore.initialize(appContext, svFilterStore.caseUuid),
+    svFlagsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      svQueryStore.caseUuid,
+    ),
+    svCommentsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      svQueryStore.caseUuid,
+    ),
   ]).then(() => {
     tableLoading.value = false
   })
@@ -336,7 +340,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary">
-            {{ formatLargeInt(svFilterStore.queryResultSet.result_row_count) }}
+            {{ formatLargeInt(svQueryStore.queryResultSet.result_row_count) }}
           </span>
         </div>
       </div>
@@ -348,7 +352,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary">
-            {{ svFilterStore.queryResultSet.elapsed_seconds.toFixed(1) }}s
+            {{ svQueryStore.queryResultSet.elapsed_seconds.toFixed(1) }}s
           </span>
         </div>
       </div>
@@ -386,7 +390,7 @@ watch(
       v-model:server-options="tableServerOptions"
       table-class-name="customize-table"
       :loading="tableLoading"
-      :server-items-length="svFilterStore.queryResultSet.result_row_count"
+      :server-items-length="svQueryStore.queryResultSet.result_row_count"
       :body-row-class-name="tableRowClassName"
       :headers="tableHeaders"
       :items="tableRows"
@@ -411,7 +415,7 @@ watch(
         <div class="text-nowrap">
           <i-fa-solid-search
             class="text-muted"
-            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'genes')"
             role="button"
           />
           <i-fa-solid-bookmark
@@ -616,6 +620,7 @@ watch(
 
       <template #item-sv_type="{ sv_type, payload }">
         <span
+          class="text-nowrap"
           :class="{
             'text-danger': payload.clinvar_ovl_vcvs.length,
             // || payload.known_pathogenic.length

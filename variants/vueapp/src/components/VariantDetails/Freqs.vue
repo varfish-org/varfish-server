@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isVariantMt } from '@varfish/more-utils'
+import { isVariantMt } from '@varfish/moreUtils'
 
 import VariantDetailsFreqsAutosomal from '@variants/components/VariantDetails/FreqsAutosomal.vue'
 import VariantDetailsFreqsMitochondrial from '@variants/components/VariantDetails/FreqsMitochondrial.vue'

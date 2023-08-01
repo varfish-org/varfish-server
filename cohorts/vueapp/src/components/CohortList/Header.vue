@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 import { useCohortsStore } from '@cohorts/stores/cohorts'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
 
 const cohortsStore = useCohortsStore()
 
@@ -35,6 +36,7 @@ const emit = defineEmits(['createCohortClick'])
         <i-mdi-plus-circle />
         Create Cohort
       </a>
+      <UiToggleMaxButton />
     </div>
   </div>
 

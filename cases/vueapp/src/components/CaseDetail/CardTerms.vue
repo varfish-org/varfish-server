@@ -2,12 +2,12 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import { displayName } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@cases/stores/caseList'
 
 const emit = defineEmits(['updateCasePhenotypeTermsClick'])
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 const termLabels = reactive({})
@@ -102,7 +102,7 @@ const termsMap = computed(() => {
 })
 
 const userHasPerms = (perm) =>
-  casesStore.userPerms && casesStore.userPerms.includes(perm)
+  caseListStore.userPerms && caseListStore.userPerms.includes(perm)
 </script>
 
 <template>

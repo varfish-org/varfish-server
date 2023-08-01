@@ -1,10 +1,3 @@
-{
-  "sodar_uuid": "88888888-8888-8888-8888-111111111111",
-  "date_created": "2020-11-09 13:37",
-  "date_modified": "2020-11-09 13:37",
-  "family": "77777777-7777-7777-7777-777777777777",
-  "name": "index",
-  "taxonomy_id": 9606,
-  "sex": "male",
-  "affected": "yes"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:17417bac1b7882e3d1e649a3e60f8967f70b95767c986cdd68c0ce765192bdf9
+size 269

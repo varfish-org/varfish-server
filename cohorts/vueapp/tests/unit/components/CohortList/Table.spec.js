@@ -51,7 +51,7 @@ describe('CohortListTable.vue', () => {
     expect(wrapper.html()).matches(/<toast-stub/)
 
     expect(wrapper.get('h4').text()).toBe(
-      'Cohort List ' + listCohortResponse.count
+      'Cohort List ' + listCohortResponse.count,
     )
   })
 
@@ -94,21 +94,21 @@ describe('CohortListTable.vue', () => {
     expect(wrapper.vm.handleUpdateCohortClicked).toHaveBeenCalledTimes(2)
 
     expect(
-      wrapper.vm.getMemberCount(accessibleProjectsCasesResponse[0].case_set)
+      wrapper.vm.getMemberCount(accessibleProjectsCasesResponse[0].case_set),
     ).toBe(4)
     expect(
-      wrapper.vm.getMemberCount(accessibleProjectsCasesResponse[1].case_set)
+      wrapper.vm.getMemberCount(accessibleProjectsCasesResponse[1].case_set),
     ).toBe(3)
 
     expect(
       wrapper.vm.casesHaveSameRelease(
-        accessibleProjectsCasesResponse[0].case_set
-      )
+        accessibleProjectsCasesResponse[0].case_set,
+      ),
     ).toBe(true)
     expect(
       wrapper.vm.casesHaveSameRelease(
-        accessibleProjectsCasesResponse[1].case_set
-      )
+        accessibleProjectsCasesResponse[1].case_set,
+      ),
     ).toBe(true)
   })
 
@@ -139,10 +139,10 @@ describe('CohortListTable.vue', () => {
     const deleteButtons = wrapper.findAll('button.btn-sm.btn-danger')
 
     expect(
-      wrapper.vm.casesHaveSameRelease(listCohortResponseCopy.results[0].cases)
+      wrapper.vm.casesHaveSameRelease(listCohortResponseCopy.results[0].cases),
     ).toBe(false)
     expect(
-      wrapper.vm.casesHaveSameRelease(listCohortResponseCopy.results[1].cases)
+      wrapper.vm.casesHaveSameRelease(listCohortResponseCopy.results[1].cases),
     ).toBe(true)
 
     expect(filterLink[0].classes()).toContain('disabled')

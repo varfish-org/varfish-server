@@ -97,10 +97,10 @@ describe('FilterFormEffectPane.vue', () => {
       },
     })
     const effectTranscriptsCoding = wrapper.find(
-      '#effect-transcripts-transcripts_coding'
+      '#effect-transcripts-transcripts_coding',
     )
     const effectTranscriptsNoncoding = wrapper.find(
-      '#effect-transcripts-transcripts_noncoding'
+      '#effect-transcripts-transcripts_noncoding',
     )
 
     await effectTranscriptsNoncoding.setValue()
@@ -122,7 +122,7 @@ describe('FilterFormEffectPane.vue', () => {
 
     await input.setValue('123')
 
-    expect(input.element.value).toBe("123")
+    expect(input.element.value).toBe('123')
   })
 
   test('effects detailed', async () => {
@@ -135,98 +135,98 @@ describe('FilterFormEffectPane.vue', () => {
     })
 
     const detailedEffectDisruptiveInframeDeletion = wrapper.get(
-      '#detailed-effect-disruptive_inframe_deletion'
+      '#detailed-effect-disruptive_inframe_deletion',
     )
     const detailedEffectDisruptiveInframeInsertion = wrapper.get(
-      '#detailed-effect-disruptive_inframe_insertion'
+      '#detailed-effect-disruptive_inframe_insertion',
     )
     const detailedEffectFeatureTruncation = wrapper.get(
-      '#detailed-effect-feature_truncation'
+      '#detailed-effect-feature_truncation',
     )
     const detailedEffectFrameshiftElongation = wrapper.get(
-      '#detailed-effect-frameshift_elongation'
+      '#detailed-effect-frameshift_elongation',
     )
     const detailedEffectFrameshiftTruncation = wrapper.get(
-      '#detailed-effect-frameshift_truncation'
+      '#detailed-effect-frameshift_truncation',
     )
     const detailedEffectFrameshiftVariant = wrapper.get(
-      '#detailed-effect-frameshift_variant'
+      '#detailed-effect-frameshift_variant',
     )
     const detailedEffectInframeDeletion = wrapper.get(
-      '#detailed-effect-inframe_deletion'
+      '#detailed-effect-inframe_deletion',
     )
     const detailedEffectInframeInsertion = wrapper.get(
-      '#detailed-effect-inframe_insertion'
+      '#detailed-effect-inframe_insertion',
     )
     const detailedEffectInternalFeatureElongation = wrapper.get(
-      '#detailed-effect-internal_feature_elongation'
+      '#detailed-effect-internal_feature_elongation',
     )
     const detailedEffectMissenseVariant = wrapper.get(
-      '#detailed-effect-missense_variant'
+      '#detailed-effect-missense_variant',
     )
     const detailedEffectMnv = wrapper.get('#detailed-effect-mnv')
     const detailedEffectStartLost = wrapper.get('#detailed-effect-start_lost')
     const detailedEffectStopGained = wrapper.get('#detailed-effect-stop_gained')
     const detailedEffectStopRetainedVariant = wrapper.get(
-      '#detailed-effect-stop_retained_variant'
+      '#detailed-effect-stop_retained_variant',
     )
     const detailedEffectStopLost = wrapper.get('#detailed-effect-stop_lost')
     const detailedEffectSynonymousVariant = wrapper.get(
-      '#detailed-effect-synonymous_variant'
+      '#detailed-effect-synonymous_variant',
     )
     const detailedEffectDirectTandemDuplication = wrapper.get(
-      '#detailed-effect-direct_tandem_duplication'
+      '#detailed-effect-direct_tandem_duplication',
     )
     const detailedEffectDownstreamGeneVariant = wrapper.get(
-      '#detailed-effect-downstream_gene_variant'
+      '#detailed-effect-downstream_gene_variant',
     )
     const detailedEffectCodingTranscriptIntronVariant = wrapper.get(
-      '#detailed-effect-coding_transcript_intron_variant'
+      '#detailed-effect-coding_transcript_intron_variant',
     )
     const detailedEffectIntergenicVariant = wrapper.get(
-      '#detailed-effect-intergenic_variant'
+      '#detailed-effect-intergenic_variant',
     )
     const detailedEffectUpstreamGeneVariant = wrapper.get(
-      '#detailed-effect-upstream_gene_variant'
+      '#detailed-effect-upstream_gene_variant',
     )
     const detailedEffectExonLossVariant = wrapper.get(
-      '#detailed-effect-exon_loss_variant'
+      '#detailed-effect-exon_loss_variant',
     )
     const detailedEffect3PrimeUTRExonVariant = wrapper.get(
-      '#detailed-effect-3_prime_UTR_exon_variant'
+      '#detailed-effect-3_prime_UTR_exon_variant',
     )
     const detailedEffect3PrimeUTRIntronVariant = wrapper.get(
-      '#detailed-effect-3_prime_UTR_intron_variant'
+      '#detailed-effect-3_prime_UTR_intron_variant',
     )
     const detailedEffect5PrimeUTRExonVariant = wrapper.get(
-      '#detailed-effect-5_prime_UTR_exon_variant'
+      '#detailed-effect-5_prime_UTR_exon_variant',
     )
     const detailedEffect5PrimeUTRIntronVariant = wrapper.get(
-      '#detailed-effect-5_prime_UTR_intron_variant'
+      '#detailed-effect-5_prime_UTR_intron_variant',
     )
     const detailedEffectNonCodingTranscriptExonVariant = wrapper.get(
-      '#detailed-effect-non_coding_transcript_exon_variant'
+      '#detailed-effect-non_coding_transcript_exon_variant',
     )
     const detailedEffectNonCodingTranscriptIntronVariant = wrapper.get(
-      '#detailed-effect-non_coding_transcript_intron_variant'
+      '#detailed-effect-non_coding_transcript_intron_variant',
     )
     const detailedEffectSpliceAcceptorVariant = wrapper.get(
-      '#detailed-effect-splice_acceptor_variant'
+      '#detailed-effect-splice_acceptor_variant',
     )
     const detailedEffectSpliceDonorVariant = wrapper.get(
-      '#detailed-effect-splice_donor_variant'
+      '#detailed-effect-splice_donor_variant',
     )
     const detailedEffectSpliceRegionVariant = wrapper.get(
-      '#detailed-effect-splice_region_variant'
+      '#detailed-effect-splice_region_variant',
     )
     const detailedEffectStructuralVariant = wrapper.get(
-      '#detailed-effect-structural_variant'
+      '#detailed-effect-structural_variant',
     )
     const detailedEffectTranscriptAblation = wrapper.get(
-      '#detailed-effect-transcript_ablation'
+      '#detailed-effect-transcript_ablation',
     )
     const detailedEffectComplexSubstitution = wrapper.get(
-      '#detailed-effect-complex_substitution'
+      '#detailed-effect-complex_substitution',
     )
 
     await detailedEffectDisruptiveInframeDeletion.setValue()
@@ -266,7 +266,7 @@ describe('FilterFormEffectPane.vue', () => {
 
     expect(detailedEffectDisruptiveInframeDeletion.element.checked).toBeTruthy()
     expect(
-      detailedEffectDisruptiveInframeInsertion.element.checked
+      detailedEffectDisruptiveInframeInsertion.element.checked,
     ).toBeTruthy()
     expect(detailedEffectFeatureTruncation.element.checked).toBeTruthy()
     expect(detailedEffectFrameshiftElongation.element.checked).toBeTruthy()
@@ -285,7 +285,7 @@ describe('FilterFormEffectPane.vue', () => {
     expect(detailedEffectDirectTandemDuplication.element.checked).toBeTruthy()
     expect(detailedEffectDownstreamGeneVariant.element.checked).toBeTruthy()
     expect(
-      detailedEffectCodingTranscriptIntronVariant.element.checked
+      detailedEffectCodingTranscriptIntronVariant.element.checked,
     ).toBeTruthy()
     expect(detailedEffectIntergenicVariant.element.checked).toBeTruthy()
     expect(detailedEffectUpstreamGeneVariant.element.checked).toBeTruthy()
@@ -295,10 +295,10 @@ describe('FilterFormEffectPane.vue', () => {
     expect(detailedEffect5PrimeUTRExonVariant.element.checked).toBeTruthy()
     expect(detailedEffect5PrimeUTRIntronVariant.element.checked).toBeTruthy()
     expect(
-      detailedEffectNonCodingTranscriptExonVariant.element.checked
+      detailedEffectNonCodingTranscriptExonVariant.element.checked,
     ).toBeTruthy()
     expect(
-      detailedEffectNonCodingTranscriptIntronVariant.element.checked
+      detailedEffectNonCodingTranscriptIntronVariant.element.checked,
     ).toBeTruthy()
     expect(detailedEffectSpliceAcceptorVariant.element.checked).toBeTruthy()
     expect(detailedEffectSpliceDonorVariant.element.checked).toBeTruthy()

@@ -13,9 +13,11 @@ import FilterFormQuickPresets from '@variants/components/FilterForm//QuickPreset
 import { QueryStates } from '@variants/enums'
 import { computed, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-const filterQueryStore = useFilterQueryStore()
+const variantQueryStore = useVariantQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
 
 const genotypePaneRef = ref(null)
 const frequencyPaneRef = ref(null)
@@ -55,7 +57,7 @@ const anyHasError = computed(() => {
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(filterQueryStore.storeState),
+  ['initial', 'initializing'].includes(variantQueryStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {
@@ -65,10 +67,10 @@ const onSubmitCancelButtonClicked = () => {
     QueryStates.Finished.value,
     QueryStates.Fetching.value,
   ]
-  if (cancelableStates.includes(filterQueryStore.queryState)) {
-    filterQueryStore.cancelQuery()
+  if (cancelableStates.includes(variantQueryStore.queryState)) {
+    variantQueryStore.cancelQuery()
   } else {
-    filterQueryStore.submitQuery()
+    variantQueryStore.submitQuery()
   }
 }
 </script>
@@ -79,19 +81,19 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
       v-if="
-        filterQueryStore.querySettings !== null &&
-        filterQueryStore.querySettingsPreset !== null
+        variantQueryStore.querySettings !== null &&
+        variantQueryStore.querySettingsPreset !== null
       "
     >
       <div class="card-header">
         <FilterFormQuickPresets
           :show-filtration-inline-help="
-            filterQueryStore.showFiltrationInlineHelp
+            variantQueryStore.showFiltrationInlineHelp
           "
-          :quick-presets="filterQueryStore.quickPresets"
-          :category-presets="filterQueryStore.categoryPresets"
-          :query-settings="filterQueryStore.querySettings"
-          :case="filterQueryStore.caseObj"
+          :quick-presets="variantQueryStore.quickPresets"
+          :category-presets="variantQueryStore.categoryPresets"
+          :query-settings="variantQueryStore.querySettings"
+          :case="caseDetailsStore.caseObj"
         />
       </div>
       <div class="card-header row border-bottom-1 pt-1 pr-1">
@@ -218,13 +220,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormGenotypePane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case="filterQueryStore.caseObj"
-              v-model:query-settings="filterQueryStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -236,13 +238,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormFrequencyPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case="filterQueryStore.caseObj"
-              :query-settings="filterQueryStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              :query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -253,23 +255,25 @@ const onSubmitCancelButtonClicked = () => {
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
-              :csrf-token="filterQueryStore.csrfToken"
+              :csrf-token="variantQueryStore.csrfToken"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
-              :exomiser-enabled="filterQueryStore.exomiserEnabled"
-              :cadd-enabled="filterQueryStore.caddEnabled"
-              v-model:prio-enabled="filterQueryStore.querySettings.prio_enabled"
+              :exomiser-enabled="variantQueryStore.exomiserEnabled"
+              :cadd-enabled="variantQueryStore.caddEnabled"
+              v-model:prio-enabled="
+                variantQueryStore.querySettings.prio_enabled
+              "
               v-model:prio-algorithm="
-                filterQueryStore.querySettings.prio_algorithm
+                variantQueryStore.querySettings.prio_algorithm
               "
               v-model:prio-hpo-terms="
-                filterQueryStore.querySettings.prio_hpo_terms
+                variantQueryStore.querySettings.prio_hpo_terms
               "
               v-model:patho-enabled="
-                filterQueryStore.querySettings.patho_enabled
+                variantQueryStore.querySettings.patho_enabled
               "
-              v-model:patho-score="filterQueryStore.querySettings.patho_score"
+              v-model:patho-score="variantQueryStore.querySettings.patho_score"
             />
           </div>
           <div
@@ -281,12 +285,12 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormEffectPane
               ref="effectPaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -298,13 +302,13 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormQualityPane
               ref="qualityPaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case-obj="filterQueryStore.caseObj"
-              v-model:query-settings="filterQueryStore.querySettings"
+              :case-obj="caseDetailsStore.caseObj"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -316,12 +320,12 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormGenesRegionsPane
               ref="genePaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -332,12 +336,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormFlagsPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -348,22 +352,22 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormClinvarPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
         </div>
         <FilterFormFooter
-          :query-state="filterQueryStore.queryState"
+          :query-state="variantQueryStore.queryState"
           :any-has-error="anyHasError"
           :filtration-complexity-mode="
-            filterQueryStore.filtrationComplexityMode
+            variantQueryStore.filtrationComplexityMode
           "
-          v-model:database="filterQueryStore.querySettings.database"
+          v-model:database="variantQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>
@@ -372,7 +376,10 @@ const onSubmitCancelButtonClicked = () => {
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2">Loading filter form ...</strong>
     </div>
-    <Overlay v-if="showOverlay" :message="filterQueryStore.storeStateMessage" />
+    <Overlay
+      v-if="showOverlay"
+      :message="variantQueryStore.storeStateMessage"
+    />
   </form>
 </template>
 

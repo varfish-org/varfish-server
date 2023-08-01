@@ -1,18 +1,3 @@
-{
-  "sodar_uuid": "77777777-7777-7777-7777-111111111111",
-  "date_created": "2020-11-09 13:37",
-  "date_modified": "2020-11-09 13:37",
-  "project": "00000000-0000-0000-0000-000000000000",
-  "case": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-  "case_name": "The second case name",
-  "pedigree": [
-    {
-      "patient": "index",
-      "father": "0",
-      "mother": "0",
-      "sex": 1,
-      "affected": 2,
-      "has_gt_entries": true
-    }
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:dd5dae638e5d9c99f859108df02dd086d5ff744ccd1a005c40c38dc3a51a3bb5
+size 446

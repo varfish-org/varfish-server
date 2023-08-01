@@ -1,12 +1,3 @@
-[
-  {
-    "sodar_uuid": "aa1b7e8c-34c4-4898-b67c-7091d7558d81",
-    "date_created": "2023-06-30T13:23:06.587212Z",
-    "date_modified": "2023-06-30T13:23:06.587227Z",
-    "smallvariantquery": "5966a091-222d-44a4-87ca-79ef20fb092c",
-    "start_time": "2023-06-30T13:23:03.277916Z",
-    "end_time": "2023-06-30T13:23:04.906796Z",
-    "elapsed_seconds": 1.62888,
-    "result_row_count": 305
-  }
-]
+version https://git-lfs.github.com/spec/v1
+oid sha256:f4a4baa647d2afdc541e035cbee544d11f1ae6e5c6e126e4dedb1dc0aff1ba42
+size 395

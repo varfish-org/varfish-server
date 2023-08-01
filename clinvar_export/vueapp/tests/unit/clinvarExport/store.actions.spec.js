@@ -143,7 +143,7 @@ describe('actions', () => {
     expect(store.submissionSetList).toStrictEqual([])
     store.setSubmissionSets([submissionSet1])
     expect(store.submissionSets).toStrictEqual(
-      Object.fromEntries([[submissionSet1.sodar_uuid, submissionSet1]])
+      Object.fromEntries([[submissionSet1.sodar_uuid, submissionSet1]]),
     )
     expect(store.submissionSetList).toStrictEqual([submissionSet1])
   })
@@ -264,7 +264,7 @@ describe('actions', () => {
       expect(store.submissionSets).toStrictEqual({})
       expect(store.submissionSetList).toStrictEqual([])
       expect(store.currentSubmissionSet).toStrictEqual(null)
-    }
+    },
   )
 
   test('createSubmissionInCurrentSubmissionSet', () => {
@@ -316,7 +316,7 @@ describe('actions', () => {
       },
     })
     expect(store.currentSubmission).toBe(
-      store.submissions[Object.keys(store.submissions)[0]]
+      store.submissions[Object.keys(store.submissions)[0]],
     )
   })
 
@@ -352,7 +352,7 @@ describe('actions', () => {
       Object.fromEntries([
         [submissionIndividual1.sodar_uuid, submissionIndividual1],
         [submissionIndividual2.sodar_uuid, submissionIndividual2],
-      ])
+      ]),
     )
     expect(submission1.submission_individuals).toStrictEqual([
       submissionIndividual1.sodar_uuid,
@@ -364,7 +364,7 @@ describe('actions', () => {
     expect(store.submissionIndividuals).toStrictEqual(
       Object.fromEntries([
         [submissionIndividual2.sodar_uuid, submissionIndividual2],
-      ])
+      ]),
     )
     expect(submission1.submission_individuals).toStrictEqual([])
     expect(submission2.submission_individuals).toStrictEqual([
@@ -384,29 +384,29 @@ describe('actions', () => {
     const submittingOrg1 = copy(firstSubmittingOrg)
 
     clinvarExportApi.getOrganisations.mockReturnValueOnce(
-      Promise.resolve([organisation1])
+      Promise.resolve([organisation1]),
     )
     clinvarExportApi.getSubmitters.mockReturnValueOnce(
-      Promise.resolve([submitter1])
+      Promise.resolve([submitter1]),
     )
     clinvarExportApi.getAssertionMethods.mockReturnValueOnce(
-      Promise.resolve([assertionMethod1])
+      Promise.resolve([assertionMethod1]),
     )
     clinvarExportApi.getSubmissionSets.mockReturnValueOnce(
-      Promise.resolve([submissionSet1])
+      Promise.resolve([submissionSet1]),
     )
     clinvarExportApi.getSubmissions.mockReturnValueOnce(
-      Promise.resolve([submission1])
+      Promise.resolve([submission1]),
     )
     clinvarExportApi.getIndividuals.mockReturnValueOnce(
-      Promise.resolve([individual1])
+      Promise.resolve([individual1]),
     )
     clinvarExportApi.getSubmissionIndividuals.mockReturnValueOnce(
-      Promise.resolve([submissionIndividual1])
+      Promise.resolve([submissionIndividual1]),
     )
     clinvarExportApi.getFamilies.mockReturnValueOnce(Promise.resolve([family1]))
     clinvarExportApi.getSubmittingOrgs.mockReturnValueOnce(
-      Promise.resolve([submittingOrg1])
+      Promise.resolve([submittingOrg1]),
     )
 
     await store.initialize(rawAppContext)
@@ -415,7 +415,7 @@ describe('actions', () => {
 
     expect(store.appContext).toEqual(rawAppContext)
     expect(store.organisations).toEqual(
-      Object.fromEntries([[organisation1.sodar_uuid, organisation1]])
+      Object.fromEntries([[organisation1.sodar_uuid, organisation1]]),
     )
   })
 
@@ -466,35 +466,35 @@ describe('actions', () => {
     store['oldModel'] = copy(clinvarExportEmptyState)
 
     clinvarExportApi.createSubmissionSet.mockReturnValueOnce(
-      Promise.resolve(apiSubmissionSet1)
+      Promise.resolve(apiSubmissionSet1),
     )
     clinvarExportApi.createSubmittingOrg.mockReturnValueOnce(
-      Promise.resolve(apiSubmittingOrg1)
+      Promise.resolve(apiSubmittingOrg1),
     )
     clinvarExportApi.createSubmission.mockReturnValueOnce(
-      Promise.resolve(apiSubmission1)
+      Promise.resolve(apiSubmission1),
     )
     clinvarExportApi.createSubmissionIndividual.mockReturnValueOnce(
-      Promise.resolve(apiSubmissionIndividual1)
+      Promise.resolve(apiSubmissionIndividual1),
     )
 
     await store.wizardSave()
 
     expect(store.submissionSets).toEqual(
-      Object.fromEntries([[apiSubmissionSet1.sodar_uuid, apiSubmissionSet1]])
+      Object.fromEntries([[apiSubmissionSet1.sodar_uuid, apiSubmissionSet1]]),
     )
     expect(store.currentSubmissionSet).toEqual(null)
     expect(store.submissionSetList).toEqual([apiSubmissionSet1])
     expect(store.submittingOrgs).toEqual(
-      Object.fromEntries([[apiSubmittingOrg1.sodar_uuid, apiSubmittingOrg1]])
+      Object.fromEntries([[apiSubmittingOrg1.sodar_uuid, apiSubmittingOrg1]]),
     )
     expect(store.submissions).toEqual(
-      Object.fromEntries([[apiSubmission1.sodar_uuid, apiSubmission1]])
+      Object.fromEntries([[apiSubmission1.sodar_uuid, apiSubmission1]]),
     )
     expect(store.submissionIndividuals).toEqual(
       Object.fromEntries([
         [apiSubmissionIndividual1.sodar_uuid, apiSubmissionIndividual1],
-      ])
+      ]),
     )
 
     expect(clinvarExportApi.createSubmissionSet.mock.calls.length).toBe(1)
@@ -522,7 +522,7 @@ describe('actions', () => {
       store.appContext,
     ])
     expect(clinvarExportApi.createSubmissionIndividual.mock.calls.length).toBe(
-      1
+      1,
     )
     expect(clinvarExportApi.createSubmissionIndividual.mock.calls[0]).toEqual([
       {
@@ -568,20 +568,20 @@ describe('actions', () => {
       submissionIndividual1
     // Save current state as old model to trigger the "update" code path.
     store.oldModel = copy(
-      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])),
     )
 
     clinvarExportApi.updateSubmissionSet.mockReturnValueOnce(
-      Promise.resolve(apiSubmissionSet1)
+      Promise.resolve(apiSubmissionSet1),
     )
     clinvarExportApi.updateSubmittingOrg.mockReturnValueOnce(
-      Promise.resolve(apiSubmittingOrg1)
+      Promise.resolve(apiSubmittingOrg1),
     )
     clinvarExportApi.updateSubmission.mockReturnValueOnce(
-      Promise.resolve(apiSubmission1)
+      Promise.resolve(apiSubmission1),
     )
     clinvarExportApi.updateSubmissionIndividual.mockReturnValueOnce(
-      Promise.resolve(apiSubmissionIndividual1)
+      Promise.resolve(apiSubmissionIndividual1),
     )
 
     await store.wizardSave()
@@ -589,7 +589,7 @@ describe('actions', () => {
     expect(store.currentSubmissionSet).toBe(null)
     expect(store.currentSubmission).toBe(null)
     expect(store.oldModel).toEqual(
-      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])))
+      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))),
     )
     expect(store.appState).toEqual(AppState.list)
 
@@ -615,7 +615,7 @@ describe('actions', () => {
       store.appContext,
     ])
     expect(clinvarExportApi.updateSubmissionIndividual.mock.calls.length).toBe(
-      1
+      1,
     )
     expect(clinvarExportApi.updateSubmissionIndividual.mock.calls[0]).toEqual([
       {
@@ -646,7 +646,7 @@ describe('actions', () => {
       submissionIndividual1
     // Save current state as old model to trigger the "update" code path when removing things below
     store.oldModel = copy(
-      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])),
     )
     // Now remove submission to trigger the deletions in the "update" code path
     store.currentSubmission = null
@@ -654,26 +654,26 @@ describe('actions', () => {
     submissionSet1.submissions = []
 
     clinvarExportApi.updateSubmissionSet.mockReturnValueOnce(
-      Promise.resolve(apiSubmissionSet1)
+      Promise.resolve(apiSubmissionSet1),
     )
     clinvarExportApi.updateSubmittingOrg.mockReturnValueOnce(
-      Promise.resolve(apiSubmittingOrg1)
+      Promise.resolve(apiSubmittingOrg1),
     )
     clinvarExportApi.deleteSubmissionIndividual.mockReturnValueOnce(
-      Promise.resolve()
+      Promise.resolve(),
     )
     clinvarExportApi.deleteSubmission.mockReturnValueOnce(Promise.resolve())
 
     await store.wizardSave()
 
     expect(
-      store.submissionIndividuals[submissionIndividual1.sodar_uuid]
+      store.submissionIndividuals[submissionIndividual1.sodar_uuid],
     ).toBeUndefined()
     expect(store.submissions[submission1.sodar_uuid]).toBeUndefined()
     expect(store.currentSubmissionSet).toBe(null)
     expect(store.currentSubmission).toBe(null)
     expect(store.oldModel).toEqual(
-      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])))
+      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))),
     )
     expect(store.appState).toEqual(AppState.list)
 
@@ -696,7 +696,7 @@ describe('actions', () => {
       store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls.length).toBe(
-      1
+      1,
     )
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls[0]).toEqual([
       submissionIndividual1,
@@ -775,12 +775,12 @@ describe('actions', () => {
     store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
     store.oldModel = copy(
-      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])),
     )
 
     clinvarExportApi.deleteSubmittingOrg.mockReturnValueOnce(Promise.resolve())
     clinvarExportApi.deleteSubmissionIndividual.mockReturnValueOnce(
-      Promise.resolve()
+      Promise.resolve(),
     )
     clinvarExportApi.deleteSubmission.mockReturnValueOnce(Promise.resolve())
     clinvarExportApi.deleteSubmissionSet.mockReturnValueOnce(Promise.resolve())
@@ -801,7 +801,7 @@ describe('actions', () => {
       store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls.length).toBe(
-      1
+      1,
     )
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls[0]).toEqual([
       submissionIndividual1,
@@ -886,7 +886,7 @@ describe('actions', () => {
       },
     })
     expect(store.currentSubmission).toBe(
-      store.submissions[Object.keys(store.submissions)[0]]
+      store.submissions[Object.keys(store.submissions)[0]],
     )
   })
 
@@ -961,7 +961,7 @@ describe('actions', () => {
     })
 
     expect(
-      store.submissionIndividuals[submissionIndividual1.sodar_uuid].sort_order
+      store.submissionIndividuals[submissionIndividual1.sodar_uuid].sort_order,
     ).toBe(10)
   })
 

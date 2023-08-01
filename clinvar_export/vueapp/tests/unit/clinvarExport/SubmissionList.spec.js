@@ -135,7 +135,7 @@ describe('SubmissionList.vue', () => {
   const testAddSubmissionButtonClicked = async (
     setupFunc,
     setupFuncParam = {},
-    extraState = {}
+    extraState = {},
   ) => {
     const state = {
       ...setupFunc(setupFuncParam),
@@ -163,12 +163,12 @@ describe('SubmissionList.vue', () => {
 
     expect(wrapper.vm.$refs.modalAddSubmission).toBeDefined()
     expect(
-      Object.values(wrapper.vm.$refs.modalAddSubmission.classList)
+      Object.values(wrapper.vm.$refs.modalAddSubmission.classList),
     ).not.toContain('show')
     await wrapper.vm.$refs.buttonAddSubmission.click()
     await nextTick()
     expect(
-      Object.values(wrapper.vm.$refs.modalAddSubmission.classList)
+      Object.values(wrapper.vm.$refs.modalAddSubmission.classList),
     ).toContain('show')
 
     await flushPromises()
@@ -223,10 +223,10 @@ describe('SubmissionList.vue', () => {
     await flushPromises()
 
     expect(store.createSubmissionInCurrentSubmissionSet).toHaveBeenCalledTimes(
-      1
+      1,
     )
     expect(
-      store.createSubmissionInCurrentSubmissionSet
+      store.createSubmissionInCurrentSubmissionSet,
     ).toHaveBeenNthCalledWith(1, {
       smallVariant: null,
       submission: {
@@ -290,7 +290,7 @@ describe('SubmissionList.vue', () => {
     }
 
     clinvarExportApi.getUserAnnotations.mockReturnValueOnce(
-      Promise.resolve(userAnnotation)
+      Promise.resolve(userAnnotation),
     )
 
     // Note: we select the family UUID by accessing the store directly
@@ -305,7 +305,7 @@ describe('SubmissionList.vue', () => {
     expect(clinvarExportApi.getUserAnnotations).toHaveBeenNthCalledWith(
       1,
       store.appContext,
-      family1.sodar_uuid
+      family1.sodar_uuid,
     )
     expect(wrapper.vm.$data.rawModalUserAnnotationsCount).toBe(1)
     expect(Object.keys(wrapper.vm.$data.rawModalUserAnnotations)).toEqual([
@@ -315,16 +315,18 @@ describe('SubmissionList.vue', () => {
       'acmgCriteriaRating',
     ])
     expect(
-      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.acmgCriteriaRating)
+      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.acmgCriteriaRating),
     ).toEqual(['GRCh37-17-41201211-T-G'])
     expect(
-      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.smallVariantComments)
+      Object.keys(
+        wrapper.vm.$data.rawModalUserAnnotations.smallVariantComments,
+      ),
     ).toEqual([])
     expect(
-      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.smallVariantFlags)
+      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.smallVariantFlags),
     ).toEqual(['GRCh37-17-41201211-T-G'])
     expect(
-      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.smallVariants)
+      Object.keys(wrapper.vm.$data.rawModalUserAnnotations.smallVariants),
     ).toEqual(['GRCh37-17-41201211-T-G'])
 
     // Note that for some reason, the DOM is not properly updated in tests.
@@ -341,10 +343,10 @@ describe('SubmissionList.vue', () => {
     await flushPromises()
 
     expect(store.createSubmissionInCurrentSubmissionSet).toHaveBeenCalledTimes(
-      1
+      1,
     )
     expect(
-      store.createSubmissionInCurrentSubmissionSet
+      store.createSubmissionInCurrentSubmissionSet,
     ).toHaveBeenNthCalledWith(1, {
       smallVariant: expect.objectContaining({
         genotype: {
@@ -364,7 +366,7 @@ describe('SubmissionList.vue', () => {
     const wrapper = await testAddSubmissionButtonClicked(
       setupComplexCase,
       {},
-      { currentSubmission: copy(secondSubmission) }
+      { currentSubmission: copy(secondSubmission) },
     )
     const store = useClinvarExportStore()
     store.selectCurrentSubmission = vi.fn()
@@ -374,7 +376,7 @@ describe('SubmissionList.vue', () => {
     expect(store.selectCurrentSubmission).toHaveBeenCalledTimes(1)
     expect(store.selectCurrentSubmission).toHaveBeenNthCalledWith(
       1,
-      submission1.sodar_uuid
+      submission1.sodar_uuid,
     )
   })
 
@@ -382,7 +384,7 @@ describe('SubmissionList.vue', () => {
     const wrapper = await testAddSubmissionButtonClicked(
       setupComplexCase,
       {},
-      { currentSubmission: copy(secondSubmission) }
+      { currentSubmission: copy(secondSubmission) },
     )
     const store = useClinvarExportStore()
     store.selectCurrentSubmission = vi.fn()
@@ -392,7 +394,7 @@ describe('SubmissionList.vue', () => {
     expect(store.selectCurrentSubmission).toHaveBeenCalledTimes(1)
     expect(store.selectCurrentSubmission).toHaveBeenNthCalledWith(
       1,
-      submission2.sodar_uuid
+      submission2.sodar_uuid,
     )
   })
 })

@@ -1,6 +1,3 @@
-{
-  "file_type": "tsv",
-  "export_flags": true,
-  "export_comments": true,
-  "export_donors": ["NA12878-N1-DNA1-WES1"]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6473b8dbb50f6bbf6dd21ab0a45225f59af71da0528af1701b5a84d7b3b5f847
+size 122

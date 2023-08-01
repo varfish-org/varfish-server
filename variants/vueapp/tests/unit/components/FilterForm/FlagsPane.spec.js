@@ -27,91 +27,91 @@ describe('FilterFormFlagsPane.vue', () => {
     expect(wrapper.findAll('input').length).toBe(28)
 
     const effectFlagsFlagBookmarked = wrapper.get(
-      '#effect-flags-flag_bookmarked'
+      '#effect-flags-flag_bookmarked',
     )
     const effectFlagsFlagCandidate = wrapper.get('#effect-flags-flag_candidate')
     const effectFlagsFlagFinalCausative = wrapper.get(
-      '#effect-flags-flag_final_causative'
+      '#effect-flags-flag_final_causative',
     )
     const effectFlagsFlagForValidation = wrapper.get(
-      '#effect-flags-flag_for_validation'
+      '#effect-flags-flag_for_validation',
     )
     const effectFlagsFlagNoDiseaseAssociation = wrapper.get(
-      '#effect-flags-flag_no_disease_association'
+      '#effect-flags-flag_no_disease_association',
     )
     const effectFlagsFlagSegregates = wrapper.get(
-      '#effect-flags-flag_segregates'
+      '#effect-flags-flag_segregates',
     )
     const effectFlagsFlagDoesntSegregate = wrapper.get(
-      '#effect-flags-flag_doesnt_segregate'
+      '#effect-flags-flag_doesnt_segregate',
     )
     const effectFlagsFlagSimpleEmpty = wrapper.get(
-      '#effect-flags-flag_simple_empty'
+      '#effect-flags-flag_simple_empty',
     )
 
     const effectFlagsFlagVisualPositive = wrapper.get(
-      '#effect-flags-flag_visual-positive'
+      '#effect-flags-flag_visual-positive',
     )
     const effectFlagsFlagVisualUncertain = wrapper.get(
-      '#effect-flags-flag_visual-uncertain'
+      '#effect-flags-flag_visual-uncertain',
     )
     const effectFlagsFlagVisualNegative = wrapper.get(
-      '#effect-flags-flag_visual-negative'
+      '#effect-flags-flag_visual-negative',
     )
     const effectFlagsFlagVisualEmpty = wrapper.get(
-      '#effect-flags-flag_visual-empty'
+      '#effect-flags-flag_visual-empty',
     )
 
     const effectFlagsFlagValidationPositive = wrapper.get(
-      '#effect-flags-flag_validation-positive'
+      '#effect-flags-flag_validation-positive',
     )
     const effectFlagsFlagValidationUncertain = wrapper.get(
-      '#effect-flags-flag_validation-uncertain'
+      '#effect-flags-flag_validation-uncertain',
     )
     const effectFlagsFlagValidationNegative = wrapper.get(
-      '#effect-flags-flag_validation-negative'
+      '#effect-flags-flag_validation-negative',
     )
     const effectFlagsFlagValidationEmpty = wrapper.get(
-      '#effect-flags-flag_validation-empty'
+      '#effect-flags-flag_validation-empty',
     )
 
     const effectFlagsFlagPhenotypeMatchPositive = wrapper.get(
-      '#effect-flags-flag_phenotype_match-positive'
+      '#effect-flags-flag_phenotype_match-positive',
     )
     const effectFlagsFlagPhenotypeMatchUncertain = wrapper.get(
-      '#effect-flags-flag_phenotype_match-uncertain'
+      '#effect-flags-flag_phenotype_match-uncertain',
     )
     const effectFlagsFlagPhenotypeMatchNegative = wrapper.get(
-      '#effect-flags-flag_phenotype_match-negative'
+      '#effect-flags-flag_phenotype_match-negative',
     )
     const effectFlagsFlagPhenotypeMatchEmpty = wrapper.get(
-      '#effect-flags-flag_phenotype_match-empty'
+      '#effect-flags-flag_phenotype_match-empty',
     )
 
     const effectFlagsFlagMolecularPositive = wrapper.get(
-      '#effect-flags-flag_molecular-positive'
+      '#effect-flags-flag_molecular-positive',
     )
     const effectFlagsFlagMolecularUncertain = wrapper.get(
-      '#effect-flags-flag_molecular-uncertain'
+      '#effect-flags-flag_molecular-uncertain',
     )
     const effectFlagsFlagMolecularNegative = wrapper.get(
-      '#effect-flags-flag_molecular-negative'
+      '#effect-flags-flag_molecular-negative',
     )
     const effectFlagsFlagMolecularEmpty = wrapper.get(
-      '#effect-flags-flag_molecular-empty'
+      '#effect-flags-flag_molecular-empty',
     )
 
     const effectFlagsFlagSummaryPositive = wrapper.get(
-      '#effect-flags-flag_summary-positive'
+      '#effect-flags-flag_summary-positive',
     )
     const effectFlagsFlagSummaryUncertain = wrapper.get(
-      '#effect-flags-flag_summary-uncertain'
+      '#effect-flags-flag_summary-uncertain',
     )
     const effectFlagsFlagSummaryNegative = wrapper.get(
-      '#effect-flags-flag_summary-negative'
+      '#effect-flags-flag_summary-negative',
     )
     const effectFlagsFlagSummaryEmpty = wrapper.get(
-      '#effect-flags-flag_summary-empty'
+      '#effect-flags-flag_summary-empty',
     )
 
     await effectFlagsFlagBookmarked.setValue()

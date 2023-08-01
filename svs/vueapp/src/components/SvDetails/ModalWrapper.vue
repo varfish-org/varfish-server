@@ -3,15 +3,15 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { formatLargeInt } from '@varfish/helpers'
-import { useSvDetailsStore } from '@svs/stores/detailsSv'
-import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useSvDetailsStore } from '@svs/stores/svDetails'
+import { useSvQueryStore } from '@svs/stores/svQuery'
 import SvDetails from '@svs/components/SvDetails.vue'
-import svsApi from '@svs/api/svs'
+import { SvClient } from '@svs/api/svClient'
 
 const props = defineProps({
   visible: Boolean,
   resultRowUuid: String,
-  selectedTab: String,
+  selectedSection: String,
 })
 
 const router = useRouter()
@@ -22,7 +22,7 @@ const modalRef = ref(null)
 const svRecord = ref(null)
 
 const svDetailsStore = useSvDetailsStore()
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
 
 /** Return the label to show on top of the details modal. */
 const svLabel = computed(() => {
@@ -46,12 +46,10 @@ const showModal = async () => {
 
   $(modalRef.value).modal('show')
 
-  await svFilterStore.initializeRes
+  await svQueryStore.initializeRes
 
-  const resultRow = await svsApi.retrieveSvQueryResultRow(
-    svFilterStore.csrfToken,
-    props.resultRowUuid,
-  )
+  const svClient = new SvClient(svQueryStore.csrfToken)
+  const resultRow = await svClient.retrieveSvQueryResultRow(props.resultRowUuid)
   svRecord.value = resultRow
   await svDetailsStore.fetchSvDetails(resultRow)
 }
@@ -80,8 +78,8 @@ const modalHiddenHandler = () => {
   router.push({
     name: 'svs-filter',
     params: {
-      case: svFilterStore.caseUuid,
-      query: svFilterStore.previousQueryDetails.sodar_uuid,
+      case: svQueryStore.caseUuid,
+      query: svQueryStore.previousQueryDetails.sodar_uuid,
     },
   })
 }
@@ -142,7 +140,7 @@ onMounted(() => {
         <div class="modal-body pt-0">
           <SvDetails
             :result-row-uuid="props.resultRowUuid"
-            :selected-tab="props.selectedTab"
+            :selected-section="props.selectedSection"
           />
         </div>
       </div>

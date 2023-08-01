@@ -3,11 +3,11 @@ import FilterFormFooter from '@variants/components/FilterForm/Footer.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
 
-import filterQueryStore from '../../../data/filter-query-store.json'
+import variantQueryStore from '../../../data/filter-query-store.json'
 
 const piniaTestStore = createTestingPinia({
   initialState: {
-    filterQuery: filterQueryStore,
+    filterQuery: variantQueryStore,
   },
   createSpy: vi.fn,
 })
@@ -25,10 +25,10 @@ describe('FilterFormFooter.vue', () => {
     })
 
     expect(wrapper.get('#id_database_selector_refseq').element.checked).toBe(
-      true
+      true,
     )
     expect(wrapper.get('#id_database_selector_ensembl').element.checked).toBe(
-      false
+      false,
     )
   })
 
@@ -44,10 +44,10 @@ describe('FilterFormFooter.vue', () => {
     })
 
     expect(wrapper.get('#id_database_selector_refseq').element.checked).toBe(
-      false
+      false,
     )
     expect(wrapper.get('#id_database_selector_ensembl').element.checked).toBe(
-      true
+      true,
     )
   })
 

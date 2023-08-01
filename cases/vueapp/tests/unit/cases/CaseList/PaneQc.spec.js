@@ -78,12 +78,12 @@ describe('CaseListPaneQc.vue downloads', () => {
     expect(mockElement.setAttribute).toHaveBeenNthCalledWith(
       1,
       'href',
-      expect.stringMatching(/^data:application\/octet-stream;base64,/)
+      expect.stringMatching(/^data:application\/octet-stream;base64,/),
     )
     expect(mockElement.setAttribute).toHaveBeenNthCalledWith(
       2,
       'download',
-      'per-sample-metrics.tsv'
+      'per-sample-metrics.tsv',
     )
     expect(mockElement.click).toHaveBeenCalled(1)
     expect(document.body.appendChild).toHaveBeenCalled(1)
@@ -113,12 +113,12 @@ describe('CaseListPaneQc.vue downloads', () => {
     expect(mockElement.setAttribute).toHaveBeenNthCalledWith(
       1,
       'href',
-      expect.stringMatching(/^data:application\/octet-stream;base64,/)
+      expect.stringMatching(/^data:application\/octet-stream;base64,/),
     )
     expect(mockElement.setAttribute).toHaveBeenNthCalledWith(
       2,
       'download',
-      'relatedness.tsv'
+      'relatedness.tsv',
     )
     expect(mockElement.click).toHaveBeenCalled(1)
     expect(document.body.appendChild).toHaveBeenCalled(1)

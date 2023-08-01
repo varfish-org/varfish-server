@@ -1,4 +1,4 @@
-import { apiFetch } from '@varfish/api-utils'
+import { apiFetch } from '@varfish/apiUtils'
 
 export default {
   async listCohort(

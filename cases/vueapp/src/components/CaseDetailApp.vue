@@ -1,55 +1,55 @@
 <script setup>
-import { useRoute } from 'vue-router'
-import { computed, ref, watch } from 'vue'
-import queryPresetsApi from '@variants/api/queryPresets'
-import { useCasesStore } from '@cases/stores/cases'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { connectTopRowControls } from '@cases/common'
+import { onMounted, nextTick, ref, watch } from 'vue'
+import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { overlayShow, overlayMessage } from '@cases/common'
 
 import ModalSelect from '@varfish/components/ModalSelect.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 import Toast from '@varfish/components/Toast.vue'
+import { updateUserSetting } from '@varfish/userSettings'
 
 import Header from '@cases/components/CaseDetail/Header.vue'
 import Content from '@cases/components/CaseDetail/Content.vue'
 import ModalPedigreeEditor from '@cases/components/ModalPedigreeEditor.vue'
 import ModalTermsEditor from '@cases/components/ModalTermsEditor.vue'
 
-const casesStore = useCasesStore()
+const props = defineProps({ caseUuid: { type: String } })
+
+/** Obtain global application content (as for all entry level components) */
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
+
+const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
-/** Whether to show the overlay. */
-const overlayShow = computed(() => casesStore.serverInteractions > 0)
+const refreshStores = () => {
+  if (
+    appContext?.csrf_token &&
+    appContext?.project?.sodar_uuid &&
+    props?.caseUuid
+  ) {
+    caseDetailsStore.initialize(
+      appContext.csrf_token,
+      appContext.project.sodar_uuid,
+      props.caseUuid,
+    )
+  }
+}
 
-/** The currently used route. */
-const route = useRoute()
-
-/** The currently displayed case's UUID, updated from route. */
-const caseUuidRef = ref(route.params.case)
-
-connectTopRowControls()
-
-// We can only finish initialization once the caseDetailsStore has completed loading as we need to initialize
-// some stores needed for the details view(s).  We finish by watching the route to update the case.
-casesStore.initializeRes.then(() => {
-  Promise.all([caseDetailsStore.initialize(caseUuidRef.value)])
-    .then(() => {
-      watch(
-        () => route.params,
-        (newParams, oldParams) => {
-          // reload variant annotation store if necessary
-          if (newParams.case && newParams.case !== oldParams.case) {
-            caseDetailsStore.initialize(caseUuidRef.value)
-          }
-        },
-      )
-    })
-    .catch((err) => {
-      console.error('Problem while initializing case details store', err)
-    })
+onMounted(() => {
+  refreshStores()
 })
+
+watch(
+  () => props.caseUuid,
+  () => refreshStores(),
+)
 
 /** Ref to the select modal. */
 const modalSelectRef = ref(null)
@@ -69,8 +69,8 @@ const toastRef = ref(null)
  * Show a modal dialog to select the user-defined query presets or factory defaults.
  */
 const handleEditQueryPresetsClicked = async () => {
-  const csrfToken = casesStore.appContext.csrf_token
-  const allPresets = await queryPresetsApi.listPresetSetAll(csrfToken)
+  const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+  const allPresets = await queryPresetsClient.listPresetSetAll()
   const options = [{ value: null, label: 'Factory Presets' }].concat(
     allPresets.map((p) => ({
       value: p.sodar_uuid,
@@ -344,6 +344,56 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
     })
   }
 }
+
+// Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
+watch(
+  () => caseListStore.showInlineHelp,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue && caseListStore.csrfToken) {
+      updateUserSetting(
+        caseListStore.csrfToken,
+        'vueapp.filtration_inline_help',
+        newValue,
+      )
+    }
+    const elem = $('#vueapp-filtration-inline-help')
+    if (elem) {
+      elem.prop('checked', newValue)
+    }
+  },
+)
+watch(
+  () => caseListStore.complexityMode,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue && caseListStore.csrfToken) {
+      updateUserSetting(
+        caseListStore.csrfToken,
+        'vueapp.filtration_complexity_mode',
+        newValue,
+      )
+    }
+    const elem = $('#vueapp-filtration-complexity-mode')
+    if (elem && elem.val(newValue)) {
+      elem.val(newValue).change()
+    }
+  },
+)
+
+// Vice versa.
+onMounted(() => {
+  const handleUpdate = () => {
+    const caseListStore = useCaseListStore()
+    caseListStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
+      'checked',
+    )
+    caseListStore.complexityMode = $('#vueapp-filtration-complexity-mode').val()
+  }
+  nextTick(() => {
+    handleUpdate()
+    $('#vueapp-filtration-inline-help').change(handleUpdate)
+    $('#vueapp-filtration-complexity-mode').change(handleUpdate)
+  })
+})
 </script>
 
 <template>
@@ -371,7 +421,7 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
           handleUpdateCasePhenotypeTermsClicked
         "
       />
-      <Overlay v-if="overlayShow" />
+      <Overlay v-if="overlayShow" :message="overlayMessage" />
     </div>
     <ModalInput ref="modalInputRef" />
     <ModalSelect ref="modalSelectRef" />

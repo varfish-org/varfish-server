@@ -14,9 +14,11 @@ import SvFilterFormFooter from '@svs/components/SvFilterForm/Footer.vue'
 import { QueryStates } from '@variants/enums'
 import { computed, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useSvQueryStore } from '@svs/stores/svQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
 
 const criteriaMatchesPaneRef = ref(null)
 const criteriaDefsPaneRef = ref(null)
@@ -59,7 +61,7 @@ const anyHasError = computed(() => {
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(svFilterStore.storeState),
+  ['initial', 'initializing'].includes(svQueryStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {
@@ -69,10 +71,10 @@ const onSubmitCancelButtonClicked = () => {
     QueryStates.Finished.value,
     QueryStates.Fetching.value,
   ]
-  if (cancelableStates.includes(svFilterStore.queryState)) {
-    svFilterStore.cancelQuery()
+  if (cancelableStates.includes(svQueryStore.queryState)) {
+    svQueryStore.cancelQuery()
   } else {
-    svFilterStore.submitQuery()
+    svQueryStore.submitQuery()
   }
 }
 </script>
@@ -82,18 +84,18 @@ const onSubmitCancelButtonClicked = () => {
     <div
       class="card"
       v-if="
-        svFilterStore.querySettings !== null &&
-        svFilterStore.querySettingsPreset !== null
+        svQueryStore.querySettings !== null &&
+        svQueryStore.querySettingsPreset !== null
       "
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
       <div class="card-header">
         <SvFilterFormQuickPresets
-          :show-filtration-inline-help="svFilterStore.showFiltrationInlineHelp"
-          :quick-presets="svFilterStore.quickPresets"
-          :category-presets="svFilterStore.categoryPresets"
-          :query-settings="svFilterStore.querySettings"
-          :case="svFilterStore.caseObj"
+          :show-filtration-inline-help="svQueryStore.showFiltrationInlineHelp"
+          :quick-presets="svQueryStore.quickPresets"
+          :category-presets="svQueryStore.categoryPresets"
+          :query-settings="svQueryStore.querySettings"
+          :case="caseDetailsStore.caseObj"
         />
       </div>
       <div class="card-header row border-bottom-1 pt-1 pr-1">
@@ -215,7 +217,7 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li
             class="nav-item"
-            v-if="svFilterStore.filtrationComplexityMode === 'dev'"
+            v-if="svQueryStore.filtrationComplexityMode === 'dev'"
           >
             <a
               ref="devPaneRef"
@@ -244,13 +246,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormGenotypePane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              :case-obj="svFilterStore.caseObj"
-              v-model:query-settings="svFilterStore.querySettings"
+              :case-obj="caseDetailsStore.caseObj"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -262,12 +264,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormCriteriaDefinitionPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -279,13 +281,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormFrequencyPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              :case="svFilterStore.caseObj"
-              :query-settings="svFilterStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              :query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -297,12 +299,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormImpactPane
               ref="effectPaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -314,12 +316,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormGenesRegionsPane
               ref="genePaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -331,12 +333,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormRegulatoryPane
               ref="regulatoryPaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -347,12 +349,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormTadsPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -363,12 +365,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormPatho
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -378,15 +380,15 @@ const onSubmitCancelButtonClicked = () => {
             aria-labelledby="dev-tab"
           >
             <SvFilterFormDev
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
         </div>
         <SvFilterFormFooter
-          :query-state="svFilterStore.queryState"
+          :query-state="svQueryStore.queryState"
           :any-has-error="anyHasError"
-          :filtration-complexity-mode="svFilterStore.filtrationComplexityMode"
-          v-model:database="svFilterStore.querySettings.database"
+          :filtration-complexity-mode="svQueryStore.filtrationComplexityMode"
+          v-model:database="svQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>
@@ -395,7 +397,7 @@ const onSubmitCancelButtonClicked = () => {
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2">Loading filter form ...</strong>
     </div>
-    <Overlay v-if="showOverlay" :message="svFilterStore.storeStateMessage" />
+    <Overlay v-if="showOverlay" :message="svQueryStore.storeStateMessage" />
   </form>
 </template>
 

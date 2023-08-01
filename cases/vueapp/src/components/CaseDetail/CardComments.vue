@@ -1,7 +1,13 @@
 <script setup>
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@cases/stores/caseList'
 import { formatTime } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { useCasesStore } from '@cases/stores/cases'
+
+/** Obtain global application content (as for all entry level components) */
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
 
 /** Define emits. */
 const emit = defineEmits([
@@ -10,12 +16,12 @@ const emit = defineEmits([
   'deleteCaseCommentClick',
 ])
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 const caseDetailStore = useCaseDetailsStore()
 
 /** Helper that returns whether the user has the permission to perform the action on the casecomment. */
 const userHasPerm = (casecomment, action) => {
-  const user = casesStore.appContext?.user
+  const user = appContext?.user
   if (!user) {
     return false
   }

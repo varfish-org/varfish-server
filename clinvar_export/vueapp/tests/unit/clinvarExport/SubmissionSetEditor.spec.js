@@ -70,7 +70,7 @@ describe('SubmissionSetEditor.vue', () => {
     await nextTick() // wait for changes to store to take effect
 
     expect(wrapper.vm.getOrgLabel(organisation1.sodar_uuid)).toEqual(
-      organisation1.name
+      organisation1.name,
     )
     expect(wrapper.vm.isValid()).toBe(true)
   })

@@ -32,7 +32,7 @@ describe('QcTableVarStats.vue', () => {
           sample_name: name,
           ...stats,
         }
-      }
+      },
     )
     const wrapper = makeWrapper(varStats)
 

@@ -1,5 +1,5 @@
 <script setup>
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
 const caseDetailsStore = useCaseDetailsStore()
 </script>

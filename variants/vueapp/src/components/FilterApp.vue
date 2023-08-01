@@ -1,12 +1,14 @@
 <script setup>
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useCasesStore } from '@cases/stores/cases'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { updateUserSetting } from '@varfish/user-settings'
+import { State } from '@varfish/storeUtils'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@variants/stores/variantComments'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { updateUserSetting } from '@varfish/userSettings'
 import {
   DisplayColumns,
   DisplayConstraints,
@@ -16,54 +18,42 @@ import {
   QueryStateToText,
 } from '@variants/enums'
 
-import VariantDetailsModalWrapper from '@variants/components/VariantDetails/ModalWrapper.vue'
 import Header from '@variants/components/FilterApp/Header.vue'
 import FilterForm from '@variants/components/FilterForm.vue'
 import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 
 const props = defineProps({
-  /** Whether to show the variant details modal. */
-  detailsModalVisible: Boolean,
-  /** The UUID of the result row to show in details modal. */
-  detailsModalResultRowUuid: String,
-  /** Which tab to show in the variant details modal. */
-  detailsModalSelectedTab: String,
+  /** The case UUID. */
+  caseUuid: String,
 })
-
-const smallVariantDetailsModalWrapperRef = ref(null)
 
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}',
 )
 
-/** The currently used route. */
-const route = useRoute()
-/** The currently used router. */
 const router = useRouter()
 
-/** The currently displayed case's UUID, updated from route. */
-const caseUuidRef = ref(route.params.case)
-
-const variantDetailsStore = useVariantDetailsStore()
-const filterQueryStore = useFilterQueryStore()
-const casesStore = useCasesStore()
+const variantQueryStore = useVariantQueryStore()
+const variantFlagsStore = useVariantFlagsStore()
+const variantCommentsStore = useVariantCommentsStore()
+const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const caseDetailsStore = useCaseDetailsStore()
 
-const showModal = async (event) => {
+const showDetails = async (event) => {
   router.push({
-    name: 'variants-filter-details',
+    name: 'variant-details',
     params: {
-      case: filterQueryStore.caseUuid,
-      query: filterQueryStore.previousQueryDetails.sodar_uuid,
       row: event.smallvariantresultrow,
-      selectedTab: event.selectedTab ?? null,
+      selectedSection: event.selectedSection ?? null,
     },
   })
 }
 
 /** Whether the form is visible. */
 const formVisible = ref(true)
+/** Whether the query logs are visible. */
+const queryLogsVisible = ref(false)
 /** The details columns to show. */
 const displayDetails = ref(DisplayDetails.Coordinates.value)
 /** The frequency columns to show. */
@@ -72,8 +62,6 @@ const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
 const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
 /** The additional columns to display. */
 const displayColumns = ref([DisplayColumns.Effect.value])
-/** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
 
 // Toggle visibility of the form.
 const toggleForm = () => {
@@ -82,11 +70,11 @@ const toggleForm = () => {
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
-  () => filterQueryStore.showFiltrationInlineHelp,
+  () => variantQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
       updateUserSetting(
-        filterQueryStore.csrfToken,
+        appContext.csrf_token,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -95,11 +83,11 @@ watch(
   },
 )
 watch(
-  () => filterQueryStore.filtrationComplexityMode,
+  () => variantQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        filterQueryStore.csrfToken,
+        appContext.csrf_token,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -111,11 +99,11 @@ watch(
 // Vice versa.
 onMounted(() => {
   const handleUpdate = () => {
-    const filterQueryStore = useFilterQueryStore()
-    filterQueryStore.showFiltrationInlineHelp = $(
+    const variantQueryStore = useVariantQueryStore()
+    variantQueryStore.showFiltrationInlineHelp = $(
       '#vueapp-filtration-inline-help',
     ).prop('checked')
-    filterQueryStore.filtrationComplexityMode = $(
+    variantQueryStore.filtrationComplexityMode = $(
       '#vueapp-filtration-complexity-mode',
     ).val()
   }
@@ -126,14 +114,43 @@ onMounted(() => {
   })
 })
 
-onBeforeMount(() => {
-  Promise.all([
-    // Initialize variant details store.
-    variantDetailsStore.initialize(appContext),
-    // Initialize filter query store.
-    filterQueryStore
-      .initialize(appContext, caseUuidRef.value, route.params.query)
+/** Refresh the stores. */
+const refreshStores = async () => {
+  if (!props.caseUuid) {
+    return
+  }
+
+  await caseDetailsStore.initialize(
+    appContext.csrf_token,
+    appContext.project?.sodar_uuid,
+    props.caseUuid,
+  )
+
+  await Promise.all([
+    variantFlagsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
+    ),
+    variantCommentsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
+    ),
+    variantAcmgRatingStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
+    ),
+    variantQueryStore
+      .initialize(
+        appContext.csrf_token,
+        appContext?.project?.sodar_uuid,
+        props.caseUuid,
+        appContext,
+      )
       .then(() => {
+        // Show the SpliceAI comments by default.
         const maybeAdd = [
           'SpliceAI-acc-gain',
           'SpliceAI-acc-loss',
@@ -141,26 +158,28 @@ onBeforeMount(() => {
           'SpliceAI-don-gain',
           'CADD-PHRED',
         ]
-        filterQueryStore.extraAnnoFields
+        variantQueryStore.extraAnnoFields
           .filter((value) => maybeAdd.includes(value.label))
           .forEach((value) => {
             displayColumns.value.push(`extra_anno${value.field}`)
           })
       }),
-    // Initialize cases store.
-    casesStore.initialize(appContext),
-    // Initialize case details store.
-    caseDetailsStore.initialize(caseUuidRef.value),
   ])
-})
+}
+
+// Initialize (=refresh) stores when mounted.
+onBeforeMount(() => refreshStores())
+
+// Refresh stores when the case UUID changes.
+watch(
+  () => props.caseUuid,
+  () => refreshStores(),
+)
 </script>
 
 <template>
   <div
-    v-if="
-      filterQueryStore.caseObj !== null &&
-      filterQueryStore.storeState === 'active'
-    "
+    v-if="variantQueryStore.storeState.state === State.Active"
     class="d-flex flex-column h-100"
   >
     <!-- title etc. -->
@@ -169,7 +188,7 @@ onBeforeMount(() => {
     <!-- query form -->
     <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
       <div
-        v-if="filterQueryStore.showFiltrationInlineHelp"
+        v-if="variantQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
       >
         <i-mdi-information />
@@ -198,27 +217,27 @@ onBeforeMount(() => {
         </strong>
       </div>
 
-      <FilterForm v-model:store="filterQueryStore" />
+      <FilterForm v-model:store="variantQueryStore" />
     </div>
 
     <!-- table to fill when query finished -->
     <div
-      v-if="filterQueryStore.queryState === QueryStates.Fetched.value"
+      v-if="variantQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
       <FilterResultsTable
-        :case="filterQueryStore.caseObj"
-        :extra-anno-fields="filterQueryStore.extraAnnoFields"
+        :case="caseDetailsStore.caseObj"
+        :extra-anno-fields="variantQueryStore.extraAnnoFields"
         v-model:display-details="displayDetails"
         v-model:display-frequency="displayFrequency"
         v-model:display-constraint="displayConstraint"
         v-model:display-columns="displayColumns"
-        @variant-selected="showModal"
+        @variant-selected="showDetails"
         :patho-enabled="
-          filterQueryStore.previousQueryDetails.query_settings.patho_enabled
+          variantQueryStore.previousQueryDetails.query_settings.patho_enabled
         "
         :prio-enabled="
-          filterQueryStore.previousQueryDetails.query_settings.prio_enabled
+          variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
       />
     </div>
@@ -229,13 +248,13 @@ onBeforeMount(() => {
           QueryStates.Resuming.value,
           QueryStates.Finished.value,
           QueryStates.Fetching.value,
-        ].includes(filterQueryStore.queryState)
+        ].includes(variantQueryStore.queryState)
       "
       class="alert alert-info"
     >
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2"
-        >{{ QueryStateToText[filterQueryStore.queryState] }} ...</strong
+        >{{ QueryStateToText[variantQueryStore.queryState] }} ...</strong
       >
       <button
         class="ml-3 btn btn-sm btn-info"
@@ -244,25 +263,25 @@ onBeforeMount(() => {
         {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
       </button>
       <pre v-show="queryLogsVisible">{{
-        filterQueryStore.queryLogs?.join('\n')
+        variantQueryStore.queryLogs?.join('\n')
       }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
         <template
-          v-if="filterQueryStore.queryState === QueryStates.Initial.value"
+          v-if="variantQueryStore.queryState === QueryStates.Initial.value"
         >
           No query has been started yet.
         </template>
         <template
           v-else-if="
-            filterQueryStore.queryState === QueryStates.Cancelled.value
+            variantQueryStore.queryState === QueryStates.Cancelled.value
           "
         >
           The query has been canceled.
         </template>
         <template
-          v-if="filterQueryStore.queryState === QueryStates.Error.value"
+          v-if="variantQueryStore.queryState === QueryStates.Error.value"
         >
           An error has occurred in the query!
         </template>
@@ -282,13 +301,6 @@ onBeforeMount(() => {
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>
-
-  <VariantDetailsModalWrapper
-    ref="smallVariantDetailsModalWrapperRef"
-    :visible="props.detailsModalVisible"
-    :result-row-uuid="props.detailsModalResultRowUuid"
-    :selected-tab="props.detailsModalSelectedTab"
-  />
 </template>
 
 <style scoped></style>

@@ -1,6 +1,7 @@
 import { uuidv4 } from '@clinvarexport/helpers'
 import cohortsApi from '@cohorts/api/cohorts'
-import { StoreState, useCohortsStore } from '@cohorts/stores/cohorts'
+import { StoreState, State } from '@varfish/storeUtils'
+import { useCohortsStore } from '@cohorts/stores/cohorts'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
@@ -41,7 +42,7 @@ describe('useCohortsStore', () => {
   })
 
   test('initial state', async () => {
-    expect(cohortsStore.storeState).toBe(StoreState.initial)
+    expect(cohortsStore.storeState).toBe(State.Initial)
     expect(cohortsStore.serverInteractions).toBe(0)
     expect(cohortsStore.project).toBe(null)
     expect(cohortsStore.csrfToken).toBe(null)
@@ -65,10 +66,10 @@ describe('useCohortsStore', () => {
   test('createCohort()', async () => {
     cohortsApi.createCohort.mockResolvedValue(createCohortResponse)
     cohortsApi.createCohortCase.mockResolvedValueOnce(
-      createCohortCaseResponses[0]
+      createCohortCaseResponses[0],
     )
     cohortsApi.createCohortCase.mockResolvedValueOnce(
-      createCohortCaseResponses[1]
+      createCohortCaseResponses[1],
     )
     cohortsStore.storeState = StoreState.active
     cohortsStore.csrfToken = csrfToken
@@ -87,7 +88,7 @@ describe('useCohortsStore', () => {
     expect(cohortsApi.createCohort).toHaveBeenCalledWith(
       csrfToken,
       project.sodar_uuid,
-      payload
+      payload,
     )
 
     expect(cohortsApi.createCohortCase).toHaveBeenCalledTimes(2)
@@ -98,7 +99,7 @@ describe('useCohortsStore', () => {
         cohort: createCohortResponse.sodar_uuid,
         case: createCohortCaseResponses[0].case,
         sodar_uuid: 'cohortcase3-fake-uuid',
-      }
+      },
     )
     expect(cohortsApi.createCohortCase).toHaveBeenCalledWith(
       csrfToken,
@@ -107,7 +108,7 @@ describe('useCohortsStore', () => {
         cohort: createCohortResponse.sodar_uuid,
         case: createCohortCaseResponses[1].case,
         sodar_uuid: 'cohortcase4-fake-uuid',
-      }
+      },
     )
   })
 
@@ -116,7 +117,7 @@ describe('useCohortsStore', () => {
     cohortsApi.listCohortCase.mockResolvedValue(listCohortCaseResponse)
     cohortsApi.createCohortCase.mockResolvedValue(createCohortCaseResponses)
 
-    cohortsStore.storeState = StoreState.active
+    cohortsStore.storeState = State.Active
     cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
@@ -135,13 +136,13 @@ describe('useCohortsStore', () => {
     expect(cohortsApi.listCohortCase).toHaveBeenCalledOnce()
     expect(cohortsApi.listCohortCase).toHaveBeenCalledWith(
       csrfToken,
-      cohortUuid
+      cohortUuid,
     )
 
     expect(cohortsApi.destroyCohortCase).toHaveBeenCalledOnce()
     expect(cohortsApi.destroyCohortCase).toHaveBeenCalledWith(
       csrfToken,
-      'cohortcase2-fake-uuid'
+      'cohortcase2-fake-uuid',
     )
 
     expect(cohortsApi.createCohortCase).toHaveBeenCalledTimes(2)
@@ -152,7 +153,7 @@ describe('useCohortsStore', () => {
         cohort: cohortUuid,
         case: 'case3-fake-uuid',
         sodar_uuid: 'cohortcase3-fake-uuid',
-      }
+      },
     )
     expect(cohortsApi.createCohortCase).toHaveBeenCalledWith(
       csrfToken,
@@ -161,13 +162,13 @@ describe('useCohortsStore', () => {
         cohort: cohortUuid,
         case: 'case5-fake-uuid',
         sodar_uuid: 'cohortcase4-fake-uuid',
-      }
+      },
     )
   })
 
   test('destroyCohort()', async () => {
     cohortsApi.destroyCohort.mockResolvedValue(createCohortResponse)
-    cohortsStore.storeState = StoreState.active
+    cohortsStore.storeState = State.Active
     cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
@@ -180,7 +181,7 @@ describe('useCohortsStore', () => {
   test('loadFromServer()', async () => {
     cohortsApi.listCohort.mockResolvedValue(listCohortResponse)
 
-    cohortsStore.storeState = StoreState.active
+    cohortsStore.storeState = State.Active
     cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
@@ -198,7 +199,7 @@ describe('useCohortsStore', () => {
     expect(cohortsApi.listCohort).toHaveBeenCalledWith(
       csrfToken,
       project.sodar_uuid,
-      tableServerOptions
+      tableServerOptions,
     )
     expect(cohortsStore.cohortCount).toStrictEqual(listCohortResponse.count)
     expect(cohortsStore.tableRows).toStrictEqual(listCohortResponse.results)

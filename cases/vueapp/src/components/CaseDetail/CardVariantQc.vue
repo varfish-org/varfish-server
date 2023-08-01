@@ -1,5 +1,6 @@
 <script setup>
-import { useCaseDetailsStore, StoreState } from '@cases/stores/case-details'
+import { State } from '@varfish/storeUtils'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { displayName, formatLargeInt } from '@varfish/helpers'
 
 const caseDetailsStore = useCaseDetailsStore()
@@ -38,7 +39,7 @@ const tsTv = (member) => {
         </tr>
       </thead>
       <tbody>
-        <template v-if="caseDetailsStore.storeState === StoreState.active">
+        <template v-if="caseDetailsStore.storeState.state === State.Active">
           <template v-for="member of caseDetailsStore.caseObj.pedigree">
             <tr v-if="member.name in caseDetailsStore.caseVariantStats">
               <td class="font-weight-bold">

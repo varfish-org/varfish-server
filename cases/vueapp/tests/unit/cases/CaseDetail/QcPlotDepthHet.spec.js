@@ -24,7 +24,7 @@ describe('QcPlotDepthHet.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      / Plot of heterozygous genotype ratio to depth of coverage /
+      / Plot of heterozygous genotype ratio to depth of coverage /,
     )
   })
 
@@ -48,7 +48,7 @@ describe('QcPlotDepthHet.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      / Plot of heterozygous genotype ratio to depth of coverage /
+      / Plot of heterozygous genotype ratio to depth of coverage /,
     )
   })
 
@@ -68,7 +68,7 @@ describe('QcPlotDepthHet.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      / Plot of heterozygous genotype ratio to depth of coverage /
+      / Plot of heterozygous genotype ratio to depth of coverage /,
     )
   })
 })

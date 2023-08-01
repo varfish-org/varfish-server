@@ -22,13 +22,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
@@ -67,13 +67,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
@@ -113,13 +113,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
@@ -159,13 +159,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
@@ -206,13 +206,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
@@ -253,13 +253,13 @@ describe('FilterFormClinvarPane.vue', () => {
     const clinvarParanoidMode = wrapper.find('#clinvar-paranoid-mode')
     const clinvarIncludePathogenic = wrapper.find('#clinvar-include-pathogenic')
     const clinvarIncludeLikelyPathogenic = wrapper.find(
-      '#clinvar-include-likely_pathogenic'
+      '#clinvar-include-likely_pathogenic',
     )
     const clinvarIncludeUncertainSignificance = wrapper.find(
-      '#clinvar-include-uncertain_significance'
+      '#clinvar-include-uncertain_significance',
     )
     const clinvarIncludeLikelyBenign = wrapper.find(
-      '#clinvar-include-likely_benign'
+      '#clinvar-include-likely_benign',
     )
     const clinvarIncludeBenign = wrapper.find('#clinvar-include-benign')
 
