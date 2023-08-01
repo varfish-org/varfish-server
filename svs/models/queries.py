@@ -82,8 +82,8 @@ class SvQueryResultSet(models.Model):
     svquery = models.ForeignKey(
         SvQuery,
         on_delete=models.CASCADE,
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         help_text="The query that this result is for",
     )
 
@@ -101,7 +101,18 @@ class SvQueryResultSet(models.Model):
     #: The elapsed seconds.
     elapsed_seconds = models.FloatField(help_text="Elapsed seconds")
 
+    #: The case that this result is for, in case smallvariantquery is null.
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text="The case that this result is for",
+    )
+
     def get_project(self):
+        if self.case:
+            return self.case.project
         return self.svquery.case.project
 
     class Meta:

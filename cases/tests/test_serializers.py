@@ -10,12 +10,14 @@ from cases.serializers import (
     SampleVariantStatisticsSerializer,
 )
 from cases.tests.factories import CaseAlignmentStatsFactory, PedigreeRelatednessFactory
+from svs.tests.factories import SvQueryResultSetFactory
 from variants.tests.factories import (
     CaseCommentsFactory,
     CaseFactory,
     CaseGeneAnnotationEntryFactory,
     CaseWithVariantSetFactory,
     SampleVariantStatisticsFactory,
+    SmallVariantQueryResultSetFactory,
 )
 from variants.tests.test_views_api import transmogrify_pedigree
 
@@ -55,6 +57,8 @@ class TestCaseSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory()
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
         self.maxDiff = None
 
     def testSerializeExisting(self):
@@ -86,6 +90,26 @@ class TestCaseSerializer(TestCase):
         expected["sex_errors"] = {}
         expected["date_created"] = self.case.date_created.strftime(TIMEF)
         expected["date_modified"] = self.case.date_modified.strftime(TIMEF)
+        expected["smallvariantqueryresultset"] = {
+            "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
+            "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
+            "smallvariantquery": self.smallvariantqueryresultset.smallvariantquery.sodar_uuid,
+            "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
+            "result_row_count": self.smallvariantqueryresultset.result_row_count,
+        }
+        expected["svqueryresultset"] = {
+            "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
+            "date_created": self.svqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
+            "svquery": self.svqueryresultset.svquery.sodar_uuid,
+            "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
+            "result_row_count": self.svqueryresultset.result_row_count,
+        }
         self.assertDictEqual(serializer.data, expected)
 
 

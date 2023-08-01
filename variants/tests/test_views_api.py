@@ -4,6 +4,8 @@ from django.forms import model_to_dict
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
+from svs.tests.factories import SvQueryResultSetFactory
+
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
 from .factories import (
     AcmgCriteriaRatingFactory,
@@ -12,11 +14,14 @@ from .factories import (
     SmallVariantCommentFactory,
     SmallVariantFlagsFactory,
     SmallVariantQueryFactory,
+    SmallVariantQueryResultSetFactory,
 )
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
 # TODO: add tests that include permission testing
 from .test_views import GenerateSmallVariantResultMixin
+
+TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def transmogrify_pedigree(pedigree):
@@ -32,6 +37,8 @@ class TestCaseApiViews(ApiViewTestBase):
         super().setUp()
         self.maxDiff = None
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
 
     def _expected_case_data(self, case=None, legacy=False):
         case = case or self.case
@@ -50,6 +57,26 @@ class TestCaseApiViews(ApiViewTestBase):
             "release": case.release,
             "sex_errors": {},
             "case_version": 1,
+            "smallvariantqueryresultset": {
+                "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
+                "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
+                "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
+                "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
+                "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
+                "smallvariantquery": self.smallvariantqueryresultset.smallvariantquery.sodar_uuid,
+                "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
+                "result_row_count": self.smallvariantqueryresultset.result_row_count,
+            },
+            "svqueryresultset": {
+                "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
+                "date_created": self.svqueryresultset.date_created.strftime(TIMEF),
+                "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
+                "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
+                "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
+                "svquery": self.svqueryresultset.svquery.sodar_uuid,
+                "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
+                "result_row_count": self.svqueryresultset.result_row_count,
+            },
         }
         if legacy:
             result.update(
