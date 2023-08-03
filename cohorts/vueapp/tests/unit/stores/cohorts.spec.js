@@ -1,7 +1,7 @@
 import { uuidv4 } from '@clinvarexport/helpers'
 import cohortsApi from '@cohorts/api/cohorts'
-import { StoreState, State } from '@varfish/storeUtils'
 import { useCohortsStore } from '@cohorts/stores/cohorts'
+import { State, StoreState } from '@varfish/storeUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'

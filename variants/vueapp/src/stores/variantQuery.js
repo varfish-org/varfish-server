@@ -1,14 +1,12 @@
-import { defineStore } from 'pinia'
-import { nextTick, reactive, ref } from 'vue'
-
-import { StoreState, State } from '@varfish/storeUtils'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { State, StoreState } from '@varfish/storeUtils'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import { VariantClient } from '@variants/api/variantClient'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
 import { copy } from '@variants/helpers'
 import { previousQueryDetailsToQuerySettings } from '@variants/stores/variantQuery.funcs'
-
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { defineStore } from 'pinia'
+import { nextTick, reactive, ref } from 'vue'
 
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */
@@ -43,11 +41,11 @@ const fetchPresets = async (
     ])
   }
 
-  const fetchUserPresets = async (presetSetUuid) => {
-    const queryPresetsClient = new QueryPresetsClient(csfrToken.value)
+  const fetchUserPresets = async (csrfToken, presetSetUuid) => {
+    const queryPresetsClient = new QueryPresetsClient(csrfToken)
     await Promise.all([
       queryPresetsClient
-        .retrievePresetSet(csrfToken.value, presetSetUuid)
+        .retrievePresetSet(presetSetUuid)
         .then((apiPresetSet) => {
           quickPresets.value = Object.fromEntries(
             apiPresetSet.quickpresets_set.map((qp) => [
@@ -94,7 +92,7 @@ const fetchPresets = async (
   }
 
   if (caseObj.presetset) {
-    await fetchUserPresets(caseObj.presetset)
+    await fetchUserPresets(csrfToken.value, caseObj.presetset)
   } else {
     await fetchFactoryPresets()
   }

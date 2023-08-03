@@ -1,8 +1,7 @@
-import { computed, nextTick, onMounted, watch } from 'vue'
-
-import { State } from '@varfish/storeUtils'
-import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { State } from '@varfish/storeUtils'
+import { computed } from 'vue'
 
 export const overlayShow = computed(() => {
   const caseListStore = useCaseListStore()

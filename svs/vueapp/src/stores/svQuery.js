@@ -2,15 +2,14 @@
  * NB: this is one of the few stores that don't have an initializeRes on purpose.
  */
 
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { SvClient } from '@svs/api/svClient'
-import { StoreState, State } from '@varfish/storeUtils'
+import { State, StoreState } from '@varfish/storeUtils'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
 import { copy } from '@variants/helpers'
 import camelCase from 'camelcase'
 import { defineStore } from 'pinia'
-import { nextTick, ref, reactive } from 'vue'
-
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { nextTick, reactive, ref } from 'vue'
 
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */
@@ -422,7 +421,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     storeState,
     showFiltrationInlineHelp,
     filtrationComplexityMode,
-    csrfToken,
     querySettingsPresets,
     querySettings,
     previousQueryDetails,
