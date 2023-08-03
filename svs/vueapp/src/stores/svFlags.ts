@@ -137,6 +137,11 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Retrieve flags for the given SV.
    */
   const retrieveFlags = async (sv$: StructuralVariant) => {
+    // Prevent re-retrieval of the flags.
+    if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
+      return
+    }
+
     const svClient = new SvClient(csrfToken.value)
 
     flags.value = null
@@ -273,7 +278,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const bndInsRadius = 50
     const minReciprocalOverlap = 0.8
-    for (const flag of Object.values(caseFlags.value)) {
+    for (const flag of caseFlags.value.values()) {
       if (
         ['BND', 'INS'].includes(flag.sv_type) &&
         flag.sv_type === sv.sv_type &&

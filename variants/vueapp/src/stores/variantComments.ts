@@ -120,6 +120,11 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    * Retrieve comments for the given variant.
    */
   const retrieveComments = async (smallVariant$: SmallVariant) => {
+    // Prevent re-retrieval of the comments.
+    if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+      return
+    }
+
     const variantClient = new VariantClient(csrfToken.value)
 
     comments.value = null
@@ -229,6 +234,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     try {
       await variantClient.deleteComment(commentUuid)
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
     } catch (err) {
       console.error('Problem deleting comment for variant', err)
       storeState.serverInteractions -= 1

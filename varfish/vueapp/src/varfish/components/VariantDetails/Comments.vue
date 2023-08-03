@@ -1,10 +1,10 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
 
+import { State } from '@varfish/storeUtils'
 import Overlay from '@varfish/components/Overlay.vue'
 
 const props = defineProps({
-  detailsStore: Object,
   commentsStore: Object,
   variant: Object,
 })
@@ -15,9 +15,12 @@ const overlayShow = computed(
 )
 
 watch(
-  () => [props.variant, props.commentsStore.storeState],
+  () => props.variant,
   () => {
-    if (props.variant && props.commentsStore.storeState === 'active') {
+    if (
+      props.variant &&
+      props.commentsStore.storeState.state === State.Active
+    ) {
       props.commentsStore.retrieveComments(props.variant)
     }
   },

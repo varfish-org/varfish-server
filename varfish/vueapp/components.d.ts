@@ -113,8 +113,6 @@ declare module 'vue' {
     IMdiSquareEditOutline: typeof import('~icons/mdi/square-edit-outline')['default']
     IMdiStar: typeof import('~icons/mdi/star')['default']
     IMdiStarOutline: typeof import('~icons/mdi/star-outline')['default']
-    IMdiTableColumnWidth: typeof import('~icons/mdi/table-column-width')['default']
-    IMdiTableMergeCells: typeof import('~icons/mdi/table-merge-cells')['default']
     IMdiToggleSwitchOutline: typeof import('~icons/mdi/toggle-switch-outline')['default']
     IMdiTools: typeof import('~icons/mdi/tools')['default']
     IMdiUndoVariant: typeof import('~icons/mdi/undo-variant')['default']

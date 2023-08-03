@@ -142,6 +142,11 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    * Retrieve flags for the given variant.
    */
   const retrieveFlags = async (smallVariant$: SmallVariant) => {
+    // Prevent re-retrieval of the flags.
+    if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+      return
+    }
+
     const variantClient = new VariantClient(csrfToken.value)
 
     flags.value = null

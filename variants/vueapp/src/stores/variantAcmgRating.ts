@@ -120,6 +120,11 @@ export const useVariantAcmgRatingStore = defineStore(
      * Retrieve acmgRating for the given variant.
      */
     const retrieveAcmgRating = async (smallVariant$) => {
+      // Prevent re-retrieval of the ACMG rating.
+      if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+        return
+      }
+
       const variantClient = new VariantClient(csrfToken.value)
 
       smallVariant.value = null
