@@ -383,6 +383,8 @@ class SmallVariantQueryResultSetSerializer(SODARModelSerializer):
 
     #: UUID of the related query
     smallvariantquery = serializers.ReadOnlyField(source="smallvariantquery.sodar_uuid")
+    #: UUID of the related case
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
 
     class Meta:
         model = SmallVariantQueryResultSet
@@ -391,6 +393,7 @@ class SmallVariantQueryResultSetSerializer(SODARModelSerializer):
             "date_created",
             "date_modified",
             "smallvariantquery",
+            "case",
             "start_time",
             "end_time",
             "elapsed_seconds",

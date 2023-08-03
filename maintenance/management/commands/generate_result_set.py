@@ -63,14 +63,48 @@ class Command(BaseCommand):
             msg = "Creating query set for all cases."
 
         self.stdout.write(self.style.NOTICE(msg))
+        msg_warning = None
 
         if options["async"]:
-            count = create_queryresultset(
+            count, fill_count = create_queryresultset(
                 options["case_uuid"], options["project_uuid"], options["all"]
             )
-            msg = f"Done creating {count['smallvariantqueryresultset']} SmallVariantQueryResultSet's and {count['svqueryresultset']} SvQueryResultSet's."
+            msg = "Done creating result sets:"
+            if (
+                count["smallvariantqueryresultset"]
+                or count["svqueryresultset"]
+                or fill_count["small_variants"]
+                or fill_count["structural_variants"]
+            ):
+                msg += f"""
+- SmallVariantQueryResultSets created: {count['smallvariantqueryresultset']}
+- SvQueryResultSets created: {count['svqueryresultset']}
+- User annotations added to SmallVariantQueryResultSets: {fill_count['small_variants']}
+- User annotations added to SvQueryResultSets: {fill_count['structural_variants']}"""
+            else:
+                msg += "\n- Nothing to do."
+            if (
+                fill_count["small_variants_orphaned"]
+                or fill_count["structural_variants_orphaned"]
+                or fill_count["small_variants_no_query_result_set"]
+                or fill_count["structural_variants_no_query_result_set"]
+                or fill_count["small_variants_no_case_result_set"]
+                or fill_count["structural_variants_no_case_result_set"]
+            ):
+                msg_warning = f"""
+WARNING! There are orphaned user annotations or cases or queries without result set:
+- Orphaned small variant user annotations: {fill_count['small_variants_orphaned']}
+- Small variant queries without result set: {fill_count['small_variants_no_query_result_set']}
+- Cases without small variant query result set: {fill_count['small_variants_no_case_result_set']}
+- Orphaned structural variant user annotations: {fill_count['structural_variants_orphaned']}
+- Structural variant queries without result set: {fill_count['structural_variants_no_query_result_set']}
+- Cases without structural variant query result set: {fill_count['structural_variants_no_case_result_set']}""".lstrip()
         else:
-            task_create_queryresultset.delay()
+            task_create_queryresultset.delay(
+                options["case_uuid"], options["project_uuid"], options["all"]
+            )
             msg = "Pushed creating the query set to background."
 
         self.stdout.write(self.style.SUCCESS(msg))
+        if msg_warning:
+            self.stdout.write(self.style.WARNING(msg_warning))

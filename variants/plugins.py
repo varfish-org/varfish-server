@@ -1,7 +1,6 @@
 """Definition of plugins and plugin points."""
 
 from bgjobs.plugins import BackgroundJobsPluginPoint
-from django.urls import reverse
 from django.utils.functional import lazy
 from djangoplugins.point import PluginPoint
 from projectroles.constants import get_sodar_constants
@@ -223,24 +222,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         return "".join(arr)
 
     def _get_action_buttons(self, project):
-        if len({case.release for case in Case.objects.filter(project=project)}) == 1:
-            tpl = """
-            <a href="%s" title="joint filtration " class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-              <i class="iconify" data-icon="mdi:filter"></i>
-            </a>
-            """
-            url = reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid})
-            return tpl % url
-        else:
-            html = """
-            <span
-              class="btn btn-primary sodar-list-btn sodar-ss-irods-btn disabled"
-              data-toggle="tooltip"
-              title="Different references in project; joint filtration impossible.">
-              <i class="iconify" data-icon="mdi:filter"></i>
-            </span>
-            """
-            return html
+        return """
+        <span
+          class="btn btn-primary sodar-list-btn sodar-ss-irods-btn disabled"
+          title="Currently unavailable.">
+          <i class="iconify" data-icon="mdi:filter"></i>
+        </span>
+        """
 
     def get_statistics(self):
         return {

@@ -728,6 +728,7 @@ class SmallVariantQueryResultSetFactory(factory.django.DjangoModelFactory):
         model = SmallVariantQueryResultSet
 
     smallvariantquery = factory.SubFactory(SmallVariantQueryFactory)
+    case = None
 
     start_time = FuzzyDateTime(timezone.now())
     end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))

@@ -7,25 +7,13 @@ import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
 import { SvClient } from '@svs/api/svClient'
-import { useSvQueryStore } from '@svs/stores/svQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { formatLargeInt, displayName } from '@varfish/helpers'
 
 const MAX_GENES = 20
-
-/** Define props. */
-const props = defineProps({
-  caseObj: Object,
-  /** The page. */
-  page: Number,
-  /** The page size. */
-  pageSize: Number,
-  /** The column to order by. */
-  orderBy: String,
-  /** The direction of ordering. */
-  orderDir: String,
-})
 
 /** Define emits. */
 const emit = defineEmits(['variantSelected'])
@@ -40,7 +28,8 @@ const showVariantDetails = (sodarUuid, section) => {
 }
 
 // Initialize stores
-const svQueryStore = useSvQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
+const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
 
@@ -66,7 +55,9 @@ const tableHeaders = computed(() => {
       sortable: true,
     },
   ]
-  for (const [index, row] of (props.caseObj?.pedigree || []).entries()) {
+  for (const [index, row] of (
+    caseDetailsStore.caseObj?.pedigree || []
+  ).entries()) {
     result.push({
       text: displayName(row.name),
       value: `callInfo.${index}`,
@@ -83,8 +74,8 @@ const tableHeaders = computed(() => {
 
 const callInfosSlots = computed(() => {
   const result = {}
-  for (let i = 0; i < (props.caseObj?.pedigree?.length ?? 0); i++) {
-    result[`item-callInfo.${i}`] = props.caseObj.pedigree[i].name
+  for (let i = 0; i < (caseDetailsStore.caseObj?.pedigree?.length ?? 0); i++) {
+    result[`item-callInfo.${i}`] = caseDetailsStore.caseObj.pedigree[i].name
   }
   return result
 })
@@ -98,11 +89,21 @@ const tableRowsSelected = ref([])
 /** Whether the Vue3EasyDataTable is loading. */
 const tableLoading = ref(false)
 /** The table server options, updated by Vue3EasyDataTable. */
-const tableServerOptions = ref({
-  page: props.page || 1,
-  rowsPerPage: props.pageSize || 50,
-  sortBy: props.orderBy || 'chrom-pos',
-  sortType: props.orderDir || 'asc',
+const tableServerOptions = computed({
+  get() {
+    return {
+      page: svResultSetStore.pageNo || 1,
+      rowsPerPage: svResultSetStore.pageSize || 50,
+      sortBy: svResultSetStore.sortBy || 'chrom-pos',
+      sortType: svResultSetStore.sortType || 'asc',
+    }
+  },
+  set(options) {
+    svResultSetStore.pageNo = options.page
+    svResultSetStore.pageSize = options.rowsPerPage
+    svResultSetStore.sortBy = options.sortBy
+    svResultSetStore.sortType = options.sortType
+  },
 })
 
 /** Return list of genes with symbol. */
@@ -151,7 +152,7 @@ const loadFromServer = async () => {
     row.chromosome = row.chromosome.startsWith('chr')
       ? row.chromosome.slice(3)
       : row.chromosome
-    row.callInfos = (props.caseObj?.pedigree || []).map((member) => {
+    row.callInfos = (caseDetailsStore.caseObj?.pedigree || []).map((member) => {
       return row.payload.call_info[member.name].genotype
     })
     if (!('masked_breakpoints' in row.payload)) {
@@ -170,21 +171,23 @@ const loadFromServer = async () => {
   }
 
   tableLoading.value = true
-  const svClient = new SvClient(svQueryStore.csrfToken)
-  const response = await svClient.listSvQueryResultRow(
-    svQueryStore.queryResultSet.sodar_uuid,
-    {
-      pageNo: tableServerOptions.value.page,
-      pageSize: tableServerOptions.value.rowsPerPage,
-      orderBy:
-        tableServerOptions.value.sortBy === 'chrom-pos'
-          ? 'chromosome_no,start'
-          : tableServerOptions.value.sortBy,
-      orderDir: tableServerOptions.value.sortType,
-    },
-  )
-  tableRows.value = response.results.map((row) => transmogrify(row))
-  tableLoading.value = false
+  const svClient = new SvClient(svResultSetStore.csrfToken)
+  if (svResultSetStore.resultSetUuid) {
+    const response = await svClient.listSvQueryResultRow(
+      svResultSetStore.resultSetUuid,
+      {
+        pageNo: tableServerOptions.value.page,
+        pageSize: tableServerOptions.value.rowsPerPage,
+        orderBy:
+          tableServerOptions.value.sortBy === 'chrom-pos'
+            ? 'chromosome_no,start'
+            : tableServerOptions.value.sortBy,
+        orderDir: tableServerOptions.value.sortType,
+      },
+    )
+    tableRows.value = response.results.map((row) => transmogrify(row))
+    tableLoading.value = false
+  }
 }
 
 const goToLocus = async ({ chromosome, start, end }) => {
@@ -303,53 +306,23 @@ const tableRowClassName = (item, _rowNumber) => {
   return ''
 }
 
-const pushRoute = () => {
-  router.push({
-    name: 'svs-filter',
-    params: {
-      case: svQueryStore.caseUuid,
-      query: svQueryStore.queryResultSet.sodar_uuid,
-      orderBy: tableServerOptions.value.sortBy,
-      orderDir: tableServerOptions.value.sortType,
-      page: tableServerOptions.value.page,
-      pageSize: tableServerOptions.value.rowsPerPage,
-    },
-  })
-}
-
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}',
 )
-onBeforeMount(() => {
-  tableLoading.value = true
-  Promise.all([
-    svFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
-      svQueryStore.caseUuid,
-    ),
-    svCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
-      svQueryStore.caseUuid,
-    ),
-  ]).then(() => {
-    tableLoading.value = false
-  })
+
+onBeforeMount(async () => {
+  if (svResultSetStore.resultSetUuid) {
+    await loadFromServer()
+  }
 })
 
-/** Load data when mounted. */
-onMounted(() => {
-  loadFromServer()
-})
-
-/** Watch changes in tableServerOptions and reload if necessary. */
 watch(
-  tableServerOptions,
+  () => svResultSetStore.resultSetUuid,
   (_newValue, _oldValue) => {
-    pushRoute()
-    loadFromServer()
+    if (_newValue) {
+      loadFromServer()
+    }
   },
   { deep: true },
 )
@@ -366,7 +339,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary">
-            {{ formatLargeInt(svQueryStore.queryResultSet.result_row_count) }}
+            {{ formatLargeInt(svResultSetStore?.resultSet?.result_row_count) }}
           </span>
         </div>
       </div>
@@ -378,7 +351,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary">
-            {{ svQueryStore.queryResultSet.elapsed_seconds.toFixed(1) }}s
+            {{ svResultSetStore?.resultSet?.elapsed_seconds.toFixed(1) }}s
           </span>
         </div>
       </div>
@@ -416,11 +389,12 @@ watch(
       v-model:server-options="tableServerOptions"
       table-class-name="customize-table"
       :loading="tableLoading"
-      :server-items-length="svQueryStore.queryResultSet.result_row_count"
+      :server-items-length="svResultSetStore?.resultSet?.result_row_count"
       :body-row-class-name="tableRowClassName"
       :headers="tableHeaders"
       :items="tableRows"
       :rows-items="[20, 50, 200, 1000]"
+      theme-color="#6c757d"
       buttons-pagination
       show-index
     >
@@ -848,6 +822,11 @@ watch(
 </template>
 
 <style>
+.customize-table {
+  --easy-table-border: none;
+  --easy-table-row-border: none;
+}
+
 .positive-row {
   --easy-table-body-row-background-color: #f5c6cb;
 }

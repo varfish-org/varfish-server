@@ -3,6 +3,13 @@ import { onMounted, nextTick, ref, watch } from 'vue'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@variants/stores/variantComments'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
+import { useSvResultSetStore } from '@svs/stores/svResultSet'
+import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvCommentsStore } from '@svs/stores/svComments'
 import { overlayShow, overlayMessage } from '@cases/common'
 
 import ModalSelect from '@varfish/components/ModalSelect.vue'
@@ -17,7 +24,12 @@ import Content from '@cases/components/CaseDetail/Content.vue'
 import ModalPedigreeEditor from '@cases/components/ModalPedigreeEditor.vue'
 import ModalTermsEditor from '@cases/components/ModalTermsEditor.vue'
 
-const props = defineProps({ caseUuid: { type: String } })
+const props = defineProps({
+  /** The case UUID. */
+  caseUuid: String,
+  /** The current tab. */
+  currentTab: String,
+})
 
 /** Obtain global application content (as for all entry level components) */
 const appContext = JSON.parse(
@@ -27,18 +39,67 @@ const appContext = JSON.parse(
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
+const variantFlagsStore = useVariantFlagsStore()
+const variantCommentsStore = useVariantCommentsStore()
+const variantAcmgRatingStore = useVariantAcmgRatingStore()
+const variantResultSetStore = useVariantResultSetStore()
+const svResultSetStore = useSvResultSetStore()
+const svFlagsStore = useSvFlagsStore()
+const svCommentsStore = useSvCommentsStore()
 
-const refreshStores = () => {
+const refreshStores = async () => {
   if (
     appContext?.csrf_token &&
     appContext?.project?.sodar_uuid &&
     props?.caseUuid
   ) {
-    caseDetailsStore.initialize(
-      appContext.csrf_token,
-      appContext.project.sodar_uuid,
-      props.caseUuid,
-    )
+    caseDetailsStore
+      .initialize(
+        appContext.csrf_token,
+        appContext.project.sodar_uuid,
+        props.caseUuid,
+      )
+      .then(async () => {
+        variantResultSetStore
+          .initialize(appContext.csrf_token)
+          .then(async () => {
+            await variantResultSetStore.loadResultSetViaCase(
+              caseDetailsStore.caseObj.sodar_uuid,
+            )
+          })
+        svResultSetStore.initialize(appContext.csrf_token).then(async () => {
+          await svResultSetStore.loadResultSetViaCase(
+            caseDetailsStore.caseObj.sodar_uuid,
+          )
+        })
+        await Promise.all([
+          variantFlagsStore.initialize(
+            appContext.csrf_token,
+            appContext.project.sodar_uuid,
+            caseDetailsStore.caseObj.sodar_uuid,
+          ),
+          variantCommentsStore.initialize(
+            appContext.csrf_token,
+            appContext.project.sodar_uuid,
+            caseDetailsStore.caseObj.sodar_uuid,
+          ),
+          variantAcmgRatingStore.initialize(
+            appContext.csrf_token,
+            appContext.project.sodar_uuid,
+            caseDetailsStore.caseObj.sodar_uuid,
+          ),
+          svFlagsStore.initialize(
+            appContext.csrf_token,
+            appContext.project?.sodar_uuid,
+            caseDetailsStore.caseObj.sodar_uuid,
+          ),
+          svCommentsStore.initialize(
+            appContext.csrf_token,
+            appContext.project?.sodar_uuid,
+            caseDetailsStore.caseObj.sodar_uuid,
+          ),
+        ])
+      })
   }
 }
 
@@ -410,6 +471,8 @@ onMounted(() => {
       class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
     >
       <Content
+        :case-uuid="props.caseUuid"
+        :current-tab="props.currentTab"
         @edit-case-status-click="handleEditCaseStatusClicked"
         @edit-case-notes-click="handleEditCaseNotesClicked"
         @edit-query-presets-click="handleEditQueryPresetsClicked"

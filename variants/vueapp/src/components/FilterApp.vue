@@ -7,6 +7,7 @@ import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { updateUserSetting } from '@varfish/userSettings'
 import {
@@ -25,22 +26,6 @@ import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 const props = defineProps({
   /** The case UUID. */
   caseUuid: String,
-  /** The page. */
-  page: Number,
-  /** The page size. */
-  pageSize: Number,
-  /** The column to order by. */
-  orderBy: String,
-  /** The direction of ordering. */
-  orderDir: String,
-  /** Display coordinates or clinvar. */
-  displayDetails: Number,
-  /** The frequency column to display. */
-  displayFrequency: Number,
-  /** The constraint column to display. */
-  displayConstraint: Number,
-  /** The optional columns to display. */
-  displayColumns: Array,
 })
 
 const appContext = JSON.parse(
@@ -55,6 +40,7 @@ const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const caseDetailsStore = useCaseDetailsStore()
+const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
   router.push({
@@ -72,27 +58,27 @@ const formVisible = ref(true)
 const queryLogsVisible = ref(false)
 /** The details columns to show. */
 const displayDetails = ref(
-  props.displayDetails === null
+  variantResultSetStore.displayDetails === null
     ? DisplayDetails.Coordinates.value
-    : props.displayDetails,
+    : variantResultSetStore.displayDetails,
 )
 /** The frequency columns to show. */
 const displayFrequency = ref(
-  props.displayFrequency === null
+  variantResultSetStore.displayFrequency === null
     ? DisplayFrequencies.GnomadExomes.value
-    : props.displayFrequency,
+    : variantResultSetStore.displayFrequency,
 )
 /** The constraint columns to show. */
 const displayConstraint = ref(
-  props.displayConstraint === null
+  variantResultSetStore.displayConstraint === null
     ? DisplayConstraints.GnomadPli.value
-    : props.displayConstraint,
+    : variantResultSetStore.displayConstraint,
 )
 /** The additional columns to display. */
 const displayColumns = ref(
-  props.displayColumns === null
+  variantResultSetStore.displayColumns === null
     ? [DisplayColumns.Effect.value]
-    : props.displayColumns.split(','),
+    : variantResultSetStore.displayColumns.split(','),
 )
 
 // Toggle visibility of the form.
@@ -197,6 +183,13 @@ const refreshStores = async () => {
               displayColumns.value.push(`extra_anno${value.field}`)
             })
         }
+        variantResultSetStore
+          .initialize(appContext.csrf_token)
+          .then(async () => {
+            await variantResultSetStore.loadResultSetViaQuery(
+              variantQueryStore.queryUuid,
+            )
+          })
       }),
   ])
 }
@@ -260,12 +253,6 @@ watch(
       class="flex-grow-1 mb-2"
     >
       <FilterResultsTable
-        :case="caseDetailsStore.caseObj"
-        :extra-anno-fields="variantQueryStore.extraAnnoFields"
-        v-model:display-details="displayDetails"
-        v-model:display-frequency="displayFrequency"
-        v-model:display-constraint="displayConstraint"
-        v-model:display-columns="displayColumns"
         @variant-selected="showDetails"
         :patho-enabled="
           variantQueryStore.previousQueryDetails.query_settings.patho_enabled
@@ -273,10 +260,6 @@ watch(
         :prio-enabled="
           variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
-        :page="props.page"
-        :pageSize="props.pageSize"
-        :orderBy="props.orderBy"
-        :orderDir="props.orderDir"
       />
     </div>
     <div

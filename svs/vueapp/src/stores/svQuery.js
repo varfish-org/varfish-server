@@ -4,6 +4,7 @@
 
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { SvClient } from '@svs/api/svClient'
+import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { State, StoreState } from '@varfish/storeUtils'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
 import { copy } from '@variants/helpers'
@@ -106,6 +107,8 @@ export const useSvQueryStore = defineStore('svQuery', () => {
 
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
+  /** The variantResultSet store */
+  const svResultSetStore = useSvResultSetStore()
 
   // data passed to `initialize` and store state
 
@@ -133,9 +136,8 @@ export const useSvQueryStore = defineStore('svQuery', () => {
   const querySettings = ref(null)
   /** Details from previous query. */
   const previousQueryDetails = ref(null)
-  /** Result set of query. */
-  const queryResultSet = ref(null)
-
+  /** Uuid of query. */
+  const queryUuid = ref(null)
   // bookkeeping for query and results
   /** Current query state. */
   const queryState = ref(QueryStates.None.value)
@@ -206,20 +208,8 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     if (queryState.value === QueryStates.Finished.value) {
       queryState.value = QueryStates.Fetching.value
       await nextTick()
-      // List the results
-      const responseResultSetList = await svClient.listSvQueryResultSet(
-        svQueryUuid,
-      )
-      if (!responseResultSetList.length) {
-        console.log('ERROR: no results in response')
-      } else if (
-        queryState.value === QueryStates.Fetching.value &&
-        previousQueryDetails.value.sodar_uuid === svQueryUuid
-      ) {
-        // Still fetching the same query; push to query result set.
-        queryResultSet.value = responseResultSetList[0]
-        queryState.value = QueryStates.Fetched.value
-      }
+      await svResultSetStore.loadResultSetViaQuery(svQueryUuid)
+      queryState.value = QueryStates.Fetched.value
       return // break out of loop
     }
 
@@ -341,10 +331,11 @@ export const useSvQueryStore = defineStore('svQuery', () => {
       ),
       // 2. fetch previous query UUID
       fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
-        .then((queryUuid) => {
-          if (queryUuid) {
+        .then((response) => {
+          if (response) {
+            queryUuid.value = response
             // Retrieve query details and extract query settings.
-            return svClient.retrieveSvQuery(queryUuid)
+            return svClient.retrieveSvQuery(response)
           }
         })
         // 2.1 once we have previous query UUID, fetch query details
@@ -394,7 +385,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     querySettingsPresets.value = null
     querySettings.value = null
     previousQueryDetails.value = null
-    queryResultSet.value = null
     queryState.value = QueryStates.None.value
     queryStateMsg.value = null
     queryLogs.value = null
@@ -424,7 +414,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     querySettingsPresets,
     querySettings,
     previousQueryDetails,
-    queryResultSet,
+    queryUuid,
     queryState,
     queryStateMsg,
     queryLogs,

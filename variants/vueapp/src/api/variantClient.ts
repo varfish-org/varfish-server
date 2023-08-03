@@ -111,10 +111,10 @@ export class VariantClient extends ClientBase {
   }
 
   async retrieveQueryResultSet(
-    queryResultUuid: string,
+    queryResultSetUuid: string,
   ): Promise<QueryResultSet> {
     return await this.fetchHelper(
-      `/variants/ajax/query-result-set/retrieve/${queryResultUuid}/`,
+      `/variants/ajax/query-result-set/retrieve/${queryResultSetUuid}/`,
       'GET',
     )
   }

@@ -31,6 +31,23 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   /** Query of result set, if any. */
   const query = ref<any | null>(null)
 
+  /** Table server option page number. */
+  const tablePageNo = ref<number | null>(null)
+  /** Table server option page size. */
+  const tablePageSize = ref<number | null>(null)
+  /** Table server option to sort column by. */
+  const tableSortBy = ref<any | null>(null)
+  /** Table server option sort asc or desc. */
+  const tableSortType = ref<string | null>(null)
+  /** Which details to display, integer value from {@code DisplayDetails}. */
+  const displayDetails = ref<number | null>(null)
+  /** Which frequency information to display, integer value from {@code DisplayFrequency}. */
+  const displayFrequency = ref<number | null>(null)
+  /** The constraint to display, integer value from {@code DisplayConstraint}. */
+  const displayConstraint = ref<number | null>(null)
+  /** The additional columns to display; Integers from {@code DisplayColumns}. */
+  const displayColumns = ref<any | null>(null)
+
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
 
@@ -65,6 +82,33 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
     initializeRes.value = Promise.resolve()
     return initializeRes.value
+  }
+
+  const loadResultSetViaQuery = async (queryUuid$: string) => {
+    // Once query is finished, load results, if still for the same query.
+    const variantClient = new VariantClient(csrfToken.value)
+    const responseResultSetList = await variantClient.listQueryResultSet(
+      queryUuid$,
+    )
+    if (!responseResultSetList.length) {
+      console.error('ERROR: no results in response')
+    } else {
+      // Still fetching the same query; push to query result set.
+      resultSet.value = responseResultSetList[0]
+      resultSetUuid.value = responseResultSetList[0].sodar_uuid
+    }
+  }
+
+  const loadResultSetViaCase = async (caseUuid$: any) => {
+    // Once query is finished, load results, if still for the same query.
+    const variantClient = new VariantClient(csrfToken.value)
+    const case$ = await variantClient.retrieveCase(caseUuid$)
+    if (case$.smallvariantqueryresultset) {
+      resultSet.value = case$.smallvariantqueryresultset
+      resultSetUuid.value = case$.smallvariantqueryresultset.sodar_uuid
+    } else {
+      console.error('ERROR: no result set in case response')
+    }
   }
 
   /**
@@ -129,8 +173,18 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     query,
     caseUuid,
     initializeRes,
+    tablePageNo,
+    tablePageSize,
+    tableSortBy,
+    tableSortType,
+    displayDetails,
+    displayFrequency,
+    displayConstraint,
+    displayColumns,
     // functions
     initialize,
     fetchResultSetViaRow,
+    loadResultSetViaQuery,
+    loadResultSetViaCase,
   }
 })

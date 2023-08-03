@@ -58,6 +58,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
             "smallvariantquery": str(self.smallvariantqueryresultset.smallvariantquery.sodar_uuid),
             "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
             "result_row_count": self.smallvariantqueryresultset.result_row_count,
+            "case": str(self.case.sodar_uuid),
         }
         expected0_svqueryresultset = {
             "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
@@ -68,6 +69,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
             "svquery": str(self.svqueryresultset.svquery.sodar_uuid),
             "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
             "result_row_count": self.svqueryresultset.result_row_count,
+            "case": str(self.case.sodar_uuid),
         }
         expected0 = jsonmatch.compile(
             {

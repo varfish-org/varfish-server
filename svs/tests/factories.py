@@ -328,6 +328,7 @@ class SvQueryResultSetFactory(factory.django.DjangoModelFactory):
         model = SvQueryResultSet
 
     svquery = factory.SubFactory(SvQueryFactory)
+    case = None
 
     start_time = FuzzyDateTime(timezone.now())
     end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))

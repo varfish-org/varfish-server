@@ -14,11 +14,11 @@ import { getAcmgBadge } from '@variants/helpers'
 import { VariantClient } from '@variants/api/variantClient'
 import ColumnControl from '@variants/components/ColumnControl.vue'
 import ExportResults from '@variants/components/ExportResults.vue'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { copy, declareWrapper } from '@variants/helpers'
 import {
   DisplayConstraints,
@@ -26,36 +26,17 @@ import {
   DisplayFrequencies,
   DisplayColumnsToText,
   DisplayDetails,
+  DisplayColumns,
 } from '@variants/enums'
 
 /**
  * The component's props.
  */
 const props = defineProps({
-  /** The case with the property to display for. */
-  case: Object,
-  /** Which details to display, integer value from {@code DisplayDetails}. */
-  displayDetails: Number,
-  /** Which frequency information to display, integer value from {@code DisplayFrequency}. */
-  displayFrequency: Number,
-  /** The constraint to display, integer value from {@code DisplayConstraint}. */
-  displayConstraint: Number,
-  /** The additional columns to display; Integers from {@code DisplayColumns}. */
-  displayColumns: Array,
-  /** The extra fields information. */
-  extraAnnoFields: Array,
   /** The pathogenicity score enabled. */
   pathoEnabled: Boolean,
   /** The phenotype score enabled. */
   prioEnabled: Boolean,
-  /** The page. */
-  page: Number,
-  /** The page size. */
-  pageSize: Number,
-  /** The column to order by. */
-  orderBy: String,
-  /** The direction of ordering. */
-  orderDir: String,
 })
 
 /**
@@ -64,106 +45,96 @@ const props = defineProps({
 const emit = defineEmits([
   /** Variant has been selected. */
   'variantSelected',
-  /** Emitted to notify about change in {@code displayDetails} prop. */
-  'update:displayDetails',
-  /** Emitted to notify about change in {@code displayFrequency} prop. */
-  'update:displayFrequency',
-  /** Emitted to notify about change in {@code displayConstraint} prop. */
-  'update:displayConstraint',
-  /** Emitted to notify about change in {@code displayColumns} prop. */
-  'update:displayColumns',
 ])
-
-/** Wrapper around {@code displayDetails} prop. */
-const displayDetailsWrapper = declareWrapper(props, 'displayDetails', emit)
-/** Wrapper around {@code displayFrequency} prop. */
-const displayFrequencyWrapper = declareWrapper(props, 'displayFrequency', emit)
-/** Wrapper around {@code displayConstraint} prop. */
-const displayConstraintWrapper = declareWrapper(
-  props,
-  'displayConstraint',
-  emit,
-)
-
-const router = useRouter()
-
-/** Wrapper around {@code displayColumns} prop. */
-const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
-/** The table server options, updated by Vue3EasyDataTable. */
-const tableServerOptions = ref({
-  page: props.page || 1,
-  rowsPerPage: props.pageSize || 50,
-  sortBy: props.orderBy || 'position',
-  sortType: props.orderDir || 'asc',
-})
 
 /**
  * Setup stores before mounting the component.
  */
-const variantDetailsStore = useVariantDetailsStore()
-const queryStore = useVariantQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
 const acmgRatingStore = useVariantAcmgRatingStore()
+const variantResultSetStore = useVariantResultSetStore()
 
-/** Update display when pagination or sorting changed. */
-/**
-watch(
-  [
-    () => queryStore.tableServerOptions.page,
-    () => queryStore.tableServerOptions.rowsPerPage,
-    () => queryStore.tableServerOptions.sortBy,
-    () => queryStore.tableServerOptions.sortType,
-  ],
-  async (
-    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
-    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType]
-  ) => {
-    queryStore.queryState = QueryStates.Resuming.value
-    await queryStore.runFetchLoop(queryStore.previousQueryDetails.sodar_uuid)
-  }
-)
-*/
+const router = useRouter()
+
+/** The details columns to show. */
+const displayDetails = computed({
+  get() {
+    return (
+      variantResultSetStore.displayDetails || DisplayDetails.Coordinates.value
+    )
+  },
+  set(newValue) {
+    variantResultSetStore.displayDetails = newValue
+  },
+})
+
+/** The frequency columns to show. */
+const displayFrequency = computed({
+  get() {
+    return (
+      variantResultSetStore.displayFrequency ||
+      DisplayFrequencies.GnomadExomes.value
+    )
+  },
+  set(newValue) {
+    variantResultSetStore.displayFrequency = newValue
+  },
+})
+
+/** The constraint columns to show. */
+const displayConstraint = computed({
+  get() {
+    return (
+      variantResultSetStore.displayConstraint ||
+      DisplayConstraints.GnomadPli.value
+    )
+  },
+  set(newValue) {
+    variantResultSetStore.displayConstraint = newValue
+  },
+})
+
+/** The additional columns to display. */
+const displayColumns = computed({
+  get() {
+    return variantResultSetStore.displayColumns || [DisplayColumns.Effect.value]
+  },
+  set(newValue) {
+    variantResultSetStore.displayColumns = newValue
+  },
+})
+
+/** The table server options, updated by Vue3EasyDataTable. */
+const tableServerOptions = computed({
+  get() {
+    return {
+      page: variantResultSetStore.pageNo || 1,
+      rowsPerPage: variantResultSetStore.pageSize || 50,
+      sortBy: variantResultSetStore.sortBy || 'position',
+      sortType: variantResultSetStore.sortType || 'asc',
+    }
+  },
+  set(options) {
+    variantResultSetStore.pageNo = options.page
+    variantResultSetStore.pageSize = options.rowsPerPage
+    variantResultSetStore.sortBy = options.sortBy
+    variantResultSetStore.sortType = options.sortType
+  },
+})
 
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}',
 )
 
-onBeforeMount(() => {
-  tableLoading.value = true
-  Promise.all([
-    flagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
-      queryStore.caseUuid,
-    ),
-    commentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
-      queryStore.caseUuid,
-    ),
-    acmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
-      queryStore.caseUuid,
-    ),
-  ]).then(() => {
-    tableLoading.value = false
-  })
-})
-
-// const displayConstraintText = computed(() => {
-//   /** TODO Somehow it displays the string with quotes ... :/ */
-//   return DisplayConstraintsToText[displayConstraintWrapper.value]
-// })
-
 /**
  * Setup for easy-data-table.
  */
 
 const coordinatesClinvarColumns = () => {
-  if (props.displayDetails === DisplayDetails.Clinvar.value) {
+  if (displayDetails.value === DisplayDetails.Clinvar.value) {
     return [{ text: 'clinvar summary', value: 'clinvar' }]
   }
   return [
@@ -175,10 +146,13 @@ const coordinatesClinvarColumns = () => {
 
 const optionalColumns = () => {
   const optionalColumnTexts = copy(DisplayColumnsToText)
-  for (const { field, label } of props.extraAnnoFields) {
+  if (!extraAnnoFields.value) {
+    return []
+  }
+  for (const { field, label } of extraAnnoFields.value) {
     optionalColumnTexts[`extra_anno${field}`] = label
   }
-  return props.displayColumns.map((field) => ({
+  return displayColumns.value.map((field) => ({
     text: optionalColumnTexts[field],
     value: field,
     sortable: field.startsWith('extra_anno'),
@@ -187,10 +161,10 @@ const optionalColumns = () => {
 
 const genotypeMapping = {}
 const genotypeColumns = () => {
-  if (!props.case) {
+  if (!caseDetailsStore.caseObj) {
     return []
   }
-  return props.case.pedigree.map(({ name }) => {
+  return caseDetailsStore.caseObj.pedigree.map(({ name }) => {
     genotypeMapping[`genotype_${displayName(name)}`] = name
     return {
       text: displayName(name),
@@ -308,36 +282,36 @@ const getAcmgBadgeClasses = (acmgClass) => {
 }
 
 const freqHomFieldName = computed(() => {
-  return displayFrequencyWrapper.value === DisplayFrequencies.Exac.value
+  return displayFrequency.value === DisplayFrequencies.Exac.value
     ? { frequency: 'exac_frequency', homozygous: 'exac_homozygous' }
-    : displayFrequencyWrapper.value === DisplayFrequencies.ThousandGenomes.value
+    : displayFrequency.value === DisplayFrequencies.ThousandGenomes.value
     ? {
         frequency: 'thousand_genomes_frequency',
         homozygous: 'thousand_genomes_homozygous',
       }
-    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadExomes.value
+    : displayFrequency.value === DisplayFrequencies.GnomadExomes.value
     ? {
         frequency: 'gnomad_exomes_frequency',
         homozygous: 'gnomad_exomes_homozygous',
       }
-    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadGenomes.value
+    : displayFrequency.value === DisplayFrequencies.GnomadGenomes.value
     ? {
         frequency: 'gnomad_genomes_frequency',
         homozygous: 'gnomad_genomes_homozygous',
       }
-    : displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
+    : displayFrequency.value === DisplayFrequencies.InhouseDb.value
     ? { frequency: 'inhouse_carriers', homozygous: 'inhouse_hom_alt' }
-    : displayFrequencyWrapper.value === DisplayFrequencies.MtDb.value
+    : displayFrequency.value === DisplayFrequencies.MtDb.value
     ? { frequency: 'mtdb_frequency', homozygous: 'mtdb_count' }
-    : displayFrequencyWrapper.value === DisplayFrequencies.HelixMtDb.value
+    : displayFrequency.value === DisplayFrequencies.HelixMtDb.value
     ? { frequency: 'helixmtdb_frequency', homozygous: 'helixmtdb_hom_count' }
-    : displayFrequencyWrapper.value === DisplayFrequencies.Mitomap.value
+    : displayFrequency.value === DisplayFrequencies.Mitomap.value
     ? { frequency: 'mitomap_frequency', homozygous: 'mitomap_count' }
     : { frequency: null, homozygous: null }
 })
 
 const displayFrequencyContent = (item) => {
-  return displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
+  return displayFrequency.value === DisplayFrequencies.InhouseDb.value
     ? item[freqHomFieldName.value.frequency]
     : formatFreq(item[freqHomFieldName.value.frequency])
 }
@@ -347,19 +321,19 @@ const displayHomozygousContent = (item) => {
 }
 
 const constraintFieldName = computed(() => {
-  return displayConstraintWrapper.value === DisplayConstraints.ExacPli.value
+  return displayConstraint.value === DisplayConstraints.ExacPli.value
     ? 'exac_pLI'
-    : displayConstraintWrapper.value === DisplayConstraints.ExacZMis.value
+    : displayConstraint.value === DisplayConstraints.ExacZMis.value
     ? 'exac_mis_z'
-    : displayConstraintWrapper.value === DisplayConstraints.ExacZSyn.value
+    : displayConstraint.value === DisplayConstraints.ExacZSyn.value
     ? 'exac_syn_z'
-    : displayConstraintWrapper.value === DisplayConstraints.GnomadLoeuf.value
+    : displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
     ? 'gnomad_loeuf'
-    : displayConstraintWrapper.value === DisplayConstraints.GnomadPli.value
+    : displayConstraint.value === DisplayConstraints.GnomadPli.value
     ? 'gnomad_pLI'
-    : displayConstraintWrapper.value === DisplayConstraints.GnomadZMis.value
+    : displayConstraint.value === DisplayConstraints.GnomadZMis.value
     ? 'gnomad_mis_z'
-    : displayConstraintWrapper.value === DisplayConstraints.GnomadZSyn.value
+    : displayConstraint.value === DisplayConstraints.GnomadZSyn.value
     ? 'gnomad_syn_z'
     : null
 })
@@ -417,13 +391,6 @@ const showVariantDetails = (sodarUuid, section) => {
   })
 }
 
-const showAcmgRating = (sodarUuid) => {
-  emit('variantSelected', {
-    smallvariantresultrow: sodarUuid,
-    selectedSection: 'acmg-rating',
-  })
-}
-
 const displayAmbiguousFrequencyWarning = (item) => {
   const tables = [
     'exac',
@@ -464,98 +431,58 @@ const loadFromServer = async () => {
     return row
   }
 
-  const variantClient = new VariantClient(queryStore.csrfToken)
+  const variantClient = new VariantClient(variantResultSetStore.csrfToken)
 
   tableLoading.value = true
-  const response = await variantClient.listQueryResultRow(
-    queryStore.queryResultSet.sodar_uuid,
-    {
-      pageNo: tableServerOptions.value.page,
-      pageSize: tableServerOptions.value.rowsPerPage,
-      orderBy:
-        tableServerOptions.value.sortBy === 'position'
-          ? 'chromosome_no,start'
-          : tableServerOptions.value.sortBy === 'gene'
-          ? 'symbol'
-          : tableServerOptions.value.sortBy === 'gene_icons'
-          ? 'acmg_symbol,disease_gene'
-          : tableServerOptions.value.sortBy === 'frequency'
-          ? freqHomFieldName.value.frequency
-          : tableServerOptions.value.sortBy === 'homozygous'
-          ? freqHomFieldName.value.homozygous
-          : tableServerOptions.value.sortBy === 'constraints'
-          ? constraintFieldName.value
-          : tableServerOptions.value.sortBy?.startsWith('genotype_')
-          ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
-          : tableServerOptions.value.sortBy,
-      orderDir: tableServerOptions.value.sortType,
-    },
-  )
-  tableRows.value = response.results.map((row) => transmogrify(row))
-  tableLoading.value = false
+  if (variantResultSetStore.resultSetUuid) {
+    const response = await variantClient.listQueryResultRow(
+      variantResultSetStore.resultSetUuid,
+      {
+        pageNo: tableServerOptions.value.page,
+        pageSize: tableServerOptions.value.rowsPerPage,
+        orderBy:
+          tableServerOptions.value.sortBy === 'position'
+            ? 'chromosome_no,start'
+            : tableServerOptions.value.sortBy === 'gene'
+            ? 'symbol'
+            : tableServerOptions.value.sortBy === 'gene_icons'
+            ? 'acmg_symbol,disease_gene'
+            : tableServerOptions.value.sortBy === 'frequency'
+            ? freqHomFieldName.value.frequency
+            : tableServerOptions.value.sortBy === 'homozygous'
+            ? freqHomFieldName.value.homozygous
+            : tableServerOptions.value.sortBy === 'constraints'
+            ? constraintFieldName.value
+            : tableServerOptions.value.sortBy?.startsWith('genotype_')
+            ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
+            : tableServerOptions.value.sortBy,
+        orderDir: tableServerOptions.value.sortType,
+      },
+    )
+    tableRows.value = response.results.map((row) => transmogrify(row))
+    tableLoading.value = false
+  }
 }
 
-const pushRoute = () => {
-  router.push({
-    name: 'variants-filter',
-    params: {
-      case: props.case.sodar_uuid,
-      query: queryStore.queryResultSet.sodar_uuid,
-      orderBy: tableServerOptions.value.sortBy,
-      orderDir: tableServerOptions.value.sortType,
-      page: tableServerOptions.value.page,
-      pageSize: tableServerOptions.value.rowsPerPage,
-      displayDetails: displayDetailsWrapper.value,
-      displayFrequency: displayFrequencyWrapper.value,
-      displayConstraint: displayConstraintWrapper.value,
-      displayColumns: displayColumnsWrapper.value.join(','),
-    },
-  })
-}
+const extraAnnoFields = ref()
 
 /** Load data when mounted. */
-onMounted(() => {
-  loadFromServer()
+onBeforeMount(async () => {
+  const variantClient = new VariantClient(caseDetailsStore.csrfToken)
+  extraAnnoFields.value = await variantClient.fetchExtraAnnoFields(
+    caseDetailsStore.csrfToken,
+  )
+  if (variantResultSetStore.resultSetUuid) {
+    await loadFromServer()
+  }
 })
 
-/** Watch changes in tableServerOptions and reload if necessary. */
 watch(
-  tableServerOptions,
+  () => variantResultSetStore.resultSetUuid,
   (_newValue, _oldValue) => {
-    pushRoute()
-    loadFromServer()
-  },
-  { deep: true },
-)
-
-watch(
-  displayDetailsWrapper,
-  (_newValue, _oldValue) => {
-    pushRoute()
-  },
-  { deep: true },
-)
-
-watch(
-  displayFrequencyWrapper,
-  (_newValue, _oldValue) => {
-    pushRoute()
-  },
-  { deep: true },
-)
-
-watch(
-  displayConstraintWrapper,
-  (_newValue, _oldValue) => {
-    pushRoute()
-  },
-  { deep: true },
-)
-
-watch(
-  displayColumnsWrapper,
-  (_newValue, _oldValue) => {
-    pushRoute()
+    if (_newValue) {
+      loadFromServer()
+    }
   },
   { deep: true },
 )
@@ -572,16 +499,16 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary" id="results-button">
-            {{ queryStore.queryResultSet.result_row_count }}
+            {{ variantResultSetStore?.resultSet?.result_row_count }}
           </span>
         </div>
       </div>
       <ColumnControl
-        :extra-anno-fields="props.extraAnnoFields"
-        v-model:display-details="displayDetailsWrapper"
-        v-model:display-frequency="displayFrequencyWrapper"
-        v-model:display-constraint="displayConstraintWrapper"
-        v-model:display-columns="displayColumnsWrapper"
+        :extra-anno-fields="extraAnnoFields"
+        v-model:display-details="displayDetails"
+        v-model:display-frequency="displayFrequency"
+        v-model:display-constraint="displayConstraint"
+        v-model:display-columns="displayColumns"
       />
       <ExportResults />
     </div>
@@ -591,7 +518,9 @@ watch(
         table-class-name="customize-table"
         :loading="tableLoading"
         :body-row-class-name="tableRowClassName"
-        :server-items-length="queryStore.queryResultSet.result_row_count"
+        :server-items-length="
+          variantResultSetStore?.resultSet?.result_row_count
+        "
         :headers="tableHeaders"
         :items="tableRows"
         :rows-items="[20, 50, 200, 1000]"
@@ -836,7 +765,7 @@ watch(
           {{ extraAnnoFieldFormat(payload.extra_annos, field) }}
         </template>
         <template
-          v-for="{ name } in props.case?.pedigree"
+          v-for="{ name } in caseDetailsStore.caseObj?.pedigree"
           v-slot:[`item-genotype_${displayName(name)}`]="{ payload }"
         >
           {{ payload.genotype[name].gt }}
@@ -850,27 +779,27 @@ watch(
         <template #item-patho_pheno_score="{ payload }">
           {{ formatFloat(payload.patho_pheno_score, 3) }}
         </template>
-        <template #item-igv="{ payload }">
+        <template #item-igv="item">
           <div class="btn-group btn-group-sm">
             <div
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
-              @click="flagsStore.flagAsArtifact(payload)"
+              @click="flagsStore.flagAsArtifact(item)"
               role="button"
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>
             <a
-              :href="mtLink(payload)"
+              :href="mtLink(item)"
               target="_blank"
               style="font-size: 80%"
               class="btn btn-sm btn-outline-secondary"
-              :class="mtLink(payload) === '#' ? 'disabled' : ''"
+              :class="mtLink(item) === '#' ? 'disabled' : ''"
             >
               MT
             </a>
             <button
-              @click="goToLocus(payload)"
+              @click="goToLocus(item)"
               type="button"
               title="Go to locus in IGV"
               style="font-size: 80%"
