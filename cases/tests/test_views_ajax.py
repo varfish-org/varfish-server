@@ -11,6 +11,7 @@ from cases.tests.factories import (
     CaseAlignmentStatsFactory,
     PedigreeRelatednessFactory,
 )
+from svs.tests.factories import SvQueryResultSetFactory
 from variants.models import CaseComments, CasePhenotypeTerms
 from variants.tests.factories import (
     CaseCommentsFactory,
@@ -20,6 +21,7 @@ from variants.tests.factories import (
     CaseWithVariantSetFactory,
     PresetSetFactory,
     SampleVariantStatisticsFactory,
+    SmallVariantQueryResultSetFactory,
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
@@ -33,6 +35,8 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
         self.case = CaseFactory(project=self.project, presetset=self.presetset)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
 
     def test_get(self):
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
@@ -45,6 +49,26 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         for entry in expected0_pedigree:
             entry["name"] = entry["patient"]
             entry.pop("patient")
+        expected0_smallvariantqueryresultset = {
+            "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
+            "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
+            "smallvariantquery": str(self.smallvariantqueryresultset.smallvariantquery.sodar_uuid),
+            "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
+            "result_row_count": self.smallvariantqueryresultset.result_row_count,
+        }
+        expected0_svqueryresultset = {
+            "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
+            "date_created": self.svqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
+            "svquery": str(self.svqueryresultset.svquery.sodar_uuid),
+            "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
+            "result_row_count": self.svqueryresultset.result_row_count,
+        }
         expected0 = jsonmatch.compile(
             {
                 "count": 1,
@@ -52,6 +76,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
                 "previous": None,
                 "results": [
                     {
+                        "case_version": 1,
                         "date_created": RE_DATETIME,
                         "date_modified": RE_DATETIME,
                         "index": self.case.index,
@@ -68,7 +93,8 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
                         "state": None,
                         "status": "initial",
                         "tags": [],
-                        "case_version": 1,
+                        "smallvariantqueryresultset": expected0_smallvariantqueryresultset,
+                        "svqueryresultset": expected0_svqueryresultset,
                     }
                 ],
             }
@@ -82,7 +108,8 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
         with self.login(self.contributor_as.user):
             # NB(2022-11-22): A call to listing all cases via AJAX triggered 21 queries, only 1 for fetching the cases.
-            with self.assertNumQueriesLessThan(22):
+            # NB(2023-08-03): A call to listing all cases via AJAX triggered 41 queries, only 1 for fetching the cases.
+            with self.assertNumQueriesLessThan(42):
                 response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

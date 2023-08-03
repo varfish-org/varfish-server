@@ -2,7 +2,15 @@ from celery.schedules import crontab
 
 from config.celery import app
 
-from . import file_export, models, submit_external, submit_filter, sync_upstream, variant_stats
+from . import (
+    file_export,
+    models,
+    submit_external,
+    submit_filter,
+    sync_upstream,
+    utils,
+    variant_stats,
+)
 from .helpers import get_engine
 from .models import jobs
 
@@ -54,6 +62,11 @@ def export_project_cases_file_task(_self, export_job_pk):
 @app.task(bind=True)
 def clear_expired_exported_files(_self):
     file_export.clear_expired_exported_files()
+
+
+@app.task(bind=True)
+def create_queryresultset(_self):
+    utils.create_queryresultset()
 
 
 @app.task(bind=True)

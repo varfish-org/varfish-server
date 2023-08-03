@@ -3,6 +3,7 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from svs.serializers import SvQueryResultSetSerializer
 from variants.models import (
     Case,
     CaseAlignmentStats,
@@ -12,7 +13,7 @@ from variants.models import (
     PresetSet,
     SampleVariantStatistics,
 )
-from variants.serializers import CoreCaseSerializerMixin
+from variants.serializers import CoreCaseSerializerMixin, SmallVariantQueryResultSetSerializer
 
 _app_settings = AppSettingAPI()
 
@@ -30,6 +31,10 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     presetset = serializers.ReadOnlyField(source="presetset.sodar_uuid")
     #: Serialize sex errors from method call.
     sex_errors = serializers.SerializerMethodField("get_sex_errors")
+    #: Serialize ``smallvariantqueryresultset`` as its ``sodar_uuid``.
+    smallvariantqueryresultset = serializers.SerializerMethodField()
+    #: Serialize ``svqueryresultset`` as its ``sodar_uuid``.
+    svqueryresultset = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,6 +61,12 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
                 "variants", "disable_pedigree_sex_check", project=obj.project
             )
         return obj.sex_errors(disable_pedigree_sex_check=self.disable_pedigree_sex_check)
+
+    def get_smallvariantqueryresultset(self, obj):
+        return SmallVariantQueryResultSetSerializer(obj.smallvariantqueryresultset_set.first()).data
+
+    def get_svqueryresultset(self, obj):
+        return SvQueryResultSetSerializer(obj.svqueryresultset_set.first()).data
 
     class Meta:
         model = Case
