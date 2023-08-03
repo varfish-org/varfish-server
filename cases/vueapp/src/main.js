@@ -2,12 +2,12 @@ import App from '@cases/App.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-const CaseListApp = () => import('./components/CaseListApp.vue')
-const CaseDetailApp = () => import('./components/CaseDetailApp.vue')
-const FilterApp = () => import('@variants/components/FilterApp.vue')
-const VariantDetails = () => import('@variants/components/VariantDetails.vue')
-const SvFilterApp = () => import('@svs/components/SvFilterApp.vue')
-const SvDetails = () => import('@svs/components/SvDetails.vue')
+import CaseListApp from '@cases/components/CaseListApp.vue'
+import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
+import FilterApp from '@variants/components/FilterApp.vue'
+import VariantDetails from '@variants/components/VariantDetails.vue'
+import SvFilterApp from '@svs/components/SvFilterApp.vue'
+import SvDetails from '@svs/components/SvDetails.vue'
 import { useHistoryStore } from '@varfish/stores/history'
 
 const routes = [

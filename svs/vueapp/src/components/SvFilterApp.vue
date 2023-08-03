@@ -255,13 +255,6 @@ watch(
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>
-
-  <!-- <SvDetailsModalWrapper
-    ref="svDetailsModalWrapperRef"
-    :visible="props.detailsModalVisible"
-    :result-row-uuid="props.detailsModalResultRowUuid"
-    :selected-section="props.detailsModalselectedSection"
-  /> -->
 </template>
 
 <style scoped></style>

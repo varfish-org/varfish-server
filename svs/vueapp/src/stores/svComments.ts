@@ -119,6 +119,11 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    * Retrieve comments for the given SV.
    */
   const retrieveComments = async (sv$: StructuralVariant) => {
+    // Prevent re-retrieval of the comment.
+    if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
+      return
+    }
+
     const svClient = new SvClient(csrfToken.value)
 
     sv.value = null
@@ -225,6 +230,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     try {
       await svClient.deleteComment(commentUuid)
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
     } catch (err) {
       console.error('Problem deleting comment for SV', err)
       storeState.serverInteractions -= 1
@@ -243,7 +251,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    */
   const hasComment = (sv: StructuralVariant): boolean => {
     const minReciprocalOverlap = 0.8
-    for (const comment of Object.values(caseComments.value ?? [])) {
+    for (const comment of caseComments.value.values()) {
       if (
         comment.sv_type == sv.sv_type &&
         reciprocalOverlap(comment, sv) >= minReciprocalOverlap

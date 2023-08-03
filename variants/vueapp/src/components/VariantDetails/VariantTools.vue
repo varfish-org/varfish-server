@@ -36,7 +36,7 @@ const bestSpliceAi = computed(() => {
     'SpliceAi-don-gain',
     'SpliceAi-don-loss',
   ]
-  return bestOf(props.varAnnos?.dbnsfp, keys)
+  return bestOf(props.varAnnos?.cadd, keys)
 })
 
 const bestMMSplice = computed(() => {
@@ -47,7 +47,7 @@ const bestMMSplice = computed(() => {
     'MMSp_donor',
     'MMSp_donorIntron',
   ]
-  return bestOf(props.varAnnos?.dbnsfp, keys)
+  return bestOf(props.varAnnos?.cadd, keys)
 })
 
 const decodeMultiDbnsfp = (s: string): number | null => {

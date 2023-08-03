@@ -230,9 +230,12 @@ const onSubmitAcmgRating = async () => {
 }
 
 watch(
-  () => [props.smallVariant, acmgRatingStore.storeState],
+  () => [props.smallVariant, acmgRatingStore.storeState.state],
   async () => {
-    if (props.smallVariant && acmgRatingStore.storeState === State.Active) {
+    if (
+      props.smallVariant &&
+      acmgRatingStore.storeState.state === State.Active
+    ) {
       await acmgRatingStore.retrieveAcmgRating(props.smallVariant)
       resetAcmgRating()
     }

@@ -474,6 +474,33 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
+            Disease Annotation
+          </span>
+        </div>
+        <div class="card-body pb-2 pt-2">
+          <div v-if="gene.dbnsfp?.orphanet_disorder?.length" class="mb-2">
+            <strong>Orphanet Disorders:</strong>
+            {{ gene.dbnsfp.orphanet_disorder.join(', ') }}
+          </div>
+          <div v-else class="text-muted">
+            No Orphanet disorders annotated in dbNSFP.
+          </div>
+
+          <div v-if="gene.dbnsfp?.mim_disease?.length" class="mb-2">
+            <strong>OMIM Diseases:</strong>
+            {{ gene.dbnsfp.mim_disease.join(', ') }}
+          </div>
+          <div v-else class="text-muted">
+            No OMIM diseases annotated in dbNSFP.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col mb-2 pl-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header pl-2 pt-1 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%">
             ACMG Supplementary Findings List
           </span>
         </div>

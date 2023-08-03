@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import isEqual from 'lodash.isequal'
 
+import { State } from '@varfish/storeUtils'
 import { copy } from '@varfish/helpers'
 import Overlay from '@varfish/components/Overlay.vue'
 
@@ -98,9 +99,9 @@ const onSubmitFlags = async () => {
 }
 
 watch(
-  () => [props.variant, props.flagsStore.storeState],
+  () => props.variant,
   () => {
-    if (props.variant && props.flagsStore.storeState === 'active') {
+    if (props.variant && props.flagsStore.storeState.state === State.Active) {
       props.flagsStore.retrieveFlags(props.variant).then(() => {
         resetFlags()
       })

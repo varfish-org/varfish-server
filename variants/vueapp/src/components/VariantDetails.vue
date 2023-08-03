@@ -234,14 +234,12 @@ onMounted(() => {
             </SimpleCard>
             <SimpleCard id="flags" title="Flags">
               <VariantDetailsFlags
-                :details-store="variantDetailsStore"
                 :flags-store="variantFlagsStore"
                 :variant="variantDetailsStore.smallVariant"
               />
             </SimpleCard>
             <SimpleCard id="comments" title="Comments">
               <VariantDetailsComments
-                :details-store="variantDetailsStore"
                 :comments-store="variantCommentsStore"
                 :variant="variantDetailsStore.smallVariant"
               />

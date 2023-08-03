@@ -86,12 +86,10 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
       const resultSetUuid$ = resultRow$.svqueryresultset
       const resultSet$ = await svClient.retrieveSvQueryResultSet(resultSetUuid$)
 
-      if (resultSet$.smallvariantquery) {
+      if (resultSet$.svquery) {
         // The result set belongs to a query so we retrieve it and get the case UUID
         // from there.
-        const query$ = await svClient.retrieveSvQuery(
-          resultSet$.smallvariantquery,
-        )
+        const query$ = await svClient.retrieveSvQuery(resultSet$.svquery)
         query.value = query$
         caseUuid.value = query$.case
       } else {
