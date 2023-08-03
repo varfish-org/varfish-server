@@ -26,7 +26,7 @@ describe('QcPlotVarEffect.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with variant effect counts for each sample/
+      /Histograms with variant effect counts for each sample/,
     )
   })
   test('test with some data', async () => {
@@ -41,7 +41,7 @@ describe('QcPlotVarEffect.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /Histograms with variant effect counts for each sample/
+      /Histograms with variant effect counts for each sample/,
     )
   })
 })

@@ -5,7 +5,7 @@ import {
   isDiseaseTerm,
   uuidv4,
 } from '@clinvarexport/helpers'
-import { sodarObjectListToObject } from '@varfish/api-utils'
+import { sodarObjectListToObject } from '@varfish/apiUtils'
 import { defineStore } from 'pinia'
 
 /**

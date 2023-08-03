@@ -1,7 +1,7 @@
 <script setup>
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 
-const store = useFilterQueryStore()
+const store = useVariantQueryStore()
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({

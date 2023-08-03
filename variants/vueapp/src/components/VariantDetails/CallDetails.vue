@@ -21,7 +21,7 @@ const allelicBalance = (value) => {
   <div>
     <table
       class="card-body table table-striped table-sm"
-      v-if="props.caseDescription"
+      v-if="props.caseDescription && props.smallVariant"
     >
       <thead>
         <tr>

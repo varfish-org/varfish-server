@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import isEqual from 'lodash.isequal'
 
 import { copy } from '@varfish/helpers'
@@ -97,10 +97,23 @@ const onSubmitFlags = async () => {
   }
 }
 
+watch(
+  () => [props.variant, props.flagsStore.storeState],
+  () => {
+    if (props.variant && props.flagsStore.storeState === 'active') {
+      props.flagsStore.retrieveFlags(props.variant).then(() => {
+        resetFlags()
+      })
+    }
+  },
+)
+
 onMounted(() => {
-  props.flagsStore.retrieveFlags(props.variant).then(() => {
-    resetFlags()
-  })
+  if (props.variant) {
+    props.flagsStore.retrieveFlags(props.variant).then(() => {
+      resetFlags()
+    })
+  }
 })
 </script>
 

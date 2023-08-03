@@ -4,7 +4,11 @@
   The component uses a wrapping list of cards to present the information.
 -->
 <script setup lang="ts">
-import { roundIt } from '@varfish/more-utils'
+import { computed } from 'vue'
+
+import { stopWords } from '@variants/components/Gene.fields'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { roundIt } from '@varfish/moreUtils'
 
 export interface Props {
   /** Gene information from annonars. */
@@ -21,6 +25,23 @@ const props = withDefaults(defineProps<Props>(), {
   smallVar: null,
   hgmdProEnabled: false,
   hgmdProPrefix: '',
+})
+
+const variantQueryStore = useVariantQueryStore()
+
+const linkOutPubMedHpoTerms = computed((): string | null => {
+  if (props.gene?.hgnc?.symbol && variantQueryStore.hpoNames?.length) {
+    const symbol = props.gene.hgnc.symbol
+    const tokens = (variantQueryStore.hpoNames ?? [])
+      .join(' ')
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((token) => !stopWords.includes(token))
+    const terms = tokens.join('+OR+')
+    return `https://www.ncbi.nlm.nih.gov/pubmed/?term=${symbol}+AND+(${terms})`
+  } else {
+    return null
+  }
 })
 </script>
 
@@ -178,7 +199,7 @@ const props = withDefaults(defineProps<Props>(), {
         <div class="card-body pb-2 pt-2">
           <div class="overflow-auto" style="max-height: 200px; font-size: 90%">
             {{ gene?.ncbi?.summary }}
-            <a :href="`https://www.ncbi.nlm.nih.gov/gene/672`">
+            <a :href="`https://www.ncbi.nlm.nih.gov/gene/672`" target="_blank">
               <i-mdi-launch />
               source
             </a>
@@ -275,7 +296,7 @@ const props = withDefaults(defineProps<Props>(), {
     </div>
 
     <div class="col mb-2 pl-2 pr-0">
-      <div class="card h-100" v-if="gene?.hgnc?.lsdb?.length">
+      <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
             External Resources
@@ -293,7 +314,9 @@ const props = withDefaults(defineProps<Props>(), {
                   <i-mdi-launch />
                   COSMIC
                 </a>
-                <span v-else>COSMIC</span>
+                <span v-else class="text-muted pt-3">
+                  <i-mdi-launch /> COSMIC</span
+                >
               </div>
 
               <div>
@@ -355,18 +378,34 @@ const props = withDefaults(defineProps<Props>(), {
                   <i-mdi-launch />
                   OMIM
                 </a>
-                <span v-else>OMIM</span>
+                <span v-else class="text-muted pt-3">
+                  <i-mdi-launch /> OMIM</span
+                >
               </div>
             </div>
             <div class="col-6 p-0">
               <div>
                 <a
-                  :href="`https://pubmed.ncbi.nlm.nih.gov/?term=${gene?.hgnc?.hgnc_id}`"
+                  :href="`https://pubmed.ncbi.nlm.nih.gov/?term=${gene?.hgnc?.symbol}`"
                   target="_blank"
                 >
                   <i-mdi-launch />
                   PubMed
                 </a>
+              </div>
+              <div>
+                <a
+                  v-if="linkOutPubMedHpoTerms?.length"
+                  :href="linkOutPubMedHpoTerms"
+                  target="_blank"
+                >
+                  <i-mdi-launch />
+                  PubMed + HPO Terms
+                </a>
+                <span v-else class="text-muted">
+                  <i-mdi-launch />
+                  PubMed + HPO Terms (no terms)
+                </span>
               </div>
 
               <div>
@@ -391,6 +430,7 @@ const props = withDefaults(defineProps<Props>(), {
               <div v-if="props.smallVar">
                 <a
                   :href="`https://stuart.radboudumc.nl/metadome/dashboard/transcript/${smallVar.ensembl_transcript_id}`"
+                  target="_blank"
                 >
                   <i-mdi-launch />
                   MetaDome
@@ -411,7 +451,9 @@ const props = withDefaults(defineProps<Props>(), {
                     (Missense3D)
                   </template>
                 </template>
-                <span class="text-muted" v-else> Missense3D </span>
+                <span v-else class="text-muted pt-3">
+                  <i-mdi-launch /> Missense3D
+                </span>
               </div>
               <div>
                 <a
@@ -428,14 +470,14 @@ const props = withDefaults(defineProps<Props>(), {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0" v-if="gene?.acmg_sf">
+    <div class="col mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
             ACMG Supplementary Findings List
           </span>
         </div>
-        <div class="card-body pb-2 pt-2">
+        <div class="card-body pb-2 pt-2" v-if="gene?.acmg_sf">
           <div>
             <strong>since ACMG SF:</strong>
             v{{ gene.acmg_sf.sf_list_version }}
@@ -449,10 +491,13 @@ const props = withDefaults(defineProps<Props>(), {
             {{ gene.acmg_sf.disease_phenotype }}
           </div>
         </div>
+        <div v-else class="text-muted text-center font-italic">
+          Gene is not on ACMG SF list.
+        </div>
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0" v-if="gene?.ncbi?.rif_entries?.length">
+    <div class="col mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -463,6 +508,7 @@ const props = withDefaults(defineProps<Props>(), {
           <ul
             class="list-unstyled overflow-auto"
             style="max-height: 200px; font-size: 90%"
+            v-if="gene?.ncbi?.rif_entries?.length"
           >
             <template v-for="entry in gene.ncbi.rif_entries">
               <li v-if="entry?.text?.length">
@@ -480,18 +526,21 @@ const props = withDefaults(defineProps<Props>(), {
               </li>
             </template>
           </ul>
+          <div v-else class="text-muted text-center font-italic">
+            No GeneRIFs available for gene.
+          </div>
         </div>
       </div>
     </div>
 
     <div class="col mb-2 pl-2 pr-0">
-      <div class="card h-100" v-if="gene?.hgnc?.lsdb?.length">
+      <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
-            Location-Specific Databases
+            Locus-Specific Databases
           </span>
         </div>
-        <div class="card-body pb-2 pt-2">
+        <div class="card-body pb-2 pt-2" v-if="gene?.hgnc?.lsdb?.length">
           <div v-for="{ name, url } in gene.hgnc.lsdb">
             <a :href="name" target="_blank">
               <i-mdi-launch />
@@ -507,6 +556,9 @@ const props = withDefaults(defineProps<Props>(), {
               KEGG
             </a>
           </div>
+        </div>
+        <div v-else class="text-muted text-center font-italic">
+          No locus-specific database available for gene.
         </div>
       </div>
     </div>

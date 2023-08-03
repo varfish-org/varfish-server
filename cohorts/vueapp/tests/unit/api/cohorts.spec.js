@@ -184,7 +184,7 @@ describe('api', () => {
     const res = await cohortsApi.createCohortCase(
       csrfToken,
       projectUuid,
-      payload
+      payload,
     )
 
     expect(fetch.mock.calls.length).toEqual(1)

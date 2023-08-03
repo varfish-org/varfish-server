@@ -12,6 +12,12 @@ const props = defineProps({
   presetSet: String,
 })
 
+// Routing-related.
+
+const router = useRouter()
+
+// Constant definitions.
+
 /* We show/hide the tab panes with Vue via the router.
  *
  * This gives us the advantage of being able to control loading of data,
@@ -28,8 +34,7 @@ const Tabs = Object.freeze({
   queryPresets: 'case-list-query-presets',
 })
 
-/** The router. */
-const router = useRouter()
+// Function definitions.
 
 /** Update the current tab. */
 const updateCurrentTab = (newValue) => {

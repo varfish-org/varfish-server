@@ -2,16 +2,33 @@
 import debounce from 'lodash.debounce'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import casesApi from '@cases/api/cases'
-import { useCasesStore } from '@cases/stores/cases'
+import { CaseListClient } from '@cases/api/caseListClient'
+import { useCaseListStore } from '@cases/stores/caseList'
 import { displayName, formatLargeInt, formatTimeAgo } from '@varfish/helpers'
 
-const casesStore = useCasesStore()
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
+// Routing-related.
 
+const router = useRouter()
+
+// Store-related.
+
+const caseListStore = useCaseListStore()
+
+// API-related.
+
+/** REST API client for case lists ("all cases in a project") */
+const caseListClient = new CaseListClient(caseListStore.csrfToken)
+
+// Constants.
+
+/** Headers used in the `EasyDataTable` below. */
 const tableHeaders = [
   { text: 'Case Name', value: 'name', sortable: true },
   { text: 'Status', value: 'status', sortable: true },
@@ -22,6 +39,8 @@ const tableHeaders = [
   { text: 'Last Update', value: 'date_modified', width: 150 },
   { text: 'Shortcuts', value: 'buttons', width: 50 },
 ]
+
+// Component state.
 
 /** Rows to display in the table. */
 const tableRows = ref([])
@@ -39,8 +58,16 @@ const tableServerOptions = ref(
 /** The current search term. */
 const searchTerm = ref('')
 
+// Function definitions.
+
 /** Load data from table as configured by tableServerOptions. */
 const loadFromServer = async () => {
+  // Wait for initialization of caseListStore to finish.
+  await caseListStore.initialize(
+    appContext.sodar_uuid,
+    appContext.project.sodar_uuid,
+  )
+
   const transmogrify = (row) => {
     row['indexName'] = row['index']
     delete row['index']
@@ -48,20 +75,40 @@ const loadFromServer = async () => {
   }
 
   tableLoading.value = true
-  const response = await casesApi.listCase(
-    casesStore.csrfToken,
-    casesStore.project.sodar_uuid,
-    {
-      pageNo: tableServerOptions.value.page - 1,
-      pageSize: tableServerOptions.value.rowsPerPage,
-      orderBy: tableServerOptions.value.sortBy,
-      orderDir: tableServerOptions.value.sortType,
-      queryString: searchTerm.value,
-    },
-  )
+  const response = await caseListClient.listCase(caseListStore.projectUuid, {
+    pageNo: tableServerOptions.value.page - 1,
+    pageSize: tableServerOptions.value.rowsPerPage,
+    orderBy: tableServerOptions.value.sortBy,
+    orderDir: tableServerOptions.value.sortType,
+    queryString: searchTerm.value,
+  })
   tableRows.value = response.results.map((row) => transmogrify(row))
   tableLoading.value = false
 }
+
+/** Get comma-separated string with individual names. */
+const getIndividuals = (pedigree) => {
+  return pedigree
+    .map((row) => {
+      return displayName(row.name)
+    })
+    .join(', ')
+}
+
+/** Debounced version for reloading the table from server */
+const debouncedLoadFromServer = debounce(loadFromServer, 1000, {
+  leading: true,
+  maxWait: 2,
+  trailing: true,
+})
+
+// Watching and lifecycle hooks.
+
+/** Update display when search term changed. */
+watch(
+  () => searchTerm.value,
+  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer(),
+)
 
 /** Update display when pagination or sorting changed. */
 watch(
@@ -75,35 +122,6 @@ watch(
     [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
     [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
   ) => loadFromServer(),
-)
-
-const getIndividuals = (pedigree) => {
-  return pedigree
-    .map((row) => {
-      return displayName(row.name)
-    })
-    .join(', ')
-}
-
-/** The global router object. */
-const router = useRouter()
-
-/** Navigate to the case detail. */
-const navigate = (caseUuid) => {
-  router.push(`/detail/${caseUuid}`)
-}
-
-/** Debounced version for reloading the table from server */
-const debouncedLoadFromServer = debounce(loadFromServer, 1000, {
-  leading: true,
-  maxWait: 2,
-  trailing: true,
-})
-
-/** Update display when search term changed. */
-watch(
-  () => searchTerm.value,
-  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer(),
 )
 
 /** Load from server when mounted. */
@@ -123,7 +141,7 @@ onMounted(async () => {
         <div class="card-header d-flex">
           <h4 class="col-auto">
             <i-mdi-family-tree />
-            Case List ({{ casesStore.caseCount }})
+            Case List ({{ caseListStore.caseCount }})
           </h4>
 
           <div class="col-auto ml-auto pr-0">
@@ -148,7 +166,7 @@ onMounted(async () => {
             v-model:server-options="tableServerOptions"
             table-class-name="customize-table"
             :loading="tableLoading"
-            :server-items-length="casesStore.caseCount"
+            :server-items-length="caseListStore.caseCount"
             :headers="tableHeaders"
             :items="tableRows"
             :rows-items="[20, 50, 200, 1000]"
@@ -157,7 +175,11 @@ onMounted(async () => {
             show-index
           >
             <template #item-name="{ sodar_uuid, name }">
-              <a href="#" @click.prevent="navigate(sodar_uuid)">{{ name }}</a>
+              <a
+                href="#"
+                @click.prevent="router.push(`/detail/${sodar_uuid}`)"
+                >{{ name }}</a
+              >
             </template>
             <template #item-individuals="{ pedigree }">
               {{ getIndividuals(pedigree) }}

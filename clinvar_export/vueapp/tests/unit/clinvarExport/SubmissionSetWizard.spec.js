@@ -98,7 +98,7 @@ describe('SubmissionSetWizard.vue', () => {
 
     expect(await wrapper.vm.isValid()).toBe(true)
     expect(await wrapper.vm.getNotificationHtmlClass()).toBe(
-      'badge badge-success'
+      'badge badge-success',
     )
   })
 

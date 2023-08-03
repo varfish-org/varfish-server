@@ -117,7 +117,7 @@ describe('SubmissionCaseList.vue', () => {
 
     expect(wrapper.vm.getModalIndividualList()).toEqual([individual2])
     expect(wrapper.vm.getPhenotypeDisplay(individual1)).toEqual(
-      '(HP:123456) some name, (HP:98235) another name'
+      '(HP:123456) some name, (HP:98235) another name',
     )
   })
 })

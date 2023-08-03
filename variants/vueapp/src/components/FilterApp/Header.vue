@@ -2,16 +2,16 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-import { useCasesStore } from '@cases/stores/cases'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import queryPresetsApi from '@variants/api/queryPresets'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
 
 const router = useRouter()
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
-const filterQueryStore = useFilterQueryStore()
 
 const props = defineProps({
   formVisible: Boolean,
@@ -21,7 +21,7 @@ const emit = defineEmits(['toggleForm'])
 
 /** Whether the preset set is loading. */
 const presetSetLoading = ref(false)
-/** The current preset set (if filterQueryStore.caseObj.presetset !== null / factory presets). */
+/** The current preset set (if caseDetailsStore.caseObj.presetset !== null / factory presets). */
 const presetSetLabel = ref(null)
 /** Watch change of current case's preset set and load label if necessary. */
 watch(
@@ -30,13 +30,10 @@ watch(
     if (!newValue) {
       return // short circuit in case of factory defaults
     }
-    const csrfToken = casesStore.appContext.csrf_token
+    const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
     presetSetLoading.value = true
     try {
-      const presetSet = await queryPresetsApi.retrievePresetSet(
-        csrfToken,
-        newValue,
-      )
+      const presetSet = queryPresetsClient.retrievePresetSet(newValue)
       presetSetLabel.value = presetSet.label
     } catch (err) {
       console.error('Problem retrieving preset set', err)
@@ -52,16 +49,16 @@ watch(
     <!-- TODO buttons from sodar core -->
     <h2 class="sodar-pr-content-title">
       Filter Variants for Case
-      <small class="text-muted">{{ filterQueryStore.caseObj.name }}</small>
+      <small class="text-muted">{{ caseDetailsStore.caseObj.name }}</small>
       <small class="badge badge-primary ml-2" style="font-size: 50%">
-        {{ filterQueryStore.caseObj.release }}
+        {{ caseDetailsStore.caseObj.release }}
       </small>
 
       <a
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
         id="sodar-pr-btn-copy-uuid"
-        data-clipboard-text="{{ filterQueryStore.caseUuid }}"
+        data-clipboard-text="{{ caseDetailsStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"
         data-placement="top"
@@ -105,6 +102,7 @@ watch(
         <i-mdi-filter-variant />
         Filter SVs
       </a>
+      <UiToggleMaxButton />
       <a
         type="button"
         class="btn btn-secondary dropdown-toggle"
@@ -119,7 +117,7 @@ watch(
           @click.prevent="emit('editQueryPresetsClick')"
         >
           Query Presets:
-          <template v-if="filterQueryStore.caseObj?.presetset">
+          <template v-if="caseDetailsStore.caseObj?.presetset">
             <template v-if="presetSetLoading">
               <i-fa-solid-circle-notch v-if="presetSetLoading" class="spin" />
             </template>

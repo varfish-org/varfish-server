@@ -2,6 +2,7 @@
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
+
 import {
   displayName,
   formatLargeInt,
@@ -9,13 +10,13 @@ import {
   truncateText,
 } from '@varfish/helpers'
 import { getAcmgBadge } from '@variants/helpers'
-import variantsApi from '@variants/api/variants'
+import { VariantClient } from '@variants/api/variantClient'
 import ColumnControl from '@variants/components/ColumnControl.vue'
 import ExportResults from '@variants/components/ExportResults.vue'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { copy, declareWrapper } from '@variants/helpers'
 import {
@@ -84,13 +85,11 @@ const tableServerOptions = ref({
   sortType: 'asc',
 })
 
-const context = ref(null)
-
 /**
  * Setup stores before mounting the component.
  */
-const detailsStore = useVariantDetailsStore()
-const queryStore = useFilterQueryStore()
+const variantDetailsStore = useVariantDetailsStore()
+const queryStore = useVariantQueryStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
 const acmgRatingStore = useVariantAcmgRatingStore()
@@ -114,13 +113,29 @@ watch(
 )
 */
 
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
+
 onBeforeMount(() => {
   tableLoading.value = true
-  const appContext = { csrf_token: queryStore.csrfToken }
   Promise.all([
-    flagsStore.initialize(appContext, queryStore.caseUuid),
-    commentsStore.initialize(appContext, queryStore.caseUuid),
-    acmgRatingStore.initialize(appContext, queryStore.caseUuid),
+    flagsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      queryStore.caseUuid,
+    ),
+    commentsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      queryStore.caseUuid,
+    ),
+    acmgRatingStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      queryStore.caseUuid,
+    ),
   ]).then(() => {
     tableLoading.value = false
   })
@@ -386,14 +401,14 @@ const getClinvarSignificanceBadge = (patho) => {
 const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: section ?? 'gene',
+    selectedSection: section ?? 'gene',
   })
 }
 
 const showAcmgRating = (sodarUuid) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedTab: 'acmg-rating',
+    selectedSection: 'acmg-rating',
   })
 }
 
@@ -437,9 +452,10 @@ const loadFromServer = async () => {
     return row
   }
 
+  const variantClient = new VariantClient(queryStore.csrfToken)
+
   tableLoading.value = true
-  const response = await variantsApi.listQueryResultRow(
-    queryStore.csrfToken,
+  const response = await variantClient.listQueryResultRow(
     queryStore.queryResultSet.sodar_uuid,
     {
       pageNo: tableServerOptions.value.page,

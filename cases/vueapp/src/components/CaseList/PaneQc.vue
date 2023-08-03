@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 
-import { useCasesStore } from '@cases/stores/cases'
-import { useCasesQcStore } from '@cases/stores/cases-qc'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { useCasesQcStore } from '@cases/stores/caseListQc'
 import QcPlotRelatedness from '@cases/components/CaseDetail/QcPlotRelatedness.vue'
 import QcPlotDepthHet from '@cases/components/CaseDetail/QcPlotDepthHet.vue'
 import QcPlotChrXRatio from '@cases/components/CaseDetail/QcPlotChrXRatio.vue'
@@ -11,8 +11,12 @@ import QcTableAlignmentStats from '@cases/components/CaseDetail/QcTableAlignment
 import Overlay from '@varfish/components/Overlay.vue'
 import { downloadPerSampleMetrics, downloadRelatedness } from '@cases/common'
 
-const casesStore = useCasesStore()
+// Store-related.
+
+const caseListStore = useCaseListStore()
 const casesQcStore = useCasesQcStore()
+
+// Compontent state.
 
 const overlayShow = computed(() => casesQcStore.qcValues === null)
 
@@ -32,6 +36,8 @@ const relData = computed(() => {
   }
 })
 
+// Function definitions.
+
 const qcStoreEntry = (key) =>
   computed(() => {
     if (casesQcStore.qcValues) {
@@ -40,6 +46,8 @@ const qcStoreEntry = (key) =>
       return []
     }
   })
+
+// Watching and lifecycle hooks.
 
 onMounted(() => {
   casesQcStore.initialize()
@@ -54,7 +62,7 @@ onMounted(() => {
 
         <!-- inline help -->
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
@@ -78,7 +86,7 @@ onMounted(() => {
         <h5 class="mt-3">Variant Quality Control</h5>
 
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
@@ -101,7 +109,7 @@ onMounted(() => {
         <h5 class="mt-4">Download Variant Control Metrics</h5>
 
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />

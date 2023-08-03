@@ -5,10 +5,10 @@
  *
  * The individual preset categories are editable via child components.
  */
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
 
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseListStore } from '@cases/stores/caseList'
 import { useQueryPresetsStore } from '@variants/stores/queryPresets'
 
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
@@ -22,6 +22,12 @@ import FilterFormClinvarPane from '@variants/components/FilterForm/ClinvarPane.v
 import QueryPresetsSetProperties from '@variants/components/QueryPresets/SetProperties.vue'
 import QueryPresetsSetQuickPresets from '@variants/components/QueryPresets/SetQuickPresets.vue'
 import QueryPresetsQualityPane from '@variants/components/QueryPresets/QualityPane.vue'
+
+/** Obtain global application content (as for all entry level components) */
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])
@@ -60,7 +66,7 @@ const props = defineProps({
 })
 
 /** Access store with cases. */
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 /** Access store with query presets. */
 const queryPresetsStore = useQueryPresetsStore()
 
@@ -398,17 +404,16 @@ const handleDeleteClicked = async (category, presetsUuid) => {
 }
 
 /** When mounted, start out with frequency presets. Initialize store if necessary. */
-onBeforeMount(() => {
-  casesStore.initializeRes.then(() => {
-    queryPresetsStore
-      .initialize(
-        casesStore.appContext.csrf_token,
-        casesStore.appContext.project.sodar_uuid,
-      )
-      .then(() => {
-        handleCategoryClicked('presetset')
-      })
-  })
+onMounted(async () => {
+  await caseListStore.initialize(
+    appContext.sodar_uuid,
+    appContext.project.sodar_uuid,
+  )
+  await queryPresetsStore.initialize(
+    caseListStore.csrfToken,
+    caseListStore.projectUuid,
+  )
+  handleCategoryClicked('presetset')
 })
 
 /** Handle change of presetSetUuid. */

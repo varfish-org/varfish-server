@@ -1,12 +1,3 @@
-[
-  {
-    "case": "case1-fake-uuid",
-    "cohort": "cohort-fake-uuid",
-    "sodar_uuid": "cohortcase1-fake-uuid"
-  },
-  {
-    "case": "case2-fake-uuid",
-    "cohort": "cohort-fake-uuid",
-    "sodar_uuid": "cohortcase2-fake-uuid"
-  }
-]
+version https://git-lfs.github.com/spec/v1
+oid sha256:e91fb1d6af3b4ca6dc2ea1619af490cb07dee86415969c18268b77e9c5d69d8c
+size 235

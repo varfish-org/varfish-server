@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { declareWrapper } from '@variants/helpers'
 import { QueryStates } from '@variants/enums'
-import { useSvFilterStore } from '@svs/stores/filterSvs'
+import { useSvQueryStore } from '@svs/stores/svQuery'
 
 const props = defineProps({
   filtrationComplexityMode: String,
@@ -33,12 +33,12 @@ const showError = computed(() => {
   return props.anyHasError
 })
 
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
 
 const devStoreState = () => {
   return {
-    storeState: svFilterStore.storeState,
-    queryState: svFilterStore.queryState,
+    storeState: svQueryStore.storeState,
+    queryState: svQueryStore.queryState,
   }
 }
 </script>

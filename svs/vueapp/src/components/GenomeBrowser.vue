@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import igv from 'igv'
 
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
 import {
   genCaseTrack,
@@ -82,7 +82,9 @@ watch(
 watch(
   () => props.locus,
   (_newValue, _oldValue) => {
-    igvBrowser.value.search(props.locus)
+    if (igvBrowser.value) {
+      igvBrowser.value.search(props.locus)
+    }
   },
 )
 
@@ -96,6 +98,9 @@ onMounted(() => {
     .then((browser) => {
       igvBrowser.value = browser
       addTracks(browser)
+      if (props.locus) {
+        igvBrowser.value.search(props.locus)
+      }
     })
 })
 </script>

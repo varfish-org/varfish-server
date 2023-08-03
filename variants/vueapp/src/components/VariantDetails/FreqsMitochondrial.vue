@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { roundIt, isVariantMtHomopolymer } from '@varfish/more-utils'
+import { roundIt, isVariantMtHomopolymer } from '@varfish/moreUtils'
 
 const props = defineProps<{
   smallVar: any

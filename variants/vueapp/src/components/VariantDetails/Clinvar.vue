@@ -3,8 +3,8 @@ import { computed } from 'vue'
 
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 
-const detailsStore = useVariantDetailsStore()
-const clinvar = computed(() => detailsStore?.varAnnos?.clinvar)
+const variantDetailsStore = useVariantDetailsStore()
+const clinvar = computed(() => variantDetailsStore?.varAnnos?.clinvar)
 
 const interpretations = [
   'N/A',

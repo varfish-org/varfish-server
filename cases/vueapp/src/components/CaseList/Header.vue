@@ -1,16 +1,8 @@
-<script setup>
-import { computed } from 'vue'
-import { useCasesStore } from '@cases/stores/cases'
+<script setup lang="ts">
+import { useCaseListStore } from '@cases/stores/caseList'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
 
-const casesStore = useCasesStore()
-
-const projectTitle = computed(() =>
-  casesStore.project ? casesStore.project.title : 'PROJECT MISSING',
-)
-
-const projectUuid = computed(() =>
-  casesStore.project ? casesStore.project.sodar_uuid : 'no-uuid',
-)
+const caseListStore = useCaseListStore()
 </script>
 
 <template>
@@ -19,13 +11,15 @@ const projectUuid = computed(() =>
     <!-- TODO buttons from sodar core -->
     <h2 class="sodar-pr-content-title">
       Listing Cases for Project
-      <small class="text-muted">{{ projectTitle }}</small>
+      <small class="text-muted">{{
+        caseListStore.project?.title ?? 'PROJECT MISSING'
+      }}</small>
 
       <a
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
         id="sodar-pr-btn-copy-uuid"
-        data-clipboard-text="{{ casesStore.caseUuid }}"
+        data-clipboard-text="{{ caseListStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"
         data-placement="top"
@@ -35,22 +29,22 @@ const projectUuid = computed(() =>
     </h2>
 
     <div class="ml-auto btn-group">
-      <a class="btn btn-secondary" :href="'/project/' + projectUuid">
+      <a
+        class="btn btn-secondary"
+        :href="`/project/${caseListStore.project?.sodar_uuid ?? 'no-uuid'}`"
+      >
         <i-mdi-arrow-left-circle />
         Back to Project
       </a>
-      <!--      <a-->
-      <!--        class="btn btn-primary"-->
-      <!--        :href="'/variants/' + projectUuid + '/project-cases/filter/'"-->
-      <!--      >-->
-      <!--        <i-mdi-filter />-->
-      <!--        Joint Filtration-->
-      <!--      </a>-->
+      <UiToggleMaxButton />
     </div>
   </div>
 
   <!-- inline help -->
-  <div v-if="casesStore.showInlineHelp" class="alert alert-secondary small p-2">
+  <div
+    v-if="caseListStore.showInlineHelp"
+    class="alert alert-secondary small p-2"
+  >
     <i-mdi-information />
     This is the case list view of the case management app. You can toggle these
     gray boxes with verbose information using the

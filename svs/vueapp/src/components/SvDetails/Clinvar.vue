@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSvDetailsStore } from '@svs/stores/detailsSv'
+import { useSvDetailsStore } from '@svs/stores/svDetails'
 
-const detailsStore = useSvDetailsStore()
+const svDetailsStore = useSvDetailsStore()
 
 const vcvUrl = (vcv: string): string => {
   const stripped = vcv.replace(/^VCV0+/, '')
@@ -12,7 +12,7 @@ const vcvUrl = (vcv: string): string => {
 <template>
   <div class="p-2">
     <template
-      v-if="detailsStore.currentSvRecord?.payload?.clinvar_ovl_vcvs?.length"
+      v-if="svDetailsStore.currentSvRecord?.payload?.clinvar_ovl_vcvs?.length"
     >
       <p>
         The following overlapping SVs are flagged as (likely) pathogenic in
@@ -21,7 +21,7 @@ const vcvUrl = (vcv: string): string => {
 
       <ul>
         <li
-          v-for="vcv in detailsStore.currentSvRecord?.payload
+          v-for="vcv in svDetailsStore.currentSvRecord?.payload
             ?.clinvar_ovl_vcvs ?? []"
         >
           <a :href="vcvUrl(vcv)">

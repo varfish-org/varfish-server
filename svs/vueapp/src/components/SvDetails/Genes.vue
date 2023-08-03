@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSvDetailsStore } from '@svs/stores/detailsSv'
+import { useSvDetailsStore } from '@svs/stores/svDetails'
 import { computed, ComputedRef, Ref, ref } from 'vue'
-import { roundIt } from '@varfish/more-utils'
+import { roundIt } from '@varfish/moreUtils'
 
 import EasyDataTable from 'vue3-easy-data-table'
 import type { ClickRowArgument, Header, Item } from 'vue3-easy-data-table'

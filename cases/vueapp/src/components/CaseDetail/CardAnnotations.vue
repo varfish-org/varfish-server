@@ -1,19 +1,14 @@
-<script setup>
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+<script setup lang="ts">
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { computed } from 'vue'
 
 import CaseDetailsFlagIcon from '@cases/components/CaseDetail/FlagIcon.vue'
 
+// Store-related.
+
 const caseDetailsStore = useCaseDetailsStore()
 
-const acmgCountByLevel = computed(() => {
-  const result = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-  for (const acmgRating of caseDetailsStore.acmgRatingList) {
-    const level = acmgRating.class_override ?? acmgRating.class_auto ?? 3
-    result[level] += 1
-  }
-  return result
-})
+// Constants.
 
 const flagIds = [
   'flag_bookmarked',
@@ -25,10 +20,21 @@ const flagIds = [
   'flag_doesnt_segregate',
 ]
 
-const buildComputedAnnoCountByFlag = (theList) => {
+// Component state.
+
+const acmgCountByLevel = computed(() => {
+  const result = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  for (const acmgRating of caseDetailsStore.acmgRatingList) {
+    const level = acmgRating.class_override ?? acmgRating.class_auto ?? 3
+    result[level] += 1
+  }
+  return result
+})
+
+const buildComputedAnnoCountByFlag = (theList: any[]) => {
   return computed(() => {
     const result = Object.fromEntries(flagIds.map((flagId) => [flagId, 0]))
-    for (const varAnno of caseDetailsStore.varAnnoList) {
+    for (const varAnno of theList) {
       for (const flagId of flagIds) {
         if (varAnno[flagId]) {
           result[flagId] += 1
@@ -39,12 +45,12 @@ const buildComputedAnnoCountByFlag = (theList) => {
   })
 }
 
-const varAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.varAnnoList,
+const varAnnoCountByFlag = computed(() =>
+  buildComputedAnnoCountByFlag(caseDetailsStore.varAnnoList),
 )
 
-const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.svrAnnoList,
+const svAnnoCountByFlag = computed(() =>
+  buildComputedAnnoCountByFlag(caseDetailsStore.svAnnoList),
 )
 </script>
 

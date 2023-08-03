@@ -1,13 +1,21 @@
-<script setup>
-import { useCaseDetailsStore, StoreState } from '@cases/stores/case-details'
-import { displayName, formatLargeInt } from '@varfish/helpers'
+<script setup lang="ts">
 import { computed } from 'vue'
+
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { State } from '@varfish/storeUtils'
+import { displayName, formatLargeInt } from '@varfish/helpers'
+
+// Store-related.
 
 const caseDetailsStore = useCaseDetailsStore()
 
+// Constant definitions.
+
 const coverages = [0, 10, 20, 30, 40, 50]
 
-const bamStats = computed(() => {
+// Component state.
+
+const bamStats = computed((): any | null => {
   if (!caseDetailsStore.caseAlignmentStats?.bam_stats) {
     return null
   } else {
@@ -15,7 +23,9 @@ const bamStats = computed(() => {
   }
 })
 
-const getMinCovTarget = (memberName, coverage) => {
+// Function definitions.
+
+const getMinCovTarget = (memberName: string, coverage: number): string => {
   if (
     !bamStats.value ||
     !bamStats.value[memberName] ||
@@ -68,7 +78,7 @@ const getMinCovTarget = (memberName, coverage) => {
       </thead>
       <tbody>
         <template
-          v-if="caseDetailsStore.storeState == StoreState.active && bamStats"
+          v-if="caseDetailsStore.storeState.state === State.Active && bamStats"
         >
           <tr v-for="member of caseDetailsStore.caseObj.pedigree">
             <template v-if="member.name in bamStats">

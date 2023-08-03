@@ -1,6 +1,6 @@
 <script setup>
-import { useCaseDetailsStore } from '@cases/stores/case-details'
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@cases/stores/caseList'
 import { computed, reactive } from 'vue'
 
 import QcPlotRelatedness from '@cases/components/CaseDetail/QcPlotRelatedness.vue'
@@ -14,7 +14,7 @@ import QcTableAlignmentStats from '@cases/components/CaseDetail/QcTableAlignment
 import { displayName, quantiles } from '@varfish/helpers'
 import { downloadPerSampleMetrics, downloadRelatedness } from '@cases/common'
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 const relData = computed(() => {
@@ -146,7 +146,7 @@ const varStats = computed(() => {
 
         <!-- inline help -->
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
@@ -173,7 +173,7 @@ const varStats = computed(() => {
         <h5 class="mt-3">Variant Quality Control</h5>
 
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
@@ -197,7 +197,7 @@ const varStats = computed(() => {
         <h5 class="mt-3">Alignment Quality Control</h5>
 
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
@@ -210,7 +210,7 @@ const varStats = computed(() => {
         <h5 class="mt-4">Download Variant Control Metrics</h5>
 
         <div
-          v-if="casesStore.showInlineHelp"
+          v-if="caseListStore.showInlineHelp"
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />

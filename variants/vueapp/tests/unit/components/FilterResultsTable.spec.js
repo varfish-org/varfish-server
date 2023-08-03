@@ -1,6 +1,6 @@
 // import { createTestingPinia } from '@pinia/testing'
 // import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
-// import { StoreState } from '@variants/stores/filterQuery'
+// import { StoreState } from '@variants/stores/variantQuery'
 // import { shallowMount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'

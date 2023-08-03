@@ -1,12 +1,28 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+/**
+ * Detailed display of variant information.
+ *
+ * Used in the variant filtration app and displayed when the user selects a variant to display
+ * the details for.
+ *
+ * Also used in the case details view for displyaing all user-annotated variants.
+ *
+ * See `SvDetails` for a peer app for structural variants
+ */
 
+import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useHistoryStore } from '@varfish/stores/history'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
+import { State } from '@varfish/storeUtils'
 
+import Header from '@variants/components/VariantDetails/Header.vue'
 import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
 import VariantDetailsClinvar from '@variants/components/VariantDetails/Clinvar.vue'
 import VariantDetailsFreqs from '@variants/components/VariantDetails/Freqs.vue'
@@ -21,162 +37,268 @@ import VariantDetailsGa4ghBeacons from '@variants/components/VariantDetails/Ga4g
 import VariantDetailsTxCsq from '@variants/components/VariantDetails/TxCsq.vue'
 import VariantDetailsVariantValidator from '@variants/components/VariantDetails/VariantValidator.vue'
 import VariantDetailsAcmgRating from '@variants/components/VariantDetails/AcmgRating.vue'
-
+import Overlay from '@varfish/components/Overlay.vue'
 import { allNavItems } from '@variants/components/VariantDetails.fields'
+import { watch } from 'vue'
 
 const props = defineProps<{
+  /** UUID of the result row to display. */
   resultRowUuid?: string
-  selectedTab?: string
+  /** Identifier of the selected section. */
+  selectedSection?: string
 }>()
 
-const route = useRoute()
-const router = useRouter()
-
-const detailsStore = useVariantDetailsStore()
-const queryStore = useFilterQueryStore()
-const flagsStore = useVariantFlagsStore()
-const commentsStore = useVariantCommentsStore()
-commentsStore.initialize(
-  { csrf_token: queryStore.csrfToken },
-  queryStore.caseUuid,
+/** Obtain global application content (as for all entry level components) */
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
 )
 
-const navItems = allNavItems.filter((navItem) => {
-  if (navItem.name === 'beacon-network') {
-    return queryStore.ga4ghBeaconNetworkWidgetEnabled
+// Routing-related
+
+const router = useRouter()
+
+// Store-related
+
+const historyStore = useHistoryStore()
+
+const caseDetailsStore = useCaseDetailsStore()
+const variantResultSetStore = useVariantResultSetStore()
+const variantDetailsStore = useVariantDetailsStore()
+const queryStore = useVariantQueryStore()
+const variantFlagsStore = useVariantFlagsStore()
+const variantCommentsStore = useVariantCommentsStore()
+const variantAcmgRatingStore = useVariantAcmgRatingStore()
+
+const overlayShow = computed(() => {
+  return (
+    variantResultSetStore.storeState.state === State.Fetching ||
+    variantDetailsStore.storeState.state === State.Fetching ||
+    variantFlagsStore.storeState.state === State.Fetching ||
+    variantCommentsStore.storeState.state === State.Fetching
+  )
+})
+
+const overlayMessage = computed(() => {
+  if (overlayShow.value) {
+    return 'Loading...'
   } else {
-    return true
+    return ''
   }
 })
+
+const navItems = computed(() =>
+  allNavItems.filter((navItem) => {
+    if (navItem.name === 'beacon-network') {
+      return queryStore.ga4ghBeaconNetworkWidgetEnabled
+    } else {
+      return true
+    }
+  }),
+)
 
 /** Event handler for clicking on the given tab.
  *
  * Will select the tab by pushing a route.
  */
-const onTabClick = (selectedTab: string) => {
+const onTabClick = (selectedSection: string) => {
   router.push({
-    name: 'variants-filter-details',
+    name: 'variant-details',
     params: {
-      case: queryStore.caseUuid,
-      query: queryStore.previousQueryDetails.sodar_uuid,
       row: props.resultRowUuid,
-      selectedTab,
+      selectedSection,
     },
   })
 }
 
+const navigateBack = () => {
+  const dest = historyStore.lastWithDifferentName('variant-details')
+  if (dest) {
+    router.push(dest)
+  } else {
+    router.push(`/variants/filter/${caseDetailsStore.caseObj?.sodar_uuid}`)
+  }
+}
+
+/** Refresh the stores. */
+const refreshStores = async () => {
+  if (props.resultRowUuid && props.selectedSection) {
+    await variantResultSetStore.initialize(appContext.csrf_token)
+    await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
+    await Promise.all([
+      variantFlagsStore.initialize(
+        appContext.csrf_token,
+        appContext.project?.sodar_uuid,
+        variantResultSetStore.caseUuid,
+      ),
+      variantCommentsStore.initialize(
+        appContext.csrf_token,
+        appContext.project?.sodar_uuid,
+        variantResultSetStore.caseUuid,
+      ),
+      variantAcmgRatingStore.initialize(
+        appContext.csrf_token,
+        appContext.project?.sodar_uuid,
+        variantResultSetStore.caseUuid,
+      ),
+      variantDetailsStore.initialize(
+        appContext.csrf_token,
+        appContext.project?.sodar_uuid,
+        variantResultSetStore.caseUuid,
+      ),
+    ])
+    variantDetailsStore.fetchVariantDetails(variantResultSetStore.resultRow)
+  }
+
+  document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+}
+
+/** Watch change in properties to reload data. */
+watch(
+  () => [props.resultRowUuid, props.selectedSection],
+  () => {
+    refreshStores()
+  },
+)
+
 /** When mounted, scroll to the selected element if any.
  */
 onMounted(() => {
-  document.querySelector(`#${route.params.selectedTab}`)?.scrollIntoView()
+  refreshStores()
+  document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
 })
 </script>
 
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-10 pl-0 pr-0 pt-2">
-        <SimpleCard id="gene" title="Gene">
-          <VariantDetailsGene
-            :gene="detailsStore.gene"
-            :small-var="detailsStore.smallVariant"
-            :hgmd-pro-enabled="queryStore.hgmdProEnabled"
-            :hgmd-pro-prefix="queryStore.hgmdProPrefix"
-          />
-        </SimpleCard>
-        <SimpleCard
-          id="beacon-network"
-          title="Beacon Network"
-          v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
+  <div
+    v-if="caseDetailsStore.caseObj && variantDetailsStore.smallVariant"
+    class="d-flex flex-column h-100"
+  >
+    <Header
+      :small-var="variantDetailsStore.smallVariant"
+      :case="caseDetailsStore.caseObj"
+    />
+    <div class="container-fluid">
+      <div class="row">
+        <div
+          class="col-10 pl-0 pr-0 pt-2"
+          v-if="variantDetailsStore.smallVariant"
         >
-          <VariantDetailsGa4ghBeacons
-            :small-variant="detailsStore.smallVariant"
-          />
-        </SimpleCard>
-        <SimpleCard id="clinvar" title="ClinVar">
-          <VariantDetailsClinvar />
-        </SimpleCard>
-        <SimpleCard id="freqs" title="Population Frequencies">
-          <VariantDetailsFreqs
-            :small-var="detailsStore.smallVariant"
-            :var-annos="detailsStore.varAnnos"
-          />
-        </SimpleCard>
-        <SimpleCard id="variant-tools" title="Variant Tools">
-          <VariantDetailsVariantTools
-            :small-var="detailsStore.smallVariant"
-            :var-annos="detailsStore.varAnnos"
-            :umd-predictor-api-token="queryStore.umdPredictorApiToken"
-          />
-        </SimpleCard>
-        <SimpleCard id="tx-csq" title="Consequences">
-          <VariantDetailsTxCsq :tx-csq="detailsStore.txCsq" />
-        </SimpleCard>
-        <SimpleCard id="call-details" title="Call Details">
-          <VariantDetailsCallDetails
-            :case-description="queryStore.caseObj"
-            :small-variant="detailsStore.smallVariant"
-          />
-        </SimpleCard>
-        <SimpleCard id="conservation" title="Conservation">
-          <VariantDetailsConservation :var-annos="detailsStore.varAnnos" />
-        </SimpleCard>
-        <SimpleCard id="flags" title="Flags">
-          <VariantDetailsFlags
-            :details-store="detailsStore"
-            :flags-store="flagsStore"
-            :variant="detailsStore.smallVariant"
-          />
-        </SimpleCard>
-        <SimpleCard id="comments" title="Comments">
-          <VariantDetailsComments
-            :details-store="detailsStore"
-            :comments-store="commentsStore"
-            :variant="detailsStore.smallVariant"
-          />
-        </SimpleCard>
-        <SimpleCard id="acmg-rating" title="ACMG Rating">
-          <VariantDetailsAcmgRating />
-        </SimpleCard>
-        <SimpleCard id="second-hit" title="Second Hit">
-          <div class="alert alert-secondary">
-            <i-mdi-clock />
-            Work in progress ...
-          </div>
-        </SimpleCard>
-        <SimpleCard id="other-carriers" title="OtherCarriers">
-          <div class="alert alert-secondary">
-            <i-mdi-clock />
-            Work in progress ...
-          </div>
-        </SimpleCard>
-        <SimpleCard id="variant-validator" title="VariantValidator">
-          <VariantDetailsVariantValidator
-            :small-variant="detailsStore.smallVariant"
-            v-model:variant-validator-state="detailsStore.variantValidatorState"
-            v-model:variant-validator-results="
-              detailsStore.variantValidatorResults
-            "
-          />
-        </SimpleCard>
-      </div>
-
-      <div class="col-2">
-        <ul
-          class="nav flex-column nav-pills position-sticky pt-2"
-          style="top: 0px"
-        >
-          <li class="nav-item mt-0" v-for="{ name, title } in navItems">
-            <a
-              class="nav-link user-select-none"
-              :class="{ active: props.selectedTab === name }"
-              @click="onTabClick(name)"
-              type="button"
+          <div>
+            <SimpleCard id="gene" title="Gene">
+              <VariantDetailsGene
+                :gene="variantDetailsStore.gene"
+                :small-var="variantDetailsStore.smallVariant"
+                :hgmd-pro-enabled="queryStore.hgmdProEnabled"
+                :hgmd-pro-prefix="queryStore.hgmdProPrefix"
+              />
+            </SimpleCard>
+            <SimpleCard
+              id="beacon-network"
+              title="Beacon Network"
+              v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
             >
-              {{ title }}
-            </a>
-          </li>
-        </ul>
+              <VariantDetailsGa4ghBeacons
+                :small-variant="variantDetailsStore.smallVariant"
+              />
+            </SimpleCard>
+            <SimpleCard id="clinvar" title="ClinVar">
+              <VariantDetailsClinvar />
+            </SimpleCard>
+            <SimpleCard id="freqs" title="Population Frequencies">
+              <VariantDetailsFreqs
+                :small-var="variantDetailsStore.smallVariant"
+                :var-annos="variantDetailsStore.varAnnos"
+              />
+            </SimpleCard>
+            <SimpleCard id="variant-tools" title="Variant Tools">
+              <VariantDetailsVariantTools
+                :small-var="variantDetailsStore.smallVariant"
+                :var-annos="variantDetailsStore.varAnnos"
+                :umd-predictor-api-token="queryStore.umdPredictorApiToken"
+              />
+            </SimpleCard>
+            <SimpleCard id="tx-csq" title="Consequences">
+              <VariantDetailsTxCsq :tx-csq="variantDetailsStore.txCsq" />
+            </SimpleCard>
+            <SimpleCard id="call-details" title="Call Details">
+              <VariantDetailsCallDetails
+                :case-description="caseDetailsStore.caseObj"
+                :small-variant="variantDetailsStore.smallVariant?.payload"
+              />
+            </SimpleCard>
+            <SimpleCard id="conservation" title="Conservation">
+              <VariantDetailsConservation
+                :var-annos="variantDetailsStore.varAnnos"
+              />
+            </SimpleCard>
+            <SimpleCard id="flags" title="Flags">
+              <VariantDetailsFlags
+                :details-store="variantDetailsStore"
+                :flags-store="variantFlagsStore"
+                :variant="variantDetailsStore.smallVariant"
+              />
+            </SimpleCard>
+            <SimpleCard id="comments" title="Comments">
+              <VariantDetailsComments
+                :details-store="variantDetailsStore"
+                :comments-store="variantCommentsStore"
+                :variant="variantDetailsStore.smallVariant"
+              />
+            </SimpleCard>
+            <SimpleCard id="acmg-rating" title="ACMG Rating">
+              <VariantDetailsAcmgRating
+                :small-variant="variantDetailsStore.smallVariant"
+              />
+            </SimpleCard>
+            <SimpleCard id="second-hit" title="Second Hit">
+              <div class="alert alert-secondary">
+                <i-mdi-clock />
+                Work in progress ...
+              </div>
+            </SimpleCard>
+            <SimpleCard id="other-carriers" title="OtherCarriers">
+              <div class="alert alert-secondary">
+                <i-mdi-clock />
+                Work in progress ...
+              </div>
+            </SimpleCard>
+            <SimpleCard id="variant-validator" title="VariantValidator">
+              <VariantDetailsVariantValidator
+                :small-variant="variantDetailsStore.smallVariant"
+              />
+            </SimpleCard>
+          </div>
+          <Overlay v-if="overlayShow" :message="overlayMessage" />
+        </div>
+
+        <div class="col-2 pr-0">
+          <ul
+            class="nav flex-column nav-pills position-sticky pt-2"
+            style="top: 0px"
+          >
+            <li class="nav-item mt-0 mb-3">
+              <a
+                class="nav-link user-select-none btn btn-secondary"
+                @click.prevent="navigateBack()"
+                type="button"
+              >
+                <i-mdi-arrow-left-circle />
+                Back
+              </a>
+            </li>
+            <li class="nav-item mt-0" v-for="{ name, title } in navItems">
+              <a
+                class="nav-link user-select-none"
+                :class="{ active: props.selectedSection === name }"
+                @click="onTabClick(name)"
+                type="button"
+              >
+                {{ title }}
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { separateIt as sepIt } from '@varfish/more-utils'
+import { separateIt as sepIt } from '@varfish/moreUtils'
 
 const props = defineProps<{
   varAnnos: any

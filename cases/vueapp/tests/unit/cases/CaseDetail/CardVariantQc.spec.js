@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, test, vi } from 'vitest'
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
 
-describe('CaseDetailCardVariantQc.vue', () => {
+describe('CaseDetail/CardVariantQc.vue', () => {
   beforeAll(() => {
     // Disable warnings
     vi.spyOn(console, 'warn').mockImplementation(vi.fn())

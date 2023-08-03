@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { roundIt } from '@varfish/more-utils'
+import { roundIt } from '@varfish/moreUtils'
 
 import ScoreDisplay from '@varfish/components/ScoreDisplay.vue'
 
@@ -36,7 +36,7 @@ const bestSpliceAi = computed(() => {
     'SpliceAi-don-gain',
     'SpliceAi-don-loss',
   ]
-  return bestOf(props.varAnnos.cadd, keys)
+  return bestOf(props.varAnnos?.dbnsfp, keys)
 })
 
 const bestMMSplice = computed(() => {
@@ -47,7 +47,7 @@ const bestMMSplice = computed(() => {
     'MMSp_donor',
     'MMSp_donorIntron',
   ]
-  return bestOf(props.varAnnos.cadd, keys)
+  return bestOf(props.varAnnos?.dbnsfp, keys)
 })
 
 const decodeMultiDbnsfp = (s: string): number | null => {
@@ -109,7 +109,7 @@ const polyphenScore = computed((): number | null =>
   decodeMultiDbnsfp(props.varAnnos?.dbnsfp?.Polyphen2_HVAR_score),
 )
 
-const ucscLinkout = computed((): str => {
+const ucscLinkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -122,19 +122,19 @@ const ucscLinkout = computed((): str => {
   )
 })
 
-const ensemblLinkout = computed((): str => {
+const ensemblLinkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
   const loc = `${props.smallVar.chromosome}:${props.smallVar.start}-${props.smallVar.end}`
   if (props.smallVar.release === 'GRCh37') {
     return `https://grch37.ensembl.org/Homo_sapiens/Location/View?r=${loc}`
-  } else if (smallVariant.release === 'GRCh38') {
+  } else if (props.smallVar.release === 'GRCh38') {
     return `https://ensembl.org/Homo_sapiens/Location/View?r=${loc}`
   }
 })
 
-const dgvLinkout = computed((): str => {
+const dgvLinkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -145,7 +145,7 @@ const dgvLinkout = computed((): str => {
   )
 })
 
-const gnomadLinkout = computed((): str => {
+const gnomadLinkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -157,7 +157,7 @@ const gnomadLinkout = computed((): str => {
   )
 })
 
-const mt85Linkout = computed((): str => {
+const mt85Linkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -171,7 +171,7 @@ const mt85Linkout = computed((): str => {
   }
 })
 
-const mt2021Linkout = computed((): str => {
+const mt2021Linkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -185,7 +185,7 @@ const mt2021Linkout = computed((): str => {
   }
 })
 
-const varsomeLinkout = computed((): str => {
+const varsomeLinkout = computed((): string => {
   if (!props.smallVar) {
     return '#'
   }
@@ -199,7 +199,7 @@ const varsomeLinkout = computed((): str => {
   )
 })
 
-const umdpredictorLinkout = computed((): str => {
+const umdpredictorLinkout = computed((): string => {
   if (!props.umdPredictorApiToken.length || !props.smallVar) {
     return '#'
   }
@@ -217,11 +217,25 @@ const umdpredictorLinkout = computed((): str => {
     return null
   }
 })
+
+const jumpToLocus = async () => {
+  const chrPrefixed = props.smallVar.chromosome.startsWith('chr')
+    ? props.smallVar.chromosome
+    : `chr${props.smallVar.chromosome}`
+  await fetch(
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.smallVar.start}-${props.smallVar.end}`,
+  ).catch((e) => {
+    const msg =
+      "Couldn't connect to IGV. Please make sure IGV is running and try again."
+    alert(msg)
+    console.error(msg)
+  })
+}
 </script>
 
 <template>
   <div class="row pr-2 pt-2" style="font-size: 90%">
-    <div class="col-4 mb-2 pl-2 pr-0">
+    <div class="col-4 pl-2 pr-0">
       <div class="card">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -304,6 +318,20 @@ const umdpredictorLinkout = computed((): str => {
             <a :href="varsomeLinkout" target="_blank">
               <i-mdi-launch />
               varsome
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header pl-2 pt-2 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%"> IGV </span>
+        </div>
+        <div class="card-body p-2">
+          <div>
+            <a href="#" target="_blank" @click.prevent="jumpToLocus()">
+              <i-mdi-launch />
+              Jump to Location in IGV
             </a>
           </div>
         </div>

@@ -2,7 +2,7 @@ import CaseDetailPaneQc from '@cases/components/CaseDetail/PaneQc.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
-import casesStoreData from '../../../data/casesStoreData.json'
+import caseListStoreData from '../../../data/caseListStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
 
 describe('CaseDetail/PaneQc.vue', () => {
@@ -25,7 +25,7 @@ describe('CaseDetail/PaneQc.vue', () => {
 
   test('test with case detail store data', async () => {
     const initialState = {
-      cases: casesStoreData,
+      cases: caseListStoreData,
       caseDetails: caseDetailsStoreData,
     }
     const wrapper = makeWrapper(CaseDetailPaneQc, initialState)

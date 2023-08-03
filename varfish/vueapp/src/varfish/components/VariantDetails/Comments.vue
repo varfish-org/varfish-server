@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 
 import Overlay from '@varfish/components/Overlay.vue'
 
@@ -14,7 +14,19 @@ const overlayShow = computed(
   () => (props.commentsStore?.serverInteractions ?? 0) > 0,
 )
 
-props.commentsStore.retrieveComments(props.variant)
+watch(
+  () => [props.variant, props.commentsStore.storeState],
+  () => {
+    if (props.variant && props.commentsStore.storeState === 'active') {
+      props.commentsStore.retrieveComments(props.variant)
+    }
+  },
+)
+onMounted(() => {
+  if (props.variant) {
+    props.commentsStore.retrieveComments(props.variant)
+  }
+})
 
 const EditCommentModes = Object.freeze({
   Off: 0,

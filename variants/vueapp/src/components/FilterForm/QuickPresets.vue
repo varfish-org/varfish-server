@@ -2,10 +2,10 @@
 import isEqual from 'lodash.isequal'
 import { onMounted, watch, computed, reactive, ref } from 'vue'
 import { copy } from '@variants/helpers'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { randomString } from '@varfish/common'
 
-const filterQueryStore = useFilterQueryStore()
+const variantQueryStore = useVariantQueryStore()
 
 /** The props for this component. */
 const props = defineProps({
@@ -185,8 +185,8 @@ const refreshValueRefs = () => {
       for (const [key, value] of Object.entries(presetValues)) {
         if (
           !_keysToStrip.includes(key) &&
-          filterQueryStore.querySettings !== null &&
-          !isEqual(filterQueryStore.querySettings[key], value)
+          variantQueryStore.querySettings !== null &&
+          !isEqual(variantQueryStore.querySettings[key], value)
         ) {
           isCompatible = false
         }
@@ -294,9 +294,9 @@ const refreshAllRefs = () => {
 
 /** React to store changes by adjusting the selection fields. */
 onMounted(() => {
-  filterQueryStore.initializeRes.then(() => {
+  variantQueryStore.initializeRes.then(() => {
     refreshAllRefs()
-    filterQueryStore.$subscribe((_mutation, _state) => {
+    variantQueryStore.$subscribe((_mutation, _state) => {
       if (!blockRefresh.value) {
         refreshAllRefs()
       }

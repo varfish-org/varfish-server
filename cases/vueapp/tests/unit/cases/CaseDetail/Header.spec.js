@@ -21,7 +21,7 @@ describe('CaseDetailHeader.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailHeader,
       {},
-      { caseObj: caseDetailsStoreData.caseObj }
+      { caseObj: caseDetailsStoreData.caseObj },
     )
 
     expect(wrapper.html()).matches(/<small class="text-muted">NA12878<\/small>/)
@@ -39,7 +39,7 @@ describe('CaseDetailHeader.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailHeader,
       {},
-      { caseObj: caseDetailsStoreData.caseObj }
+      { caseObj: caseDetailsStoreData.caseObj },
     )
 
     wrapper.findAll('a')[1].wrapperElement.click()

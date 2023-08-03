@@ -2,7 +2,8 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useCasesStore } from '@cases/stores/cases'
+import { useCaseListStore } from '@cases/stores/caseList'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
 
 /** Define props. */
 const props = defineProps({
@@ -21,10 +22,10 @@ const emit = defineEmits([
 /** The currently used router. */
 const router = useRouter()
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 
 const userHasPerms = (perm) =>
-  casesStore.userPerms && casesStore.userPerms.includes(perm)
+  caseListStore.userPerms && caseListStore.userPerms.includes(perm)
 
 const buildLink = (where) => {
   if (!props.caseObj) {
@@ -102,6 +103,7 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
           <i-mdi-filter-variant />
           Filter SVs
         </a>
+        <UiToggleMaxButton />
         <template v-if="userHasPerms('cases.update_case')">
           <a
             type="button"
@@ -170,7 +172,7 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
 
     <!-- inline help -->
     <div
-      v-if="casesStore.showInlineHelp"
+      v-if="caseListStore.showInlineHelp"
       class="alert alert-secondary small p-2"
     >
       <i-mdi-information />

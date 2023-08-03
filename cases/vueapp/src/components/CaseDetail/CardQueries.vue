@@ -1,15 +1,15 @@
 <script setup>
 import { ref, watch } from 'vue'
 
-import { useCasesStore } from '@cases/stores/cases'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseListStore } from '@cases/stores/caseList'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-import queryPresetsApi from '@variants/api/queryPresets'
+import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 
 /** Define emits. */
 const emit = defineEmits(['editQueryPresetsClick'])
 
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 /** Whether the preset set is loading. */
@@ -23,13 +23,10 @@ watch(
     if (!newValue) {
       return // short circuit in case of factory defaults
     }
-    const csrfToken = casesStore.appContext.csrf_token
+    const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
     presetSetLoading.value = true
     try {
-      const presetSet = await queryPresetsApi.retrievePresetSet(
-        csrfToken,
-        newValue,
-      )
+      const presetSet = await queryPresetsClient.retrievePresetSet(newValue)
       presetSetLabel.value = presetSet.label
     } catch (err) {
       console.error('Problem retrieving preset set', err)

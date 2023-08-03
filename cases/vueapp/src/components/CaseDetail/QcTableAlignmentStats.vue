@@ -1,5 +1,6 @@
 <script setup>
-import { useCaseDetailsStore, StoreState } from '@cases/stores/case-details'
+import { State } from '@varfish/storeUtils'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { displayName, formatLargeInt } from '@varfish/helpers'
 import { computed } from 'vue'
 
@@ -109,7 +110,7 @@ const percentDuplicates = (bamstats) => {
     </thead>
     <tbody>
       <template
-        v-if="caseDetailsStore.storeState === StoreState.active && bamStats"
+        v-if="caseDetailsStore.storeState.state === State.Active && bamStats"
       >
         <tr v-for="member of caseDetailsStore.caseObj.pedigree">
           <template v-if="member.name in bamStats">

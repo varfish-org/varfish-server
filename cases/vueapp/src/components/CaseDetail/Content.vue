@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import PaneCase from '@cases/components/CaseDetail/PaneCase.vue'
 import PaneQc from '@cases/components/CaseDetail/PaneQc.vue'
 import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
 
 /** Define emits. */

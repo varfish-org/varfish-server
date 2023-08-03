@@ -87,7 +87,7 @@ describe('SubmissionEditor.vue', () => {
 
   afterEach(() => {
     Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
+      clinvarExportApi[method].mockClear(),
     )
   })
 

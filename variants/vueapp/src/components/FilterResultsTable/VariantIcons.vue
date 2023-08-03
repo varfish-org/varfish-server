@@ -2,7 +2,7 @@
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { getAcmgBadge } from '@variants/helpers'
 
-const detailsStore = useVariantDetailsStore()
+const variantDetailsStore = useVariantDetailsStore()
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
@@ -10,7 +10,7 @@ const props = defineProps({
 })
 
 const selectCommentFlags = () => {
-  detailsStore.modalTab = 'comments-flags-tab'
+  variantDetailsStore.modalTab = 'comments-flags-tab'
   params.context.emit()
 }
 

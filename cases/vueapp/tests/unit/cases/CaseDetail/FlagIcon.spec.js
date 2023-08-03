@@ -13,7 +13,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_bookmarked' }
+      { flag: 'flag_bookmarked' },
     )
 
     expect(wrapper.html()).matches(/<fa-solid-star-stub>/)
@@ -30,7 +30,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_for_validation' }
+      { flag: 'flag_for_validation' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)
@@ -47,7 +47,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_candidate' }
+      { flag: 'flag_candidate' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)
@@ -64,7 +64,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_final_causative' }
+      { flag: 'flag_final_causative' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)
@@ -81,7 +81,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_no_disease_association' }
+      { flag: 'flag_no_disease_association' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)
@@ -98,7 +98,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_segregates' }
+      { flag: 'flag_segregates' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)
@@ -115,7 +115,7 @@ describe('CaseDetailFlagIcon.vue', () => {
     const wrapper = makeWrapper(
       CaseDetailFlagIcon,
       {},
-      { flag: 'flag_doesnt_segregate' }
+      { flag: 'flag_doesnt_segregate' },
     )
 
     expect(wrapper.html()).not.matches(/<fa-solid-star-stub>/)

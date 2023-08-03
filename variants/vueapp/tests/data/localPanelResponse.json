@@ -1,16 +1,3 @@
-[
-  {
-    "title": "My panel",
-    "description": "",
-    "genepanel_set": [
-      {
-        "identifier": "ACMG.v3",
-        "state": "active",
-        "version_major": 1,
-        "version_minor": 1,
-        "title": "ACMG v3",
-        "description": ""
-      }
-    ]
-  }
-]
+version https://git-lfs.github.com/spec/v1
+oid sha256:7f394f2a2ab6d13f967ece9ff62e5fd27acf83e2213be0ee5a06b61a53e72373
+size 275

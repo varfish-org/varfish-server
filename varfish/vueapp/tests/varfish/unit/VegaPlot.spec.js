@@ -55,7 +55,7 @@ describe('VegaPlot.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /for a linear scale with values from NaN to NaN/
+      /for a linear scale with values from NaN to NaN/,
     )
   })
 
@@ -71,7 +71,7 @@ describe('VegaPlot.vue', () => {
 
     expect(wrapper.findAll('svg').length).toBe(2)
     expect(wrapper.html()).toMatch(
-      /for a linear scale with values from NaN to NaN/
+      /for a linear scale with values from NaN to NaN/,
     )
 
     // TOOD: for some reason the watch() in VegaPlot causes the test to hang.
