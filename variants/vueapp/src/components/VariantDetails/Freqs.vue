@@ -9,8 +9,8 @@ const props = defineProps<{
   varAnnos: any
 }>()
 
-const gnomadExomes = 'gnomad-exomes'
-const gnomadGenomes = 'gnomad-genomes'
+const gnomadExomes = 'gnomad_exomes'
+const gnomadGenomes = 'gnomad_genomes'
 </script>
 
 <template>
@@ -24,12 +24,12 @@ const gnomadGenomes = 'gnomad-genomes'
       <VariantDetailsFreqsAutosomal
         :small-var="props.smallVar"
         :var-annos="props.varAnnos"
-        :dataset="'gnomad-exomes'"
+        :dataset="gnomadExomes"
       />
       <VariantDetailsFreqsAutosomal
         :small-var="props.smallVar"
         :var-annos="props.varAnnos"
-        :dataset="'gnomad-genomes'"
+        :dataset="gnomadGenomes"
       />
     </div>
   </div>

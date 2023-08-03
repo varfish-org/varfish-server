@@ -62,10 +62,10 @@ const sexExpanded = ref({})
   <div>
     <div class="ml-2 mr-2 mb-3 mt-2">
       <span class="font-weight-bolder" style="font-size: 120%">
-        <template v-if="props.dataset === 'gnomad-exomes'">
+        <template v-if="props.dataset === 'gnomad_exomes'">
           gnomAD Exomes
         </template>
-        <template v-if="props.dataset === 'gnomad-genomes'">
+        <template v-if="props.dataset === 'gnomad_genomes'">
           gnomAD Genomes
         </template>
       </span>
