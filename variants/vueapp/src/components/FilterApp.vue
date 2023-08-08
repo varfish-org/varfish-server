@@ -183,18 +183,20 @@ const refreshStores = async () => {
       )
       .then(() => {
         // Show the SpliceAI comments by default.
-        const maybeAdd = [
-          'SpliceAI-acc-gain',
-          'SpliceAI-acc-loss',
-          'SpliceAI-don-loss',
-          'SpliceAI-don-gain',
-          'CADD-PHRED',
-        ]
-        variantQueryStore.extraAnnoFields
-          .filter((value) => maybeAdd.includes(value.label))
-          .forEach((value) => {
-            displayColumns.value.push(`extra_anno${value.field}`)
-          })
+        if (!props.displayColumns) {
+          const maybeAdd = [
+            'SpliceAI-acc-gain',
+            'SpliceAI-acc-loss',
+            'SpliceAI-don-loss',
+            'SpliceAI-don-gain',
+            'CADD-PHRED',
+          ]
+          variantQueryStore.extraAnnoFields
+            .filter((value) => maybeAdd.includes(value.label))
+            .forEach((value) => {
+              displayColumns.value.push(`extra_anno${value.field}`)
+            })
+        }
       }),
   ])
 }
