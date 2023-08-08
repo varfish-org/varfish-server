@@ -25,6 +25,22 @@ import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 const props = defineProps({
   /** The case UUID. */
   caseUuid: String,
+  /** The page. */
+  page: Number,
+  /** The page size. */
+  pageSize: Number,
+  /** The column to order by. */
+  orderBy: String,
+  /** The direction of ordering. */
+  orderDir: String,
+  /** Display coordinates or clinvar. */
+  displayDetails: Number,
+  /** The frequency column to display. */
+  displayFrequency: Number,
+  /** The constraint column to display. */
+  displayConstraint: Number,
+  /** The optional columns to display. */
+  displayColumns: Array,
 })
 
 const appContext = JSON.parse(
@@ -55,13 +71,29 @@ const formVisible = ref(true)
 /** Whether the query logs are visible. */
 const queryLogsVisible = ref(false)
 /** The details columns to show. */
-const displayDetails = ref(DisplayDetails.Coordinates.value)
+const displayDetails = ref(
+  props.displayDetails === null
+    ? DisplayDetails.Coordinates.value
+    : props.displayDetails,
+)
 /** The frequency columns to show. */
-const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
+const displayFrequency = ref(
+  props.displayFrequency === null
+    ? DisplayFrequencies.GnomadExomes.value
+    : props.displayFrequency,
+)
 /** The constraint columns to show. */
-const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
+const displayConstraint = ref(
+  props.displayConstraint === null
+    ? DisplayConstraints.GnomadPli.value
+    : props.displayConstraint,
+)
 /** The additional columns to display. */
-const displayColumns = ref([DisplayColumns.Effect.value])
+const displayColumns = ref(
+  props.displayColumns === null
+    ? [DisplayColumns.Effect.value]
+    : props.displayColumns.split(','),
+)
 
 // Toggle visibility of the form.
 const toggleForm = () => {
@@ -239,6 +271,10 @@ watch(
         :prio-enabled="
           variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
+        :page="props.page"
+        :pageSize="props.pageSize"
+        :orderBy="props.orderBy"
+        :orderDir="props.orderDir"
       />
     </div>
     <div

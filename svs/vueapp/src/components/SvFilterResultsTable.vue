@@ -1,6 +1,7 @@
 <script setup>
 import { sortBy } from 'sort-by-typescript'
 import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
@@ -16,10 +17,20 @@ const MAX_GENES = 20
 /** Define props. */
 const props = defineProps({
   caseObj: Object,
+  /** The page. */
+  page: Number,
+  /** The page size. */
+  pageSize: Number,
+  /** The column to order by. */
+  orderBy: String,
+  /** The direction of ordering. */
+  orderDir: String,
 })
 
 /** Define emits. */
 const emit = defineEmits(['variantSelected'])
+
+const router = useRouter()
 
 const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
@@ -88,10 +99,10 @@ const tableRowsSelected = ref([])
 const tableLoading = ref(false)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = ref({
-  page: 1,
-  rowsPerPage: 50,
-  sortBy: 'chrom-pos',
-  sortType: 'asc',
+  page: props.page || 1,
+  rowsPerPage: props.pageSize || 50,
+  sortBy: props.orderBy || 'chrom-pos',
+  sortType: props.orderDir || 'asc',
 })
 
 /** Return list of genes with symbol. */
@@ -292,6 +303,20 @@ const tableRowClassName = (item, _rowNumber) => {
   return ''
 }
 
+const pushRoute = () => {
+  router.push({
+    name: 'svs-filter',
+    params: {
+      case: svQueryStore.caseUuid,
+      query: svQueryStore.queryResultSet.sodar_uuid,
+      orderBy: tableServerOptions.value.sortBy,
+      orderDir: tableServerOptions.value.sortType,
+      page: tableServerOptions.value.page,
+      pageSize: tableServerOptions.value.rowsPerPage,
+    },
+  })
+}
+
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}',
@@ -323,6 +348,7 @@ onMounted(() => {
 watch(
   tableServerOptions,
   (_newValue, _oldValue) => {
+    pushRoute()
     loadFromServer()
   },
   { deep: true },

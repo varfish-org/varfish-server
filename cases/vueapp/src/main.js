@@ -1,14 +1,14 @@
 import App from '@cases/App.vue'
+import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
+import CaseListApp from '@cases/components/CaseListApp.vue'
+import SvDetails from '@svs/components/SvDetails.vue'
+import SvFilterApp from '@svs/components/SvFilterApp.vue'
+import { useHistoryStore } from '@varfish/stores/history'
+import FilterApp from '@variants/components/FilterApp.vue'
+import VariantDetails from '@variants/components/VariantDetails.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import CaseListApp from '@cases/components/CaseListApp.vue'
-import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
-import FilterApp from '@variants/components/FilterApp.vue'
-import VariantDetails from '@variants/components/VariantDetails.vue'
-import SvFilterApp from '@svs/components/SvFilterApp.vue'
-import SvDetails from '@svs/components/SvDetails.vue'
-import { useHistoryStore } from '@varfish/stores/history'
 
 const routes = [
   {
@@ -55,10 +55,18 @@ const routes = [
   },
   {
     name: 'variants-filter',
-    path: '/variants/filter/:case/:query?',
+    path: '/variants/filter/:case/:query?/:page?/:pageSize?/:orderBy?/:orderDir?/:displayDetails?/:displayFrequency?/:displayConstraint?/:displayColumns?',
     component: FilterApp,
     props: (route) => ({
       caseUuid: route.params.case,
+      page: Number(route.params.page),
+      pageSize: Number(route.params.pageSize),
+      orderBy: route.params.orderBy,
+      orderDir: route.params.orderDir,
+      displayDetails: Number(route.params.displayDetails) || null,
+      displayFrequency: Number(route.params.displayFrequency) || null,
+      displayConstraint: Number(route.params.displayConstraint) || null,
+      displayColumns: route.params.displayColumns || null,
     }),
   },
   {
@@ -72,10 +80,14 @@ const routes = [
   },
   {
     name: 'svs-filter',
-    path: '/svs/filter/:case/:query?',
+    path: '/svs/filter/:case/:query?/:page?/:pageSize?/:orderBy?/:orderDir?',
     component: SvFilterApp,
     props: (route) => ({
       caseUuid: route.params.case,
+      page: Number(route.params.page),
+      pageSize: Number(route.params.pageSize),
+      orderBy: route.params.orderBy,
+      orderDir: route.params.orderDir,
     }),
   },
   {
