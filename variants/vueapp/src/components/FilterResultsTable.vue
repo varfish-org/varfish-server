@@ -2,6 +2,7 @@
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import {
   displayName,
@@ -47,6 +48,14 @@ const props = defineProps({
   pathoEnabled: Boolean,
   /** The phenotype score enabled. */
   prioEnabled: Boolean,
+  /** The page. */
+  page: Number,
+  /** The page size. */
+  pageSize: Number,
+  /** The column to order by. */
+  orderBy: String,
+  /** The direction of ordering. */
+  orderDir: String,
 })
 
 /**
@@ -75,14 +84,17 @@ const displayConstraintWrapper = declareWrapper(
   'displayConstraint',
   emit,
 )
+
+const router = useRouter()
+
 /** Wrapper around {@code displayColumns} prop. */
 const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = ref({
-  page: 1,
-  rowsPerPage: 50,
-  sortBy: 'position',
-  sortType: 'asc',
+  page: props.page || 1,
+  rowsPerPage: props.pageSize || 50,
+  sortBy: props.orderBy || 'position',
+  sortType: props.orderDir || 'asc',
 })
 
 /**
@@ -483,6 +495,24 @@ const loadFromServer = async () => {
   tableLoading.value = false
 }
 
+const pushRoute = () => {
+  router.push({
+    name: 'variants-filter',
+    params: {
+      case: props.case.sodar_uuid,
+      query: queryStore.queryResultSet.sodar_uuid,
+      orderBy: tableServerOptions.value.sortBy,
+      orderDir: tableServerOptions.value.sortType,
+      page: tableServerOptions.value.page,
+      pageSize: tableServerOptions.value.rowsPerPage,
+      displayDetails: displayDetailsWrapper.value,
+      displayFrequency: displayFrequencyWrapper.value,
+      displayConstraint: displayConstraintWrapper.value,
+      displayColumns: displayColumnsWrapper.value.join(','),
+    },
+  })
+}
+
 /** Load data when mounted. */
 onMounted(() => {
   loadFromServer()
@@ -492,7 +522,16 @@ onMounted(() => {
 watch(
   tableServerOptions,
   (_newValue, _oldValue) => {
+    pushRoute()
     loadFromServer()
+  },
+  { deep: true },
+)
+
+watch(
+  displayDetailsWrapper,
+  (_newValue, _oldValue) => {
+    pushRoute()
   },
   { deep: true },
 )
@@ -500,7 +539,7 @@ watch(
 watch(
   displayFrequencyWrapper,
   (_newValue, _oldValue) => {
-    loadFromServer()
+    pushRoute()
   },
   { deep: true },
 )
@@ -508,7 +547,15 @@ watch(
 watch(
   displayConstraintWrapper,
   (_newValue, _oldValue) => {
-    loadFromServer()
+    pushRoute()
+  },
+  { deep: true },
+)
+
+watch(
+  displayColumnsWrapper,
+  (_newValue, _oldValue) => {
+    pushRoute()
   },
   { deep: true },
 )

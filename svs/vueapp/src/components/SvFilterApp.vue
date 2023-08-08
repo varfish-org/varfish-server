@@ -17,6 +17,14 @@ import { useSvCommentsStore } from '@svs/stores/svComments'
 const props = defineProps({
   /** The case UUID. */
   caseUuid: String,
+  /** The page. */
+  page: Number,
+  /** The page size. */
+  pageSize: Number,
+  /** The column to order by. */
+  orderBy: String,
+  /** The direction of ordering. */
+  orderDir: String,
 })
 
 const appContext = JSON.parse(
@@ -192,6 +200,10 @@ watch(
       <SvFilterResultsTable
         :case-obj="svQueryStore.caseObj"
         @variant-selected="showDetails"
+        :page="props.page"
+        :pageSize="props.pageSize"
+        :orderBy="props.orderBy"
+        :orderDir="props.orderDir"
       />
     </div>
     <div
