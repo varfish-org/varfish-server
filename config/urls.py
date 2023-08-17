@@ -61,7 +61,8 @@ urlpatterns += [
     # SODAR-core
     url(r"^project/", include("projectroles.urls")),
     url(r"^timeline/", include("timeline.urls")),
-    url(r"^alerts/", include("adminalerts.urls")),
+    url(r"^admin_alerts/", include("adminalerts.urls")),
+    url(r"^app_alerts/", include("appalerts.urls")),
     url(r"^siteinfo/", include("siteinfo.urls")),
     url(r"^userprofile/", include("userprofile.urls")),
     url(r"^tokens/", include("tokens.urls")),  # will go to SODAR-core

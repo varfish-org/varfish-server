@@ -16,10 +16,10 @@ class TestCaseUserAnnotatedVariantsAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
         bad_users_403 = [self.user_no_roles]

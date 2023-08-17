@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("var_stats_qc", "0003_auto_20190619_1636")]
 
     operations = [

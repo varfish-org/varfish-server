@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0056_add_info_and_distance")]
 
     operations = [

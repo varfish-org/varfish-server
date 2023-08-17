@@ -7,7 +7,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0024_auto_20181130_0822")]
 
     operations = [

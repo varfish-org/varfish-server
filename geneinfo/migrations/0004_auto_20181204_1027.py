@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("geneinfo", "0003_auto_20181127_1320")]
 
     operations = [

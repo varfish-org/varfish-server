@@ -13,7 +13,6 @@ import variants.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0069_set_logged_table"),
         ("bgjobs", "0005_auto_20190128_1210"),

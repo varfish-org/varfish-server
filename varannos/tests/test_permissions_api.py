@@ -23,10 +23,10 @@ class TestVarAnnoSetApiView(TestProjectAPIPermissionBase):
         bad_users_401 = [self.anonymous]
         bad_users_403 = [
             self.user_no_roles,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
@@ -53,9 +53,9 @@ class TestVarAnnoSetApiView(TestProjectAPIPermissionBase):
         bad_users_403 = [
             self.user_no_roles,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         self.assert_response(
             url, good_users, 201, method="POST", data=data, cleanup_method=cleanup_create
@@ -75,9 +75,9 @@ class TestVarAnnoSetApiView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
         bad_users_403 = [
@@ -105,9 +105,9 @@ class TestVarAnnoSetApiView(TestProjectAPIPermissionBase):
         bad_users_403 = [
             self.user_no_roles,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         self.assert_response(
             url,
@@ -143,9 +143,9 @@ class TestVarAnnoSetApiView(TestProjectAPIPermissionBase):
         bad_users_404 = [
             self.user_no_roles,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         self.assert_response(
             url,

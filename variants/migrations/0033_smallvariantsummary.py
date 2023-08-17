@@ -79,6 +79,5 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0032_auto_20190320_2042")]
     operations = operations

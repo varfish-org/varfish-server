@@ -24,11 +24,12 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
         ]
         bad_users = [
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.anonymous,
             self.user_no_roles,
+            self.user_finder_cat,
         ]
 
         r_mock.get(
@@ -82,11 +83,12 @@ class TestBeaconQueryAjaxView(TestProjectAPIPermissionBase):
         ]
         bad_users = [
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.anonymous,
             self.user_no_roles,
+            self.user_finder_cat,
         ]
 
         r_mock.get(

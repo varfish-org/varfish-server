@@ -1,7 +1,7 @@
 import factory
 from projectroles.forms import PROJECT_ROLE_CONTRIBUTOR, PROJECT_ROLE_OWNER
 from projectroles.models import Role
-from projectroles.tests.test_models import RoleAssignmentMixin
+from projectroles.tests.test_models import RoleAssignmentMixin, RoleMixin
 from test_plus import TestCase
 
 from cohorts.models import Cohort, CohortCase
@@ -36,10 +36,13 @@ class CohortFactory(factory.django.DjangoModelFactory):
                 self.cases.add(case)
 
 
-class TestCohortBase(RoleAssignmentMixin, TestCase):
+class TestCohortBase(RoleAssignmentMixin, RoleMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
+
+        # Provided by RoleMixin
+        self.init_roles()
 
         # setup users
         # setup super user
@@ -91,17 +94,16 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         role_contributor = Role.objects.get_or_create(name=PROJECT_ROLE_CONTRIBUTOR)[0]
 
         # owner owns project1 and project2 (all projects)
-        self._make_assignment(self.project1, owner, role_owner)
-        self._make_assignment(self.project2, owner, role_owner)
+        self.make_assignment(self.project1, owner, role_owner)
+        self.make_assignment(self.project2, owner, role_owner)
 
         # contributor gets access to project2
-        self._make_assignment(self.project2, self.contributor, role_contributor)
+        self.make_assignment(self.project2, self.contributor, role_contributor)
 
     def _create_cohort_all_possible_cases(self, user, project):
-        if user.is_superuser:
-            cases = Case.objects.all()
-        else:
-            cases = Case.objects.filter(project__roles__user=user)
+        cases = Case.objects.all()
+        if not user.is_superuser:
+            cases = [c for c in cases if c.project.has_role(user)]
         return CohortFactory.create(user=user, project=project, cases=cases)
 
 

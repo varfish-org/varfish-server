@@ -11,7 +11,6 @@ import variants.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projectroles", "0013_update_appsetting_type"),
         ("bgjobs", "0005_auto_20190128_1210"),

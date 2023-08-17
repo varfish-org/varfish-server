@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("geneinfo", "0024_alter_ncbigenerif_pubmed_ids"),
     ]

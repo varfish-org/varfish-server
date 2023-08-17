@@ -15,13 +15,13 @@ class TestSvQuerySettingsShortcutAjaxView(TestProjectAPIPermissionBase):
         url = reverse("svs:ajax-svquerysettings-shortcut", kwargs={"case": self.case.sodar_uuid})
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")

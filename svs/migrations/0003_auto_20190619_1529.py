@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("svs", "0002_pgplsql_overlapping_bins")]
 
     operations = [

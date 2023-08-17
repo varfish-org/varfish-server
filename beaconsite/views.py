@@ -65,7 +65,6 @@ class ConsortiumModifyMixin(ModelFormMixin):
 class ConsortiumCreateView(
     LoginRequiredMixin, ConsortiumModifyMixin, LoggedInPermissionMixin, CreateView
 ):
-
     permission_required = "beaconsite.add_data"
     template_name = "beaconsite/consortium_form.html"
     model = Consortium

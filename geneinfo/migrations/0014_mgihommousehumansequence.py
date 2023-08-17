@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("geneinfo", "0013_materialized_view_geneidtoinheritance")]
 
     operations = [

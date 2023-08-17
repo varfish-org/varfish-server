@@ -107,7 +107,6 @@ class SvQuerySerializer(SODARModelSerializer):
 
 
 class SvQueryWithLogsSerializer(SvQuerySerializer):
-
     #: Log messages
     logs = serializers.SerializerMethodField()
 

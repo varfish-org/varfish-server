@@ -7,7 +7,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0003_auto_20181031_1531")]
 
     operations = [

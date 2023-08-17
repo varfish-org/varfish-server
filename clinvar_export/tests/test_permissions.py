@@ -11,9 +11,9 @@ class TestClinvarExportViews(TestProjectPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [
             self.anonymous,

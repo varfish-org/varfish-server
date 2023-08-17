@@ -127,7 +127,6 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0043_synccaselistbgjob_synccaseresultmessage")]
 
     operations = operations

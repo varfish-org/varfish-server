@@ -9,7 +9,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("clinvar_export", "0003_auto_20211129_1443"),
     ]

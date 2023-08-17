@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0037_auto_20190415_0921")]
 
     operations = [migrations.AlterUniqueTogether(name="smallvariant", unique_together=set([]))]

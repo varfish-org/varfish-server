@@ -27,9 +27,9 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
         bad_users_403 = [self.user_no_roles]
@@ -50,11 +50,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.guest_as.user, self.user_no_roles]
+        bad_users_403 = [self.user_guest, self.user_no_roles]
         self.assert_response(
             url,
             good_users,
@@ -89,9 +89,9 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
         bad_users_403 = [self.user_no_roles]
@@ -120,11 +120,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.guest_as.user, self.user_no_roles]
+        bad_users_403 = [self.user_guest, self.user_no_roles]
         self.assert_response(
             url,
             good_users,
@@ -155,11 +155,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.guest_as.user, self.user_no_roles]
+        bad_users_403 = [self.user_guest, self.user_no_roles]
         for user in good_users:
             caseimportaction = CaseImportActionFactory(project=self.project)
             url = reverse(

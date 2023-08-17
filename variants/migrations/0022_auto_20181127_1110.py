@@ -11,7 +11,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projectroles", "0006_add_remote_projects"),
         ("bgjobs", "0004_backgroundjob_user"),

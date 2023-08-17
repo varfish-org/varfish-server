@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("dbsnp", "0002_auto_20190619_1636")]
 
     operations = [migrations.RemoveIndex(model_name="dbsnp", name="dbsnp_dbsnp_release_8ac946_idx")]

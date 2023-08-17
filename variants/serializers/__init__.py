@@ -343,7 +343,6 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
 
 
 class SmallVariantQueryWithLogsSerializer(SmallVariantQuerySerializer):
-
     #: Log messages
     logs = serializers.SerializerMethodField()
 
@@ -434,7 +433,6 @@ class SmallVariantQueryResultRowSerializer(SODARModelSerializer):
 
 @attrs.define
 class HpoTerms:
-
     hpoterms: typing.Dict[str, typing.Any]
 
 
@@ -527,7 +525,6 @@ class ExtraAnnoSerializer(serializers.ModelSerializer):
 
 
 class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
-
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
 

@@ -11,7 +11,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [("variants", "0005_load_btree_gin_extension")]

@@ -16,7 +16,6 @@ else:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("geneinfo", "0015_mgimapping")]
 
     operations = operations

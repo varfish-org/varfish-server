@@ -10,7 +10,6 @@ import model_clone.mixin
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("projectroles", "0021_remove_project_submit_status"),

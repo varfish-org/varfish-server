@@ -6,7 +6,7 @@
 {% endblock title %}
 
 {% block projectroles %}
-  {% get 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
 
   <p>
     Nothing to see here (yet)

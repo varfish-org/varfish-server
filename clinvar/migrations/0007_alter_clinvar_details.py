@@ -6,7 +6,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("clinvar", "0006_clinvarpathogenicgenes"),
     ]

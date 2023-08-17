@@ -63,7 +63,6 @@ class GenePanelCategoryModifyMixin(ModelFormMixin):
 
 
 class GenePanelCategoryDetailView(LoginRequiredMixin, LoggedInPermissionMixin, DetailView):
-
     permission_required = "genepanels.view_data"
     template_name = "genepanels/category_detail.html"
     model = GenePanelCategory
@@ -74,7 +73,6 @@ class GenePanelCategoryDetailView(LoginRequiredMixin, LoggedInPermissionMixin, D
 class GenePanelCategoryCreateView(
     LoginRequiredMixin, GenePanelCategoryModifyMixin, LoggedInPermissionMixin, CreateView
 ):
-
     permission_required = "beaconsite.add_data"
     template_name = "genepanels/category_form.html"
     model = GenePanelCategory
@@ -120,7 +118,6 @@ class GenePanelModifyMixin(ModelFormMixin):
 
 
 class GenePanelDetailView(LoginRequiredMixin, LoggedInPermissionMixin, DetailView):
-
     permission_required = "genepanels.view_data"
     template_name = "genepanels/genepanel_detail.html"
     model = GenePanel
@@ -131,7 +128,6 @@ class GenePanelDetailView(LoginRequiredMixin, LoggedInPermissionMixin, DetailVie
 class GenePanelCreateView(
     LoginRequiredMixin, GenePanelModifyMixin, LoggedInPermissionMixin, CreateView
 ):
-
     permission_required = "beaconsite.add_data"
     template_name = "genepanels/genepanel_form.html"
     model = GenePanel

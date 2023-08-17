@@ -41,9 +41,7 @@ class UserSettingView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         self._check_setting()
-        value = app_settings.get(
-            *self.kwargs["setting_name"].split("."), user=self.request.user
-        )
+        value = app_settings.get(*self.kwargs["setting_name"].split("."), user=self.request.user)
         return Response({"value": value}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):

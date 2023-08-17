@@ -44,18 +44,22 @@ class CohortSerializer(SODARProjectModelSerializer):
 
     def get_inaccessible_cases(self, obj):
         """Corresponds to the ``inaccessible_cases`` field defined above."""
-        if self.context["request"].user.is_superuser:
+        user = self.context["request"].user
+
+        if user.is_superuser:
             return 0
 
-        return obj.cases.exclude(project__roles__user=self.context["request"].user).count()
+        return len([c for c in obj.cases.all() if not c.project.has_role(user)])
 
     def get_cases(self, obj):
         """Corresponds to the ``cases`` field defined above."""
-        if self.context["request"].user.is_superuser:
+        user = self.context["request"].user
+
+        if user.is_superuser:
             return CaseSerializer(obj.cases, many=True).data
 
         return CaseSerializer(
-            obj.cases.filter(project__roles__user=self.context["request"].user), many=True
+            [c for c in obj.cases.all() if c.project.has_role(user)], many=True
         ).data
 
 

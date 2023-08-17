@@ -11,7 +11,7 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.cohort = CohortFactory(project=self.project, user=self.contributor_as.user)
+        self.cohort = CohortFactory(project=self.project, user=self.user_contributor)
         self.cases = CaseFactory.create_batch(2, project=self.project)
 
     def test_list(self):
@@ -21,12 +21,12 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
-        bad_users = [self.anonymous, self.user_no_roles]
+        bad_users = [self.anonymous, self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users, 403, method="GET")
 
@@ -37,11 +37,16 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.user_no_roles, self.anonymous]  # Forbidden
+        bad_users = [
+            self.user_guest,
+            self.user_no_roles,
+            self.anonymous,
+            self.user_finder_cat,
+        ]  # Forbidden
         data = {"name": "New Cohort", "cases": [str(case.sodar_uuid) for case in self.cases]}
         self.assert_response(url, good_users, 201, method="POST", data=data)
         self.assert_response(url, bad_users, 403, method="POST", data=data)
@@ -53,14 +58,15 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
+            self.user_contributor,
         ]
         bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
+            self.user_finder_cat,
         ]
         data = {"name": "Updated name", "cases": [str(case.sodar_uuid) for case in self.cases]}
         self.assert_response(url, good_users, 200, method="PUT", data=data)
@@ -74,20 +80,19 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
+            self.user_contributor,
         ]
         bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
+            self.user_finder_cat,
         ]
 
         def restore_cohort():
-            CohortFactory(
-                sodar_uuid=cohort_uuid, project=self.project, user=self.contributor_as.user
-            )
+            CohortFactory(sodar_uuid=cohort_uuid, project=self.project, user=self.user_contributor)
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=restore_cohort)
         self.assert_response(url, bad_users, 403, method="DELETE")
@@ -108,12 +113,12 @@ class TestAccessibleProjectsCasesApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
-        bad_users = [self.user_no_roles, self.anonymous]
+        bad_users = [self.user_no_roles, self.anonymous, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users, 403, method="GET")
 
@@ -123,7 +128,7 @@ class TestCohortCaseApiView(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.cohort = CohortFactory(project=self.project, user=self.contributor_as.user)
+        self.cohort = CohortFactory(project=self.project, user=self.user_contributor)
         self.cases = CaseFactory.create_batch(3, project=self.project)
         self.cohortcases = [
             CohortCaseFactory(cohort=self.cohort, case=self.cases[0]),
@@ -137,12 +142,12 @@ class TestCohortCaseApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
-        bad_users = [self.user_no_roles, self.anonymous]
+        bad_users = [self.user_no_roles, self.anonymous, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users, 403, method="GET")
 
@@ -153,11 +158,16 @@ class TestCohortCaseApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.user_no_roles, self.anonymous]  # Forbidden
+        bad_users = [
+            self.user_guest,
+            self.user_no_roles,
+            self.anonymous,
+            self.user_finder_cat,
+        ]  # Forbidden
         data = {"cohort": self.cohort.sodar_uuid, "case": self.cases[2].sodar_uuid}
 
         def remove_cohortcase():
@@ -176,14 +186,15 @@ class TestCohortCaseApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
+            self.user_contributor,
         ]
         bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
+            self.user_finder_cat,
         ]
 
         def restore_cohortcase():

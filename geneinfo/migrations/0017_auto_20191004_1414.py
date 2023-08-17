@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("geneinfo", "0016_mgimapping_index")]
 
     operations = [

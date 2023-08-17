@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0095_auto_20230724_0820"),
         ("svs", "0021_remove_svqueryresultset_query_sql"),

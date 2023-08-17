@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("svs", "0012_structuralvariantflags_flag_molecular"),
         ("variants", "0075_projectcasesfilterbgjob_cohort"),

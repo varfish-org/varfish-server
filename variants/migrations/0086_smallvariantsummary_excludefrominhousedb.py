@@ -113,7 +113,6 @@ else:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0085_add_variant_index"),
     ]

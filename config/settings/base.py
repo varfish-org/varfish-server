@@ -70,6 +70,7 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",  # Form layouts
+    "crispy_bootstrap4",
     "rules.apps.AutodiscoverRulesConfig",
     "djangoplugins",
     "pagedown",
@@ -78,6 +79,7 @@ THIRD_PARTY_APPS = [
     "knox",
     "aldjemy",
     "adminalerts",
+    "appalerts.apps.AppalertsConfig",
     "userprofile.apps.UserprofileConfig",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
@@ -334,6 +336,7 @@ TEMPLATES = [
                 "projectroles.context_processors.urls_processor",
                 "projectroles.context_processors.site_app_processor",
                 "projectroles.context_processors.app_alerts_processor",
+                "projectroles.context_processors.sidebar_processor",
                 "django_su.context_processors.is_su",
             ],
         },
@@ -615,10 +618,11 @@ PROJECTROLES_EMAIL_SENDER_REPLY = env.bool("PROJECTROLES_EMAIL_SENDER_REPLY", Fa
 PROJECTROLES_ALLOW_LOCAL_USERS = env.bool("PROJECTROLES_ALLOW_LOCAL_USERS", False)
 
 # Hide selected apps
-PROJECTROLES_HIDE_APP_LINKS = ["svs", "variants"]
+PROJECTROLES_HIDE_PROJECT_APPS = ["svs", "variants"]
 
-# Whether or not to sync from remote (disable only locally).
-VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", True)
+# Settings for syncing remote projects (interval is in minutes)
+PROJECTROLES_TARGET_SYNC_ENABLE = env.bool("PROJECTROLES_TARGET_SYNC_ENABLE", default=False)
+PROJECTROLES_TARGET_SYNC_INTERVAL = env.int("PROJECTROLES_TARGET_SYNC_INTERVAL", default=5)
 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
@@ -627,6 +631,11 @@ PROJECTROLES_DISABLE_CATEGORIES = env.bool("PROJECTROLES_DISABLE_CATEGORIES", Fa
 
 # Warn about unsupported browsers (IE)
 PROJECTROLES_BROWSER_WARNING = True
+
+PROJECTROLES_TEMPLATE_INCLUDE_PATH = env.path(
+    "PROJECTROLES_TEMPLATE_INCLUDE_PATH",
+    os.path.join(APPS_DIR, "templates", "include"),
+)
 
 # Disable default CDN JS/CSS includes to replace with local files.  This
 # is primarily used for Docker-based deployments.

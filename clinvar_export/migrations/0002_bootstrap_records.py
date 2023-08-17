@@ -41,7 +41,6 @@ def noop(_apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("clinvar_export", "0001_initial"),
     ]
