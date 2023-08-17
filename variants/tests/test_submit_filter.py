@@ -361,7 +361,7 @@ class CaseFilterTest(TestCase):
         from projectroles.app_settings import AppSettingAPI
 
         app_settings = AppSettingAPI()
-        app_settings.set_app_setting(
+        app_settings.set(
             "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.superuser
         )
 

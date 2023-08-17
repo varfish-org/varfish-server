@@ -91,7 +91,7 @@ def get_user_setting(user, app_name, setting_name):
     if settings.KIOSK_MODE:
         return
     setting_api = AppSettingAPI()
-    return setting_api.get_app_setting(app_name, setting_name, user=user)
+    return setting_api.get(app_name, setting_name, user=user)
 
 
 @register.simple_tag

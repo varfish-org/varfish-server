@@ -375,7 +375,7 @@ class Case(CoreCase):
         result = {}
 
         if disable_pedigree_sex_check is None:
-            disable_pedigree_sex_check = _app_settings.get_app_setting(
+            disable_pedigree_sex_check = _app_settings.get(
                 "variants", "disable_pedigree_sex_check", project=self.project
             )
 

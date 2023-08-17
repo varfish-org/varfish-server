@@ -51,12 +51,12 @@ class EntrypointView(
                     "sodar_uuid": str(self.request.user.sodar_uuid),
                     "is_superuser": self.request.user.is_superuser,
                 },
-                "umd_predictor_api_token": setting_api.get_app_setting(
+                "umd_predictor_api_token": setting_api.get(
                     "variants", "umd_predictor_api_token", user=self.request.user
                 ),
                 "hgmd_pro_enabled": settings.VARFISH_ENABLE_HGMD_PRO_LINKOUT,
                 "hgmd_pro_prefix": settings.VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX,
-                "ga4gh_beacon_network_widget_enabled": setting_api.get_app_setting(
+                "ga4gh_beacon_network_widget_enabled": setting_api.get(
                     "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
                 ),
                 "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
