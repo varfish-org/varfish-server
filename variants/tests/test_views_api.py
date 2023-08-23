@@ -259,16 +259,16 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
     def test_get_access_allowed(self):
         _queries = [
-            SmallVariantQueryFactory(case=self.case, user=self.guest_as.user),
+            SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
 
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
 
         for user in good_users:
@@ -277,7 +277,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
     def test_get_access_forbidden(self):
         _queries = [
-            SmallVariantQueryFactory(case=self.case, user=self.guest_as.user),
+            SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
 
@@ -358,10 +358,10 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #
 #         good_users = [
 #             self.superuser,
-#             self.owner_as.user,
-#             self.delegate_as.user,
-#             self.contributor_as.user,
-#             self.guest_as.user,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
+#             self.user_guest,
 #         ]
 #
 #         for i, user in enumerate(good_users):
@@ -399,7 +399,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 # TODO reuse for similar api view?
 # class TestSmallVariantQueryRetrieveApiView(TestSmallVariantQueryBase):
 #     def test_get(self):
-#         query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
 #         url = reverse(
 #             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
 #         )
@@ -412,14 +412,14 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #         self.assertEqual(actual, expected)
 #
 #     def test_get_access_allowed(self):
-#         query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
 #         url = reverse(
 #             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
 #         )
 #
 #         good_users = [
 #             self.superuser,
-#             self.guest_as.user,
+#             self.user_guest,
 #         ]
 #
 #         for user in good_users:
@@ -427,15 +427,15 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #             self.assertEqual(response.status_code, 200, "user = %s" % user)
 #
 #     def test_get_access_forbidden(self):
-#         query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
 #         url = reverse(
 #             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
 #         )
 #
 #         bad_users = [
-#             self.owner_as.user,
-#             self.delegate_as.user,
-#             self.contributor_as.user,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
 #             None,
 #         ]
 #
@@ -454,7 +454,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 # class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
 #     def test_get(self):
 #         filter_job = FilterBgJobFactory(
-#             case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
 #         )
 #         query = filter_job.smallvariantquery
 #
@@ -471,7 +471,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #
 #     def test_get_access_allowed(self):
 #         filter_job = FilterBgJobFactory(
-#             case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
 #         )
 #         query = filter_job.smallvariantquery
 #
@@ -481,7 +481,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #
 #         good_users = [
 #             self.superuser,
-#             self.guest_as.user,
+#             self.user_guest,
 #         ]
 #
 #         for user in good_users:
@@ -490,7 +490,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #
 #     def test_get_access_forbidden(self):
 #         filter_job = FilterBgJobFactory(
-#             case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
 #         )
 #         query = filter_job.smallvariantquery
 #
@@ -499,9 +499,9 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #         )
 #
 #         bad_users = [
-#             self.owner_as.user,
-#             self.delegate_as.user,
-#             self.contributor_as.user,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
 #             None,
 #         ]
 #
@@ -566,10 +566,10 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #
 #     def test_get_access_forbidden(self):
 #         bad_users = [
-#             self.guest_as.user,
-#             self.owner_as.user,
-#             self.delegate_as.user,
-#             self.contributor_as.user,
+#             self.user_guest,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
 #             None,
 #         ]
 #
@@ -756,10 +756,10 @@ class TestSmallVariantQuerySettingsShortcutApiView(
 
     def test_get_access_forbidden(self):
         bad_users = [
-            self.guest_as.user,
+            self.user_guest,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
             None,
         ]
 

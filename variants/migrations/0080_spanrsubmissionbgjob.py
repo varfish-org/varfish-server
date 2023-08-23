@@ -10,7 +10,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projectroles", "0015_fix_appsetting_constraint"),
         ("bgjobs", "0006_auto_20200526_1657"),

@@ -6,7 +6,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("extra_annos", "0003_alter_extraanno_anno_data"),
     ]

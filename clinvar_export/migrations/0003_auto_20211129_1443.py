@@ -6,7 +6,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("clinvar_export", "0002_bootstrap_records"),
     ]

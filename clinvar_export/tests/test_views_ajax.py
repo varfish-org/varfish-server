@@ -55,7 +55,7 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
         url = reverse(
             "clinvar_export:ajax-organisation-list", kwargs={"project": self.project.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -90,7 +90,7 @@ class TestSubmitterAjaxViews(TestProjectAPIPermissionBase):
         url = reverse(
             "clinvar_export:ajax-submitter-list", kwargs={"project": self.project.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -112,7 +112,7 @@ class TestAssertionMethodAjaxViews(TestProjectAPIPermissionBase):
         url = reverse(
             "clinvar_export:ajax-assertionmethod-list", kwargs={"project": self.project.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -143,7 +143,7 @@ class TestIndividualListView(TestProjectAPIPermissionBase):
         url = reverse(
             "clinvar_export:ajax-individual-list", kwargs={"project": self.project.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -181,7 +181,7 @@ class TestFamilyListView(TestProjectAPIPermissionBase):
         url = reverse(
             "clinvar_export:ajax-family-list", kwargs={"project": self.project.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -219,7 +219,7 @@ class TestSubmissionSetListCreateView(TestProjectAPIPermissionBase):
             "clinvar_export:ajax-submissionset-list-create",
             kwargs={"project": self.project.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -250,7 +250,7 @@ class TestSubmissionSetListCreateView(TestProjectAPIPermissionBase):
             "title": "My Submission",
             "submitter": str(self.submitter.sodar_uuid),  # XXX
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(SubmissionSet.objects.count(), 2)
@@ -280,7 +280,7 @@ class TestSubmissionSetRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submissionset": self.submissionset.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -311,7 +311,7 @@ class TestSubmissionSetRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
             "title": "Brand New Title",
             "state": "submitted",
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -338,7 +338,7 @@ class TestSubmissionSetRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submissionset": self.submissionset.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(SubmissionSet.objects.count(), 0)
@@ -366,7 +366,7 @@ class TestSubmissionListCreateView(TestProjectAPIPermissionBase):
             "clinvar_export:ajax-submission-list-create",
             kwargs={"project": self.project.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -431,7 +431,7 @@ class TestSubmissionListCreateView(TestProjectAPIPermissionBase):
             "variant_hgvs": ["p.W23T"],
             "diseases": json.dumps([{"term_id": "HP:1234567", "term_name": "Phenotype 1234567"}]),
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Submission.objects.count(), 2)
@@ -461,7 +461,7 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submission": self.submission.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -535,7 +535,7 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
             "submission_individuals": [],
             "submission_set": str(self.submission.submission_set.sodar_uuid),
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -557,7 +557,7 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submission": self.submission.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(Submission.objects.count(), 0)
@@ -583,7 +583,7 @@ class TestSubmissionIndividualCreateListView(TestProjectAPIPermissionBase):
             "clinvar_export:ajax-submissionindividual-list-create",
             kwargs={"project": self.submission.submission_set.project.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -621,7 +621,7 @@ class TestSubmissionIndividualCreateListView(TestProjectAPIPermissionBase):
             "source": "research",
             "phenotypes": json.dumps([{"term_id": "HP:1234567", "term_name": "Phenotype 1234567"}]),
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(SubmissionIndividual.objects.count(), 1)
@@ -652,7 +652,7 @@ class TestSubmissionIndividualRetrieveUpdateDestroyView(TestProjectAPIPermission
                 "submissionindividual": self.submissionindividual.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -701,7 +701,7 @@ class TestSubmissionIndividualRetrieveUpdateDestroyView(TestProjectAPIPermission
             "variant_zygosity": "Homozygote",
         }
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -716,7 +716,7 @@ class TestSubmissionIndividualRetrieveUpdateDestroyView(TestProjectAPIPermission
                 "submissionindividual": self.submissionindividual.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(SubmissionIndividual.objects.count(), 0)
@@ -736,7 +736,7 @@ class TestSubmittingOrgCreateListView(TestProjectAPIPermissionBase):
             "clinvar_export:ajax-submittingorg-list-create",
             kwargs={"project": self.submissionset.project.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -764,7 +764,7 @@ class TestSubmittingOrgCreateListView(TestProjectAPIPermissionBase):
             "organisation": str(self.organisation.sodar_uuid),
             "submission_set": str(self.submissionset.sodar_uuid),
         }
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(SubmittingOrg.objects.count(), 1)
@@ -789,7 +789,7 @@ class TestSubmittingOrgRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submittingorg": self.submittingorg.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -823,7 +823,7 @@ class TestSubmittingOrgRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
             "submission_set": str(self.submissionset.sodar_uuid),
         }
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -838,7 +838,7 @@ class TestSubmittingOrgRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "submittingorg": self.submittingorg.sodar_uuid,
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(SubmittingOrg.objects.count(), 0)
@@ -857,7 +857,7 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
             + "?query="
             + hpo_record.database_id
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -888,7 +888,7 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
             + "?query="
             + hpo_name_record.hpo_id
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -920,7 +920,7 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
             "clinvar_export:user-annotations",
             kwargs={"project": self.project.sodar_uuid, "family": self.family.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -1049,7 +1049,7 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
             "clinvar_export:clinvar-report-list",
             kwargs={"submissionset": self.clinvar_report.submission_set.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -1081,7 +1081,7 @@ class SubmissionSetRenderClinvarXml(TestProjectAPIPermissionBase):
                 "submissionset": str(self.submission.submission_set.sodar_uuid),
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         text = response.content.decode("utf-8")
         self.assertTrue(text.startswith("<ClinvarSubmissionSet"))
@@ -1106,7 +1106,7 @@ class SubmissionSetValidateClinvarXml(TestProjectAPIPermissionBase):
                 "submissionset": str(self.submission.submission_set.sodar_uuid),
             },
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.json(), {"valid": True})
@@ -1240,7 +1240,7 @@ class FetchClinVarReportApiViewTest(TestProjectAPIPermissionBase):
 
         self.assertEqual(ClinVarReport.objects.count(), 0)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, {"report_url": report_url})
         self.assertEqual(response.status_code, 204)
 
@@ -1274,7 +1274,7 @@ class FetchClinVarReportApiViewTest(TestProjectAPIPermissionBase):
 
         self.assertEqual(ClinVarReport.objects.count(), 0)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, {"report_url": report_url})
         self.assertEqual(response.status_code, 204)
 

@@ -10,7 +10,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projectroles", "0006_add_remote_projects"),
         ("bgjobs", "0005_auto_20190128_1210"),

@@ -12,10 +12,10 @@ class CohortSetupMixin:
 
         # Create second project and assign the owner user
         self.project2 = ProjectFactory()
-        self._make_assignment(self.project2, self.user_contributor, self.role_contributor)
+        self.make_assignment(self.project2, self.user_contributor, self.role_contributor)
 
         # Create first cohort created by contributor in first project
-        self.cohort = CohortFactory(project=self.project, user=self.contributor_as.user)
+        self.cohort = CohortFactory(project=self.project, user=self.user_contributor)
         self.project_cases = CaseFactory.create_batch(5, project=self.project)
         SmallVariantSetFactory(case=self.project_cases[0])
         SmallVariantSetFactory(case=self.project_cases[1])

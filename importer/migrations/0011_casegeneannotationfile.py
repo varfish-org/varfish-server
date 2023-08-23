@@ -9,7 +9,6 @@ import importer.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("importer", "0010_auto_20220112_0657"),
     ]

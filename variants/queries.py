@@ -1374,7 +1374,6 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsDiseaseGeneJoinBase(ExtendQueryPartsBase):
-
     # Model with the gene ID
     gene_id_model = None
 
@@ -1400,7 +1399,6 @@ class ExtendQueryPartsDiseaseGeneJoinBase(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsDiseaseGeneJoinBase):
-
     gene_id_model = SmallVariant
 
 

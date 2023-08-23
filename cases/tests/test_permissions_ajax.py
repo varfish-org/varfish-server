@@ -21,13 +21,13 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
-        bad_users_403 = [self.anonymous, self.user_no_roles]
+        bad_users_403 = [self.anonymous, self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -39,10 +39,10 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [
             self.anonymous,
@@ -59,14 +59,14 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [
             self.anonymous,
         ]
-        bad_users_403 = [self.guest_as.user, self.user_no_roles]
+        bad_users_403 = [self.user_guest, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="PATCH", data={})
         self.assert_response(url, bad_users_401, 401, method="PATCH", data={})
         self.assert_response(url, bad_users_403, 403, method="PATCH", data={})
@@ -86,10 +86,10 @@ class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -108,15 +108,15 @@ class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
         self.assert_response(
@@ -141,10 +141,10 @@ class TestAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -167,10 +167,10 @@ class TestSvAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -196,10 +196,10 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -215,15 +215,15 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
         data = {"individual": self.case.pedigree[0]["patient"], "terms": json.dumps(["HP:123456"])}
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH", data=data)
         self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
@@ -247,16 +247,16 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
             kwargs=kwargs,
         )
         good_users = [
-            self.contributor_as.user,
+            self.user_contributor,
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
+            self.user_owner,
+            self.user_delegate,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
@@ -277,10 +277,10 @@ class TestCaseCommentCreateListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -296,15 +296,15 @@ class TestCaseCommentCreateListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 201, method="POST", data=data)
         self.assert_response(url, bad_users_401, 401, method="POST", data=data)
@@ -317,7 +317,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
-        self.casecomment = CaseCommentsFactory(case=self.case, user=self.contributor_as.user)
+        self.casecomment = CaseCommentsFactory(case=self.case, user=self.user_contributor)
 
     def test_get(self):
         url = reverse(
@@ -326,10 +326,10 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -345,15 +345,15 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
         data = {"comment": "comment"}
         good_users = [
             self.superuser,
-            self.contributor_as.user,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH", data=data)
         self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
@@ -366,7 +366,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
             """Re-create self.casecomments with the correct UUID if necessary."""
             if not CaseComments.objects.filter(sodar_uuid=casecomment_uuid):
                 self.casecomment = CaseCommentsFactory(
-                    sodar_uuid=casecomment_uuid, case=self.case, user=self.contributor_as.user
+                    sodar_uuid=casecomment_uuid, case=self.case, user=self.user_contributor
                 )
 
         kwargs = {"casecomment": self.casecomment.sodar_uuid}
@@ -375,16 +375,16 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
             kwargs=kwargs,
         )
         good_users = [
-            self.contributor_as.user,
+            self.user_contributor,
             self.superuser,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
@@ -405,10 +405,10 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -430,10 +430,10 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.anonymous,
             self.user_no_roles,
         ]
@@ -454,10 +454,10 @@ class TestCaseAlignmentStatsListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -480,10 +480,10 @@ class TestSampleVariantStatisticsListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -506,10 +506,10 @@ class TestPedigreeRelatednessListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]

@@ -16,7 +16,6 @@ def update_chromosome_no_in_existing_flags_and_comments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0070_smallvariant_create_index_chromosome_no"),
     ]

@@ -34,9 +34,9 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -54,9 +54,9 @@ class TestSubmitterAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -74,9 +74,9 @@ class TestAssertionMethodAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -94,9 +94,9 @@ class TestIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -114,9 +114,9 @@ class TestFamilyAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -139,9 +139,9 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -155,10 +155,10 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         data = {
             "state": "pending",
             "title": "My Submission",
@@ -178,9 +178,9 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -197,13 +197,13 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users, 403, method="PATCH")
@@ -212,10 +212,10 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         for user in good_users:
             submissionset = SubmissionSetFactory(project=self.project)
             url = reverse(
@@ -255,9 +255,9 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -285,10 +285,10 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         self.assert_response(
             url,
             good_users,
@@ -321,9 +321,9 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -340,13 +340,13 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users, 403, method="PATCH")
@@ -355,10 +355,10 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         for user in good_users:
             submission = SubmissionFactory(submission_set__project=self.project)
             url = reverse(
@@ -399,9 +399,9 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -415,8 +415,8 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         for user in good_users:
             extra_family = FamilyFactory(project=self.project)
@@ -433,7 +433,7 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
                     "source": "research",
                 },
             )
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         for user in bad_users:
             extra_family = FamilyFactory(project=self.project)
             extra_individual = IndividualFactory(family=extra_family)
@@ -461,9 +461,9 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -480,13 +480,13 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users, 403, method="PATCH")
@@ -495,8 +495,8 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         for user in good_users:
             submission = SubmissionWithIndividualFactory(submission_set=self.submissionset)
@@ -510,7 +510,7 @@ class TestSubmissionIndividualAjaxViews(TestProjectAPIPermissionBase):
             )
             self.assert_response(url, [user], 204, method="DELETE")
 
-        bad_users = [self.guest_as.user, self.anonymous, self.user_no_roles]
+        bad_users = [self.user_guest, self.anonymous, self.user_no_roles]
         for user in bad_users:
             submission = SubmissionWithIndividualFactory(submission_set=self.submissionset)
             submissionindividual = submission.submission_individuals.first()
@@ -541,9 +541,9 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -557,10 +557,10 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.anonymous, self.user_no_roles, self.guest_as.user]
+        bad_users = [self.anonymous, self.user_no_roles, self.user_guest]
         for user in good_users:
             extra_org = OrganisationFactory()
             self.assert_response(
@@ -599,9 +599,9 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
@@ -618,10 +618,10 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.anonymous, self.user_no_roles, self.guest_as.user]
+        bad_users = [self.anonymous, self.user_no_roles, self.user_guest]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users, 403, method="PATCH")
 
@@ -629,10 +629,10 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
-        bad_users = [self.anonymous, self.user_no_roles, self.guest_as.user]
+        bad_users = [self.anonymous, self.user_no_roles, self.user_guest]
         for user in good_users:
             extra_org = OrganisationFactory()
             submittingorg = SubmittingOrgFactory(
@@ -679,9 +679,9 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
         ]
         bad_users = [self.anonymous]
@@ -707,9 +707,9 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
         ]
         bad_users = [self.anonymous]
@@ -751,13 +751,13 @@ class TestFetchClinVarReportApiView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 204, method="POST", data=data)
         self.assert_response(url, bad_users, 403, method="POST", data=data)
@@ -779,9 +779,9 @@ class TestClinVarReportListView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")

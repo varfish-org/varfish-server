@@ -24,13 +24,13 @@ class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
         url = reverse("variants:api-query-list-create", kwargs={"case": self.case.sodar_uuid})
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -44,13 +44,13 @@ class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
         }
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 201, method="POST", data=data)
         self.assert_response(url, bad_users_401, 401, method="POST", data=data)
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
@@ -69,13 +69,13 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -88,12 +88,12 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
         data = {}
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles, self.guest_as.user]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="PATCH", data=data)
         self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
         self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
@@ -110,12 +110,12 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
         url = reverse("variants:api-query-retrieve-update-destroy", kwargs=kwargs)
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles, self.guest_as.user]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
@@ -137,13 +137,13 @@ class TestSmallVariantQueryResultSetListApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -165,13 +165,13 @@ class TestSmallVariantQueryResultSetRetrieveApiView(TestProjectAPIPermissionBase
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -193,13 +193,13 @@ class TestSmallVariantQueryResultRowListApiView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -220,13 +220,13 @@ class TestSmallVariantQueryResultRowRetrieveApiView(TestProjectAPIPermissionBase
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")

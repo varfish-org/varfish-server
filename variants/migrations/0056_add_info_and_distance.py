@@ -29,7 +29,6 @@ else:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0055_auto_20190828_1408")]
 
     operations = operations

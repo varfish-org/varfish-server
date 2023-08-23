@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0054_set_unlogged_table")]
 
     operations = [

@@ -7,7 +7,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0004_auto_20181031_1607")]
 
     operations = [BtreeGinExtension()]

@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("var_stats_qc", "0002_import_grch37_sites")]
 
     operations = [

@@ -15,7 +15,6 @@ def create_through_relations(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cohorts", "0005_auto_20230102_1310"),
     ]

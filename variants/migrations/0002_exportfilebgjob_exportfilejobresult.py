@@ -9,7 +9,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("projectroles", "0005_update_uuid"),
         ("bgjobs", "0002_backgroundjoblogentry"),

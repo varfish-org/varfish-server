@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("svs", "0018_extend_structuralvariant")]
 
     operations = [

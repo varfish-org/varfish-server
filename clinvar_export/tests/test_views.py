@@ -8,7 +8,7 @@ class TestClinvarExportViews(TestProjectPermissionBase):
     def test_entrypoint(self):
         """Test permissions for the entrypoint view"""
         url = reverse("clinvar_export:entrypoint", kwargs={"project": self.project.sodar_uuid})
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertInHTML('<div id="app">', response.content.decode("utf-8"))

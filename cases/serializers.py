@@ -57,7 +57,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
 
     def get_sex_errors(self, obj):
         if self.disable_pedigree_sex_check is None:
-            self.disable_pedigree_sex_check = _app_settings.get_app_setting(
+            self.disable_pedigree_sex_check = _app_settings.get(
                 "variants", "disable_pedigree_sex_check", project=obj.project
             )
         return obj.sex_errors(disable_pedigree_sex_check=self.disable_pedigree_sex_check)

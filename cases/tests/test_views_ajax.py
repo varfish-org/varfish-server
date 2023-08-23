@@ -40,7 +40,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
 
     def test_get(self):
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -106,7 +106,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
             CaseFactory(project=self.project)
 
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             # NB(2022-11-22): A call to listing all cases via AJAX triggered 21 queries, only 1 for fetching the cases.
             # NB(2023-08-03): A call to listing all cases via AJAX triggered 41 queries, only 1 for fetching the cases.
             with self.assertNumQueriesLessThan(42):
@@ -123,7 +123,7 @@ class TestCaseUpdateAjaxView(TestProjectAPIPermissionBase):
     def test_patch_set_presetset_null(self):
         url = reverse("cases:ajax-case-retrieveupdate", kwargs={"case": self.case.sodar_uuid})
         data = {"presetset": ""}
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -134,7 +134,7 @@ class TestCaseUpdateAjaxView(TestProjectAPIPermissionBase):
     def test_patch_set_presetset_not_null(self):
         url = reverse("cases:ajax-case-retrieveupdate", kwargs={"case": self.case.sodar_uuid})
         data = {"presetset": str(self.presetset.sodar_uuid)}
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -152,7 +152,7 @@ class TestCasePhenotypeTermsListCreateAjaxView(TestProjectAPIPermissionBase):
             "cases:ajax-casephenotypeterms-listcreate",
             kwargs={"case": self.case.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -180,7 +180,7 @@ class TestCasePhenotypeTermsListCreateAjaxView(TestProjectAPIPermissionBase):
         )
         self.assertEqual(CasePhenotypeTerms.objects.count(), 0)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(
                 url,
                 {
@@ -217,7 +217,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
             "cases:ajax-casephenotypeterms-retrieveupdatedestroy",
             kwargs={"casephenotypeterms": self.casephenotypeterms.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -242,7 +242,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
         casephenotypeterms_other = CasePhenotypeTermsFactory.build()
         self.assertEqual(CasePhenotypeTerms.objects.count(), 1)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, {"terms": json.dumps(casephenotypeterms_other.terms)})
 
         self.assertEqual(response.status_code, 200)
@@ -269,7 +269,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
 
         self.assertEqual(CasePhenotypeTerms.objects.count(), 1)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, 204)
@@ -285,7 +285,7 @@ class TestCaseCommentListCreateAjaxView(TestProjectAPIPermissionBase):
         url = reverse(
             "cases:ajax-casecomment-listcreate", kwargs={"case": self.casecomment.case.sodar_uuid}
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -310,7 +310,7 @@ class TestCaseCommentListCreateAjaxView(TestProjectAPIPermissionBase):
         case_comment_other = CaseCommentsFactory.build()
         self.assertEqual(CaseComments.objects.count(), 1)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.post(url, {"comment": case_comment_other.comment})
 
         self.assertEqual(response.status_code, 201)
@@ -322,7 +322,7 @@ class TestCaseCommentListCreateAjaxView(TestProjectAPIPermissionBase):
                 "date_created": RE_DATETIME,
                 "date_modified": RE_DATETIME,
                 "sodar_uuid": RE_UUID4,
-                "user": self.contributor_as.user.username,
+                "user": self.user_contributor.username,
             }
         )
         expected.assert_matches(res_json)
@@ -334,7 +334,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
     def setUp(self):
         super().setUp()
         self.casecomment = CaseCommentsFactory(
-            user=self.contributor_as.user, case__project=self.project
+            user=self.user_contributor, case__project=self.project
         )
 
     def test_get(self):
@@ -342,7 +342,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
             "cases:ajax-casecomment-retrieveupdatedestroy",
             kwargs={"casecomment": self.casecomment.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -367,7 +367,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
         case_comment_other = CaseCommentsFactory.build()
         self.assertEqual(CaseComments.objects.count(), 1)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.patch(url, {"comment": case_comment_other.comment})
 
         self.assertEqual(response.status_code, 200)
@@ -379,7 +379,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
                 "date_created": RE_DATETIME,
                 "date_modified": RE_DATETIME,
                 "sodar_uuid": RE_UUID4,
-                "user": self.contributor_as.user.username,
+                "user": self.user_contributor.username,
             }
         )
         expected.assert_matches(res_json)
@@ -394,7 +394,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
 
         self.assertEqual(CaseComments.objects.count(), 1)
 
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.delete(url)
 
         self.assertEqual(response.status_code, 204)
@@ -411,7 +411,7 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
             "cases:ajax-casegeneannotation-list",
             kwargs={"case": self.case_gene_annotation.case.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -458,9 +458,9 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
     def test_get_with_powerful_users(self):
         users = [
             self.owner_as_cat.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         expected_perms = [
             "cases.view_data",
@@ -481,7 +481,7 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
 
     def test_get_with_guest_user(self):
         users = [
-            self.guest_as.user,
+            self.user_guest,
         ]
         expected_perms = ["cases.view_data"]
 
@@ -523,7 +523,7 @@ class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
             "cases:ajax-casealignmentstats-list",
             kwargs={"case": self.casealignmentstats.case.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -551,7 +551,7 @@ class TestSampleVariantStatisticsListApiView(TestProjectAPIPermissionBase):
             "cases:ajax-casevariantstats-list",
             kwargs={"case": self.case.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
@@ -591,7 +591,7 @@ class TestPedigreeRelatednessListApiView(TestProjectAPIPermissionBase):
             "cases:ajax-caserelatedness-list",
             kwargs={"case": self.case.sodar_uuid},
         )
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()

@@ -17,13 +17,13 @@ class TestSvQueryListCreateAjaxView(TestProjectAPIPermissionBase):
         url = reverse("svs:ajax-svquery-listcreate", kwargs={"case": self.case.sodar_uuid})
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -33,13 +33,13 @@ class TestSvQueryListCreateAjaxView(TestProjectAPIPermissionBase):
         data = {"query_settings": "{}"}
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 201, method="POST", data=data)
         self.assert_response(url, bad_users_401, 401, method="POST", data=data)
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
@@ -57,13 +57,13 @@ class TestSvQueryRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -75,12 +75,12 @@ class TestSvQueryRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         data = {}
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles, self.guest_as.user]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="PATCH", data=data)
         self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
         self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
@@ -96,13 +96,13 @@ class TestSvQueryRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         kwargs = {"svquery": self.svquery.sodar_uuid}
         url = reverse("svs:ajax-svquery-retrieveupdatedestroy", kwargs=kwargs)
         good_users = [
-            self.contributor_as.user,
+            self.user_contributor,
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
+            self.user_owner,
+            self.user_delegate,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles, self.guest_as.user]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
@@ -119,13 +119,13 @@ class TestSvQueryResultSetListAjaxView(TestProjectAPIPermissionBase):
         url = reverse("svs:ajax-svqueryresultset-list", kwargs={"svquery": self.svquery.sodar_uuid})
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -145,13 +145,13 @@ class TestSvQueryResultSetRetrieveAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -171,13 +171,13 @@ class TestSvQueryResultRowListAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
@@ -196,13 +196,13 @@ class TestSvQueryResultRowRetrieveView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.contributor_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.guest_as.user,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+            self.user_guest,
         ]
         bad_users_401 = [self.anonymous]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")

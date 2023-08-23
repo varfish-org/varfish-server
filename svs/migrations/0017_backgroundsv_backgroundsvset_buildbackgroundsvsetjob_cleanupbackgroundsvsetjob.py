@@ -8,7 +8,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bgjobs", "0006_auto_20200526_1657"),
         ("svs", "0016_structuralvariantset_release"),

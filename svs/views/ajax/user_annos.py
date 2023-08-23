@@ -68,7 +68,6 @@ class SvApiBaseMixin(SODARAPIGenericProjectMixin):
 
 
 class StructuralVariantFlagsAjaxMixin(SvApiBaseMixin):
-
     serializer_class = StructuralVariantFlagsSerializer
 
     def get_queryset(self):
@@ -143,7 +142,6 @@ class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
 
 
 class StructuralVariantCommentAjaxMixin(SvApiBaseMixin):
-
     serializer_class = StructuralVariantCommentSerializer
 
     def get_queryset(self):

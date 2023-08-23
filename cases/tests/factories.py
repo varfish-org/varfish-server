@@ -94,7 +94,6 @@ class CaseAlignmentStatsFactory(factory.django.DjangoModelFactory):
 
 
 class PedigreeRelatednessFactory(factory.django.DjangoModelFactory):
-
     het_1_2 = 1
     het_1 = 1
     het_2 = 1

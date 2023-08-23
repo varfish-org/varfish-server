@@ -648,7 +648,7 @@ class NewFeaturesView(LoginRequiredMixin, RedirectView):
 
     def get(self, *args, **kwargs):
         setting_api = AppSettingAPI()
-        setting_api.set_app_setting(
+        setting_api.set(
             "variants", "latest_version_seen_changelog", site_version(), user=self.request.user
         )
         return super().get(*args, **kwargs)

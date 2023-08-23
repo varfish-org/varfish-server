@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("geneinfo", "0023_materialized_view_geneidinhpo_fix"),
     ]

@@ -24,7 +24,6 @@ else:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("svs", "0010_set_logged_table")]
 
     operations = []

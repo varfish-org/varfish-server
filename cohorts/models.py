@@ -55,10 +55,10 @@ class Cohort(models.Model):
 
     def get_accessible_cases_for_user(self, user):
         if user == self.user or user.is_superuser:
-            case_query = self.cases.all()
+            case_query = self.cases.all().order_by("name")
         else:
-            case_query = self.cases.filter(project__roles__user=user)
-        return case_query.order_by("name")
+            case_query = [c for c in self.cases.all().order_by("name") if c.project.has_role(user)]
+        return case_query
 
     def indices(self, user):
         """Return all registered indices."""
