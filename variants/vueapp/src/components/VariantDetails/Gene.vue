@@ -185,6 +185,49 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
               </tbody>
             </table>
           </div>
+          <div>
+            <strong>
+              rCNV
+              <small>
+                (<a
+                  href="https://europepmc.org/article/MED/35917817"
+                  target="_blank"
+                  >Collins et al. (2022) </a
+                >)
+              </small>
+            </strong>
+            <br />
+            <span v-if="gene?.rcnv !== undefined && gene?.rcnv !== null">
+              pHaplo <span v-html="roundIt(gene?.rcnv?.p_haplo, 3)" />
+              <br />
+              pTriplo <span v-html="roundIt(gene?.rcnv?.p_triplo, 3)" />
+            </span>
+            <span v-else class="text-muted font-italic">
+              no pHaplo/pTriplo scores available
+            </span>
+          </div>
+          <div>
+            <strong>
+              sHet
+              <small>
+                (<a
+                  href="https://europepmc.org/article/MED/28369035"
+                  target="_blank"
+                  >Weghorn, Balick et al. (2019) </a
+                >)
+              </small>
+            </strong>
+            <br />
+            <span
+              v-if="
+                gene?.shet?.s_het !== undefined && gene?.shet?.s_het !== null
+              "
+              v-html="roundIt(gene?.shet?.s_het, 3)"
+            />
+            <span v-else class="text-muted font-italic">
+              no sHet score available
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -478,25 +521,149 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </span>
         </div>
         <div class="card-body pb-2 pt-2">
-          <div v-if="gene.dbnsfp?.orphanet_disorder?.length" class="mb-2">
-            <strong>Orphanet Disorders:</strong>
-            {{ gene.dbnsfp.orphanet_disorder.join(', ') }}
+          <div v-if="gene.orpha?.orpha_diseases?.length" class="mb-2">
+            <strong> Orphanet Disorders: </strong>
+            <template v-for="(disease, idx) in gene.orpha?.orpha_diseases">
+              <template v-if="idx > 0">, </template>
+              <a
+                :href="`https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Expert=${disease.orpha_id.replace(
+                  'ORPHA:',
+                  '',
+                )}`"
+                target="_blank"
+              >
+                {{ disease.label }}
+              </a>
+            </template>
           </div>
-          <div v-else class="text-muted">
-            No Orphanet disorders annotated in dbNSFP.
-          </div>
+          <div v-else class="text-muted">No Orphanet disorders annotated.</div>
 
-          <div v-if="gene.dbnsfp?.mim_disease?.length" class="mb-2">
-            <strong>OMIM Diseases:</strong>
-            {{ gene.dbnsfp.mim_disease.join(', ') }}
+          <div v-if="gene.omim?.omim_diseases?.length" class="mb-2">
+            <strong> OMIM Diseases: </strong>
+            <template v-for="(disease, idx) in gene.omim?.omim_diseases">
+              <template v-if="idx > 0">, </template>
+              <a
+                :href="`https://www.omim.org/entry/${disease.omim_id.replace(
+                  'OMIM:',
+                  '',
+                )}`"
+                target="_blank"
+              >
+                {{ disease.label }}
+              </a>
+            </template>
           </div>
-          <div v-else class="text-muted">
-            No OMIM diseases annotated in dbNSFP.
-          </div>
+          <div v-else class="text-muted">No OMIM diseases annotated.</div>
         </div>
       </div>
     </div>
 
+    <div class="col mb-2 pl-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header pl-2 pt-1 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%">
+            ClinGen
+          </span>
+        </div>
+        <div class="card-body pb-2 pt-2">
+          <div v-if="gene.clingen?.disease_records?.length" class="mb-2">
+            <div
+              v-for="(disease_record, idx) in gene.clingen?.disease_records"
+              :class="{ 'mt-3': idx > 0 }"
+            >
+              <div class="font-weight-bolder">
+                <a :href="disease_record.disease_url" target="_blank">
+                  {{ disease_record.disease_label }}
+                </a>
+              </div>
+              <div>
+                <strong>
+                  <abbr title="haploinsufficiency"> haplo. </abbr>
+                </strong>
+                {{ disease_record.dosage_haploinsufficiency_assertion }}
+              </div>
+              <div>
+                <strong>
+                  <abbr title="triplosensitivity"> triplo. </abbr>
+                </strong>
+                {{ disease_record.dosage_triplosensitivity_assertion }}
+              </div>
+
+              <div>
+                <strong> actionability </strong>
+                <ul
+                  v-if="
+                    disease_record.actionability_assertion_classifications
+                      ?.length
+                  "
+                  class="pl-2"
+                >
+                  <li
+                    v-for="(
+                      a, idx2
+                    ) in disease_record.actionability_assertion_classifications"
+                  >
+                    <em>{{ disease_record.actionability_groups[idx2] }}: </em>
+                    <a
+                      :href="
+                        disease_record.actionability_assertion_reports[idx2]
+                      "
+                      target="_blank"
+                    >
+                      {{
+                        disease_record.actionability_assertion_classifications[
+                          idx2
+                        ]
+                      }}
+                    </a>
+                  </li>
+                </ul>
+                <div v-else class="text-muted font-italic">
+                  no actionability assertions
+                </div>
+              </div>
+              <div>
+                <strong> validity </strong>
+                <ul
+                  v-if="
+                    disease_record
+                      .gene_disease_validity_assertion_classifications?.length
+                  "
+                  class="pl-2"
+                >
+                  <li
+                    v-for="(
+                      a, idx2
+                    ) in disease_record.gene_disease_validity_assertion_classifications"
+                  >
+                    <em
+                      >{{ disease_record.gene_disease_validity_gceps[idx2] }}:
+                    </em>
+                    <a
+                      :href="
+                        disease_record.gene_disease_validity_assertion_reports[
+                          idx2
+                        ]
+                      "
+                      target="_blank"
+                    >
+                      {{
+                        disease_record
+                          .gene_disease_validity_assertion_classifications[idx2]
+                      }}
+                    </a>
+                  </li>
+                </ul>
+                <div v-else class="text-muted font-italic">
+                  no gene-disease validity assertions
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-muted">No ClinGen annotation available</div>
+        </div>
+      </div>
+    </div>
     <div class="col mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
