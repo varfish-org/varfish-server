@@ -192,8 +192,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 (<a
                   href="https://europepmc.org/article/MED/35917817"
                   target="_blank"
-                  >Collins et al. (2022) </a
-                >)
+                  >Collins et al. (2022);
+                </a>
+                higher value: more likely dosage sensitive)
               </small>
             </strong>
             <br />
@@ -213,8 +214,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 (<a
                   href="https://europepmc.org/article/MED/28369035"
                   target="_blank"
-                  >Weghorn, Balick et al. (2019) </a
-                >)
+                  >Weghorn, Balick et al. (2019);
+                </a>
+                higher value: more likley dosage intolerant)
               </small>
             </strong>
             <br />
@@ -566,7 +568,11 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </span>
         </div>
         <div class="card-body pb-2 pt-2">
-          <div v-if="gene.clingen?.disease_records?.length" class="mb-2">
+          <div
+            v-if="gene.clingen?.disease_records?.length"
+            class="overflow-auto mb-2"
+            style="max-height: 200px; font-size: 90%"
+          >
             <div
               v-for="(disease_record, idx) in gene.clingen?.disease_records"
               :class="{ 'mt-3': idx > 0 }"
@@ -596,7 +602,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                     disease_record.actionability_assertion_classifications
                       ?.length
                   "
-                  class="pl-2"
+                  class="pl-3"
                 >
                   <li
                     v-for="(
@@ -629,7 +635,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                     disease_record
                       .gene_disease_validity_assertion_classifications?.length
                   "
-                  class="pl-2"
+                  class="pl-3"
                 >
                   <li
                     v-for="(

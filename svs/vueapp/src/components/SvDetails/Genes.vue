@@ -45,12 +45,12 @@ const headers: Header[] = [
   },
   {
     text: 'OMIM',
-    value: 'dbnsfp.mim_disease.length',
+    value: 'omim',
     sortable: true,
   },
   {
     text: 'Orphanet',
-    value: 'dbnsfp.orphanet_disorder.length',
+    value: 'orpha',
     sortable: true,
   },
   {
@@ -69,6 +69,34 @@ const headers: Header[] = [
     text: 'P(HI)',
     width: 50,
     value: 'dbnsfp.haploinsufficiency',
+  },
+  {
+    text: 'sHet',
+    width: 100,
+    value: 'shet.s_het',
+    sortable: true,
+  },
+  {
+    text: 'pHaplo',
+    width: 100,
+    value: 'rcnv.p_haplo',
+    sortable: true,
+  },
+  {
+    text: 'pTriplo',
+    width: 100,
+    value: 'rcnv.p_triplo',
+    sortable: true,
+  },
+  {
+    text: 'CG haploin.',
+    width: 100,
+    value: 'clingen.haplo_summary',
+  },
+  {
+    text: 'CG triploin.',
+    width: 100,
+    value: 'clingen.triplo_summary',
   },
 ]
 
@@ -136,7 +164,54 @@ const geneInfoBadge = (geneInfo: any): string | null => {
 /** Compute list of gene infos to protect against empty `props.genesInfos`. */
 const items: ComputedRef<GeneInfo[]> = computed(() => {
   if (props.genesInfos) {
-    return props.genesInfos
+    const genesInfos = JSON.parse(JSON.stringify(props.genesInfos))
+    for (const geneInfo of genesInfos) {
+      if (geneInfo.clingen) {
+        const haploLabels = new Map<number, string>()
+        const triploLabels = new Map<number, string>()
+
+        for (const diseaseRecord of geneInfo.clingen.disease_records) {
+          if (diseaseRecord.dosage_haploinsufficiency_assertion?.length) {
+            const val = parseInt(
+              diseaseRecord.dosage_haploinsufficiency_assertion.split(' ')[0],
+            )
+            haploLabels.set(
+              val,
+              diseaseRecord.dosage_haploinsufficiency_assertion,
+            )
+          }
+          if (diseaseRecord.dosage_triplosensitivity_assertion?.length) {
+            const val = parseInt(
+              diseaseRecord.dosage_triplosensitivity_assertion.split(' ')[0],
+            )
+            triploLabels.set(
+              val,
+              diseaseRecord.dosage_triplosensitivity_assertion,
+            )
+          }
+        }
+
+        if (haploLabels.size) {
+          geneInfo.clingen.haplo_summary = Math.max(...haploLabels.keys())
+          geneInfo.clingen.haplo_label = haploLabels.get(
+            geneInfo.clingen.haplo_summary,
+          )
+        } else {
+          geneInfo.clingen.haplo_summary = null
+          geneInfo.clingen.haplo_label = null
+        }
+        if (triploLabels.size) {
+          geneInfo.clingen.triplo_summary = Math.max(...triploLabels.keys())
+          geneInfo.clingen.triplo_label = triploLabels.get(
+            geneInfo.clingen.triplo_summary,
+          )
+        } else {
+          geneInfo.clingen.triplo_summary = null
+          geneInfo.clingen.triplo_label = null
+        }
+      }
+    }
+    return genesInfos
   } else {
     return []
   }
@@ -181,16 +256,38 @@ const onRowClicked = (item: ClickRowArgument) => {
           </span>
         </template>
 
-        <template #item-dbnsfp.mim_disease.length="geneInfo">
-          <template v-if="geneInfo.dbnsfp?.mim_disease.length">
-            {{ geneInfo.dbnsfp?.mim_disease.join(' // ') }}
+        <template #item-omim="{ omim }">
+          <template v-if="omim?.omim_diseases?.length">
+            <template v-for="(disease, idx) in omim?.omim_diseases">
+              <template v-if="idx > 0">, </template>
+              <a
+                :href="`https://www.omim.org/entry/${disease.omim_id.replace(
+                  'OMIM:',
+                  '',
+                )}`"
+                target="_blank"
+              >
+                {{ disease.label }}
+              </a>
+            </template>
           </template>
           <template v-else> &mdash; </template>
         </template>
 
-        <template #item-dbnsfp.orphanet_disorder.length="geneInfo">
-          <template v-if="geneInfo.dbnsfp?.orphanet_disorder.length">
-            {{ geneInfo.dbnsfp?.orphanet_disorder.join(' // ') }}
+        <template #item-orpha="{ orpha }">
+          <template v-if="orpha?.orpha_diseases?.length">
+            <template v-for="(disease, idx) in orpha?.orpha_diseases">
+              <template v-if="idx > 0">, </template>
+              <a
+                :href="`https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Expert=${disease.orpha_id.replace(
+                  'ORPHA:',
+                  '',
+                )}`"
+                target="_blank"
+              >
+                {{ disease.label }}
+              </a>
+            </template>
           </template>
           <template v-else> &mdash; </template>
         </template>
@@ -214,6 +311,45 @@ const onRowClicked = (item: ClickRowArgument) => {
         <template #item-dbnsfp.haploinsufficiency="{ dbnsfp }">
           <template v-if="dbnsfp?.haploinsufficiency">
             <span v-html="roundIt(dbnsfp.haploinsufficiency, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-shet.s_het="{ shet }">
+          <template v-if="shet?.s_het">
+            <span v-html="roundIt(shet.s_het, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-rcnv.p_haplo="{ rcnv }">
+          <template v-if="rcnv?.p_haplo">
+            <span v-html="roundIt(rcnv.p_haplo, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-rcnv.p_triplo="{ rcnv }">
+          <template v-if="rcnv?.p_triplo">
+            <span v-html="roundIt(rcnv.p_triplo, 3)" />
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-clingen.haplo_summary="{ clingen }">
+          <template v-if="clingen?.haplo_summary">
+            <abbr :title="clingen.haplo_label">{{
+              clingen.haplo_summary
+            }}</abbr>
+          </template>
+          <template v-else> &mdash; </template>
+        </template>
+
+        <template #item-clingen.triplo_summary="{ clingen }">
+          <template v-if="clingen?.triplo_summary">
+            <abbr :title="clingen.triplo_label">{{
+              clingen.triplo_summary
+            }}</abbr>
           </template>
           <template v-else> &mdash; </template>
         </template>
