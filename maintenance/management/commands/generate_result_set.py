@@ -1,4 +1,6 @@
 """Django command for generating query result sets."""
+import json
+
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -63,42 +65,38 @@ class Command(BaseCommand):
             msg = "Creating query set for all cases."
 
         self.stdout.write(self.style.NOTICE(msg))
-        msg_warning = None
+        msg_warning = ""
+        msg_orphans = ""
 
         if options["async"]:
-            count, fill_count = create_queryresultset(
+            count, fill_count, orphans = create_queryresultset(
                 options["case_uuid"], options["project_uuid"], options["all"]
             )
             msg = "Done creating result sets:"
             if (
                 count["smallvariantqueryresultset"]
                 or count["svqueryresultset"]
-                or fill_count["small_variants"]
-                or fill_count["structural_variants"]
+                or fill_count["small_variant_annotations"]
+                or fill_count["structural_variant_annotations"]
             ):
                 msg += f"""
 - SmallVariantQueryResultSets created: {count['smallvariantqueryresultset']}
 - SvQueryResultSets created: {count['svqueryresultset']}
-- User annotations added to SmallVariantQueryResultSets: {fill_count['small_variants']}
-- User annotations added to SvQueryResultSets: {fill_count['structural_variants']}"""
+- User annotations added to SmallVariantQueryResultSets: {fill_count['small_variant_annotations']}
+- User annotations added to SvQueryResultSets: {fill_count['structural_variant_annotations']}"""
             else:
                 msg += "\n- Nothing to do."
             if (
-                fill_count["small_variants_orphaned"]
-                or fill_count["structural_variants_orphaned"]
-                or fill_count["small_variants_no_query_result_set"]
-                or fill_count["structural_variants_no_query_result_set"]
-                or fill_count["small_variants_no_case_result_set"]
-                or fill_count["structural_variants_no_case_result_set"]
+                fill_count["small_variant_annotations_orphaned"]
+                or fill_count["structural_variant_annotations_orphaned"]
             ):
                 msg_warning = f"""
-WARNING! There are orphaned user annotations or cases or queries without result set:
-- Orphaned small variant user annotations: {fill_count['small_variants_orphaned']}
-- Small variant queries without result set: {fill_count['small_variants_no_query_result_set']}
-- Cases without small variant query result set: {fill_count['small_variants_no_case_result_set']}
-- Orphaned structural variant user annotations: {fill_count['structural_variants_orphaned']}
-- Structural variant queries without result set: {fill_count['structural_variants_no_query_result_set']}
-- Cases without structural variant query result set: {fill_count['structural_variants_no_case_result_set']}""".lstrip()
+WARNING! There are orphaned user annotations:
+- Orphaned small variant user annotations: {fill_count['small_variant_annotations_orphaned']}
+- Orphaned structural variant user annotations: {fill_count['structural_variant_annotations_orphaned']}""".lstrip()
+                msg_orphans = json.dumps(orphans, indent=1)
+                with open("orphans.json", "w") as f:
+                    json.dump(orphans, f, indent=1)
         else:
             task_create_queryresultset.delay(
                 options["case_uuid"], options["project_uuid"], options["all"]
@@ -108,3 +106,5 @@ WARNING! There are orphaned user annotations or cases or queries without result 
         self.stdout.write(self.style.SUCCESS(msg))
         if msg_warning:
             self.stdout.write(self.style.WARNING(msg_warning))
+        if msg_orphans:
+            self.stdout.write(self.style.NOTICE(msg_orphans))
