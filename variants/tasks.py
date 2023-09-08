@@ -65,8 +65,8 @@ def clear_expired_exported_files(_self):
 
 
 @app.task(bind=True)
-def create_queryresultset(_self):
-    utils.create_queryresultset()
+def create_queryresultset(_self, case_uuid, project_uuid, all_):
+    utils.create_queryresultset(case_uuid, project_uuid, all_)
 
 
 @app.task(bind=True)

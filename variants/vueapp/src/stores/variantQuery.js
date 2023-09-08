@@ -5,6 +5,7 @@ import { VariantClient } from '@variants/api/variantClient'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
 import { copy } from '@variants/helpers'
 import { previousQueryDetailsToQuerySettings } from '@variants/stores/variantQuery.funcs'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
 
@@ -179,6 +180,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
 
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
+  /** The variantResultSet store */
+  const variantResultSetStore = useVariantResultSetStore()
 
   // data passed to `initialize` and store state
 
@@ -220,8 +223,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   const querySettings = ref(null)
   /** Details from previous query. */
   const previousQueryDetails = ref(null)
-  /** Results of query. */
-  const queryResultSet = ref(null)
   /** Uuid of query. */
   const queryUuid = ref(null)
   /** Download status TSV. */
@@ -304,24 +305,11 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       }
     }
 
-    // Once query is finished, load results, if still for the same query.
     if (queryState.value === QueryStates.Finished.value) {
       queryState.value = QueryStates.Fetching.value
       await nextTick()
-      // List the results
-      const responseResultSetList = await variantClient.listQueryResultSet(
-        queryUuid,
-      )
-      if (!responseResultSetList.length) {
-        console.error('ERROR: no results in response')
-      } else if (
-        queryState.value === QueryStates.Fetching.value &&
-        previousQueryDetails.value.sodar_uuid === queryUuid
-      ) {
-        // Still fetching the same query; push to query result set.
-        queryResultSet.value = responseResultSetList[0]
-        queryState.value = QueryStates.Fetched.value
-      }
+      await variantResultSetStore.loadResultSetViaQuery(queryUuid)
+      queryState.value = QueryStates.Fetched.value
       return // break out of loop
     }
 
@@ -621,7 +609,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     querySettingsPresets.value = null
     querySettings.value = null
     previousQueryDetails.value = null
-    queryResultSet.value = null
     queryUuid.value = null
     downloadStatusTsv.value = null
     downloadStatusVcf.value = null
@@ -663,7 +650,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     querySettingsPresets,
     querySettings,
     previousQueryDetails,
-    queryResultSet,
+    queryUuid,
     queryState,
     queryStateMsg,
     queryLogs,

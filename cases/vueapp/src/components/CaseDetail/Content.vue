@@ -4,8 +4,20 @@ import { computed, ref } from 'vue'
 import PaneCase from '@cases/components/CaseDetail/PaneCase.vue'
 import PaneQc from '@cases/components/CaseDetail/PaneQc.vue'
 import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
+import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
+
+const router = useRouter()
+
+const props = defineProps({
+  /** The case UUID. */
+  caseUuid: String,
+  currentTab: {
+    type: String,
+    default: 'overview', // keep in sync with Tabs.caseList
+  },
+})
 
 /** Define emits. */
 const emit = defineEmits([
@@ -26,8 +38,6 @@ const Tabs = Object.freeze({
   browser: 'browser',
 })
 
-const currentTab = ref('overview')
-
 const caseDetailsStore = useCaseDetailsStore()
 
 const annosLoading = computed(
@@ -45,28 +55,25 @@ const annoCount = computed(() => {
 
 /** Update the current tab. */
 const updateCurrentTab = (newValue) => {
-  currentTab.value = newValue
+  router.push({
+    name: 'case-detail-' + newValue,
+    params: { case: caseDetailsStore.caseObj.sodar_uuid },
+  })
 }
-
-defineExpose({
-  currentTab,
-})
 </script>
 
 <template>
   <div
     :class="{
-      'flex-grow-1 d-flex flex-column': currentTab === Tabs.annotation,
+      'flex-grow-1 d-flex flex-column': props.currentTab === Tabs.annotation,
     }"
   >
     <ul class="nav nav-tabs" id="case-tab" role="tablist">
       <li class="nav-item">
         <a
-          class="nav-link active"
-          id="overview-tab"
-          data-toggle="tab"
-          href="#overview"
-          role="tab"
+          class="nav-link"
+          :class="{ active: props.currentTab === Tabs.overview }"
+          role="button"
           @click="updateCurrentTab(Tabs.overview)"
         >
           <i-mdi-account />
@@ -76,10 +83,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="qc-tab"
-          data-toggle="tab"
-          href="#qc"
-          role="tab"
+          :class="{ active: props.currentTab === Tabs.qc }"
+          role="button"
           @click="updateCurrentTab(Tabs.qc)"
         >
           <i-mdi-chart-multiple />
@@ -89,10 +94,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="annotation-tab"
-          data-toggle="tab"
-          href="#annotation"
-          role="tab"
+          :class="{ active: props.currentTab === Tabs.annotation }"
+          role="button"
           @click="updateCurrentTab(Tabs.annotation)"
         >
           <i-mdi-bookmark-multiple />
@@ -109,10 +112,8 @@ defineExpose({
       <li class="nav-item">
         <a
           class="nav-link"
-          id="browser-tab"
-          data-toggle="tab"
-          href="#browser"
-          role="tab"
+          :class="{ active: props.currentTab === Tabs.browser }"
+          role="button"
           @click="updateCurrentTab(Tabs.browser)"
         >
           <i-mdi-safety-goggles />
@@ -123,7 +124,7 @@ defineExpose({
     </ul>
     <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
       <div
-        v-if="currentTab === Tabs.overview"
+        v-if="props.currentTab === Tabs.overview"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
@@ -142,7 +143,7 @@ defineExpose({
         />
       </div>
       <div
-        v-if="currentTab === Tabs.qc"
+        v-if="props.currentTab === Tabs.qc"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
@@ -150,15 +151,18 @@ defineExpose({
         <PaneQc />
       </div>
       <div
-        v-if="currentTab === Tabs.annotation"
+        v-if="props.currentTab === Tabs.annotation"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
       >
-        <PaneAnnotations />
+        <Suspense>
+          <PaneAnnotations :case-uuid="props.caseUuid" />
+          <template #fallback> Loading ... </template>
+        </Suspense>
       </div>
       <div
-        v-if="currentTab === Tabs.browser"
+        v-if="props.currentTab === Tabs.browser"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"

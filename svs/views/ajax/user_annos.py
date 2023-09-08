@@ -1,10 +1,11 @@
 """AJAX views for dealing with user annotations (flags and comments)."""
+import uuid
 
 from iterable_orm import QuerySet
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
-from svs.models import StructuralVariantComment, StructuralVariantFlags
+from svs.models import StructuralVariantComment, StructuralVariantFlags, SvQueryResultRow
 from svs.serializers.user_annos import (
     StructuralVariantCommentSerializer,
     StructuralVariantFlagsSerializer,
@@ -125,6 +126,32 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
             qs = qs.filter(**query_args)
         return qs
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
+        result_set = case.svqueryresultset_set.first()
+        try:
+            result_set.svqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                sv_type=serializer.instance.sv_type,
+                sv_sub_type=serializer.instance.sv_sub_type,
+            )
+        except SvQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.svqueryresultset = result_set
+            result_row.save()
+            result_row.svqueryresultset.result_row_count += 1
+            result_row.svqueryresultset.save()
+
 
 class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
     SvApiBaseMixin, RetrieveUpdateDestroyAPIView
@@ -139,6 +166,31 @@ class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
 
     def get_permission_required(self):
         return "variants.update_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.svqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.svqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            comments = StructuralVariantComment.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            if result_row_set.exists() and not comments.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)
 
 
 class StructuralVariantCommentAjaxMixin(SvApiBaseMixin):
@@ -178,6 +230,32 @@ class StructuralVariantCommentListCreateAjaxView(
             qs = qs.filter(**query_args)
         return qs
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
+        result_set = case.svqueryresultset_set.first()
+        try:
+            result_set.svqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                sv_type=serializer.instance.sv_type,
+                sv_sub_type=serializer.instance.sv_sub_type,
+            )
+        except SvQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.svqueryresultset = result_set
+            result_row.save()
+            result_row.svqueryresultset.result_row_count += 1
+            result_row.svqueryresultset.save()
+
 
 class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
     SvApiBaseMixin, RetrieveUpdateDestroyAPIView
@@ -192,3 +270,28 @@ class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
 
     def get_permission_required(self):
         return "variants.update_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.svqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.svqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            flags = StructuralVariantFlags.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            if result_row_set.exists() and not flags.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)

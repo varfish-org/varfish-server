@@ -83,6 +83,8 @@ class SvQueryRetrieveUpdateDestroyAjaxViewPermission(SODARAPIProjectPermission):
             return svquery.case.project
         elif "svqueryresultset" in kwargs:
             svqueryresultset = SvQueryResultSet.objects.get(sodar_uuid=kwargs["svqueryresultset"])
+            if svqueryresultset.case:
+                return svqueryresultset.case.project
             return svqueryresultset.svquery.case.project
         else:
             raise RuntimeError("Must never happen")
@@ -229,6 +231,8 @@ class SvQueryResultRowListAjaxView(ListAPIView):
 class SvQueryResultRowPermission(SODARAPIProjectPermission):
     def get_project(self, request=None, kwargs=None):
         svqueryresultrow = SvQueryResultRow.objects.get(sodar_uuid=kwargs["svqueryresultrow"])
+        if svqueryresultrow.svqueryresultset.case:
+            return svqueryresultrow.svqueryresultset.case.project
         return svqueryresultrow.svqueryresultset.svquery.case.project
 
 

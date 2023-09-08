@@ -66,6 +66,7 @@ class TestCaseApiViews(ApiViewTestBase):
                 "smallvariantquery": self.smallvariantqueryresultset.smallvariantquery.sodar_uuid,
                 "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
                 "result_row_count": self.smallvariantqueryresultset.result_row_count,
+                "case": self.case.sodar_uuid,
             },
             "svqueryresultset": {
                 "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
@@ -76,6 +77,7 @@ class TestCaseApiViews(ApiViewTestBase):
                 "svquery": self.svqueryresultset.svquery.sodar_uuid,
                 "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
                 "result_row_count": self.svqueryresultset.result_row_count,
+                "case": self.case.sodar_uuid,
             },
         }
         if legacy:

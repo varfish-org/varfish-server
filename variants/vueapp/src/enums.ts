@@ -51,6 +51,33 @@ export const QueryStates = Object.freeze({
 
 export const QueryStateToText = enumToText(QueryStates)
 
+export const ResultStates = Object.freeze({
+  None: {
+    value: 'none',
+    text: 'None',
+  },
+  Initial: {
+    value: 'initial',
+    text: 'Initial',
+  },
+  Fetching: {
+    value: 'loading-results',
+    text: 'Loading results',
+  },
+  Fetched: {
+    value: 'results-loaded',
+    text: 'Results loaded',
+  },
+  Timeout: {
+    value: 'timeout',
+    text: 'Timeout',
+  },
+  Error: {
+    value: 'error',
+    text: 'Error',
+  },
+})
+
 export const apiQueryStateToQueryState = (apiQueryState) => {
   if (apiQueryState === 'initial') {
     return QueryStates.Initial.value

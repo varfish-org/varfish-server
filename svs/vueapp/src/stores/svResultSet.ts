@@ -7,6 +7,7 @@ import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
 import { SvClient } from '@svs/api/svClient'
+import { VariantClient } from '@variants/api/variantClient'
 
 export const useSvResultSetStore = defineStore('svResultSet', () => {
   // no store dependencies
@@ -30,6 +31,15 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   const resultSet = ref<any | null>(null)
   /** Query of result set, if any. */
   const query = ref<any | null>(null)
+
+  /** Table server option page number. */
+  const tablePageNo = ref<number | null>(null)
+  /** Table server option page size. */
+  const tablePageSize = ref<number | null>(null)
+  /** Table server option to sort column by. */
+  const tableSortBy = ref<any | null>(null)
+  /** Table server option sort asc or desc. */
+  const tableSortType = ref<string | null>(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -65,6 +75,33 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
     initializeRes.value = Promise.resolve()
     return initializeRes.value
+  }
+
+  const loadResultSetViaQuery = async (queryUuid$: string) => {
+    // Once query is finished, load results, if still for the same query.
+    const svClient = new SvClient(csrfToken.value)
+    const responseResultSetList = await svClient.listSvQueryResultSet(
+      queryUuid$,
+    )
+    if (!responseResultSetList.length) {
+      console.error('ERROR: no results in response')
+    } else {
+      // Still fetching the same query; push to query result set.
+      resultSet.value = responseResultSetList[0]
+      resultSetUuid.value = responseResultSetList[0].sodar_uuid
+    }
+  }
+
+  const loadResultSetViaCase = async (caseUuid$: any) => {
+    // Once query is finished, load results, if still for the same query.
+    const variantClient = new VariantClient(csrfToken.value)
+    const case$ = await variantClient.retrieveCase(caseUuid$)
+    if (case$.svqueryresultset) {
+      resultSet.value = case$.svqueryresultset
+      resultSetUuid.value = case$.svqueryresultset.sodar_uuid
+    } else {
+      console.error('ERROR: no result set in case response')
+    }
   }
 
   /**
@@ -123,8 +160,14 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     query,
     caseUuid,
     initializeRes,
+    tablePageNo,
+    tablePageSize,
+    tableSortBy,
+    tableSortType,
     // functions
     initialize,
     fetchResultSetViaRow,
+    loadResultSetViaQuery,
+    loadResultSetViaCase,
   }
 })

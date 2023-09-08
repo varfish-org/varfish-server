@@ -46,27 +46,47 @@ const routes = [
     }),
   },
   {
-    name: 'case-detail',
+    name: 'case-detail-overview',
     path: '/detail/:case',
     component: CaseDetailApp,
     props: (route) => ({
       caseUuid: route.params.case,
+      currentTab: 'overview',
+    }),
+  },
+  {
+    name: 'case-detail-qc',
+    path: '/detail/:case/qc',
+    component: CaseDetailApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+      currentTab: 'qc',
+    }),
+  },
+  {
+    name: 'case-detail-annotation',
+    path: '/detail/:case/annotation',
+    component: CaseDetailApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+      currentTab: 'annotation',
+    }),
+  },
+  {
+    name: 'case-detail-browser',
+    path: '/detail/:case/browser',
+    component: CaseDetailApp,
+    props: (route) => ({
+      caseUuid: route.params.case,
+      currentTab: 'browser',
     }),
   },
   {
     name: 'variants-filter',
-    path: '/variants/filter/:case/:query?/:page?/:pageSize?/:orderBy?/:orderDir?/:displayDetails?/:displayFrequency?/:displayConstraint?/:displayColumns?',
+    path: '/variants/filter/:case',
     component: FilterApp,
     props: (route) => ({
       caseUuid: route.params.case,
-      page: Number(route.params.page),
-      pageSize: Number(route.params.pageSize),
-      orderBy: route.params.orderBy,
-      orderDir: route.params.orderDir,
-      displayDetails: Number(route.params.displayDetails) || null,
-      displayFrequency: Number(route.params.displayFrequency) || null,
-      displayConstraint: Number(route.params.displayConstraint) || null,
-      displayColumns: route.params.displayColumns || null,
     }),
   },
   {
@@ -80,14 +100,10 @@ const routes = [
   },
   {
     name: 'svs-filter',
-    path: '/svs/filter/:case/:query?/:page?/:pageSize?/:orderBy?/:orderDir?',
+    path: '/svs/filter/:case',
     component: SvFilterApp,
     props: (route) => ({
       caseUuid: route.params.case,
-      page: Number(route.params.page),
-      pageSize: Number(route.params.pageSize),
-      orderBy: route.params.orderBy,
-      orderDir: route.params.orderDir,
     }),
   },
   {

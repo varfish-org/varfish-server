@@ -3,6 +3,7 @@ import contextlib
 from itertools import chain
 import re
 import typing
+import uuid
 
 import attrs
 from bgjobs.models import BackgroundJob
@@ -280,6 +281,8 @@ class SmallVariantQueryRetrieveUpdateDestroyApiViewPermission(SODARAPIProjectPer
             smallvariantqueryresultset = SmallVariantQueryResultSet.objects.get(
                 sodar_uuid=kwargs["smallvariantqueryresultset"]
             )
+            if smallvariantqueryresultset.case:
+                return smallvariantqueryresultset.case.project
             return smallvariantqueryresultset.smallvariantquery.case.project
         else:
             raise RuntimeError("Must never happen")
@@ -458,10 +461,12 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
 
 class SmallVariantQueryResultRowViewPermission(SODARAPIProjectPermission):
     def get_project(self, request=None, kwargs=None):
-        smallvariantqueryresultrow = SmallVariantQueryResultRow.objects.get(
+        result_set = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=kwargs["smallvariantqueryresultrow"]
-        )
-        return smallvariantqueryresultrow.smallvariantqueryresultset.smallvariantquery.case.project
+        ).smallvariantqueryresultset
+        if result_set.case:
+            return result_set.case.project
+        return result_set.smallvariantquery.case.project
 
 
 class SmallVariantQueryResultRowRetrieveApiView(RetrieveAPIView):
@@ -1223,8 +1228,6 @@ class SmallVariantCommentListCreateApiView(
 
     """
 
-    serializer_class = SmallVariantCommentSerializer
-
     def get_serializer_context(self):
         result = super().get_serializer_context()
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
@@ -1234,11 +1237,36 @@ class SmallVariantCommentListCreateApiView(
                 result[key] = self.request.query_params[key]
         return result
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SmallVariantQueryResultRow.objects.get(
+            sodar_uuid=self.request.data.get("sodar_uuid")
+        )
+        result_set = case.smallvariantqueryresultset_set.first()
+        try:
+            result_set.smallvariantqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                reference=serializer.instance.reference,
+                alternative=serializer.instance.alternative,
+            )
+        except SmallVariantQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.smallvariantqueryresultset = result_set
+            result_row.save()
+            result_row.smallvariantqueryresultset.result_row_count += 1
+            result_row.smallvariantqueryresultset.save()
+
 
 class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
-    lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "case"
-
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
@@ -1291,6 +1319,34 @@ class SmallVariantFlagsListCreateApiView(
             if key in self.request.query_params:
                 result[key] = self.request.query_params[key]
         return result
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SmallVariantQueryResultRow.objects.get(
+            sodar_uuid=self.request.data.get("sodar_uuid")
+        )
+        result_set = case.smallvariantqueryresultset_set.first()
+        try:
+            result_set.smallvariantqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                reference=serializer.instance.reference,
+                alternative=serializer.instance.alternative,
+            )
+        except SmallVariantQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.smallvariantqueryresultset = result_set
+            result_row.save()
+            result_row.smallvariantqueryresultset.result_row_count += 1
+            result_row.smallvariantqueryresultset.save()
 
 
 class SmallVariantFlagsUpdateApiView(
@@ -1345,6 +1401,39 @@ class SmallVariantFlagsDeleteApiView(
 
     def get_permission_required(self):
         return "variants.view_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.smallvariantqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.smallvariantqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            comments = SmallVariantComment.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            acmg_ratings = AcmgCriteriaRating.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            if result_row_set.exists() and not comments.exists() and not acmg_ratings.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)
 
 
 class SmallVariantCommentUpdateApiView(
@@ -1402,6 +1491,39 @@ class SmallVariantCommentDeleteApiView(
 
     def get_permission_required(self):
         return "variants.view_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.smallvariantqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.smallvariantqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            flags = SmallVariantFlags.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            acmg_ratings = AcmgCriteriaRating.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            if result_row_set.exists() and not flags.exists() and not acmg_ratings.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)
 
 
 class AcmgCriteriaRatingApiMixin(VariantsApiBaseMixin):
@@ -1471,6 +1593,34 @@ class AcmgCriteriaRatingListCreateApiView(
                 result[key] = self.request.query_params[key]
         return result
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SmallVariantQueryResultRow.objects.get(
+            sodar_uuid=self.request.data.get("sodar_uuid")
+        )
+        result_set = case.smallvariantqueryresultset_set.first()
+        try:
+            result_set.smallvariantqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                reference=serializer.instance.reference,
+                alternative=serializer.instance.alternative,
+            )
+        except SmallVariantQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.smallvariantqueryresultset = result_set
+            result_row.save()
+            result_row.smallvariantqueryresultset.result_row_count += 1
+            result_row.smallvariantqueryresultset.save()
+
 
 class AcmgCriteriaRatingUpdateApiView(
     UpdateAPIView,
@@ -1524,6 +1674,39 @@ class AcmgCriteriaRatingDeleteApiView(
 
     def get_permission_required(self):
         return "variants.view_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.smallvariantqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.smallvariantqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            flags = SmallVariantFlags.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            comments = SmallVariantComment.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                reference=instance.reference,
+                alternative=instance.alternative,
+            )
+            if result_row_set.exists() and not flags.exists() and not comments.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)
 
 
 class ExtraAnnoFieldsApiView(

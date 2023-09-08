@@ -54,8 +54,15 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
 
     // Fetch new details
     const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-    const hgncIds = svRecord.payload.tx_effects.map((item) => item.gene.hgnc_id)
-    genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
+    let hgncIds = []
+    for (const txEffect of svRecord.payload.tx_effects) {
+      if (txEffect.gene.hgnc_id) {
+        hgncIds.push(txEffect.gene.hgnc_id)
+      }
+    }
+    if (hgncIds.length) {
+      genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
+    }
     currentSvRecord.value = svRecord
   }
 
