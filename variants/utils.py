@@ -37,87 +37,75 @@ def create_queryresultset(case_uuid=None, project_uuid=None, all=False):
         "smallvariantqueryresultset": 0,  # SmallVariantQueryResultSet's created
     }
     fill_count = {
-        "structural_variants": 0,  # user annotations added to SvQueryResultSet's
-        "structural_variants_orphaned": 0,  # user annotations without corresponding query result row
-        "structural_variants_no_query_result_set": 0,  # query without result set
-        "structural_variants_no_case_result_set": 0,  # case without result set
-        "small_variants": 0,  # user annotations added to SmallVariantQueryResultSet's
-        "small_variants_orphaned": 0,  # user annotations without corresponding query result row
-        "small_variants_no_query_result_set": 0,  # query without result set
-        "small_variants_no_case_result_set": 0,  # case without result set
+        "structural_variant_annotations": 0,  # user annotations added to SvQueryResultSet's
+        "structural_variant_annotations_orphaned": 0,  # user annotations without corresponding query result row
+        "small_variant_annotations": 0,  # user annotations added to SmallVariantQueryResultSet's
+        "small_variant_annotations_orphaned": 0,  # user annotations without corresponding query result row
     }
+    orphans = {}
 
     def _perform_create(_case):
-        if _case.smallvariantqueryresultset_set.count() == 0:
+        _sm_result_set = _case.smallvariantqueryresultset_set.first()
+        _sv_result_set = _case.svqueryresultset_set.first()
+        if _sm_result_set is None:
             count["smallvariantqueryresultset"] += 1
-            SmallVariantQueryResultSet.objects.create(
+            _sm_result_set = SmallVariantQueryResultSet.objects.create(
                 case=_case,
                 result_row_count=0,
                 start_time=_case.date_created,
                 end_time=_case.date_created,
                 elapsed_seconds=0,
             )
-        if _case.svqueryresultset_set.count() == 0:
+        if _sv_result_set is None:
             count["svqueryresultset"] += 1
-            SvQueryResultSet.objects.create(
+            _sv_result_set = SvQueryResultSet.objects.create(
                 case=_case,
                 result_row_count=0,
                 start_time=_case.date_created,
                 end_time=_case.date_created,
                 elapsed_seconds=0,
             )
+        return _sm_result_set, _sv_result_set
 
-    def _perform_fill(_case):
-        _fill_count = fill_queryresultset(_case)
-        fill_count["structural_variants"] += _fill_count["structural_variants"]
-        fill_count["structural_variants_orphaned"] += _fill_count["structural_variants_orphaned"]
-        fill_count["structural_variants_no_query_result_set"] += _fill_count[
-            "structural_variants_no_query_result_set"
-        ]
-        fill_count["structural_variants_no_case_result_set"] += _fill_count[
-            "structural_variants_no_case_result_set"
-        ]
-        fill_count["small_variants"] += _fill_count["small_variants"]
-        fill_count["small_variants_orphaned"] += _fill_count["small_variants_orphaned"]
-        fill_count["small_variants_no_query_result_set"] += _fill_count[
-            "small_variants_no_query_result_set"
-        ]
-        fill_count["small_variants_no_case_result_set"] += _fill_count[
-            "small_variants_no_case_result_set"
-        ]
+    def _perform_fill(sm_result_set, sv_result_set):
+        sm_fill_count, sm_orphans = fill_sm_queryresultset(sm_result_set)
+        sv_fill_count, sv_orphans = fill_sv_queryresultset(sv_result_set)
+        fill_count["structural_variant_annotations"] += sv_fill_count["annotations"]
+        fill_count["structural_variant_annotations_orphaned"] += sv_fill_count["orphaned"]
+        fill_count["small_variant_annotations"] += sm_fill_count["annotations"]
+        fill_count["small_variant_annotations_orphaned"] += sm_fill_count["orphaned"]
+        orphans[str(sm_result_set.case.sodar_uuid)] = {
+            "small_variants": sm_orphans,
+            "structural_variants": sv_orphans,
+        }
 
     if bool(case_uuid) + bool(project_uuid) + bool(all) != 1:
         return
 
     if case_uuid:
         _case = Case.objects.get(sodar_uuid=case_uuid)
-        _perform_create(_case)
-        _perform_fill(_case)
+        sm_result_set, sv_result_set = _perform_create(_case)
+        _perform_fill(sm_result_set, sv_result_set)
     elif project_uuid:
         for _case in Case.objects.filter(project__sodar_uuid=project_uuid):
-            _perform_create(_case)
-            _perform_fill(_case)
+            sm_result_set, sv_result_set = _perform_create(_case)
+            _perform_fill(sm_result_set, sv_result_set)
     else:
         for _case in Case.objects.all():
-            _perform_create(_case)
-            _perform_fill(_case)
-    return count, fill_count
+            sm_result_set, sv_result_set = _perform_create(_case)
+            _perform_fill(sm_result_set, sv_result_set)
+
+    return count, fill_count, orphans
 
 
-# flake8: noqa: C901
-def fill_queryresultset(case):
+def fill_sm_queryresultset(result_set):
     """Fill a SmallVariantQueryResultSet for the given case or project."""
-
+    case = result_set.case
     count = {
-        "structural_variants": 0,
-        "structural_variants_orphaned": 0,
-        "structural_variants_no_query_result_set": 0,
-        "structural_variants_no_case_result_set": 0,
-        "small_variants": 0,
-        "small_variants_orphaned": 0,
-        "small_variants_no_query_result_set": 0,
-        "small_variants_no_case_result_set": 0,
+        "annotations": 0,
+        "orphaned": 0,
     }
+    orphans = []
 
     def _perform_create(obj):
         coords = {
@@ -128,40 +116,57 @@ def fill_queryresultset(case):
             "reference": obj.reference,
             "alternative": obj.alternative,
         }
-        case_result_set = case.smallvariantqueryresultset_set.first()
-
-        if not case_result_set:
-            count["small_variants_no_case_result_set"] += 1
-            return
 
         try:
-            case_result_set.smallvariantqueryresultrow_set.get(**coords)
+            result_set.smallvariantqueryresultrow_set.get(**coords)
 
         except SmallVariantQueryResultRow.DoesNotExist:
             queries = case.small_variant_queries.all()
-            if not queries.exists():
-                count["small_variants_orphaned"] += 1
             for query in queries:
                 query_result_set = query.smallvariantqueryresultset_set.first()
                 if not query_result_set:
-                    count["small_variants_no_query_result_set"] += 1
                     continue
                 result_row = query_result_set.smallvariantqueryresultrow_set.filter(**coords)
                 if not result_row.exists():
-                    # should exist as it was annotated.
-                    count["small_variants_orphaned"] += 1
                     continue
                 result_row = result_row.first()
                 result_row.pk = None
                 result_row.sodar_uuid = uuid.uuid4()
-                result_row.smallvariantqueryresultset = case_result_set
+                result_row.smallvariantqueryresultset = result_set
                 result_row.save()
-                count["small_variants"] += 1
+                count["annotations"] += 1
+                break
+            else:
+                # should exist as it was annotated.
+                count["orphaned"] += 1
+                orphans.append(
+                    "{release}-{chromosome}-{start}-{reference}-{alternative}".format(**coords)
+                )
 
-        case_result_set.result_row_count = case_result_set.smallvariantqueryresultrow_set.count()
-        case_result_set.save()
+        result_set.result_row_count = result_set.smallvariantqueryresultrow_set.count()
+        result_set.save()
 
-    def _perform_create_sv(obj):
+    small_variant_flags = SmallVariantFlags.objects.filter(case=case)
+    small_variant_comments = SmallVariantComment.objects.filter(case=case)
+    acmg_rating = AcmgCriteriaRating.objects.filter(case=case)
+
+    for obj in chain(small_variant_flags, small_variant_comments, acmg_rating):
+        _perform_create(obj)
+
+    return count, orphans
+
+
+def fill_sv_queryresultset(result_set):
+    """Fill a SvQueryResultSet for the given case or project."""
+
+    case = result_set.case
+    count = {
+        "annotations": 0,
+        "orphaned": 0,
+    }
+    orphans = []
+
+    def _perform_create(obj):
         coords = {
             "release": obj.release,
             "chromosome": obj.chromosome,
@@ -170,49 +175,40 @@ def fill_queryresultset(case):
             "sv_type": obj.sv_type,
             "sv_sub_type": obj.sv_sub_type,
         }
-        case_result_set = case.svqueryresultset_set.first()
-
-        if not case_result_set:
-            count["structural_variants_no_case_result_set"] += 1
-            return
 
         try:
-            case_result_set.svqueryresultrow_set.get(**coords)
+            result_set.svqueryresultrow_set.get(**coords)
 
         except SvQueryResultRow.DoesNotExist:
             queries = case.svquery_set.all()
-            if not queries.exists():
-                count["structural_variants_orphaned"] += 1
             for query in queries:
                 query_result_set = query.svqueryresultset_set.first()
                 if not query_result_set:
-                    count["structural_variants_no_query_result_set"] += 1
                     continue
                 result_row = query_result_set.svqueryresultrow_set.filter(**coords)
                 if not result_row.exists():
-                    # should exist as it was annotated.
-                    count["structural_variants_orphaned"] += 1
                     continue
                 result_row = result_row.first()
                 result_row.pk = None
                 result_row.sodar_uuid = uuid.uuid4()
-                result_row.svqueryresultset = case_result_set
+                result_row.svqueryresultset = result_set
                 result_row.save()
-                count["structural_variants"] += 1
+                count["annotations"] += 1
+                break
+            else:
+                # should exist as it was annotated.
+                count["orphaned"] += 1
+                orphans.append(
+                    "{release}-{chromosome}-{start}-{end}-{sv_type}-{sv_sub_type}".format(**coords)
+                )
 
-        case_result_set.result_row_count = case_result_set.svqueryresultrow_set.count()
-        case_result_set.save()
+        result_set.result_row_count = result_set.svqueryresultrow_set.count()
+        result_set.save()
 
-    small_variant_flags = SmallVariantFlags.objects.filter(case=case)
-    small_variant_comments = SmallVariantComment.objects.filter(case=case)
-    acmg_rating = AcmgCriteriaRating.objects.filter(case=case)
     sv_flags = StructuralVariantFlags.objects.filter(case=case)
     sv_comments = StructuralVariantComment.objects.filter(case=case)
 
-    for obj in chain(small_variant_flags, small_variant_comments, acmg_rating):
+    for obj in chain(sv_flags, sv_comments):
         _perform_create(obj)
 
-    for obj in chain(sv_flags, sv_comments):
-        _perform_create_sv(obj)
-
-    return count
+    return count, orphans
