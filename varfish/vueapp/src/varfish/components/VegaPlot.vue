@@ -20,6 +20,7 @@ const props = defineProps({
   },
   encoding: Object,
   params: Object,
+  layer: Object,
   width: {
     type: [Number, String],
     default: 300,
@@ -29,7 +30,7 @@ const props = defineProps({
     default: 300,
   },
   mark: {
-    type: Object,
+    type: [Boolean, Object],
     default: { type: 'bar' },
   },
   renderer: {
@@ -46,7 +47,7 @@ const vegaViewRef = ref(null)
 
 /** The vega specification. */
 const vegaLiteSpec = computed(() => {
-  return {
+  const res = {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
     width: props.width,
     height: props.height,
@@ -56,10 +57,16 @@ const vegaLiteSpec = computed(() => {
       values: props.dataValues,
       name: props.dataName,
     },
-    mark: props.mark,
     encoding: props.encoding,
     transform: props.transform,
   }
+  if (props.mark !== undefined && props.mark !== null && props.mark !== false) {
+    res.mark = props.mark
+  }
+  if (props.layer !== undefined && props.layer !== null) {
+    res.layer = props.layer
+  }
+  return res
 })
 
 /** Make component reactive to props.data changes. */

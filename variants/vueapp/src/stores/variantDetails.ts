@@ -8,6 +8,7 @@ import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
 type SmallVariant = any
 type GeneInfos = any
+type GeneClinvarInfos = any
 type VarAnnos = any
 type TxCsq = any
 
@@ -34,6 +35,8 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
   const smallVariant = ref<SmallVariant | null>(null)
   /** Gene-related information from annonars. */
   const gene = ref<GeneInfos | null>(null)
+  /** ClinVar gene-related information from annoars. */
+  const geneClinvar = ref<GeneClinvarInfos | null>(null)
   /** Variant-related information from annonars. */
   const varAnnos = ref<VarAnnos | null>(null)
   /** Transcript consequence information from mehari. */
@@ -96,6 +99,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     // Clear old store contents
     smallVariant.value = null
     gene.value = null
+    geneClinvar.value = null
     varAnnos.value = null
     txCsq.value = null
 
@@ -107,6 +111,9 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     await Promise.all([
       annonarsClient.retrieveGeneInfos([hgncId]).then((result) => {
         gene.value = result[0]
+      }),
+      annonarsClient.retrieveGeneClinvarInfos([hgncId]).then((result) => {
+        geneClinvar.value = result[0]
       }),
       annonarsClient
         .retrieveVariantAnnos(
@@ -143,6 +150,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     caseUuid,
     storeState,
     gene,
+    geneClinvar,
     varAnnos,
     txCsq,
     smallVariant,
