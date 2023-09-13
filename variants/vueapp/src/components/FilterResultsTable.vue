@@ -56,8 +56,6 @@ const commentsStore = useVariantCommentsStore()
 const acmgRatingStore = useVariantAcmgRatingStore()
 const variantResultSetStore = useVariantResultSetStore()
 
-const router = useRouter()
-
 /** The details columns to show. */
 const displayDetails = computed({
   get() {
@@ -99,7 +97,7 @@ const displayConstraint = computed({
 /** The additional columns to display. */
 const displayColumns = computed({
   get() {
-    return variantResultSetStore.displayColumns || [DisplayColumns.Effect.value]
+    return variantResultSetStore.displayColumns ?? [DisplayColumns.Effect.value]
   },
   set(newValue) {
     variantResultSetStore.displayColumns = newValue
@@ -146,9 +144,6 @@ const coordinatesClinvarColumns = () => {
 
 const optionalColumns = () => {
   const optionalColumnTexts = copy(DisplayColumnsToText)
-  if (!extraAnnoFields.value) {
-    return []
-  }
   for (const { field, label } of extraAnnoFields.value) {
     optionalColumnTexts[`extra_anno${field}`] = label
   }
@@ -464,14 +459,12 @@ const loadFromServer = async () => {
   }
 }
 
-const extraAnnoFields = ref()
+const extraAnnoFields = computed(
+  () => variantResultSetStore.extraAnnoFields ?? [],
+)
 
 /** Load data when mounted. */
 onBeforeMount(async () => {
-  const variantClient = new VariantClient(caseDetailsStore.csrfToken)
-  extraAnnoFields.value = await variantClient.fetchExtraAnnoFields(
-    caseDetailsStore.csrfToken,
-  )
   if (variantResultSetStore.resultSetUuid) {
     await loadFromServer()
   }
@@ -504,11 +497,11 @@ watch(
         </div>
       </div>
       <ColumnControl
-        :extra-anno-fields="extraAnnoFields"
         v-model:display-details="displayDetails"
         v-model:display-frequency="displayFrequency"
         v-model:display-constraint="displayConstraint"
         v-model:display-columns="displayColumns"
+        :extra-anno-fields="extraAnnoFields"
       />
       <ExportResults />
     </div>

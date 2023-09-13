@@ -20,17 +20,6 @@ const props = defineProps({
   caseUuid: String,
 })
 
-const caseDetailsStore = useCaseDetailsStore()
-
-/** The details columns to show. */
-const displayDetails = ref(DisplayDetails.Coordinates.value)
-/** The frequency columns to show. */
-const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
-/** The constraint columns to show. */
-const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
-/** The additional columns to display. */
-const displayColumns = ref([DisplayColumns.Effect.value])
-
 const showSmallVariantDetails = async (event) => {
   router.push({
     name: 'variant-details',
