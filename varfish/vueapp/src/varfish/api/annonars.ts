@@ -60,6 +60,51 @@ export class AnnonarsApiClient {
   }
 
   /**
+   * Retrieve clinvar-gene information via annonars REST API.
+   *
+   * @param hgncIds Array of HGNC IDs to use, e.g., `["HGNC:26467"]`.
+   * @param chunkSize How many IDs to send in one request.
+   * @returns Promise with an array of gene information objects.
+   */
+  async retrieveGeneClinvarInfos(
+    hgncIds: Array<string>,
+    chunkSize?: number,
+  ): Promise<Array<any>> {
+    const hgncIdChunks = chunks(hgncIds, chunkSize ?? this.defaultChunkSize)
+
+    const promises = hgncIdChunks.map((chunk) => {
+      const url = `${this.baseUrl}/genes/clinvar?hgnc_id=${chunk.join(',')}`
+
+      const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+      if (this.csrfToken) {
+        headers['X-CSRFToken'] = this.csrfToken
+      }
+
+      return fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers,
+      })
+    })
+
+    const responses = await Promise.all(promises)
+    const results = await Promise.all(
+      responses.map((response) => response.json()),
+    )
+
+    const result = []
+    results.forEach((chunk) => {
+      for (const value of Object.values(chunk.genes)) {
+        result.push(value)
+      }
+    })
+    return result
+  }
+
+  /**
    * Retrieve variant information via annonars REST API.
    */
   async retrieveVariantAnnos(

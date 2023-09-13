@@ -7,12 +7,16 @@
 import { computed } from 'vue'
 
 import { stopWords } from '@variants/components/Gene.fields'
+import GtexGenePlot from '@variants/components/VariantDetails/GtexGenePlot.vue'
+import ClinvarFreqPlot from '@variants/components/VariantDetails/ClinvarFreqPlot.vue'
 import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { roundIt } from '@varfish/moreUtils'
 
 export interface Props {
   /** Gene information from annonars. */
   gene: any
+  /** Clinvar-Gene information from annonars. */
+  geneClinvar: any
   /** Small variant information record (used for UMD linkout). */
   smallVar?: any
   /** Whether HGMD Pro display is enabled. */
@@ -26,6 +30,35 @@ const props = withDefaults(defineProps<Props>(), {
   hgmdProEnabled: false,
   hgmdProPrefix: '',
 })
+
+const variantImpactLabels = [
+  "3' UTR",
+  "5' UTR",
+  'downstream',
+  'frameshift',
+  'inframe indel',
+  'start lost',
+  'intron',
+  'missense',
+  'non-coding',
+  'stop gained',
+  'no alteration',
+  'splice acceptor',
+  'splice donor',
+  'stop lost',
+  'synonymous',
+  'upstream gene',
+]
+
+const clinsigLabels = [
+  'pathogenic',
+  'likely pathogenic',
+  'uncertain significance',
+  'likely benign',
+  'benign',
+]
+
+const clinsigColor = ['#b05454', '#f59f9f', '#f5c964', '#a3f56c', '#5d9936']
 
 const variantQueryStore = useVariantQueryStore()
 
@@ -46,8 +79,8 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
 </script>
 
 <template>
-  <div class="row row-cols-3 pr-2 pt-2" style="font-size: 90%">
-    <div class="col mb-2 pl-2 pr-0">
+  <div class="row pr-2 pt-2" style="font-size: 90%">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%"> HGNC </span>
@@ -77,7 +110,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0" v-if="gene?.gnomad_constraints">
+    <div class="col-3 mb-2 pl-2 pr-0" v-if="gene?.gnomad_constraints">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -234,7 +267,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -253,7 +286,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -340,7 +373,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -515,7 +548,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -560,7 +593,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -670,7 +703,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
       </div>
     </div>
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -697,7 +730,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -733,7 +766,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
       </div>
     </div>
 
-    <div class="col mb-2 pl-2 pr-0">
+    <div class="col-3 mb-2 pl-2 pr-0">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -759,6 +792,105 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
         <div v-else class="text-muted text-center font-italic">
           No locus-specific database available for gene.
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 mb-2 pl-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header pl-2 pt-1 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%">
+            ClinVar By Impact
+          </span>
+        </div>
+        <div
+          class="card-body pb-2 pt-2"
+          v-if="geneClinvar?.per_impact_counts?.length"
+        >
+          <table class="table table-sm">
+            <tr>
+              <thead>
+                <th>impact</th>
+                <th v-for="i in [0, 1, 2, 3, 4]">
+                  {{ clinsigLabels[i] }}
+                </th>
+                <th>total</th>
+              </thead>
+              <tbody>
+                <tr v-for="row in geneClinvar?.per_impact_counts ?? []">
+                  <td>
+                    {{ variantImpactLabels[row.impact] }}
+                  </td>
+                  <td
+                    v-for="(count, idx) in row.counts"
+                    class="text-right"
+                    :style="`background-color: ${clinsigColor[idx]}`"
+                  >
+                    {{ count }}
+                  </td>
+                  <td class="text-right">
+                    {{ row.counts.reduce((a, b) => a + b, 0) }}
+                  </td>
+                </tr>
+              </tbody>
+            </tr>
+          </table>
+        </div>
+        <div v-else class="text-muted text-center font-italic">
+          No ClinVar data for gene.
+        </div>
+      </div>
+    </div>
+
+    <div class="col-8 mb-2 pl-2 pr-0">
+      <div class="card h-100">
+        <div class="card-header pl-2 pt-1 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%">
+            ClinVar By Frequency
+          </span>
+        </div>
+        <div
+          class="card-body pb-2 pt-2"
+          v-if="geneClinvar?.per_impact_counts?.length"
+        >
+          <ClinvarFreqPlot
+            :gene-symbol="gene?.hgnc?.symbol"
+            :per-freq-counts="geneClinvar?.per_freq_counts"
+          />
+        </div>
+        <div v-else class="text-muted text-center font-italic">
+          No ClinVar data for gene.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col mb-2 pl-2 pr-0 cols-12">
+      <div class="card h-100">
+        <div class="card-header pl-2 pt-1 pb-1 pr-2">
+          <span class="font-weight-bolder" style="font-size: 120%">
+            GTEx Expression
+          </span>
+          <small>
+            <a
+              :href="`https://gtexportal.org/home/gene/${gene?.gtex.ensembl_gene_id}`"
+              target="_blank"
+              v-if="gene?.gtex"
+            >
+              <i-mdi-launch />
+              GTEx Portal
+            </a>
+          </small>
+        </div>
+        <div class="card-body pb-2 pt-2 row" v-if="gene?.gtex">
+          <GtexGenePlot
+            :gene-symbol="gene?.hgnc?.symbol"
+            :expression-records="gene.gtex.records"
+          />
+        </div>
+        <div v-else class="text-muted text-center font-italic">
+          No GTEx data available for gene.
         </div>
       </div>
     </div>
