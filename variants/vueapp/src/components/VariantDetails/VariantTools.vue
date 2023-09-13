@@ -54,12 +54,15 @@ const decodeMultiDbnsfp = (s: string): number | null => {
   if (!s) {
     return null
   } else {
-    return Math.max(
-      ...s
-        .split(';')
-        .filter((s) => s != '.')
-        .map(parseFloat),
-    )
+    const vals = s
+      .split(';')
+      .filter((s) => s != '.')
+      .map(parseFloat)
+    if (!vals.length) {
+      return null
+    } else {
+      return Math.max(...vals)
+    }
   }
 }
 
