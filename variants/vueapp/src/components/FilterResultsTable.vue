@@ -1,8 +1,7 @@
 <script setup>
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 
 import {
   displayName,
@@ -107,18 +106,18 @@ const displayColumns = computed({
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = computed({
   get() {
-    return {
-      page: variantResultSetStore.pageNo || 1,
-      rowsPerPage: variantResultSetStore.pageSize || 50,
-      sortBy: variantResultSetStore.sortBy || 'position',
-      sortType: variantResultSetStore.sortType || 'asc',
-    }
+    return reactive({
+      page: variantResultSetStore.tablePageNo || 1,
+      rowsPerPage: variantResultSetStore.tablePageSize || 50,
+      sortBy: variantResultSetStore.tableSortBy || 'position',
+      sortType: variantResultSetStore.tableSortType || 'asc',
+    })
   },
   set(options) {
-    variantResultSetStore.pageNo = options.page
-    variantResultSetStore.pageSize = options.rowsPerPage
-    variantResultSetStore.sortBy = options.sortBy
-    variantResultSetStore.sortType = options.sortType
+    variantResultSetStore.tablePageNo = options.page
+    variantResultSetStore.tablePageSize = options.rowsPerPage
+    variantResultSetStore.tableSortBy = options.sortBy
+    variantResultSetStore.tableSortType = options.sortType
   },
 })
 
@@ -461,6 +460,22 @@ const loadFromServer = async () => {
 
 const extraAnnoFields = computed(
   () => variantResultSetStore.extraAnnoFields ?? [],
+)
+
+/** Update display when pagination or sorting changed. */
+watch(
+  [
+    () => tableServerOptions.value.page,
+    () => tableServerOptions.value.rowsPerPage,
+    () => tableServerOptions.value.sortBy,
+    () => tableServerOptions.value.sortType,
+  ],
+  async (
+    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
+  ) => {
+    await loadFromServer()
+  },
 )
 
 /** Load data when mounted. */
