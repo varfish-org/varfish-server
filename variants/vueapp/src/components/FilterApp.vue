@@ -78,7 +78,7 @@ const displayConstraint = ref(
 const displayColumns = ref(
   variantResultSetStore.displayColumns === null
     ? [DisplayColumns.Effect.value]
-    : variantResultSetStore.displayColumns.split(','),
+    : variantResultSetStore.displayColumns,
 )
 
 // Toggle visibility of the form.
@@ -160,37 +160,13 @@ const refreshStores = async () => {
       appContext.project?.sodar_uuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    variantQueryStore
-      .initialize(
-        appContext.csrf_token,
-        appContext?.project?.sodar_uuid,
-        props.caseUuid,
-        appContext,
-      )
-      .then(() => {
-        // Show the SpliceAI comments by default.
-        if (!props.displayColumns) {
-          const maybeAdd = [
-            'SpliceAI-acc-gain',
-            'SpliceAI-acc-loss',
-            'SpliceAI-don-loss',
-            'SpliceAI-don-gain',
-            'CADD-PHRED',
-          ]
-          variantQueryStore.extraAnnoFields
-            .filter((value) => maybeAdd.includes(value.label))
-            .forEach((value) => {
-              displayColumns.value.push(`extra_anno${value.field}`)
-            })
-        }
-        variantResultSetStore
-          .initialize(appContext.csrf_token)
-          .then(async () => {
-            await variantResultSetStore.loadResultSetViaQuery(
-              variantQueryStore.queryUuid,
-            )
-          })
-      }),
+    variantQueryStore.initialize(
+      appContext.csrf_token,
+      appContext?.project?.sodar_uuid,
+      props.caseUuid,
+      appContext,
+    ),
+    variantResultSetStore.initialize(appContext.csrf_token),
   ])
 }
 

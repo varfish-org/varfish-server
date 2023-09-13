@@ -7,6 +7,7 @@ import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
+import { DisplayColumns } from '@variants/enums'
 
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // no store dependencies
@@ -19,6 +20,8 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   const caseUuid = ref<string | null>(null)
   /** The current application state. */
   const storeState = reactive<StoreState>(new StoreState())
+  /** Extra annotation fields available. */
+  const extraAnnoFields = ref<any | null>(null)
 
   // other data (loaded via REST API or computed)
 
@@ -56,8 +59,19 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     storeState.serverInteractions = 0
     storeState.message = null
 
+    resultRow.value = null
     resultSetUuid.value = null
     resultSet.value = null
+    query.value = null
+
+    tablePageNo.value = null
+    tablePageSize.value = null
+    tableSortBy.value = null
+    tableSortType.value = null
+    displayDetails.value = null
+    displayFrequency.value = null
+    displayConstraint.value = null
+    displayColumns.value = null
   }
 
   /**
@@ -66,13 +80,22 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
    * @param csrfToken$ CSRF token to use.
    * @param forceReload Whether to force reload.
    */
-  const initialize = (csrfToken$: string, forceReload: boolean = false) => {
+  const initialize = async (
+    csrfToken$: string,
+    forceReload: boolean = false,
+  ) => {
     // Initialize only once.
     if (!forceReload && storeState.state !== State.Initial) {
       return initializeRes.value
     }
 
     $reset()
+
+    // Load extra annotation fields, if necessary.
+    if (!extraAnnoFields.value) {
+      const variantClient = new VariantClient(csrfToken$)
+      extraAnnoFields.value = await variantClient.fetchExtraAnnoFields()
+    }
 
     // Set simple properties.
     csrfToken.value = csrfToken$
@@ -82,6 +105,22 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
     initializeRes.value = Promise.resolve()
     return initializeRes.value
+  }
+
+  const refreshDisplayColumns = () => {
+    const maybeAdd = [
+      'SpliceAI-acc-gain',
+      'SpliceAI-acc-loss',
+      'SpliceAI-don-loss',
+      'SpliceAI-don-gain',
+      'CADD-PHRED',
+    ]
+    displayColumns.value = [DisplayColumns.Effect.value]
+    extraAnnoFields.value
+      .filter((value) => maybeAdd.includes(value.label))
+      .forEach((value) => {
+        displayColumns.value.push(`extra_anno${value.field}`)
+      })
   }
 
   const loadResultSetViaQuery = async (queryUuid$: string) => {
@@ -96,6 +135,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
       // Still fetching the same query; push to query result set.
       resultSet.value = responseResultSetList[0]
       resultSetUuid.value = responseResultSetList[0].sodar_uuid
+      refreshDisplayColumns()
     }
   }
 
@@ -106,6 +146,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     if (case$.smallvariantqueryresultset) {
       resultSet.value = case$.smallvariantqueryresultset
       resultSetUuid.value = case$.smallvariantqueryresultset.sodar_uuid
+      refreshDisplayColumns()
     } else {
       console.error('ERROR: no result set in case response')
     }
@@ -142,6 +183,8 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
         )
         query.value = query$
         caseUuid.value = query$.case
+
+        refreshDisplayColumns()
       } else {
         // Otherwise, it really should provide us with a Case UUID.
         if (!resultSet$.case) {
@@ -167,6 +210,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     // data / state
     csrfToken,
     storeState,
+    extraAnnoFields,
     resultRow,
     resultSetUuid,
     resultSet,

@@ -335,7 +335,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async fetchExtraAnnoFields(csrfToken: string) {
+  async fetchExtraAnnoFields() {
     return await this.fetchHelper(`/variants/ajax/extra-anno-fields/`, 'GET')
   }
 
