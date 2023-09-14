@@ -213,6 +213,7 @@ def run_sv_query_bg_job(pk):
         filter_job.add_log_entry("Create result set and import worker results ...")
         with transaction.atomic():
             svqueryresultset = SvQueryResultSet.objects.create(
+                case=query_model.case,
                 svquery=query_model,
                 result_row_count=result_row_count,
                 start_time=start_time,

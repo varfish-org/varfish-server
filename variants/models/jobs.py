@@ -166,6 +166,7 @@ def run_query_bg_job(pk):
 
         with transaction.atomic():
             smallvariantqueryresultset = SmallVariantQueryResultSet.objects.create(
+                case=query_model.case,
                 smallvariantquery=query_model,
                 result_row_count=query_model.query_results.count(),
                 start_time=start_time,
