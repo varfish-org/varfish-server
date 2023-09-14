@@ -48,17 +48,36 @@ const variantImpactLabels = [
   'stop lost',
   'synonymous',
   'upstream gene',
+  'overall',
 ]
 
 const clinsigLabels = [
-  'pathogenic',
-  'likely pathogenic',
-  'uncertain significance',
-  'likely benign',
-  'benign',
+  'benign', // 0
+  'likely benign', // 1
+  'uncertain signifiance', // 2
+  'likely pathogenic', // 3
+  'pathogenic', // 4
 ]
 
-const clinsigColor = ['#b05454', '#f59f9f', '#f5c964', '#a3f56c', '#5d9936']
+const clinsigColor = ['#5d9936', '#a3f56c', '#f5c964', '#f59f9f', '#b05454']
+
+const perImpactCounts = computed(() => {
+  const result = []
+  const sum = {
+    impact: variantImpactLabels.length - 1,
+    counts: [0, 0, 0, 0, 0],
+  }
+  if (props.geneClinvar?.per_impact_counts?.length) {
+    for (const perImpactCount of props.geneClinvar?.per_impact_counts) {
+      result.push(perImpactCount)
+      for (let i = 0; i < sum.counts.length; ++i) {
+        sum.counts[i] += perImpactCount.counts[i]
+      }
+    }
+    result.push(sum)
+  }
+  return result
+})
 
 const variantQueryStore = useVariantQueryStore()
 
@@ -803,10 +822,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             ClinVar By Impact
           </span>
         </div>
-        <div
-          class="card-body pb-2 pt-2"
-          v-if="geneClinvar?.per_impact_counts?.length"
-        >
+        <div class="card-body pb-2 pt-2" v-if="perImpactCounts.length">
           <table class="table table-sm">
             <tr>
               <thead>
@@ -817,18 +833,33 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 <th>total</th>
               </thead>
               <tbody>
-                <tr v-for="row in geneClinvar?.per_impact_counts ?? []">
-                  <td>
+                <tr v-for="row in perImpactCounts">
+                  <td
+                    :class="{
+                      'font-weight-bolder':
+                        variantImpactLabels[row.impact] == 'overall',
+                    }"
+                  >
                     {{ variantImpactLabels[row.impact] }}
                   </td>
                   <td
-                    v-for="(count, idx) in row.counts"
                     class="text-right"
+                    :class="{
+                      'font-weight-bolder':
+                        variantImpactLabels[row.impact] == 'overall',
+                    }"
+                    v-for="(count, idx) in row.counts"
                     :style="`background-color: ${clinsigColor[idx]}`"
                   >
                     {{ count }}
                   </td>
-                  <td class="text-right">
+                  <td
+                    class="text-right"
+                    :class="{
+                      'font-weight-bolder':
+                        variantImpactLabels[row.impact] == 'overall',
+                    }"
+                  >
                     {{ row.counts.reduce((a, b) => a + b, 0) }}
                   </td>
                 </tr>
@@ -851,7 +882,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
         <div
           class="card-body pb-2 pt-2"
-          v-if="geneClinvar?.per_impact_counts?.length"
+          v-if="geneClinvar?.per_freq_counts?.length"
         >
           <ClinvarFreqPlot
             :gene-symbol="gene?.hgnc?.symbol"
