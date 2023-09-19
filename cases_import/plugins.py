@@ -1,4 +1,7 @@
+import itertools
+
 from bgjobs.plugins import BackgroundJobsPluginPoint
+from django.conf import settings
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 
@@ -32,11 +35,11 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "type": "STRING",
             "default": "",
             "label": "Import Protocol",
-            "options": (
-                "s3",
-                "http",
-                "https",
-                "file",
+            "options": tuple(
+                itertools.chain(
+                    ("s3", "http", "https"),
+                    ("file",) if settings.VARFISH_CASE_IMPORT_ALLOW_FILE else (),
+                )
             ),
             "description": "Protocol to use for data import",
         },
@@ -46,6 +49,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "default": "",
             "label": "Import Host",
             "description": "Host name of server to import from (ignored if protocol is file)",
+        },
+        "import_data_path": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "STRING",
+            "default": "",
+            "label": "Path prefix",
+            "description": "Path prefix to use",
         },
         "import_data_port": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],

@@ -318,6 +318,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     def get_object_link(self, *args, **kwargs):
         return None
 
+
 ##
 ## Plugin Point Definitions
 ##

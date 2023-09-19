@@ -10,6 +10,9 @@ from variants.tests.factories import ProjectFactory
 
 
 class CaseImportActionFactory(factory.django.DjangoModelFactory):
+    class Params:
+        _path_phenopacket_yaml = "cases_import/tests/data/family.yaml"
+
     class Meta:
         model = CaseImportAction
 
@@ -22,7 +25,7 @@ class CaseImportActionFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def payload(self):
-        with open("cases_import/tests/data/family.yaml") as inputf:
+        with open(self._path_phenopacket_yaml, "rt") as inputf:
             return yaml.safe_load(inputf)["family"]
 
     project = factory.SubFactory(ProjectFactory)

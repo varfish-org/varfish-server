@@ -42,6 +42,16 @@ class DragenStyleCoverage(pydantic.BaseModel):
 class CaseQc(models.Model):
     """Quality control metrics set for one case."""
 
+    #: Draft - is currently being built.
+    STATE_DRAFT = "DRAFT"
+    #: Active - is currently not active.
+    STATE_ACTIVE = "ACTIVE"
+
+    STATE_CHOICES = (
+        (STATE_DRAFT, STATE_DRAFT),
+        (STATE_ACTIVE, STATE_ACTIVE),
+    )
+
     #: Record UUID.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
     #: DateTime of creation.
@@ -49,8 +59,14 @@ class CaseQc(models.Model):
     #: DateTime of last modification.
     date_modified = models.DateTimeField(auto_now=True)
 
+    #: State of the QC set
+    state = models.CharField(max_length=50, choices=STATE_CHOICES, default=STATE_DRAFT)
     #: The case this QC set belong to
-    case = models.ForeignKey(Case, on_delete=models.CASCADE, null=False, blank=False, unique=True)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, null=False, blank=False)
+
+    class Meta:
+        #: Order by creation date
+        ordering = ["-date_created"]
 
 
 class BaseHistogram(models.Model):

@@ -935,6 +935,14 @@ ICONIFY_JSON_ROOT = os.path.join(STATIC_ROOT, "iconify")
 
 VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", default=False)
 
+# Case Import Configuration
+# ------------------------------------------------------------------------------
+
+#: Allow import from local file.  Defaults to False because of security issues.
+VARFISH_CASE_IMPORT_ALLOW_FILE = env.bool("VARFISH_CASE_IMPORT_ALLOW_FILE", default=False)
+#: Prefix to enforce when importing from local file.
+VARFISH_CASE_IMPORT_FILE_PREFIX = env.str("VARFISH_CASE_IMPORT_FILE_PREFIX", default="")
+
 # VarFish Microservices
 #
 # Setup of the "microservices" such as viguno, mehari, annonars, and nginx.

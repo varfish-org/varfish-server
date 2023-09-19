@@ -2,6 +2,7 @@
 
 This has been broken away from ``test_models.py`` for better structure.
 """
+from projectroles.app_settings import AppSettingAPI
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
@@ -14,13 +15,14 @@ from variants.tests.factories import CaseFactory
 
 
 class ExecutorTestMixin:
-    def _setUpExecutor(self, action):
+    def _setUpExecutor(self, action, fac_kwargs=None):
         super().setUp()
         self.user = self.make_user()
         self.caseimportaction = CaseImportActionFactory(
             action=action,
             state=CaseImportAction.STATE_SUBMITTED,
             overwrite_terms=True,
+            **(fac_kwargs or {}),
         )
         self.caseimportbackgroundjob = CaseImportBackgroundJobFactory(
             caseimportaction=self.caseimportaction,
@@ -32,12 +34,44 @@ class ExecutorTestMixin:
             file_uri=self.caseimportaction.payload["proband"]["files"][0]["uri"]
         )
 
+        app_settings = AppSettingAPI()
+        app_settings.set(
+            app_name="cases_import",
+            setting_name="import_data_protocol",
+            value="file",
+            project=self.project,
+        )
+
 
 class ImportCreateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
-    """Test the executor with action=create"""
+    """Test the executor with action=create
+
+    This will only create the external files objects but not perform an import of quality
+    control data etc because the ``family.yaml`` file does not contain actionable files.
+    """
 
     def setUp(self):
         self._setUpExecutor(CaseImportAction.ACTION_CREATE)
+
+    def test_run(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.executor.run()
+        self.assertEqual(Case.objects.count(), 1)
+
+
+class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+    """Test the executor with action=create and external files for Dragen QC.
+
+    This will actually run the import of the Dragen QC files.
+    """
+
+    def setUp(self):
+        self._setUpExecutor(
+            CaseImportAction.ACTION_CREATE,
+            fac_kwargs={
+                "_path_phenopacket_yaml": "cases_import/tests/data/singleton_dragen_qc.yaml"
+            },
+        )
 
     def test_run(self):
         self.assertEqual(Case.objects.count(), 0)
