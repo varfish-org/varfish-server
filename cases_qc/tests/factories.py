@@ -19,7 +19,9 @@ from cases_qc.models import (
     TimeMetrics,
     TrimmerMetrics,
     WgsContigMeanCovMetrics,
+    WgsCoverageMetrics,
     WgsFineHist,
+    WgsHistMetrics,
 )
 
 
@@ -112,9 +114,19 @@ class RohMetricsFactory(MetricsFactoryBase):
         model = RohMetrics
 
 
+class SeqvarMetricsFactory(MetricsFactoryBase):
+    class Meta:
+        model = SeqvarMetrics
+
+
 class StrucvarMetricsFactory(MetricsFactoryBase):
     class Meta:
         model = StrucvarMetrics
+
+
+class TimeMetricsFactory(MetricsFactoryBase):
+    class Meta:
+        model = TimeMetrics
 
 
 class TrimmerMetricsFactory(MetricsFactoryBase):
@@ -122,14 +134,9 @@ class TrimmerMetricsFactory(MetricsFactoryBase):
         model = TrimmerMetrics
 
 
-class SeqvarMetricsFactory(MetricsFactoryBase):
+class WgsCoverageMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = SeqvarMetrics
-
-
-class TimeMetricsFactory(MetricsFactoryBase):
-    class Meta:
-        model = TimeMetrics
+        model = WgsCoverageMetrics
 
 
 class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
@@ -143,6 +150,11 @@ class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
     @factory.lazy_attribute
     def metrics(self):
         return [DragenStyleCoverageFactory(sample=self.sample)]
+
+
+class WgsHistMetricsFactory(MetricsFactoryBase):
+    class Meta:
+        model = WgsHistMetrics
 
 
 class WgsFineHistFactory(factory.django.DjangoModelFactory):

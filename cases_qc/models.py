@@ -107,6 +107,10 @@ class CnvMetrics(BaseMetrics):
     """CNV metrics for one sample in a case"""
 
 
+class ContigHetHomMetrics(BaseMetrics):
+    """Per-contig het./hom. metrics for one sample in the case"""
+
+
 class FragmentLengthHistogram(BaseHistogram):
     """Histogram of fragment lengths for one sample in a case."""
 
@@ -123,6 +127,10 @@ class RohMetrics(BaseMetrics):
     """ROH metrics for one sample in the case"""
 
 
+class SeqvarMetrics(BaseMetrics):
+    """Variant calling metrics for one sample in the case"""
+
+
 class StrucvarMetrics(BaseMetrics):
     """SV calling metrics for one sample in the case"""
 
@@ -135,12 +143,8 @@ class TrimmerMetrics(BaseMetrics):
     """Trimmer metrics for one sample in the case"""
 
 
-class SeqvarMetrics(BaseMetrics):
-    """Variant calling metrics for one sample in the case"""
-
-
-class ContigHetHomMetrics(BaseMetrics):
-    """Per-contig het./hom. metrics for one sample in the case"""
+class WgsCoverageMetrics(BaseMetrics):
+    """WGS coverage summary metrics for one sample in the case"""
 
 
 class WgsContigMeanCovMetrics(models.Model):
@@ -159,6 +163,28 @@ class WgsContigMeanCovMetrics(models.Model):
     sample = models.CharField(max_length=200, null=False, blank=False)
     #: Metrics as JSON following the ``DragenStyleCoverage`` schema
     metrics = SchemaField(schema=list[DragenStyleCoverage], blank=False, null=False)
+
+
+class WgsHistMetrics(models.Model):
+    """WGS coarse coverage metrics for one sample in the case"""
+
+    #: Record UUID.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
+    #: DateTime of creation.
+    date_created = models.DateTimeField(auto_now_add=True)
+    #: DateTime of last modification.
+    date_modified = models.DateTimeField(auto_now=True)
+
+    #: The QC metric set this histogram belongs to
+    caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
+    #: The sample this histogram belongs to
+    sample = models.CharField(max_length=200, null=False, blank=False)
+    #: The histogram keys
+    keys = ArrayField(
+        models.CharField(max_length=200), null=False, blank=False, max_length=MAX_ARRAY_LENGTH
+    )
+    # The histogram values
+    values = ArrayField(models.FloatField(), null=False, blank=False, max_length=MAX_ARRAY_LENGTH)
 
 
 class WgsFineHist(BaseHistogram):
