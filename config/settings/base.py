@@ -117,6 +117,7 @@ LOCAL_APPS = [
     "seqmeta.apps.SeqmetaConfig",
     "cases_import.apps.CasesImportConfig",
     "cases_files.apps.CasesFilesConfig",
+    "cases_qc.apps.CasesQcConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
