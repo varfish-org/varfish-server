@@ -5,6 +5,7 @@ This has been broken away from ``test_models.py`` for better structure.
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
+from cases.models import Case
 from cases.tests.factories import IndividualFactory, PedigreeFactory
 from cases_import.models import CaseImportAction, CaseImportBackgroundJobExecutor
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
@@ -39,7 +40,9 @@ class ImportCreateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         self._setUpExecutor(CaseImportAction.ACTION_CREATE)
 
     def test_run(self):
+        self.assertEqual(Case.objects.count(), 0)
         self.executor.run()
+        self.assertEqual(Case.objects.count(), 1)
 
 
 class ImportUpdateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
@@ -62,7 +65,9 @@ class ImportUpdateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         )
 
     def test_run(self):
+        self.assertEqual(Case.objects.count(), 1)
         self.executor.run()
+        self.assertEqual(Case.objects.count(), 1)
 
 
 class ImportDeleteTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
@@ -77,4 +82,6 @@ class ImportDeleteTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         )
 
     def test_run(self):
+        self.assertEqual(Case.objects.count(), 1)
         self.executor.run()
+        self.assertEqual(Case.objects.count(), 0)
