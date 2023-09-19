@@ -315,6 +315,8 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         else:
             return "(unknown %s)" % name
 
+    def get_object_link(self, *args, **kwargs):
+        return None
 
 ##
 ## Plugin Point Definitions
