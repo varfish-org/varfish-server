@@ -28,7 +28,9 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
+    SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
+    SamtoolsIdxstatsMetrics,
     SamtoolsIdxstatsRecord,
     SamtoolsStatsBasePercentagesRecord,
     SamtoolsStatsChkRecord,
@@ -375,7 +377,7 @@ class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
     lbc = factory.LazyAttribute(lambda _o: SamtoolsStatsBasePercentagesRecordFactory())
 
 
-class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
+class SamtoolsStatsSupplementaryMetricsFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SamtoolsStatsSupplementaryMetrics
 
@@ -420,9 +422,9 @@ class SamtoolsFlagstatRecordFactory(factory.Factory):
     with_mate_mapped_to_different_chr_mapq5 = factory.Sequence(lambda n: n)
 
 
-class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
+class SamtoolsFlagstatMetricsFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = SamtoolsStatsSupplementaryMetrics
+        model = SamtoolsFlagstatMetrics
 
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)
@@ -448,9 +450,9 @@ class SamtoolsIdxstatsRecordFactory(factory.Factory):
     unmapped = factory.Sequence(lambda n: n)
 
 
-class SamtoolsIdxstatsMetrics(factory.django.DjangoModelFactory):
+class SamtoolsIdxstatsMetricsFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = SamtoolsStatsSupplementaryMetrics
+        model = SamtoolsIdxstatsMetrics
 
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)

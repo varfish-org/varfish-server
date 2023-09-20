@@ -23,6 +23,10 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
+    SamtoolsFlagstatMetrics,
+    SamtoolsIdxstatsMetrics,
+    SamtoolsStatsMainMetrics,
+    SamtoolsStatsSupplementaryMetrics,
 )
 from cases_qc.tests.factories import (
     CaseQcFactory,
@@ -46,6 +50,10 @@ from cases_qc.tests.factories import (
     DragenWgsFineHistFactory,
     DragenWgsHistFactory,
     DragenWgsOverallMeanCovFactory,
+    SamtoolsFlagstatMetricsFactory,
+    SamtoolsIdxstatsMetricsFactory,
+    SamtoolsStatsMainMetricsFactory,
+    SamtoolsStatsSupplementaryMetricsFactory,
     StrucvarMetricsFactory,
 )
 
@@ -357,3 +365,63 @@ class DragenWgsOverallMeanCovTest(TestCase):
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 1)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class SamtoolsStatsMainMetricsTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    def test_create(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 0)
+        _obj = SamtoolsStatsMainMetricsFactory()
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 1)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class SamtoolsStatsSupplementaryMetricsTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    def test_create(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(SamtoolsStatsSupplementaryMetrics.objects.count(), 0)
+        _obj = SamtoolsStatsSupplementaryMetricsFactory()
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(SamtoolsStatsSupplementaryMetrics.objects.count(), 1)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class SamtoolsFlagstatMetricsTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    def test_create(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(SamtoolsFlagstatMetrics.objects.count(), 0)
+        _obj = SamtoolsFlagstatMetricsFactory()
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(SamtoolsFlagstatMetrics.objects.count(), 1)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class SamtoolsIdxstatsMetricsTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    def test_create(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 0)
+        _obj = SamtoolsIdxstatsMetricsFactory()
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 1)

@@ -167,7 +167,7 @@ def load_bcftools_stats(
     )
 
 
-def load_samtools_flagstat(
+def load_samtools_flagstat(  # noqa: C901
     *,
     sample: str,
     input_file: typing.TextIO,
