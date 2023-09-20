@@ -53,7 +53,7 @@ def load_metrics_generic(
 
 def load_fragment_length_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.FragmentLengthHistogram:
+) -> models.DragenFragmentLengthHistogram:
     # skip first line
     input_file.readline()
 
@@ -65,7 +65,7 @@ def load_fragment_length_hist(
             keys.append(int(record["FragmentLength"]))
             values.append(int(record["Count"]))
 
-    return models.FragmentLengthHistogram.objects.create(
+    return models.DragenFragmentLengthHistogram.objects.create(
         caseqc=caseqc,
         sample=sample,
         keys=keys,
@@ -75,7 +75,7 @@ def load_fragment_length_hist(
 
 def load_wgs_fine_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.WgsFineHist:
+) -> models.DragenWgsFineHist:
     keys: list[int] = []
     values: list[int] = []
     reader = csv.DictReader(f=input_file, delimiter=",")
@@ -84,7 +84,7 @@ def load_wgs_fine_hist(
             keys.append(int(record["Depth"].replace("+", "")))
             values.append(int(record["Overall"]))
 
-    return models.WgsFineHist.objects.create(
+    return models.DragenWgsFineHist.objects.create(
         caseqc=caseqc,
         sample=sample,
         keys=keys,
@@ -94,115 +94,115 @@ def load_wgs_fine_hist(
 
 def load_vc_hethom_ratio_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.VcHethomRatioMetrics:
+) -> models.DragenVcHethomRatioMetrics:
     """Load contig het./hom. metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.VcHethomRatioMetrics,
+        model=models.DragenVcHethomRatioMetrics,
     )
 
 
 def load_cnv_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.CnvMetrics:
+) -> models.DragenCnvMetrics:
     """Load CNV metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.CnvMetrics,
+        model=models.DragenCnvMetrics,
     )
 
 
 def load_mapping_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.MappingMetrics:
+) -> models.DragenMappingMetrics:
     """Load mapping metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.MappingMetrics,
+        model=models.DragenMappingMetrics,
     )
 
 
 def load_ploidy_estimation_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.PloidyEstimationMetrics:
+) -> models.DragenPloidyEstimationMetrics:
     """Load ploidy estimation metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.PloidyEstimationMetrics,
+        model=models.DragenPloidyEstimationMetrics,
     )
 
 
 def load_roh_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.RohMetrics:
+) -> models.DragenRohMetrics:
     """Load ROH metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.RohMetrics,
+        model=models.DragenRohMetrics,
     )
 
 
 def load_sv_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.SvMetrics:
+) -> models.DragenSvMetrics:
     """Load SV calling metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.SvMetrics,
+        model=models.DragenSvMetrics,
     )
 
 
 def load_time_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.TimeMetrics:
+) -> models.DragenTimeMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.TimeMetrics,
+        model=models.DragenTimeMetrics,
     )
 
 
 def load_trimmer_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.TrimmerMetrics:
+) -> models.DragenTrimmerMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.TrimmerMetrics,
+        model=models.DragenTrimmerMetrics,
     )
 
 
 def load_vc_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.TrimmerMetrics:
+) -> models.DragenTrimmerMetrics:
     """Load variant caller metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.VcMetrics,
+        model=models.DragenVcMetrics,
     )
 
 
 def load_wgs_contig_mean_cov(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.WgsContigMeanCovMetrics:
+) -> models.DragenWgsContigMeanCovMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     fieldnames = ("contig_name", "contig_len", "cov")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -217,7 +217,7 @@ def load_wgs_contig_mean_cov(
             )
         )
 
-    return models.WgsContigMeanCovMetrics.objects.create(
+    return models.DragenWgsContigMeanCovMetrics.objects.create(
         caseqc=caseqc,
         sample=sample,
         metrics=metrics,
@@ -226,19 +226,19 @@ def load_wgs_contig_mean_cov(
 
 def load_wgs_coverage_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.WgsCoverageMetrics:
+) -> models.DragenWgsCoverageMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.WgsCoverageMetrics,
+        model=models.DragenWgsCoverageMetrics,
     )
 
 
 def load_wgs_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.WgsHistMetrics:
+) -> models.DragenWgsHistMetrics:
     """Load WGS histogram metrics from ``input_file`` into ``caseqc``."""
     fieldnames = ("key", "value")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -249,7 +249,7 @@ def load_wgs_hist(
         keys.append(record["key"])
         values.append(float(record["value"]))
 
-    return models.WgsHistMetrics.objects.create(
+    return models.DragenWgsHistMetrics.objects.create(
         caseqc=caseqc,
         sample=sample,
         keys=keys,

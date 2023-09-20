@@ -6,20 +6,20 @@ from test_plus import TestCase
 
 from cases_qc.io import dragen as io_dragen
 from cases_qc.models import (
-    CnvMetrics,
-    FragmentLengthHistogram,
-    MappingMetrics,
-    PloidyEstimationMetrics,
-    RohMetrics,
+    DragenCnvMetrics,
+    DragenFragmentLengthHistogram,
+    DragenMappingMetrics,
+    DragenPloidyEstimationMetrics,
+    DragenRohMetrics,
+    DragenSvMetrics,
+    DragenTimeMetrics,
+    DragenTrimmerMetrics,
+    DragenVcHethomRatioMetrics,
+    DragenWgsContigMeanCovMetrics,
+    DragenWgsCoverageMetrics,
+    DragenWgsFineHist,
+    DragenWgsHistMetrics,
     SeqvarMetrics,
-    SvMetrics,
-    TimeMetrics,
-    TrimmerMetrics,
-    VcHethomRatioMetrics,
-    WgsContigMeanCovMetrics,
-    WgsCoverageMetrics,
-    WgsFineHist,
-    WgsHistMetrics,
 )
 from cases_qc.tests.factories import CaseQcFactory
 
@@ -56,12 +56,12 @@ class LoadCnvMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(CnvMetrics.objects.count(), 0)
+        self.assertEqual(DragenCnvMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.cnv_metrics.csv") as inputf:
             io_dragen.load_cnv_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(CnvMetrics.objects.count(), 1)
-        metrics = CnvMetrics.objects.first()
+        self.assertEqual(DragenCnvMetrics.objects.count(), 1)
+        metrics = DragenCnvMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
         self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "metrics")))
@@ -75,14 +75,14 @@ class LoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(VcHethomRatioMetrics.objects.count(), 0)
+        self.assertEqual(DragenVcHethomRatioMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.vc_hethom_ratio_metrics.csv") as inputf:
             io_dragen.load_vc_hethom_ratio_metrics(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
 
-        self.assertEqual(VcHethomRatioMetrics.objects.count(), 1)
-        metrics = VcHethomRatioMetrics.objects.first()
+        self.assertEqual(DragenVcHethomRatioMetrics.objects.count(), 1)
+        metrics = DragenVcHethomRatioMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
         self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "metrics")))
@@ -96,14 +96,14 @@ class LoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(FragmentLengthHistogram.objects.count(), 0)
+        self.assertEqual(DragenFragmentLengthHistogram.objects.count(), 0)
         with open("cases_qc/tests/data/sample.fragment_length_hist.csv") as inputf:
             io_dragen.load_fragment_length_hist(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
 
-        self.assertEqual(FragmentLengthHistogram.objects.count(), 1)
-        hist = FragmentLengthHistogram.objects.first()
+        self.assertEqual(DragenFragmentLengthHistogram.objects.count(), 1)
+        hist = DragenFragmentLengthHistogram.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
@@ -117,12 +117,12 @@ class MappingMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(MappingMetrics.objects.count(), 0)
+        self.assertEqual(DragenMappingMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.mapping_metrics.csv") as inputf:
             io_dragen.load_mapping_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(MappingMetrics.objects.count(), 1)
-        hist = MappingMetrics.objects.first()
+        self.assertEqual(DragenMappingMetrics.objects.count(), 1)
+        hist = DragenMappingMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -136,14 +136,14 @@ class PloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(PloidyEstimationMetrics.objects.count(), 0)
+        self.assertEqual(DragenPloidyEstimationMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.ploidy_estimation_metrics.csv") as inputf:
             io_dragen.load_ploidy_estimation_metrics(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
 
-        self.assertEqual(PloidyEstimationMetrics.objects.count(), 1)
-        hist = PloidyEstimationMetrics.objects.first()
+        self.assertEqual(DragenPloidyEstimationMetrics.objects.count(), 1)
+        hist = DragenPloidyEstimationMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -157,12 +157,12 @@ class RohMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(RohMetrics.objects.count(), 0)
+        self.assertEqual(DragenRohMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.roh_metrics.csv") as inputf:
             io_dragen.load_roh_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(RohMetrics.objects.count(), 1)
-        hist = RohMetrics.objects.first()
+        self.assertEqual(DragenRohMetrics.objects.count(), 1)
+        hist = DragenRohMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -195,12 +195,12 @@ class StrucvarMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(SvMetrics.objects.count(), 0)
+        self.assertEqual(DragenSvMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.sv_metrics.csv") as inputf:
             io_dragen.load_vc_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(SvMetrics.objects.count(), 1)
-        hist = SvMetrics.objects.first()
+        self.assertEqual(DragenSvMetrics.objects.count(), 1)
+        hist = DragenSvMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -214,12 +214,12 @@ class TimeMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(TimeMetrics.objects.count(), 0)
+        self.assertEqual(DragenTimeMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.time_metrics.csv") as inputf:
             io_dragen.load_time_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(TimeMetrics.objects.count(), 1)
-        hist = TimeMetrics.objects.first()
+        self.assertEqual(DragenTimeMetrics.objects.count(), 1)
+        hist = DragenTimeMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -233,12 +233,12 @@ class TrimmerMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(TrimmerMetrics.objects.count(), 0)
+        self.assertEqual(DragenTrimmerMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.trimmer_metrics.csv") as inputf:
             io_dragen.load_trimmer_metrics(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(TrimmerMetrics.objects.count(), 1)
-        hist = TrimmerMetrics.objects.first()
+        self.assertEqual(DragenTrimmerMetrics.objects.count(), 1)
+        hist = DragenTrimmerMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -271,14 +271,14 @@ class WgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(WgsContigMeanCovMetrics.objects.count(), 0)
+        self.assertEqual(DragenWgsContigMeanCovMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.wgs_contig_mean_cov.csv") as inputf:
             io_dragen.load_wgs_contig_mean_cov_metrics(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
 
-        self.assertEqual(WgsContigMeanCovMetrics.objects.count(), 1)
-        hist = WgsContigMeanCovMetrics.objects.first()
+        self.assertEqual(DragenWgsContigMeanCovMetrics.objects.count(), 1)
+        hist = DragenWgsContigMeanCovMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -292,14 +292,14 @@ class WgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(WgsCoverageMetrics.objects.count(), 0)
+        self.assertEqual(DragenWgsCoverageMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.wgs_coverage_metrics.csv") as inputf:
             io_dragen.load_wgs_coverage_metrics(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
 
-        self.assertEqual(WgsCoverageMetrics.objects.count(), 1)
-        hist = WgsCoverageMetrics.objects.first()
+        self.assertEqual(DragenWgsCoverageMetrics.objects.count(), 1)
+        hist = DragenWgsCoverageMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -313,12 +313,12 @@ class WgsFineHistTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(WgsFineHist.objects.count(), 0)
+        self.assertEqual(DragenWgsFineHist.objects.count(), 0)
         with open("cases_qc/tests/data/sample.wgs_fine_hist.csv") as inputf:
             io_dragen.load_wgs_fine_hist(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(WgsFineHist.objects.count(), 1)
-        hist = WgsFineHist.objects.first()
+        self.assertEqual(DragenWgsFineHist.objects.count(), 1)
+        hist = DragenWgsFineHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
@@ -332,12 +332,12 @@ class WgsHistMetricsTest(TestCaseSnapshot, TestCase):
         self.caseqc = CaseQcFactory()
 
     def test_load(self):
-        self.assertEqual(WgsHistMetrics.objects.count(), 0)
+        self.assertEqual(DragenWgsHistMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.wgs_hist.csv") as inputf:
             io_dragen.load_wgs_hist(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
-        self.assertEqual(WgsHistMetrics.objects.count(), 1)
-        hist = WgsHistMetrics.objects.first()
+        self.assertEqual(DragenWgsHistMetrics.objects.count(), 1)
+        hist = DragenWgsHistMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))

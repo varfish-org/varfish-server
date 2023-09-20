@@ -7,21 +7,21 @@ import yaml
 from cases.tests.factories import CaseFactory
 from cases_qc.models import (
     CaseQc,
-    CnvMetrics,
+    DragenCnvMetrics,
+    DragenFragmentLengthHistogram,
+    DragenMappingMetrics,
+    DragenPloidyEstimationMetrics,
+    DragenRohMetrics,
     DragenStyleCoverage,
     DragenStyleMetric,
-    FragmentLengthHistogram,
-    MappingMetrics,
-    PloidyEstimationMetrics,
-    RohMetrics,
+    DragenSvMetrics,
+    DragenTimeMetrics,
+    DragenTrimmerMetrics,
+    DragenWgsContigMeanCovMetrics,
+    DragenWgsCoverageMetrics,
+    DragenWgsFineHist,
+    DragenWgsHistMetrics,
     SeqvarMetrics,
-    SvMetrics,
-    TimeMetrics,
-    TrimmerMetrics,
-    WgsContigMeanCovMetrics,
-    WgsCoverageMetrics,
-    WgsFineHist,
-    WgsHistMetrics,
 )
 
 
@@ -59,7 +59,7 @@ class CaseQcFactory(factory.django.DjangoModelFactory):
 
 class FragmentLengthHistogramFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = FragmentLengthHistogram
+        model = DragenFragmentLengthHistogram
 
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)
@@ -96,22 +96,22 @@ class MetricsFactoryBase(factory.django.DjangoModelFactory):
 
 class CnvMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = CnvMetrics
+        model = DragenCnvMetrics
 
 
 class MappingMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = MappingMetrics
+        model = DragenMappingMetrics
 
 
 class PloidyEstimationMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = PloidyEstimationMetrics
+        model = DragenPloidyEstimationMetrics
 
 
 class RohMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = RohMetrics
+        model = DragenRohMetrics
 
 
 class SeqvarMetricsFactory(MetricsFactoryBase):
@@ -121,27 +121,27 @@ class SeqvarMetricsFactory(MetricsFactoryBase):
 
 class StrucvarMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = SvMetrics
+        model = DragenSvMetrics
 
 
 class TimeMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = TimeMetrics
+        model = DragenTimeMetrics
 
 
 class TrimmerMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = TrimmerMetrics
+        model = DragenTrimmerMetrics
 
 
 class WgsCoverageMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = WgsCoverageMetrics
+        model = DragenWgsCoverageMetrics
 
 
 class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = WgsContigMeanCovMetrics
+        model = DragenWgsContigMeanCovMetrics
 
     @factory.lazy_attribute
     def sample(self):
@@ -154,12 +154,12 @@ class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
 
 class WgsHistMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = WgsHistMetrics
+        model = DragenWgsHistMetrics
 
 
 class WgsFineHistFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = WgsFineHist
+        model = DragenWgsFineHist
 
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)

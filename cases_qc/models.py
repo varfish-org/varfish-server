@@ -69,7 +69,7 @@ class CaseQc(models.Model):
         ordering = ["-date_created"]
 
 
-class BaseHistogram(models.Model):
+class DragenBaseHistogram(models.Model):
     """Base model for Dragen-style histograms
 
 
@@ -98,7 +98,7 @@ class BaseHistogram(models.Model):
         abstract = True
 
 
-class BaseMetrics(models.Model):
+class DragenBaseMetrics(models.Model):
     """Abstract metrics model for one sample in a case"""
 
     #: Record UUID.
@@ -119,51 +119,51 @@ class BaseMetrics(models.Model):
         abstract = True
 
 
-class CnvMetrics(BaseMetrics):
+class DragenCnvMetrics(DragenBaseMetrics):
     """CNV metrics for one sample in a case"""
 
 
-class VcHethomRatioMetrics(BaseMetrics):
+class DragenVcHethomRatioMetrics(DragenBaseMetrics):
     """Per-contig het./hom. metrics for one sample in the case"""
 
 
-class FragmentLengthHistogram(BaseHistogram):
+class DragenFragmentLengthHistogram(DragenBaseHistogram):
     """Histogram of fragment lengths for one sample in a case."""
 
 
-class MappingMetrics(BaseMetrics):
+class DragenMappingMetrics(DragenBaseMetrics):
     """Metrics for the read mapping for one sample in the case"""
 
 
-class PloidyEstimationMetrics(BaseMetrics):
+class DragenPloidyEstimationMetrics(DragenBaseMetrics):
     """Ploidy estimation metrics for one sample in the case"""
 
 
-class RohMetrics(BaseMetrics):
+class DragenRohMetrics(DragenBaseMetrics):
     """ROH metrics for one sample in the case"""
 
 
-class VcMetrics(BaseMetrics):
+class DragenVcMetrics(DragenBaseMetrics):
     """Variant calling metrics for one sample in the case"""
 
 
-class SvMetrics(BaseMetrics):
+class DragenSvMetrics(DragenBaseMetrics):
     """SV calling metrics for one sample in the case"""
 
 
-class TimeMetrics(BaseMetrics):
+class DragenTimeMetrics(DragenBaseMetrics):
     """Time metrics for one sample in the case"""
 
 
-class TrimmerMetrics(BaseMetrics):
+class DragenTrimmerMetrics(DragenBaseMetrics):
     """Trimmer metrics for one sample in the case"""
 
 
-class WgsCoverageMetrics(BaseMetrics):
+class DragenWgsCoverageMetrics(DragenBaseMetrics):
     """WGS coverage summary metrics for one sample in the case"""
 
 
-class WgsContigMeanCovMetrics(models.Model):
+class DragenWgsContigMeanCovMetrics(models.Model):
     """Overall mean WGS coverage metrics for one sample in the case"""
 
     #: Record UUID.
@@ -181,7 +181,7 @@ class WgsContigMeanCovMetrics(models.Model):
     metrics = SchemaField(schema=list[DragenStyleCoverage], blank=False, null=False)
 
 
-class WgsHistMetrics(models.Model):
+class DragenWgsHistMetrics(models.Model):
     """WGS coarse coverage metrics for one sample in the case"""
 
     #: Record UUID.
@@ -203,5 +203,5 @@ class WgsHistMetrics(models.Model):
     values = ArrayField(models.FloatField(), null=False, blank=False, max_length=MAX_ARRAY_LENGTH)
 
 
-class WgsFineHist(BaseHistogram):
+class DragenWgsFineHist(DragenBaseHistogram):
     """Fine histogram of WGS coverage for one sample in the case"""
