@@ -10,7 +10,7 @@ from cases_qc.models import (
     PloidyEstimationMetrics,
     RohMetrics,
     SeqvarMetrics,
-    StrucvarMetrics,
+    SvMetrics,
     TimeMetrics,
     TrimmerMetrics,
     WgsContigMeanCovMetrics,
@@ -141,11 +141,11 @@ class StrucvarMetricsTest(TestCase):
     def test_create(self):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
-        self.assertEqual(StrucvarMetrics.objects.count(), 0)
+        self.assertEqual(SvMetrics.objects.count(), 0)
         _obj = StrucvarMetricsFactory()
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
-        self.assertEqual(StrucvarMetrics.objects.count(), 1)
+        self.assertEqual(SvMetrics.objects.count(), 1)
 
 
 @freeze_time("2012-01-14 12:00:01")

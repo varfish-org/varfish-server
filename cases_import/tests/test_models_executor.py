@@ -4,6 +4,7 @@ This has been broken away from ``test_models.py`` for better structure.
 """
 import os
 from unittest import mock
+
 from projectroles.app_settings import AppSettingAPI
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
@@ -78,7 +79,36 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         )
 
     @mock.patch("cases_qc.io.dragen.load_cnv_metrics")
-    def test_run(self, mock_load_cnv_metrics):
+    @mock.patch("cases_qc.io.dragen.load_fragment_length_hist")
+    @mock.patch("cases_qc.io.dragen.load_mapping_metrics")
+    @mock.patch("cases_qc.io.dragen.load_ploidy_estimation_metrics")
+    @mock.patch("cases_qc.io.dragen.load_roh_metrics")
+    @mock.patch("cases_qc.io.dragen.load_sv_metrics")
+    @mock.patch("cases_qc.io.dragen.load_time_metrics")
+    @mock.patch("cases_qc.io.dragen.load_trimmer_metrics")
+    @mock.patch("cases_qc.io.dragen.load_vc_hethom_ratio_metrics")
+    @mock.patch("cases_qc.io.dragen.load_vc_metrics")
+    @mock.patch("cases_qc.io.dragen.load_wgs_contig_mean_cov")
+    @mock.patch("cases_qc.io.dragen.load_wgs_coverage_metrics")
+    @mock.patch("cases_qc.io.dragen.load_wgs_fine_hist")
+    @mock.patch("cases_qc.io.dragen.load_wgs_hist")
+    def test_run(
+        self,
+        mock_load_wgs_hist_metrics,
+        mock_load_wgs_fine_hist,
+        mock_load_wgs_coverage_metrics,
+        mock_load_wgs_contig_mean_cov,
+        mock_load_vc_metrics,
+        mock_load_vc_hethom_ratio_metrics,
+        mock_load_trimmer_metrics,
+        mock_load_time_metrics,
+        mock_load_sv_metrics,
+        mock_load_roh_metrics,
+        mock_load_ploidy_estimation_metrics,
+        mock_load_mapping_metrics,
+        mock_load_fragment_length_hist,
+        mock_load_cnv_metrics,
+    ):
         """Test import of a case with full set of Dragen QC files.
 
         This test is pretty long because there are a lot of files to import ;-).
@@ -100,6 +130,136 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         self.assertEqual(
             mock_load_cnv_metrics.call_args[1]["input_file"].name,
             os.path.realpath("cases_qc/tests/data/sample.cnv_metrics.csv"),
+        )
+
+        mock_load_fragment_length_hist.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_fragment_length_hist.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.fragment_length_hist.csv"),
+        )
+
+        mock_load_mapping_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_mapping_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.mapping_metrics.csv"),
+        )
+
+        mock_load_ploidy_estimation_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_ploidy_estimation_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.ploidy_estimation_metrics.csv"),
+        )
+
+        mock_load_roh_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_roh_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.roh_metrics.csv"),
+        )
+
+        mock_load_sv_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_sv_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.sv_metrics.csv"),
+        )
+
+        mock_load_time_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_time_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.time_metrics.csv"),
+        )
+
+        mock_load_trimmer_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_trimmer_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.trimmer_metrics.csv"),
+        )
+
+        mock_load_vc_hethom_ratio_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_vc_hethom_ratio_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.vc_hethom_ratio_metrics.csv"),
+        )
+
+        mock_load_vc_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_vc_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.vc_metrics.csv"),
+        )
+
+        mock_load_wgs_contig_mean_cov.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_wgs_contig_mean_cov.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.wgs_contig_mean_cov.csv"),
+        )
+
+        mock_load_wgs_coverage_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_wgs_coverage_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.wgs_coverage_metrics.csv"),
+        )
+
+        mock_load_wgs_fine_hist.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_wgs_fine_hist.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.wgs_fine_hist.csv"),
+        )
+
+        mock_load_wgs_hist_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_wgs_hist_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.wgs_hist.csv"),
         )
 
 

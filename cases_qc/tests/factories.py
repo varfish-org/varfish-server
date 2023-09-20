@@ -15,7 +15,7 @@ from cases_qc.models import (
     PloidyEstimationMetrics,
     RohMetrics,
     SeqvarMetrics,
-    StrucvarMetrics,
+    SvMetrics,
     TimeMetrics,
     TrimmerMetrics,
     WgsContigMeanCovMetrics,
@@ -121,7 +121,7 @@ class SeqvarMetricsFactory(MetricsFactoryBase):
 
 class StrucvarMetricsFactory(MetricsFactoryBase):
     class Meta:
-        model = StrucvarMetrics
+        model = SvMetrics
 
 
 class TimeMetricsFactory(MetricsFactoryBase):

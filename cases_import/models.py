@@ -297,7 +297,7 @@ class FileImportExecutorBase:
 
         if options.protocol == "file":
             if not settings.VARFISH_CASE_IMPORT_ALLOW_FILE:
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "file protocol must be enabled with VARFISH_CASE_IMPORT_ALLOW_FILE"
                 )
             return fsspec.filesystem("file")
@@ -344,6 +344,19 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         #: Map the extended detailed type to the handler function.
         self.handlers = {
             "x-dragen-qc-cnv-metrics": self._import_dragen_qc_cnv_metrics,
+            "x-dragen-qc-fragment-length-hist": self._import_dragen_qc_fragment_length_hist,
+            "x-dragen-qc-mapping-metrics": self._import_dragen_qc_mapping_metrics,
+            "x-dragen-qc-ploidy-estimation-metrics": self._import_dragen_qc_ploidy_estimation_metrics,
+            "x-dragen-qc-roh-metrics": self._import_dragen_qc_roh_metrics,
+            "x-dragen-qc-sv-metrics": self._import_dragen_qc_sv_metrics,
+            "x-dragen-qc-time-metrics": self._import_dragen_qc_time_metrics,
+            "x-dragen-qc-trimmer-metrics": self._import_dragen_qc_trimmer_metrics,
+            "x-dragen-qc-vc-hethom-ratio-metrics": self._import_dragen_qc_vc_hethom_ratio_metrics,
+            "x-dragen-qc-vc-metrics": self._import_dragen_qc_vc_metrics,
+            "x-dragen-qc-wgs-contig-mean-cov": self._import_dragen_qc_wgs_contig_mean_cov,
+            "x-dragen-qc-wgs-coverage-metrics": self._import_dragen_qc_wgs_coverage_metrics,
+            "x-dragen-qc-wgs-fine-hist": self._import_dragen_qc_wgs_fine_hist,
+            "x-dragen-qc-wgs-hist": self._import_dragen_qc_wgs_hist,
         }
 
     def run(self):
@@ -385,6 +398,149 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_cnv_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_fragment_length_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_fragment_length_hist(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_mapping_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_mapping_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_ploidy_estimation_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_ploidy_estimation_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_roh_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_roh_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_sv_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_sv_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_time_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_time_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_trimmer_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_trimmer_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_vc_hethom_ratio_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_vc_hethom_ratio_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_vc_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_vc_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_contig_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_contig_mean_cov(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_coverage_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_coverage_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_fine_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_fine_hist(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_hist(
                 sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,

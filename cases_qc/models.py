@@ -123,7 +123,7 @@ class CnvMetrics(BaseMetrics):
     """CNV metrics for one sample in a case"""
 
 
-class ContigHetHomMetrics(BaseMetrics):
+class VcHethomRatioMetrics(BaseMetrics):
     """Per-contig het./hom. metrics for one sample in the case"""
 
 
@@ -143,11 +143,11 @@ class RohMetrics(BaseMetrics):
     """ROH metrics for one sample in the case"""
 
 
-class SeqvarMetrics(BaseMetrics):
+class VcMetrics(BaseMetrics):
     """Variant calling metrics for one sample in the case"""
 
 
-class StrucvarMetrics(BaseMetrics):
+class SvMetrics(BaseMetrics):
     """SV calling metrics for one sample in the case"""
 
 

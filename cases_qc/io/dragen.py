@@ -92,15 +92,15 @@ def load_wgs_fine_hist(
     )
 
 
-def load_contig_het_hom_metrics(
+def load_vc_hethom_ratio_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.ContigHetHomMetrics:
+) -> models.VcHethomRatioMetrics:
     """Load contig het./hom. metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.ContigHetHomMetrics,
+        model=models.VcHethomRatioMetrics,
     )
 
 
@@ -152,27 +152,15 @@ def load_roh_metrics(
     )
 
 
-def load_seqvar_metrics(
+def load_sv_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.RohMetrics:
-    """Load sequence variant metrics from ``input_file`` into ``caseqc``"""
-    return load_metrics_generic(
-        sample=sample,
-        input_file=input_file,
-        caseqc=caseqc,
-        model=models.SeqvarMetrics,
-    )
-
-
-def load_strucvar_metrics(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.StrucvarMetrics:
+) -> models.SvMetrics:
     """Load SV calling metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.StrucvarMetrics,
+        model=models.SvMetrics,
     )
 
 
@@ -200,7 +188,19 @@ def load_trimmer_metrics(
     )
 
 
-def load_wgs_contig_mean_cov_metrics(
+def load_vc_metrics(
+    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.TrimmerMetrics:
+    """Load variant caller metrics from ``input_file`` into ``caseqc``"""
+    return load_metrics_generic(
+        sample=sample,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.VcMetrics,
+    )
+
+
+def load_wgs_contig_mean_cov(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.WgsContigMeanCovMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
@@ -236,7 +236,7 @@ def load_wgs_coverage_metrics(
     )
 
 
-def load_wgs_hist_metrics(
+def load_wgs_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.WgsHistMetrics:
     """Load WGS histogram metrics from ``input_file`` into ``caseqc``."""
