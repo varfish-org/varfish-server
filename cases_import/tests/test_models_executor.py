@@ -2,6 +2,8 @@
 
 This has been broken away from ``test_models.py`` for better structure.
 """
+import os
+from unittest import mock
 from projectroles.app_settings import AppSettingAPI
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
@@ -10,6 +12,7 @@ from cases.models import Case
 from cases.tests.factories import IndividualFactory, PedigreeFactory
 from cases_import.models import CaseImportAction, CaseImportBackgroundJobExecutor
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
+from cases_qc.models import CaseQc, CnvMetrics
 from seqmeta.tests.factories import TargetBedFileFactory
 from variants.tests.factories import CaseFactory
 
@@ -66,17 +69,38 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
     """
 
     def setUp(self):
+        self.maxDiff = None
         self._setUpExecutor(
             CaseImportAction.ACTION_CREATE,
             fac_kwargs={
-                "_path_phenopacket_yaml": "cases_import/tests/data/singleton_dragen_qc.yaml"
+                "path_phenopacket_yaml": "cases_import/tests/data/singleton_dragen_qc.yaml"
             },
         )
 
-    def test_run(self):
+    @mock.patch("cases_qc.io.dragen.load_cnv_metrics")
+    def test_run(self, mock_load_cnv_metrics):
+        """Test import of a case with full set of Dragen QC files.
+
+        This test is pretty long because there are a lot of files to import ;-).
+        """
         self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+
         self.executor.run()
+
         self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CaseQc.objects.count(), 1)
+        caseqc = CaseQc.objects.first()
+
+        mock_load_cnv_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_cnv_metrics.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.cnv_metrics.csv"),
+        )
 
 
 class ImportUpdateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):

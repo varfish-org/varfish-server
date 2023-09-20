@@ -30,6 +30,7 @@ from cases_files.models import (
 )
 from cases_import.proto import Assay, FileDesignation, get_case_name_from_family_payload
 from cases_qc.io import dragen as io_dragen
+from cases_qc.models import CaseQc
 from seqmeta.models import TargetBedFile
 from varfish.utils import JSONField
 from variants.models import Case
@@ -316,9 +317,9 @@ class FileImportExecutorBase:
             if options.password:
                 kwargs["secret"] = options.password
             if options.host:
-                port = f"{port}:" if port else ""
+                port = f"{options.port}:" if options.port else ""
                 kwargs["client_kwargs"] = {"endpoint_url": f"https://{options.host}{port}"}
-            return fsspec.filesystem(f"s3", **kwargs)
+            return fsspec.filesystem("s3", **kwargs)
         else:
             raise ValueError(f"invalid protocol {options.protocol}")
 
@@ -346,24 +347,27 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         }
 
     def run(self):
+        caseqc = CaseQc.objects.create(case=self.case)
         pedigree = self.case.pedigree_obj
         for individual in pedigree.individual_set.all():
             for external_file in IndividualExternalFile.objects.filter(individual=individual):
-                self._import_external_file(external_file)
+                self._import_external_file(individual.name, external_file, caseqc)
 
-    def _import_external_file(self, external_file: IndividualExternalFile):
+    def _import_external_file(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
         """Import quality metrics from external file, if any.
 
         To be loaded as QC info, the designation must be "quality_control" and the mimetype
         must be "text/csv+{x_detailed_type}" where ``x_detailed_type`` must be one of the
         known ones.
         """
-        im = external_file.identifier_map
-        if im.get("designation") != "quality_control":
+        fa = external_file.file_attributes
+        if fa.get("designation") != "quality_control":
             return  # can only handle QC data here
 
-        mimetype = str(im.get("mimetype", ""))
-        if "+" not in mimetype:
+        mimetype = str(fa.get("mimetype", ""))
+        if mimetype.count("+") != 1:
             return  # no detailed type
 
         base_mimetype, x_detailed_type = mimetype.split("+", 1)
@@ -373,11 +377,18 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         if base_mimetype != "text/csv":
             return  # only CSV supported
 
-        self.handlers[x_detailed_type](external_file)
+        self.handlers[x_detailed_type](individual_name, external_file, caseqc)
 
-    def _import_dragen_qc_cnv_metrics(self, external_file: IndividualExternalFile):
+    def _import_dragen_qc_cnv_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.fs.open(external_file.path, "rt") as inputf:
-            io_dragen.load_cnv_metrics(self.case, inputf)
+            io_dragen.load_cnv_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
 
 
 class CaseImportBackgroundJobExecutor:
