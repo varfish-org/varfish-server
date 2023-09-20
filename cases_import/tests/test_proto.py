@@ -67,6 +67,7 @@ class FileDesignationTest(TestCase):
                 "sequencing_targets",
                 "read_alignments",
                 "variant_calls",
+                "quality_control",
                 "other",
             ],
         )

@@ -92,6 +92,12 @@ LOGGING = set_logging(LOGGING_LEVEL)
 VARFISH_ENABLE_CADD = False
 VARFISH_ENABLE_JANNOVAR = False
 
+# VarFish: Import
+# ------------------------------------------------------------------------------
+
+# Allow importing from file for testing.
+VARFISH_CASE_IMPORT_ALLOW_FILE = True
+
 # Varfish: Beacon Feature
 # ------------------------------------------------------------------------------
 

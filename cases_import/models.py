@@ -1,6 +1,8 @@
+import os
 import typing
 import uuid as uuid_object
 
+import attrs
 from bgjobs.models import (
     LOG_LEVEL_ERROR,
     LOG_LEVEL_INFO,
@@ -8,11 +10,14 @@ from bgjobs.models import (
     BackgroundJob,
     JobModelMessageMixin,
 )
+from django.conf import settings
 from django.db import models, transaction
 from django.urls import reverse
+import fsspec
 from google.protobuf.json_format import ParseDict, ParseError
 import phenopackets
 from phenopackets import Family
+from projectroles.app_settings import AppSettingAPI
 from projectroles.models import Project
 
 from cases.models import Disease, Individual, Pedigree, PhenotypicFeature
@@ -24,6 +29,8 @@ from cases_files.models import (
     PedigreeInternalFile,
 )
 from cases_import.proto import Assay, FileDesignation, get_case_name_from_family_payload
+from cases_qc.io import dragen as io_dragen
+from cases_qc.models import CaseQc
 from seqmeta.models import TargetBedFile
 from varfish.utils import JSONField
 from variants.models import Case
@@ -242,6 +249,372 @@ SEX_MAP = {
 }
 
 
+@attrs.frozen(auto_attribs=True)
+class FileImportOptions:
+    protocol: str
+    host: str | None
+    path: str | None
+    port: str | None
+    user: str | None
+    password: str | None
+
+
+class FileImportExecutorBase:
+    """Base class for file improter classes.
+
+    Import is done in the context of a specific project with the storage information.
+    """
+
+    def __init__(self, project: Project):
+        self.project = project
+
+        self.options = self._build_options(project=self.project)
+        self.fs = self._build_fs(self.options)
+
+    def _build_options(self, project: Project) -> FileImportOptions:
+        app_settings = AppSettingAPI()
+        kwargs = {"app_name": "cases_import", "project": project}
+
+        path = app_settings.get(setting_name="import_data_path", **kwargs) or None
+        if not path:
+            path = "/"
+        elif path and not path.startswith("/"):
+            path = f"/{path}"
+        while path.endswith("/") and len(path) > 1:
+            path = path[:-1]
+
+        return FileImportOptions(
+            protocol=app_settings.get(setting_name="import_data_protocol", **kwargs),
+            host=app_settings.get(setting_name="import_data_host", **kwargs) or None,
+            path=path,
+            port=app_settings.get(setting_name="import_data_port", **kwargs) or None,
+            user=app_settings.get(setting_name="import_data_user", **kwargs) or None,
+            password=app_settings.get(setting_name="import_data_password", **kwargs) or None,
+        )
+
+    def _build_fs(self, options: FileImportOptions) -> fsspec.AbstractFileSystem:
+        """Create new ``fsspec`` file system with the configuration in ``project``."""
+
+        if options.protocol == "file":
+            if not settings.VARFISH_CASE_IMPORT_ALLOW_FILE:
+                raise ValueError(  # pragma: no cover
+                    "file protocol must be enabled with VARFISH_CASE_IMPORT_ALLOW_FILE"
+                )
+            return fsspec.filesystem("file")
+        elif options.protocol in ("http", "https"):
+            return fsspec.filesystem(
+                options.protocol,
+                host=options.host,
+                port=int(options.port) if options.port else None,
+                username=options.user,
+                password=options.password,
+            )
+        elif options.protocol == "s3":
+            kwargs = {}
+            kwargs = {}
+            if options.user:
+                kwargs["key"] = options.user
+            if options.password:
+                kwargs["secret"] = options.password
+            if options.host:
+                port = f"{options.port}:" if options.port else ""
+                kwargs["client_kwargs"] = {"endpoint_url": f"https://{options.host}{port}"}
+            return fsspec.filesystem("s3", **kwargs)
+        else:
+            raise ValueError(f"invalid protocol {options.protocol}")
+
+    def _normalized_local_path(self, path: str) -> str:
+        """Check that the given local path does not try to escape out of the prefix."""
+        if self.protocol == "file" and settings.VARFISH_CASE_IMPORT_FILE_PREFIX:
+            tmp = os.path.join(settings.VARFISH_CASE_IMPORT_FILE_PREFIX, path)
+            tmp = os.path.normpath(tmp)
+            if not tmp.startswith(settings.VARFISH_CASE_IMPORT_FILE_PREFIX):
+                raise ValueError("path is not within forced prefix")
+            return tmp
+        else:
+            return path
+
+
+class DragenQcImportExecutor(FileImportExecutorBase):
+    """Helper class for importing Dragen-style QC from external files in a case."""
+
+    def __init__(self, case: Case):
+        super().__init__(case.project)
+        self.case = case
+        #: Map the extended detailed type to the handler function.
+        self.handlers = {
+            "x-dragen-qc-cnv-metrics": self._import_dragen_qc_cnv_metrics,
+            "x-dragen-qc-fragment-length-hist": self._import_dragen_qc_fragment_length_hist,
+            "x-dragen-qc-mapping-metrics": self._import_dragen_qc_mapping_metrics,
+            "x-dragen-qc-ploidy-estimation-metrics": self._import_dragen_qc_ploidy_estimation_metrics,
+            "x-dragen-qc-roh-metrics": self._import_dragen_qc_roh_metrics,
+            "x-dragen-qc-sv-metrics": self._import_dragen_qc_sv_metrics,
+            "x-dragen-qc-time-metrics": self._import_dragen_qc_time_metrics,
+            "x-dragen-qc-trimmer-metrics": self._import_dragen_qc_trimmer_metrics,
+            "x-dragen-qc-vc-hethom-ratio-metrics": self._import_dragen_qc_vc_hethom_ratio_metrics,
+            "x-dragen-qc-vc-metrics": self._import_dragen_qc_vc_metrics,
+            "x-dragen-qc-wgs-contig-mean-cov": self._import_dragen_qc_wgs_contig_mean_cov,
+            "x-dragen-qc-wgs-coverage-metrics": self._import_dragen_qc_wgs_coverage_metrics,
+            "x-dragen-qc-wgs-fine-hist": self._import_dragen_qc_wgs_fine_hist,
+            "x-dragen-qc-wgs-hist": self._import_dragen_qc_wgs_hist,
+            "x-dragen-qc-wgs-overall-mean-cov": self._import_dragen_qc_wgs_overall_mean_cov,
+            "x-dragen-qc-region-coverage-metrics": self._import_dragen_qc_region_coverage_metrics,
+            "x-dragen-qc-region-coverage-fine-hist": self._import_dragen_qc_region_coverage_fine_hist,
+            "x-dragen-qc-region-coverage-hist": self._import_dragen_qc_region_coverage_hist,
+            "x-dragen-qc-region-coverage-overall-mean-cov": self._import_dragen_qc_region_coverage_overall_mean_cov,
+        }
+
+    def run(self):
+        caseqc = CaseQc.objects.create(case=self.case)
+        pedigree = self.case.pedigree_obj
+        for individual in pedigree.individual_set.all():
+            for external_file in IndividualExternalFile.objects.filter(individual=individual):
+                self._import_external_file(individual.name, external_file, caseqc)
+
+    def _import_external_file(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        """Import quality metrics from external file, if any.
+
+        To be loaded as QC info, the designation must be "quality_control" and the mimetype
+        must be "text/csv+{x_detailed_type}" where ``x_detailed_type`` must be one of the
+        known ones.
+        """
+        fa = external_file.file_attributes
+        if fa.get("designation") != "quality_control":
+            return  # can only handle QC data here
+
+        mimetype = str(fa.get("mimetype", ""))
+        if mimetype.count("+") != 1:
+            return  # no detailed type
+
+        base_mimetype, x_detailed_type = mimetype.split("+", 1)
+        if x_detailed_type not in self.handlers:
+            return  # no handler configured
+
+        if base_mimetype != "text/csv":
+            return  # only CSV supported
+
+        self.handlers[x_detailed_type](individual_name, external_file, caseqc)
+
+    def _import_dragen_qc_cnv_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_cnv_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_fragment_length_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_fragment_length_hist(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_mapping_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_mapping_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_ploidy_estimation_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_ploidy_estimation_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_roh_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_roh_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_sv_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_sv_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_time_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_time_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_trimmer_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_trimmer_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_vc_hethom_ratio_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_vc_hethom_ratio_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_vc_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_vc_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_contig_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_contig_mean_cov(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_coverage_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_coverage_metrics(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_fine_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_fine_hist(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_hist(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_overall_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_overall_mean_cov(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_coverage_metrics(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_fine_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_fine_hist(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_hist(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_overall_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_overall_mean_cov(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+
 class CaseImportBackgroundJobExecutor:
     """Implementation of ``CaseImportBackgroundJob`` execution."""
 
@@ -301,6 +674,8 @@ class CaseImportBackgroundJobExecutor:
             self._clear_files(case)
         # Create the external files entries.
         self._create_external_files(case, family)
+        # Import the quality control files.
+        self._run_qc_file_import(case)
         # Actually perform the seqvars annotation with mehari.
         self._run_seqvars_annotation(case)
         # Actually perform the strucvars annotation with mehari.
@@ -566,6 +941,16 @@ class CaseImportBackgroundJobExecutor:
                     for key, value in file_.individual_to_file_identifiers.items()
                 },
             )
+
+    def _run_qc_file_import(self, case: Case):
+        """Import QC reports from the external files that are registered for ``case`` already."""
+        self.caseimportbackgroundjob.add_log_entry("running qc file import...")
+
+        # perform import of Dragen-style QC files
+        dragen_importer = DragenQcImportExecutor(case)
+        dragen_importer.run()
+
+        self.caseimportbackgroundjob.add_log_entry("... done with qc file import")
 
     def _run_seqvars_annotation(self, case: Case):
         self.caseimportbackgroundjob.add_log_entry("seqvars annotation not implemented yet")

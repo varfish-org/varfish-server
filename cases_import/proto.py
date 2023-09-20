@@ -102,6 +102,8 @@ class FileDesignation(enum.Enum):
     READ_ALIGNMENTS = "read_alignments"
     #: Variant calling file.
     VARIANT_CALLS = "variant_calls"
+    #: Quality control file.
+    QUALITY_CONTROL = "quality_control"
     #: Other file.
     OTHER = "other"
 
