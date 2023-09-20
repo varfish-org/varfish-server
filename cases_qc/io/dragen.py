@@ -33,19 +33,23 @@ def load_metrics_generic(
     caseqc: models.CaseQc,
     model: typing.Type,
     region_name: str | None = None,
+    fieldnames: typing.Iterable[str] | None = None,
 ):
-    fieldnames = ("section", "entry", "name", "value", "value_float")
+    if fieldnames is None:
+        fieldnames = ("section", "entry", "name", "value", "value_float")
+    if any(k not in fieldnames for k in ("entry", "value")):
+        raise ValueError(f"fieldnames must contain at least {fieldnames}")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
 
     metrics = []
     for record in reader:
         metrics.append(
             models.DragenStyleMetric(
-                section=record["section"],
+                section=record.get("section"),
                 entry=try_cast(record["entry"], (str, None)),
-                name=record["name"],
+                name=record.get("name"),
                 value=try_cast(record["value"], (int, float, str, None)),
-                value_float=try_cast(record["value_float"], (float, None)),
+                value_float=try_cast(record.get("value_float", ""), (float, None)),
             )
         )
 
@@ -115,7 +119,9 @@ def load_fine_hist_generic(
 def load_wgs_fine_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.DragenWgsFineHist:
-    return load_fine_hist_generic(sample=sample, input_file=input_file, caseqc=caseqc)
+    return load_fine_hist_generic(
+        sample=sample, input_file=input_file, caseqc=caseqc, model=models.DragenWgsFineHist
+    )
 
 
 def load_vc_hethom_ratio_metrics(
@@ -264,7 +270,7 @@ def load_wgs_coverage_metrics(
 
 def load_wgs_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsHistMetrics:
+) -> models.DragenWgsHist:
     """Load WGS histogram metrics from ``input_file`` into ``caseqc``."""
     fieldnames = ("key", "value")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -275,7 +281,7 @@ def load_wgs_hist(
         keys.append(record["key"])
         values.append(float(record["value"]))
 
-    return models.DragenWgsHistMetrics.objects.create(
+    return models.DragenWgsHist.objects.create(
         caseqc=caseqc,
         sample=sample,
         keys=keys,
@@ -285,13 +291,13 @@ def load_wgs_hist(
 
 def load_wgs_overall_mean_cov(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsHistMetrics:
+) -> models.DragenWgsOverallMeanCov:
     """Load overall mean coverage metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.DragenWgsHistMetrics,
+        model=models.DragenWgsOverallMeanCov,
     )
 
 
@@ -331,6 +337,7 @@ def load_region_hist(
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenRegionHist,
+        fieldnames=("entry", "value"),
     )
 
 

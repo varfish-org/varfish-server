@@ -2,7 +2,6 @@ import datetime
 
 import factory
 import factory.fuzzy
-import yaml
 
 from cases.tests.factories import CaseFactory
 from cases_qc.models import (
@@ -11,17 +10,23 @@ from cases_qc.models import (
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
     DragenPloidyEstimationMetrics,
+    DragenRegionCoverageMetrics,
+    DragenRegionFineHist,
+    DragenRegionHist,
+    DragenRegionOverallMeanCov,
     DragenRohMetrics,
     DragenStyleCoverage,
     DragenStyleMetric,
     DragenSvMetrics,
     DragenTimeMetrics,
     DragenTrimmerMetrics,
+    DragenVcHethomRatioMetrics,
+    DragenVcMetrics,
     DragenWgsContigMeanCovMetrics,
     DragenWgsCoverageMetrics,
     DragenWgsFineHist,
-    DragenWgsHistMetrics,
-    SeqvarMetrics,
+    DragenWgsHist,
+    DragenWgsOverallMeanCov,
 )
 
 
@@ -46,7 +51,7 @@ class DragenStyleCoverageFactory(factory.Factory):
     cov = factory.fuzzy.FuzzyFloat(0.0, 60.0)
 
 
-class CaseQcFactory(factory.django.DjangoModelFactory):
+class DragenCaseQcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CaseQc
 
@@ -57,25 +62,7 @@ class CaseQcFactory(factory.django.DjangoModelFactory):
     case = factory.SubFactory(CaseFactory)
 
 
-class FragmentLengthHistogramFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = DragenFragmentLengthHistogram
-
-    sodar_uuid = factory.Faker("uuid4")
-    date_created = factory.LazyFunction(datetime.datetime.now)
-    date_modified = factory.LazyFunction(datetime.datetime.now)
-
-    caseqc = factory.SubFactory(CaseQcFactory)
-
-    @factory.lazy_attribute
-    def sample(self):
-        return self.caseqc.case.pedigree[0]["patient"]
-
-    keys = [37, 40, 41]
-    values = [1, 100, 101]
-
-
-class MetricsFactoryBase(factory.django.DjangoModelFactory):
+class DragenMetricsFactoryBase(factory.django.DjangoModelFactory):
     class Meta:
         abstract = True
 
@@ -83,7 +70,7 @@ class MetricsFactoryBase(factory.django.DjangoModelFactory):
     date_created = factory.LazyFunction(datetime.datetime.now)
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
-    caseqc = factory.SubFactory(CaseQcFactory)
+    caseqc = factory.SubFactory(DragenCaseQcFactory)
 
     @factory.lazy_attribute
     def sample(self):
@@ -94,52 +81,117 @@ class MetricsFactoryBase(factory.django.DjangoModelFactory):
         return [DragenStyleMetricFactory(sample=self.sample)]
 
 
-class CnvMetricsFactory(MetricsFactoryBase):
+class DragenFineHistFactoryBase(factory.django.DjangoModelFactory):
+    class Meta:
+        abstract = True
+
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    caseqc = factory.SubFactory(DragenCaseQcFactory)
+
+    @factory.lazy_attribute
+    def sample(self):
+        return self.caseqc.case.pedigree[0]["patient"]
+
+    keys = [37, 40, 41]
+    values = [1, 100, 101]
+
+
+class RegionMetricsFactoryBase(DragenMetricsFactoryBase):
+    class Meta:
+        abstract = True
+
+    region_name = factory.Faker("word")
+
+
+class DragenFragmentLengthHistogramFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DragenFragmentLengthHistogram
+
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    caseqc = factory.SubFactory(DragenCaseQcFactory)
+
+    @factory.lazy_attribute
+    def sample(self):
+        return self.caseqc.case.pedigree[0]["patient"]
+
+    keys = [37, 40, 41]
+    values = [1, 100, 101]
+
+
+class DragenCnvMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenCnvMetrics
 
 
-class MappingMetricsFactory(MetricsFactoryBase):
+class DragenMappingMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenMappingMetrics
 
 
-class PloidyEstimationMetricsFactory(MetricsFactoryBase):
+class DragenPloidyEstimationMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenPloidyEstimationMetrics
 
 
-class RohMetricsFactory(MetricsFactoryBase):
+class DragenRegionCoverageMetricsFactory(DragenMetricsFactoryBase):
+    class Meta:
+        model = DragenRegionCoverageMetrics
+
+
+class DragenRegionFineHistFactory(DragenFineHistFactoryBase):
+    class Meta:
+        model = DragenRegionFineHist
+
+    region_name = factory.Faker("word")
+
+
+class DragenRegionHistFactory(DragenMetricsFactoryBase):
+    class Meta:
+        model = DragenRegionHist
+
+
+class DragenRegionOverallMeanCovFactory(DragenMetricsFactoryBase):
+    class Meta:
+        model = DragenRegionOverallMeanCov
+
+
+class DragenRohMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenRohMetrics
 
 
-class SeqvarMetricsFactory(MetricsFactoryBase):
+class DragenVcMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
-        model = SeqvarMetrics
+        model = DragenVcMetrics
 
 
-class StrucvarMetricsFactory(MetricsFactoryBase):
+class StrucvarMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenSvMetrics
 
 
-class TimeMetricsFactory(MetricsFactoryBase):
+class DragenTimeMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenTimeMetrics
 
 
-class TrimmerMetricsFactory(MetricsFactoryBase):
+class DragenTrimmerMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenTrimmerMetrics
 
 
-class WgsCoverageMetricsFactory(MetricsFactoryBase):
+class DragenVcHethomRatioMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
-        model = DragenWgsCoverageMetrics
+        model = DragenVcHethomRatioMetrics
 
 
-class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
+class DragenWgsContigMeanCovMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenWgsContigMeanCovMetrics
 
@@ -152,24 +204,37 @@ class WgsContigMeanCovMetricsFactory(MetricsFactoryBase):
         return [DragenStyleCoverageFactory(sample=self.sample)]
 
 
-class WgsHistMetricsFactory(MetricsFactoryBase):
+class DragenWgsCoverageMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
-        model = DragenWgsHistMetrics
+        model = DragenWgsCoverageMetrics
 
 
-class WgsFineHistFactory(factory.django.DjangoModelFactory):
+class DragenWgsFineHistFactory(DragenFineHistFactoryBase):
     class Meta:
         model = DragenWgsFineHist
+
+
+class DragenWgsHistFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DragenWgsHist
 
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
-    caseqc = factory.SubFactory(CaseQcFactory)
+    caseqc = factory.SubFactory(DragenCaseQcFactory)
 
     @factory.lazy_attribute
     def sample(self):
         return self.caseqc.case.pedigree[0]["patient"]
 
-    keys = [37, 40, 41]
-    values = [1, 100, 101]
+    keys = [
+        "PCT of bases in wgs with coverage [100x:inf)",
+        "PCT of bases in wgs with coverage [50x:100x)",
+    ]
+    values = [0.21, 26.83]
+
+
+class DragenWgsOverallMeanCovFactory(DragenMetricsFactoryBase):
+    class Meta:
+        model = DragenWgsOverallMeanCov

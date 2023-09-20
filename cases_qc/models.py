@@ -17,11 +17,11 @@ class DragenStyleMetric(pydantic.BaseModel):
     """Pydantic model for Dragen-style quality control metric entries"""
 
     #: The section of the value
-    section: str
+    section: str | None
     #: The "entry" in the section can be empty or the read group / sample
     entry: str | None
     #: The name of the metric
-    name: str
+    name: str | None
     #: The count / ratio / time / etc. value
     value: int | float | str | None
     #: The count as percentage / seconds
@@ -120,10 +120,6 @@ class DragenCnvMetrics(DragenBaseMetrics):
     """CNV metrics for one sample in a case"""
 
 
-class DragenVcHethomRatioMetrics(DragenBaseMetrics):
-    """Per-contig het./hom. metrics for one sample in the case"""
-
-
 class DragenFragmentLengthHistogram(DragenBaseHistogram):
     """Histogram of fragment lengths for one sample in a case."""
 
@@ -138,6 +134,10 @@ class DragenPloidyEstimationMetrics(DragenBaseMetrics):
 
 class DragenRohMetrics(DragenBaseMetrics):
     """ROH metrics for one sample in the case"""
+
+
+class DragenVcHethomRatioMetrics(DragenBaseMetrics):
+    """Per-contig het./hom. metrics for one sample in the case"""
 
 
 class DragenVcMetrics(DragenBaseMetrics):
@@ -175,7 +175,7 @@ class DragenWgsFineHist(DragenBaseHistogram):
     """Fine histogram of WGS coverage for one sample in the case"""
 
 
-class DragenWgsHistMetrics(CaseQcBaseModel):
+class DragenWgsHist(CaseQcBaseModel):
     """WGS coarse coverage metrics for one sample in the case"""
 
     #: The histogram keys
