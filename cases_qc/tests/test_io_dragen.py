@@ -24,8 +24,8 @@ from cases_qc.models import (
     DragenWgsHist,
     DragenWgsOverallMeanCov,
 )
-from cases_qc.tests.helpers import extract_from_dict
 from cases_qc.tests.factories import CaseQcFactory
+from cases_qc.tests.helpers import extract_from_dict
 
 
 @freeze_time("2012-01-14 12:00:01")

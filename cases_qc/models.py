@@ -283,7 +283,7 @@ class BcftoolsStatsQualRecord(pydantic.BaseModel):
     """A Record from the ``QUAL`` (quality) lines in ``bcftools stats`` output."""
 
     #: quality
-    qual: float
+    qual: float | None
     #: number of SNPs
     snps: int
     #: number of transitions (1st ALT)
@@ -398,7 +398,7 @@ class SamtoolsStatsBasePercentagesRecord(pydantic.BaseModel):
     #: cycle
     cycle: int
     #: fraction of A, C, G, T
-    percentages: [float]
+    percentages: list[float]
 
 
 class SamtoolsStatsIsRecord(pydantic.BaseModel):
@@ -495,7 +495,7 @@ class SamtoolsStatsMainMetrics(CaseQcBaseModel):
     #: last fragment read lengths
     lrl = SchemaField(schema=list[SamtoolsStatsHistoRecord], blank=False, null=False)
     #: indel distribution
-    id = SchemaField(schema=list[SamtoolsStatsIdRecord], blank=False, null=False)
+    idd = SchemaField(schema=list[SamtoolsStatsIdRecord], blank=False, null=False)
     #: first fragment qualities for each cycle
     ffq = SchemaField(schema=list[SamtoolsStatsFqRecord], blank=False, null=False)
     #: last fragment qualities for each cycle
@@ -570,9 +570,9 @@ class SamtoolsFlagstatMetrics(CaseQcBaseModel):
     """Metrics for ``samtools flagstat`` output."""
 
     #: statistics for QC pass records
-    qc_pass = SchemaField(schema=list[SamtoolsFlagstatRecord], blank=False, null=False)
+    qc_pass = SchemaField(schema=SamtoolsFlagstatRecord, blank=False, null=False)
     #: statistics for QC fail records
-    qc_fail = SchemaField(schema=list[SamtoolsFlagstatRecord], blank=False, null=False)
+    qc_fail = SchemaField(schema=SamtoolsFlagstatRecord, blank=False, null=False)
 
 
 class SamtoolsIdxstatsRecord(pydantic.BaseModel):

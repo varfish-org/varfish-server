@@ -81,7 +81,7 @@ class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
     def test_load(self):
         self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 0)
         self.assertEqual(SamtoolsStatsSupplementaryMetrics.objects.count(), 0)
-        with open("cases_qc/tests/data/sample.samtools-flagstats.txt") as inputf:
+        with open("cases_qc/tests/data/sample.samtools-stats.txt") as inputf:
             io_samtools.load_samtools_stats(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
 
         self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 1)

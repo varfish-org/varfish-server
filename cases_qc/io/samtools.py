@@ -6,7 +6,6 @@ This includes support for bcftools stats files as well.
 import csv
 import typing
 
-
 from cases_qc import models
 from cases_qc.io.dragen import try_cast
 
@@ -20,8 +19,10 @@ class ParserRunMixin:
             if record[0].startswith("#"):
                 continue  # skip comment
 
+            if len(record) < 2:
+                raise ValueError(f"record {record} has less than 2 fields")
             if record[1] != "0":
-                raise ValueError("currently, only single-set (ID=0) files can be loaded")
+                raise ValueError("currently, only single-set (ID=0) files can be loaded, id is {record[1]}")
             token = record[0].lower()
             if hasattr(self, f"_handle_{token}"):
                 getattr(self, f"_handle_{token}")(record)
@@ -101,7 +102,7 @@ class BcftoolsStatsParser(ParserRunMixin):
         """Handle parsing of ``QUAL`` lines."""
         self.qual.append(
             models.BcftoolsStatsQualRecord(
-                qual=float(record[2]),
+                qual=try_cast(record[2], (float, None)),
                 snps=int(record[3]),
                 ts=int(record[4]),
                 tv=int(record[5]),
@@ -116,7 +117,7 @@ class BcftoolsStatsParser(ParserRunMixin):
                 length=int(record[2]),
                 sites=int(record[3]),
                 gts=int(record[4]),
-                mean_vaf=try_cast(record[5], (float,)),
+                mean_vaf=try_cast(record[5], (float, None)),
             )
         )
 
@@ -456,7 +457,7 @@ def load_samtools_stats(
         gcd=parser.gcd,
         frl=parser.frl,
         lrl=parser.lrl,
-        id=parser.id,
+        idd=parser.idd,
         ffq=parser.ffq,
         lfq=parser.lfq,
         fbc=parser.fbc,

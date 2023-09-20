@@ -35,8 +35,8 @@ from cases_qc.models import (
     SamtoolsStatsBasePercentagesRecord,
     SamtoolsStatsChkRecord,
     SamtoolsStatsFqRecord,
-    SamtoolsStatsGcRecord,
     SamtoolsStatsGcdRecord,
+    SamtoolsStatsGcRecord,
     SamtoolsStatsHistoRecord,
     SamtoolsStatsIcRecord,
     SamtoolsStatsIdRecord,
@@ -285,7 +285,7 @@ class SamtoolsStatsGcRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcRecord
 
-    gc_content = factory.Sequence(lambda n: 1 / n)
+    gc_content = factory.Sequence(lambda n: 0.1 * n)
     count = factory.Sequence(lambda n: n)
 
 
@@ -340,13 +340,13 @@ class SamtoolsStatsGcdRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcdRecord
 
-    gc_content = factory.Sequence(lambda n: 1 / n)
-    unique_seq_percentiles = factory.Sequence(lambda n: 1 / n)
-    dp_percentile_10 = factory.Sequence(lambda n: 1 / n)
-    dp_percentile_25 = factory.Sequence(lambda n: 1 / n)
-    dp_percentile_50 = factory.Sequence(lambda n: 1 / n)
-    dp_percentile_75 = factory.Sequence(lambda n: 1 / n)
-    dp_percentile_90 = factory.Sequence(lambda n: 1 / n)
+    gc_content = factory.Sequence(lambda n: 0.1 * n)
+    unique_seq_percentiles = factory.Sequence(lambda n: 0.1 * n)
+    dp_percentile_10 = factory.Sequence(lambda n: 0.1 * n)
+    dp_percentile_25 = factory.Sequence(lambda n: 0.1 * n)
+    dp_percentile_50 = factory.Sequence(lambda n: 0.1 * n)
+    dp_percentile_75 = factory.Sequence(lambda n: 0.1 * n)
+    dp_percentile_90 = factory.Sequence(lambda n: 0.1 * n)
 
 
 class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
@@ -370,7 +370,7 @@ class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
     gcd = factory.LazyAttribute(lambda _o: SamtoolsStatsGcdRecordFactory())
     frl = factory.LazyAttribute(lambda _o: SamtoolsStatsHistoRecordFactory())
     lrl = factory.LazyAttribute(lambda _o: SamtoolsStatsHistoRecordFactory())
-    id = factory.LazyAttribute(lambda _o: SamtoolsStatsIdRecordFactory())
+    idd = factory.LazyAttribute(lambda _o: SamtoolsStatsIdRecordFactory())
     ffq = factory.LazyAttribute(lambda _o: SamtoolsStatsFqRecordFactory())
     lfq = factory.LazyAttribute(lambda _o: SamtoolsStatsFqRecordFactory())
     fbc = factory.LazyAttribute(lambda _o: SamtoolsStatsBasePercentagesRecordFactory())
@@ -444,7 +444,7 @@ class SamtoolsIdxstatsRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsIdxstatsRecord
 
-    contig_name = factory.Fake("word")
+    contig_name = factory.Faker("word")
     contig_len = factory.Sequence(lambda n: n)
     mapped = factory.Sequence(lambda n: n)
     unmapped = factory.Sequence(lambda n: n)
