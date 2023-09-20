@@ -212,17 +212,16 @@ class DragenRegionOverallMeanCov(DragenRegionMixin, DragenBaseMetrics):
     """Region based overall coverage."""
 
 
-
 class BcftoolsStatsSnRecord(pydantic.BaseModel):
     """A Record from the ``SN`` lines in ``bcftools stats`` output."""
 
     #: Name of the summarized metric
     key: str
     #: Value of the summarized metric
-    value: int
+    value: int | float | str | None
 
 
-class BcfToolsStatsTstvRecord(pydantic.BaseModel):
+class BcftoolsStatsTstvRecord(pydantic.BaseModel):
     """A Record from the ``TSTV`` lines in ``bcftools stats`` output."""
 
     #: ts
@@ -239,7 +238,7 @@ class BcfToolsStatsTstvRecord(pydantic.BaseModel):
     tstv_1st_alt: float
 
 
-class BcfToolsStatsSisRecord(pydantic.BaseModel):
+class BcftoolsStatsSisRecord(pydantic.BaseModel):
     """A Record from the ``SiS`` (singleton stats) lines in ``bcftools stats`` output."""
 
     #: allele count
@@ -258,7 +257,7 @@ class BcfToolsStatsSisRecord(pydantic.BaseModel):
     repeat_inconsistent: int
 
 
-class BcfToolsStatsAfRecord(pydantic.BaseModel):
+class BcftoolsStatsAfRecord(pydantic.BaseModel):
     """A Record from the ``AF`` (non-reference allele frequency) lines in ``bcftools stats``
     output."""
 
@@ -276,8 +275,11 @@ class BcfToolsStatsAfRecord(pydantic.BaseModel):
     repeat_consistent: int
     #: repeat-inconsistent
     repeat_inconsistent: int
+    #: not applicable
+    na: int
 
-class BcfToolsStatsQualRecord(pydantic.BaseModel):
+
+class BcftoolsStatsQualRecord(pydantic.BaseModel):
     """A Record from the ``QUAL`` (quality) lines in ``bcftools stats`` output."""
 
     #: quality
@@ -304,7 +306,8 @@ class BcfToolsStatsIddRecord(pydantic.BaseModel):
     #: mean VAF
     mean_vaf: float | None
 
-class BcfToolsStatsStRecord(pydantic.BaseModel):
+
+class BcftoolsStatsStRecord(pydantic.BaseModel):
     """A Record from the ``ST`` (substitution types) lines in ``bcftools stats`` output."""
 
     #: type of the substitution
@@ -313,7 +316,7 @@ class BcfToolsStatsStRecord(pydantic.BaseModel):
     count: int
 
 
-class BcfToolsStatsDpRecord(pydantic.BaseModel):
+class BcftoolsStatsDpRecord(pydantic.BaseModel):
     """A Record from the ``DP`` (AF) lines in ``bcftools stats`` output."""
 
     #: bin number
@@ -334,19 +337,31 @@ class BcftoolsStatsMetrics(CaseQcBaseModel):
     #: summary (``SN`` records)
     sn = SchemaField(schema=list[BcftoolsStatsSnRecord], blank=False, null=False)
     #: transition / transversion ratios (``TSTV`` records)
-    tstv = SchemaField(schema=list[BcfToolsStatsTstvRecord], blank=False, null=False)
+    tstv = SchemaField(schema=list[BcftoolsStatsTstvRecord], blank=False, null=False)
     #: singleton stats (``SiS`` records)
-    sis = SchemaField(schema=list[BcfToolsStatsSisRecord], blank=False, null=False)
+    sis = SchemaField(schema=list[BcftoolsStatsSisRecord], blank=False, null=False)
     #: non-reference allele frequency (``AF`` records)
-    af = SchemaField(schema=list[BcfToolsStatsAfRecord], blank=False, null=False)
+    af = SchemaField(schema=list[BcftoolsStatsAfRecord], blank=False, null=False)
     #: quality (``QUAL`` records)
-    qual = SchemaField(schema=list[BcfToolsStatsQualRecord], blank=False, null=False)
+    qual = SchemaField(schema=list[BcftoolsStatsQualRecord], blank=False, null=False)
     #: indel distribution
     idd = SchemaField(schema=list[BcfToolsStatsIddRecord], blank=False, null=False)
     #: substitution types
-    st = SchemaField(schema=list[BcfToolsStatsStRecord], blank=False, null=False)
+    st = SchemaField(schema=list[BcftoolsStatsStRecord], blank=False, null=False)
     #: depth distribution
-    dp = SchemaField(schema=list[BcfToolsStatsDpRecord], blank=False, null=False)
+    dp = SchemaField(schema=list[BcftoolsStatsDpRecord], blank=False, null=False)
+
+
+
+class SamtoolsStatsChkRecord(pydantic.BaseModel):
+    """A Record from the ``CHK`` lines in ``samtools stats`` output."""
+
+    #: read names CRC32
+    read_names_crc32: str
+    #: sequences CRC32
+    sequences_crc32: str
+    #: qualities CRC32
+    qualities_crc32: str
 
 
 class SamtoolsStatsSnRecord(pydantic.BaseModel):
@@ -414,17 +429,18 @@ class SamtoolsStatsHistoRecord(pydantic.BaseModel):
     count: int
 
 
-class SamtoolsStatsIddRecord(pydantic.BaseModel):
-    """A record for the ``IDD`` lines in ``samtools stats`` output."""
+class SamtoolsStatsIdRecord(pydantic.BaseModel):
+    """A record for the ``ID`` lines in ``samtools stats`` output."""
 
-    #: cycle
-    cycle: int
+    #: length
+    length: int
     #: number of insertions
     ins: int
     #: number of deletions
     dels: int
 
-class SamtoolsStatsIddRecord(pydantic.BaseModel):
+
+class SamtoolsStatsIcRecord(pydantic.BaseModel):
     """A record for the ``IC`` lines in ``samtools stats`` output."""
 
     #: cycle
@@ -458,13 +474,17 @@ class SamtoolsStatsGcdRecord(pydantic.BaseModel):
     dp_percentile_90: float
 
 
-class SamtoolsIdxstatsMainMetrics(CaseQcBaseModel):
+class SamtoolsStatsMainMetrics(CaseQcBaseModel):
     """Metrics for the most relevant metrics from ``samtools stats`` records.
 
     This is split between two models so the supplementary data can loaded only when
     necessary.  This split was done with visualization in VarFish in mind.
     """
 
+    #: summary information
+    sn = SchemaField(schema=list[SamtoolsStatsSnRecord], blank=False, null=False)
+    #: checksum information
+    chk = SchemaField(schema=list[SamtoolsStatsChkRecord], blank=False, null=False)
     #: insert size statistics
     isize = SchemaField(schema=list[SamtoolsStatsIsRecord], blank=False, null=False)
     #: coverage distribution
@@ -476,7 +496,7 @@ class SamtoolsIdxstatsMainMetrics(CaseQcBaseModel):
     #: last fragment read lengths
     lrl = SchemaField(schema=list[SamtoolsStatsHistoRecord], blank=False, null=False)
     #: indel distribution
-    idd = SchemaField(schema=list[SamtoolsStatsIddRecord], blank=False, null=False)
+    id = SchemaField(schema=list[SamtoolsStatsIdRecord], blank=False, null=False)
     #: first fragment qualities for each cycle
     ffq = SchemaField(schema=list[SamtoolsStatsFqRecord], blank=False, null=False)
     #: last fragment qualities for each cycle
@@ -487,7 +507,7 @@ class SamtoolsIdxstatsMainMetrics(CaseQcBaseModel):
     lbc = SchemaField(schema=list[SamtoolsStatsBasePercentagesRecord], blank=False, null=False)
 
 
-class SamtoolsIdxstatsSupplementaryMetrics(CaseQcBaseModel):
+class SamtoolsStatsSupplementaryMetrics(CaseQcBaseModel):
     """Metrics for some "supplementary" metrics from ``samtools stats`` records.
 
     This is split between two models so the supplementary data can loaded only when
@@ -510,46 +530,45 @@ class SamtoolsIdxstatsSupplementaryMetrics(CaseQcBaseModel):
     ic = SchemaField(schema=list[SamtoolsStatsIddRecord], blank=False, null=False)
 
 
-
 class SamtoolsFlagstatRecord(pydantic.BaseModel):
     """A record for the ``flagstat`` lines in ``samtools stats`` output."""
 
     #: total (QC-passed reads + QC-failed reads)
-    total: int
+    total: int = 0
     #: primary
-    primary: int
+    primary: int = 0
     #: secondary
-    secondary: int
+    secondary: int = 0
     #: supplementary
-    supplementary: int
+    supplementary: int = 0
     #: duplicates
-    duplicates: int
+    duplicates: int = 0
     #: primary duplicates
-    duplicates_primary: int
+    duplicates_primary: int = 0
     #: mapped
-    mapped: int
+    mapped: int = 0
     #: primary mapped
-    mapped_primary: int
+    mapped_primary: int = 0
     #: paired in sequencing
-    paired: int
+    paired: int = 0
     #: read1
-    fragment_first: int
+    fragment_first: int = 0
     #: read2
-    fragment_last: int
+    fragment_last: int = 0
     #: properly paired (98.51% : N/A)
-    properly_paired: int
+    properly_paired: int = 0
     #: with itself and mate mapped
-    with_itself_and_mate_mapped: int
+    with_itself_and_mate_mapped: int = 0
     #: singletons (0.10% : N/A)
-    singletons: int
+    singletons: int = 0
     #: with mate mapped to a different chr
-    with_mate_mapped_to_different_chr: int
+    with_mate_mapped_to_different_chr: int = 0
     #: with mate mapped to a different chr (mapQ>=5)
-    with_mate_mapped_to_different_chr_mapq5: int
+    with_mate_mapped_to_different_chr_mapq5: int = 0
 
 
-class SamtoolsIdxstatsMetrics(CaseQcBaseModel):
-    """Metrics for ``samtools idxstats`` output."""
+class SamtoolsFlagstatMetrics(CaseQcBaseModel):
+    """Metrics for ``samtools flagstat`` output."""
 
     #: statistics for QC pass records
     qc_pass = SchemaField(schema=list[SamtoolsFlagstatRecord], blank=False, null=False)

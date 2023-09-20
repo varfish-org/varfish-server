@@ -9,7 +9,7 @@ from cases_qc import models
 def try_cast(
     value: str,
     types: typing.Iterable[typing.Type],
-    none_values: typing.Iterable[typing.Any] = (None, "", "NA", "inf"),
+    none_values: typing.Iterable[typing.Any] = (None, "", "NA", ".", "inf"),
 ) -> typing.Union[str, int, float, None]:
     if value in none_values and None in types:
         return None
