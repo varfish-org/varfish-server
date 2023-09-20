@@ -25,7 +25,7 @@ from cases_qc.models import (
     DragenWgsOverallMeanCov,
 )
 from cases_qc.tests.factories import (
-    DragenCaseQcFactory,
+    CaseQcFactory,
     DragenCnvMetricsFactory,
     DragenFragmentLengthHistogramFactory,
     DragenMappingMetricsFactory,
@@ -69,7 +69,7 @@ class DragenCaseQcTest(TestCase):
     def test_create(self):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
-        _obj = DragenCaseQcFactory()
+        _obj = CaseQcFactory()
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
 

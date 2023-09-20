@@ -324,7 +324,9 @@ class SamtoolsStatsParser(ParserRunMixin):
             )
         )
 
-    def _handle_base_percentage_record(self, lst: list[models.SamtoolsStatsBasePercentagesRecord], record: list[str]):
+    def _handle_base_percentage_record(
+        self, lst: list[models.SamtoolsStatsBasePercentagesRecord], record: list[str]
+    ):
         """Generic handler for GCC, GCT, FBC, LBC lines."""
         lst.append(
             models.SamtoolsStatsBasePercentagesRecord(
@@ -364,7 +366,13 @@ class SamtoolsStatsParser(ParserRunMixin):
             )
         )
 
-    def _handle_histo_record(self, lst: list[models.SamtoolsStatsHistoRecord], record: list[str], idx_value: int =1 , idx_count: int = 2):
+    def _handle_histo_record(
+        self,
+        lst: list[models.SamtoolsStatsHistoRecord],
+        record: list[str],
+        idx_value: int = 1,
+        idx_count: int = 2,
+    ):
         """Generic handler for RL, COV, GCD, FRL, LRL, MAPQ lines."""
         lst.append(
             models.SamtoolsStatsHistoRecord(

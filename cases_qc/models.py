@@ -352,7 +352,6 @@ class BcftoolsStatsMetrics(CaseQcBaseModel):
     dp = SchemaField(schema=list[BcftoolsStatsDpRecord], blank=False, null=False)
 
 
-
 class SamtoolsStatsChkRecord(pydantic.BaseModel):
     """A Record from the ``CHK`` lines in ``samtools stats`` output."""
 
@@ -387,8 +386,8 @@ class SamtoolsStatsGcRecord(pydantic.BaseModel):
 
     #: GC content
     gc_content: float
-    #: counts
-    counts: int
+    #: count
+    count: int
 
 
 class SamtoolsStatsBasePercentagesRecord(pydantic.BaseModel):
@@ -527,7 +526,7 @@ class SamtoolsStatsSupplementaryMetrics(CaseQcBaseModel):
     #: mapping qualities
     mapq = SchemaField(schema=list[SamtoolsStatsHistoRecord], blank=False, null=False)
     #: indel distribution (per cycle)
-    ic = SchemaField(schema=list[SamtoolsStatsIddRecord], blank=False, null=False)
+    ic = SchemaField(schema=list[SamtoolsStatsIdRecord], blank=False, null=False)
 
 
 class SamtoolsFlagstatRecord(pydantic.BaseModel):

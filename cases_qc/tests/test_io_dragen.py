@@ -1,5 +1,3 @@
-import typing
-
 from freezegun import freeze_time
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
@@ -26,16 +24,12 @@ from cases_qc.models import (
     DragenWgsHist,
     DragenWgsOverallMeanCov,
 )
-from cases_qc.tests.factories import DragenCaseQcFactory
-
-
-def extract_from_dict(vals: typing.Any, keys: typing.Iterable[str]) -> dict[str, typing.Any]:
-    """Helper to extract certain values from the dictionary."""
-    return {key: value for key, value in vars(vals).items() if key in keys}
+from cases_qc.tests.helpers import extract_from_dict
+from cases_qc.tests.factories import CaseQcFactory
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenTryCastTest(TestCaseSnapshot, TestCase):
+class TryCastTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -58,7 +52,7 @@ class DragenLoadCnvMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenCnvMetrics.objects.count(), 0)
@@ -77,7 +71,7 @@ class DragenLoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenVcHethomRatioMetrics.objects.count(), 0)
@@ -98,7 +92,7 @@ class DragenLoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenFragmentLengthHistogram.objects.count(), 0)
@@ -119,7 +113,7 @@ class DragenMappingMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenMappingMetrics.objects.count(), 0)
@@ -138,7 +132,7 @@ class DragenPloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenPloidyEstimationMetrics.objects.count(), 0)
@@ -159,7 +153,7 @@ class DragenRohMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenRohMetrics.objects.count(), 0)
@@ -178,7 +172,7 @@ class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenVcMetrics.objects.count(), 0)
@@ -197,7 +191,7 @@ class DragenSvMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenSvMetrics.objects.count(), 0)
@@ -216,7 +210,7 @@ class DragenTimeMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenTimeMetrics.objects.count(), 0)
@@ -235,7 +229,7 @@ class DragenTrimmerMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenTrimmerMetrics.objects.count(), 0)
@@ -254,7 +248,7 @@ class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenVcMetrics.objects.count(), 0)
@@ -273,7 +267,7 @@ class DragenWgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenWgsContigMeanCovMetrics.objects.count(), 0)
@@ -294,7 +288,7 @@ class DragenWgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenWgsCoverageMetrics.objects.count(), 0)
@@ -315,7 +309,7 @@ class DragenWgsFineHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenWgsFineHist.objects.count(), 0)
@@ -334,7 +328,7 @@ class DragenWgsHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenWgsHist.objects.count(), 0)
@@ -353,7 +347,7 @@ class DragenWgsOverallMeanCovTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 0)
@@ -374,7 +368,7 @@ class DragenRegionCoverageMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenRegionCoverageMetrics.objects.count(), 0)
@@ -395,7 +389,7 @@ class DragenRegionFineHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenRegionFineHist.objects.count(), 0)
@@ -416,7 +410,7 @@ class DragenRegionHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenRegionHist.objects.count(), 0)
@@ -437,7 +431,7 @@ class DragenRegionOverallMeanCovTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
-        self.caseqc = DragenCaseQcFactory()
+        self.caseqc = CaseQcFactory()
 
     def test_load(self):
         self.assertEqual(DragenRegionOverallMeanCov.objects.count(), 0)
