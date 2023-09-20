@@ -10,6 +10,10 @@ from cases_qc.models import (
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
     DragenPloidyEstimationMetrics,
+    DragenRegionCoverageMetrics,
+    DragenRegionFineHist,
+    DragenRegionHist,
+    DragenRegionOverallMeanCov,
     DragenRohMetrics,
     DragenSvMetrics,
     DragenTimeMetrics,
@@ -19,6 +23,7 @@ from cases_qc.models import (
     DragenWgsCoverageMetrics,
     DragenWgsFineHist,
     DragenWgsHistMetrics,
+    DragenWgsOverallMeanCov,
     SeqvarMetrics,
 )
 from cases_qc.tests.factories import CaseQcFactory
@@ -30,7 +35,7 @@ def extract_from_dict(vals: typing.Any, keys: typing.Iterable[str]) -> dict[str,
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TryCastTest(TestCaseSnapshot, TestCase):
+class DragenTryCastTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -49,7 +54,7 @@ class TryCastTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class LoadCnvMetricsTest(TestCaseSnapshot, TestCase):
+class DragenLoadCnvMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -68,7 +73,7 @@ class LoadCnvMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class LoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
+class DragenLoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -89,7 +94,7 @@ class LoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class LoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
+class DragenLoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -110,7 +115,7 @@ class LoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class MappingMetricsTest(TestCaseSnapshot, TestCase):
+class DragenMappingMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -129,7 +134,7 @@ class MappingMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class PloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
+class DragenPloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -150,7 +155,7 @@ class PloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class RohMetricsTest(TestCaseSnapshot, TestCase):
+class DragenRohMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -169,7 +174,7 @@ class RohMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class VcMetricsTest(TestCaseSnapshot, TestCase):
+class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -188,7 +193,7 @@ class VcMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class StrucvarMetricsTest(TestCaseSnapshot, TestCase):
+class DragenStrucvarMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -207,7 +212,7 @@ class StrucvarMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TimeMetricsTest(TestCaseSnapshot, TestCase):
+class DragenTimeMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -226,7 +231,7 @@ class TimeMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TrimmerMetricsTest(TestCaseSnapshot, TestCase):
+class DragenTrimmerMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -245,7 +250,7 @@ class TrimmerMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class VcMetricsTest(TestCaseSnapshot, TestCase):
+class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -264,7 +269,7 @@ class VcMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class WgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
+class DragenWgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -285,7 +290,7 @@ class WgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class WgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
+class DragenWgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -306,7 +311,7 @@ class WgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class WgsFineHistTest(TestCaseSnapshot, TestCase):
+class DragenWgsFineHistTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -325,7 +330,7 @@ class WgsFineHistTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class WgsHistMetricsTest(TestCaseSnapshot, TestCase):
+class DragenWgsHistMetricsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -341,3 +346,108 @@ class WgsHistMetricsTest(TestCaseSnapshot, TestCase):
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
         self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenWgsOverallMeanCovTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.wgs_overall_mean_cov.csv") as inputf:
+            io_dragen.load_wgs_overall_mean_cov(
+                sample="NA12878", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 1)
+        hist = DragenWgsOverallMeanCov.objects.first()
+
+        self.assertMatchSnapshot(list(vars(hist).keys()))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenRegionCoverageMetricsTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(DragenRegionCoverageMetrics.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.qc-coverage-region-3_coverage_metrics.csv") as inputf:
+            io_dragen.load_region_coverage_metrics(
+                sample="NA12878", region_name="region-3", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(DragenRegionCoverageMetrics.objects.count(), 1)
+        hist = DragenRegionCoverageMetrics.objects.first()
+
+        self.assertMatchSnapshot(list(vars(hist).keys()))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenRegionFineHistTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(DragenRegionFineHist.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.qc-coverage-region-3_fine_hist.csv") as inputf:
+            io_dragen.load_region_fine_hist(
+                sample="NA12878", region_name="region-3", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(DragenRegionFineHist.objects.count(), 1)
+        hist = DragenRegionFineHist.objects.first()
+
+        self.assertMatchSnapshot(list(vars(hist).keys()))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenRegionHistTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(DragenRegionHist.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.qc-coverage-region-3_hist.csv") as inputf:
+            io_dragen.load_region_hist(
+                sample="NA12878", region_name="region-3", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(DragenRegionHist.objects.count(), 1)
+        hist = DragenRegionHist.objects.first()
+
+        self.assertMatchSnapshot(list(vars(hist).keys()))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenRegionOverallMeanCovTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(DragenRegionOverallMeanCov.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.qc-coverage-region-3_overall_mean_cov.csv") as inputf:
+            io_dragen.load_region_overall_mean_cov(
+                sample="NA12878", region_name="region-3", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(DragenRegionOverallMeanCov.objects.count(), 1)
+        hist = DragenRegionOverallMeanCov.objects.first()
+
+        self.assertMatchSnapshot(list(vars(hist).keys()))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))

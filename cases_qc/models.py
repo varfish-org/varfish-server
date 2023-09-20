@@ -69,14 +69,8 @@ class CaseQc(models.Model):
         ordering = ["-date_created"]
 
 
-class DragenBaseHistogram(models.Model):
-    """Base model for Dragen-style histograms
-
-
-    The histogram is stored in a sparse fashion, storing values and their counts.  In the case of
-    more than ``MAX_ARRAY_LENGTH`` entries, the histogram must be truncated which is done in the
-    import code and which will truncate reading the lines.
-    """
+class CaseQcBaseModel(models.Model):
+    """Base class for statistics associated with ``CaseQc``."""
 
     #: Record UUID.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
@@ -89,6 +83,20 @@ class DragenBaseHistogram(models.Model):
     caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
     #: The sample this histogram belongs to
     sample = models.CharField(max_length=200, null=False, blank=False)
+
+    class Meta:
+        abstract = True
+
+
+class DragenBaseHistogram(CaseQcBaseModel):
+    """Base model for Dragen-style histograms
+
+
+    The histogram is stored in a sparse fashion, storing values and their counts.  In the case of
+    more than ``MAX_ARRAY_LENGTH`` entries, the histogram must be truncated which is done in the
+    import code and which will truncate reading the lines.
+    """
+
     #: The histogram keys
     keys = ArrayField(models.IntegerField(), null=False, blank=False, max_length=MAX_ARRAY_LENGTH)
     # The histogram values
@@ -98,20 +106,9 @@ class DragenBaseHistogram(models.Model):
         abstract = True
 
 
-class DragenBaseMetrics(models.Model):
+class DragenBaseMetrics(CaseQcBaseModel):
     """Abstract metrics model for one sample in a case"""
 
-    #: Record UUID.
-    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
-    #: DateTime of creation.
-    date_created = models.DateTimeField(auto_now_add=True)
-    #: DateTime of last modification.
-    date_modified = models.DateTimeField(auto_now=True)
-
-    #: The QC metric set this histogram belongs to
-    caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
-    #: The sample this histogram belongs to
-    sample = models.CharField(max_length=200, null=False, blank=False)
     #: Metrics as JSON following the ``DragenStyleMetric`` schema
     metrics = SchemaField(schema=list[DragenStyleMetric], blank=False, null=False)
 
@@ -163,38 +160,24 @@ class DragenWgsCoverageMetrics(DragenBaseMetrics):
     """WGS coverage summary metrics for one sample in the case"""
 
 
-class DragenWgsContigMeanCovMetrics(models.Model):
-    """Overall mean WGS coverage metrics for one sample in the case"""
+class DragenWgsContigMeanCovMetrics(CaseQcBaseModel):
+    """Contig-wise WGS coverage metrics for one sample in the case"""
 
-    #: Record UUID.
-    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
-    #: DateTime of creation.
-    date_created = models.DateTimeField(auto_now_add=True)
-    #: DateTime of last modification.
-    date_modified = models.DateTimeField(auto_now=True)
-
-    #: The QC metric set this histogram belongs to
-    caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
-    #: The sample this histogram belongs to
-    sample = models.CharField(max_length=200, null=False, blank=False)
     #: Metrics as JSON following the ``DragenStyleCoverage`` schema
     metrics = SchemaField(schema=list[DragenStyleCoverage], blank=False, null=False)
 
 
-class DragenWgsHistMetrics(models.Model):
+class DragenWgsOverallMeanCov(DragenBaseMetrics):
+    """Overall mean WGS coverage metrics for one sample in the case"""
+
+
+class DragenWgsFineHist(DragenBaseHistogram):
+    """Fine histogram of WGS coverage for one sample in the case"""
+
+
+class DragenWgsHistMetrics(CaseQcBaseModel):
     """WGS coarse coverage metrics for one sample in the case"""
 
-    #: Record UUID.
-    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
-    #: DateTime of creation.
-    date_created = models.DateTimeField(auto_now_add=True)
-    #: DateTime of last modification.
-    date_modified = models.DateTimeField(auto_now=True)
-
-    #: The QC metric set this histogram belongs to
-    caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
-    #: The sample this histogram belongs to
-    sample = models.CharField(max_length=200, null=False, blank=False)
     #: The histogram keys
     keys = ArrayField(
         models.CharField(max_length=200), null=False, blank=False, max_length=MAX_ARRAY_LENGTH
@@ -203,5 +186,27 @@ class DragenWgsHistMetrics(models.Model):
     values = ArrayField(models.FloatField(), null=False, blank=False, max_length=MAX_ARRAY_LENGTH)
 
 
-class DragenWgsFineHist(DragenBaseHistogram):
-    """Fine histogram of WGS coverage for one sample in the case"""
+class DragenRegionMixin(models.Model):
+    """Mixin that adds ``region_name`` to Dragen models"""
+
+    #: The name of the region.
+    region_name = models.CharField(max_length=200, null=False, blank=False)
+
+    class Meta:
+        abstract = True
+
+
+class DragenRegionCoverageMetrics(DragenRegionMixin, DragenBaseMetrics):
+    """Region based overall coverage."""
+
+
+class DragenRegionFineHist(DragenRegionMixin, DragenBaseHistogram):
+    """Region coarse coverage histogram."""
+
+
+class DragenRegionHist(DragenRegionMixin, DragenBaseMetrics):
+    """Region coarse coverage histogram."""
+
+
+class DragenRegionOverallMeanCov(DragenRegionMixin, DragenBaseMetrics):
+    """Region based overall coverage."""

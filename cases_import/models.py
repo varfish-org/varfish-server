@@ -357,6 +357,11 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             "x-dragen-qc-wgs-coverage-metrics": self._import_dragen_qc_wgs_coverage_metrics,
             "x-dragen-qc-wgs-fine-hist": self._import_dragen_qc_wgs_fine_hist,
             "x-dragen-qc-wgs-hist": self._import_dragen_qc_wgs_hist,
+            "x-dragen-qc-wgs-overall-mean-cov": self._import_dragen_qc_wgs_overall_mean_cov,
+            "x-dragen-qc-region-coverage-metrics": self._import_dragen_qc_region_coverage_metrics,
+            "x-dragen-qc-region-coverage-fine-hist": self._import_dragen_qc_region_coverage_fine_hist,
+            "x-dragen-qc-region-coverage-hist": self._import_dragen_qc_region_coverage_hist,
+            "x-dragen-qc-region-coverage-overall-mean-cov": self._import_dragen_qc_region_coverage_overall_mean_cov,
         }
 
     def run(self):
@@ -542,6 +547,69 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_hist(
                 sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_wgs_overall_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_wgs_overall_mean_cov(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_metrics(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_coverage_metrics(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_fine_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_fine_hist(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_hist(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_hist(
+                sample=sample_name,
+                region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_dragen_qc_region_coverage_overall_mean_cov(
+        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_dragen.load_region_overall_mean_cov(
+                sample=sample_name,
+                region_name=region_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )

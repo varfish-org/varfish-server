@@ -27,7 +27,12 @@ def try_cast(
 
 
 def load_metrics_generic(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc, model: typing.Type
+    *,
+    sample: str,
+    input_file: typing.TextIO,
+    caseqc: models.CaseQc,
+    model: typing.Type,
+    region_name: str | None = None,
 ):
     fieldnames = ("section", "entry", "name", "value", "value_float")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -44,10 +49,15 @@ def load_metrics_generic(
             )
         )
 
+    model_kwargs = {}
+    if region_name is not None:
+        model_kwargs["region_name"] = region_name
+
     return model.objects.create(
         caseqc=caseqc,
         sample=sample,
         metrics=metrics,
+        **model_kwargs,
     )
 
 
@@ -73,9 +83,14 @@ def load_fragment_length_hist(
     )
 
 
-def load_wgs_fine_hist(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsFineHist:
+def load_fine_hist_generic(
+    *,
+    sample: str,
+    input_file: typing.TextIO,
+    caseqc: models.CaseQc,
+    model: typing.Type,
+    region_name: str | None = None,
+):
     keys: list[int] = []
     values: list[int] = []
     reader = csv.DictReader(f=input_file, delimiter=",")
@@ -84,12 +99,23 @@ def load_wgs_fine_hist(
             keys.append(int(record["Depth"].replace("+", "")))
             values.append(int(record["Overall"]))
 
-    return models.DragenWgsFineHist.objects.create(
+    model_kwargs = {}
+    if region_name is not None:
+        model_kwargs["region_name"] = region_name
+
+    return model.objects.create(
         caseqc=caseqc,
         sample=sample,
         keys=keys,
         values=values,
+        **model_kwargs,
     )
+
+
+def load_wgs_fine_hist(
+    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenWgsFineHist:
+    return load_fine_hist_generic(sample=sample, input_file=input_file, caseqc=caseqc)
 
 
 def load_vc_hethom_ratio_metrics(
@@ -254,4 +280,68 @@ def load_wgs_hist(
         sample=sample,
         keys=keys,
         values=values,
+    )
+
+
+def load_wgs_overall_mean_cov(
+    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenWgsHistMetrics:
+    """Load overall mean coverage metrics from ``input_file`` into ``caseqc``"""
+    return load_metrics_generic(
+        sample=sample,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.DragenWgsHistMetrics,
+    )
+
+
+def load_region_coverage_metrics(
+    *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenRegionCoverageMetrics:
+    """Load region coverage metrics from ``input_file`` into ``caseqc``"""
+    return load_metrics_generic(
+        sample=sample,
+        region_name=region_name,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.DragenRegionCoverageMetrics,
+    )
+
+
+def load_region_fine_hist(
+    *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenRegionFineHist:
+    """Load region fine histogram from ``input_file`` into ``caseqc``"""
+    return load_fine_hist_generic(
+        sample=sample,
+        region_name=region_name,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.DragenRegionFineHist,
+    )
+
+
+def load_region_hist(
+    *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenRegionHist:
+    """Load region histogram from ``input_file`` into ``caseqc``"""
+    return load_metrics_generic(
+        sample=sample,
+        region_name=region_name,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.DragenRegionHist,
+    )
+
+
+def load_region_overall_mean_cov(
+    *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> models.DragenRegionOverallMeanCov:
+    """Load region histogram from ``input_file`` into ``caseqc``"""
+    return load_metrics_generic(
+        sample=sample,
+        region_name=region_name,
+        input_file=input_file,
+        caseqc=caseqc,
+        model=models.DragenRegionOverallMeanCov,
     )

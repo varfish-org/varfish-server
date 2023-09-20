@@ -92,8 +92,18 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
     @mock.patch("cases_qc.io.dragen.load_wgs_coverage_metrics")
     @mock.patch("cases_qc.io.dragen.load_wgs_fine_hist")
     @mock.patch("cases_qc.io.dragen.load_wgs_hist")
+    @mock.patch("cases_qc.io.dragen.load_wgs_overall_mean_cov")
+    @mock.patch("cases_qc.io.dragen.load_region_coverage_metrics")
+    @mock.patch("cases_qc.io.dragen.load_region_fine_hist")
+    @mock.patch("cases_qc.io.dragen.load_region_hist")
+    @mock.patch("cases_qc.io.dragen.load_region_overall_mean_cov")
     def test_run(
         self,
+        load_region_overall_mean_cov,
+        load_region_hist,
+        load_region_fine_hist,
+        load_region_coverage_metrics,
+        mock_load_wgs_overall_mean_cov,
         mock_load_wgs_hist_metrics,
         mock_load_wgs_fine_hist,
         mock_load_wgs_coverage_metrics,
@@ -260,6 +270,64 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         self.assertEqual(
             mock_load_wgs_hist_metrics.call_args[1]["input_file"].name,
             os.path.realpath("cases_qc/tests/data/sample.wgs_hist.csv"),
+        )
+
+        mock_load_wgs_overall_mean_cov.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_wgs_overall_mean_cov.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.wgs_overall_mean_cov.csv"),
+        )
+
+        load_region_overall_mean_cov.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            region_name="region-3",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            load_region_overall_mean_cov.call_args[1]["input_file"].name,
+            os.path.realpath(
+                "cases_qc/tests/data/sample.qc-coverage-region-3_overall_mean_cov.csv"
+            ),
+        )
+
+        load_region_hist.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            region_name="region-3",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            load_region_hist.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.qc-coverage-region-3_hist.csv"),
+        )
+
+        load_region_fine_hist.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            region_name="region-3",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            load_region_fine_hist.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.qc-coverage-region-3_fine_hist.csv"),
+        )
+
+        load_region_coverage_metrics.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            region_name="region-3",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            load_region_coverage_metrics.call_args[1]["input_file"].name,
+            os.path.realpath(
+                "cases_qc/tests/data/sample.qc-coverage-region-3_coverage_metrics.csv"
+            ),
         )
 
 
