@@ -99,7 +99,7 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
                     "gcd",
                     "frl",
                     "lrl",
-                    "id",
+                    "idd",
                     "ffq",
                     "lfq",
                     "fbc",
