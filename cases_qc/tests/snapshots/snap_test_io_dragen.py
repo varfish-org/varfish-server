@@ -13,7 +13,6 @@ snapshots["DragenLoadCnvMetricsTest::test_load 1"] = [
     "date_created",
     "date_modified",
     "caseqc_id",
-    "sample",
     "metrics",
 ]
 
@@ -64,8 +63,7 @@ snapshots["DragenLoadCnvMetricsTest::test_load 2"] = {
         GenericRepr(
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Number of passing deletions', value=88, value_float=15.6)"
         ),
-    ],
-    "sample": "NA12878",
+    ]
 }
 
 snapshots["DragenLoadFragmentLengthHistTest::test_load 1"] = [
@@ -2893,7 +2891,6 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 1"] = [
     "date_created",
     "date_modified",
     "caseqc_id",
-    "sample",
     "metrics",
 ]
 
@@ -3115,8 +3112,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Y Het/Hom ratio', value=None, value_float=None)"
         ),
-    ],
-    "sample": "NA12878",
+    ]
 }
 
 snapshots["DragenMappingMetricsTest::test_load 1"] = [
@@ -3963,7 +3959,6 @@ snapshots["DragenSvMetricsTest::test_load 1"] = [
     "date_created",
     "date_modified",
     "caseqc_id",
-    "sample",
     "metrics",
 ]
 
@@ -3981,8 +3976,7 @@ snapshots["DragenSvMetricsTest::test_load 2"] = {
         GenericRepr(
             "DragenStyleMetric(section='SV SUMMARY', entry='NA12878-PCRF450-1', name='Number of breakend pairs (PASS)', value=1386, value_float=None)"
         ),
-    ],
-    "sample": "NA12878",
+    ]
 }
 
 snapshots["DragenTimeMetricsTest::test_load 1"] = [
@@ -4149,7 +4143,6 @@ snapshots["DragenVcMetricsTest::test_load 1"] = [
     "date_created",
     "date_modified",
     "caseqc_id",
-    "sample",
     "metrics",
 ]
 
@@ -4230,8 +4223,7 @@ snapshots["DragenVcMetricsTest::test_load 2"] = {
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Percent Autosome Callability', value=None, value_float=None)"
         ),
-    ],
-    "sample": "NA12878",
+    ]
 }
 
 snapshots["DragenWgsContigMeanCovMetricsTest::test_load 1"] = [

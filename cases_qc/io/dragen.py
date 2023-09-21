@@ -4,34 +4,15 @@ import csv
 import typing
 
 from cases_qc import models
-
-
-def try_cast(
-    value: str,
-    types: typing.Iterable[typing.Type],
-    none_values: typing.Iterable[typing.Any] = (None, "", "NA", "inf"),
-) -> typing.Union[str, int, float, None]:
-    if value in none_values and None in types:
-        return None
-
-    for type in types:
-        if type is not None:
-            try:
-                return type(value)
-            except ValueError:
-                continue
-    if None in types:
-        return None
-    else:
-        raise ValueError(f"could not cast value {value} to any of {types}")
+from cases_qc.io.utils import try_cast
 
 
 def load_metrics_generic(
     *,
-    sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
     model: typing.Type,
+    sample: str | None = None,
     region_name: str | None = None,
     fieldnames: typing.Iterable[str] | None = None,
 ):
@@ -56,10 +37,11 @@ def load_metrics_generic(
     model_kwargs = {}
     if region_name is not None:
         model_kwargs["region_name"] = region_name
+    if sample is not None:
+        model_kwargs["sample"] = sample
 
     return model.objects.create(
         caseqc=caseqc,
-        sample=sample,
         metrics=metrics,
         **model_kwargs,
     )
@@ -125,11 +107,10 @@ def load_wgs_fine_hist(
 
 
 def load_vc_hethom_ratio_metrics(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+    *, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.DragenVcHethomRatioMetrics:
     """Load contig het./hom. metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
-        sample=sample,
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenVcHethomRatioMetrics,
@@ -137,11 +118,10 @@ def load_vc_hethom_ratio_metrics(
 
 
 def load_cnv_metrics(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+    *, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.DragenCnvMetrics:
     """Load CNV metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
-        sample=sample,
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenCnvMetrics,
@@ -184,12 +164,9 @@ def load_roh_metrics(
     )
 
 
-def load_sv_metrics(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenSvMetrics:
+def load_sv_metrics(*, input_file: typing.TextIO, caseqc: models.CaseQc) -> models.DragenSvMetrics:
     """Load SV calling metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
-        sample=sample,
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenSvMetrics,
@@ -221,11 +198,10 @@ def load_trimmer_metrics(
 
 
 def load_vc_metrics(
-    *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
+    *, input_file: typing.TextIO, caseqc: models.CaseQc
 ) -> models.DragenTrimmerMetrics:
     """Load variant caller metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
-        sample=sample,
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenVcMetrics,
