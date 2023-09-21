@@ -94,8 +94,6 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
                 main_metrics,
                 (
                     "sample",
-                    "caseqc",
-                    "sample",
                     "isize",
                     "cov",
                     "gcd",
@@ -115,8 +113,6 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
             extract_from_dict(
                 supp_metrics,
                 (
-                    "sample",
-                    "caseqc",
                     "sample",
                     "gcf",
                     "gcl",
