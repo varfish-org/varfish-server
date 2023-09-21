@@ -611,3 +611,50 @@ class SamtoolsIdxstatsMetrics(CaseQcForSampleBaseModel):
 
     #: Metrics as JSON following the ``SamtoolsIdxstatsRecord`` schema
     records = SchemaField(schema=list[SamtoolsIdxstatsRecord], blank=False, null=False)
+
+
+class CraminoSummaryRecord(pydantic.BaseModel):
+    """Store a summary record from the cramino output file."""
+
+    #: key
+    key: str
+    #: value
+    value: int | float | str
+
+
+class CraminoChromNormalizedCountsRecord(pydantic.BaseModel):
+    """Store one chrom/normalized read counts record from Cramino output."""
+
+    #: chromosome name
+    chrom_name: str
+    #: fraction of reads
+    normalized_counts: float
+
+
+class CraminoMetrics(CaseQcForSampleBaseModel):
+    """Metrics obtained from cramino."""
+
+    #: summary metric records
+    summary = SchemaField(schema=list[CraminoSummaryRecord], blank=False, null=False)
+    #: per-chromosome normalized read counts
+    chrom_counts = SchemaField(
+        schema=list[CraminoChromNormalizedCountsRecord], blank=False, null=False
+    )
+
+
+class NgsbitsMappingqcRecord(pydantic.BaseModel):
+    """One entry in the output of ngs-bits' MappingQC."""
+
+    #: key
+    key: str
+    #: value
+    value: int | float | str | None
+
+
+class NgsbitsMappingqcMetrics(CaseQcForSampleBaseModel):
+    """Metrics obtained from ngs-bits' MappingQC."""
+
+    #: the name of the region.
+    region_name = models.CharField(max_length=200, null=False, blank=False)
+    #: records
+    records = SchemaField(schema=list[NgsbitsMappingqcRecord], blank=False, null=False)
