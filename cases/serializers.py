@@ -3,6 +3,8 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from cases_qc.models import CaseQc
+from cases_qc.serializers import CaseQcSerializer
 from svs.serializers import SvQueryResultSetSerializer
 from variants.models import (
     Case,
@@ -35,6 +37,8 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     smallvariantqueryresultset = serializers.SerializerMethodField()
     #: Serialize ``svqueryresultset`` as its ``sodar_uuid``.
     svqueryresultset = serializers.SerializerMethodField()
+    #: Serialize latest ``CaseQc`` in active state.
+    caseqc = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -68,6 +72,17 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     def get_svqueryresultset(self, obj):
         return SvQueryResultSetSerializer(obj.svqueryresultset_set.first()).data
 
+    def get_caseqc(self, obj):
+        """Obtain the latest CaseQC for this in active state and serialize it.
+
+        If there is no such record then return ``None``.
+        """
+        caseqc = obj.caseqc_set.filter(state=CaseQc.STATE_ACTIVE).first()
+        if caseqc:
+            return CaseQcSerializer(caseqc).data
+        else:
+            return None
+
     class Meta:
         model = Case
         exclude = (
@@ -87,6 +102,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "release",
             "presetset",  # made writable in to_internal_value
             "state",
+            "caseqc",
         )
 
 

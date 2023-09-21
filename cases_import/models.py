@@ -384,6 +384,11 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         for individual in pedigree.individual_set.all():
             for external_file in IndividualExternalFile.objects.filter(individual=individual):
                 self._import_externalfile(external_file, caseqc, individual_name=individual.name)
+        with transaction.atomic():
+            caseqc.refresh_from_db()
+            if caseqc.state == CaseQc.STATE_DRAFT:
+                caseqc.state = CaseQc.STATE_ACTIVE
+                caseqc.save()
 
     def _import_externalfile(
         self,
