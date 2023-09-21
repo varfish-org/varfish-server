@@ -7,6 +7,9 @@ from cases.tests.factories import CaseFactory
 from cases_qc.models import (
     BcftoolsStatsSnRecord,
     CaseQc,
+    CraminoChromNormalizedCountsRecord,
+    CraminoMetrics,
+    CraminoSummaryRecord,
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -470,3 +473,36 @@ class SamtoolsIdxstatsMetricsFactory(factory.django.DjangoModelFactory):
         return self.caseqc.case.pedigree[0]["patient"]
 
     records = factory.LazyAttribute(lambda _o: [SamtoolsIdxstatsRecordFactory()])
+
+
+class CraminoSummaryRecordFactory(factory.Factory):
+    class Meta:
+        model = CraminoSummaryRecord
+
+    key = factory.Faker("word")
+    value = factory.Sequence(lambda n: n)
+
+
+class CraminoChromNormalizedCountsRecordFactory(factory.Factory):
+    class Meta:
+        model = CraminoChromNormalizedCountsRecord
+
+    chrom_name = factory.Faker("word")
+    normalized_counts = factory.Sequence(lambda n: 0.1 * n)
+
+
+class CraminoMetricsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CraminoMetrics
+
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+    caseqc = factory.SubFactory(CaseQcFactory)
+
+    @factory.lazy_attribute
+    def sample(self):
+        return self.caseqc.case.pedigree[0]["patient"]
+
+    summary = factory.LazyAttribute(lambda _o: [CraminoSummaryRecordFactory()])
+    chrom_counts = factory.LazyAttribute(lambda _o: [CraminoChromNormalizedCountsRecordFactory()])

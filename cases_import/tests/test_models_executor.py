@@ -391,6 +391,47 @@ class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCa
         )
 
 
+class ImportCreateWithCraminoQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+    """Test the executor with action=create and external files for cramino QC.
+
+    This will actually run the import of the cramino QC file.
+    """
+
+    def setUp(self):
+        self.maxDiff = None
+        self._setUpExecutor(
+            CaseImportAction.ACTION_CREATE,
+            fac_kwargs={
+                "path_phenopacket_yaml": "cases_import/tests/data/singleton_cramino_qc.yaml"
+            },
+        )
+
+    @mock.patch("cases_qc.io.cramino.load_cramino")
+    def test_run(
+        self,
+        mock_load_cramino,
+    ):
+        """Test import of a case with full set of Samtools QC files."""
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+
+        self.executor.run()
+
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CaseQc.objects.count(), 1)
+        caseqc = CaseQc.objects.first()
+
+        mock_load_cramino.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_cramino.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.cramino.txt"),
+        )
+
+
 class ImportUpdateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
     """Test the executor with action=update"""
 

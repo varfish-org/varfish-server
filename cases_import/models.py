@@ -29,6 +29,7 @@ from cases_files.models import (
     PedigreeInternalFile,
 )
 from cases_import.proto import Assay, FileDesignation, get_case_name_from_family_payload
+from cases_qc.io import cramino as io_cramino
 from cases_qc.io import dragen as io_dragen
 from cases_qc.io import samtools as io_samtools
 from cases_qc.models import CaseQc
@@ -362,6 +363,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             "x-samtools-qc-samtools-flagstat": self._import_samtools_qc_samtools_flagstat,
             "x-samtools-qc-samtools-idxstats": self._import_samtools_qc_samtools_idxstats,
             "x-samtools-qc-samtools-stats": self._import_samtools_qc_samtools_stats,
+            "x-cramino-qc-cramino": self._import_cramino_qc_cramino,
         }
         #: Map the extended detailed type to the handler function, for pedigree.
         self.handlers_pedigree = {
@@ -652,6 +654,17 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_samtools_stats(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_cramino_qc_cramino(
+        self, individual_name: str, external_file: PedigreeExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_cramino.load_cramino(
                 sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,

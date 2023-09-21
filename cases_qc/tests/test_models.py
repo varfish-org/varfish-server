@@ -4,6 +4,7 @@ from test_plus import TestCase
 from cases_qc.models import (
     Case,
     CaseQc,
+    CraminoMetrics,
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -30,6 +31,7 @@ from cases_qc.models import (
 )
 from cases_qc.tests.factories import (
     CaseQcFactory,
+    CraminoMetricsFactory,
     DragenCnvMetricsFactory,
     DragenFragmentLengthHistogramFactory,
     DragenMappingMetricsFactory,
@@ -425,3 +427,18 @@ class SamtoolsIdxstatsMetricsTest(TestCase):
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 1)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class CraminoMetricsTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    def test_create(self):
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(CraminoMetrics.objects.count(), 0)
+        _obj = CraminoMetricsFactory()
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CraminoMetrics.objects.count(), 1)
