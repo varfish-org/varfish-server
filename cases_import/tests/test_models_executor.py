@@ -99,10 +99,10 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
     @mock.patch("cases_qc.io.dragen.load_region_overall_mean_cov")
     def test_run(
         self,
-        load_region_overall_mean_cov,
-        load_region_hist,
-        load_region_fine_hist,
-        load_region_coverage_metrics,
+        mock_load_region_overall_mean_cov,
+        mock_load_region_hist,
+        mock_load_region_fine_hist,
+        mock_load_region_coverage_metrics,
         mock_load_wgs_overall_mean_cov,
         mock_load_wgs_hist_metrics,
         mock_load_wgs_fine_hist,
@@ -133,7 +133,6 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         caseqc = CaseQc.objects.first()
 
         mock_load_cnv_metrics.assert_called_once_with(
-            sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
@@ -183,7 +182,6 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         )
 
         mock_load_sv_metrics.assert_called_once_with(
-            sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
@@ -213,7 +211,6 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         )
 
         mock_load_vc_hethom_ratio_metrics.assert_called_once_with(
-            sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
@@ -223,7 +220,6 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         )
 
         mock_load_vc_metrics.assert_called_once_with(
-            sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
@@ -282,52 +278,116 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             os.path.realpath("cases_qc/tests/data/sample.wgs_overall_mean_cov.csv"),
         )
 
-        load_region_overall_mean_cov.assert_called_once_with(
+        mock_load_region_overall_mean_cov.assert_called_once_with(
             sample="NA12878-PCRF450-1",
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
         self.assertEqual(
-            load_region_overall_mean_cov.call_args[1]["input_file"].name,
+            mock_load_region_overall_mean_cov.call_args[1]["input_file"].name,
             os.path.realpath(
                 "cases_qc/tests/data/sample.qc-coverage-region-3_overall_mean_cov.csv"
             ),
         )
 
-        load_region_hist.assert_called_once_with(
+        mock_load_region_hist.assert_called_once_with(
             sample="NA12878-PCRF450-1",
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
         self.assertEqual(
-            load_region_hist.call_args[1]["input_file"].name,
+            mock_load_region_hist.call_args[1]["input_file"].name,
             os.path.realpath("cases_qc/tests/data/sample.qc-coverage-region-3_hist.csv"),
         )
 
-        load_region_fine_hist.assert_called_once_with(
+        mock_load_region_fine_hist.assert_called_once_with(
             sample="NA12878-PCRF450-1",
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
         self.assertEqual(
-            load_region_fine_hist.call_args[1]["input_file"].name,
+            mock_load_region_fine_hist.call_args[1]["input_file"].name,
             os.path.realpath("cases_qc/tests/data/sample.qc-coverage-region-3_fine_hist.csv"),
         )
 
-        load_region_coverage_metrics.assert_called_once_with(
+        mock_load_region_coverage_metrics.assert_called_once_with(
             sample="NA12878-PCRF450-1",
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
         )
         self.assertEqual(
-            load_region_coverage_metrics.call_args[1]["input_file"].name,
+            mock_load_region_coverage_metrics.call_args[1]["input_file"].name,
             os.path.realpath(
                 "cases_qc/tests/data/sample.qc-coverage-region-3_coverage_metrics.csv"
             ),
+        )
+
+
+class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+    """Test the executor with action=create and external files for Samtools QC.
+
+    This will actually run the import of the Samtools QC files.
+    """
+
+    def setUp(self):
+        self.maxDiff = None
+        self._setUpExecutor(
+            CaseImportAction.ACTION_CREATE,
+            fac_kwargs={
+                "path_phenopacket_yaml": "cases_import/tests/data/singleton_samtools_qc.yaml"
+            },
+        )
+
+    @mock.patch("cases_qc.io.samtools.load_bcftools_stats")
+    @mock.patch("cases_qc.io.samtools.load_samtools_flagstat")
+    @mock.patch("cases_qc.io.samtools.load_samtools_stats")
+    def test_run(
+        self,
+        mock_load_samtools_stats,
+        mock_load_samtools_flagstat,
+        mock_load_bcftools_stats,
+    ):
+        """Test import of a case with full set of Samtools QC files."""
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+
+        self.executor.run()
+
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CaseQc.objects.count(), 1)
+        caseqc = CaseQc.objects.first()
+
+        mock_load_samtools_stats.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_samtools_stats.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.samtools-stats.txt"),
+        )
+
+        mock_load_samtools_flagstat.assert_called_once_with(
+            sample="NA12878-PCRF450-1",
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_samtools_flagstat.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.samtools-flagstat.txt"),
+        )
+
+        mock_load_bcftools_stats.assert_called_once_with(
+            input_file=mock.ANY,
+            caseqc=caseqc,
+        )
+        self.assertEqual(
+            mock_load_bcftools_stats.call_args[1]["input_file"].name,
+            os.path.realpath("cases_qc/tests/data/sample.bcftools-stats.txt"),
         )
 
 

@@ -24,7 +24,7 @@ class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
     def test_load(self):
         self.assertEqual(BcftoolsStatsMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.bcftools-stats.txt") as inputf:
-            io_samtools.load_bcftools_stats(sample="NA12878", input_file=inputf, caseqc=self.caseqc)
+            io_samtools.load_bcftools_stats(input_file=inputf, caseqc=self.caseqc)
 
         self.assertEqual(BcftoolsStatsMetrics.objects.count(), 1)
         metrics = BcftoolsStatsMetrics.objects.first()
@@ -59,7 +59,7 @@ class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
 
     def test_load(self):
         self.assertEqual(SamtoolsFlagstatMetrics.objects.count(), 0)
-        with open("cases_qc/tests/data/sample.samtools-flagstats.txt") as inputf:
+        with open("cases_qc/tests/data/sample.samtools-flagstat.txt") as inputf:
             io_samtools.load_samtools_flagstat(
                 sample="NA12878", input_file=inputf, caseqc=self.caseqc
             )
@@ -128,3 +128,24 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
                 ),
             )
         )
+
+
+@freeze_time("2012-01-14 12:00:01")
+class SamtoolsLoadSamtoolsIdxstatsTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+        self.caseqc = CaseQcFactory()
+
+    def test_load(self):
+        self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 0)
+        with open("cases_qc/tests/data/sample.samtools-idxstats.txt") as inputf:
+            io_samtools.load_samtools_idxstats(
+                sample="NA12878", input_file=inputf, caseqc=self.caseqc
+            )
+
+        self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 1)
+        metrics = SamtoolsIdxstatsMetrics.objects.first()
+
+        self.assertMatchSnapshot(list(vars(metrics).keys()))
+        self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "records")))

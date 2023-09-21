@@ -7,7 +7,7 @@ import csv
 import typing
 
 from cases_qc import models
-from cases_qc.io.dragen import try_cast
+from cases_qc.io.utils import try_cast
 
 
 class ParserRunMixin:
@@ -44,7 +44,9 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_id(self, record: list[str]):
         """Skip ``ID`` lines."""
         if record[1] != "0":
-            raise ValueError(f"at the moment, only single-sample VCFs are supported (ID={record[1]})")
+            raise ValueError(
+                f"at the moment, only single-sample VCFs are supported (ID={record[1]})"
+            )
 
     def _handle_sn(self, record: list[str]):
         """Handle parsing of ``SN`` lines."""
@@ -133,7 +135,7 @@ class BcftoolsStatsParser(ParserRunMixin):
         """Handle parsing of ``DP`` lines."""
         self.dp.append(
             models.BcftoolsStatsDpRecord(
-                bin=int(record[2].replace('>', "")),
+                bin=int(record[2].replace(">", "")),
                 gts=int(record[3]),
                 gts_frac=float(record[4]),
                 sites=int(record[5]),
@@ -144,7 +146,6 @@ class BcftoolsStatsParser(ParserRunMixin):
 
 def load_bcftools_stats(
     *,
-    sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
 ) -> models.BcftoolsStatsMetrics:
@@ -155,7 +156,6 @@ def load_bcftools_stats(
 
     return models.BcftoolsStatsMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
         sn=parser.sn,
         tstv=parser.tstv,
         sis=parser.sis,
@@ -480,3 +480,30 @@ def load_samtools_stats(
     )
 
     return (main, supplementary)
+
+
+def load_samtools_idxstats(
+    *,
+    sample: str,
+    input_file: typing.TextIO,
+    caseqc: models.CaseQc,
+) -> models.SamtoolsIdxstatsMetrics:
+    """Load the output of ``samtools idxstats`"""
+
+    reader = csv.reader(input_file, delimiter="\t")
+    records = []
+    for record in reader:
+        records.append(
+            models.SamtoolsIdxstatsRecord(
+                contig_name=record[0],
+                contig_len=int(record[1]),
+                mapped=int(record[2]),
+                unmapped=int(record[3]),
+            )
+        )
+
+    return models.SamtoolsIdxstatsMetrics.objects.create(
+        caseqc=caseqc,
+        sample=sample,
+        records=records,
+    )

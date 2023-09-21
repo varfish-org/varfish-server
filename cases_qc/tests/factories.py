@@ -89,12 +89,17 @@ class DragenMetricsFactoryBase(factory.django.DjangoModelFactory):
     caseqc = factory.SubFactory(CaseQcFactory)
 
     @factory.lazy_attribute
-    def sample(self):
-        return self.caseqc.case.pedigree[0]["patient"]
+    def metrics(self):
+        return [DragenStyleMetricFactory()]
+
+
+class DragenMetricsWithSampleFactoryBase(DragenMetricsFactoryBase):
+    class Meta:
+        abstract = True
 
     @factory.lazy_attribute
-    def metrics(self):
-        return [DragenStyleMetricFactory(sample=self.sample)]
+    def sample(self):
+        return self.caseqc.case.pedigree[0]["patient"]
 
 
 class DragenFineHistFactoryBase(factory.django.DjangoModelFactory):
@@ -115,7 +120,7 @@ class DragenFineHistFactoryBase(factory.django.DjangoModelFactory):
     values = [1, 100, 101]
 
 
-class RegionMetricsFactoryBase(DragenMetricsFactoryBase):
+class RegionMetricsFactoryBase(DragenMetricsWithSampleFactoryBase):
     class Meta:
         abstract = True
 
@@ -145,17 +150,17 @@ class DragenCnvMetricsFactory(DragenMetricsFactoryBase):
         model = DragenCnvMetrics
 
 
-class DragenMappingMetricsFactory(DragenMetricsFactoryBase):
+class DragenMappingMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenMappingMetrics
 
 
-class DragenPloidyEstimationMetricsFactory(DragenMetricsFactoryBase):
+class DragenPloidyEstimationMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenPloidyEstimationMetrics
 
 
-class DragenRegionCoverageMetricsFactory(DragenMetricsFactoryBase):
+class DragenRegionCoverageMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenRegionCoverageMetrics
 
@@ -167,17 +172,17 @@ class DragenRegionFineHistFactory(DragenFineHistFactoryBase):
     region_name = factory.Faker("word")
 
 
-class DragenRegionHistFactory(DragenMetricsFactoryBase):
+class DragenRegionHistFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenRegionHist
 
 
-class DragenRegionOverallMeanCovFactory(DragenMetricsFactoryBase):
+class DragenRegionOverallMeanCovFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenRegionOverallMeanCov
 
 
-class DragenRohMetricsFactory(DragenMetricsFactoryBase):
+class DragenRohMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenRohMetrics
 
@@ -187,17 +192,17 @@ class DragenVcMetricsFactory(DragenMetricsFactoryBase):
         model = DragenVcMetrics
 
 
-class StrucvarMetricsFactory(DragenMetricsFactoryBase):
+class DragenSvMetricsFactory(DragenMetricsFactoryBase):
     class Meta:
         model = DragenSvMetrics
 
 
-class DragenTimeMetricsFactory(DragenMetricsFactoryBase):
+class DragenTimeMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenTimeMetrics
 
 
-class DragenTrimmerMetricsFactory(DragenMetricsFactoryBase):
+class DragenTrimmerMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenTrimmerMetrics
 
@@ -207,7 +212,7 @@ class DragenVcHethomRatioMetricsFactory(DragenMetricsFactoryBase):
         model = DragenVcHethomRatioMetrics
 
 
-class DragenWgsContigMeanCovMetricsFactory(DragenMetricsFactoryBase):
+class DragenWgsContigMeanCovMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenWgsContigMeanCovMetrics
 
@@ -220,7 +225,7 @@ class DragenWgsContigMeanCovMetricsFactory(DragenMetricsFactoryBase):
         return [DragenStyleCoverageFactory(sample=self.sample)]
 
 
-class DragenWgsCoverageMetricsFactory(DragenMetricsFactoryBase):
+class DragenWgsCoverageMetricsFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenWgsCoverageMetrics
 
@@ -251,7 +256,7 @@ class DragenWgsHistFactory(factory.django.DjangoModelFactory):
     values = [0.21, 26.83]
 
 
-class DragenWgsOverallMeanCovFactory(DragenMetricsFactoryBase):
+class DragenWgsOverallMeanCovFactory(DragenMetricsWithSampleFactoryBase):
     class Meta:
         model = DragenWgsOverallMeanCov
 

@@ -81,6 +81,14 @@ class CaseQcBaseModel(models.Model):
 
     #: The QC metric set this histogram belongs to
     caseqc = models.ForeignKey(CaseQc, on_delete=models.CASCADE, null=False, blank=False)
+
+    class Meta:
+        abstract = True
+
+
+class CaseQcForSampleBaseModel(CaseQcBaseModel):
+    """Base class for statistics associated with ``CaseQc`` for one sample."""
+
     #: The sample this histogram belongs to
     sample = models.CharField(max_length=200, null=False, blank=False)
 
@@ -88,7 +96,7 @@ class CaseQcBaseModel(models.Model):
         abstract = True
 
 
-class DragenBaseHistogram(CaseQcBaseModel):
+class DragenBaseHistogram(CaseQcForSampleBaseModel):
     """Base model for Dragen-style histograms
 
 
@@ -107,6 +115,16 @@ class DragenBaseHistogram(CaseQcBaseModel):
 
 
 class DragenBaseMetrics(CaseQcBaseModel):
+    """Abstract metrics model not specific to one sample"""
+
+    #: Metrics as JSON following the ``DragenStyleMetric`` schema
+    metrics = SchemaField(schema=list[DragenStyleMetric], blank=False, null=False)
+
+    class Meta:
+        abstract = True
+
+
+class DragenBaseMetricsForSample(CaseQcForSampleBaseModel):
     """Abstract metrics model for one sample in a case"""
 
     #: Metrics as JSON following the ``DragenStyleMetric`` schema
@@ -124,15 +142,15 @@ class DragenFragmentLengthHistogram(DragenBaseHistogram):
     """Histogram of fragment lengths for one sample in a case."""
 
 
-class DragenMappingMetrics(DragenBaseMetrics):
+class DragenMappingMetrics(DragenBaseMetricsForSample):
     """Metrics for the read mapping for one sample in the case"""
 
 
-class DragenPloidyEstimationMetrics(DragenBaseMetrics):
+class DragenPloidyEstimationMetrics(DragenBaseMetricsForSample):
     """Ploidy estimation metrics for one sample in the case"""
 
 
-class DragenRohMetrics(DragenBaseMetrics):
+class DragenRohMetrics(DragenBaseMetricsForSample):
     """ROH metrics for one sample in the case"""
 
 
@@ -148,26 +166,26 @@ class DragenSvMetrics(DragenBaseMetrics):
     """SV calling metrics for one sample in the case"""
 
 
-class DragenTimeMetrics(DragenBaseMetrics):
+class DragenTimeMetrics(DragenBaseMetricsForSample):
     """Time metrics for one sample in the case"""
 
 
-class DragenTrimmerMetrics(DragenBaseMetrics):
+class DragenTrimmerMetrics(DragenBaseMetricsForSample):
     """Trimmer metrics for one sample in the case"""
 
 
-class DragenWgsCoverageMetrics(DragenBaseMetrics):
+class DragenWgsCoverageMetrics(DragenBaseMetricsForSample):
     """WGS coverage summary metrics for one sample in the case"""
 
 
-class DragenWgsContigMeanCovMetrics(CaseQcBaseModel):
+class DragenWgsContigMeanCovMetrics(CaseQcForSampleBaseModel):
     """Contig-wise WGS coverage metrics for one sample in the case"""
 
     #: Metrics as JSON following the ``DragenStyleCoverage`` schema
     metrics = SchemaField(schema=list[DragenStyleCoverage], blank=False, null=False)
 
 
-class DragenWgsOverallMeanCov(DragenBaseMetrics):
+class DragenWgsOverallMeanCov(DragenBaseMetricsForSample):
     """Overall mean WGS coverage metrics for one sample in the case"""
 
 
@@ -175,7 +193,7 @@ class DragenWgsFineHist(DragenBaseHistogram):
     """Fine histogram of WGS coverage for one sample in the case"""
 
 
-class DragenWgsHist(CaseQcBaseModel):
+class DragenWgsHist(CaseQcForSampleBaseModel):
     """WGS coarse coverage metrics for one sample in the case"""
 
     #: The histogram keys
@@ -196,7 +214,7 @@ class DragenRegionMixin(models.Model):
         abstract = True
 
 
-class DragenRegionCoverageMetrics(DragenRegionMixin, DragenBaseMetrics):
+class DragenRegionCoverageMetrics(DragenRegionMixin, DragenBaseMetricsForSample):
     """Region based overall coverage."""
 
 
@@ -204,11 +222,11 @@ class DragenRegionFineHist(DragenRegionMixin, DragenBaseHistogram):
     """Region coarse coverage histogram."""
 
 
-class DragenRegionHist(DragenRegionMixin, DragenBaseMetrics):
+class DragenRegionHist(DragenRegionMixin, DragenBaseMetricsForSample):
     """Region coarse coverage histogram."""
 
 
-class DragenRegionOverallMeanCov(DragenRegionMixin, DragenBaseMetrics):
+class DragenRegionOverallMeanCov(DragenRegionMixin, DragenBaseMetricsForSample):
     """Region based overall coverage."""
 
 
@@ -473,7 +491,7 @@ class SamtoolsStatsGcdRecord(pydantic.BaseModel):
     dp_percentile_90: float
 
 
-class SamtoolsStatsMainMetrics(CaseQcBaseModel):
+class SamtoolsStatsMainMetrics(CaseQcForSampleBaseModel):
     """Metrics for the most relevant metrics from ``samtools stats`` records.
 
     This is split between two models so the supplementary data can loaded only when
@@ -506,7 +524,7 @@ class SamtoolsStatsMainMetrics(CaseQcBaseModel):
     lbc = SchemaField(schema=list[SamtoolsStatsBasePercentagesRecord], blank=False, null=False)
 
 
-class SamtoolsStatsSupplementaryMetrics(CaseQcBaseModel):
+class SamtoolsStatsSupplementaryMetrics(CaseQcForSampleBaseModel):
     """Metrics for some "supplementary" metrics from ``samtools stats`` records.
 
     This is split between two models so the supplementary data can loaded only when
@@ -566,7 +584,7 @@ class SamtoolsFlagstatRecord(pydantic.BaseModel):
     with_mate_mapped_to_different_chr_mapq5: int = 0
 
 
-class SamtoolsFlagstatMetrics(CaseQcBaseModel):
+class SamtoolsFlagstatMetrics(CaseQcForSampleBaseModel):
     """Metrics for ``samtools flagstat`` output."""
 
     #: statistics for QC pass records
@@ -588,7 +606,7 @@ class SamtoolsIdxstatsRecord(pydantic.BaseModel):
     unmapped: int
 
 
-class SamtoolsIdxstatsMetrics(CaseQcBaseModel):
+class SamtoolsIdxstatsMetrics(CaseQcForSampleBaseModel):
     """Metrics for ``samtools idxstats`` output."""
 
     #: Metrics as JSON following the ``SamtoolsIdxstatsRecord`` schema

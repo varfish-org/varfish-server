@@ -30,6 +30,7 @@ from cases_files.models import (
 )
 from cases_import.proto import Assay, FileDesignation, get_case_name_from_family_payload
 from cases_qc.io import dragen as io_dragen
+from cases_qc.io import samtools as io_samtools
 from cases_qc.models import CaseQc
 from seqmeta.models import TargetBedFile
 from varfish.utils import JSONField
@@ -341,18 +342,14 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     def __init__(self, case: Case):
         super().__init__(case.project)
         self.case = case
-        #: Map the extended detailed type to the handler function.
-        self.handlers = {
-            "x-dragen-qc-cnv-metrics": self._import_dragen_qc_cnv_metrics,
+        #: Map the extended detailed type to the handler function, per-sample.
+        self.handlers_individual = {
             "x-dragen-qc-fragment-length-hist": self._import_dragen_qc_fragment_length_hist,
             "x-dragen-qc-mapping-metrics": self._import_dragen_qc_mapping_metrics,
             "x-dragen-qc-ploidy-estimation-metrics": self._import_dragen_qc_ploidy_estimation_metrics,
             "x-dragen-qc-roh-metrics": self._import_dragen_qc_roh_metrics,
-            "x-dragen-qc-sv-metrics": self._import_dragen_qc_sv_metrics,
             "x-dragen-qc-time-metrics": self._import_dragen_qc_time_metrics,
             "x-dragen-qc-trimmer-metrics": self._import_dragen_qc_trimmer_metrics,
-            "x-dragen-qc-vc-hethom-ratio-metrics": self._import_dragen_qc_vc_hethom_ratio_metrics,
-            "x-dragen-qc-vc-metrics": self._import_dragen_qc_vc_metrics,
             "x-dragen-qc-wgs-contig-mean-cov": self._import_dragen_qc_wgs_contig_mean_cov,
             "x-dragen-qc-wgs-coverage-metrics": self._import_dragen_qc_wgs_coverage_metrics,
             "x-dragen-qc-wgs-fine-hist": self._import_dragen_qc_wgs_fine_hist,
@@ -362,17 +359,33 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             "x-dragen-qc-region-coverage-fine-hist": self._import_dragen_qc_region_coverage_fine_hist,
             "x-dragen-qc-region-coverage-hist": self._import_dragen_qc_region_coverage_hist,
             "x-dragen-qc-region-coverage-overall-mean-cov": self._import_dragen_qc_region_coverage_overall_mean_cov,
+            "x-samtools-qc-samtools-flagstat": self._import_samtools_qc_samtools_flagstat,
+            "x-samtools-qc-samtools-idxstats": self._import_samtools_qc_samtools_idxstats,
+            "x-samtools-qc-samtools-stats": self._import_samtools_qc_samtools_stats,
+        }
+        #: Map the extended detailed type to the handler function, for pedigree.
+        self.handlers_pedigree = {
+            "x-dragen-qc-cnv-metrics": self._import_dragen_qc_cnv_metrics,
+            "x-dragen-qc-sv-metrics": self._import_dragen_qc_sv_metrics,
+            "x-dragen-qc-vc-hethom-ratio-metrics": self._import_dragen_qc_vc_hethom_ratio_metrics,
+            "x-dragen-qc-vc-metrics": self._import_dragen_qc_vc_metrics,
+            "x-samtools-qc-bcftools-stats": self._import_samtools_qc_bcftools_stats,
         }
 
     def run(self):
         caseqc = CaseQc.objects.create(case=self.case)
         pedigree = self.case.pedigree_obj
+        for external_file in pedigree.pedigreeexternalfile_set.all():
+            self._import_externalfile(external_file, caseqc)
         for individual in pedigree.individual_set.all():
             for external_file in IndividualExternalFile.objects.filter(individual=individual):
-                self._import_external_file(individual.name, external_file, caseqc)
+                self._import_externalfile(external_file, caseqc, individual_name=individual.name)
 
-    def _import_external_file(
-        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+    def _import_externalfile(
+        self,
+        external_file: IndividualExternalFile,
+        caseqc: CaseQc,
+        individual_name: str | None = None,
     ):
         """Import quality metrics from external file, if any.
 
@@ -389,21 +402,19 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             return  # no detailed type
 
         base_mimetype, x_detailed_type = mimetype.split("+", 1)
-        if x_detailed_type not in self.handlers:
+        maps = (self.handlers_individual, self.handlers_pedigree)
+        if not any(x_detailed_type in map for map in maps):
             return  # no handler configured
 
-        if base_mimetype != "text/csv":
-            return  # only CSV supported
+        if x_detailed_type in self.handlers_individual:
+            self.handlers_individual[x_detailed_type](individual_name, external_file, caseqc)
+        else:
+            assert x_detailed_type in self.handlers_pedigree
+            self.handlers_pedigree[x_detailed_type](external_file, caseqc)
 
-        self.handlers[x_detailed_type](individual_name, external_file, caseqc)
-
-    def _import_dragen_qc_cnv_metrics(
-        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
-    ):
-        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+    def _import_dragen_qc_cnv_metrics(self, external_file: PedigreeExternalFile, caseqc: CaseQc):
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_cnv_metrics(
-                sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )
@@ -452,13 +463,9 @@ class DragenQcImportExecutor(FileImportExecutorBase):
                 caseqc=caseqc,
             )
 
-    def _import_dragen_qc_sv_metrics(
-        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
-    ):
-        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+    def _import_dragen_qc_sv_metrics(self, external_file: PedigreeExternalFile, caseqc: CaseQc):
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_sv_metrics(
-                sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )
@@ -486,23 +493,17 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             )
 
     def _import_dragen_qc_vc_hethom_ratio_metrics(
-        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
+        self, external_file: PedigreeExternalFile, caseqc: CaseQc
     ):
-        sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_hethom_ratio_metrics(
-                sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )
 
-    def _import_dragen_qc_vc_metrics(
-        self, individual_name: str, external_file: IndividualExternalFile, caseqc: CaseQc
-    ):
-        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+    def _import_dragen_qc_vc_metrics(self, external_file: PedigreeExternalFile, caseqc: CaseQc):
         with self.fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_metrics(
-                sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )
@@ -610,6 +611,48 @@ class DragenQcImportExecutor(FileImportExecutorBase):
             io_dragen.load_region_overall_mean_cov(
                 sample=sample_name,
                 region_name=region_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_samtools_qc_bcftools_stats(
+        self, external_file: PedigreeExternalFile, caseqc: CaseQc
+    ):
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_samtools.load_bcftools_stats(
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_samtools_qc_samtools_flagstat(
+        self, individual_name: str, external_file: PedigreeExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_samtools.load_samtools_flagstat(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_samtools_qc_samtools_idxstats(
+        self, individual_name: str, external_file: PedigreeExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_samtools.load_samtools_idxstats(
+                sample=sample_name,
+                input_file=inputf,
+                caseqc=caseqc,
+            )
+
+    def _import_samtools_qc_samtools_stats(
+        self, individual_name: str, external_file: PedigreeExternalFile, caseqc: CaseQc
+    ):
+        sample_name = external_file.identifier_map.get(individual_name, individual_name)
+        with self.fs.open(external_file.path, "rt") as inputf:
+            io_samtools.load_samtools_stats(
+                sample=sample_name,
                 input_file=inputf,
                 caseqc=caseqc,
             )

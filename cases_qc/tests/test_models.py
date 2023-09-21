@@ -41,6 +41,7 @@ from cases_qc.tests.factories import (
     DragenRohMetricsFactory,
     DragenStyleCoverageFactory,
     DragenStyleMetricFactory,
+    DragenSvMetricsFactory,
     DragenTimeMetricsFactory,
     DragenTrimmerMetricsFactory,
     DragenVcHethomRatioMetricsFactory,
@@ -54,7 +55,6 @@ from cases_qc.tests.factories import (
     SamtoolsIdxstatsMetricsFactory,
     SamtoolsStatsMainMetricsFactory,
     SamtoolsStatsSupplementaryMetricsFactory,
-    StrucvarMetricsFactory,
 )
 
 
@@ -226,7 +226,7 @@ class DragenStrucvarMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenSvMetrics.objects.count(), 0)
-        _obj = StrucvarMetricsFactory()
+        _obj = DragenSvMetricsFactory()
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenSvMetrics.objects.count(), 1)
