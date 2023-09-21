@@ -21,13 +21,11 @@ class ParserRunMixin:
 
             if len(record) < 2:
                 raise ValueError(f"record {record} has less than 2 fields")
-            if record[1] != "0":
-                raise ValueError("currently, only single-set (ID=0) files can be loaded, id is {record[1]}")
             token = record[0].lower()
             if hasattr(self, f"_handle_{token}"):
                 getattr(self, f"_handle_{token}")(record)
             else:
-                raise ValueError("do not know how to handle lien with id {record[0]}")
+                raise ValueError(f"do not know how to handle line with id {record[0]}")
 
 
 class BcftoolsStatsParser(ParserRunMixin):
@@ -45,7 +43,8 @@ class BcftoolsStatsParser(ParserRunMixin):
 
     def _handle_id(self, record: list[str]):
         """Skip ``ID`` lines."""
-        pass
+        if record[1] != "0":
+            raise ValueError(f"at the moment, only single-sample VCFs are supported (ID={record[1]})")
 
     def _handle_sn(self, record: list[str]):
         """Handle parsing of ``SN`` lines."""
@@ -134,7 +133,7 @@ class BcftoolsStatsParser(ParserRunMixin):
         """Handle parsing of ``DP`` lines."""
         self.dp.append(
             models.BcftoolsStatsDpRecord(
-                bin=int(record[2]),
+                bin=int(record[2].replace('>', "")),
                 gts=int(record[3]),
                 gts_frac=float(record[4]),
                 sites=int(record[5]),
@@ -267,8 +266,8 @@ class SamtoolsStatsParser(ParserRunMixin):
 
         self.cov: list[models.SamtoolsStatsHistoRecord] = []
         self.gcd: list[models.SamtoolsStatsGcdRecord] = []
-        self.id: list[models.SamtoolsStatsIddRecord] = []
-        self.ic: list[models.SamtoolsStatsIddRecord] = []
+        self.idd: list[models.SamtoolsStatsIdRecord] = []
+        self.ic: list[models.SamtoolsStatsIcRecord] = []
 
     def _handle_chk(self, record: list[str]):
         """Handle parsing of ``CHK`` lines."""
@@ -276,7 +275,7 @@ class SamtoolsStatsParser(ParserRunMixin):
             models.SamtoolsStatsChkRecord(
                 read_names_crc32=record[1],
                 sequences_crc32=record[2],
-                quality_crc32=record[3],
+                qualities_crc32=record[3],
             )
         )
 
@@ -311,17 +310,17 @@ class SamtoolsStatsParser(ParserRunMixin):
         """Handle parsing of ``GCF`` lines."""
         self.gcf.append(
             models.SamtoolsStatsGcRecord(
-                gc=float(record[1]),
-                counts=int(record[2]),
+                gc_content=float(record[1]),
+                count=int(record[2]),
             )
         )
 
     def _handle_gcl(self, record: list[str]):
         """Handle parsing of ``GCL`` lines."""
-        self.gcf.append(
+        self.gcl.append(
             models.SamtoolsStatsGcRecord(
-                gc=float(record[1]),
-                counts=int(record[2]),
+                gc_content=float(record[1]),
+                count=int(record[2]),
             )
         )
 
@@ -332,13 +331,13 @@ class SamtoolsStatsParser(ParserRunMixin):
         lst.append(
             models.SamtoolsStatsBasePercentagesRecord(
                 cycle=int(record[1]),
-                counts=[int(x) for x in record[2:]],
+                percentages=[float(x) for x in record[2:]],
             )
         )
 
     def _handle_gcc(self, record: list[str]):
         """Handle parsing of ``GCC`` lines."""
-        self._handle_base_percentage_record(self.gcf, record)
+        self._handle_base_percentage_record(self.gcc, record)
 
     def _handle_gct(self, record: list[str]):
         """Handle parsing of ``GCT`` lines."""
@@ -347,6 +346,9 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_fbc(self, record: list[str]):
         """Handle parsing of ``FBC`` lines."""
         self._handle_base_percentage_record(self.fbc, record)
+
+    def _handle_ftc(self, record: list[str]):
+        """Skip ``FTC`` lines."""
 
     def _handle_lbc(self, record: list[str]):
         """Handle parsing of ``LBC`` lines."""
@@ -400,9 +402,9 @@ class SamtoolsStatsParser(ParserRunMixin):
 
     def _handle_id(self, record: list[str]):
         """Handle ID lines."""
-        self.id.append(
+        self.idd.append(
             models.SamtoolsStatsIdRecord(
-                cycle=int(record[1]),
+                length=int(record[1]),
                 ins=int(record[2]),
                 dels=float(record[3]),
             )
@@ -452,6 +454,8 @@ def load_samtools_stats(
     main = models.SamtoolsStatsMainMetrics.objects.create(
         caseqc=caseqc,
         sample=sample,
+        sn=parser.sn,
+        chk=parser.chk,
         isize=parser.isize,
         cov=parser.cov,
         gcd=parser.gcd,
@@ -461,6 +465,7 @@ def load_samtools_stats(
         ffq=parser.ffq,
         lfq=parser.lfq,
         fbc=parser.fbc,
+        lbc=parser.lbc,
     )
     supplementary = models.SamtoolsStatsSupplementaryMetrics.objects.create(
         caseqc=caseqc,

@@ -526,7 +526,7 @@ class SamtoolsStatsSupplementaryMetrics(CaseQcBaseModel):
     #: mapping qualities
     mapq = SchemaField(schema=list[SamtoolsStatsHistoRecord], blank=False, null=False)
     #: indel distribution (per cycle)
-    ic = SchemaField(schema=list[SamtoolsStatsIdRecord], blank=False, null=False)
+    ic = SchemaField(schema=list[SamtoolsStatsIcRecord], blank=False, null=False)
 
 
 class SamtoolsFlagstatRecord(pydantic.BaseModel):

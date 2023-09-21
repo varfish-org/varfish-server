@@ -72,7 +72,7 @@ class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
+class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 

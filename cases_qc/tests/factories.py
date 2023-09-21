@@ -363,18 +363,18 @@ class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
     def sample(self):
         return self.caseqc.case.pedigree[0]["patient"]
 
-    sn = factory.LazyAttribute(lambda _o: SamtoolsStatsSnRecordFactory())
-    chk = factory.LazyAttribute(lambda _o: SamtoolsStatsChkRecordFactory())
-    isize = factory.LazyAttribute(lambda _o: SamtoolsStatsIsRecordFactory())
-    cov = factory.LazyAttribute(lambda _o: SamtoolsStatsHistoRecordFactory())
-    gcd = factory.LazyAttribute(lambda _o: SamtoolsStatsGcdRecordFactory())
-    frl = factory.LazyAttribute(lambda _o: SamtoolsStatsHistoRecordFactory())
-    lrl = factory.LazyAttribute(lambda _o: SamtoolsStatsHistoRecordFactory())
-    idd = factory.LazyAttribute(lambda _o: SamtoolsStatsIdRecordFactory())
-    ffq = factory.LazyAttribute(lambda _o: SamtoolsStatsFqRecordFactory())
-    lfq = factory.LazyAttribute(lambda _o: SamtoolsStatsFqRecordFactory())
-    fbc = factory.LazyAttribute(lambda _o: SamtoolsStatsBasePercentagesRecordFactory())
-    lbc = factory.LazyAttribute(lambda _o: SamtoolsStatsBasePercentagesRecordFactory())
+    sn = factory.LazyAttribute(lambda _o: [SamtoolsStatsSnRecordFactory()])
+    chk = factory.LazyAttribute(lambda _o: [SamtoolsStatsChkRecordFactory()])
+    isize = factory.LazyAttribute(lambda _o: [SamtoolsStatsIsRecordFactory()])
+    cov = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecordFactory()])
+    gcd = factory.LazyAttribute(lambda _o: [SamtoolsStatsGcdRecordFactory()])
+    frl = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecordFactory()])
+    lrl = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecordFactory()])
+    idd = factory.LazyAttribute(lambda _o: [SamtoolsStatsIdRecordFactory()])
+    ffq = factory.LazyAttribute(lambda _o: [SamtoolsStatsFqRecordFactory()])
+    lfq = factory.LazyAttribute(lambda _o: [SamtoolsStatsFqRecordFactory()])
+    fbc = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecordFactory()])
+    lbc = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecordFactory()])
 
 
 class SamtoolsStatsSupplementaryMetricsFactory(factory.django.DjangoModelFactory):
@@ -391,13 +391,13 @@ class SamtoolsStatsSupplementaryMetricsFactory(factory.django.DjangoModelFactory
     def sample(self):
         return self.caseqc.case.pedigree[0]["patient"]
 
-    gcf = factory.LazyAttribute(lambda _o: [SamtoolsStatsGcRecord()])
-    gcl = factory.LazyAttribute(lambda _o: [SamtoolsStatsGcRecord()])
-    gcc = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecord()])
-    gct = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecord()])
-    rl = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecord()])
-    mapq = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecord()])
-    ic = factory.LazyAttribute(lambda _o: [SamtoolsStatsIdRecord()])
+    gcf = factory.LazyAttribute(lambda _o: [SamtoolsStatsGcRecordFactory()])
+    gcl = factory.LazyAttribute(lambda _o: [SamtoolsStatsGcRecordFactory()])
+    gcc = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecordFactory()])
+    gct = factory.LazyAttribute(lambda _o: [SamtoolsStatsBasePercentagesRecordFactory()])
+    rl = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecordFactory()])
+    mapq = factory.LazyAttribute(lambda _o: [SamtoolsStatsHistoRecordFactory()])
+    ic = factory.LazyAttribute(lambda _o: [SamtoolsStatsIcRecordFactory()])
 
 
 class SamtoolsFlagstatRecordFactory(factory.Factory):
