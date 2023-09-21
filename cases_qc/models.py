@@ -640,3 +640,21 @@ class CraminoMetrics(CaseQcForSampleBaseModel):
     chrom_counts = SchemaField(
         schema=list[CraminoChromNormalizedCountsRecord], blank=False, null=False
     )
+
+
+class NgsbitsMappingqcRecord(pydantic.BaseModel):
+    """One entry in the output of ngs-bits' MappingQC."""
+
+    #: key
+    key: str
+    #: value
+    value: int | float | str | None
+
+
+class NgsbitsMappingqcMetrics(CaseQcForSampleBaseModel):
+    """Metrics obtained from ngs-bits' MappingQC."""
+
+    #: the name of the region.
+    region_name = models.CharField(max_length=200, null=False, blank=False)
+    #: records
+    records = SchemaField(schema=list[NgsbitsMappingqcRecord], blank=False, null=False)

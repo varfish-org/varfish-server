@@ -31,6 +31,8 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
+    NgsbitsMappingqcMetrics,
+    NgsbitsMappingqcRecord,
     SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
     SamtoolsIdxstatsMetrics,
@@ -506,3 +508,28 @@ class CraminoMetricsFactory(factory.django.DjangoModelFactory):
 
     summary = factory.LazyAttribute(lambda _o: [CraminoSummaryRecordFactory()])
     chrom_counts = factory.LazyAttribute(lambda _o: [CraminoChromNormalizedCountsRecordFactory()])
+
+
+class NgsbitsMappingqcRecordFactory(factory.Factory):
+    class Meta:
+        model = NgsbitsMappingqcRecord
+
+    key = factory.Faker("word")
+    value = factory.Sequence(lambda n: 0.1 * n)
+
+
+class NgsbitsMappingqcMetricsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = NgsbitsMappingqcMetrics
+
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+    caseqc = factory.SubFactory(CaseQcFactory)
+
+    @factory.lazy_attribute
+    def sample(self):
+        return self.caseqc.case.pedigree[0]["patient"]
+
+    region_name = "WGS"
+    records = factory.LazyAttribute(lambda _o: [NgsbitsMappingqcRecordFactory()])
