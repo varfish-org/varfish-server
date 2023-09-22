@@ -86,7 +86,7 @@ class DetailedAlignmentCounts(pydantic.BaseModel):
     mismatch_rate: float
 
     #: statistics of reads with mapq in bins of 10, -1 => unmapped
-    mapq: list[list[int, int]]
+    mapq: list[tuple[int, int]]
 
 
 class SampleAlignmentStats(pydantic.BaseModel):
@@ -98,7 +98,7 @@ class SampleAlignmentStats(pydantic.BaseModel):
     #: aligned reads/pairs count
     detailed_counts: DetailedAlignmentCounts
     #: per-chromosome counts
-    per_chromosome_counts: list[(str, int)]
+    per_chromosome_counts: list[tuple[str, int]]
     #: statistics on insert size
     insert_size_stats: InsertSizeStats
     #: per-region coverage stats

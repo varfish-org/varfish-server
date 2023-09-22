@@ -89,7 +89,7 @@ class BcftoolsStatsQualRecord(pydantic.BaseModel):
     indels: int
 
 
-class BcfToolsStatsIddRecord(pydantic.BaseModel):
+class BcftoolsStatsIddRecord(pydantic.BaseModel):
     """A Record from the ``IDD`` (indel distribution) lines in ``bcftools stats`` output."""
 
     #: length (deletions negative)
@@ -140,7 +140,7 @@ class BcftoolsStatsMetrics(CaseQcBaseModel):
     #: quality (``QUAL`` records)
     qual = SchemaField(schema=list[BcftoolsStatsQualRecord], blank=False, null=False)
     #: indel distribution
-    idd = SchemaField(schema=list[BcfToolsStatsIddRecord], blank=False, null=False)
+    idd = SchemaField(schema=list[BcftoolsStatsIddRecord], blank=False, null=False)
     #: substitution types
     st = SchemaField(schema=list[BcftoolsStatsStRecord], blank=False, null=False)
     #: depth distribution

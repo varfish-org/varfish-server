@@ -603,9 +603,9 @@ class SampleAlignmentStatsFactory(factory.Factory):
 
     sample = factory.Faker("word")
     detailed_counts = factory.SubFactory(DetailedAlignmentCountsFactory)
-    per_chromosome_counts = [("chr1", 10), ("chr2", 20)]
+    per_chromosome_counts = [["chr1", 10], ["chr2", 20]]
     insert_size_stats = factory.SubFactory(InsertSizeStatsFactory)
-    region_coverage_stats = factory.SubFactory(RegionCoverageStatsFactory)
+    region_coverage_stats = factory.lazy_attribute(lambda _o: [RegionCoverageStatsFactory()])
 
 
 class RegionVariantStatsFactory(factory.Factory):

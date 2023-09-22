@@ -7,219 +7,213 @@ from snapshottest import Snapshot
 snapshots = Snapshot()
 
 snapshots["SerializerTest::test_load_00 1"] = {
-    "caseqc": "6bb0fad9-5c6d-4de3-9bd9-607cb928a434",
+    "caseqc": "a5acdba5-944e-4ae8-ace0-d13ec9e9f4e4",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
     "sample": "index_258-N1-DNA1-WES1",
-    "sodar_uuid": "60ab492a-fbe4-453c-ba94-5668b06fe147",
+    "sodar_uuid": "65a66b91-8909-4e83-ad53-10567126dde9",
     "values": [1, 100, 101],
 }
 
 snapshots["SerializerTest::test_load_01 1"] = {
-    "caseqc": "da4c6142-8af4-4244-bf3d-64d6df75b7ea",
-    "date_created": "2012-01-14T12:00:01Z",
-    "date_modified": "2012-01-14T12:00:01Z",
-    "metrics": [
-        {"entry": "second", "name": "go", "section": "expert", "value": 42, "value_float": 3.14}
-    ],
-    "sodar_uuid": "b8416db1-766b-4fe4-a2e2-3283818f057e",
-}
-
-snapshots["SerializerTest::test_load_02 1"] = {
-    "caseqc": "0f480805-7672-43b2-8347-e6349249994c",
+    "caseqc": "ecbe1e84-c850-4417-8f81-a8026a41d02c",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
         {
-            "entry": "physical",
-            "name": "describe",
-            "section": "need",
+            "entry": "create",
+            "name": "clearly",
+            "section": "available",
             "value": 42,
             "value_float": 3.14,
         }
     ],
+    "sodar_uuid": "c862f5f2-5df6-48c2-9ab1-9142b51c44d9",
+}
+
+snapshots["SerializerTest::test_load_02 1"] = {
+    "caseqc": "eb8664ba-e69b-4b89-9fef-8b920f9ce5b8",
+    "date_created": "2012-01-14T12:00:01Z",
+    "date_modified": "2012-01-14T12:00:01Z",
+    "metrics": [
+        {"entry": "feel", "name": "church", "section": "central", "value": 42, "value_float": 3.14}
+    ],
     "sample": "index_260-N1-DNA1-WES1",
-    "sodar_uuid": "a01eee31-2c1e-442d-9522-3986e7ffdb98",
+    "sodar_uuid": "b0a6218b-e94f-4023-8c83-061f40180ed4",
 }
 
 snapshots["SerializerTest::test_load_03 1"] = {
-    "caseqc": "00a123b4-97cc-40e3-9c30-93fd2b67bff8",
+    "caseqc": "92a6f491-4fe0-43f3-a882-5aa4c447ad10",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "leave", "name": "current", "section": "local", "value": 42, "value_float": 3.14}
+        {"entry": "work", "name": "keep", "section": "state", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_261-N1-DNA1-WES1",
-    "sodar_uuid": "bfe496fd-cb1e-4a25-9f5f-96a2cd6c62ce",
+    "sodar_uuid": "5e8592d2-1839-484f-bb88-1b25c90f1393",
 }
 
 snapshots["SerializerTest::test_load_04 1"] = {
-    "caseqc": "7bc39e46-6bdb-44cc-a98f-73630623f9c4",
+    "caseqc": "ba372e6b-14f5-4c21-92a1-99c4f2c3b5d7",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "father", "name": "similar", "section": "total", "value": 42, "value_float": 3.14}
+        {"entry": "ago", "name": "same", "section": "effect", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
     "sample": "index_262-N1-DNA1-WES1",
-    "sodar_uuid": "27c1a187-d903-4a80-8b96-ceb28b4d9141",
+    "sodar_uuid": "dede5217-55df-441b-8364-4ea455b77b4d",
 }
 
 snapshots["SerializerTest::test_load_05 1"] = {
-    "caseqc": "afa6df56-eb77-4b8b-b818-c22b5effa04c",
+    "caseqc": "2077ec67-7477-44db-94fb-0cef4e273f18",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
-    "region_name": "shoulder",
+    "region_name": "sign",
     "sample": "index_263-N1-DNA1-WES1",
-    "sodar_uuid": "f8d204fe-5d88-4c03-8209-d73ba40e1414",
+    "sodar_uuid": "2015f5b0-54fa-4f47-9b32-d35a2a35e69c",
     "values": [1, 100, 101],
 }
 
 snapshots["SerializerTest::test_load_06 1"] = {
-    "caseqc": "08e2ef02-2420-4b2b-8820-348b2d91551f",
+    "caseqc": "e55d7700-52de-4fa6-b6df-32db2236a69a",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {
-            "entry": "campaign",
-            "name": "level",
-            "section": "resource",
-            "value": 42,
-            "value_float": 3.14,
-        }
+        {"entry": "them", "name": "computer", "section": "dog", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
     "sample": "index_264-N1-DNA1-WES1",
-    "sodar_uuid": "8b6f88e8-6d9d-42cb-befa-94263af09061",
+    "sodar_uuid": "bf3b400b-386f-413e-8f17-44cba902beed",
 }
 
 snapshots["SerializerTest::test_load_07 1"] = {
-    "caseqc": "67037959-85ba-45de-957f-7e38e1a068d8",
+    "caseqc": "0c31c2d0-0317-477f-8d09-e21e9d7dfad3",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "think", "name": "large", "section": "strong", "value": 42, "value_float": 3.14}
+        {
+            "entry": "notice",
+            "name": "movement",
+            "section": "decide",
+            "value": 42,
+            "value_float": 3.14,
+        }
     ],
     "region_name": "",
     "sample": "index_265-N1-DNA1-WES1",
-    "sodar_uuid": "a144998d-6731-49be-8632-61520aae7618",
+    "sodar_uuid": "055ae05f-b697-4018-8a2d-73c9f39a9a0a",
 }
 
 snapshots["SerializerTest::test_load_08 1"] = {
-    "caseqc": "e3ebda31-92b1-4c71-894c-4d76527611f8",
+    "caseqc": "298ca091-ed4f-4c68-8b2f-12fc669eeaca",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "father", "name": "by", "section": "pretty", "value": 42, "value_float": 3.14}
+        {
+            "entry": "decision",
+            "name": "north",
+            "section": "senior",
+            "value": 42,
+            "value_float": 3.14,
+        }
     ],
     "sample": "index_266-N1-DNA1-WES1",
-    "sodar_uuid": "b59ccb07-162b-437d-8231-c4965967a84a",
+    "sodar_uuid": "a23e3ffe-1e1b-4ef6-846a-256705b64571",
 }
 
 snapshots["SerializerTest::test_load_09 1"] = {
-    "caseqc": "185077c4-5103-479f-9c5e-6a413ad09232",
+    "caseqc": "e222918b-29ed-404a-9c87-1886285f7d67",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "lose", "name": "whom", "section": "available", "value": 42, "value_float": 3.14}
+        {"entry": "drive", "name": "live", "section": "of", "value": 42, "value_float": 3.14}
     ],
-    "sodar_uuid": "4eb3fda0-c909-47f8-9071-b1f7595cbe1a",
+    "sodar_uuid": "e16af9c9-1316-428c-95b6-a3d294024421",
 }
 
 snapshots["SerializerTest::test_load_10 1"] = {
-    "caseqc": "f85e81af-3092-45c1-a7ce-22698c63f522",
+    "caseqc": "3d204381-a24b-48e3-85aa-6e7aed95ce35",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
         {
-            "entry": "later",
-            "name": "maintain",
-            "section": "treatment",
+            "entry": "benefit",
+            "name": "reflect",
+            "section": "whether",
             "value": 42,
             "value_float": 3.14,
         }
     ],
-    "sodar_uuid": "7e039e94-adb3-45df-9a7b-b718a0aefe75",
+    "sodar_uuid": "95c1f475-251a-46c9-85e5-c116f45abc36",
 }
 
 snapshots["SerializerTest::test_load_11 1"] = {
-    "caseqc": "4166c95e-7363-4729-9b5f-ed3f4f68ffef",
+    "caseqc": "d4e84156-1b39-4562-8d94-5b01484f5b2b",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {
-            "entry": "method",
-            "name": "improve",
-            "section": "responsibility",
-            "value": 42,
-            "value_float": 3.14,
-        }
+        {"entry": "away", "name": "American", "section": "last", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_269-N1-DNA1-WES1",
-    "sodar_uuid": "96c8b711-871e-425a-ba1b-19ab595a2844",
+    "sodar_uuid": "9845349c-6594-46a8-942e-0e190ae597a1",
 }
 
 snapshots["SerializerTest::test_load_12 1"] = {
-    "caseqc": "8d78cd1c-b899-4594-97b8-c6e8e2a56df2",
+    "caseqc": "21bffc82-8dec-4682-8993-9e3da17f3bd4",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "market", "name": "agency", "section": "center", "value": 42, "value_float": 3.14}
+        {"entry": "risk", "name": "later", "section": "board", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_270-N1-DNA1-WES1",
-    "sodar_uuid": "48c787c0-beef-449d-b5e5-21b0dbd2c8f3",
+    "sodar_uuid": "8bf4192e-4a2b-4526-9579-3f43eebbe77e",
 }
 
 snapshots["SerializerTest::test_load_13 1"] = {
-    "caseqc": "acf718df-5395-44ea-a83c-94640f091d58",
+    "caseqc": "a2288abc-8a60-47cf-ae25-a2c451643b7c",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {
-            "entry": "movement",
-            "name": "understand",
-            "section": "stay",
-            "value": 42,
-            "value_float": 3.14,
-        }
+        {"entry": "sing", "name": "fine", "section": "energy", "value": 42, "value_float": 3.14}
     ],
-    "sodar_uuid": "333177d8-eeac-4a78-827d-b1929128041f",
+    "sodar_uuid": "442f3082-e736-462f-9802-b9209d4125fd",
 }
 
 snapshots["SerializerTest::test_load_14 1"] = {
-    "caseqc": "d8d84239-6c63-49f5-9e49-56b2654b7329",
+    "caseqc": "ea204d4c-e335-479d-baa6-b736e9e2e11a",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "metrics": [{"contig_len": 12345, "contig_name": "easy", "cov": 3.0}],
+    "metrics": [{"contig_len": 12345, "contig_name": "actually", "cov": 3.0}],
     "sample": "index_272-N1-DNA1-WES1",
-    "sodar_uuid": "69203679-1f65-4699-830d-046981c35334",
+    "sodar_uuid": "acc5d1d2-0d47-4ee4-8140-a39210f9ce31",
 }
 
 snapshots["SerializerTest::test_load_15 1"] = {
-    "caseqc": "71cb195b-4bc3-4d33-9feb-4e0b1eb93edf",
+    "caseqc": "2fad5feb-f69e-419b-a8e8-9f22c7b6db56",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "cost", "name": "air", "section": "capital", "value": 42, "value_float": 3.14}
+        {"entry": "girl", "name": "side", "section": "dog", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_273-N1-DNA1-WES1",
-    "sodar_uuid": "732ef388-5603-4236-a075-0eface47b661",
+    "sodar_uuid": "446e5da5-adbb-447d-9305-4c65b7e32dff",
 }
 
 snapshots["SerializerTest::test_load_16 1"] = {
-    "caseqc": "f27727aa-2de5-4fda-9c7a-6d681a38bf82",
+    "caseqc": "86a350c0-dde1-4e10-8ad4-755ede9ddf62",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
     "sample": "index_274-N1-DNA1-WES1",
-    "sodar_uuid": "9a67ea71-aa91-4196-9e15-3a7225321777",
+    "sodar_uuid": "57291c32-2130-4ad5-b271-4288b559254e",
     "values": [1, 100, 101],
 }
 
 snapshots["SerializerTest::test_load_17 1"] = {
-    "caseqc": "652ca88e-c1d4-4f86-b4f6-d891acb3e420",
+    "caseqc": "3a4d1335-22cb-424d-a979-fce9c308a414",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [
@@ -227,24 +221,26 @@ snapshots["SerializerTest::test_load_17 1"] = {
         "PCT of bases in wgs with coverage [50x:100x)",
     ],
     "sample": "index_275-N1-DNA1-WES1",
-    "sodar_uuid": "bceeb34a-82c9-4ef0-89cb-3ebabe62ad06",
+    "sodar_uuid": "86f9664c-9561-4106-bf6a-4851efb77452",
     "values": [0.21, 26.83],
 }
 
 snapshots["SerializerTest::test_load_18 1"] = {
-    "caseqc": "a446410e-6a5d-40d6-a875-41193b56ef65",
+    "caseqc": "ef909d21-bbe1-486f-8961-37fa1f90fc8b",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "appear", "name": "argue", "section": "similar", "value": 42, "value_float": 3.14}
+        {"entry": "thank", "name": "his", "section": "everything", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_276-N1-DNA1-WES1",
-    "sodar_uuid": "e7c6b2df-a5e4-487b-99cc-d13dd7fe375a",
+    "sodar_uuid": "b4df16b7-defd-4c86-a5f4-f97917beab21",
 }
 
 snapshots["SerializerTest::test_load_19 1"] = {
-    "caseqc": "c24bb5d2-e973-4d41-a95f-ac901ebc560b",
-    "chk": [{"qualities_crc32": "high", "read_names_crc32": "majority", "sequences_crc32": "own"}],
+    "caseqc": "0de4395f-fe5d-4db2-9b69-3431d99d1b2d",
+    "chk": [
+        {"qualities_crc32": "commercial", "read_names_crc32": "during", "sequences_crc32": "sport"}
+    ],
     "cov": [{"count": 5, "value": 5}],
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
@@ -276,12 +272,12 @@ snapshots["SerializerTest::test_load_19 1"] = {
     "lfq": [{"counts": [3], "cycle": 3}],
     "lrl": [{"count": 7, "value": 7}],
     "sample": "index_277-N1-DNA1-WES1",
-    "sn": [{"key": "arrive", "value": 1}],
-    "sodar_uuid": "8e977c6c-7414-4b29-92d0-187f168f6d0c",
+    "sn": [{"key": "dark", "value": 1}],
+    "sodar_uuid": "8e3bed6d-be1b-4d7d-a26a-e6768afc6c59",
 }
 
 snapshots["SerializerTest::test_load_20 1"] = {
-    "caseqc": "ce7aee94-73f6-4ba7-8522-9c58f0dce7f4",
+    "caseqc": "0a20a11c-f226-4d79-94e3-2b74c42e4be1",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "gcc": [{"cycle": 6, "percentages": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]}],
@@ -292,11 +288,11 @@ snapshots["SerializerTest::test_load_20 1"] = {
     "mapq": [{"count": 9, "value": 9}],
     "rl": [{"count": 8, "value": 8}],
     "sample": "index_278-N1-DNA1-WES1",
-    "sodar_uuid": "87325398-f9fa-4cc1-be94-cea8f522ac19",
+    "sodar_uuid": "7a616f1a-fb37-4165-afc8-833ea6bf8737",
 }
 
 snapshots["SerializerTest::test_load_21 1"] = {
-    "caseqc": "3fd77c60-cfe3-4d3d-81e1-9021d46903d7",
+    "caseqc": "b7542261-3110-4a40-aacd-4104c8cefedb",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "qc_fail": {
@@ -336,34 +332,34 @@ snapshots["SerializerTest::test_load_21 1"] = {
         "with_mate_mapped_to_different_chr_mapq5": 2,
     },
     "sample": "index_279-N1-DNA1-WES1",
-    "sodar_uuid": "dd6a385c-d46b-4394-af2a-d84b9cf5e277",
+    "sodar_uuid": "a2c8ff8c-a9d8-4893-8049-3e3a87ffe5da",
 }
 
 snapshots["SerializerTest::test_load_22 1"] = {
-    "caseqc": "b644a4a6-1d30-484a-8611-2f5162561094",
+    "caseqc": "db24acb8-0c4a-42db-9cd4-cda079c1c0ca",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"contig_len": 1, "contig_name": "someone", "mapped": 1, "unmapped": 1}],
+    "records": [{"contig_len": 1, "contig_name": "put", "mapped": 1, "unmapped": 1}],
     "sample": "index_280-N1-DNA1-WES1",
-    "sodar_uuid": "ffa4c7f6-5389-41fe-be6a-c781859a6fce",
+    "sodar_uuid": "2de1e145-a3ba-4445-97ad-755d887a1889",
 }
 
 snapshots["SerializerTest::test_load_23 1"] = {
-    "caseqc": "a0bd6285-5d59-4047-be6f-3191b216b428",
-    "chrom_counts": [{"chrom_name": "worry", "normalized_counts": 0.1}],
+    "caseqc": "32c18c12-2d63-470d-9185-a911a96478dc",
+    "chrom_counts": [{"chrom_name": "meet", "normalized_counts": 0.1}],
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "sample": "index_281-N1-DNA1-WES1",
-    "sodar_uuid": "ab7a5f44-2b5b-47cd-ba74-b670e1605e4c",
-    "summary": [{"key": "hundred", "value": 1}],
+    "sodar_uuid": "db888856-8fd6-4785-b594-4637fe33b285",
+    "summary": [{"key": "because", "value": 1}],
 }
 
 snapshots["SerializerTest::test_load_24 1"] = {
-    "caseqc": "81c20c0b-9571-4988-a285-8f1e14253390",
+    "caseqc": "156eb1d9-2699-408c-ba6d-335620f6c9fb",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"key": "listen", "value": 0.0}],
+    "records": [{"key": "teach", "value": 0.0}],
     "region_name": "WGS",
     "sample": "index_282-N1-DNA1-WES1",
-    "sodar_uuid": "3a145383-781e-4286-a138-70e524c4f889",
+    "sodar_uuid": "8052e4f4-58b8-47a7-a760-f0942aaf90b9",
 }

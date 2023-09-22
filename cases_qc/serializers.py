@@ -36,7 +36,7 @@ from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics, NgsbitsMappingqcRec
 from cases_qc.models.samtools import (
     BcftoolsStatsAfRecord,
     BcftoolsStatsDpRecord,
-    BcfToolsStatsIddRecord,
+    BcftoolsStatsIddRecord,
     BcftoolsStatsMetrics,
     BcftoolsStatsQualRecord,
     BcftoolsStatsSisRecord,
@@ -207,7 +207,7 @@ class BcftoolsStatsMetricsSerializer(QcSerializerBase):
     sis = SchemaField(schema=list[BcftoolsStatsSisRecord])
     af = SchemaField(schema=list[BcftoolsStatsAfRecord])
     qual = SchemaField(schema=list[BcftoolsStatsQualRecord])
-    idd = SchemaField(schema=list[BcfToolsStatsIddRecord])
+    idd = SchemaField(schema=list[BcftoolsStatsIddRecord])
     st = SchemaField(schema=list[BcftoolsStatsStRecord])
     dp = SchemaField(schema=list[BcftoolsStatsDpRecord])
 

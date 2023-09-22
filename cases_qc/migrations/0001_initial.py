@@ -1115,7 +1115,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.samtools.BcfToolsStatsIddRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsIddRecord,)
                         ),
                     ),
                 ),
