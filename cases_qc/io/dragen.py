@@ -274,6 +274,7 @@ def load_wgs_overall_mean_cov(
         input_file=input_file,
         caseqc=caseqc,
         model=models.DragenWgsOverallMeanCov,
+        fieldnames=("entry", "value"),
     )
 
 

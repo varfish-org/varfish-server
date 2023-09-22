@@ -319,7 +319,7 @@ class DragenWgsFineHistTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsFineHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -338,7 +338,7 @@ class DragenWgsHistTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
 
 
 @freeze_time("2012-01-14 12:00:01")

@@ -27,6 +27,9 @@ class DragenStyleMetric(pydantic.BaseModel):
     #: The count as percentage / seconds
     value_float: float | None = None
 
+    class Config:
+        smart_union = True  # prevent "int | float" from float to int conversion
+
 
 class DragenStyleCoverage(pydantic.BaseModel):
     """Pydantic model for Dragen-style coverage metric entries"""
@@ -237,6 +240,9 @@ class BcftoolsStatsSnRecord(pydantic.BaseModel):
     key: str
     #: Value of the summarized metric
     value: int | float | str | None
+
+    class Config:
+        smart_union = True  # prevent "int | float" from float to int conversion
 
 
 class BcftoolsStatsTstvRecord(pydantic.BaseModel):
@@ -621,6 +627,9 @@ class CraminoSummaryRecord(pydantic.BaseModel):
     #: value
     value: int | float | str
 
+    class Config:
+        smart_union = True  # prevent "int | float" from float to int conversion
+
 
 class CraminoChromNormalizedCountsRecord(pydantic.BaseModel):
     """Store one chrom/normalized read counts record from Cramino output."""
@@ -649,6 +658,9 @@ class NgsbitsMappingqcRecord(pydantic.BaseModel):
     key: str
     #: value
     value: int | float | str | None
+
+    class Config:
+        smart_union = True  # prevent "int | float" from float to int conversion
 
 
 class NgsbitsMappingqcMetrics(CaseQcForSampleBaseModel):

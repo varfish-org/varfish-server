@@ -1,3 +1,4 @@
+import re
 import typing
 
 
@@ -9,10 +10,13 @@ def try_cast(
     if value in none_values and None in types:
         return None
 
-    for type in types:
-        if type is not None:
+    for type_ in types:
+        if type_ is not None:
+            value = value.strip()  # strip whitespace
+            if type_ is int and not re.match(r"^\d+$", value):
+                continue  # int("1.1") works but we don't want that
             try:
-                return type(value)
+                return type_(value)
             except ValueError:
                 continue
     if None in types:
