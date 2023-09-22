@@ -63,7 +63,7 @@ from cases_qc.tests.factories import (
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenCnvMetricsSerializerTest(TestCaseSnapshot, TestCase):
+class SerializerTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
 
@@ -97,7 +97,8 @@ class DragenCnvMetricsSerializerTest(TestCaseSnapshot, TestCase):
         ]
     )
     @patch("faker.providers.misc.Provider.uuid4", new_callable=helpers.determined_uuids)
-    def test_load(self, factory, serializer, _mock_uuid):
-        obj = factory()
-        serializer = serializer(obj)
-        self.assertMatchSnapshot(serializer.data)
+    @patch("faker.providers.lorem.Provider.word", new_callable=helpers.determined_words)
+    def test_load(self, factory_class, serializer_class, _mock_uuid, _mock_word):
+        obj = factory_class()
+        serializer = serializer_class(obj)
+        self.assertMatchSnapshot(dict(serializer.data))

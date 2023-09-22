@@ -1,7 +1,6 @@
 import datetime
 
 import factory
-import factory.fuzzy
 
 from cases.tests.factories import CaseFactory
 from cases_qc.models import (
@@ -59,17 +58,17 @@ class DragenStyleMetricFactory(factory.Factory):
     entry = factory.Faker("word")
     value = factory.Faker("word")
     name = factory.Faker("word")
-    value = factory.fuzzy.FuzzyChoice([None, 42, 3.14, "foo"])
-    value_float = factory.fuzzy.FuzzyChoice([None, 42, 3.14])
+    value = 42
+    value_float = 3.14
 
 
 class DragenStyleCoverageFactory(factory.Factory):
     class Meta:
         model = DragenStyleCoverage
 
-    contig_name = factory.fuzzy.FuzzyText(length=2, prefix="chr")
-    contig_len = factory.fuzzy.FuzzyInteger(1, 1000000)
-    cov = factory.fuzzy.FuzzyFloat(0.0, 60.0)
+    contig_name = factory.Faker("word")
+    contig_len = 12345
+    cov = 3.0
 
 
 class CaseQcFactory(factory.django.DjangoModelFactory):
