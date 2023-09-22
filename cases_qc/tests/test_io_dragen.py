@@ -4,7 +4,7 @@ from test_plus import TestCase
 
 from cases_qc.io import dragen as io_dragen
 import cases_qc.io.utils
-from cases_qc.models import (
+from cases_qc.models.dragen import (
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,

@@ -1,21 +1,15 @@
 from django_pydantic_field.rest_framework import SchemaField
 from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
+import rest_framework.serializers
 
-from cases_qc.models import (
-    BcftoolsStatsAfRecord,
-    BcftoolsStatsDpRecord,
-    BcfToolsStatsIddRecord,
-    BcftoolsStatsMetrics,
-    BcftoolsStatsQualRecord,
-    BcftoolsStatsSisRecord,
-    BcftoolsStatsSnRecord,
-    BcftoolsStatsStRecord,
-    BcftoolsStatsTstvRecord,
-    CaseQc,
+from cases_qc.models import CaseQc
+from cases_qc.models.cramino import (
     CraminoChromNormalizedCountsRecord,
     CraminoMetrics,
     CraminoSummaryRecord,
+)
+from cases_qc.models.dragen import (
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -37,8 +31,18 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
-    NgsbitsMappingqcMetrics,
-    NgsbitsMappingqcRecord,
+)
+from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics, NgsbitsMappingqcRecord
+from cases_qc.models.samtools import (
+    BcftoolsStatsAfRecord,
+    BcftoolsStatsDpRecord,
+    BcfToolsStatsIddRecord,
+    BcftoolsStatsMetrics,
+    BcftoolsStatsQualRecord,
+    BcftoolsStatsSisRecord,
+    BcftoolsStatsSnRecord,
+    BcftoolsStatsStRecord,
+    BcftoolsStatsTstvRecord,
     SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
     SamtoolsIdxstatsMetrics,
@@ -55,6 +59,13 @@ from cases_qc.models import (
     SamtoolsStatsMainMetrics,
     SamtoolsStatsSnRecord,
     SamtoolsStatsSupplementaryMetrics,
+)
+from cases_qc.models.varfish import (
+    RegionVariantStats,
+    SampleAlignmentStats,
+    SampleReadStats,
+    SampleSeqvarStats,
+    SampleStrucvarStats,
 )
 
 
@@ -354,3 +365,12 @@ class CaseQcSerializer(SODARModelSerializer):
     class Meta:
         model = CaseQc
         exclude = ("id",)
+
+
+class VarFishStatsSerializer(rest_framework.serializers.Serializer):
+    """Serializer for common-denominator stats objects"""
+
+    readstats = SchemaField(schema=list[SampleReadStats])
+    alignmentstats = SchemaField(schema=list[SampleAlignmentStats])
+    seqvarsstats = SchemaField(schema=list[SampleSeqvarStats])
+    strucvarstats = SchemaField(schema=list[SampleStrucvarStats])

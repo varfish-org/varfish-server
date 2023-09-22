@@ -3,7 +3,7 @@ from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
 from cases_qc.io import ngsbits as io_ngsbits
-from cases_qc.models import NgsbitsMappingqcMetrics
+from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics
 from cases_qc.tests.factories import CaseQcFactory
 from cases_qc.tests.helpers import extract_from_dict
 

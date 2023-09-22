@@ -13,7 +13,8 @@ from cases.models import Case
 from cases.tests.factories import IndividualFactory, PedigreeFactory
 from cases_import.models import CaseImportAction, CaseImportBackgroundJobExecutor
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
-from cases_qc.models import CaseQc, DragenCnvMetrics
+from cases_qc.models import CaseQc
+from cases_qc.models.dragen import DragenCnvMetrics
 from seqmeta.tests.factories import TargetBedFileFactory
 from variants.tests.factories import CaseFactory
 

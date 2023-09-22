@@ -1,10 +1,9 @@
 from freezegun import freeze_time
 from test_plus import TestCase
 
-from cases_qc.models import (
-    Case,
-    CaseQc,
-    CraminoMetrics,
+from cases_qc.models import Case, CaseQc
+from cases_qc.models.cramino import CraminoMetrics
+from cases_qc.models.dragen import (
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -24,6 +23,8 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
+)
+from cases_qc.models.samtools import (
     SamtoolsFlagstatMetrics,
     SamtoolsIdxstatsMetrics,
     SamtoolsStatsMainMetrics,
@@ -32,6 +33,7 @@ from cases_qc.models import (
 from cases_qc.tests.factories import (
     CaseQcFactory,
     CraminoMetricsFactory,
+    DetailedAlignmentCountsFactory,
     DragenCnvMetricsFactory,
     DragenFragmentLengthHistogramFactory,
     DragenMappingMetricsFactory,
@@ -53,6 +55,13 @@ from cases_qc.tests.factories import (
     DragenWgsFineHistFactory,
     DragenWgsHistFactory,
     DragenWgsOverallMeanCovFactory,
+    InsertSizeStatsFactory,
+    RegionCoverageStatsFactory,
+    RegionVariantStatsFactory,
+    SampleAlignmentStatsFactory,
+    SampleReadStatsFactory,
+    SampleSeqvarStatsFactory,
+    SampleStrucvarStatsFactory,
     SamtoolsFlagstatMetricsFactory,
     SamtoolsIdxstatsMetricsFactory,
     SamtoolsStatsMainMetricsFactory,
@@ -442,3 +451,18 @@ class CraminoMetricsTest(TestCase):
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(CraminoMetrics.objects.count(), 1)
+
+
+class VarfishPydanticTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_smoke(self):
+        SampleReadStatsFactory()
+        RegionCoverageStatsFactory()
+        InsertSizeStatsFactory()
+        DetailedAlignmentCountsFactory()
+        SampleAlignmentStatsFactory()
+        RegionVariantStatsFactory()
+        SampleSeqvarStatsFactory()
+        SampleStrucvarStatsFactory()

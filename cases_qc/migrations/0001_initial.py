@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsGcRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsGcRecord,)
                         ),
                     ),
                 ),
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsGcRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsGcRecord,)
                         ),
                     ),
                 ),
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsBasePercentagesRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord,)
                         ),
                     ),
                 ),
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsBasePercentagesRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord,)
                         ),
                     ),
                 ),
@@ -104,7 +104,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsHistoRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsHistoRecord,)
                         ),
                     ),
                 ),
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsHistoRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsHistoRecord,)
                         ),
                     ),
                 ),
@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsIcRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsIcRecord,)
                         ),
                     ),
                 ),
@@ -155,7 +155,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsSnRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsSnRecord,)
                         ),
                     ),
                 ),
@@ -164,7 +164,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsChkRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsChkRecord,)
                         ),
                     ),
                 ),
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsIsRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsIsRecord,)
                         ),
                     ),
                 ),
@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsHistoRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsHistoRecord,)
                         ),
                     ),
                 ),
@@ -191,7 +191,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsGcdRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsGcdRecord,)
                         ),
                     ),
                 ),
@@ -200,7 +200,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsHistoRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsHistoRecord,)
                         ),
                     ),
                 ),
@@ -209,7 +209,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsHistoRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsHistoRecord,)
                         ),
                     ),
                 ),
@@ -218,7 +218,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsIdRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsIdRecord,)
                         ),
                     ),
                 ),
@@ -227,7 +227,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsFqRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsFqRecord,)
                         ),
                     ),
                 ),
@@ -236,7 +236,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsFqRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsFqRecord,)
                         ),
                     ),
                 ),
@@ -245,7 +245,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsBasePercentagesRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord,)
                         ),
                     ),
                 ),
@@ -254,7 +254,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsStatsBasePercentagesRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord,)
                         ),
                     ),
                 ),
@@ -287,7 +287,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.SamtoolsIdxstatsRecord,)
+                            list, (cases_qc.models.samtools.SamtoolsIdxstatsRecord,)
                         ),
                     ),
                 ),
@@ -318,13 +318,13 @@ class Migration(migrations.Migration):
                 (
                     "qc_pass",
                     django_pydantic_field.fields.PydanticSchemaField(
-                        config=None, schema=cases_qc.models.SamtoolsFlagstatRecord
+                        config=None, schema=cases_qc.models.samtools.SamtoolsFlagstatRecord
                     ),
                 ),
                 (
                     "qc_fail",
                     django_pydantic_field.fields.PydanticSchemaField(
-                        config=None, schema=cases_qc.models.SamtoolsFlagstatRecord
+                        config=None, schema=cases_qc.models.samtools.SamtoolsFlagstatRecord
                     ),
                 ),
                 (
@@ -357,7 +357,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.NgsbitsMappingqcRecord,)
+                            list, (cases_qc.models.ngsbits.NgsbitsMappingqcRecord,)
                         ),
                     ),
                 ),
@@ -390,7 +390,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -495,7 +495,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -528,7 +528,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleCoverage,)
+                            list, (cases_qc.models.dragen.DragenStyleCoverage,)
                         ),
                     ),
                 ),
@@ -560,7 +560,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -592,7 +592,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -625,7 +625,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -658,7 +658,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -690,7 +690,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -723,7 +723,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -757,7 +757,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -791,7 +791,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -862,7 +862,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -895,7 +895,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -928,7 +928,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -996,7 +996,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.DragenStyleMetric,)
+                            list, (cases_qc.models.dragen.DragenStyleMetric,)
                         ),
                     ),
                 ),
@@ -1029,7 +1029,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.CraminoSummaryRecord,)
+                            list, (cases_qc.models.cramino.CraminoSummaryRecord,)
                         ),
                     ),
                 ),
@@ -1038,7 +1038,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.CraminoChromNormalizedCountsRecord,)
+                            list, (cases_qc.models.cramino.CraminoChromNormalizedCountsRecord,)
                         ),
                     ),
                 ),
@@ -1070,7 +1070,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsSnRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsSnRecord,)
                         ),
                     ),
                 ),
@@ -1079,7 +1079,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsTstvRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsTstvRecord,)
                         ),
                     ),
                 ),
@@ -1088,7 +1088,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsSisRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsSisRecord,)
                         ),
                     ),
                 ),
@@ -1097,7 +1097,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsAfRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsAfRecord,)
                         ),
                     ),
                 ),
@@ -1106,7 +1106,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsQualRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsQualRecord,)
                         ),
                     ),
                 ),
@@ -1115,7 +1115,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcfToolsStatsIddRecord,)
+                            list, (cases_qc.models.samtools.BcfToolsStatsIddRecord,)
                         ),
                     ),
                 ),
@@ -1124,7 +1124,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsStRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsStRecord,)
                         ),
                     ),
                 ),
@@ -1133,7 +1133,7 @@ class Migration(migrations.Migration):
                     django_pydantic_field.fields.PydanticSchemaField(
                         config=None,
                         schema=django_pydantic_field._migration_serializers.GenericContainer(
-                            list, (cases_qc.models.BcftoolsStatsDpRecord,)
+                            list, (cases_qc.models.samtools.BcftoolsStatsDpRecord,)
                         ),
                     ),
                 ),

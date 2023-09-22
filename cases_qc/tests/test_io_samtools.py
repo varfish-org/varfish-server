@@ -3,7 +3,7 @@ from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
 from cases_qc.io import samtools as io_samtools
-from cases_qc.models import (
+from cases_qc.models.samtools import (
     BcftoolsStatsMetrics,
     SamtoolsFlagstatMetrics,
     SamtoolsIdxstatsMetrics,

@@ -3,7 +3,7 @@ from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
 from cases_qc.io import cramino as io_cramino
-from cases_qc.models import CraminoMetrics
+from cases_qc.models.cramino import CraminoMetrics
 from cases_qc.tests.factories import CaseQcFactory
 from cases_qc.tests.helpers import extract_from_dict
 

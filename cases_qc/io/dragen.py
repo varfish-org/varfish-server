@@ -5,6 +5,7 @@ import typing
 
 from cases_qc import models
 from cases_qc.io.utils import try_cast
+import cases_qc.models.dragen
 
 
 def load_metrics_generic(
@@ -49,7 +50,7 @@ def load_metrics_generic(
 
 def load_fragment_length_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenFragmentLengthHistogram:
+) -> cases_qc.models.dragen.DragenFragmentLengthHistogram:
     # skip first line
     input_file.readline()
 
@@ -100,7 +101,7 @@ def load_fine_hist_generic(
 
 def load_wgs_fine_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsFineHist:
+) -> cases_qc.models.dragen.DragenWgsFineHist:
     return load_fine_hist_generic(
         sample=sample, input_file=input_file, caseqc=caseqc, model=models.DragenWgsFineHist
     )
@@ -108,7 +109,7 @@ def load_wgs_fine_hist(
 
 def load_vc_hethom_ratio_metrics(
     *, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenVcHethomRatioMetrics:
+) -> cases_qc.models.dragen.DragenVcHethomRatioMetrics:
     """Load contig het./hom. metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         input_file=input_file,
@@ -119,7 +120,7 @@ def load_vc_hethom_ratio_metrics(
 
 def load_cnv_metrics(
     *, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenCnvMetrics:
+) -> cases_qc.models.dragen.DragenCnvMetrics:
     """Load CNV metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         input_file=input_file,
@@ -130,7 +131,7 @@ def load_cnv_metrics(
 
 def load_mapping_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenMappingMetrics:
+) -> cases_qc.models.dragen.DragenMappingMetrics:
     """Load mapping metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -142,7 +143,7 @@ def load_mapping_metrics(
 
 def load_ploidy_estimation_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenPloidyEstimationMetrics:
+) -> cases_qc.models.dragen.DragenPloidyEstimationMetrics:
     """Load ploidy estimation metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -154,7 +155,7 @@ def load_ploidy_estimation_metrics(
 
 def load_roh_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenRohMetrics:
+) -> cases_qc.models.dragen.DragenRohMetrics:
     """Load ROH metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -164,7 +165,9 @@ def load_roh_metrics(
     )
 
 
-def load_sv_metrics(*, input_file: typing.TextIO, caseqc: models.CaseQc) -> models.DragenSvMetrics:
+def load_sv_metrics(
+    *, input_file: typing.TextIO, caseqc: models.CaseQc
+) -> cases_qc.models.dragen.DragenSvMetrics:
     """Load SV calling metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         input_file=input_file,
@@ -175,7 +178,7 @@ def load_sv_metrics(*, input_file: typing.TextIO, caseqc: models.CaseQc) -> mode
 
 def load_time_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenTimeMetrics:
+) -> cases_qc.models.dragen.DragenTimeMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -187,7 +190,7 @@ def load_time_metrics(
 
 def load_trimmer_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenTrimmerMetrics:
+) -> cases_qc.models.dragen.DragenTrimmerMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -199,7 +202,7 @@ def load_trimmer_metrics(
 
 def load_vc_metrics(
     *, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenTrimmerMetrics:
+) -> cases_qc.models.dragen.DragenTrimmerMetrics:
     """Load variant caller metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         input_file=input_file,
@@ -210,7 +213,7 @@ def load_vc_metrics(
 
 def load_wgs_contig_mean_cov(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsContigMeanCovMetrics:
+) -> cases_qc.models.dragen.DragenWgsContigMeanCovMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     fieldnames = ("contig_name", "contig_len", "cov")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -234,7 +237,7 @@ def load_wgs_contig_mean_cov(
 
 def load_wgs_coverage_metrics(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsCoverageMetrics:
+) -> cases_qc.models.dragen.DragenWgsCoverageMetrics:
     """Load time metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -246,7 +249,7 @@ def load_wgs_coverage_metrics(
 
 def load_wgs_hist(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsHist:
+) -> cases_qc.models.dragen.DragenWgsHist:
     """Load WGS histogram metrics from ``input_file`` into ``caseqc``."""
     fieldnames = ("key", "value")
     reader = csv.DictReader(f=input_file, fieldnames=fieldnames, delimiter=",")
@@ -267,7 +270,7 @@ def load_wgs_hist(
 
 def load_wgs_overall_mean_cov(
     *, sample: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenWgsOverallMeanCov:
+) -> cases_qc.models.dragen.DragenWgsOverallMeanCov:
     """Load overall mean coverage metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -280,7 +283,7 @@ def load_wgs_overall_mean_cov(
 
 def load_region_coverage_metrics(
     *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenRegionCoverageMetrics:
+) -> cases_qc.models.dragen.DragenRegionCoverageMetrics:
     """Load region coverage metrics from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -293,7 +296,7 @@ def load_region_coverage_metrics(
 
 def load_region_fine_hist(
     *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenRegionFineHist:
+) -> cases_qc.models.dragen.DragenRegionFineHist:
     """Load region fine histogram from ``input_file`` into ``caseqc``"""
     return load_fine_hist_generic(
         sample=sample,
@@ -306,7 +309,7 @@ def load_region_fine_hist(
 
 def load_region_hist(
     *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenRegionHist:
+) -> cases_qc.models.dragen.DragenRegionHist:
     """Load region histogram from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
@@ -320,12 +323,12 @@ def load_region_hist(
 
 def load_region_overall_mean_cov(
     *, sample: str, region_name: str, input_file: typing.TextIO, caseqc: models.CaseQc
-) -> models.DragenRegionOverallMeanCov:
+) -> cases_qc.models.dragen.DragenRegionOverallMeanCov:
     """Load region histogram from ``input_file`` into ``caseqc``"""
     return load_metrics_generic(
         sample=sample,
         region_name=region_name,
         input_file=input_file,
         caseqc=caseqc,
-        model=models.DragenRegionOverallMeanCov,
+        model=cases_qc.models.dragen.DragenRegionOverallMeanCov,
     )
