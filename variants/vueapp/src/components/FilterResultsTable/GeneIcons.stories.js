@@ -1,4 +1,4 @@
-import FilterResultsTableGeneIcons from '@variants/components/FilterResultsTableGeneIcons.vue'
+import FilterResultsTableGeneIcons from '@variants/components/FilterResultsTable/GeneIcons.vue'
 
 export default {
   title: 'Variants / Result Table Cell Gene Icons',

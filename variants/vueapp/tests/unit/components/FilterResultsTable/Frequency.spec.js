@@ -1,9 +1,9 @@
-// import FilterResultsTableFrequency from '@variants/components/FilterResultsTableFrequency.vue'
+// import FilterResultsTableFrequency from '@variants/components/FilterResultsTable/Frequency.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 
 // TODO [TEST_STUB] pinia missing
-describe('FilterResultsTableFrequency.vue', () => {
+describe('FilterResultsTable/Frequency.vue', () => {
   test('results frequency', () => {
     // const wrapper = shallowMount(FilterResultsTableFrequency, {
     //   props: {

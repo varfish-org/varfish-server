@@ -1,9 +1,9 @@
-// import FilterResultsTableFrequency from '@variants/components/FilterResultsTableFrequency.vue'
+// import FilterResultsTableFrequency from '@variants/components/FilterResultsTable/Frequency.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 
 // TODO [TEST_STUB] Pinia store missing
-describe('FilterResultsTableFrequency.vue', () => {
+describe('FilterResultsTable/Frequency.vue', () => {
   test('results gene icons acmg gene', () => {
     /*
     const wrapper = shallowMount(FilterResultsTableFrequency, {

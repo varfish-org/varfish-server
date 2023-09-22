@@ -2,7 +2,7 @@ import FilterResultsTableClinvar from '@variants/components/FilterResultsTable/C
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 
-describe('FilterResultsTableClinvar.vue', () => {
+describe('FilterResultsTable/Clinvar.vue', () => {
   test('results clinvar pathogenic', () => {
     const wrapper = shallowMount(FilterResultsTableClinvar, {
       props: {

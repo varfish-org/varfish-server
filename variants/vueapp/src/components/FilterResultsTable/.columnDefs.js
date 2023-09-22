@@ -1,8 +1,8 @@
-import FilterResultsTableCellRendererIgv from '@variants/components/FilterResultsTableCellRendererIgv.vue'
+import FilterResultsTableCellRendererIgv from '@variants/components/FilterResultsTable/CellRendererIgv.vue'
 import FilterResultsTableClinvar from '@variants/components/FilterResultsTable/Clinvar.vue'
-import FilterResultsTableFrequency from '@variants/components/FilterResultsTableFrequency.vue'
-import FilterResultsTableGeneIcons from '@variants/components/FilterResultsTableGeneIcons.vue'
-import FilterResultsTableVariantIcons from '@variants/components/FilterResultsTableVariantIcons.vue'
+import FilterResultsTableFrequency from '@variants/components/FilterResultsTable/Frequency.vue'
+import FilterResultsTableGeneIcons from '@variants/components/FilterResultsTable/GeneIcons.vue'
+import FilterResultsTableVariantIcons from '@variants/components/FilterResultsTable/VariantIcons.vue'
 import {
   DisplayColumns,
   DisplayConstraints,

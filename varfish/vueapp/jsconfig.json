@@ -9,6 +9,7 @@
       "@variants/*": ["./src/variants/*"],
       "@svs/*": ["./src/svs/*"],
       "@cases/*": ["./src/cases/*"],
+      "@cases_qc/*": ["./src/cases_qc/*"],
       "@cohorts/*": ["./src/cohorts/*"]
     }
   }
