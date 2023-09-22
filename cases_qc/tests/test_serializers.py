@@ -1,0 +1,103 @@
+from unittest.mock import patch
+
+from freezegun import freeze_time
+from parameterized import parameterized
+from snapshottest.unittest import TestCase as TestCaseSnapshot
+from test_plus import TestCase
+
+from cases_qc.serializers import (
+    CraminoMetricsSerializer,
+    DragenCnvMetricsSerializer,
+    DragenFragmentLengthHistogramSerializer,
+    DragenMappingMetricsSerializer,
+    DragenPloidyEstimationMetricsSerializer,
+    DragenRegionCoverageMetricsSerializer,
+    DragenRegionFineHistSerializer,
+    DragenRegionHistSerializer,
+    DragenRegionOverallMeanCovSerializer,
+    DragenRohMetricsSerializer,
+    DragenSvMetricsSerializer,
+    DragenTimeMetricsSerializer,
+    DragenTrimmerMetricsSerializer,
+    DragenVcHethomRatioMetricsSerializer,
+    DragenVcMetricsSerializer,
+    DragenWgsContigMeanCovMetricsSerializer,
+    DragenWgsCoverageMetricsSerializer,
+    DragenWgsFineHistSerializer,
+    DragenWgsHistSerializer,
+    DragenWgsOverallMeanCovSerializer,
+    NgsbitsMappingqcMetricsSerializer,
+    SamtoolsFlagstatMetricsSerializer,
+    SamtoolsIdxstatsMetricsSerializer,
+    SamtoolsStatsMainMetricsSerializer,
+    SamtoolsStatsSupplementaryMetricsSerializer,
+)
+from cases_qc.tests import helpers
+from cases_qc.tests.factories import (
+    CraminoMetricsFactory,
+    DragenCnvMetricsFactory,
+    DragenFragmentLengthHistogramFactory,
+    DragenMappingMetricsFactory,
+    DragenPloidyEstimationMetricsFactory,
+    DragenRegionCoverageMetricsFactory,
+    DragenRegionFineHistFactory,
+    DragenRegionHistFactory,
+    DragenRegionOverallMeanCovFactory,
+    DragenRohMetricsFactory,
+    DragenSvMetricsFactory,
+    DragenTimeMetricsFactory,
+    DragenTrimmerMetricsFactory,
+    DragenVcHethomRatioMetricsFactory,
+    DragenVcMetricsFactory,
+    DragenWgsContigMeanCovMetricsFactory,
+    DragenWgsCoverageMetricsFactory,
+    DragenWgsFineHistFactory,
+    DragenWgsHistFactory,
+    DragenWgsOverallMeanCovFactory,
+    NgsbitsMappingqcMetricsFactory,
+    SamtoolsFlagstatMetricsFactory,
+    SamtoolsIdxstatsMetricsFactory,
+    SamtoolsStatsMainMetricsFactory,
+    SamtoolsStatsSupplementaryMetricsFactory,
+)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class DragenCnvMetricsSerializerTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        self.maxDiff = None  # show full diff
+
+    @parameterized.expand(
+        [
+            [DragenFragmentLengthHistogramFactory, DragenFragmentLengthHistogramSerializer],
+            [DragenCnvMetricsFactory, DragenCnvMetricsSerializer],
+            [DragenMappingMetricsFactory, DragenMappingMetricsSerializer],
+            [DragenPloidyEstimationMetricsFactory, DragenPloidyEstimationMetricsSerializer],
+            [DragenRegionCoverageMetricsFactory, DragenRegionCoverageMetricsSerializer],
+            [DragenRegionFineHistFactory, DragenRegionFineHistSerializer],
+            [DragenRegionHistFactory, DragenRegionHistSerializer],
+            [DragenRegionOverallMeanCovFactory, DragenRegionOverallMeanCovSerializer],
+            [DragenRohMetricsFactory, DragenRohMetricsSerializer],
+            [DragenVcMetricsFactory, DragenVcMetricsSerializer],
+            [DragenSvMetricsFactory, DragenSvMetricsSerializer],
+            [DragenTimeMetricsFactory, DragenTimeMetricsSerializer],
+            [DragenTrimmerMetricsFactory, DragenTrimmerMetricsSerializer],
+            [DragenVcHethomRatioMetricsFactory, DragenVcHethomRatioMetricsSerializer],
+            [DragenWgsContigMeanCovMetricsFactory, DragenWgsContigMeanCovMetricsSerializer],
+            [DragenWgsCoverageMetricsFactory, DragenWgsCoverageMetricsSerializer],
+            [DragenWgsFineHistFactory, DragenWgsFineHistSerializer],
+            [DragenWgsHistFactory, DragenWgsHistSerializer],
+            [DragenWgsOverallMeanCovFactory, DragenWgsOverallMeanCovSerializer],
+            [SamtoolsStatsMainMetricsFactory, SamtoolsStatsMainMetricsSerializer],
+            [SamtoolsStatsSupplementaryMetricsFactory, SamtoolsStatsSupplementaryMetricsSerializer],
+            [SamtoolsFlagstatMetricsFactory, SamtoolsFlagstatMetricsSerializer],
+            [SamtoolsIdxstatsMetricsFactory, SamtoolsIdxstatsMetricsSerializer],
+            [CraminoMetricsFactory, CraminoMetricsSerializer],
+            [NgsbitsMappingqcMetricsFactory, NgsbitsMappingqcMetricsSerializer],
+        ]
+    )
+    @patch("faker.providers.misc.Provider.uuid4", new_callable=helpers.determined_uuids)
+    def test_load(self, factory, serializer, _mock_uuid):
+        obj = factory()
+        serializer = serializer(obj)
+        self.assertMatchSnapshot(serializer.data)
