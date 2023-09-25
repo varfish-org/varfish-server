@@ -369,6 +369,7 @@ class CaseQcSerializer(SODARModelSerializer):
 class VarfishStatsSerializer(rest_framework.serializers.Serializer):
     """Serializer for common-denominator stats objects"""
 
+    samples = SchemaField(schema=list[str])
     readstats = SchemaField(schema=list[SampleReadStats])
     alignmentstats = SchemaField(schema=list[SampleAlignmentStats])
     seqvarstats = SchemaField(schema=list[SampleSeqvarStats])

@@ -27,9 +27,9 @@ class SampleReadStats(pydantic.BaseModel):
     #: total number of base pairs
     total_yield: int
     #: number of first fragments / read1
-    fragment_first: int
+    fragment_first: int | None
     #: number of second fragments / read2
-    fragment_last: int
+    fragment_last: int | None
 
 
 class RegionCoverageStats(pydantic.BaseModel):
@@ -46,10 +46,10 @@ class RegionCoverageStats(pydantic.BaseModel):
 class InsertSizeStats(pydantic.BaseModel):
     """Per-sample QC stats for insert sizes."""
 
-    #: read orientation of inwards-facing reads
-    read_orientation: str
     #: mean insert size
     insert_size_mean: float
+    #: median insert size
+    insert_size_median: float | None
     #: stddev of insert size
     insert_size_stddev: float
     #: insert size histogram as ``[bin_start, value]`` pairs, equidistant bins, can be

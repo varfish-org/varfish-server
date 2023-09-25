@@ -377,7 +377,6 @@ snapshots["SerializerTest::test_load_25 1"] = {
                 "insert_size_histogram": [[1, 2], [10, 4]],
                 "insert_size_mean": 42.0,
                 "insert_size_stddev": 42.0,
-                "read_orientation": "inward",
             },
             "per_chromosome_counts": [("chr1", 10), ("chr2", 20)],
             "region_coverage_stats": [

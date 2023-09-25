@@ -575,8 +575,8 @@ class InsertSizeStatsFactory(factory.Factory):
     class Meta:
         model = InsertSizeStats
 
-    read_orientation = "inward"
     insert_size_mean = 42.0
+    insert_size_median = 42.0
     insert_size_stddev = 42.0
     insert_size_histogram = [[1, 2], [10, 4]]
 
