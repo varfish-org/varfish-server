@@ -351,7 +351,7 @@ watch(
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary">
-            {{ svResultSetStore?.resultSet?.elapsed_seconds.toFixed(1) }}s
+            {{ svResultSetStore?.resultSet?.elapsed_seconds?.toFixed(1) }}s
           </span>
         </div>
       </div>

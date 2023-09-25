@@ -1,16 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { AnnonarsApiClient } from '@varfish/api/annonars'
+import { CaseQcClient } from '@cases_qc/api/caseQcClient'
 import { StoreState, State } from '@varfish/storeUtils'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { type VarfishStats } from '@cases_qc/api/types'
 
-/** `SvRecord` is a type alias for easier future interface definition. */
-type SvRecord = any
-/** `GeneInfo` is a type alias for easier future interface definition. */
-type GeneInfo = any
-
-export const useSvDetailsStore = defineStore('svDetails', () => {
+export const useSvDetailsStore = defineStore('caseQc', () => {
   // store dependencies
 
   /** The caseDetails store */
@@ -29,52 +25,29 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
 
   // other data (loaded via REST API or computed)
 
-  /** The current UUID record. */
-  const currentSvRecord = ref<SvRecord>(null)
-  /** Infos on the variants of the record. */
-  const genesInfos = ref<GeneInfo[]>(null)
+  /** The current QC statistics. */
+  const varfishStats = ref<VarfishStats>(null)
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any>>(Promise.resolve(null))
 
   // functions
-  /** Fetch SV details.
+  /** Fetch the QC stats details.
    *
    * @param svRecord The SV record to fetch details for.
    */
-  const fetchSvDetails = async (svRecord: SvRecord) => {
+  const fetchQc = async (caseUuid$: string) => {
     // Prevent fetching twice.
-    if (svRecord.sodar_uuid === currentSvRecord.value?.sodar_uuid) {
+    if (caseUuid$ === caseUuid.value) {
       return
     }
 
-    storeState.state = State.Fetching
-    storeState.serverInteractions += 1
+    // Clear old store contents
+    varfishStats.value = null
 
-    try {
-      // Clear old store contents
-      currentSvRecord.value = null
-      genesInfos.value = null
-
-      // Fetch new details
-      const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-      let hgncIds = []
-      for (const txEffect of svRecord.payload.tx_effects) {
-        if (txEffect.gene.hgnc_id) {
-          hgncIds.push(txEffect.gene.hgnc_id)
-        }
-      }
-      if (hgncIds.length) {
-        genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
-      }
-      currentSvRecord.value = svRecord
-
-      storeState.serverInteractions -= 1
-      storeState.state = State.Active
-    } catch (error) {
-      storeState.serverInteractions -= 1
-      storeState.state = State.Error
-    }
+    // Fetch new details
+    const caseQcClient = new CaseQcClient(csrfToken.value)
+    varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
   }
 
   /**
@@ -118,8 +91,6 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
-    // Update store state
-    storeState.state = State.Active
 
     initializeRes.value = Promise.resolve()
 
@@ -132,11 +103,10 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
     projectUuid,
     caseUuid,
     storeState,
-    currentSvRecord,
-    genesInfos,
+    varfishStats,
     initializeRes,
     // functions
     initialize,
-    fetchSvDetails,
+    fetchQc,
   }
 })

@@ -268,7 +268,7 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
                 for key, value in zip(histogram.keys, histogram.values):
                     bin = min(int(key / bin_width) * bin_width, max_bin)
                     histo[bin] = histo.get(bin, 0) + value
-                alignmentstats.insert_size_stats.insert_size_histogram = histo
+                alignmentstats.insert_size_stats.insert_size_histogram = list(histo.items())
 
             # finally, add the region coverage stats
             if dmm.sample in cov_wgs:
