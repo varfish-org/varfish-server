@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c20aca8397a2ba4b6ec7abbd96683c235bb76c5a310e16a652eca7081d724fd2"
+            "sha256": "610258af16ad92128270b0de4e37b6f70e5bfc91047663bddef3f3a205ee9f47"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -642,9 +642,11 @@
         },
         "django-dirtyfields": {
             "hashes": [
-                "sha256:6f2e988121323cd8a15cef3035f5ea5942d3e41f76c3b2e1de0b81761a000c94"
+                "sha256:93b272eab993f813faabf3ea842ebfad63a03712e7213291aebdbddc5a012a5d",
+                "sha256:eb2dbed51c2a9bc23e84d19797f4cd074f59c935f8f39bb716d185dc6b86401a"
             ],
-            "version": "==1.2.1"
+            "markers": "python_version >= '3.7'",
+            "version": "==1.9.2"
         },
         "django-docs": {
             "hashes": [
@@ -700,14 +702,11 @@
             ],
             "version": "==2.2.1"
         },
-        "django-plugins": {
-            "git": "https://github.com/mikkonie/django-plugins.git",
-            "ref": "42e86e7904e5c09f1da32173862b26843eda5dd8"
-        },
         "django-plugins-bihealth": {
             "hashes": [
                 "sha256:5f3d3922f3825348d6d4a7fceb6c6a705c527edcae396ef32ab181d8dbe69536"
             ],
+            "index": "pypi",
             "version": "==0.4.0"
         },
         "django-postgres-copy": {
@@ -744,11 +743,11 @@
         },
         "django-sodar-core": {
             "hashes": [
-                "sha256:71acf70dd9acc775c1e72851cef4ebe5eb748ec3f9f7d5aaa151e232d07c307b"
+                "sha256:a728da5a28a0b6cf802848f94752d8ccc637cac35ea17e20ec1dc29e9155e216"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==0.13.1"
+            "version": "==0.13.2"
         },
         "django-su": {
             "hashes": [
@@ -788,14 +787,11 @@
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'",
             "version": "==0.18.1"
         },
-        "drf-keyed-list": {
-            "git": "https://github.com/mikkonie/drf-keyed-list.git",
-            "ref": "b03607b866c5706b0e1ea46a7eeaab6527030734"
-        },
         "drf-keyed-list-bihealth": {
             "hashes": [
                 "sha256:e28d0111bfad9adae60a1ace79d50c28b9cf10f5bad950ac487014c7a16c9457"
             ],
+            "index": "pypi",
             "version": "==0.1.1"
         },
         "elementpath": {
@@ -883,11 +879,11 @@
         },
         "fsspec": {
             "hashes": [
-                "sha256:99a974063b6cced36cfaa61aa8efb05439c6fea2dafe65930e7ab46f9d2f8930",
-                "sha256:da8cfe39eeb65aaa69074d5e0e4bbc9b7ef72d69c0587a31cab981eefdb3da13"
+                "sha256:603dbc52c75b84da501b9b2ec8c11e1f61c25984c4a0dda1f129ef391fbfc9b4",
+                "sha256:80bfb8c70cc27b2178cc62a935ecf242fc6e8c3fb801f9c571fc01b1e715ba7d"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2023.9.1"
+            "version": "==2023.9.2"
         },
         "future": {
             "hashes": [
@@ -2012,12 +2008,12 @@
         },
         "s3fs": {
             "hashes": [
-                "sha256:3bd1f9f33e4ad090d150301c3b386061cb7085fc8bda3a9ec9198dccca765d6c",
-                "sha256:42e1821ed94c1607c848853d1d715ebcd25c13380b6f510c2cb498c7e5b3e674"
+                "sha256:64cccead32a816422dd9ae1d693c5d6354d99f64ae26c56388f1d8e1c7858321",
+                "sha256:d0e0ad0267820f4e9ff16556e004e6759010e92378aebe2ac5d71419a6ff5387"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==2023.9.1"
+            "version": "==2023.9.2"
         },
         "sentry-sdk": {
             "hashes": [
@@ -2328,7 +2324,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '3.6'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==1.26.16"
         },
         "vcfpy": {
@@ -3262,7 +3258,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version < '3.11' and python_version >= '3.7'",
             "version": "==2.0.1"
         },
         "traitlets": {
@@ -3294,7 +3290,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '3.6'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==1.26.16"
         },
         "wasmer": {
@@ -3410,13 +3406,6 @@
             "index": "pypi",
             "markers": "python_version >= '3.6'",
             "version": "==3.4.3"
-        },
-        "pytz": {
-            "hashes": [
-                "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b",
-                "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"
-            ],
-            "version": "==2023.3.post1"
         },
         "sqlparse": {
             "hashes": [
@@ -3647,13 +3636,6 @@
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==2.8.2"
         },
-        "pytz": {
-            "hashes": [
-                "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b",
-                "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"
-            ],
-            "version": "==2023.3.post1"
-        },
         "redis": {
             "hashes": [
                 "sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d",
@@ -3709,7 +3691,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '3.6'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==1.26.16"
         },
         "whitenoise": {

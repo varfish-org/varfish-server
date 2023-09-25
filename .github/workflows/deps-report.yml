@@ -1,0 +1,22 @@
+
+name: Dependencies report
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    name:  Dependencies report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: deps-report
+        uses: MeilleursAgents/deps-report@master
+        with:
+          file: Pipfile.lock
+          github_token: ${{ secrets.GITHUB_TOKEN }}
