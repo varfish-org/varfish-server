@@ -15,8 +15,8 @@ export interface Props {
   title?: string
   xLabel?: string
   yLabel?: string
-  xMin?: number | null,
-  xMax?: number | null,
+  xMin?: number | null
+  xMax?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -38,7 +38,8 @@ const vegaData = computed<DataForVegaLite[]>(() => {
         continue
       } else if (props.xMax !== null && dataset.keys[i] > props.xMax) {
         continue
-      } {
+      }
+      {
         result.push({
           key: dataset.keys[i],
           value: dataset.values[i],
@@ -75,7 +76,7 @@ const vegaEncoding = {
     :encoding="vegaEncoding"
     :width="400"
     :height="400"
-    :mark="{type: 'line'}"
+    :mark="{ type: 'line' }"
     renderer="svg"
   />
 </template>
