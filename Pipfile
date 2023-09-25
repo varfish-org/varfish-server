@@ -73,7 +73,7 @@ parameterized = "~=0.8.1"
 requests-mock = "~=1.9"
 selenium = "*"
 snapshottest = "*"
-tblib = "~=1.7.0"
+tblib = "~=2.0.0"
 # packages for local development
 ipdb = "*"
 jedi = "==0.17.2"
