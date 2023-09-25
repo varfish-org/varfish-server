@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "577f18f5fcdf96ac72f92b78b848c0dba1b1f2ff33e3fac2303e0c13e2c8ade9"
+            "sha256": "060792f34bee487d2d67f5bdaf24b764eae396c16428fef6a6b3e2af06a34273"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -265,12 +265,12 @@
         },
         "cattrs": {
             "hashes": [
-                "sha256:211800f725cdecedcbcf4c753bbd22d248312b37d130f06045434acb7d9b34e1",
-                "sha256:35dd9063244263e63bd0bd24ea61e3015b00272cead084b2c40d788b0f857c46"
+                "sha256:b2bb14311ac17bed0d58785e5a60f022e5431aca3932e3fc5cc8ed8639de50a4",
+                "sha256:db1c821b8c537382b2c7c66678c3790091ca0275ac486c76f3c8f3920e83c657"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7' and python_version < '4.0'",
-            "version": "==1.10.0"
+            "markers": "python_version >= '3.7'",
+            "version": "==23.1.2"
         },
         "celery": {
             "hashes": [
@@ -805,6 +805,14 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==4.1.5"
+        },
+        "exceptiongroup": {
+            "hashes": [
+                "sha256:097acd85d473d75af5bb98e41b61ff7fe35efe6675e4f9370ec6ec5126d160e9",
+                "sha256:343280667a4585d195ca1cf9cef84a4e178c4b6cf2274caef9859782b567d5e3"
+            ],
+            "markers": "python_version < '3.11'",
+            "version": "==1.1.3"
         },
         "frozenlist": {
             "hashes": [
