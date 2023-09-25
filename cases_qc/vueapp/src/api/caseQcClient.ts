@@ -15,6 +15,7 @@ export class CaseQcClient extends ClientBase {
 
   /** Retrieve ``VarfishStats`` for case with the given UUID. */
   async retrieveVarfishStats(caseUuid: string): Promise<VarfishStats> {
+    console.log("asdfasdfasdfas")
     return await this.fetchHelper(
       `http://127.0.0.1:8000/cases-qc/api/varfishstats/retrieve/${caseUuid}/`,
       'GET',

@@ -6,7 +6,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { type VarfishStats } from '@cases_qc/api/types'
 
-export const useSvDetailsStore = defineStore('caseQc', () => {
+export const useCaseQcStore = defineStore('caseQc', () => {
   // store dependencies
 
   /** The caseDetails store */
@@ -48,6 +48,8 @@ export const useSvDetailsStore = defineStore('caseQc', () => {
     // Fetch new details
     const caseQcClient = new CaseQcClient(csrfToken.value)
     varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
+
+    caseUuid.value = caseUuid$
   }
 
   /**
@@ -90,7 +92,8 @@ export const useSvDetailsStore = defineStore('caseQc', () => {
     // Set simple properties.
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
-    caseUuid.value = caseUuid$
+    await fetchQc(caseUuid$)
+    // case UUID set in fetchQc
 
     initializeRes.value = Promise.resolve()
 
