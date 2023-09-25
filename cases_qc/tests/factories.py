@@ -60,6 +60,7 @@ from cases_qc.models.varfish import (
     SampleReadStats,
     SampleSeqvarStats,
     SampleStrucvarStats,
+    VarfishStats,
 )
 
 
@@ -640,3 +641,14 @@ class SampleStrucvarStatsFactory(factory.Factory):
     insertion_count = 0
     inversion_count = 30
     breakend_count = 5
+
+
+class VarfishStatsFactory(factory.Factory):
+    class Meta:
+        model = VarfishStats
+
+    samples = factory.lazy_attribute(lambda _o: ["sample"])
+    readstats = factory.lazy_attribute(lambda _o: [SampleReadStatsFactory()])
+    alignmentstats = factory.lazy_attribute(lambda _o: [SampleAlignmentStatsFactory()])
+    seqvarstats = factory.lazy_attribute(lambda _o: [SampleSeqvarStatsFactory()])
+    strucvarstats = factory.lazy_attribute(lambda _o: [SampleStrucvarStatsFactory()])

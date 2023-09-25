@@ -151,3 +151,18 @@ class SampleStrucvarStats(pydantic.BaseModel):
     inversion_count: int
     #: number of breakend pairs
     breakend_count: int
+
+
+class VarfishStats(pydantic.BaseModel):
+    """VarFish QC stats."""
+
+    #: list of samples
+    samples: list[str]
+    #: read stats
+    readstats: list[SampleReadStats]
+    #: alignment stats
+    alignmentstats: list[SampleAlignmentStats]
+    #: sequence variant stats
+    seqvarstats: list[SampleSeqvarStats]
+    #: structural variant stats
+    strucvarstats: list[SampleStrucvarStats]

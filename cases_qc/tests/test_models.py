@@ -66,6 +66,7 @@ from cases_qc.tests.factories import (
     SamtoolsIdxstatsMetricsFactory,
     SamtoolsStatsMainMetricsFactory,
     SamtoolsStatsSupplementaryMetricsFactory,
+    VarfishStatsFactory,
 )
 
 
@@ -466,3 +467,4 @@ class VarfishPydanticTest(TestCase):
         RegionVariantStatsFactory()
         SampleSeqvarStatsFactory()
         SampleStrucvarStatsFactory()
+        VarfishStatsFactory()

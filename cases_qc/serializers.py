@@ -61,7 +61,6 @@ from cases_qc.models.samtools import (
     SamtoolsStatsSupplementaryMetrics,
 )
 from cases_qc.models.varfish import (
-    RegionVariantStats,
     SampleAlignmentStats,
     SampleReadStats,
     SampleSeqvarStats,
@@ -367,10 +366,10 @@ class CaseQcSerializer(SODARModelSerializer):
         exclude = ("id",)
 
 
-class VarFishStatsSerializer(rest_framework.serializers.Serializer):
+class VarfishStatsSerializer(rest_framework.serializers.Serializer):
     """Serializer for common-denominator stats objects"""
 
     readstats = SchemaField(schema=list[SampleReadStats])
     alignmentstats = SchemaField(schema=list[SampleAlignmentStats])
-    seqvarsstats = SchemaField(schema=list[SampleSeqvarStats])
+    seqvarstats = SchemaField(schema=list[SampleSeqvarStats])
     strucvarstats = SchemaField(schema=list[SampleStrucvarStats])

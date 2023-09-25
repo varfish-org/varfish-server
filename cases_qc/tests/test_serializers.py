@@ -31,6 +31,7 @@ from cases_qc.serializers import (
     SamtoolsIdxstatsMetricsSerializer,
     SamtoolsStatsMainMetricsSerializer,
     SamtoolsStatsSupplementaryMetricsSerializer,
+    VarfishStatsSerializer,
 )
 from cases_qc.tests import helpers
 from cases_qc.tests.factories import (
@@ -59,6 +60,7 @@ from cases_qc.tests.factories import (
     SamtoolsIdxstatsMetricsFactory,
     SamtoolsStatsMainMetricsFactory,
     SamtoolsStatsSupplementaryMetricsFactory,
+    VarfishStatsFactory,
 )
 
 
@@ -94,6 +96,7 @@ class SerializerTest(TestCaseSnapshot, TestCase):
             [SamtoolsIdxstatsMetricsFactory, SamtoolsIdxstatsMetricsSerializer],
             [CraminoMetricsFactory, CraminoMetricsSerializer],
             [NgsbitsMappingqcMetricsFactory, NgsbitsMappingqcMetricsSerializer],
+            [VarfishStatsFactory, VarfishStatsSerializer],
         ]
     )
     @patch("faker.providers.misc.Provider.uuid4", new_callable=helpers.determined_uuids)
