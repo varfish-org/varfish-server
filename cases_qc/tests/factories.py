@@ -94,6 +94,7 @@ class CaseQcFactory(factory.django.DjangoModelFactory):
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
     case = factory.SubFactory(CaseFactory)
+    state = CaseQc.STATE_ACTIVE
 
 
 class DragenMetricsFactoryBase(factory.django.DjangoModelFactory):

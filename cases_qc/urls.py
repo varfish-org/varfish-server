@@ -14,6 +14,11 @@ api_urlpatterns = [
         view=views_api.CaseQcRetrieveApiView.as_view(),
         name="api-caseqc-retrieve",
     ),
+    path(
+        route="api/varfishstats/retrieve/<case>/",
+        view=views_api.VarfishStatsRetrieveApiView.as_view(),
+        name="api-varfishstats-retrieve",
+    ),
 ]
 
 urlpatterns = ui_urlpatterns + ajax_urlpatterns + api_urlpatterns
