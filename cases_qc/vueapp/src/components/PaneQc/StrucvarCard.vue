@@ -1,0 +1,102 @@
+<script setup lang="ts">
+/** Display summary squence variant statistics for all samples in a table.
+ */
+import { type SampleSeqvarStats } from '@cases_qc/api/types'
+import SimpleCard from '@varfish/components/SimpleCard.vue'
+import { computed } from 'vue'
+
+export interface Props {
+  sampleNames: string[]
+  strucvarStats?: SampleSeqvarStats[]
+}
+const props = defineProps<Props>()
+
+/** Per-sample (variant details) statistics to display in this card */
+interface SampleStats {
+  deletionCount: number[]
+  duplicationCount: number[]
+  insertionCount: number[]
+  inversionCount: number[]
+  breakendCount: number[]
+}
+
+/** Row-wise read sample statistics, samples ordreed as in `sampleNames.value` */
+const sampleStats = computed<SampleStats>(() => {
+  const theNames = props.sampleNames
+  const result: SampleStats = {
+    deletionCount: new Array<number>(theNames.length).fill(0),
+    duplicationCount: new Array<number>(theNames.length).fill(0),
+    insertionCount: new Array<number>(theNames.length).fill(0),
+    inversionCount: new Array<number>(theNames.length).fill(0),
+    breakendCount: new Array<number>(theNames.length).fill(0),
+  }
+
+  for (const entry of props.strucvarStats ?? []) {
+    const idx = theNames.indexOf(entry.sample)
+    result.deletionCount[idx] = entry.deletion_count
+    result.duplicationCount[idx] = entry.duplication_count
+    result.insertionCount[idx] = entry.insertion_count
+    result.inversionCount[idx] = entry.inversion_count
+    result.breakendCount[idx] = entry.breakend_count
+  }
+
+  return result
+})
+
+const numberFormatter = Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+</script>
+
+<template>
+  <SimpleCard id="readstats" title="StrucVar Statistics">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th v-for="name in sampleNames" class="text-left">
+              {{ name }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-nowrap">DEL</td>
+            <td v-for="value in sampleStats.deletionCount" class="text-right">
+              {{ numberFormatter.format(value) }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-nowrap">DUP</td>
+            <td
+              v-for="value in sampleStats.duplicationCount"
+              class="text-right"
+            >
+              {{ numberFormatter.format(value) }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-nowrap">INS</td>
+            <td v-for="value in sampleStats.insertionCount" class="text-right">
+              {{ numberFormatter.format(value) }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-nowrap">INV</td>
+            <td v-for="value in sampleStats.inversionCount" class="text-right">
+              {{ numberFormatter.format(value) }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-nowrap">BND</td>
+            <td v-for="value in sampleStats.breakendCount" class="text-right">
+              {{ numberFormatter.format(value) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </SimpleCard>
+</template>

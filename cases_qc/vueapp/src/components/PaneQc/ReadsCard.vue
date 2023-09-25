@@ -1,14 +1,17 @@
 <script setup lang="ts">
+/** Display summary read statistics for all samples in a table.
+ */
 import { type SampleReadStats } from '@cases_qc/api/types'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 import { computed } from 'vue'
 
 export interface Props {
-  sampleNames?: string[]
+  sampleNames: string[]
   readStats?: SampleReadStats[]
 }
 const props = defineProps<Props>()
 
+/** Per-sample (read details) statistics to display in this card */
 interface SampleStats {
   readLengthN50: number[]
   totalReads: number[]
@@ -19,7 +22,7 @@ interface SampleStats {
 
 /** Row-wise read sample statistics, samples ordreed as in `sampleNames.value` */
 const sampleStats = computed<SampleStats>(() => {
-  const theNames = props.sampleNames ?? []
+  const theNames = props.sampleNames
   const result: SampleStats = {
     readLengthN50: new Array<number>(theNames.length).fill(0),
     totalReads: new Array<number>(theNames.length).fill(0),
@@ -54,6 +57,7 @@ const sampleStats = computed<SampleStats>(() => {
 
   return result
 })
+
 const numberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
   maximumFractionDigits: 1,
@@ -63,7 +67,7 @@ const numberFormatter = Intl.NumberFormat('en', {
 <template>
   <SimpleCard id="readstats" title="Read Statistics">
     <div class="table-responsive">
-      <table class="table table-sm">
+      <table class="table table-sm table-hover mb-0">
         <thead>
           <tr>
             <th>Metric</th>

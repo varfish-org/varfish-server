@@ -56,11 +56,13 @@ const vegaEncoding = {
     field: 'key',
     type: 'quantitative',
     title: props?.xLabel,
+    axis: { domain: false, grid: false, ticks: false },
   },
   y: {
     field: 'value',
     type: 'quantitative',
     title: props?.yLabel,
+    axis: { domain: false, grid: false, ticks: false },
   },
   color: {
     field: 'label',

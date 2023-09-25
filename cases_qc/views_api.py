@@ -257,7 +257,7 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
                 - alignmentstats.detailed_counts.supplementary
             )
             if mismatched_bases > 0:
-                alignmentstats.detailed_counts.mismatch_rate = total_bases / mismatched_bases
+                alignmentstats.detailed_counts.mismatch_rate = mismatched_bases / total_bases
 
             # copy over the histogram in a binned fashion
             if dmm.sample in histograms:
@@ -356,8 +356,8 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
                     seqvarstats.genome_wide.transversion_count = int(metrics.value)
                 elif metrics.name == "Ti/Tv ratio":
                     seqvarstats.genome_wide.tstv_ratio = int(metrics.value)
-                elif metrics.name in ("Biallelic", "Multiallelic"):
-                    seqvarstats.genome_wide.multiallelic_count += int(metrics.value)
+                elif metrics.name == "Multiallelic":
+                    seqvarstats.genome_wide.multiallelic_count = int(metrics.value)
 
             seqvarstats_list.append(seqvarstats)
 
