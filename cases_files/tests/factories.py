@@ -10,7 +10,7 @@ from cases_files.models import (
     PedigreeExternalFile,
     PedigreeInternalFile,
 )
-from cases_import.proto import FileDesignation
+from cases_import.proto import ExternalFileDesignation
 from variants.tests.factories import CaseFactory
 
 
@@ -25,7 +25,7 @@ class AbstractFileFactory(factory.django.DjangoModelFactory):
     case = factory.SubFactory(CaseFactory)
     path = factory.Sequence(lambda n: f"file-{n}.bam")
 
-    designation = FileDesignation.READ_ALIGNMENTS.value
+    designation = ExternalFileDesignation.READ_ALIGNMENTS.value
     genomebuild = AbstractFile.GENOMEBUILD_GRCH38
     mimetype = MimeTypes.BAM.value
 

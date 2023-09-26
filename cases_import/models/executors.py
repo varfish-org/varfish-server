@@ -1,7 +1,7 @@
 import os
+import shutil
 import typing
 
-import attrs
 from bgjobs.models import LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_WARNING
 from django.conf import settings
 from django.db import transaction
@@ -11,6 +11,7 @@ import phenopackets
 from phenopackets import Family
 from projectroles.app_settings import AppSettingAPI
 from projectroles.models import Project
+import pydantic
 
 from cases.models import Disease, Individual, Pedigree, PhenotypicFeature
 from cases_files.models import (
@@ -21,7 +22,7 @@ from cases_files.models import (
     PedigreeInternalFile,
 )
 from cases_import.models.base import CaseImportAction, CaseImportBackgroundJob
-from cases_import.proto import Assay, FileDesignation
+from cases_import.proto import Assay, ExternalFileDesignation
 from cases_qc.io import cramino as io_cramino
 from cases_qc.io import dragen as io_dragen
 from cases_qc.io import ngsbits as io_ngsbits
@@ -31,52 +32,43 @@ from seqmeta.models import TargetBedFile
 from variants.models import Case
 
 
-@attrs.frozen(auto_attribs=True)
-class FileImportOptions:
+class FileSystemOptions(pydantic.BaseModel):
     protocol: str
     host: str | None
     path: str | None
     port: str | None
     user: str | None
     password: str | None
+    use_https: bool = False
 
 
-class FileImportExecutorBase:
-    """Base class for file improter classes.
+class FileSystemWrapper:
+    """Wrapper around ``fsspec.AbstractFileSystem`` that checks paths for local files."""
 
-    Import is done in the context of a specific project with the storage information.
-    """
+    def __init__(self, options: FileSystemOptions):
+        self.options = options
+        self.external_fs = self._build_fs(options)
 
-    def __init__(self, project: Project):
-        self.project = project
+    def open(self, path: str, *args, **kwargs) -> typing.IO:
+        """Wrapper around ``fsspec.AbstractFileSystem.open`` that checks paths for local
+        files.
+        """
+        if self.options.protocol == "file":
+            path = self._normalized_local_path(path)
+        return self.external_fs.open(path, *args, **kwargs)
 
-        self.options = self._build_options(project=self.project)
-        self.fs = self._build_fs(self.options)
+    def _normalized_local_path(self, path: str) -> str:
+        """Check that the given local path does not try to escape out of the prefix."""
+        if self.options.protocol == "file" and settings.VARFISH_CASE_IMPORT_FILE_PREFIX:
+            tmp = os.path.join(settings.VARFISH_CASE_IMPORT_FILE_PREFIX, path)
+            tmp = os.path.normpath(tmp)
+            if not tmp.startswith(settings.VARFISH_CASE_IMPORT_FILE_PREFIX):
+                raise ValueError("path is not within forced prefix")
+            return tmp
+        else:
+            return path
 
-    def _build_options(self, project: Project) -> FileImportOptions:
-        app_settings = AppSettingAPI()
-        kwargs = {"app_name": "cases_import", "project": project}
-
-        path = app_settings.get(setting_name="import_data_path", **kwargs) or None
-        if not path:
-            path = "/"
-        elif path and not path.startswith("/"):
-            path = f"/{path}"
-        while path.endswith("/") and len(path) > 1:
-            path = path[:-1]
-
-        return FileImportOptions(
-            protocol=app_settings.get(setting_name="import_data_protocol", **kwargs),
-            host=app_settings.get(setting_name="import_data_host", **kwargs) or None,
-            path=path,
-            port=app_settings.get(setting_name="import_data_port", **kwargs) or None,
-            user=app_settings.get(setting_name="import_data_user", **kwargs) or None,
-            password=app_settings.get(setting_name="import_data_password", **kwargs) or None,
-        )
-
-    def _build_fs(self, options: FileImportOptions) -> fsspec.AbstractFileSystem:
-        """Create new ``fsspec`` file system with the configuration in ``project``."""
-
+    def _build_fs(self, options: FileSystemOptions) -> fsspec.AbstractFileSystem:
         if options.protocol == "file":
             if not settings.VARFISH_CASE_IMPORT_ALLOW_FILE:
                 raise ValueError(  # pragma: no cover
@@ -99,22 +91,49 @@ class FileImportExecutorBase:
             if options.password:
                 kwargs["secret"] = options.password
             if options.host:
-                port = f"{options.port}:" if options.port else ""
-                kwargs["client_kwargs"] = {"endpoint_url": f"https://{options.host}{port}"}
+                port = f":{options.port}" if options.port else ""
+                http = "https" if options.use_https else "http"
+                kwargs["client_kwargs"] = {"endpoint_url": f"{http}://{options.host}{port}"}
             return fsspec.filesystem("s3", **kwargs)
         else:
             raise ValueError(f"invalid protocol {options.protocol}")
 
-    def _normalized_local_path(self, path: str) -> str:
-        """Check that the given local path does not try to escape out of the prefix."""
-        if self.protocol == "file" and settings.VARFISH_CASE_IMPORT_FILE_PREFIX:
-            tmp = os.path.join(settings.VARFISH_CASE_IMPORT_FILE_PREFIX, path)
-            tmp = os.path.normpath(tmp)
-            if not tmp.startswith(settings.VARFISH_CASE_IMPORT_FILE_PREFIX):
-                raise ValueError("path is not within forced prefix")
-            return tmp
-        else:
-            return path
+
+class FileImportExecutorBase:
+    """Base class for file improter classes.
+
+    Import is done in the context of a specific project with the storage information.
+    """
+
+    def __init__(self, project: Project):
+        self.project = project
+
+        #: `FileSystemOptions` to use for the file improt
+        self.external_fs_options = self._build_fs_options(project=self.project)
+        #: `FileSystemWrapper` to use for extenal file system.
+        self.external_fs = FileSystemWrapper(self.external_fs_options)
+
+    def _build_fs_options(self, project: Project) -> FileSystemOptions:
+        """Build `FileSystemOptions` from project settings."""
+        app_settings = AppSettingAPI()
+        kwargs = {"app_name": "cases_import", "project": project}
+
+        path = app_settings.get(setting_name="import_data_path", **kwargs) or None
+        if not path:
+            path = "/"
+        elif path and not path.startswith("/"):
+            path = f"/{path}"
+        while path.endswith("/") and len(path) > 1:
+            path = path[:-1]
+
+        return FileSystemOptions(
+            protocol=app_settings.get(setting_name="import_data_protocol", **kwargs),
+            host=app_settings.get(setting_name="import_data_host", **kwargs) or None,
+            path=path,
+            port=app_settings.get(setting_name="import_data_port", **kwargs) or None,
+            user=app_settings.get(setting_name="import_data_user", **kwargs) or None,
+            password=app_settings.get(setting_name="import_data_password", **kwargs) or None,
+        )
 
 
 class DragenQcImportExecutor(FileImportExecutorBase):
@@ -213,7 +232,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         caseqc: CaseQc,
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_cnv_metrics(
                 input_file=inputf,
                 caseqc=caseqc,
@@ -228,7 +247,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_fragment_length_hist(
                 sample=sample_name,
                 input_file=inputf,
@@ -244,7 +263,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_mapping_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -260,7 +279,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_ploidy_estimation_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -276,7 +295,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_roh_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -290,7 +309,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         caseqc: CaseQc,
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_sv_metrics(
                 input_file=inputf,
                 caseqc=caseqc,
@@ -305,7 +324,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_time_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -321,7 +340,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_trimmer_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -335,7 +354,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         caseqc: CaseQc,
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_hethom_ratio_metrics(
                 input_file=inputf,
                 caseqc=caseqc,
@@ -348,7 +367,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         caseqc: CaseQc,
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_metrics(
                 input_file=inputf,
                 caseqc=caseqc,
@@ -363,7 +382,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_contig_mean_cov(
                 sample=sample_name,
                 input_file=inputf,
@@ -379,7 +398,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_coverage_metrics(
                 sample=sample_name,
                 input_file=inputf,
@@ -395,7 +414,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_fine_hist(
                 sample=sample_name,
                 input_file=inputf,
@@ -411,7 +430,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_hist(
                 sample=sample_name,
                 input_file=inputf,
@@ -427,7 +446,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_wgs_overall_mean_cov(
                 sample=sample_name,
                 input_file=inputf,
@@ -444,7 +463,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_region_coverage_metrics(
                 sample=sample_name,
                 region_name=region_name,
@@ -462,7 +481,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_region_fine_hist(
                 sample=sample_name,
                 region_name=region_name,
@@ -480,7 +499,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_region_hist(
                 sample=sample_name,
                 region_name=region_name,
@@ -498,7 +517,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_region_overall_mean_cov(
                 sample=sample_name,
                 region_name=region_name,
@@ -513,7 +532,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         caseqc: CaseQc,
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_bcftools_stats(
                 input_file=inputf,
                 caseqc=caseqc,
@@ -528,7 +547,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_samtools_flagstat(
                 sample=sample_name,
                 input_file=inputf,
@@ -544,7 +563,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_samtools_idxstats(
                 sample=sample_name,
                 input_file=inputf,
@@ -560,7 +579,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_samtools_stats(
                 sample=sample_name,
                 input_file=inputf,
@@ -576,7 +595,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         file_identifier_to_individual: dict[str, str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_cramino.load_cramino(
                 sample=sample_name,
                 input_file=inputf,
@@ -593,7 +612,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
-        with self.fs.open(external_file.path, "rt") as inputf:
+        with self.external_fs.open(external_file.path, "rt") as inputf:
             io_ngsbits.load_mappingqc(
                 sample=sample_name,
                 region_name=region_name,
@@ -628,6 +647,85 @@ ASSAY_MAP = {
     Assay.WES.value: Individual.ASSAY_WES,
     Assay.WGS.value: Individual.ASSAY_WGS,
 }
+
+
+class SeqvarImportExecutor(FileImportExecutorBase):
+    """Run the import of sequence variant import."""
+
+    def __init__(self, case: Case, bgjob: CaseImportBackgroundJob):
+        super().__init__(case.project)
+
+        #: The Case to import for
+        self.case = case
+        #: The background job, used for logging and getting unique internal paths
+        self.bgjob = bgjob
+        #: The `FileSystemOptions` for the internal storage.
+        storage_settings = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE
+        self.internal_fs_options = FileSystemOptions(
+            protocol="s3",
+            host=storage_settings.host,
+            port=storage_settings.port,
+            user=storage_settings.access_key,
+            password=storage_settings.secret_key,
+            use_https=storage_settings.use_https,
+        )
+        #: The `FileSystemWrapper` for the internal storage.
+        self.internal_fs = FileSystemWrapper(self.internal_fs_options)
+
+    def run(self):
+        """Perform the import."""
+        if self._copy_external_internal():
+            self._annotate()
+
+    def _copy_external_internal(self) -> bool:
+        """Copy the external VCF file to the internal storage.
+
+        :return: whether a file was copied
+        :raises ValueError: if more than one file is found
+        """
+        # Find files with the correct designation, variant_type, and mimetype; ensure that there
+        # is only one such file and bail out otherwise.
+        extfile_qs = PedigreeExternalFile.objects.filter(
+            pedigree=self.case.pedigree_obj,
+            designation=ExternalFileDesignation.VARIANT_CALLS.value,
+            mimetype="text/plain+x-bgzip+x-variant-call-format",
+        )
+        if extfile_qs.count() > 1:
+            raise ValueError(f"expected at most one seqvar VCF file, found {extfile_qs.count()}")
+        elif extfile_qs.count() == 0:
+            return False
+        extfile = extfile_qs.first()
+
+        # Copy the file from the external to the internal storage.
+        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
+        path_int = (
+            f"case-data/{self.case.sodar_uuid}/{self.bgjob.sodar_uuid}/seqvar/external-copy.vcf.gz"
+        )
+        path_int_full = f"s3://{bucket}/{path_int}"
+        with (
+            self.external_fs.open(extfile.path, "rb") as inputf,
+            self.internal_fs.open(path_int_full, "wb") as outputf,
+        ):
+            shutil.copyfileobj(inputf, outputf)
+
+        # Create the `PedigreeInternalFile` record after copying is complete.
+        PedigreeInternalFile.objects.create(
+            case=self.case,
+            path=path_int,
+            genomebuild=extfile.genomebuild,
+            mimetype=extfile.mimetype,
+            file_attributes=extfile.file_attributes,
+            identifier_map=extfile.identifier_map,
+            # is copy of the original seqvar VCF file
+            designation="variant_calls/seqvars/orig-copy",
+            # checksum=extfile.checksum,  # TODO
+            pedigree=self.case.pedigree_obj,
+        )
+
+        return True
+
+    def _annotate(self):
+        """Annotate the VCF file from the internal storage."""
 
 
 class CaseImportBackgroundJobExecutor:
@@ -909,7 +1007,9 @@ class CaseImportBackgroundJobExecutor:
                 case=case,
                 pedigree=pedigree,
                 path=file_.uri,
-                designation=file_.file_attributes.get("designation", FileDesignation.OTHER.value),
+                designation=file_.file_attributes.get(
+                    "designation", ExternalFileDesignation.OTHER.value
+                ),
                 genomebuild=file_.file_attributes.get(
                     "genomebuild", AbstractFile.GENOMEBUILD_OTHER
                 ),
@@ -943,7 +1043,9 @@ class CaseImportBackgroundJobExecutor:
                 case=case,
                 individual=individual,
                 path=file_.uri,
-                designation=file_.file_attributes.get("designation", FileDesignation.OTHER.value),
+                designation=file_.file_attributes.get(
+                    "designation", ExternalFileDesignation.OTHER.value
+                ),
                 genomebuild=file_.file_attributes.get(
                     "genomebuild", AbstractFile.GENOMEBUILD_OTHER
                 ),
@@ -968,7 +1070,9 @@ class CaseImportBackgroundJobExecutor:
         self.caseimportbackgroundjob.add_log_entry("... done with qc file import")
 
     def _run_seqvars_import(self, case: Case):
-        self.caseimportbackgroundjob.add_log_entry("seqvars annotation not implemented yet")
+        self.caseimportbackgroundjob.add_log_entry("running sequence variant import...")
+        SeqvarImportExecutor(case, bgjob=self.caseimportbackgroundjob).run()
+        self.caseimportbackgroundjob.add_log_entry("... done with sequence variant import")
 
     def _run_strucvars_import(self, case: Case):
         self.caseimportbackgroundjob.add_log_entry("strucvars annotation not implemented yet")
