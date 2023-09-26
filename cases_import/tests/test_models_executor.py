@@ -5,16 +5,24 @@ This has been broken away from ``test_models.py`` for better structure.
 import os
 from unittest import mock
 
+from google.protobuf.json_format import ParseDict
+from phenopackets import Family
 from projectroles.app_settings import AppSettingAPI
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
+import yaml
 
 from cases.models import Case
 from cases.tests.factories import IndividualFactory, PedigreeFactory
-from cases_import.models import CaseImportAction, CaseImportBackgroundJobExecutor
+from cases_files.models import AbstractFile
+from cases_import.models.base import CaseImportAction
+from cases_import.models.executors import (
+    CaseImportBackgroundJobExecutor,
+    build_legacy_pedigree,
+    release_from_family,
+)
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
 from cases_qc.models import CaseQc
-from cases_qc.models.dragen import DragenCnvMetrics
 from seqmeta.tests.factories import TargetBedFileFactory
 from variants.tests.factories import CaseFactory
 
@@ -543,3 +551,38 @@ class ImportDeleteTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         self.assertEqual(Case.objects.count(), 1)
         self.executor.run()
         self.assertEqual(Case.objects.count(), 0)
+
+
+class BuildLegacyModelTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+        self.family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
+
+    def test_build_legacy_pedigree(self):
+        result = build_legacy_pedigree(self.family)
+        self.assertMatchSnapshot(result, "legacy pedigree for family.yaml")
+
+
+class BuildReleaseFromFamilyTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+
+    def test_release_from_family_grch37(self):
+        family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
+        family.proband.files[0].file_attributes["genomebuild"] = "GRCh37"
+        result = release_from_family(family)
+        self.assertEqual(AbstractFile.GENOMEBUILD_GRCH37, result)
+
+    def test_release_from_family_grch38(self):
+        family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
+        family.proband.files[0].file_attributes["genomebuild"] = "GRCh38"
+        result = release_from_family(family)
+        self.assertEqual(AbstractFile.GENOMEBUILD_GRCH38, result)
+
+    def test_release_from_family_none(self):
+        family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
+        family.proband.files[0].file_attributes["genomebuild"] = "xxx"
+        result = release_from_family(family)
+        self.assertEqual(None, result)

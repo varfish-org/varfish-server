@@ -7,7 +7,7 @@ the result of the actions is not tested here.  Instead, such tests are in ``test
 from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
-from cases_import.models import CaseImportAction
+from cases_import.models.base import CaseImportAction
 from cases_import.proto import family_payload_with_updated_case_name
 from cases_import.tests.factories import CaseImportActionFactory, case_import_action_json
 from variants.tests.factories import CaseFactory

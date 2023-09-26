@@ -6,7 +6,8 @@ from freezegun import freeze_time
 from projectroles.app_settings import AppSettingAPI
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 
-from cases_import.models import CaseImportAction, CaseImportBackgroundJobExecutor
+from cases_import.models.base import CaseImportAction
+from cases_import.models.executors import CaseImportBackgroundJobExecutor
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
 from cases_import.tests.test_models_executor import ExecutorTestMixin
 from cases_qc.tests import helpers

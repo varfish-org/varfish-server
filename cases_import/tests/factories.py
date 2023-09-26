@@ -4,7 +4,7 @@ from bgjobs.tests.factories import BackgroundJobFactory
 import factory
 import yaml
 
-from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.models.base import CaseImportAction, CaseImportBackgroundJob
 from seqmeta.tests.test_views_api import isoformat
 from variants.tests.factories import ProjectFactory
 

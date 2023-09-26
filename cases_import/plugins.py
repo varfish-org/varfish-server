@@ -5,7 +5,7 @@ from django.conf import settings
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 
-from cases_import.models import CaseImportBackgroundJob
+from cases_import.models.base import CaseImportBackgroundJob
 from cases_import.urls import urlpatterns
 
 # Global SODAR constants

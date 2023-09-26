@@ -6,7 +6,7 @@ from projectroles.views import (
     ProjectPermissionMixin,
 )
 
-from cases_import.models import CaseImportBackgroundJob
+from cases_import.models.base import CaseImportBackgroundJob
 
 
 class IndexView(
