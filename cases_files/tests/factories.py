@@ -28,6 +28,8 @@ class AbstractFileFactory(factory.django.DjangoModelFactory):
     designation = ExternalFileDesignation.READ_ALIGNMENTS.value
     genomebuild = AbstractFile.GENOMEBUILD_GRCH38
     mimetype = MimeTypes.BAM.value
+    file_attributes = factory.LazyFunction(dict)
+    identifier_map = factory.LazyFunction(dict)
 
 
 class ExternalFileFactory(AbstractFileFactory):
@@ -36,8 +38,6 @@ class ExternalFileFactory(AbstractFileFactory):
 
     available = True
     last_checked = factory.LazyFunction(timezone.now)
-    identifier_map = factory.LazyFunction(dict)
-    file_attributes = factory.LazyFunction(dict)
 
 
 class IndividualExternalFileFactory(ExternalFileFactory):
