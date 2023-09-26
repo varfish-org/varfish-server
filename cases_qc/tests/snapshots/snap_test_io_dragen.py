@@ -19,7 +19,7 @@ snapshots["DragenLoadCnvMetricsTest::test_load 1"] = [
 snapshots["DragenLoadCnvMetricsTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section='SEX GENOTYPER', entry=None, name='NA12878-PCRF450-1', value='XX', value_float=0.9532)"
+            "DragenStyleMetric(section='SEX GENOTYPER', entry=None, name='index', value='XX', value_float=0.9532)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Bases in reference genome', value=3706503810, value_float=None)"
@@ -1480,7 +1480,7 @@ snapshots["DragenLoadFragmentLengthHistTest::test_load 2"] = {
         39012,
         39767,
     ],
-    "sample": "NA12878",
+    "sample": "index",
     "values": [
         1,
         2,
@@ -2897,220 +2897,220 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 1"] = [
 snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='1 Heterozygous', value=228871, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Heterozygous', value=228871, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='1 Homozygous', value=157375, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Homozygous', value=157375, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='1 Het/Hom ratio', value=1.454, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Het/Hom ratio', value=1.454, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='2 Heterozygous', value=236805, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Heterozygous', value=236805, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='2 Homozygous', value=153411, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Homozygous', value=153411, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='2 Het/Hom ratio', value=1.544, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Het/Hom ratio', value=1.544, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='3 Heterozygous', value=199385, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Heterozygous', value=199385, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='3 Homozygous', value=122439, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Homozygous', value=122439, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='3 Het/Hom ratio', value=1.628, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Het/Hom ratio', value=1.628, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='4 Heterozygous', value=204966, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Heterozygous', value=204966, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='4 Homozygous', value=140667, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Homozygous', value=140667, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='4 Het/Hom ratio', value=1.457, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Het/Hom ratio', value=1.457, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='5 Heterozygous', value=188674, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Heterozygous', value=188674, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='5 Homozygous', value=107450, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Homozygous', value=107450, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='5 Het/Hom ratio', value=1.756, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Het/Hom ratio', value=1.756, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='6 Heterozygous', value=201342, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Heterozygous', value=201342, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='6 Homozygous', value=105967, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Homozygous', value=105967, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='6 Het/Hom ratio', value=1.9, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Het/Hom ratio', value=1.9, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='7 Heterozygous', value=168471, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Heterozygous', value=168471, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='7 Homozygous', value=106179, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Homozygous', value=106179, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='7 Het/Hom ratio', value=1.587, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Het/Hom ratio', value=1.587, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='8 Heterozygous', value=154376, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Heterozygous', value=154376, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='8 Homozygous', value=94437, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Homozygous', value=94437, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='8 Het/Hom ratio', value=1.635, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Het/Hom ratio', value=1.635, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='9 Heterozygous', value=134909, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Heterozygous', value=134909, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='9 Homozygous', value=83867, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Homozygous', value=83867, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='9 Het/Hom ratio', value=1.609, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Het/Hom ratio', value=1.609, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='10 Heterozygous', value=154378, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Heterozygous', value=154378, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='10 Homozygous', value=91752, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Homozygous', value=91752, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='10 Het/Hom ratio', value=1.683, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Het/Hom ratio', value=1.683, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='11 Heterozygous', value=142733, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Heterozygous', value=142733, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='11 Homozygous', value=99861, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Homozygous', value=99861, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='11 Het/Hom ratio', value=1.429, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Het/Hom ratio', value=1.429, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='12 Heterozygous', value=139774, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Heterozygous', value=139774, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='12 Homozygous', value=88526, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Homozygous', value=88526, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='12 Het/Hom ratio', value=1.579, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Het/Hom ratio', value=1.579, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='13 Heterozygous', value=108815, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Heterozygous', value=108815, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='13 Homozygous', value=80475, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Homozygous', value=80475, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='13 Het/Hom ratio', value=1.352, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Het/Hom ratio', value=1.352, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='14 Heterozygous', value=93920, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Heterozygous', value=93920, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='14 Homozygous', value=57391, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Homozygous', value=57391, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='14 Het/Hom ratio', value=1.636, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Het/Hom ratio', value=1.636, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='15 Heterozygous', value=83908, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Heterozygous', value=83908, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='15 Homozygous', value=59308, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Homozygous', value=59308, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='15 Het/Hom ratio', value=1.415, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Het/Hom ratio', value=1.415, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='16 Heterozygous', value=94315, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Heterozygous', value=94315, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='16 Homozygous', value=53043, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Homozygous', value=53043, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='16 Het/Hom ratio', value=1.778, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Het/Hom ratio', value=1.778, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='17 Heterozygous', value=83550, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Heterozygous', value=83550, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='17 Homozygous', value=53958, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Homozygous', value=53958, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='17 Het/Hom ratio', value=1.548, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Het/Hom ratio', value=1.548, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='18 Heterozygous', value=85202, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Heterozygous', value=85202, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='18 Homozygous', value=57020, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Homozygous', value=57020, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='18 Het/Hom ratio', value=1.494, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Het/Hom ratio', value=1.494, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='19 Heterozygous', value=75858, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Heterozygous', value=75858, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='19 Homozygous', value=39478, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Homozygous', value=39478, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='19 Het/Hom ratio', value=1.922, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Het/Hom ratio', value=1.922, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='20 Heterozygous', value=79586, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Heterozygous', value=79586, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='20 Homozygous', value=40026, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Homozygous', value=40026, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='20 Het/Hom ratio', value=1.988, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Het/Hom ratio', value=1.988, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='21 Heterozygous', value=49707, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Heterozygous', value=49707, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='21 Homozygous', value=31712, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Homozygous', value=31712, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='21 Het/Hom ratio', value=1.567, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Het/Hom ratio', value=1.567, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='22 Heterozygous', value=52560, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Heterozygous', value=52560, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='22 Homozygous', value=26187, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Homozygous', value=26187, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='22 Het/Hom ratio', value=2.007, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Het/Hom ratio', value=2.007, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='X Heterozygous', value=101110, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Heterozygous', value=101110, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='X Homozygous', value=63892, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Homozygous', value=63892, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='X Het/Hom ratio', value=1.583, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Het/Hom ratio', value=1.583, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Y Heterozygous', value=0, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Y Heterozygous', value=0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Y Homozygous', value=0, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Y Homozygous', value=0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Y Het/Hom ratio', value=None, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Y Het/Hom ratio', value=None, value_float=None)"
         ),
     ]
 }
@@ -3612,7 +3612,7 @@ snapshots["DragenMappingMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: standard deviation', value=115.27, value_float=None)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenPloidyEstimationMetricsTest::test_load 1"] = [
@@ -3713,7 +3713,7 @@ snapshots["DragenPloidyEstimationMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Ploidy estimation', value='XX', value_float=None)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenRegionCoverageMetricsTest::test_load 1"] = [
@@ -3834,7 +3834,7 @@ snapshots["DragenRegionCoverageMetricsTest::test_load 2"] = {
         ),
     ],
     "region_name": "region-3",
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenRegionFineHistTest::test_load 1"] = [
@@ -3850,10 +3850,7 @@ snapshots["DragenRegionFineHistTest::test_load 1"] = [
     "region_name",
 ]
 
-snapshots["DragenRegionFineHistTest::test_load 2"] = {
-    "region_name": "region-3",
-    "sample": "NA12878",
-}
+snapshots["DragenRegionFineHistTest::test_load 2"] = {"region_name": "region-3", "sample": "index"}
 
 snapshots["DragenRegionHistTest::test_load 1"] = [
     "_state",
@@ -3904,7 +3901,7 @@ snapshots["DragenRegionHistTest::test_load 2"] = {
         ),
     ],
     "region_name": "region-3",
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenRegionOverallMeanCovTest::test_load 1"] = [
@@ -3926,7 +3923,7 @@ snapshots["DragenRegionOverallMeanCovTest::test_load 2"] = {
         )
     ],
     "region_name": "region-3",
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenRohMetricsTest::test_load 1"] = [
@@ -3949,7 +3946,7 @@ snapshots["DragenRohMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER', entry=None, name='Number of large ROH ( >= 3000000)', value=1, value_float=None)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenSvMetricsTest::test_load 1"] = [
@@ -3965,16 +3962,16 @@ snapshots["DragenSvMetricsTest::test_load 1"] = [
 snapshots["DragenSvMetricsTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section='SV SUMMARY', entry='NA12878-PCRF450-1', name='Number of deletions (PASS)', value=5538, value_float=None)"
+            "DragenStyleMetric(section='SV SUMMARY', entry='index', name='Number of deletions (PASS)', value=5538, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='SV SUMMARY', entry='NA12878-PCRF450-1', name='Number of insertions (PASS)', value=7198, value_float=None)"
+            "DragenStyleMetric(section='SV SUMMARY', entry='index', name='Number of insertions (PASS)', value=7198, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='SV SUMMARY', entry='NA12878-PCRF450-1', name='Number of duplications (PASS)', value=52, value_float=None)"
+            "DragenStyleMetric(section='SV SUMMARY', entry='index', name='Number of duplications (PASS)', value=52, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='SV SUMMARY', entry='NA12878-PCRF450-1', name='Number of breakend pairs (PASS)', value=1386, value_float=None)"
+            "DragenStyleMetric(section='SV SUMMARY', entry='index', name='Number of breakend pairs (PASS)', value=1386, value_float=None)"
         ),
     ]
 }
@@ -4050,7 +4047,7 @@ snapshots["DragenTimeMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='RUN TIME', entry=None, name='Total runtime', value='01:57:46.878', value_float=7066.88)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenTrimmerMetricsTest::test_load 1"] = [
@@ -4133,7 +4130,7 @@ snapshots["DragenTrimmerMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='TRIMMER STATISTICS', entry=None, name='Reads filtered for minimum read length R2', value=0, value_float=0.0)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenVcMetricsTest::test_load 1"] = [
@@ -4158,70 +4155,70 @@ snapshots["DragenVcMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER SUMMARY', entry=None, name='Child Sample', value=None, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Total', value=5021881, value_float=100.0)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Total', value=5021881, value_float=100.0)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Biallelic', value=4927138, value_float=98.11)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Biallelic', value=4927138, value_float=98.11)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Multiallelic', value=94743, value_float=1.89)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Multiallelic', value=94743, value_float=1.89)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='SNPs', value=4037291, value_float=80.39)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='SNPs', value=4037291, value_float=80.39)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Insertions (Hom)', value=168496, value_float=3.36)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Insertions (Hom)', value=168496, value_float=3.36)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Insertions (Het)', value=309906, value_float=6.17)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Insertions (Het)', value=309906, value_float=6.17)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Deletions (Hom)', value=165859, value_float=3.3)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Deletions (Hom)', value=165859, value_float=3.3)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Deletions (Het)', value=314827, value_float=6.27)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Deletions (Het)', value=314827, value_float=6.27)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Indels (Het)', value=25502, value_float=0.51)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Indels (Het)', value=25502, value_float=0.51)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Chr X number of SNPs over genome', value=127181, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Chr X number of SNPs over genome', value=127181, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Chr Y number of SNPs over genome', value=0, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Chr Y number of SNPs over genome', value=0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='(Chr X SNPs)/(chr Y SNPs) ratio over genome', value=None, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='(Chr X SNPs)/(chr Y SNPs) ratio over genome', value=None, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='SNP Transitions', value=3729445, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='SNP Transitions', value=3729445, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='SNP Transversions', value=1902548, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='SNP Transversions', value=1902548, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Ti/Tv ratio', value=1.96, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Ti/Tv ratio', value=1.96, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Heterozygous', value=3095085, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Heterozygous', value=3095085, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Homozygous', value=1926796, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Homozygous', value=1926796, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Het/Hom ratio', value=1.61, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Het/Hom ratio', value=1.61, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='In dbSNP', value=0, value_float=0.0)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='In dbSNP', value=0, value_float=0.0)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Not in dbSNP', value=0, value_float=0.0)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Not in dbSNP', value=0, value_float=0.0)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Percent Callability', value=None, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Percent Callability', value=None, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='NA12878-PCRF450-1', name='Percent Autosome Callability', value=None, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Percent Autosome Callability', value=None, value_float=None)"
         ),
     ]
 }
@@ -13305,7 +13302,7 @@ snapshots["DragenWgsContigMeanCovMetricsTest::test_load 2"] = {
             "DragenStyleCoverage(contig_name='Autosomal regions ', contig_len=121834994423, cov=44.3813)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenWgsCoverageMetricsTest::test_load 1"] = [
@@ -13403,7 +13400,7 @@ snapshots["DragenWgsCoverageMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Aligned reads in genome', value=870136825, value_float=100.0)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }
 
 snapshots["DragenWgsFineHistTest::test_load 1"] = [
@@ -15422,7 +15419,7 @@ snapshots["DragenWgsFineHistTest::test_load 2"] = {
         1999,
         2000,
     ],
-    "sample": "NA12878",
+    "sample": "index",
     "values": [
         69796489,
         8425692,
@@ -17451,7 +17448,7 @@ snapshots["DragenWgsHistTest::test_load 2"] = {
         "PCT of bases in wgs with coverage [1x:3x)",
         "PCT of bases in wgs with coverage [0x:1x)",
     ],
-    "sample": "NA12878",
+    "sample": "index",
     "values": [0.21, 26.83, 68.77, 0.37, 0.33, 0.65, 0.46, 2.37],
 }
 
@@ -17472,5 +17469,5 @@ snapshots["DragenWgsOverallMeanCovTest::test_load 2"] = {
             "DragenStyleMetric(section=None, entry='Average alignment coverage over wgs', name=None, value=44.22, value_float=None)"
         )
     ],
-    "sample": "NA12878",
+    "sample": "index",
 }

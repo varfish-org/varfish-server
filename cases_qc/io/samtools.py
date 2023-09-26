@@ -32,7 +32,8 @@ class ParserRunMixin:
 class BcftoolsStatsParser(ParserRunMixin):
     """Helper class for parsing ``bcftools stats`` output."""
 
-    def __init__(self):
+    def __init__(self, file_identifier_to_individual: dict[str, str]):
+        self.file_identifier_to_individual = file_identifier_to_individual
         self.sn: list[models_samtools.BcftoolsStatsSnRecord] = []
         self.tstv: list[models_samtools.BcftoolsStatsTstvRecord] = []
         self.sis: list[models_samtools.BcftoolsStatsSisRecord] = []
@@ -149,10 +150,10 @@ def load_bcftools_stats(
     *,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
+    file_identifier_to_individual: dict[str, str],
 ) -> models_samtools.BcftoolsStatsMetrics:
     """Load a ``bcftools stats`` file into a ``cases_qc.models_samtools.BcftoolsStats`` record."""
-
-    parser = BcftoolsStatsParser()
+    parser = BcftoolsStatsParser(file_identifier_to_individual)
     parser.run(input_file)
 
     return models_samtools.BcftoolsStatsMetrics.objects.create(
@@ -173,6 +174,7 @@ def load_samtools_flagstat(  # noqa: C901
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
+    file_identifier_to_individual: dict[str, str],
 ) -> models_samtools.SamtoolsFlagstatMetrics:
     """Load the output of ``samtools idxstats``"""
     qc_pass = models_samtools.SamtoolsFlagstatRecord()
@@ -239,7 +241,7 @@ def load_samtools_flagstat(  # noqa: C901
 
     return models_samtools.SamtoolsFlagstatMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         qc_pass=qc_pass,
         qc_fail=qc_fail,
     )
@@ -449,6 +451,7 @@ def load_samtools_stats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
+    file_identifier_to_individual: dict[str, str],
 ) -> tuple[
     models_samtools.SamtoolsStatsMainMetrics,
     models_samtools.SamtoolsStatsSupplementaryMetrics,
@@ -459,7 +462,7 @@ def load_samtools_stats(
 
     main = models_samtools.SamtoolsStatsMainMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         sn=parser.sn,
         chk=parser.chk,
         isize=parser.isize,
@@ -475,7 +478,7 @@ def load_samtools_stats(
     )
     supplementary = models_samtools.SamtoolsStatsSupplementaryMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         gcf=parser.gcf,
         gcl=parser.gcl,
         gcc=parser.gcc,
@@ -493,9 +496,9 @@ def load_samtools_idxstats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
+    file_identifier_to_individual: dict[str, str],
 ) -> models_samtools.SamtoolsIdxstatsMetrics:
     """Load the output of ``samtools idxstats`"""
-
     reader = csv.reader(input_file, delimiter="\t")
     records = []
     for record in reader:
@@ -510,6 +513,6 @@ def load_samtools_idxstats(
 
     return models_samtools.SamtoolsIdxstatsMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         records=records,
     )

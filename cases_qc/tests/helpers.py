@@ -27,8 +27,7 @@ def determined_words(*args, **kwargs):
 class FlattenEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, uuid.UUID):
-            # if the obj is uuid, we simply return the value of uuid
-            return obj.hex
+            return str(obj)
         elif isinstance(obj, datetime.datetime):
             return obj.isoformat()
         elif isinstance(obj, datetime.date):

@@ -42,7 +42,7 @@ const datasets = computed<PlotDataset[]>(() => {
 </script>
 
 <template>
-  <SimpleCard id="alignmentstats-summary" title="Library Fragment Lengths">
+  <SimpleCard id="alignmentstats-summary" title="Library Fragment Lengths" class="col-6 pr-0">
     <DistDensPlot
       title="insert size distribution"
       :datasets="datasets"

@@ -65,7 +65,7 @@ const numberFormatter = Intl.NumberFormat('en', {
 </script>
 
 <template>
-  <SimpleCard id="readstats" title="Read Statistics">
+  <SimpleCard id="readstats" title="Read Statistics" class="col-3 pr-0">
     <div class="table-responsive">
       <table class="table table-sm table-hover mb-0">
         <thead>

@@ -136,6 +136,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         mock_load_cnv_metrics.assert_called_once_with(
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_cnv_metrics.call_args[1]["input_file"].name,
@@ -146,6 +147,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_fragment_length_hist.call_args[1]["input_file"].name,
@@ -156,6 +158,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_mapping_metrics.call_args[1]["input_file"].name,
@@ -166,6 +169,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_ploidy_estimation_metrics.call_args[1]["input_file"].name,
@@ -176,6 +180,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_roh_metrics.call_args[1]["input_file"].name,
@@ -185,6 +190,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         mock_load_sv_metrics.assert_called_once_with(
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_sv_metrics.call_args[1]["input_file"].name,
@@ -195,6 +201,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_time_metrics.call_args[1]["input_file"].name,
@@ -205,6 +212,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_trimmer_metrics.call_args[1]["input_file"].name,
@@ -214,6 +222,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         mock_load_vc_hethom_ratio_metrics.assert_called_once_with(
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_vc_hethom_ratio_metrics.call_args[1]["input_file"].name,
@@ -223,6 +232,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
         mock_load_vc_metrics.assert_called_once_with(
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_vc_metrics.call_args[1]["input_file"].name,
@@ -233,6 +243,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_wgs_contig_mean_cov.call_args[1]["input_file"].name,
@@ -243,6 +254,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_wgs_coverage_metrics.call_args[1]["input_file"].name,
@@ -253,6 +265,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_wgs_fine_hist.call_args[1]["input_file"].name,
@@ -263,6 +276,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_wgs_hist_metrics.call_args[1]["input_file"].name,
@@ -273,6 +287,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_wgs_overall_mean_cov.call_args[1]["input_file"].name,
@@ -284,6 +299,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_region_overall_mean_cov.call_args[1]["input_file"].name,
@@ -297,6 +313,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_region_hist.call_args[1]["input_file"].name,
@@ -308,6 +325,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_region_fine_hist.call_args[1]["input_file"].name,
@@ -319,6 +337,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
             region_name="region-3",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_region_coverage_metrics.call_args[1]["input_file"].name,
@@ -366,6 +385,7 @@ class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCa
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_samtools_stats.call_args[1]["input_file"].name,
@@ -376,6 +396,7 @@ class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCa
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_samtools_flagstat.call_args[1]["input_file"].name,
@@ -385,6 +406,7 @@ class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCa
         mock_load_bcftools_stats.assert_called_once_with(
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_bcftools_stats.call_args[1]["input_file"].name,
@@ -426,6 +448,7 @@ class ImportCreateWithCraminoQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
             sample="NA12878-PCRF450-1",
             input_file=mock.ANY,
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_cramino.call_args[1]["input_file"].name,
@@ -468,6 +491,7 @@ class ImportCreateWithNgsbitsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
             input_file=mock.ANY,
             region_name="WGS",
             caseqc=caseqc,
+            file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
         )
         self.assertEqual(
             mock_load_mappingqc.call_args[1]["input_file"].name,

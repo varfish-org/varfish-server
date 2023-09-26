@@ -13,7 +13,7 @@ const Template = (args) => ({
     return { args }
   },
   template:
-    '<div style="width: 400px; height: 400px;">' +
+    '<div>' +
     '<PaneQc\n' +
     '    :stats="args.stats"\n' +
     '/>' +

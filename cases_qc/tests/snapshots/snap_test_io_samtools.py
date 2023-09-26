@@ -9756,7 +9756,7 @@ snapshots["SamtoolsLoadSamtoolsFlagstatTest::test_load 2"] = {
     "qc_pass": GenericRepr(
         "SamtoolsFlagstatRecord(total=885644887, primary=883629530, secondary=0, supplementary=2015357, duplicates=251067634, duplicates_primary=250647696, mapped=884708201, mapped_primary=882692844, paired=883629530, fragment_first=441814765, fragment_last=441814765, properly_paired=870504652, with_itself_and_mate_mapped=881815192, singletons=877652, with_mate_mapped_to_different_chr=7237436, with_mate_mapped_to_different_chr_mapq5=5217343)"
     ),
-    "sample": "NA12878",
+    "sample": "NA12878-PCRF450-1",
 }
 
 snapshots["SamtoolsLoadSamtoolsIdxstatsTest::test_load 1"] = [
@@ -10034,7 +10034,7 @@ snapshots["SamtoolsLoadSamtoolsIdxstatsTest::test_load 2"] = {
             "SamtoolsIdxstatsRecord(contig_name='*', contig_len=0, mapped=0, unmapped=59034)"
         ),
     ],
-    "sample": "NA12878",
+    "sample": "NA12878-PCRF450-1",
 }
 
 snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 1"] = [
@@ -15375,7 +15375,7 @@ snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 2"] = {
         GenericRepr("SamtoolsStatsHistoRecord(value=150, count=119312358)"),
         GenericRepr("SamtoolsStatsHistoRecord(value=151, count=274665759)"),
     ],
-    "sample": "NA12878",
+    "sample": "NA12878-PCRF450-1",
 }
 
 snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 3"] = [
@@ -15400,4 +15400,4 @@ snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 3"] = [
     "lbc",
 ]
 
-snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 4"] = {"sample": "NA12878"}
+snapshots["SamtoolsLoadSamtoolsStatsTest::test_load 4"] = {"sample": "NA12878-PCRF450-1"}

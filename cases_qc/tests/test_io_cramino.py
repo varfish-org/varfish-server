@@ -18,7 +18,12 @@ class CraminoLoadTest(TestCaseSnapshot, TestCase):
     def test_load(self):
         self.assertEqual(CraminoMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.cramino.txt") as inputf:
-            io_cramino.load_cramino(sample="sample", input_file=inputf, caseqc=self.caseqc)
+            io_cramino.load_cramino(
+                sample="sample",
+                input_file=inputf,
+                caseqc=self.caseqc,
+                file_identifier_to_individual={},
+            )
 
         self.assertEqual(CraminoMetrics.objects.count(), 1)
         metrics = CraminoMetrics.objects.first()

@@ -165,7 +165,7 @@ class TestCaseApiViews(ApiViewTestBase):
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
-            self.assertDictEqual(flatten_via_json(expected), flatten_via_json(response.data))
+            self.assertEqual(flatten_via_json(expected), flatten_via_json(response.data))
 
 
 def small_variant_query_to_dict(query):
@@ -217,8 +217,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = list(map(small_variant_query_to_dict, queries))
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_multiple(self):
         queries = [
@@ -231,8 +230,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = list(reversed(list(map(small_variant_query_to_dict, queries))))
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_other_user(self):
         _queries = [
@@ -245,8 +243,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = []
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_admin(self):
         _queries = [
@@ -259,8 +256,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = []
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_access_allowed(self):
         _queries = [
@@ -742,7 +738,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
             },
         }
         self.maxDiff = None
-        self.assertDictEqual(actual, expected)
+        self.assertEqual(actual, expected)
 
     def test_get_access_allowed(self):
         good_users = [

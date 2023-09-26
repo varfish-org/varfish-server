@@ -55,15 +55,15 @@ def load_cramino(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
+    file_identifier_to_individual: dict[str, str],
 ) -> cases_qc.models.cramino.CraminoMetrics:
     """Load a ``cramino`` output file into a ``cases_qc.models.CraminoMetrics`` record."""
-
     parser = CraminoParser()
     parser.run(input_file)
 
     return cases_qc.models.cramino.CraminoMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         summary=parser.summary,
         chrom_counts=parser.chrom_counts,
     )

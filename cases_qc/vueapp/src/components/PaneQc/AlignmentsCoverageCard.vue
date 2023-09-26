@@ -98,7 +98,7 @@ const numberFormatter = Intl.NumberFormat('en', {
 </script>
 
 <template>
-  <SimpleCard id="alignmentstats-coverage">
+  <SimpleCard id="alignmentstats-coverage" class="col-6 pr-0">
     <template #header>
       <div class="form-inline">
         Alignment Stats (Coverage)

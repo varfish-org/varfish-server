@@ -19,7 +19,11 @@ class NgsbitsMappingqcLoadTest(TestCaseSnapshot, TestCase):
         self.assertEqual(NgsbitsMappingqcMetrics.objects.count(), 0)
         with open("cases_qc/tests/data/sample.ngsbits-mappingqc.txt") as inputf:
             io_ngsbits.load_mappingqc(
-                sample="sample", region_name="WGS", input_file=inputf, caseqc=self.caseqc
+                sample="sample",
+                region_name="WGS",
+                input_file=inputf,
+                caseqc=self.caseqc,
+                file_identifier_to_individual={},
             )
 
         self.assertEqual(NgsbitsMappingqcMetrics.objects.count(), 1)
