@@ -72,7 +72,9 @@ class FixRandomSeedMixin:
         super().tearDown()
         # recover all factory.Faker random states
         default_faker = factory.Faker._get_faker()
-        for the_factory, generator in zip(default_faker.factories, self._FixRandomSeedMixin__faker_generators):
+        for the_factory, generator in zip(
+            default_faker.factories, self._FixRandomSeedMixin__faker_generators
+        ):
             the_factory._Generator__random = generator
         # recover the random module's state
         random.setstate(self._FixRandomSeedMixin__random_state)

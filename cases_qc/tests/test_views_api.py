@@ -57,7 +57,9 @@ class CaseQcRetrieveApiViewTest(helpers.FixRandomSeedMixin, ApiViewTestBase, Tes
 
 
 @freeze_time("2012-01-14 12:00:01")
-class VarfishStatsRetrieveApiView(helpers.FixRandomSeedMixin, ApiViewTestBase, ExecutorTestMixin, TestCaseSnapshot):
+class VarfishStatsRetrieveApiView(
+    helpers.FixRandomSeedMixin, ApiViewTestBase, ExecutorTestMixin, TestCaseSnapshot
+):
     """Test retrieval / building of ``VarfishStats`` objects."""
 
     def setUp(self):
