@@ -355,7 +355,7 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
                 elif metrics.name == "SNP Transversions":
                     seqvarstats.genome_wide.transversion_count = int(metrics.value)
                 elif metrics.name == "Ti/Tv ratio":
-                    seqvarstats.genome_wide.tstv_ratio = int(metrics.value)
+                    seqvarstats.genome_wide.tstv_ratio = float(metrics.value)
                 elif metrics.name == "Multiallelic":
                     seqvarstats.genome_wide.multiallelic_count = int(metrics.value)
 

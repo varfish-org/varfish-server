@@ -46,9 +46,13 @@ const sampleStats = computed<SampleStats>(() => {
   return result
 })
 
-const numberFormatter = Intl.NumberFormat('en', {
+const largeNumberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
   maximumFractionDigits: 1,
+})
+const floatNumberFormatter = Intl.NumberFormat('en', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 3,
 })
 </script>
 
@@ -68,13 +72,13 @@ const numberFormatter = Intl.NumberFormat('en', {
           <tr>
             <td class="text-nowrap">SNVs</td>
             <td v-for="value in sampleStats.snvCount" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">InDels</td>
             <td v-for="value in sampleStats.indelCount" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
@@ -83,13 +87,13 @@ const numberFormatter = Intl.NumberFormat('en', {
               v-for="value in sampleStats.multiallelicCount"
               class="text-right"
             >
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">transitions</td>
             <td v-for="value in sampleStats.transitionCount" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
@@ -98,13 +102,13 @@ const numberFormatter = Intl.NumberFormat('en', {
               v-for="value in sampleStats.transversionCount"
               class="text-right"
             >
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
-            <td class="text-nowrap">transitions</td>
+            <td class="text-nowrap">Ts/Tv ratio</td>
             <td v-for="value in sampleStats.tsvtvRatio" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ floatNumberFormatter.format(value) }}
             </td>
           </tr>
         </tbody>

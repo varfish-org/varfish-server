@@ -80,7 +80,7 @@ const numberFormatter = Intl.NumberFormat('en', {
           <tr>
             <td class="text-nowrap">read length N50 [bp]</td>
             <td v-for="value in sampleStats.readLengthN50" class="text-right">
-              {{ value }}bp
+              {{ value }}
             </td>
           </tr>
           <tr>

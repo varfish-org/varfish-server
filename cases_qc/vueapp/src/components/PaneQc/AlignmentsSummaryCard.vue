@@ -43,7 +43,7 @@ const sampleStats = computed<SampleStats>(() => {
   return result
 })
 
-const numberFormatter = Intl.NumberFormat('en', {
+const largeNumberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
   maximumFractionDigits: 1,
 })
@@ -67,7 +67,7 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
           <tr>
             <td class="text-nowrap">reads mapped</td>
             <td v-for="value in sampleStats.mapped" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
@@ -77,7 +77,7 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
               class="text-right"
             >
               <template v-if="m && m > 0">
-                {{ numberFormatter.format((d / m) * 100.0) }}%
+                {{ largeNumberFormatter.format((d / m) * 100.0) }}%
               </template>
               <template v-else> 0% </template>
             </td>
@@ -85,19 +85,19 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
           <tr>
             <td class="text-nowrap">mismatch rate</td>
             <td v-for="value in sampleStats.mismatchRate" class="text-right">
-              {{ numberFormatter.format(value * 100) }}%
+              {{ largeNumberFormatter.format(value * 100) }}%
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">fragment length mean [bp]</td>
             <td v-for="value in sampleStats.isizeMean" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">fragment length stddev [bp]</td>
             <td v-for="value in sampleStats.isizeStddev" class="text-right">
-              {{ numberFormatter.format(value) }}
+              {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
         </tbody>

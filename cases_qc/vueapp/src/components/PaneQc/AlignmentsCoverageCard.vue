@@ -122,7 +122,7 @@ const numberFormatter = Intl.NumberFormat('en', {
             <thead>
               <tr>
                 <th>Sample</th>
-                <th>mean cov.</th>
+                <th class="text-right">mean cov.</th>
                 <th v-for="cov of covKeys" class="text-right text-nowrap">
                   &geq; {{ cov }}x
                 </th>
@@ -133,7 +133,7 @@ const numberFormatter = Intl.NumberFormat('en', {
                 <td class="text-nowrap">
                   {{ name }}
                 </td>
-                <td>{{ sampleStats.meanRd[nameIdx] }}</td>
+                <td class="text-right">{{ sampleStats.meanRd[nameIdx] }}x</td>
                 <td
                   v-for="value of sampleStats.minRdFraction"
                   class="text-right"
