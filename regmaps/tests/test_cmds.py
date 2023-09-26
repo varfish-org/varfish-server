@@ -17,6 +17,7 @@ class CollectionListImplTest(TestCase):
     """Tests for CollectionListImpl"""
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def testListEmpty(self):
@@ -50,6 +51,7 @@ class CollectionDeleteImplTest(TestCase):
     """Tests for CollectionDeleteImpl"""
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def testDelete(self):
@@ -63,6 +65,7 @@ class CollectionImportImplTest(TestCase):
     """Tests for CollectionImportImpl"""
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def testImport(self):

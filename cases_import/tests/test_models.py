@@ -18,6 +18,7 @@ from cases_import.tests.factories import CaseImportActionFactory, CaseImportBack
 @freeze_time("2012-01-14 12:00:01")
 class CaseImportActionTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -36,6 +37,7 @@ class CaseImportActionTest(TestCase):
 
 class CaseImportBackgroundJobTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
         self.user = self.make_user("test_user")
 

@@ -294,83 +294,83 @@ class SamtoolsStatsSnRecordFactory(factory.Factory):
         model = BcftoolsStatsSnRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
 
 
 class SamtoolsStatsFqRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsFqRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    counts = factory.Sequence(lambda n: [n])
+    cycle = factory.Faker("pyint")
+    counts = factory.Faker("pylist", value_types=[int])
 
 
 class SamtoolsStatsGcRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcRecord
 
-    gc_content = factory.Sequence(lambda n: 0.1 * n)
-    count = factory.Sequence(lambda n: n)
+    gc_content = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    count = factory.Faker("pyint")
 
 
 class SamtoolsStatsBasePercentagesRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsBasePercentagesRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    percentages = factory.Sequence(lambda n: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+    cycle = factory.Faker("pyint")
+    percentages = factory.Faker("pylist", value_types=[float])
 
 
 class SamtoolsStatsIsRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIsRecord
 
-    insert_size = factory.Sequence(lambda n: n)
-    pairs_total = factory.Sequence(lambda n: n)
-    pairs_inward = factory.Sequence(lambda n: n)
-    pairs_outward = factory.Sequence(lambda n: n)
-    pairs_other = factory.Sequence(lambda n: n)
+    insert_size = factory.Faker("pyint")
+    pairs_total = factory.Faker("pyint")
+    pairs_inward = factory.Faker("pyint")
+    pairs_outward = factory.Faker("pyint")
+    pairs_other = factory.Faker("pyint")
 
 
 class SamtoolsStatsHistoRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsHistoRecord
 
-    value = factory.Sequence(lambda n: n)
-    count = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
+    count = factory.Faker("pyint")
 
 
 class SamtoolsStatsIdRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIdRecord
 
-    length = factory.Sequence(lambda n: n)
-    ins = factory.Sequence(lambda n: n)
-    dels = factory.Sequence(lambda n: n)
+    length = factory.Faker("pyint")
+    ins = factory.Faker("pyint")
+    dels = factory.Faker("pyint")
 
 
 class SamtoolsStatsIcRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIcRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    ins_fwd = factory.Sequence(lambda n: n)
-    dels_fwd = factory.Sequence(lambda n: n)
-    ins_rev = factory.Sequence(lambda n: n)
-    dels_rev = factory.Sequence(lambda n: n)
+    cycle = factory.Faker("pyint")
+    ins_fwd = factory.Faker("pyint")
+    dels_fwd = factory.Faker("pyint")
+    ins_rev = factory.Faker("pyint")
+    dels_rev = factory.Faker("pyint")
 
 
 class SamtoolsStatsGcdRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcdRecord
 
-    gc_content = factory.Sequence(lambda n: 0.1 * n)
-    unique_seq_percentiles = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_10 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_25 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_50 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_75 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_90 = factory.Sequence(lambda n: 0.1 * n)
+    gc_content = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    unique_seq_percentiles = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_10 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_25 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_50 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_75 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_90 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
@@ -428,22 +428,22 @@ class SamtoolsFlagstatRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsFlagstatRecord
 
-    total = factory.Sequence(lambda n: n)
-    primary = factory.Sequence(lambda n: n)
-    secondary = factory.Sequence(lambda n: n)
-    supplementary = factory.Sequence(lambda n: n)
-    duplicates = factory.Sequence(lambda n: n)
-    duplicates_primary = factory.Sequence(lambda n: n)
-    mapped = factory.Sequence(lambda n: n)
-    mapped_primary = factory.Sequence(lambda n: n)
-    paired = factory.Sequence(lambda n: n)
-    fragment_first = factory.Sequence(lambda n: n)
-    fragment_last = factory.Sequence(lambda n: n)
-    properly_paired = factory.Sequence(lambda n: n)
-    with_itself_and_mate_mapped = factory.Sequence(lambda n: n)
-    singletons = factory.Sequence(lambda n: n)
-    with_mate_mapped_to_different_chr = factory.Sequence(lambda n: n)
-    with_mate_mapped_to_different_chr_mapq5 = factory.Sequence(lambda n: n)
+    total = factory.Faker("pyint")
+    primary = factory.Faker("pyint")
+    secondary = factory.Faker("pyint")
+    supplementary = factory.Faker("pyint")
+    duplicates = factory.Faker("pyint")
+    duplicates_primary = factory.Faker("pyint")
+    mapped = factory.Faker("pyint")
+    mapped_primary = factory.Faker("pyint")
+    paired = factory.Faker("pyint")
+    fragment_first = factory.Faker("pyint")
+    fragment_last = factory.Faker("pyint")
+    properly_paired = factory.Faker("pyint")
+    with_itself_and_mate_mapped = factory.Faker("pyint")
+    singletons = factory.Faker("pyint")
+    with_mate_mapped_to_different_chr = factory.Faker("pyint")
+    with_mate_mapped_to_different_chr_mapq5 = factory.Faker("pyint")
 
 
 class SamtoolsFlagstatMetricsFactory(factory.django.DjangoModelFactory):
@@ -469,9 +469,9 @@ class SamtoolsIdxstatsRecordFactory(factory.Factory):
         model = SamtoolsIdxstatsRecord
 
     contig_name = factory.Faker("word")
-    contig_len = factory.Sequence(lambda n: n)
-    mapped = factory.Sequence(lambda n: n)
-    unmapped = factory.Sequence(lambda n: n)
+    contig_len = factory.Faker("pyint")
+    mapped = factory.Faker("pyint")
+    unmapped = factory.Faker("pyint")
 
 
 class SamtoolsIdxstatsMetricsFactory(factory.django.DjangoModelFactory):
@@ -496,7 +496,7 @@ class CraminoSummaryRecordFactory(factory.Factory):
         model = CraminoSummaryRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
 
 
 class CraminoChromNormalizedCountsRecordFactory(factory.Factory):
@@ -504,7 +504,7 @@ class CraminoChromNormalizedCountsRecordFactory(factory.Factory):
         model = CraminoChromNormalizedCountsRecord
 
     chrom_name = factory.Faker("word")
-    normalized_counts = factory.Sequence(lambda n: 0.1 * n)
+    normalized_counts = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class CraminoMetricsFactory(factory.django.DjangoModelFactory):
@@ -529,7 +529,7 @@ class NgsbitsMappingqcRecordFactory(factory.Factory):
         model = NgsbitsMappingqcRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: 0.1 * n)
+    value = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class NgsbitsMappingqcMetricsFactory(factory.django.DjangoModelFactory):

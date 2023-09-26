@@ -17,6 +17,7 @@ from cases_qc.tests.helpers import extract_from_dict
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
         self.caseqc = CaseQcFactory()
@@ -55,6 +56,7 @@ class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
         self.caseqc = CaseQcFactory()
@@ -79,6 +81,7 @@ class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
         self.caseqc = CaseQcFactory()
@@ -139,6 +142,7 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsLoadSamtoolsIdxstatsTest(TestCaseSnapshot, TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
         self.caseqc = CaseQcFactory()

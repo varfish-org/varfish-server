@@ -21,7 +21,6 @@ from variants.tests.factories import CaseFactory
 
 class ExecutorTestMixin:
     def _setUpExecutor(self, action, fac_kwargs=None):
-        super().setUp()
         self.user = self.make_user()
         self.caseimportaction = CaseImportActionFactory(
             action=action,
@@ -56,6 +55,7 @@ class ImportCreateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
     """
 
     def setUp(self):
+        super().setUp()
         self._setUpExecutor(CaseImportAction.ACTION_CREATE)
 
     def test_run(self):
@@ -71,6 +71,7 @@ class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase
     """
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
         self._setUpExecutor(
             CaseImportAction.ACTION_CREATE,
@@ -354,6 +355,7 @@ class ImportCreateWithSamtoolsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCa
     """
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
         self._setUpExecutor(
             CaseImportAction.ACTION_CREATE,
@@ -421,6 +423,7 @@ class ImportCreateWithCraminoQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
     """
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
         self._setUpExecutor(
             CaseImportAction.ACTION_CREATE,
@@ -463,6 +466,7 @@ class ImportCreateWithNgsbitsQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
     """
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None
         self._setUpExecutor(
             CaseImportAction.ACTION_CREATE,

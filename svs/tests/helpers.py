@@ -16,6 +16,7 @@ class TestBase(TestCase):
     base_query_settings = None
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
         if self.__class__.setup_case_in_db:
             self.__class__.setup_case_in_db()

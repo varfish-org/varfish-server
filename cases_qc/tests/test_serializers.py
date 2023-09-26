@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from freezegun import freeze_time
 from parameterized import parameterized
 from snapshottest.unittest import TestCase as TestCaseSnapshot
@@ -65,8 +63,9 @@ from cases_qc.tests.factories import (
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SerializerTest(TestCaseSnapshot, TestCase):
+class SerializerTest(helpers.FixRandomSeedMixin, TestCase, TestCaseSnapshot):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     @parameterized.expand(
@@ -99,9 +98,7 @@ class SerializerTest(TestCaseSnapshot, TestCase):
             [VarfishStatsFactory, VarfishStatsSerializer],
         ]
     )
-    @patch("faker.providers.misc.Provider.uuid4", new_callable=helpers.determined_uuids)
-    @patch("faker.providers.lorem.Provider.word", new_callable=helpers.determined_words)
-    def test_load(self, factory_class, serializer_class, _mock_uuid, _mock_word):
+    def test_load(self, factory_class, serializer_class):
         obj = factory_class()
         serializer = serializer_class(obj)
         self.assertMatchSnapshot(dict(serializer.data))
