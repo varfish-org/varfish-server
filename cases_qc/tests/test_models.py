@@ -1,10 +1,9 @@
 from freezegun import freeze_time
 from test_plus import TestCase
 
-from cases_qc.models import (
-    Case,
-    CaseQc,
-    CraminoMetrics,
+from cases_qc.models import Case, CaseQc
+from cases_qc.models.cramino import CraminoMetrics
+from cases_qc.models.dragen import (
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -24,6 +23,8 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
+)
+from cases_qc.models.samtools import (
     SamtoolsFlagstatMetrics,
     SamtoolsIdxstatsMetrics,
     SamtoolsStatsMainMetrics,
@@ -32,6 +33,7 @@ from cases_qc.models import (
 from cases_qc.tests.factories import (
     CaseQcFactory,
     CraminoMetricsFactory,
+    DetailedAlignmentCountsFactory,
     DragenCnvMetricsFactory,
     DragenFragmentLengthHistogramFactory,
     DragenMappingMetricsFactory,
@@ -53,15 +55,24 @@ from cases_qc.tests.factories import (
     DragenWgsFineHistFactory,
     DragenWgsHistFactory,
     DragenWgsOverallMeanCovFactory,
+    InsertSizeStatsFactory,
+    RegionCoverageStatsFactory,
+    RegionVariantStatsFactory,
+    SampleAlignmentStatsFactory,
+    SampleReadStatsFactory,
+    SampleSeqvarStatsFactory,
+    SampleStrucvarStatsFactory,
     SamtoolsFlagstatMetricsFactory,
     SamtoolsIdxstatsMetricsFactory,
     SamtoolsStatsMainMetricsFactory,
     SamtoolsStatsSupplementaryMetricsFactory,
+    VarfishStatsFactory,
 )
 
 
 class DragenPydanticTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_metric(self):
@@ -74,6 +85,7 @@ class DragenPydanticTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenCaseQcTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -87,6 +99,7 @@ class DragenCaseQcTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenFragmentLengthHistogramTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -102,6 +115,7 @@ class DragenFragmentLengthHistogramTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenCnvMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -117,6 +131,7 @@ class DragenCnvMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenMappingMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -132,6 +147,7 @@ class DragenMappingMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenPloidyEstimationMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -147,6 +163,7 @@ class DragenPloidyEstimationMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenRegionCoverageMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -162,6 +179,7 @@ class DragenRegionCoverageMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenRegionFineHistTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -177,6 +195,7 @@ class DragenRegionFineHistTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenRegionHistTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -192,6 +211,7 @@ class DragenRegionHistTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenRegionOverallMeanCovTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -207,6 +227,7 @@ class DragenRegionOverallMeanCovTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenRohMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -222,6 +243,7 @@ class DragenRohMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenStrucvarMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -237,6 +259,7 @@ class DragenStrucvarMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenTrimmerMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -252,6 +275,7 @@ class DragenTrimmerMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenVcHethomRatioMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -267,6 +291,7 @@ class DragenVcHethomRatioMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenVcMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -282,6 +307,7 @@ class DragenVcMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenTimeMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -297,6 +323,7 @@ class DragenTimeMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenWgsContigMeanCovMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -312,6 +339,7 @@ class DragenWgsContigMeanCovMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenWgsCoverageMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -327,6 +355,7 @@ class DragenWgsCoverageMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenWgsFineHistTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -342,6 +371,7 @@ class DragenWgsFineHistTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenWgsHistTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -357,6 +387,7 @@ class DragenWgsHistTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class DragenWgsOverallMeanCovTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -372,6 +403,7 @@ class DragenWgsOverallMeanCovTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsStatsMainMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -387,6 +419,7 @@ class SamtoolsStatsMainMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsStatsSupplementaryMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -402,6 +435,7 @@ class SamtoolsStatsSupplementaryMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsFlagstatMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -417,6 +451,7 @@ class SamtoolsFlagstatMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class SamtoolsIdxstatsMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -432,6 +467,7 @@ class SamtoolsIdxstatsMetricsTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class CraminoMetricsTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -442,3 +478,19 @@ class CraminoMetricsTest(TestCase):
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(CraminoMetrics.objects.count(), 1)
+
+
+class VarfishPydanticTest(TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_smoke(self):
+        SampleReadStatsFactory()
+        RegionCoverageStatsFactory()
+        InsertSizeStatsFactory()
+        DetailedAlignmentCountsFactory()
+        SampleAlignmentStatsFactory()
+        RegionVariantStatsFactory()
+        SampleSeqvarStatsFactory()
+        SampleStrucvarStatsFactory()
+        VarfishStatsFactory()

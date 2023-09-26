@@ -16,6 +16,7 @@ class ModelsSmokeTest(TestCase):
     """Simple smoke tests for the model classes"""
 
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def testRegMapCollection(self):

@@ -6,6 +6,7 @@ import typing
 
 from cases_qc import models
 from cases_qc.io.utils import try_cast
+import cases_qc.models.cramino
 
 
 class CraminoParserState(enum.Enum):
@@ -18,8 +19,8 @@ class CraminoParser:
 
     def __init__(self):
         self.state = CraminoParserState.INITIAL
-        self.summary: list[models.CraminoSummaryRecord] = []
-        self.chrom_counts: list[models.CraminoChromNormalizedCountsRecord] = []
+        self.summary: list[cases_qc.models.cramino.CraminoSummaryRecord] = []
+        self.chrom_counts: list[cases_qc.models.cramino.CraminoChromNormalizedCountsRecord] = []
 
     def run(self, input_file: typing.TextIO):
         reader = csv.reader(input_file, delimiter="\t")
@@ -34,7 +35,7 @@ class CraminoParser:
 
     def _handle_state_initial(self, record: list[str]):
         self.summary.append(
-            models.CraminoSummaryRecord(
+            cases_qc.models.cramino.CraminoSummaryRecord(
                 key=record[0],
                 value=try_cast(record[1], (int, float, str)),
             )
@@ -42,7 +43,7 @@ class CraminoParser:
 
     def _handle_state_counts_per_chrom(self, record: list[str]):
         self.chrom_counts.append(
-            models.CraminoChromNormalizedCountsRecord(
+            cases_qc.models.cramino.CraminoChromNormalizedCountsRecord(
                 chrom_name=record[0],
                 normalized_counts=float(record[1]),
             )
@@ -54,15 +55,15 @@ def load_cramino(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-) -> models.CraminoMetrics:
+    file_identifier_to_individual: dict[str, str],
+) -> cases_qc.models.cramino.CraminoMetrics:
     """Load a ``cramino`` output file into a ``cases_qc.models.CraminoMetrics`` record."""
-
     parser = CraminoParser()
     parser.run(input_file)
 
-    return models.CraminoMetrics.objects.create(
+    return cases_qc.models.cramino.CraminoMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         summary=parser.summary,
         chrom_counts=parser.chrom_counts,
     )

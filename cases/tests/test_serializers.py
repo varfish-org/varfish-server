@@ -10,6 +10,7 @@ from cases.serializers import (
     SampleVariantStatisticsSerializer,
 )
 from cases.tests.factories import CaseAlignmentStatsFactory, PedigreeRelatednessFactory
+from cases_qc.tests.helpers import flatten_via_json
 from svs.tests.factories import SvQueryResultSetFactory
 from variants.tests.factories import (
     CaseCommentsFactory,
@@ -87,6 +88,7 @@ class TestCaseSerializer(TestCase):
                 "case_version",
             ),
         )
+        expected["caseqc"] = None
         expected["pedigree"] = transmogrify_pedigree(expected["pedigree"])
         expected["project"] = self.case.project.sodar_uuid
         expected["sodar_uuid"] = str(self.case.sodar_uuid)
@@ -113,7 +115,7 @@ class TestCaseSerializer(TestCase):
             "result_row_count": self.svqueryresultset.result_row_count,
             "case": self.svqueryresultset.case.sodar_uuid,
         }
-        self.assertDictEqual(serializer.data, expected)
+        self.assertDictEqual(flatten_via_json(serializer.data), flatten_via_json(expected))
 
 
 class TestCaseAlignmentStatsSerializer(TestCase):

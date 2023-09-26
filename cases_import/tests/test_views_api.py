@@ -16,7 +16,7 @@ import jsonmatch
 from parameterized import parameterized
 import yaml
 
-from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.models.base import CaseImportAction, CaseImportBackgroundJob
 from cases_import.proto import family_payload_with_updated_case_name
 from cases_import.tests.factories import CaseImportActionFactory
 from variants.tests.factories import CaseFactory

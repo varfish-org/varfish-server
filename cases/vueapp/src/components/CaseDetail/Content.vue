@@ -2,10 +2,12 @@
 import { computed, ref } from 'vue'
 
 import PaneCase from '@cases/components/CaseDetail/PaneCase.vue'
-import PaneQc from '@cases/components/CaseDetail/PaneQc.vue'
+import PaneQc from '@cases_qc/components/PaneQc.vue'
+import LegacyPaneQc from '@cases/components/CaseDetail/PaneQc.vue'
 import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
 import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseQcStore } from '@cases_qc/stores/caseQc'
 import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
 
 const router = useRouter()
@@ -39,6 +41,7 @@ const Tabs = Object.freeze({
 })
 
 const caseDetailsStore = useCaseDetailsStore()
+const caseQcStore = useCaseQcStore()
 
 const annosLoading = computed(
   () => caseDetailsStore.varAnnos === null || caseDetailsStore.svAnnos === null,
@@ -143,12 +146,13 @@ const updateCurrentTab = (newValue) => {
         />
       </div>
       <div
-        v-if="props.currentTab === Tabs.qc"
+        v-if="props.currentTab === Tabs.qc && caseDetailsStore.caseObj"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
       >
-        <PaneQc />
+        <LegacyPaneQc v-if="caseDetailsStore.caseObj?.case_version !== 2" />
+        <PaneQc :stats="caseQcStore.varfishStats" v-else />
       </div>
       <div
         v-if="props.currentTab === Tabs.annotation"

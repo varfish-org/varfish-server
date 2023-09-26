@@ -21,6 +21,16 @@ export const roundIt = (
 }
 
 /**
+ * Format `value` as number with thousands separator.
+ *
+ * @param value The value to format.
+ * @returns The formatted value.
+ */
+export const numberWithCommas = (value: number): string => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+/**
  * Converts a number to a string with thousands separator.
  *
  * @param value     The number to separate.

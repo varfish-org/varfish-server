@@ -8,6 +8,7 @@ import typing
 
 from cases_qc import models
 from cases_qc.io.utils import try_cast
+import cases_qc.models.samtools as models_samtools
 
 
 class ParserRunMixin:
@@ -31,15 +32,16 @@ class ParserRunMixin:
 class BcftoolsStatsParser(ParserRunMixin):
     """Helper class for parsing ``bcftools stats`` output."""
 
-    def __init__(self):
-        self.sn: list[models.BcftoolsStatsSnRecord] = []
-        self.tstv: list[models.BcftoolsStatsTstvRecord] = []
-        self.sis: list[models.BcftoolsStatsSisRecord] = []
-        self.af: list[models.BcftoolsStatsAfRecord] = []
-        self.qual: list[models.BcftoolsStatsQualRecord] = []
-        self.idd: list[models.BcfToolsStatsIddRecord] = []
-        self.st: list[models.BcftoolsStatsStRecord] = []
-        self.dp: list[models.BcftoolsStatsDpRecord] = []
+    def __init__(self, file_identifier_to_individual: dict[str, str]):
+        self.file_identifier_to_individual = file_identifier_to_individual
+        self.sn: list[models_samtools.BcftoolsStatsSnRecord] = []
+        self.tstv: list[models_samtools.BcftoolsStatsTstvRecord] = []
+        self.sis: list[models_samtools.BcftoolsStatsSisRecord] = []
+        self.af: list[models_samtools.BcftoolsStatsAfRecord] = []
+        self.qual: list[models_samtools.BcftoolsStatsQualRecord] = []
+        self.idd: list[models_samtools.BcftoolsStatsIddRecord] = []
+        self.st: list[models_samtools.BcftoolsStatsStRecord] = []
+        self.dp: list[models_samtools.BcftoolsStatsDpRecord] = []
 
     def _handle_id(self, record: list[str]):
         """Skip ``ID`` lines."""
@@ -51,7 +53,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_sn(self, record: list[str]):
         """Handle parsing of ``SN`` lines."""
         self.sn.append(
-            models.BcftoolsStatsSnRecord(
+            models_samtools.BcftoolsStatsSnRecord(
                 key=record[2],
                 value=int(record[3]),
             )
@@ -60,7 +62,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_tstv(self, record: list[str]):
         """Handle parsing of ``TSV`` lines."""
         self.tstv.append(
-            models.BcftoolsStatsTstvRecord(
+            models_samtools.BcftoolsStatsTstvRecord(
                 ts=int(record[2]),
                 tv=int(record[3]),
                 tstv=float(record[4]),
@@ -73,7 +75,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_sis(self, record: list[str]):
         """Handle parsing of ``SiS`` lines."""
         self.sis.append(
-            models.BcftoolsStatsSisRecord(
+            models_samtools.BcftoolsStatsSisRecord(
                 total=int(record[2]),
                 snps=int(record[3]),
                 ts=int(record[4]),
@@ -87,7 +89,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_af(self, record: list[str]):
         """Handle parsing of ``AF`` lines."""
         self.af.append(
-            models.BcftoolsStatsAfRecord(
+            models_samtools.BcftoolsStatsAfRecord(
                 af=float(record[2]),
                 snps=int(record[3]),
                 ts=int(record[4]),
@@ -102,7 +104,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_qual(self, record: list[str]):
         """Handle parsing of ``QUAL`` lines."""
         self.qual.append(
-            models.BcftoolsStatsQualRecord(
+            models_samtools.BcftoolsStatsQualRecord(
                 qual=try_cast(record[2], (float, None)),
                 snps=int(record[3]),
                 ts=int(record[4]),
@@ -114,7 +116,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_idd(self, record: list[str]):
         """Handle parsing of ``IDD`` lines."""
         self.idd.append(
-            models.BcfToolsStatsIddRecord(
+            models_samtools.BcftoolsStatsIddRecord(
                 length=int(record[2]),
                 sites=int(record[3]),
                 gts=int(record[4]),
@@ -125,7 +127,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_st(self, record: list[str]):
         """Handle parsing of ``ST`` lines."""
         self.st.append(
-            models.BcftoolsStatsStRecord(
+            models_samtools.BcftoolsStatsStRecord(
                 type=record[2],
                 count=int(record[3]),
             )
@@ -134,7 +136,7 @@ class BcftoolsStatsParser(ParserRunMixin):
     def _handle_dp(self, record: list[str]):
         """Handle parsing of ``DP`` lines."""
         self.dp.append(
-            models.BcftoolsStatsDpRecord(
+            models_samtools.BcftoolsStatsDpRecord(
                 bin=int(record[2].replace(">", "")),
                 gts=int(record[3]),
                 gts_frac=float(record[4]),
@@ -148,13 +150,13 @@ def load_bcftools_stats(
     *,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-) -> models.BcftoolsStatsMetrics:
-    """Load a ``bcftools stats`` file into a ``cases_qc.models.BcftoolsStats`` record."""
-
-    parser = BcftoolsStatsParser()
+    file_identifier_to_individual: dict[str, str],
+) -> models_samtools.BcftoolsStatsMetrics:
+    """Load a ``bcftools stats`` file into a ``cases_qc.models_samtools.BcftoolsStats`` record."""
+    parser = BcftoolsStatsParser(file_identifier_to_individual)
     parser.run(input_file)
 
-    return models.BcftoolsStatsMetrics.objects.create(
+    return models_samtools.BcftoolsStatsMetrics.objects.create(
         caseqc=caseqc,
         sn=parser.sn,
         tstv=parser.tstv,
@@ -172,10 +174,11 @@ def load_samtools_flagstat(  # noqa: C901
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-) -> models.SamtoolsFlagstatMetrics:
+    file_identifier_to_individual: dict[str, str],
+) -> models_samtools.SamtoolsFlagstatMetrics:
     """Load the output of ``samtools idxstats``"""
-    qc_pass = models.SamtoolsFlagstatRecord()
-    qc_fail = models.SamtoolsFlagstatRecord()
+    qc_pass = models_samtools.SamtoolsFlagstatRecord()
+    qc_fail = models_samtools.SamtoolsFlagstatRecord()
 
     for line in input_file:
         line = line.strip()
@@ -236,9 +239,9 @@ def load_samtools_flagstat(  # noqa: C901
         else:
             raise ValueError("cannot interpret line {line}")
 
-    return models.SamtoolsFlagstatMetrics.objects.create(
+    return models_samtools.SamtoolsFlagstatMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         qc_pass=qc_pass,
         qc_fail=qc_fail,
     )
@@ -248,31 +251,31 @@ class SamtoolsStatsParser(ParserRunMixin):
     """Helper class for parsing ``samtools stats`` output."""
 
     def __init__(self):
-        self.sn: list[models.BcftoolsStatsSnRecord] = []
-        self.chk: list[models.SamtoolsStatsChkRecord] = []
-        self.ffq: list[models.SamtoolsStatsFqRecord] = []
-        self.lfq: list[models.SamtoolsStatsFqRecord] = []
-        self.gcf: list[models.SamtoolsStatsGcRecord] = []
-        self.gcl: list[models.SamtoolsStatsGcRecord] = []
-        self.gcc: list[models.SamtoolsStatsBasePercentagesRecord] = []
-        self.gct: list[models.SamtoolsStatsBasePercentagesRecord] = []
-        self.fbc: list[models.SamtoolsStatsBasePercentagesRecord] = []
-        self.lbc: list[models.SamtoolsStatsBasePercentagesRecord] = []
-        self.isize: list[models.SamtoolsStatsIsRecord] = []
-        self.rl: list[models.SamtoolsStatsHistoRecord] = []
-        self.frl: list[models.SamtoolsStatsHistoRecord] = []
-        self.lrl: list[models.SamtoolsStatsHistoRecord] = []
-        self.mapq: list[models.SamtoolsStatsHistoRecord] = []
+        self.sn: list[models_samtools.BcftoolsStatsSnRecord] = []
+        self.chk: list[models_samtools.SamtoolsStatsChkRecord] = []
+        self.ffq: list[models_samtools.SamtoolsStatsFqRecord] = []
+        self.lfq: list[models_samtools.SamtoolsStatsFqRecord] = []
+        self.gcf: list[models_samtools.SamtoolsStatsGcRecord] = []
+        self.gcl: list[models_samtools.SamtoolsStatsGcRecord] = []
+        self.gcc: list[models_samtools.SamtoolsStatsBasePercentagesRecord] = []
+        self.gct: list[models_samtools.SamtoolsStatsBasePercentagesRecord] = []
+        self.fbc: list[models_samtools.SamtoolsStatsBasePercentagesRecord] = []
+        self.lbc: list[models_samtools.SamtoolsStatsBasePercentagesRecord] = []
+        self.isize: list[models_samtools.SamtoolsStatsIsRecord] = []
+        self.rl: list[models_samtools.SamtoolsStatsHistoRecord] = []
+        self.frl: list[models_samtools.SamtoolsStatsHistoRecord] = []
+        self.lrl: list[models_samtools.SamtoolsStatsHistoRecord] = []
+        self.mapq: list[models_samtools.SamtoolsStatsHistoRecord] = []
 
-        self.cov: list[models.SamtoolsStatsHistoRecord] = []
-        self.gcd: list[models.SamtoolsStatsGcdRecord] = []
-        self.idd: list[models.SamtoolsStatsIdRecord] = []
-        self.ic: list[models.SamtoolsStatsIcRecord] = []
+        self.cov: list[models_samtools.SamtoolsStatsHistoRecord] = []
+        self.gcd: list[models_samtools.SamtoolsStatsGcdRecord] = []
+        self.idd: list[models_samtools.SamtoolsStatsIdRecord] = []
+        self.ic: list[models_samtools.SamtoolsStatsIcRecord] = []
 
     def _handle_chk(self, record: list[str]):
         """Handle parsing of ``CHK`` lines."""
         self.chk.append(
-            models.SamtoolsStatsChkRecord(
+            models_samtools.SamtoolsStatsChkRecord(
                 read_names_crc32=record[1],
                 sequences_crc32=record[2],
                 qualities_crc32=record[3],
@@ -282,7 +285,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_sn(self, record: list[str]):
         """Handle parsing of ``SN`` lines."""
         self.sn.append(
-            models.BcftoolsStatsSnRecord(
+            models_samtools.BcftoolsStatsSnRecord(
                 key=record[1],
                 value=try_cast(record[2], (int, float, str, None)),
             )
@@ -291,7 +294,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_ffq(self, record: list[str]):
         """Handle parsing of ``FFQ`` lines."""
         self.ffq.append(
-            models.SamtoolsStatsFqRecord(
+            models_samtools.SamtoolsStatsFqRecord(
                 cycle=int(record[1]),
                 counts=[int(x) for x in record[2:]],
             )
@@ -300,7 +303,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_lfq(self, record: list[str]):
         """Handle parsing of ``LFQ`` lines."""
         self.lfq.append(
-            models.SamtoolsStatsFqRecord(
+            models_samtools.SamtoolsStatsFqRecord(
                 cycle=int(record[1]),
                 counts=[int(x) for x in record[2:]],
             )
@@ -309,7 +312,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_gcf(self, record: list[str]):
         """Handle parsing of ``GCF`` lines."""
         self.gcf.append(
-            models.SamtoolsStatsGcRecord(
+            models_samtools.SamtoolsStatsGcRecord(
                 gc_content=float(record[1]),
                 count=int(record[2]),
             )
@@ -318,18 +321,20 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_gcl(self, record: list[str]):
         """Handle parsing of ``GCL`` lines."""
         self.gcl.append(
-            models.SamtoolsStatsGcRecord(
+            models_samtools.SamtoolsStatsGcRecord(
                 gc_content=float(record[1]),
                 count=int(record[2]),
             )
         )
 
     def _handle_base_percentage_record(
-        self, lst: list[models.SamtoolsStatsBasePercentagesRecord], record: list[str]
+        self,
+        lst: list[models_samtools.SamtoolsStatsBasePercentagesRecord],
+        record: list[str],
     ):
         """Generic handler for GCC, GCT, FBC, LBC lines."""
         lst.append(
-            models.SamtoolsStatsBasePercentagesRecord(
+            models_samtools.SamtoolsStatsBasePercentagesRecord(
                 cycle=int(record[1]),
                 percentages=[float(x) for x in record[2:]],
             )
@@ -360,7 +365,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_is(self, record: list[str]):
         """Handle parsing of ``IS`` lines."""
         self.isize.append(
-            models.SamtoolsStatsIsRecord(
+            models_samtools.SamtoolsStatsIsRecord(
                 insert_size=int(record[1]),
                 pairs_total=int(record[2]),
                 pairs_inward=int(record[3]),
@@ -371,14 +376,14 @@ class SamtoolsStatsParser(ParserRunMixin):
 
     def _handle_histo_record(
         self,
-        lst: list[models.SamtoolsStatsHistoRecord],
+        lst: list[models_samtools.SamtoolsStatsHistoRecord],
         record: list[str],
         idx_value: int = 1,
         idx_count: int = 2,
     ):
         """Generic handler for RL, COV, GCD, FRL, LRL, MAPQ lines."""
         lst.append(
-            models.SamtoolsStatsHistoRecord(
+            models_samtools.SamtoolsStatsHistoRecord(
                 value=int(record[idx_value]),
                 count=int(record[idx_count]),
             )
@@ -403,7 +408,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_id(self, record: list[str]):
         """Handle ID lines."""
         self.idd.append(
-            models.SamtoolsStatsIdRecord(
+            models_samtools.SamtoolsStatsIdRecord(
                 length=int(record[1]),
                 ins=int(record[2]),
                 dels=float(record[3]),
@@ -413,7 +418,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_ic(self, record: list[str]):
         """Handle IC lines."""
         self.ic.append(
-            models.SamtoolsStatsIcRecord(
+            models_samtools.SamtoolsStatsIcRecord(
                 cycle=int(record[1]),
                 ins_fwd=int(record[2]),
                 dels_fwd=int(record[3]),
@@ -429,7 +434,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_gcd(self, record: list[str]):
         """Handle parsing of ``GCD`` lines."""
         self.gcd.append(
-            models.SamtoolsStatsGcdRecord(
+            models_samtools.SamtoolsStatsGcdRecord(
                 gc_content=float(record[1]),
                 unique_seq_percentiles=float(record[2]),
                 dp_percentile_10=float(record[3]),
@@ -446,14 +451,18 @@ def load_samtools_stats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-) -> tuple[models.SamtoolsStatsMainMetrics, models.SamtoolsStatsSupplementaryMetrics]:
+    file_identifier_to_individual: dict[str, str],
+) -> tuple[
+    models_samtools.SamtoolsStatsMainMetrics,
+    models_samtools.SamtoolsStatsSupplementaryMetrics,
+]:
     """Load the output of ``samtools stats`"""
     parser = SamtoolsStatsParser()
     parser.run(input_file)
 
-    main = models.SamtoolsStatsMainMetrics.objects.create(
+    main = models_samtools.SamtoolsStatsMainMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         sn=parser.sn,
         chk=parser.chk,
         isize=parser.isize,
@@ -467,9 +476,9 @@ def load_samtools_stats(
         fbc=parser.fbc,
         lbc=parser.lbc,
     )
-    supplementary = models.SamtoolsStatsSupplementaryMetrics.objects.create(
+    supplementary = models_samtools.SamtoolsStatsSupplementaryMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         gcf=parser.gcf,
         gcl=parser.gcl,
         gcc=parser.gcc,
@@ -487,14 +496,14 @@ def load_samtools_idxstats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-) -> models.SamtoolsIdxstatsMetrics:
+    file_identifier_to_individual: dict[str, str],
+) -> models_samtools.SamtoolsIdxstatsMetrics:
     """Load the output of ``samtools idxstats`"""
-
     reader = csv.reader(input_file, delimiter="\t")
     records = []
     for record in reader:
         records.append(
-            models.SamtoolsIdxstatsRecord(
+            models_samtools.SamtoolsIdxstatsRecord(
                 contig_name=record[0],
                 contig_len=int(record[1]),
                 mapped=int(record[2]),
@@ -502,8 +511,8 @@ def load_samtools_idxstats(
             )
         )
 
-    return models.SamtoolsIdxstatsMetrics.objects.create(
+    return models_samtools.SamtoolsIdxstatsMetrics.objects.create(
         caseqc=caseqc,
-        sample=sample,
+        sample=file_identifier_to_individual.get(sample, sample),
         records=records,
     )

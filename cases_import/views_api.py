@@ -8,7 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from cases_import import tasks
-from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.models.base import CaseImportAction, CaseImportBackgroundJob
 from cases_import.serializers import CaseImportActionSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 

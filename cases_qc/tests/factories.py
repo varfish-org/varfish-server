@@ -1,15 +1,15 @@
 import datetime
 
 import factory
-import factory.fuzzy
 
 from cases.tests.factories import CaseFactory
-from cases_qc.models import (
-    BcftoolsStatsSnRecord,
-    CaseQc,
+from cases_qc.models import CaseQc
+from cases_qc.models.cramino import (
     CraminoChromNormalizedCountsRecord,
     CraminoMetrics,
     CraminoSummaryRecord,
+)
+from cases_qc.models.dragen import (
     DragenCnvMetrics,
     DragenFragmentLengthHistogram,
     DragenMappingMetrics,
@@ -31,8 +31,10 @@ from cases_qc.models import (
     DragenWgsFineHist,
     DragenWgsHist,
     DragenWgsOverallMeanCov,
-    NgsbitsMappingqcMetrics,
-    NgsbitsMappingqcRecord,
+)
+from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics, NgsbitsMappingqcRecord
+from cases_qc.models.samtools import (
+    BcftoolsStatsSnRecord,
     SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
     SamtoolsIdxstatsMetrics,
@@ -49,6 +51,17 @@ from cases_qc.models import (
     SamtoolsStatsMainMetrics,
     SamtoolsStatsSupplementaryMetrics,
 )
+from cases_qc.models.varfish import (
+    DetailedAlignmentCounts,
+    InsertSizeStats,
+    RegionCoverageStats,
+    RegionVariantStats,
+    SampleAlignmentStats,
+    SampleReadStats,
+    SampleSeqvarStats,
+    SampleStrucvarStats,
+    VarfishStats,
+)
 
 
 class DragenStyleMetricFactory(factory.Factory):
@@ -59,17 +72,17 @@ class DragenStyleMetricFactory(factory.Factory):
     entry = factory.Faker("word")
     value = factory.Faker("word")
     name = factory.Faker("word")
-    value = factory.fuzzy.FuzzyChoice([None, 42, 3.14, "foo"])
-    value_float = factory.fuzzy.FuzzyChoice([None, 42, 3.14])
+    value = 42
+    value_float = 3.14
 
 
 class DragenStyleCoverageFactory(factory.Factory):
     class Meta:
         model = DragenStyleCoverage
 
-    contig_name = factory.fuzzy.FuzzyText(length=2, prefix="chr")
-    contig_len = factory.fuzzy.FuzzyInteger(1, 1000000)
-    cov = factory.fuzzy.FuzzyFloat(0.0, 60.0)
+    contig_name = factory.Faker("word")
+    contig_len = 12345
+    cov = 3.0
 
 
 class CaseQcFactory(factory.django.DjangoModelFactory):
@@ -81,6 +94,7 @@ class CaseQcFactory(factory.django.DjangoModelFactory):
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
     case = factory.SubFactory(CaseFactory)
+    state = CaseQc.STATE_ACTIVE
 
 
 class DragenMetricsFactoryBase(factory.django.DjangoModelFactory):
@@ -280,83 +294,83 @@ class SamtoolsStatsSnRecordFactory(factory.Factory):
         model = BcftoolsStatsSnRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
 
 
 class SamtoolsStatsFqRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsFqRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    counts = factory.Sequence(lambda n: [n])
+    cycle = factory.Faker("pyint")
+    counts = factory.Faker("pylist", value_types=[int])
 
 
 class SamtoolsStatsGcRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcRecord
 
-    gc_content = factory.Sequence(lambda n: 0.1 * n)
-    count = factory.Sequence(lambda n: n)
+    gc_content = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    count = factory.Faker("pyint")
 
 
 class SamtoolsStatsBasePercentagesRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsBasePercentagesRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    percentages = factory.Sequence(lambda n: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+    cycle = factory.Faker("pyint")
+    percentages = factory.Faker("pylist", value_types=[float])
 
 
 class SamtoolsStatsIsRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIsRecord
 
-    insert_size = factory.Sequence(lambda n: n)
-    pairs_total = factory.Sequence(lambda n: n)
-    pairs_inward = factory.Sequence(lambda n: n)
-    pairs_outward = factory.Sequence(lambda n: n)
-    pairs_other = factory.Sequence(lambda n: n)
+    insert_size = factory.Faker("pyint")
+    pairs_total = factory.Faker("pyint")
+    pairs_inward = factory.Faker("pyint")
+    pairs_outward = factory.Faker("pyint")
+    pairs_other = factory.Faker("pyint")
 
 
 class SamtoolsStatsHistoRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsHistoRecord
 
-    value = factory.Sequence(lambda n: n)
-    count = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
+    count = factory.Faker("pyint")
 
 
 class SamtoolsStatsIdRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIdRecord
 
-    length = factory.Sequence(lambda n: n)
-    ins = factory.Sequence(lambda n: n)
-    dels = factory.Sequence(lambda n: n)
+    length = factory.Faker("pyint")
+    ins = factory.Faker("pyint")
+    dels = factory.Faker("pyint")
 
 
 class SamtoolsStatsIcRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsIcRecord
 
-    cycle = factory.Sequence(lambda n: n)
-    ins_fwd = factory.Sequence(lambda n: n)
-    dels_fwd = factory.Sequence(lambda n: n)
-    ins_rev = factory.Sequence(lambda n: n)
-    dels_rev = factory.Sequence(lambda n: n)
+    cycle = factory.Faker("pyint")
+    ins_fwd = factory.Faker("pyint")
+    dels_fwd = factory.Faker("pyint")
+    ins_rev = factory.Faker("pyint")
+    dels_rev = factory.Faker("pyint")
 
 
 class SamtoolsStatsGcdRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsStatsGcdRecord
 
-    gc_content = factory.Sequence(lambda n: 0.1 * n)
-    unique_seq_percentiles = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_10 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_25 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_50 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_75 = factory.Sequence(lambda n: 0.1 * n)
-    dp_percentile_90 = factory.Sequence(lambda n: 0.1 * n)
+    gc_content = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    unique_seq_percentiles = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_10 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_25 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_50 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_75 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
+    dp_percentile_90 = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class SamtoolsStatsMainMetricsFactory(factory.django.DjangoModelFactory):
@@ -414,22 +428,22 @@ class SamtoolsFlagstatRecordFactory(factory.Factory):
     class Meta:
         model = SamtoolsFlagstatRecord
 
-    total = factory.Sequence(lambda n: n)
-    primary = factory.Sequence(lambda n: n)
-    secondary = factory.Sequence(lambda n: n)
-    supplementary = factory.Sequence(lambda n: n)
-    duplicates = factory.Sequence(lambda n: n)
-    duplicates_primary = factory.Sequence(lambda n: n)
-    mapped = factory.Sequence(lambda n: n)
-    mapped_primary = factory.Sequence(lambda n: n)
-    paired = factory.Sequence(lambda n: n)
-    fragment_first = factory.Sequence(lambda n: n)
-    fragment_last = factory.Sequence(lambda n: n)
-    properly_paired = factory.Sequence(lambda n: n)
-    with_itself_and_mate_mapped = factory.Sequence(lambda n: n)
-    singletons = factory.Sequence(lambda n: n)
-    with_mate_mapped_to_different_chr = factory.Sequence(lambda n: n)
-    with_mate_mapped_to_different_chr_mapq5 = factory.Sequence(lambda n: n)
+    total = factory.Faker("pyint")
+    primary = factory.Faker("pyint")
+    secondary = factory.Faker("pyint")
+    supplementary = factory.Faker("pyint")
+    duplicates = factory.Faker("pyint")
+    duplicates_primary = factory.Faker("pyint")
+    mapped = factory.Faker("pyint")
+    mapped_primary = factory.Faker("pyint")
+    paired = factory.Faker("pyint")
+    fragment_first = factory.Faker("pyint")
+    fragment_last = factory.Faker("pyint")
+    properly_paired = factory.Faker("pyint")
+    with_itself_and_mate_mapped = factory.Faker("pyint")
+    singletons = factory.Faker("pyint")
+    with_mate_mapped_to_different_chr = factory.Faker("pyint")
+    with_mate_mapped_to_different_chr_mapq5 = factory.Faker("pyint")
 
 
 class SamtoolsFlagstatMetricsFactory(factory.django.DjangoModelFactory):
@@ -455,9 +469,9 @@ class SamtoolsIdxstatsRecordFactory(factory.Factory):
         model = SamtoolsIdxstatsRecord
 
     contig_name = factory.Faker("word")
-    contig_len = factory.Sequence(lambda n: n)
-    mapped = factory.Sequence(lambda n: n)
-    unmapped = factory.Sequence(lambda n: n)
+    contig_len = factory.Faker("pyint")
+    mapped = factory.Faker("pyint")
+    unmapped = factory.Faker("pyint")
 
 
 class SamtoolsIdxstatsMetricsFactory(factory.django.DjangoModelFactory):
@@ -482,7 +496,7 @@ class CraminoSummaryRecordFactory(factory.Factory):
         model = CraminoSummaryRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: n)
+    value = factory.Faker("pyint")
 
 
 class CraminoChromNormalizedCountsRecordFactory(factory.Factory):
@@ -490,7 +504,7 @@ class CraminoChromNormalizedCountsRecordFactory(factory.Factory):
         model = CraminoChromNormalizedCountsRecord
 
     chrom_name = factory.Faker("word")
-    normalized_counts = factory.Sequence(lambda n: 0.1 * n)
+    normalized_counts = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class CraminoMetricsFactory(factory.django.DjangoModelFactory):
@@ -515,7 +529,7 @@ class NgsbitsMappingqcRecordFactory(factory.Factory):
         model = NgsbitsMappingqcRecord
 
     key = factory.Faker("word")
-    value = factory.Sequence(lambda n: 0.1 * n)
+    value = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
 
 
 class NgsbitsMappingqcMetricsFactory(factory.django.DjangoModelFactory):
@@ -533,3 +547,109 @@ class NgsbitsMappingqcMetricsFactory(factory.django.DjangoModelFactory):
 
     region_name = "WGS"
     records = factory.LazyAttribute(lambda _o: [NgsbitsMappingqcRecordFactory()])
+
+
+class SampleReadStatsFactory(factory.Factory):
+    class Meta:
+        model = SampleReadStats
+
+    sample = factory.Faker("word")
+    read_length_n50 = 42
+    read_length_histogram = [[1, 2], [10, 4]]
+    total_reads = 42
+    total_yield = 42_000
+    fragment_first = 21
+    fragment_last = 21
+
+
+class RegionCoverageStatsFactory(factory.Factory):
+    class Meta:
+        model = RegionCoverageStats
+
+    region_name = factory.Faker("word")
+    mean_rd = 42.0
+    min_rd_fraction = [[1, 0.01], [10, 0.1]]
+
+
+class InsertSizeStatsFactory(factory.Factory):
+    class Meta:
+        model = InsertSizeStats
+
+    insert_size_mean = 42.0
+    insert_size_median = 42.0
+    insert_size_stddev = 42.0
+    insert_size_histogram = [[1, 2], [10, 4]]
+
+
+class DetailedAlignmentCountsFactory(factory.Factory):
+    class Meta:
+        model = DetailedAlignmentCounts
+
+    primary = 42
+    secondary = 0
+    supplementary = 10
+    duplicates = 2
+    mapped = 32
+    properly_paired = 16
+    with_itself_and_mate_mapped = 5
+    singletons = 1
+    with_mate_mapped_to_different_chr = 0
+    with_mate_mapped_to_different_chr_mapq = 0
+    mismatch_rate = 0.01
+    mapq = [[-1, 10], [0, 10], [10, 20]]
+
+
+class SampleAlignmentStatsFactory(factory.Factory):
+    class Meta:
+        model = SampleAlignmentStats
+
+    sample = factory.Faker("word")
+    detailed_counts = factory.SubFactory(DetailedAlignmentCountsFactory)
+    per_chromosome_counts = [["chr1", 10], ["chr2", 20]]
+    insert_size_stats = factory.SubFactory(InsertSizeStatsFactory)
+    region_coverage_stats = factory.lazy_attribute(lambda _o: [RegionCoverageStatsFactory()])
+
+
+class RegionVariantStatsFactory(factory.Factory):
+    class Meta:
+        model = RegionVariantStats
+
+    region_name = factory.Faker("word")
+    snv_count = 42
+    indel_count = 42
+    multiallelic_count = 0
+    transition_count = 10
+    transversion_count = 20
+    tstv_ratio = 0.5
+
+
+class SampleSeqvarStatsFactory(factory.Factory):
+    class Meta:
+        model = SampleSeqvarStats
+
+    sample = factory.Faker("word")
+    genome_wide = factory.SubFactory(RegionVariantStatsFactory)
+    per_region = []
+
+
+class SampleStrucvarStatsFactory(factory.Factory):
+    class Meta:
+        model = SampleStrucvarStats
+
+    sample = factory.Faker("word")
+    deletion_count = 10
+    duplication_count = 20
+    insertion_count = 0
+    inversion_count = 30
+    breakend_count = 5
+
+
+class VarfishStatsFactory(factory.Factory):
+    class Meta:
+        model = VarfishStats
+
+    samples = factory.lazy_attribute(lambda _o: ["sample"])
+    readstats = factory.lazy_attribute(lambda _o: [SampleReadStatsFactory()])
+    alignmentstats = factory.lazy_attribute(lambda _o: [SampleAlignmentStatsFactory()])
+    seqvarstats = factory.lazy_attribute(lambda _o: [SampleSeqvarStatsFactory()])
+    strucvarstats = factory.lazy_attribute(lambda _o: [SampleStrucvarStatsFactory()])

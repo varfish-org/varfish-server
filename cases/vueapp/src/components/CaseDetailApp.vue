@@ -3,6 +3,7 @@ import { onMounted, nextTick, ref, watch } from 'vue'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseQcStore } from '@cases_qc/stores/caseQc'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
@@ -39,6 +40,7 @@ const appContext = JSON.parse(
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
+const caseQcStore = useCaseQcStore()
 const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
@@ -60,6 +62,11 @@ const refreshStores = async () => {
         props.caseUuid,
       )
       .then(async () => {
+        caseQcStore.initialize(
+          appContext.csrf_token,
+          appContext.project.sodar_uuid,
+          caseDetailsStore.caseObj.sodar_uuid,
+        )
         variantResultSetStore
           .initialize(appContext.csrf_token)
           .then(async () => {

@@ -3,7 +3,7 @@ from phenopackets import Family
 from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 
-from cases_import.models import CaseImportAction
+from cases_import.models.base import CaseImportAction
 from cases_import.proto import FamilyValidator, get_case_name_from_family_payload
 from variants.models.case import Case
 

@@ -9,6 +9,7 @@ import { onMounted, computed, ref, watch } from 'vue'
 
 /** Define the props. */
 const props = defineProps({
+  title: String,
   description: String,
   dataValues: {
     type: Array,
@@ -49,6 +50,7 @@ const vegaViewRef = ref(null)
 const vegaLiteSpec = computed(() => {
   const res = {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+    title: props.title,
     width: props.width,
     height: props.height,
     description: props.description,

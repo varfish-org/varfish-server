@@ -18,6 +18,7 @@ from cases_files.tests.factories import (
 @freeze_time("2012-01-14 12:00:01")
 class IndividualExternalFileTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -37,6 +38,7 @@ class IndividualExternalFileTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class PedigreeExternalFileTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -56,6 +58,7 @@ class PedigreeExternalFileTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class IndividualInternalFileTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):
@@ -79,6 +82,7 @@ class IndividualInternalFileTest(TestCase):
 @freeze_time("2012-01-14 12:00:01")
 class PedigreeInternalFileTest(TestCase):
     def setUp(self):
+        super().setUp()
         self.maxDiff = None  # show full diff
 
     def test_create(self):

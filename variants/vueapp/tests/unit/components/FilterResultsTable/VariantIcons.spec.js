@@ -1,9 +1,9 @@
-// import FilterResultsTableVariantIcons from '@variants/components/FilterResultsTableVariantIcons.vue'
+// import FilterResultsTableVariantIcons from '@variants/components/FilterResultsTable/VariantIcons.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 
 // TODO [TEST_STUB] Pinia store missing
-describe('FilterResultsTableVariantIcons.vue', () => {
+describe('FilterResultsTable/VariantIcons.vue', () => {
   test('results variant icons all active', () => {
     // const wrapper = shallowMount(FilterResultsTableVariantIcons, {
     //   props: {

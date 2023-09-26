@@ -56,6 +56,7 @@ RUN npm ci --prefix varfish/vueapp
 FROM node-deps AS node-build
 
 COPY cases/vueapp ./cases/vueapp
+COPY cases_qc/vueapp ./cases_qc/vueapp
 COPY clinvar_export/vueapp ./clinvar_export/vueapp
 COPY cohorts/vueapp ./cohorts/vueapp
 COPY svs/vueapp ./svs/vueapp

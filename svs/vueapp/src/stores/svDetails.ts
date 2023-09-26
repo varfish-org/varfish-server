@@ -48,22 +48,33 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
       return
     }
 
-    // Clear old store contents
-    currentSvRecord.value = null
-    genesInfos.value = null
+    storeState.state = State.Fetching
+    storeState.serverInteractions += 1
 
-    // Fetch new details
-    const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-    let hgncIds = []
-    for (const txEffect of svRecord.payload.tx_effects) {
-      if (txEffect.gene.hgnc_id) {
-        hgncIds.push(txEffect.gene.hgnc_id)
+    try {
+      // Clear old store contents
+      currentSvRecord.value = null
+      genesInfos.value = null
+
+      // Fetch new details
+      const annonarsClient = new AnnonarsApiClient(csrfToken.value)
+      let hgncIds = []
+      for (const txEffect of svRecord.payload.tx_effects) {
+        if (txEffect.gene.hgnc_id) {
+          hgncIds.push(txEffect.gene.hgnc_id)
+        }
       }
+      if (hgncIds.length) {
+        genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
+      }
+      currentSvRecord.value = svRecord
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
+    } catch (error) {
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
     }
-    if (hgncIds.length) {
-      genesInfos.value = await annonarsClient.retrieveGeneInfos(hgncIds)
-    }
-    currentSvRecord.value = svRecord
   }
 
   /**
@@ -107,6 +118,8 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
+    // Update store state
+    storeState.state = State.Active
 
     initializeRes.value = Promise.resolve()
 
