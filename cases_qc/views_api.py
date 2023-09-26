@@ -168,7 +168,6 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
         histograms = {hist.sample: hist for hist in dragenfragmentlengthistogram}
         # get coverage by sample name
         cov_wgs: dict[str, DragenWgsCoverageMetrics] = {}
-        # import pdb; pdb.set_trace()
         for cov in dragenwgscoveragemetrics:
             cov_wgs[cov.sample] = cov
         cov_reg: dict[str, list[DragenRegionCoverageMetrics]] = {}
