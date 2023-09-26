@@ -52,7 +52,11 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
 </script>
 
 <template>
-  <SimpleCard id="alignmentstats-summary" title="Alignment Stats (Summary)" class="col-3 pr-0">
+  <SimpleCard
+    id="alignmentstats-summary"
+    title="Alignment Stats (Summary)"
+    class="col-3 pr-0"
+  >
     <div class="table-responsive">
       <table class="table table-sm table-hover mb-0">
         <thead>

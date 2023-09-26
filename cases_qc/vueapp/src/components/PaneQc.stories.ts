@@ -13,11 +13,7 @@ const Template = (args) => ({
     return { args }
   },
   template:
-    '<div>' +
-    '<PaneQc\n' +
-    '    :stats="args.stats"\n' +
-    '/>' +
-    '</div>',
+    '<div>' + '<PaneQc\n' + '    :stats="args.stats"\n' + '/>' + '</div>',
 })
 
 export const Empty = Template.bind({})
