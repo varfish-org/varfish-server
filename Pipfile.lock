@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "95a74daad0a99314ac0a3bd12fe1cda6caa1e783039217d9947da420604bd245"
+            "sha256": "5e601b7b00521e6f2aa7264f5b0dcf3a7d5e897cfd5743940a4d8f4f2572f002"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -607,12 +607,12 @@
         },
         "django-clone": {
             "hashes": [
-                "sha256:02d8ddbfe59c149b639f04be7b28394382ea65bd785779db383f7d1ecb01ede5",
-                "sha256:b8d78c35bca9ec0fa58a0173494e76dd7b4b61579d676002051c65153979910f"
+                "sha256:7521798c6bcdea3168fce79d4857afc1d02e02e8e4d801585ad8a36a19d16cc8",
+                "sha256:ea2e5a770d01c62ecf66d0dd6e8df284e26321245b8abcc6d82d8740765b42d5"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.6'",
-            "version": "==4.1.3"
+            "version": "==5.3.3"
         },
         "django-crispy-forms": {
             "hashes": [
@@ -888,13 +888,6 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==2023.9.2"
-        },
-        "future": {
-            "hashes": [
-                "sha256:34a17436ed1e96697a86f9de3d15a3b0be01d8bc8de9c1dffd59fb8234ed5307"
-            ],
-            "markers": "python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'",
-            "version": "==0.18.3"
         },
         "greenlet": {
             "hashes": [
@@ -2334,7 +2327,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
+            "markers": "python_version >= '3.6'",
             "version": "==1.26.16"
         },
         "vcfpy": {
@@ -3283,7 +3276,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version < '3.11' and python_version >= '3.7'",
+            "markers": "python_version < '3.11'",
             "version": "==2.0.1"
         },
         "traitlets": {
@@ -3315,7 +3308,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
+            "markers": "python_version >= '3.6'",
             "version": "==1.26.16"
         },
         "wasmer": {
@@ -3730,7 +3723,7 @@
                 "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f",
                 "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
+            "markers": "python_version >= '3.6'",
             "version": "==1.26.16"
         },
         "whitenoise": {
