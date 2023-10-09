@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "591f55cc95468ddd40440465f5aad8754e6bea4a93b27335beaf61463f3869de"
+            "sha256": "e4e4400237dfb5a1e923de6c640e87580d208ddfd9f175d53d9c0315d6e68d36"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -715,11 +715,11 @@
         },
         "django-postgres-copy": {
             "hashes": [
-                "sha256:64b52397cff220196d1767c80bc2bdf6076ed968870ddbc5db56bb9c4ca388c2",
-                "sha256:eec7acc0dea34be2cc495db7f6a6f446a399d89c15c5f137cffaa4c9da077860"
+                "sha256:4e78d4622db9df01694822804c19b7fc81ac2cac36e4b8223d07a24e079f34a7",
+                "sha256:e6dec4b6d4e1a69f37b1a280b246d1054a257873e9cf46bf4b84dbd5f00dfbc8"
             ],
             "index": "pypi",
-            "version": "==2.3.7"
+            "version": "==2.7.3"
         },
         "django-pydantic-field": {
             "hashes": [
@@ -1542,23 +1542,6 @@
             "index": "pypi",
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==5.9.5"
-        },
-        "psycopg2": {
-            "hashes": [
-                "sha256:121081ea2e76729acfb0673ff33755e8703d45e926e416cb59bae3a86c6a4981",
-                "sha256:38a8dcc6856f569068b47de286b472b7c473ac7977243593a288ebce0dc89516",
-                "sha256:426f9f29bde126913a20a96ff8ce7d73fd8a216cfb323b1f04da402d452853c3",
-                "sha256:5e0d98cade4f0e0304d7d6f25bbfbc5bd186e07b38eac65379309c4ca3193efa",
-                "sha256:7e2dacf8b009a1c1e843b5213a87f7c544b2b042476ed7755be813eaf4e8347a",
-                "sha256:ade01303ccf7ae12c356a5e10911c9e1c51136003a9a1d92f7aa9d010fb98372",
-                "sha256:bac58c024c9922c23550af2a581998624d6e02350f4ae9c5f0bc642c633a2d5e",
-                "sha256:c92811b2d4c9b6ea0285942b2e7cac98a59e166d59c588fe5cfe1eda58e72d59",
-                "sha256:d1454bde93fb1e224166811694d600e746430c006fbb031ea06ecc2ea41bf156",
-                "sha256:de80739447af31525feddeb8effd640782cf5998e1a4e9192ebdf829717e3913",
-                "sha256:ff432630e510709564c01dafdbe996cb552e0b9f3f065eb89bdce5bd31fabf4c"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==2.9.9"
         },
         "psycopg2-binary": {
             "hashes": [
@@ -3391,7 +3374,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version < '3.11' and python_version >= '3.7'",
             "version": "==2.0.1"
         },
         "traitlets": {
@@ -3547,6 +3530,13 @@
             "index": "pypi",
             "markers": "python_version >= '3.6'",
             "version": "==3.4.3"
+        },
+        "pytz": {
+            "hashes": [
+                "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b",
+                "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"
+            ],
+            "version": "==2023.3.post1"
         },
         "sqlparse": {
             "hashes": [
@@ -3774,6 +3764,13 @@
             "index": "pypi",
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==2.8.2"
+        },
+        "pytz": {
+            "hashes": [
+                "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b",
+                "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"
+            ],
+            "version": "==2023.3.post1"
         },
         "redis": {
             "hashes": [
