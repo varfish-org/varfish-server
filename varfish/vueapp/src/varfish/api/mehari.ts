@@ -22,7 +22,7 @@ export class MehariApiClient {
   ): Promise<any> {
     const hgncSuffix = hgncId ? `&hgnc-id=${hgncId}` : ''
     const url =
-      `${this.baseUrl}/tx/csq?genome-release=${genomeRelease}&` +
+      `${this.baseUrl}/seqvars/csq?genome_release=${genomeRelease}&` +
       `chromosome=${chromosome}&position=${pos}&reference=${reference}&` +
       `alternative=${alternative}${hgncSuffix}`
 
