@@ -11,7 +11,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("bgjobs", "0005_auto_20190128_1210"),
         ("projectroles", "0010_update_appsetting"),

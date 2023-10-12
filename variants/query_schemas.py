@@ -115,6 +115,9 @@ class GenotypeChoiceV1(Enum):
     VARIANT = "variant"
     NON_VARIANT = "non-variant"
     NON_REFERENCE = "non-reference"
+    COMPHET_INDEX = "comphet-index"
+    RECESSIVE_INDEX = "recessive-index"
+    RECESSIVE_PARENT = "recessive-parent"
 
 
 @attr.s(auto_attribs=True, frozen=True)
@@ -184,6 +187,8 @@ class CaseQueryV1:
 
     quality: typing.Dict[str, QualitySettingsV1]
     genotype: typing.Dict[str, typing.Optional[GenotypeChoiceV1]]
+
+    selected_variants: typing.Optional[typing.List[str]] = None
 
     transcripts_coding: bool = True
     transcripts_noncoding: bool = False
@@ -293,6 +298,7 @@ class QueryJsonToFormConverter:
 
     def convert(self, case: Case, query: CaseQueryV1) -> typing.Dict[str, typing.Any]:
         result = {
+            "selected_variants": query.selected_variants,
             "database_select": query.database,
             "var_type_snv": query.var_type_snv,
             "var_type_mnv": query.var_type_mnv,
@@ -317,6 +323,7 @@ class QueryJsonToFormConverter:
             "inhouse_carriers": query.inhouse_carriers,
             "inhouse_heterozygous": query.inhouse_heterozygous,
             "inhouse_homozygous": query.inhouse_homozygous,
+            "max_exon_dist": query.max_exon_dist,
             "mtdb_enabled": query.mtdb_enabled,
             "mtdb_count": query.mtdb_count,
             "mtdb_frequency": query.mtdb_frequency,
@@ -454,7 +461,9 @@ def _structure_genomic_region(s, _):
         return GenomicRegionV1(chromosome=s)
     chrom, range_str = s.split(":")
     start, end = range_str.split("-")
-    return GenomicRegionV1(chromosome=chrom, range=RangeV1(int(start), int(end)))
+    return GenomicRegionV1(
+        chromosome=chrom, range=RangeV1(int(start.replace(",", "")), int(end.replace(",", "")))
+    )
 
 
 cattr.register_structure_hook(GenomicRegionV1, _structure_genomic_region)

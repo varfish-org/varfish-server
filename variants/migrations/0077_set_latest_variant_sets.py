@@ -34,7 +34,6 @@ def unset_latest_structural_variant_sets(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0076_auto_20200727_1558"),
     ]

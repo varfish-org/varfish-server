@@ -18,7 +18,6 @@ def remove_sites(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("var_stats_qc", "0001_initial")]
 
     operations = [migrations.RunPython(import_sites, remove_sites)]

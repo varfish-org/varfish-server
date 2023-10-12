@@ -17,9 +17,9 @@ class UsersMixin:
             self.user_no_roles,
             self.owner_as_cat.user,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         self.users_bad = [
             self.anonymous,

@@ -22,6 +22,7 @@ if "production" in os.environ.get("DJANGO_SETTINGS_MODULE"):
         "*.run_kiosk_bg_job": {"queue": "import"},
         # The filter tasks go to the "query" queue.
         "*.*_filter_task": {"queue": "query"},
+        "*.run_*query_bg_job": {"queue": "query"},
         # The export tasks go to the "export" queue.
         "*.export_*_task": {"queue": "export"},
         # The maintenance tasks go to the "maintenance" queue.

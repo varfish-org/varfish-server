@@ -9,117 +9,10 @@ from variants.views import api as views_api
 app_name = "variants"
 ui_urlpatterns = [
     # Views for Case
-    url(regex=r"^(?P<project>[0-9a-f-]+)/?$", view=views.CaseListView.as_view(), name="case-list"),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/get-annotations/?$",
-        view=views.CaseListGetAnnotationsView.as_view(),
-        name="case-list-get-annotations",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/get-qc/?$",
-        view=views.CaseListGetQCView.as_view(),
-        name="case-list-get-qc",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/sync-upstream/?$",
-        view=views.CaseListSyncRemoteView.as_view(),
-        name="case-list-sync-remote",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/api-qc/?$",
-        view=views.CaseListQcStatsApiView.as_view(),
-        name="api-project-qc",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseDetailView.as_view(),
-        name="case-detail",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/update/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseUpdateView.as_view(),
-        name="case-update",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/update-terms/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseUpdateTermView.as_view(),
-        name="case-update-terms",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-fetch-upstream-terms/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseFetchUpstreamTermsView.as_view(),
-        name="case-fetch-upstream-terms",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseDeleteView.as_view(),
-        name="case-delete",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/download-annotations/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseDownloadAnnotationsView.as_view(),
-        name="case-download-annotations",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/download-annotations/?$",
-        view=views.ProjectDownloadAnnotationsView.as_view(),
-        name="project-download-annotations",
-    ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case-delete-job/detail/(?P<job>[0-9a-f-]+)/?$",
         view=views.CaseDeleteJobDetailView.as_view(),
         name="case-delete-job-detail",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/structuralvariants/delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.StructuralVariantsDeleteView.as_view(),
-        name="structuralvariants-delete",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/smallvariants/delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SmallVariantsDeleteView.as_view(),
-        name="smallvariants-delete",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/fix-sex/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseFixSexView.as_view(),
-        name="case-fix-sex",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/fix-sex/?$",
-        view=views.ProjectCasesFixSexView.as_view(),
-        name="project-cases-fix-sex",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/api-qc/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseDetailQcStatsApiView.as_view(),
-        name="api-case-qc",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/filter/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseFilterView.as_view(),
-        name="case-filter",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/filter/(?P<case>[0-9a-f-]+)/job/(?P<job>[0-9a-f-]+)/?$",
-        view=views.CaseFilterView.as_view(),
-        name="case-filter-job",
-    ),
-    # Project-wide case filtration.
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/?$",
-        view=views.ProjectCasesFilterView.as_view(),
-        name="project-cases-filter",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/cohort/(?P<cohort>[0-9a-f-]+)/?$",
-        view=views.ProjectCasesFilterView.as_view(),
-        name="project-cases-filter-cohort",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/job/(?P<job>[0-9a-f-]+)/?$",
-        view=views.ProjectCasesFilterView.as_view(),
-        name="project-cases-filter-job",
     ),
     # View for list background jobs
     url(
@@ -206,72 +99,11 @@ ui_urlpatterns = [
     ),
     # Views for Project-wide Statistics Computation submission jobs
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/create/?$",
-        view=views.ProjectStatsJobCreateView.as_view(),
-        name="project-stats-job-create",
-    ),
-    url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/detail/(?P<job>[0-9a-f-]+)/?$",
         view=views.ProjectStatsJobDetailView.as_view(),
         name="project-stats-job-detail",
     ),
-    # API for accessing small variant flags and comments.
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-flags/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SmallVariantFlagsApiView.as_view(),
-        name="small-variant-flags-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SmallVariantCommentSubmitApiView.as_view(),
-        name="small-variant-comment-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/multi-small-variant-flags-comment/?$",
-        view=views.MultiSmallVariantFlagsAndCommentApiView.as_view(),
-        name="multi-small-variant-flags-comment-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment-delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SmallVariantCommentDeleteApiView.as_view(),
-        name="small-variant-comment-delete-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseCommentsDeleteApiView.as_view(),
-        name="case-comments-delete-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-acmg-rating/(?P<case>[0-9a-f-]+)/?$",
-        view=views.AcmgCriteriaRatingApiView.as_view(),
-        name="acmg-rating-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-notes/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseNotesStatusApiView.as_view(),
-        name="case-notes-status-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-submit/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseCommentsSubmitApiView.as_view(),
-        name="case-comments-submit-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-delete/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseCommentsDeleteApiView.as_view(),
-        name="case-comments-delete-api",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-count/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseCommentsCountApiView.as_view(),
-        name="case-comments-count-api",
-    ),
     # Views for filtering and storing case query results jobs
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/filter-results/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CasePrefetchFilterView.as_view(),
-        name="case-filter-results",
-    ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/filter-job/detail/(?P<job>[0-9a-f-]+)/?$",
         view=views.FilterJobDetailView.as_view(),
@@ -282,27 +114,7 @@ ui_urlpatterns = [
         view=views.FilterJobResubmitView.as_view(),
         name="filter-job-resubmit",
     ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/load-filter-results/(?P<case>[0-9a-f-]+)/?$",
-        view=views.CaseLoadPrefetchedFilterView.as_view(),
-        name="case-load-filter-results",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/status/?$",
-        view=views.FilterJobGetStatus.as_view(),
-        name="filter-job-status",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/previous/(?P<case>[0-9a-f-]+)/?$",
-        view=views.FilterJobGetPrevious.as_view(),
-        name="filter-job-previous",
-    ),
     # Views for filtering and storing project cases query results jobs
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter-results/?$",
-        view=views.ProjectCasesPrefetchFilterView.as_view(),
-        name="project-cases-filter-results",
-    ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/detail/(?P<job>[0-9a-f-]+)/?$",
         view=views.ProjectCasesFilterJobDetailView.as_view(),
@@ -313,77 +125,9 @@ ui_urlpatterns = [
         view=views.ProjectCasesFilterJobResubmitView.as_view(),
         name="project-cases-filter-job-resubmit",
     ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/load-filter-results/?$",
-        view=views.ProjectCasesLoadPrefetchedFilterView.as_view(),
-        name="project-cases-load-filter-results",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/status/?$",
-        view=views.ProjectCasesFilterJobGetStatus.as_view(),
-        name="project-cases-filter-job-status",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/?$",
-        view=views.ProjectCasesFilterJobGetPrevious.as_view(),
-        name="project-cases-filter-job-previous",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/cohort/(?P<cohort>[0-9a-f-]+)/?$",
-        view=views.ProjectCasesFilterJobGetPrevious.as_view(),
-        name="project-cases-filter-job-previous-cohort",
-    ),
-    # Render details row
-    url(
-        regex=(
-            r"^(?P<project>[0-9a-f-]+)/case/small-variant-details/(?P<case>[0-9a-f-]+)/"
-            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/"
-            r"(?P<ensembl_transcript_id>[^/]+)/(?P<training_mode>[01])/?$"
-        ),
-        view=views.SmallVariantDetails.as_view(),
-        name="small-variant-details",
-    ),
-    # Render details row
-    url(
-        regex=(
-            r"^(?P<project>[0-9a-f-]+)/cohort/(?P<cohort>[0-9a-f-]+)/case/small-variant-details/(?P<case>[0-9a-f-]+)/"
-            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/"
-            r"(?P<ensembl_transcript_id>[^/]+)/(?P<training_mode>[01])/?$"
-        ),
-        view=views.SmallVariantDetails.as_view(),
-        name="small-variant-details-cohort",
-    ),
-    url(regex=r"^hpo-terms-api/?$", view=views.HpoTermsApiView.as_view(), name="hpo-terms-api"),
     # Set last seen changelog version for user and redirect to changelog.
     # TODO: move to sodar-core?
     url(regex=r"^new-features/?$", view=views.NewFeaturesView.as_view(), name="new-features"),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/kiosk-status/annotate_job/(?P<annotate_job>[0-9a-f-]+)/import_job/(?P<import_job>[0-9a-f-]+)/?$",
-        view=views.KioskStatusView.as_view(),
-        name="kiosk-status",
-    ),
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/kiosk-get-status/annotate_job/(?P<annotate_job>[0-9a-f-]+)/import_job/(?P<import_job>[0-9a-f-]+)/?$",
-        view=views.KioskJobGetStatus.as_view(),
-        name="kiosk-get-status",
-    ),
-    url(
-        regex=r"^variant-validator/?$",
-        view=views.VariantValidatorApiView.as_view(),
-        name="variant-validator-api",
-    ),
-    url(
-        regex=r"^variant-carriers/?$",
-        view=views.VariantCarriersView.as_view(),
-        name="variant-carriers",
-    ),
-    url(
-        regex=r"^second-hit/(?P<case>[0-9a-f-]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/",
-        view=views.SecondHitView.as_view(),
-        name="second-hit",
-    ),
     #: Detail views for site-wide maintenance jobs.
     url(
         regex=r"^clear-expired-job/(?P<job>[0-9a-f-]+)/?$",
@@ -410,6 +154,11 @@ ui_urlpatterns = [
 # Ajax API views
 ajax_urlpatterns = [
     url(
+        regex=r"^ajax/project/qc/(?P<project>[0-9a-f-]+)/?$",
+        view=views_ajax.CaseListQcStatsAjaxView.as_view(),
+        name="ajax-project-qc",
+    ),
+    url(
         regex=r"^ajax/case/retrieve/(?P<case>[0-9a-f-]+)/?$",
         view=views_ajax.CaseRetrieveAjaxView.as_view(),
         name="ajax-case-retrieve",
@@ -420,34 +169,34 @@ ajax_urlpatterns = [
         name="ajax-query-case-list",
     ),
     url(
-        regex=r"^ajax/query-case/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryCreateAjaxView.as_view(),
-        name="ajax-query-case-create",
+        regex=r"^ajax/query/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryListCreateAjaxView.as_view(),
+        name="ajax-query-list-create",
     ),
     url(
-        regex=r"^ajax/query-case/retrieve/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryRetrieveAjaxView.as_view(),
-        name="ajax-query-case-retrieve",
+        regex=r"^ajax/query/retrieve-update-destroy/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-query-retrieve-update-destroy",
     ),
     url(
-        regex=r"^ajax/query-case/status/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryStatusAjaxView.as_view(),
-        name="ajax-query-case-status",
+        regex=r"^ajax/query-result-set/list/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryResultSetListAjaxView.as_view(),
+        name="ajax-query-result-set-list",
     ),
     url(
-        r"^ajax/query-case/update/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryUpdateAjaxView.as_view(),
-        name="ajax-query-case-update",
+        regex=r"^ajax/query-result-set/retrieve/(?P<smallvariantqueryresultset>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryResultSetRetrieveAjaxView.as_view(),
+        name="ajax-query-result-set-retrieve",
     ),
     url(
-        r"^ajax/query-case/results/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryFetchResultsAjaxView.as_view(),
-        name="ajax-query-case-fetch-results",
+        regex=r"^ajax/query-result-row/list/(?P<smallvariantqueryresultset>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryResultRowListAjaxView.as_view(),
+        name="ajax-query-result-row-list",
     ),
     url(
-        r"^ajax/query-case/results-extended/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryFetchExtendedResultsAjaxView.as_view(),
-        name="ajax-query-case-fetch-extended-results",
+        regex=r"^ajax/query-result-row/retrieve/(?P<smallvariantqueryresultrow>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryResultRowRetrieveAjaxView.as_view(),
+        name="ajax-query-result-row-retrieve",
     ),
     url(
         r"^ajax/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",
@@ -524,9 +273,9 @@ ajax_urlpatterns = [
         name="ajax-small-variant-flags-delete",
     ),
     url(
-        r"^ajax/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.AcmgCriteriaRatingCreateAjaxView.as_view(),
-        name="ajax-acmg-criteria-rating-create",
+        r"^ajax/acmg-criteria-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.AcmgCriteriaRatingListCreateAjaxView.as_view(),
+        name="ajax-acmg-criteria-rating-list-create",
     ),
     url(
         r"^ajax/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/?$",
@@ -538,9 +287,24 @@ ajax_urlpatterns = [
         view=views_ajax.AcmgCriteriaRatingDeleteAjaxView.as_view(),
         name="ajax-acmg-criteria-rating-delete",
     ),
+    url(
+        r"^ajax/extra-anno-fields/?$",
+        view=views_ajax.ExtraAnnoFieldsApiView.as_view(),
+        name="ajax-extra-anno-fields",
+    ),
+    url(
+        regex=r"^ajax/hpo-terms/?$",
+        view=views_ajax.HpoTermsAjaxView.as_view(),
+        name="ajax-hpo-terms",
+    ),
 ]
 
 api_urlpatterns = [
+    url(
+        regex=r"^api/project/qc/(?P<project>[0-9a-f-]+)/?$",
+        view=views_api.CaseListQcStatsApiView.as_view(),
+        name="api-project-qc",
+    ),
     url(
         regex=r"^api/case/retrieve/(?P<case>[0-9a-f-]+)/?$",
         view=views_api.CaseRetrieveApiView.as_view(),
@@ -552,29 +316,34 @@ api_urlpatterns = [
         name="api-query-case-list",
     ),
     url(
-        regex=r"^api/query-case/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryCreateApiView.as_view(),
-        name="api-query-case-create",
+        regex=r"^api/query/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryListCreateApiView.as_view(),
+        name="api-query-list-create",
     ),
     url(
-        regex=r"^api/query-case/retrieve/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryRetrieveApiView.as_view(),
-        name="api-query-case-retrieve",
+        regex=r"^api/query/retrieve-update-destroy/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryRetrieveUpdateDestroyApiView.as_view(),
+        name="api-query-retrieve-update-destroy",
     ),
     url(
-        regex=r"^api/query-case/status/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryStatusApiView.as_view(),
-        name="api-query-case-status",
+        regex=r"^api/query-result-set/list/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryResultSetListApiView.as_view(),
+        name="api-query-result-set-list",
     ),
     url(
-        regex=r"^api/query-case/update/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryUpdateApiView.as_view(),
-        name="api-query-case-update",
+        regex=r"^api/query-result-set/retrieve/(?P<smallvariantqueryresultset>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryResultSetRetrieveApiView.as_view(),
+        name="api-query-result-set-retrieve",
     ),
     url(
-        regex=r"^api/query-case/results/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryFetchResultsApiView.as_view(),
-        name="api-query-case-fetch-results",
+        regex=r"^api/query-result-row/list/(?P<smallvariantqueryresultset>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryResultRowListApiView.as_view(),
+        name="api-query-result-row-list",
+    ),
+    url(
+        regex=r"^api/query-result-row/retrieve/(?P<smallvariantqueryresultrow>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryResultRowRetrieveApiView.as_view(),
+        name="api-query-result-row-retrieve",
     ),
     url(
         regex=r"^api/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",
@@ -638,7 +407,7 @@ api_urlpatterns = [
     url(
         r"^api/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantCommentListCreateApiView.as_view(),
-        name="api-small-variant-comment-create",
+        name="api-small-variant-comment-list-create",
     ),
     url(
         r"^api/small-variant-comment/update/(?P<smallvariantcomment>[0-9a-f-]+)/?$",
@@ -666,9 +435,9 @@ api_urlpatterns = [
         name="api-small-variant-flags-delete",
     ),
     url(
-        r"^api/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.AcmgCriteriaRatingCreateApiView.as_view(),
-        name="api-acmg-criteria-rating-create",
+        r"^api/acmg-criteria-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.AcmgCriteriaRatingListCreateApiView.as_view(),
+        name="api-acmg-criteria-rating-list-create",
     ),
     url(
         r"^api/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/?$",
@@ -680,6 +449,12 @@ api_urlpatterns = [
         view=views_api.AcmgCriteriaRatingDeleteApiView.as_view(),
         name="api-acmg-criteria-rating-delete",
     ),
+    url(
+        r"^api/extra-anno-fields/?$",
+        view=views_api.ExtraAnnoFieldsApiView.as_view(),
+        name="api-extra-anno-fields",
+    ),
+    url(regex=r"^api/hpo-terms/?$", view=views_api.HpoTermsApiView.as_view(), name="api-hpo-terms"),
 ]
 
 

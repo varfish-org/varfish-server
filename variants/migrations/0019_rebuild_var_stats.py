@@ -18,7 +18,6 @@ def do_nothing(_apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0018_casevariantstats_pedigreerelatedness_samplevariantstatistics")
     ]

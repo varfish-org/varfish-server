@@ -30,7 +30,6 @@ def do_nothing(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0010_add_has_gt_entries_to_pedigree")]
 
     operations = [

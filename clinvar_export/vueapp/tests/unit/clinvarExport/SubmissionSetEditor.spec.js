@@ -1,18 +1,18 @@
 import SubmissionSetEditor from '@clinvarexport/components/SubmissionSetEditor.vue'
-import { WizardState } from '@clinvarexport/stores/clinvar-export.js'
+import { WizardState } from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { copy } from '../../testUtils.js'
+import { copy } from '../../testUtils'
 import {
   clinvarExportEmptyState,
   firstOrganisation,
   firstSubmissionSet,
   firstSubmitter,
   firstSubmittingOrg,
-} from '../fixtures.js'
+} from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState) => {
@@ -70,7 +70,7 @@ describe('SubmissionSetEditor.vue', () => {
     await nextTick() // wait for changes to store to take effect
 
     expect(wrapper.vm.getOrgLabel(organisation1.sodar_uuid)).toEqual(
-      organisation1.name
+      organisation1.name,
     )
     expect(wrapper.vm.isValid()).toBe(true)
   })

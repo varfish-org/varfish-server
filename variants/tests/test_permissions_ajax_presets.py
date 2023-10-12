@@ -27,10 +27,10 @@ class TestFrequencyPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -45,15 +45,15 @@ class TestFrequencyPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.frequencypresets)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -73,10 +73,10 @@ class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermission
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -91,15 +91,15 @@ class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermission
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -112,15 +112,15 @@ class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermission
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             frequencypresets = FrequencyPresetsFactory(presetset__project=self.project)
@@ -148,15 +148,15 @@ class TestFrequencyPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase)
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -176,15 +176,15 @@ class TestFrequencyPresetsCloneOtherView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.frequencypreset.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -205,10 +205,10 @@ class TestImpactPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -223,15 +223,15 @@ class TestImpactPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.impactpresets)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -251,10 +251,10 @@ class TestImpactPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBas
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -269,15 +269,15 @@ class TestImpactPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBas
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -290,15 +290,15 @@ class TestImpactPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBas
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             impactpresets = ImpactPresetsFactory(presetset__project=self.project)
@@ -326,15 +326,15 @@ class TestImpactPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         )
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -355,14 +355,14 @@ class TestImpactPresetsCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.impactpreset.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -384,9 +384,9 @@ class TestQualityPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -402,14 +402,14 @@ class TestQualityPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.qualitypresets)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -430,9 +430,9 @@ class TestQualityPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBa
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -448,14 +448,14 @@ class TestQualityPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBa
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -469,14 +469,14 @@ class TestQualityPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBa
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             qualitypresets = QualityPresetsFactory(presetset__project=self.project)
@@ -503,14 +503,14 @@ class TestQualityPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -531,14 +531,14 @@ class TestQualityPresetsCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.qualitypreset.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -560,9 +560,9 @@ class TestChromosomePresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -578,14 +578,14 @@ class TestChromosomePresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.chromosomepresets)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -606,9 +606,9 @@ class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissio
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -624,14 +624,14 @@ class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissio
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -645,14 +645,14 @@ class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissio
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             chromosomepresets = ChromosomePresetsFactory(presetset__project=self.project)
@@ -681,14 +681,14 @@ class TestChromosomePresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -709,14 +709,14 @@ class TestChromosomePresetsCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.chromosomepreset.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -738,9 +738,9 @@ class TestFlagsEtcPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -756,14 +756,14 @@ class TestFlagsEtcPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.flagsetcpresets)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -784,9 +784,9 @@ class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionB
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -802,14 +802,14 @@ class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionB
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -823,14 +823,14 @@ class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionB
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             flagsetcpresets = FlagsEtcPresetsFactory(presetset__project=self.project)
@@ -859,14 +859,14 @@ class TestFlagsEtcPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -887,14 +887,14 @@ class TestFlagsEtcPresetsCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "presetset": self.flagsetcpreset.presetset.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -916,9 +916,9 @@ class TestQuickPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -934,14 +934,14 @@ class TestQuickPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {
             "presetset": str(self.presetset.sodar_uuid),
@@ -971,9 +971,9 @@ class TestQuickPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -989,14 +989,14 @@ class TestQuickPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -1010,14 +1010,14 @@ class TestQuickPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             quickpresets = QuickPresetsFactory(presetset__project=self.project)
@@ -1047,14 +1047,14 @@ class TestQuickPresetsCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets"}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -1081,9 +1081,9 @@ class TestPresetSetListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -1099,14 +1099,14 @@ class TestPresetSetListCreateAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = model_to_dict_for_api(self.presetset)
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -1126,9 +1126,9 @@ class TestPresetSetListAllAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
         ]
         bad_users_401 = []
@@ -1151,9 +1151,9 @@ class TestPresetSetRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
         bad_users_401 = []
         bad_users_403 = [self.anonymous, self.user_no_roles]
@@ -1169,14 +1169,14 @@ class TestPresetSetRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         self.assert_response(url, good_users, 200, method="PATCH")
         self.assert_response(url, bad_users_401, 401, method="PATCH")
@@ -1190,14 +1190,14 @@ class TestPresetSetRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         for user in good_users:
             presetset = PresetSetFactory(project=self.project)
@@ -1226,14 +1226,14 @@ class TestPresetSetCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets", "project": self.presetset.project.sodar_uuid}
         self.assert_response(url, good_users, 201, method="POST", data=data)
@@ -1254,14 +1254,14 @@ class TestPresetSetCloneOtherView(TestProjectAPIPermissionBase):
         good_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
         ]
         bad_users_401 = []
         bad_users_403 = [
             self.anonymous,
             self.user_no_roles,
-            self.guest_as.user,
+            self.user_guest,
         ]
         data = {"label": "my new presets"}
         self.assert_response(url, good_users, 201, method="POST", data=data)

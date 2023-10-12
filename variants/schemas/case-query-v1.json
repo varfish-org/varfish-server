@@ -10,6 +10,24 @@
     "genotype"
   ],
   "properties": {
+    "selected_variants": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/selected_variants",
+          "type": "array",
+          "title": "The selected_variants schema",
+          "description": "Limit query to specified variants",
+          "default": [],
+          "examples": [
+            "GRCh37-1-1000000-A-G",
+            "GRCh37-1-1000001-T-C"
+          ]
+        }
+      ]
+    },
     "database": {
       "$id": "#/properties/database",
       "type": "string",
@@ -1045,7 +1063,7 @@
       "items": {
         "$id": "#/properties/gene_allowlist/items",
         "type": "string",
-        "pattern": "^([a-zA-Z0-9_-]+)$"
+        "pattern": "^([a-zA-Z0-9.:_-]+)$"
       }
     },
     "gene_blocklist": {
@@ -1445,7 +1463,10 @@
                 "non-hom",
                 "variant",
                 "non-variant",
-                "non-reference"
+                "non-reference",
+                "comphet-index",
+                "recessive-index",
+                "recessive-parent"
               ]
             }
           ]

@@ -8,7 +8,6 @@ import var_stats_qc.models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []

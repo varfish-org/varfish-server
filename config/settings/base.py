@@ -70,6 +70,7 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",  # Form layouts
+    "crispy_bootstrap4",
     "rules.apps.AutodiscoverRulesConfig",
     "djangoplugins",
     "pagedown",
@@ -78,6 +79,7 @@ THIRD_PARTY_APPS = [
     "knox",
     "aldjemy",
     "adminalerts",
+    "appalerts.apps.AppalertsConfig",
     "userprofile.apps.UserprofileConfig",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
@@ -112,6 +114,10 @@ LOCAL_APPS = [
     "bgjobs.apps.BgjobsConfig",
     "var_stats_qc.apps.VarStatsQcConfig",
     "templatetags.apps.TemplatetagsConfig",
+    "seqmeta.apps.SeqmetaConfig",
+    "cases_import.apps.CasesImportConfig",
+    "cases_files.apps.CasesFilesConfig",
+    "cases_qc.apps.CasesQcConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
@@ -331,6 +337,7 @@ TEMPLATES = [
                 "projectroles.context_processors.urls_processor",
                 "projectroles.context_processors.site_app_processor",
                 "projectroles.context_processors.app_alerts_processor",
+                "projectroles.context_processors.sidebar_processor",
                 "django_su.context_processors.is_su",
             ],
         },
@@ -597,11 +604,10 @@ PROJECTROLES_ENABLE_SEARCH = not KIOSK_MODE
 PROJECTROLES_SEARCH_PAGINATION = 5
 
 SODAR_API_MEDIA_TYPE = "application/vnd.bihealth.varfish+json"
-SODAR_API_DEFAULT_VERSION = re.match(r"^([0-9.]+)(?:[+|\-][\S]+)?$", varfish_version)[1]
+SODAR_API_DEFAULT_VERSION = varfish_version.split("-")[0]
 SODAR_API_ALLOWED_VERSIONS = [
     "0.23.9",
 ]
-
 
 PROJECTROLES_SITE_MODE = env.str("PROJECTROLES_SITE_MODE", "TARGET")
 PROJECTROLES_TARGET_CREATE = env.bool("PROJECTROLES_TARGET_CREATE", True)
@@ -612,10 +618,12 @@ PROJECTROLES_EMAIL_SENDER_REPLY = env.bool("PROJECTROLES_EMAIL_SENDER_REPLY", Fa
 # Allow showing and synchronizing local non-admin users
 PROJECTROLES_ALLOW_LOCAL_USERS = env.bool("PROJECTROLES_ALLOW_LOCAL_USERS", False)
 
-PROJECTROLES_HIDE_APP_LINKS = ["svs"]
+# Hide selected apps
+PROJECTROLES_HIDE_PROJECT_APPS = ["svs", "variants"]
 
-# Whether or not to sync from remote (disable only locally).
-VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", True)
+# Settings for syncing remote projects (interval is in minutes)
+PROJECTROLES_TARGET_SYNC_ENABLE = env.bool("PROJECTROLES_TARGET_SYNC_ENABLE", default=False)
+PROJECTROLES_TARGET_SYNC_INTERVAL = env.int("PROJECTROLES_TARGET_SYNC_INTERVAL", default=5)
 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
@@ -624,6 +632,11 @@ PROJECTROLES_DISABLE_CATEGORIES = env.bool("PROJECTROLES_DISABLE_CATEGORIES", Fa
 
 # Warn about unsupported browsers (IE)
 PROJECTROLES_BROWSER_WARNING = True
+
+PROJECTROLES_TEMPLATE_INCLUDE_PATH = env.path(
+    "PROJECTROLES_TEMPLATE_INCLUDE_PATH",
+    os.path.join(APPS_DIR, "templates", "include"),
+)
 
 # Disable default CDN JS/CSS includes to replace with local files.  This
 # is primarily used for Docker-based deployments.
@@ -921,3 +934,36 @@ if ENABLE_S3:
 ICONIFY_JSON_ROOT = os.path.join(STATIC_ROOT, "iconify")
 
 VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", default=False)
+
+# Case Import Configuration
+# ------------------------------------------------------------------------------
+
+#: Allow import from local file.  Defaults to False because of security issues.
+VARFISH_CASE_IMPORT_ALLOW_FILE = env.bool("VARFISH_CASE_IMPORT_ALLOW_FILE", default=False)
+#: Prefix to enforce when importing from local file.
+VARFISH_CASE_IMPORT_FILE_PREFIX = env.str("VARFISH_CASE_IMPORT_FILE_PREFIX", default="")
+
+# VarFish Microservices
+#
+# Setup of the "microservices" such as viguno, mehari, annonars, and nginx.
+# ------------------------------------------------------------------------------
+VARFISH_BACKEND_URL_ANNONARS = env.str(
+    "VARFISH_BACKEND_URL_ANNONARS", default="http://localhost:3001"
+)
+VARFISH_BACKEND_URL_MEHARI = env.str("VARFISH_BACKEND_URL_MEHARI", default="http://localhost:3002")
+VARFISH_BACKEND_URL_VIGUNO = env.str("VARFISH_BACKEND_URL_VIGUNO", default="http://localhost:3003")
+VARFISH_BACKEND_URL_NGINX = env.str("VARFISH_BACKEND_URL_NGINX", default="http://localhost:3004")
+
+# URL prefix through the front reverse proxy (traefik for production).
+VARFISH_BACKEND_URL_PREFIX_ANNONARS = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_ANNONARS", default="/proxy/varfish/annonars"
+)
+VARFISH_BACKEND_URL_PREFIX_MEHARI = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_MEHARI", default="/proxy/varfish/mehari"
+)
+VARFISH_BACKEND_URL_PREFIX_VIGUNO = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_VIGUNO", default="/proxy/varfish/viguno"
+)
+VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_NGINX", default="/proxy/varfish/nginx"
+)

@@ -6,7 +6,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("importer", "0008_variantsetimportinfo_state"),
     ]

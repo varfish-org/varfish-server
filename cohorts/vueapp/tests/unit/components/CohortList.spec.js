@@ -47,8 +47,8 @@ describe('CohortList.vue', () => {
       },
     })
 
-    expect(wrapper.html()).matches(/<cohort-list-header-stub>/)
-    expect(wrapper.html()).matches(/<cohort-list-table-stub>/)
+    expect(wrapper.html()).matches(/<header-stub>/)
+    expect(wrapper.html()).matches(/<table-stub>/)
     expect(wrapper.html()).matches(/<modal-cohort-editor-stub/)
     expect(wrapper.html()).matches(/<toast-stub/)
     expect(wrapper.html()).not.matches(/<overlay-stub>/)

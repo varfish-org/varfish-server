@@ -22,6 +22,7 @@
           <thead>
             <tr>
               <th style="width: 10px;">#</th>
+              <th style="width: 100px;">Identifier</th>
               <th style="width: 200px;">Title</th>
               <th>Description</th>
             </tr>
@@ -30,12 +31,13 @@
             {% for object in object_list %}
               <tr>
                 <td class="text-right text-muted">{{ forloop.counter }}</td>
+                <td>{{ object.identifier }}</td>
                 <td>
                   <a href="{{ object.get_absolute_url }}">
                     {{ object.title }}
                   </a>
                 </td>
-                <td>{{ object.description }}</td>
+                <td>{{ object.description|default:"-" }}</td>
               </tr>
             {% empty %}
               <tr>

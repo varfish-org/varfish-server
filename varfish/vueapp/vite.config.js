@@ -20,6 +20,12 @@ export default defineConfig({
         cohorts: resolve(__dirname, './src/cohorts/main.js'),
       },
     },
+    target: 'es2020',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020',
+    },
   },
   plugins: [
     Vue(),
@@ -34,10 +40,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@varfish': resolve(__dirname, './src/varfish'),
+      '@variantsTest': resolve(__dirname, './tests/variants'),
       '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
       '@variants': resolve(__dirname, './src/variants'),
       '@svs': resolve(__dirname, './src/svs'),
       '@cases': resolve(__dirname, './src/cases'),
+      '@cases_qc': resolve(__dirname, './src/cases_qc'),
       '@cohorts': resolve(__dirname, './src/cohorts'),
     },
     preserveSymlinks: true,
@@ -55,6 +63,7 @@ export default defineConfig({
       './tests/variants/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/svs/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cases/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      './tests/cases_qc/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cohorts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     exclude: ['./static/**/*'],

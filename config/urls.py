@@ -12,8 +12,6 @@ from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
 
-from variants.views import KioskHomeView
-
 
 def handler500(request, *args, **argv):
     if request.user and "User" in str(type(request.user)):
@@ -40,16 +38,8 @@ urlpatterns = [
     url(r"^sso/admin/logout/$", django_saml2_auth.views.signout),
 ]
 
-# The functionality differs greatly depending on whether kiosk mode is enabled or not. However, the URL patterns
-# do not need to.
-if settings.KIOSK_MODE:
-    urlpatterns += [
-        url(r"^$", KioskHomeView.as_view(), name="kiosk-upload"),
-        url(r"^real-home/$", ProjectRolesHomeView.as_view(), name="home"),
-    ]
-else:
-    urlpatterns += [url(r"^$", ProjectRolesHomeView.as_view(), name="home")]
-    HomeView = ProjectRolesHomeView
+urlpatterns += [url(r"^$", ProjectRolesHomeView.as_view(), name="home")]
+HomeView = ProjectRolesHomeView
 
 urlpatterns += [
     url(r"^icons/", include("dj_iconify.urls")),
@@ -71,7 +61,8 @@ urlpatterns += [
     # SODAR-core
     url(r"^project/", include("projectroles.urls")),
     url(r"^timeline/", include("timeline.urls")),
-    url(r"^alerts/", include("adminalerts.urls")),
+    url(r"^admin_alerts/", include("adminalerts.urls")),
+    url(r"^app_alerts/", include("appalerts.urls")),
     url(r"^siteinfo/", include("siteinfo.urls")),
     url(r"^userprofile/", include("userprofile.urls")),
     url(r"^tokens/", include("tokens.urls")),  # will go to SODAR-core
@@ -85,6 +76,9 @@ urlpatterns += [
     url(r"^vueapp/", include("varfish.vueapp.urls")),
     url(r"^cases/", include("cases.urls")),
     url(r"^varannos/", include("varannos.urls")),
+    url(r"^seqmeta/", include("seqmeta.urls")),
+    url(r"^cases-import/", include("cases_import.urls")),
+    url(r"^cases-qc/", include("cases_qc.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
@@ -102,6 +96,35 @@ urlpatterns += [
         r"^proxy/variantvalidator/(?P<url>.*)$",
         HttpProxy.as_view(
             base_url="https://rest.variantvalidator.org/VariantValidator/variantvalidator/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    # Augment URL patterns with proxy for local services.
+    url(
+        r"^proxy/varfish/annonars/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_ANNONARS,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/mehari/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_MEHARI,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/nginx/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_NGINX,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/viguno/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_VIGUNO,
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),

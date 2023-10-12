@@ -6,14 +6,15 @@ import jsonschema
 from jsonschema.exceptions import ValidationError
 from test_plus.test import TestCase
 
-from variants.forms import FilterForm
 from variants.query_schemas import (
     SCHEMA_QUERY_V1,
     DefaultValidatingDraft7Validator,
     convert_query_json_to_small_variant_filter_form_v1,
     load_json,
 )
-from variants.tests.factories import CaseWithVariantSetFactory
+
+from .data.query_settings import QUERY_SETTINGS, QUERY_SETTINGS_CONVERTED
+from .factories import CaseFactory
 
 
 class TestQuerySchema(TestCase):
@@ -72,25 +73,8 @@ class TestQuerySchema(TestCase):
         with self.assertRaises(ValidationError):
             DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(obj)
 
-
-class TestQuerySchemaConversion(TestCase):
-    """Test conversion from query schema to form data"""
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.maxDiff = None
-
-    def testConversionOfSimpleV1(self):
-        case, _, _ = CaseWithVariantSetFactory.get("small")
-
-        json_data = {
-            "effects": ["missense_variant"],
-            "quality": {case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
-            "genotype": {case.index: "variant"},
-        }
-        DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(json_data)
-
-        form_data = convert_query_json_to_small_variant_filter_form_v1(case, json_data)
-        form = FilterForm(form_data, case=case, user=0)
-        is_valid = form.is_valid()
-        self.assertTrue(is_valid, form.errors)
+    def test_conversion_json_to_filter_form(self):
+        """Test conversion from query settings to small variant filter form"""
+        case = CaseFactory(name="Case_1", index="Case_1_index-N1-DNA1-WGS1")
+        result = convert_query_json_to_small_variant_filter_form_v1(case, QUERY_SETTINGS)
+        self.assertEqual(result, QUERY_SETTINGS_CONVERTED)

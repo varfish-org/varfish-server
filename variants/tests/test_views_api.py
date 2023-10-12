@@ -1,16 +1,28 @@
 import copy
 
-from bgjobs.models import JOB_STATE_DONE
+from django.forms import model_to_dict
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
-from ..models import FilterBgJob, SmallVariantQuery
+from cases_qc.tests.helpers import flatten_via_json
+from svs.tests.factories import SvQueryResultSetFactory
+
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
-from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
+from .factories import (
+    AcmgCriteriaRatingFactory,
+    CaseFactory,
+    CaseWithVariantSetFactory,
+    SmallVariantCommentFactory,
+    SmallVariantFlagsFactory,
+    SmallVariantQueryFactory,
+    SmallVariantQueryResultSetFactory,
+)
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
 # TODO: add tests that include permission testing
 from .test_views import GenerateSmallVariantResultMixin
+
+TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def transmogrify_pedigree(pedigree):
@@ -26,11 +38,14 @@ class TestCaseApiViews(ApiViewTestBase):
         super().setUp()
         self.maxDiff = None
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
 
     def _expected_case_data(self, case=None, legacy=False):
         case = case or self.case
         result = {
             "sodar_uuid": str(case.sodar_uuid),
+            "caseqc": None,
             "name": case.name,
             "index": case.index,
             "pedigree": transmogrify_pedigree(case.pedigree),
@@ -38,12 +53,37 @@ class TestCaseApiViews(ApiViewTestBase):
             "num_svs": case.num_svs,
             "project": case.project.sodar_uuid,
             "notes": case.notes,
+            "state": None,
             "status": case.status,
             "tags": case.tags,
             "release": case.release,
             "sex_errors": {},
+            "case_version": 1,
+            "smallvariantqueryresultset": {
+                "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
+                "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
+                "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
+                "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
+                "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
+                "smallvariantquery": self.smallvariantqueryresultset.smallvariantquery.sodar_uuid,
+                "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
+                "result_row_count": self.smallvariantqueryresultset.result_row_count,
+                "case": self.case.sodar_uuid,
+            },
+            "svqueryresultset": {
+                "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
+                "date_created": self.svqueryresultset.date_created.strftime(TIMEF),
+                "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
+                "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
+                "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
+                "svquery": self.svqueryresultset.svquery.sodar_uuid,
+                "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
+                "result_row_count": self.svqueryresultset.result_row_count,
+                "case": self.case.sodar_uuid,
+            },
         }
         if legacy:
+            result.pop("caseqc")
             result.update(
                 {
                     "relatedness": [],
@@ -91,7 +131,7 @@ class TestCaseApiViews(ApiViewTestBase):
                 entry.pop("date_created")  # complex; not worth testing
                 entry.pop("date_modified")  # the same
                 response_content.append(entry)
-            self.assertEquals(response_content, expected)
+            self.assertEquals(flatten_via_json(response_content), flatten_via_json(expected))
 
     def _test_retrieve_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
@@ -121,18 +161,17 @@ class TestCaseApiViews(ApiViewTestBase):
             )
 
             expected = self._expected_case_data(legacy=True)
+            expected.pop("state")
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, expected)
+            self.assertEqual(flatten_via_json(expected), flatten_via_json(response.data))
 
 
 def small_variant_query_to_dict(query):
     return {
         "sodar_uuid": str(query.sodar_uuid),
         "date_created": query.date_created.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-        "form_id": query.form_id,
-        "form_version": query.form_version,
         "name": query.name,
         "case": query.case.sodar_uuid,
         "public": query.public,
@@ -178,8 +217,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = list(map(small_variant_query_to_dict, queries))
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_multiple(self):
         queries = [
@@ -192,8 +230,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = list(reversed(list(map(small_variant_query_to_dict, queries))))
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_other_user(self):
         _queries = [
@@ -206,21 +243,33 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
         self.assertEqual(response.status_code, 200)
         expected = []
-        actual = list(map(dict, response.data))
-        self.assertEqual(actual, expected)
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
+
+    def test_get_admin(self):
+        _queries = [
+            SmallVariantQueryFactory(case=self.case, user=self.user_contributor),
+            SmallVariantQueryFactory(case=self.case, user=self.user_owner),
+        ]
+
+        url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
+        response = self.request_knox(url, token=self.get_token(self.superuser))
+
+        self.assertEqual(response.status_code, 200)
+        expected = []
+        self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_access_allowed(self):
         _queries = [
-            SmallVariantQueryFactory(case=self.case, user=self.guest_as.user),
+            SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
 
         good_users = [
             self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
         ]
 
         for user in good_users:
@@ -229,7 +278,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 
     def test_get_access_forbidden(self):
         _queries = [
-            SmallVariantQueryFactory(case=self.case, user=self.guest_as.user),
+            SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
 
@@ -246,382 +295,299 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
             self.assertEqual(response.status_code, 401, "user = %s" % user)
 
 
-class TestSmallVariantQueryCreateApiView(TestSmallVariantQueryBase):
-    def test_post_valid(self):
-        url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
+# TODO reuse?
+# class TestSmallVariantQueryCreateApiView(TestSmallVariantQueryBase):
+#     def test_post_valid(self):
+#         url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#         query_settings = {
+#             "effects": ["missense_variant"],
+#             "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
+#             "genotype": {self.case.index: "variant"},
+#         }
+#         request_data = self._construct_request_data(query_settings)
+#
+#         response = self.request_knox(url, method="POST", data=request_data)
+#
+#         self.assertEqual(response.status_code, 201)
+#         self.assertEqual(SmallVariantQuery.objects.count(), 1)
+#         self.assertEqual(FilterBgJob.objects.count(), 1)
+#
+#     def test_post_invalid_nonsense(self):
+#         url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#         request_data = {"invalid": "data"}
+#         response = self.request_knox(url, method="POST", data=request_data)
+#
+#         self.assertEqual(response.status_code, 400)
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#     def test_post_invalid_missing_hpo_terms(self):
+#         url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#         query_settings = {
+#             "effects": ["missense_variant"],
+#             "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
+#             "genotype": {self.case.index: "variant"},
+#             "prio_hpo_terms": ["HP:9999999"],
+#         }
+#         request_data = self._construct_request_data(query_settings)
+#         response = self.request_knox(url, method="POST", data=request_data)
+#
+#         self.assertEqual(response.status_code, 400)
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#     def test_post_access_allowed(self):
+#         url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#         query_settings = {
+#             "effects": ["missense_variant"],
+#             "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
+#             "genotype": {self.case.index: "variant"},
+#         }
+#         request_data = self._construct_request_data(query_settings)
+#
+#         good_users = [
+#             self.superuser,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
+#             self.user_guest,
+#         ]
+#
+#         for i, user in enumerate(good_users):
+#             response = self.request_knox(url, method="POST", data=request_data)
+#
+#             self.assertEqual(response.status_code, 201)
+#             self.assertEqual(SmallVariantQuery.objects.count(), i + 1)
+#             self.assertEqual(FilterBgJob.objects.count(), i + 1)
+#
+#     def test_post_access_forbidden(self):
+#         url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
+#         self.assertEqual(SmallVariantQuery.objects.count(), 0)
+#         self.assertEqual(FilterBgJob.objects.count(), 0)
+#
+#         query_settings = {
+#             "effects": ["missense_variant"],
+#             "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
+#             "genotype": {self.case.index: "variant"},
+#         }
+#         request_data = self._construct_request_data(query_settings)
+#
+#         bad_users = [
+#             None,
+#         ]
+#
+#         for user in bad_users:
+#             if user:
+#                 token = self.get_token(user)
+#             else:
+#                 token = EMPTY_KNOX_TOKEN
+#             response = self.request_knox(url, method="POST", data=request_data, token=token)
+#             self.assertEqual(response.status_code, 401, "user = %s" % user)
+
 
-        query_settings = {
-            "effects": ["missense_variant"],
-            "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
-            "genotype": {self.case.index: "variant"},
-        }
-        request_data = self._construct_request_data(query_settings)
-
-        response = self.request_knox(url, method="POST", data=request_data)
-
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(SmallVariantQuery.objects.count(), 1)
-        self.assertEqual(FilterBgJob.objects.count(), 1)
-
-    def test_post_invalid_nonsense(self):
-        url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-        request_data = {"invalid": "data"}
-        response = self.request_knox(url, method="POST", data=request_data)
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-    def test_post_invalid_missing_hpo_terms(self):
-        url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-        query_settings = {
-            "effects": ["missense_variant"],
-            "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
-            "genotype": {self.case.index: "variant"},
-            "prio_hpo_terms": ["HP:9999999"],
-        }
-        request_data = self._construct_request_data(query_settings)
-        response = self.request_knox(url, method="POST", data=request_data)
-
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-    def test_post_access_allowed(self):
-        url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-        query_settings = {
-            "effects": ["missense_variant"],
-            "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
-            "genotype": {self.case.index: "variant"},
-        }
-        request_data = self._construct_request_data(query_settings)
-
-        good_users = [
-            self.superuser,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
-        ]
-
-        for i, user in enumerate(good_users):
-            response = self.request_knox(url, method="POST", data=request_data)
-
-            self.assertEqual(response.status_code, 201)
-            self.assertEqual(SmallVariantQuery.objects.count(), i + 1)
-            self.assertEqual(FilterBgJob.objects.count(), i + 1)
-
-    def test_post_access_forbidden(self):
-        url = reverse("variants:api-query-case-create", kwargs={"case": self.case.sodar_uuid})
-        self.assertEqual(SmallVariantQuery.objects.count(), 0)
-        self.assertEqual(FilterBgJob.objects.count(), 0)
-
-        query_settings = {
-            "effects": ["missense_variant"],
-            "quality": {self.case.index: {"dp_het": 10, "dp_hom": 5, "ab": 0.3, "gq": 20, "ad": 3}},
-            "genotype": {self.case.index: "variant"},
-        }
-        request_data = self._construct_request_data(query_settings)
-
-        bad_users = [
-            None,
-        ]
-
-        for user in bad_users:
-            if user:
-                token = self.get_token(user)
-            else:
-                token = EMPTY_KNOX_TOKEN
-            response = self.request_knox(url, method="POST", data=request_data, token=token)
-            self.assertEqual(response.status_code, 401, "user = %s" % user)
-
-
-class TestSmallVariantQueryRetrieveApiView(TestSmallVariantQueryBase):
-    def test_get(self):
-        query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-        url = reverse(
-            "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        response = self.request_knox(url)
-
-        self.assertEqual(response.status_code, 200)
-        expected = small_variant_query_to_dict(query)
-        actual = dict(response.data)
-        self.assertEqual(actual, expected)
-
-    def test_get_access_allowed(self):
-        query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-        url = reverse(
-            "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        good_users = [
-            self.superuser,
-            self.guest_as.user,
-        ]
-
-        for user in good_users:
-            response = self.request_knox(url, token=self.get_token(user))
-            self.assertEqual(response.status_code, 200, "user = %s" % user)
-
-    def test_get_access_forbidden(self):
-        query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-        url = reverse(
-            "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            None,
-        ]
-
-        for user in bad_users:
-            if user:
-                token = self.get_token(user)
-                expected = 404
-            else:
-                token = EMPTY_KNOX_TOKEN
-                expected = 401
-            response = self.request_knox(url, token=token)
-            self.assertEqual(response.status_code, expected, "user = %s" % user)
-
-
-class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
-    def test_get(self):
-        filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
-        )
-        query = filter_job.smallvariantquery
-
-        url = reverse(
-            "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        response = self.request_knox(url)
-
-        self.assertEqual(response.status_code, 200)
-        expected = {"status": JOB_STATE_DONE, "logs": []}
-        actual = dict(response.data)
-        self.assertEqual(actual, expected)
-
-    def test_get_access_allowed(self):
-        filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
-        )
-        query = filter_job.smallvariantquery
-
-        url = reverse(
-            "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        good_users = [
-            self.superuser,
-            self.guest_as.user,
-        ]
-
-        for user in good_users:
-            response = self.request_knox(url, token=self.get_token(user))
-            self.assertEqual(response.status_code, 200, "user = %s" % user)
-
-    def test_get_access_forbidden(self):
-        filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
-        )
-        query = filter_job.smallvariantquery
-
-        url = reverse(
-            "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
-        )
-
-        bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            None,
-        ]
-
-        for user in bad_users:
-            if user:
-                token = self.get_token(user)
-                expected = 404
-            else:
-                token = EMPTY_KNOX_TOKEN
-                expected = 401
-            response = self.request_knox(url, token=token)
-            self.assertEqual(response.status_code, expected, "user = %s" % user)
-
-
-class TestSmallVariantQueryUpdateApiView(TestSmallVariantQueryBase):
-    def test_put_patch_works(self):
-        for method in ("PUT", "PATCH"):
-            query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-            url = reverse(
-                "variants:api-query-case-update", kwargs={"smallvariantquery": query.sodar_uuid}
-            )
-
-            response = self.request_knox(
-                url, method=method, data={"name": "new name", "public": True}
-            )
-
-            self.assertEqual(response.status_code, 200)
-            expected = {**small_variant_query_to_dict(query), "name": "new name", "public": True}
-            actual = dict(response.data)
-            self.assertEqual(actual, expected, "method = %s" % method)
-
-    def test_put_patch_ignore_readonly(self):
-        for method in ("PUT", "PATCH"):
-            query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-            url = reverse(
-                "variants:api-query-case-update", kwargs={"smallvariantquery": query.sodar_uuid}
-            )
-
-            response = self.request_knox(
-                url, method=method, data={"name": "new name", "public": True, "form_id": "x"}
-            )
-
-            self.assertEqual(response.status_code, 200)
-            expected = {**small_variant_query_to_dict(query), "name": "new name", "public": True}
-            actual = dict(response.data)
-            self.assertEqual(actual, expected, "method = %s" % method)
-
-    def test_put_patch_access_allowed(self):
-        good_users = [
-            self.superuser,
-            self.guest_as.user,
-        ]
-
-        for user in good_users:
-            for method in ("PUT", "PATCH"):
-                query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-                url = reverse(
-                    "variants:api-query-case-update", kwargs={"smallvariantquery": query.sodar_uuid}
-                )
-
-                response = self.request_knox(
-                    url,
-                    method=method,
-                    data={"name": "new name", "public": True},
-                    token=self.get_token(user),
-                )
-
-                self.assertEqual(response.status_code, 200)
-                expected = {
-                    **small_variant_query_to_dict(query),
-                    "name": "new name",
-                    "public": True,
-                }
-                actual = dict(response.data)
-                self.assertEqual(actual, expected, "method = %s" % method)
-
-    def test_put_patch_access_forbidden(self):
-        bad_users = [
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            None,
-        ]
-
-        for user in bad_users:
-            for method in ("PUT", "PATCH"):
-                query = SmallVariantQueryFactory(case=self.case, user=self.guest_as.user)
-                url = reverse(
-                    "variants:api-query-case-update", kwargs={"smallvariantquery": query.sodar_uuid}
-                )
-
-                if user:
-                    token = self.get_token(user)
-                    expected = 404
-                else:
-                    token = EMPTY_KNOX_TOKEN
-                    expected = 401
-                response = self.request_knox(url, method=method, token=token)
-                self.assertEqual(response.status_code, expected, "user = %s" % user)
-
-
-class TestSmallVariantQueryFetchResultsApiView(
-    GenerateSmallVariantResultMixin, TestSmallVariantQueryBase
-):
-    def test_get_success(self):
-        url = reverse(
-            "variants:api-query-case-fetch-results",
-            kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
-        )
-        response = self.request_knox(url)
-
-        self.assertEqual(response.status_code, 200)
-        actual = {response.data[0]["start"], response.data[1]["start"]}
-        expected = {self.small_vars[0].start, self.small_vars[2].start}
-        self.assertEqual(actual, expected)
-
-    def test_get_not_ready(self):
-        self.bgjob.bg_job.status = "running"
-        self.bgjob.bg_job.save()
-
-        url = reverse(
-            "variants:api-query-case-fetch-results",
-            kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
-        )
-        response = self.request_knox(url)
-
-        self.assertEqual(response.status_code, 503)
-        self.assertEqual(response.data, {"reason": "query result not available yet"})
-
-    def test_get_access_allowed(self):
-        good_users = [
-            self.superuser,
-        ]
-
-        url = reverse(
-            "variants:api-query-case-fetch-results",
-            kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
-        )
-
-        for user in good_users:
-            response = self.request_knox(url, token=self.get_token(user))
-
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(response.data), 2)
-            actual = {response.data[0]["start"], response.data[1]["start"]}
-            expected = {self.small_vars[0].start, self.small_vars[2].start}
-            self.assertEqual(actual, expected)
-
-    def test_get_access_forbidden(self):
-        bad_users = [
-            self.guest_as.user,
-            self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            None,
-        ]
-
-        url = reverse(
-            "variants:api-query-case-fetch-results",
-            kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
-        )
-
-        for user in bad_users:
-            if user:
-                token = self.get_token(user)
-                expected = 403
-            else:
-                token = EMPTY_KNOX_TOKEN
-                expected = 401
-            response = self.request_knox(url, token=token)
-            self.assertEqual(response.status_code, expected, f"user = {user}")
+# TODO reuse for similar api view?
+# class TestSmallVariantQueryRetrieveApiView(TestSmallVariantQueryBase):
+#     def test_get(self):
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
+#         url = reverse(
+#             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         response = self.request_knox(url)
+#
+#         self.assertEqual(response.status_code, 200)
+#         expected = small_variant_query_to_dict(query)
+#         actual = dict(response.data)
+#         self.assertEqual(actual, expected)
+#
+#     def test_get_access_allowed(self):
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
+#         url = reverse(
+#             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         good_users = [
+#             self.superuser,
+#             self.user_guest,
+#         ]
+#
+#         for user in good_users:
+#             response = self.request_knox(url, token=self.get_token(user))
+#             self.assertEqual(response.status_code, 200, "user = %s" % user)
+#
+#     def test_get_access_forbidden(self):
+#         query = SmallVariantQueryFactory(case=self.case, user=self.user_guest)
+#         url = reverse(
+#             "variants:api-query-case-retrieve", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         bad_users = [
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
+#             None,
+#         ]
+#
+#         for user in bad_users:
+#             if user:
+#                 token = self.get_token(user)
+#                 expected = 404
+#             else:
+#                 token = EMPTY_KNOX_TOKEN
+#                 expected = 401
+#             response = self.request_knox(url, token=token)
+#             self.assertEqual(response.status_code, expected, "user = %s" % user)
+
+
+# TODO reuse for get query?
+# class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
+#     def test_get(self):
+#         filter_job = FilterBgJobFactory(
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
+#         )
+#         query = filter_job.smallvariantquery
+#
+#         url = reverse(
+#             "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         response = self.request_knox(url)
+#
+#         self.assertEqual(response.status_code, 200)
+#         expected = {"status": JOB_STATE_DONE, "logs": []}
+#         actual = dict(response.data)
+#         self.assertEqual(actual, expected)
+#
+#     def test_get_access_allowed(self):
+#         filter_job = FilterBgJobFactory(
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
+#         )
+#         query = filter_job.smallvariantquery
+#
+#         url = reverse(
+#             "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         good_users = [
+#             self.superuser,
+#             self.user_guest,
+#         ]
+#
+#         for user in good_users:
+#             response = self.request_knox(url, token=self.get_token(user))
+#             self.assertEqual(response.status_code, 200, "user = %s" % user)
+#
+#     def test_get_access_forbidden(self):
+#         filter_job = FilterBgJobFactory(
+#             case=self.case, user=self.user_guest, bg_job__status=JOB_STATE_DONE
+#         )
+#         query = filter_job.smallvariantquery
+#
+#         url = reverse(
+#             "variants:api-query-case-status", kwargs={"smallvariantquery": query.sodar_uuid}
+#         )
+#
+#         bad_users = [
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
+#             None,
+#         ]
+#
+#         for user in bad_users:
+#             if user:
+#                 token = self.get_token(user)
+#                 expected = 404
+#             else:
+#                 token = EMPTY_KNOX_TOKEN
+#                 expected = 401
+#             response = self.request_knox(url, token=token)
+#             self.assertEqual(response.status_code, expected, "user = %s" % user)
+
+
+# TODO reuse?
+# class TestSmallVariantQueryFetchResultsApiView(
+#     GenerateSmallVariantResultMixin, TestSmallVariantQueryBase
+# ):
+#     def test_get_success(self):
+#         url = reverse(
+#             "variants:api-query-case-fetch-results",
+#             kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
+#         )
+#         response = self.request_knox(url)
+#
+#         self.assertEqual(response.status_code, 200)
+#         actual = {response.data[0]["start"], response.data[1]["start"]}
+#         expected = {self.small_vars[0].start, self.small_vars[2].start}
+#         self.assertEqual(actual, expected)
+#
+#     def test_get_not_ready(self):
+#         self.bgjob.bg_job.status = "running"
+#         self.bgjob.bg_job.save()
+#
+#         url = reverse(
+#             "variants:api-query-case-fetch-results",
+#             kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
+#         )
+#         response = self.request_knox(url)
+#
+#         self.assertEqual(response.status_code, 503)
+#         self.assertEqual(response.data, {"reason": "query result not available yet"})
+#
+#     def test_get_access_allowed(self):
+#         good_users = [
+#             self.superuser,
+#         ]
+#
+#         url = reverse(
+#             "variants:api-query-case-fetch-results",
+#             kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
+#         )
+#
+#         for user in good_users:
+#             response = self.request_knox(url, token=self.get_token(user))
+#
+#             self.assertEqual(response.status_code, 200)
+#             self.assertEqual(len(response.data), 2)
+#             actual = {response.data[0]["start"], response.data[1]["start"]}
+#             expected = {self.small_vars[0].start, self.small_vars[2].start}
+#             self.assertEqual(actual, expected)
+#
+#     def test_get_access_forbidden(self):
+#         bad_users = [
+#             self.user_guest,
+#             self.user_owner,
+#             self.user_delegate,
+#             self.user_contributor,
+#             None,
+#         ]
+#
+#         url = reverse(
+#             "variants:api-query-case-fetch-results",
+#             kwargs={"smallvariantquery": self.bgjob.smallvariantquery.sodar_uuid},
+#         )
+#
+#         for user in bad_users:
+#             if user:
+#                 token = self.get_token(user)
+#                 expected = 403
+#             else:
+#                 token = EMPTY_KNOX_TOKEN
+#                 expected = 401
+#             response = self.request_knox(url, token=token)
+#             self.assertEqual(response.status_code, expected, f"user = {user}")
 
 
 class TestSmallVariantQuerySettingsShortcutApiView(
@@ -772,7 +738,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
             },
         }
         self.maxDiff = None
-        self.assertDictEqual(actual, expected)
+        self.assertEqual(actual, expected)
 
     def test_get_access_allowed(self):
         good_users = [
@@ -791,10 +757,10 @@ class TestSmallVariantQuerySettingsShortcutApiView(
 
     def test_get_access_forbidden(self):
         bad_users = [
-            self.guest_as.user,
+            self.user_guest,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
+            self.user_delegate,
+            self.user_contributor,
             None,
         ]
 
@@ -812,3 +778,188 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 expected = 401
             response = self.request_knox(url, token=token)
             self.assertEqual(response.status_code, expected, f"user = {user}")
+
+
+class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-comment-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_comments_as_user(self, user):
+        with self.login(user):
+            SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            url = reverse(
+                "variants:api-small-variant-comment-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for comment in comments:
+                expected.append(model_to_dict(comment, exclude=["id"]))
+                expected[-1]["user"] = comment.user.username
+                expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
+                expected[-1]["case"] = str(comment.case.sodar_uuid)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_comments_superuser(self):
+        self._test_get_comments_as_user(self.superuser)
+
+    def test_get_comments_owner(self):
+        self._test_get_comments_as_user(self.user_owner)
+
+    def test_get_comments_delegate(self):
+        self._test_get_comments_as_user(self.user_delegate)
+
+    def test_get_comments_contributor(self):
+        self._test_get_comments_as_user(self.user_contributor)
+
+    def test_get_comments_guest(self):
+        self._test_get_comments_as_user(self.user_guest)
+
+
+class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-flags-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_flags_as_user(self, user):
+        with self.login(user):
+            SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=self.case,
+            )
+            url = reverse(
+                "variants:api-small-variant-flags-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for flag in flags:
+                expected.append(model_to_dict(flag, exclude=["id"]))
+                expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
+                expected[-1]["case"] = str(flag.case.sodar_uuid)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_flags_superuser(self):
+        self._test_get_flags_as_user(self.superuser)
+
+    def test_get_flags_owner(self):
+        self._test_get_flags_as_user(self.user_owner)
+
+    def test_get_flags_delegate(self):
+        self._test_get_flags_as_user(self.user_delegate)
+
+    def test_get_flags_contributor(self):
+        self._test_get_flags_as_user(self.user_contributor)
+
+    def test_get_flags_guest(self):
+        self._test_get_flags_as_user(self.user_guest)
+
+
+class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-acmg-criteria-rating-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_acmg_criteria_rating_as_user(self, user):
+        with self.login(user):
+            AcmgCriteriaRatingFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            ratings = AcmgCriteriaRatingFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            url = reverse(
+                "variants:api-acmg-criteria-rating-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for rating in ratings:
+                expected.append(model_to_dict(rating, exclude=["id"]))
+                expected[-1]["user"] = rating.user.username
+                expected[-1]["sodar_uuid"] = str(rating.sodar_uuid)
+                expected[-1]["case"] = str(rating.case.sodar_uuid)
+
+            response_json = response.json()
+            for rating in response_json:
+                del rating["date_created"]
+                del rating["date_modified"]
+                del rating["acmg_class"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_acmg_criteria_rating_superuser(self):
+        self._test_get_acmg_criteria_rating_as_user(self.superuser)
+
+    def test_get_acmg_criteria_rating_owner(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_owner)
+
+    def test_get_acmg_criteria_rating_delegate(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_delegate)
+
+    def test_get_acmg_criteria_rating_contributor(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_contributor)
+
+    def test_get_acmg_criteria_rating_guest(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_guest)

@@ -1,5 +1,5 @@
 <script setup>
-import ExportResultsButton from './ExportResultsButton.vue'
+import ExportResultsButton from '@variants/components/ExportResultsButton.vue'
 </script>
 
 <template>

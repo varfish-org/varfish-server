@@ -3,6 +3,9 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from cases_qc.models import CaseQc
+from cases_qc.serializers import CaseQcSerializer
+from svs.serializers import SvQueryResultSetSerializer
 from variants.models import (
     Case,
     CaseAlignmentStats,
@@ -12,7 +15,7 @@ from variants.models import (
     PresetSet,
     SampleVariantStatistics,
 )
-from variants.serializers import CoreCaseSerializerMixin
+from variants.serializers import CoreCaseSerializerMixin, SmallVariantQueryResultSetSerializer
 
 _app_settings = AppSettingAPI()
 
@@ -30,6 +33,12 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     presetset = serializers.ReadOnlyField(source="presetset.sodar_uuid")
     #: Serialize sex errors from method call.
     sex_errors = serializers.SerializerMethodField("get_sex_errors")
+    #: Serialize ``smallvariantqueryresultset`` as its ``sodar_uuid``.
+    smallvariantqueryresultset = serializers.SerializerMethodField()
+    #: Serialize ``svqueryresultset`` as its ``sodar_uuid``.
+    svqueryresultset = serializers.SerializerMethodField()
+    #: Serialize latest ``CaseQc`` in active state.
+    caseqc = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,10 +61,27 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
 
     def get_sex_errors(self, obj):
         if self.disable_pedigree_sex_check is None:
-            self.disable_pedigree_sex_check = _app_settings.get_app_setting(
+            self.disable_pedigree_sex_check = _app_settings.get(
                 "variants", "disable_pedigree_sex_check", project=obj.project
             )
         return obj.sex_errors(disable_pedigree_sex_check=self.disable_pedigree_sex_check)
+
+    def get_smallvariantqueryresultset(self, obj):
+        return SmallVariantQueryResultSetSerializer(obj.smallvariantqueryresultset_set.first()).data
+
+    def get_svqueryresultset(self, obj):
+        return SvQueryResultSetSerializer(obj.svqueryresultset_set.first()).data
+
+    def get_caseqc(self, obj):
+        """Obtain the latest CaseQC for this in active state and serialize it.
+
+        If there is no such record then return ``None``.
+        """
+        caseqc = obj.caseqc_set.filter(state=CaseQc.STATE_ACTIVE).first()
+        if caseqc:
+            return CaseQcSerializer(caseqc).data
+        else:
+            return None
 
     class Meta:
         model = Case
@@ -75,6 +101,8 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "project",
             "release",
             "presetset",  # made writable in to_internal_value
+            "state",
+            "caseqc",
         )
 
 

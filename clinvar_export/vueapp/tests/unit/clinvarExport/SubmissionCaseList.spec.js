@@ -1,5 +1,5 @@
 import SubmissionCaseList from '@clinvarexport/components/SubmissionCaseList.vue'
-import { WizardState } from '@clinvarexport/stores/clinvar-export.js'
+import { WizardState } from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import {
@@ -12,7 +12,7 @@ import {
   vi,
 } from 'vitest'
 
-import { copy } from '../../testUtils.js'
+import { copy } from '../../testUtils'
 import {
   clinvarExportEmptyState,
   firstIndividual,
@@ -23,7 +23,7 @@ import {
   firstSubmitter,
   firstSubmittingOrg,
   secondIndividual,
-} from '../fixtures.js'
+} from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState, extraArgs) => {
@@ -117,7 +117,7 @@ describe('SubmissionCaseList.vue', () => {
 
     expect(wrapper.vm.getModalIndividualList()).toEqual([individual2])
     expect(wrapper.vm.getPhenotypeDisplay(individual1)).toEqual(
-      '(HP:123456) some name, (HP:98235) another name'
+      '(HP:123456) some name, (HP:98235) another name',
     )
   })
 })

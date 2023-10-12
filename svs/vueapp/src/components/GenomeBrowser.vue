@@ -2,9 +2,12 @@
 import { ref, onMounted, watch } from 'vue'
 import igv from 'igv'
 
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-import { genCaseTrack, publicTracks } from './GenomeBrowser.tracks.js'
+import {
+  genCaseTrack,
+  publicTracks,
+} from '@svs/components/GenomeBrowser.tracks'
 
 // Define the props.
 const props = defineProps({
@@ -61,24 +64,28 @@ watch(
       .then((browser) => {
         addTracks(browser)
       })
-  }
+  },
 )
 
 // Watch changes to the case (requires track reload).
 watch(
   () => caseDetailsStore.caseObj,
   (_newCase, _oldCase) => {
-    igvBrowser.value.removeTrackByName('Case SVs')
-    addCaseTracks(igvBrowser.value)
-  }
+    if (igvBrowser.value) {
+      igvBrowser.value.removeTrackByName('Case SVs')
+      addCaseTracks(igvBrowser.value)
+    }
+  },
 )
 
 // Watch changes to the locus (jumping is enough).
 watch(
   () => props.locus,
   (_newValue, _oldValue) => {
-    igvBrowser.value.search(props.locus)
-  }
+    if (igvBrowser.value) {
+      igvBrowser.value.search(props.locus)
+    }
+  },
 )
 
 // Construct igv.js browser when mounted.
@@ -91,6 +98,9 @@ onMounted(() => {
     .then((browser) => {
       igvBrowser.value = browser
       addTracks(browser)
+      if (props.locus) {
+        igvBrowser.value.search(props.locus)
+      }
     })
 })
 </script>

@@ -1374,7 +1374,6 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsDiseaseGeneJoinBase(ExtendQueryPartsBase):
-
     # Model with the gene ID
     gene_id_model = None
 
@@ -1400,7 +1399,6 @@ class ExtendQueryPartsDiseaseGeneJoinBase(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsDiseaseGeneJoinBase):
-
     gene_id_model = SmallVariant
 
 
@@ -1569,6 +1567,27 @@ class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
         )
 
 
+class ExtendQueryPartsSelectVariants(ExtendQueryPartsBase):
+    def extend_conditions(self, _query_parts):
+        condition = []
+
+        if not self.kwargs.get("selected_variants"):
+            return []
+
+        for variant in self.kwargs["selected_variants"]:
+            release, chromosome, start, reference, alternative = variant.split("-")
+            condition.append(
+                and_(
+                    SmallVariant.sa.release == release,
+                    SmallVariant.sa.chromosome == chromosome,
+                    SmallVariant.sa.start == start,
+                    SmallVariant.sa.reference == reference,
+                    SmallVariant.sa.alternative == alternative,
+                )
+            )
+        return [or_(*condition)]
+
+
 #: QueryPartsBuilderExtender classes list for cases.
 extender_classes_base = [
     ExtendQueryPartsCaseJoinAndFilter,
@@ -1642,6 +1661,7 @@ class QueryPartsBuilder:
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
             ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsSelectVariants,
         ]
 
 

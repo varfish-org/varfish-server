@@ -65,7 +65,7 @@ function _vuelidateWrappers(keys) {
           submissionIndividual[key] = newValue
         },
       }),
-    ])
+    ]),
   )
 }
 

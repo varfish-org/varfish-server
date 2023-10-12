@@ -50,9 +50,11 @@ class ExtraAnno(models.Model):
     objects = CopyManager()
 
 
+# TODO remove in cleanup
 TAugmentedExtraAnno = typing.TypeVar("AugmentedExtraAnno")
 
 
+# TODO remove in cleanup
 @attr.s(frozen=True, auto_attribs=True)
 class AugmentedExtraAnno:
     release: str

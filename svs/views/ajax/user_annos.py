@@ -1,10 +1,11 @@
 """AJAX views for dealing with user annotations (flags and comments)."""
+import uuid
 
 from iterable_orm import QuerySet
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
-from svs.models import StructuralVariantComment, StructuralVariantFlags
+from svs.models import StructuralVariantComment, StructuralVariantFlags, SvQueryResultRow
 from svs.serializers.user_annos import (
     StructuralVariantCommentSerializer,
     StructuralVariantFlagsSerializer,
@@ -68,11 +69,12 @@ class SvApiBaseMixin(SODARAPIGenericProjectMixin):
 
 
 class StructuralVariantFlagsAjaxMixin(SvApiBaseMixin):
-
     serializer_class = StructuralVariantFlagsSerializer
 
     def get_queryset(self):
-        return StructuralVariantFlags.objects.select_related("case").all()
+        return StructuralVariantFlags.objects.select_related("case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -99,13 +101,6 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
             start = int(serializer_context["start"])
             end = int(serializer_context["end"])
             all_objs = list(queryset)
-            for obj in all_objs:
-                print(vars(obj))
-                print(
-                    reciprocal_overlap(
-                        sv_type=obj.sv_type, qry_start=start, qry_end=end, record=obj
-                    )
-                )
             return QuerySet(
                 [
                     obj
@@ -122,29 +117,87 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
     def get_queryset(self):
         serializer_context = self.get_serializer_context()
         qs = super().get_queryset()
-        keys = ("release", "chromosome", "sv_type", "sv_sub_type")
+        keys = ("case", "release", "chromosome", "sv_type", "sv_sub_type")
+        query_args = {}
         for key in keys:
-            query_args = {}
             if key in serializer_context:
                 query_args[key] = serializer_context[key]
+        if query_args:
             qs = qs.filter(**query_args)
         return qs
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
+        result_set = case.svqueryresultset_set.first()
+        try:
+            result_set.svqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                sv_type=serializer.instance.sv_type,
+                sv_sub_type=serializer.instance.sv_sub_type,
+            )
+        except SvQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.svqueryresultset = result_set
+            result_row.save()
+            result_row.svqueryresultset.result_row_count += 1
+            result_row.svqueryresultset.save()
+
 
 class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
-    StructuralVariantFlagsAjaxMixin, RetrieveUpdateDestroyAPIView
+    SvApiBaseMixin, RetrieveUpdateDestroyAPIView
 ):
     lookup_url_kwarg = "structuralvariantflags"
 
+    serializer_class = StructuralVariantFlagsSerializer
     permission_classes = [SvUserAnnotationRetrieveUpdateDestroyPermission]
+
+    def get_queryset(self):
+        return StructuralVariantFlags.objects.all()
+
+    def get_permission_required(self):
+        return "variants.update_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.svqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.svqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            comments = StructuralVariantComment.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            if result_row_set.exists() and not comments.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)
 
 
 class StructuralVariantCommentAjaxMixin(SvApiBaseMixin):
-
     serializer_class = StructuralVariantCommentSerializer
 
     def get_queryset(self):
-        return StructuralVariantComment.objects.all()
+        return StructuralVariantComment.objects.filter(case__sodar_uuid=self.kwargs["case"])
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -170,17 +223,75 @@ class StructuralVariantCommentListCreateAjaxView(
         serializer_context = self.get_serializer_context()
         qs = super().get_queryset()
         keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        query_args = {}
         for key in keys:
-            query_args = {}
             if key in serializer_context:
                 query_args[key] = serializer_context[key]
             qs = qs.filter(**query_args)
         return qs
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+
+        if not self.request.data.get("sodar_uuid"):
+            return
+
+        result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
+        result_set = case.svqueryresultset_set.first()
+        try:
+            result_set.svqueryresultrow_set.get(
+                release=serializer.instance.release,
+                chromosome=serializer.instance.chromosome,
+                start=serializer.instance.start,
+                end=serializer.instance.end,
+                sv_type=serializer.instance.sv_type,
+                sv_sub_type=serializer.instance.sv_sub_type,
+            )
+        except SvQueryResultRow.DoesNotExist:
+            result_row.pk = None
+            result_row.sodar_uuid = uuid.uuid4()
+            result_row.svqueryresultset = result_set
+            result_row.save()
+            result_row.svqueryresultset.result_row_count += 1
+            result_row.svqueryresultset.save()
+
 
 class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
-    StructuralVariantCommentAjaxMixin, RetrieveUpdateDestroyAPIView
+    SvApiBaseMixin, RetrieveUpdateDestroyAPIView
 ):
     lookup_url_kwarg = "structuralvariantcomment"
 
+    serializer_class = StructuralVariantFlagsSerializer
     permission_classes = [SvUserAnnotationRetrieveUpdateDestroyPermission]
+
+    def get_queryset(self):
+        return StructuralVariantFlags.objects.all()
+
+    def get_permission_required(self):
+        return "variants.update_data"
+
+    def perform_destroy(self, instance):
+        result_set = instance.case.svqueryresultset_set.first()
+        if result_set:
+            result_row_set = result_set.svqueryresultrow_set.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            flags = StructuralVariantFlags.objects.filter(
+                release=instance.release,
+                chromosome=instance.chromosome,
+                start=instance.start,
+                end=instance.end,
+                sv_type=instance.sv_type,
+                sv_sub_type=instance.sv_sub_type,
+            )
+            if result_row_set.exists() and not flags.exists():
+                result_row_set.first().delete()
+                result_set.result_row_count -= 1
+                result_set.save()
+        super().perform_destroy(instance)

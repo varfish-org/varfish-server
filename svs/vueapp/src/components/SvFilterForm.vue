@@ -1,22 +1,24 @@
 <script setup>
 import Overlay from '@varfish/components/Overlay.vue'
-import SvFilterFormGenotypePane from './SvFilterFormGenotypePane.vue'
-import SvFilterFormCriteriaDefinitionPane from './SvFilterFormCriteriaDefinitionPane.vue'
-import SvFilterFormFrequencyPane from './SvFilterFormFrequencyPane.vue'
-import SvFilterFormImpactPane from './SvFilterFormImpactPane.vue'
-import SvFilterFormGenesRegionsPane from './SvFilterFormGenesRegionsPane.vue'
-import SvFilterFormRegulatoryPane from './SvFilterFormRegulatoryPane.vue'
-import SvFilterFormQuickPresets from './SvFilterFormQuickPresets.vue'
-import SvFilterFormTadsPane from './SvFilterFormTadsPane.vue'
-import SvFilterFormPatho from './SvFilterFormPatho.vue'
-import SvFilterFormDev from './SvFilterFormDev.vue'
-import SvFilterFormFooter from './SvFilterFormFooter.vue'
-import { QueryStates } from '@variants/enums.js'
+import SvFilterFormGenotypePane from '@svs/components/SvFilterForm/GenotypePane.vue'
+import SvFilterFormCriteriaDefinitionPane from '@svs/components/SvFilterForm/CriteriaDefinitionPane.vue'
+import SvFilterFormFrequencyPane from '@svs/components/SvFilterForm/FrequencyPane.vue'
+import SvFilterFormImpactPane from '@svs/components/SvFilterForm/ImpactPane.vue'
+import SvFilterFormGenesRegionsPane from '@svs/components/SvFilterForm/GenesRegionsPane.vue'
+import SvFilterFormRegulatoryPane from '@svs/components/SvFilterForm/RegulatoryPane.vue'
+import SvFilterFormQuickPresets from '@svs/components/SvFilterForm/QuickPresets.vue'
+import SvFilterFormTadsPane from '@svs/components/SvFilterForm/TadsPane.vue'
+import SvFilterFormPatho from '@svs/components/SvFilterForm/Patho.vue'
+import SvFilterFormDev from '@svs/components/SvFilterForm/Dev.vue'
+import SvFilterFormFooter from '@svs/components/SvFilterForm/Footer.vue'
+import { QueryStates } from '@variants/enums'
 import { computed, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import { useSvQueryStore } from '@svs/stores/svQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-const svFilterStore = useSvFilterStore()
+const svQueryStore = useSvQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
 
 const criteriaMatchesPaneRef = ref(null)
 const criteriaDefsPaneRef = ref(null)
@@ -44,10 +46,6 @@ const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
 
-const moreHasError = computed(() => {
-  return regulatoryHasError.value || tadsHasError.value
-})
-
 const anyHasError = computed(() => {
   return (
     effectHasError.value ||
@@ -55,14 +53,15 @@ const anyHasError = computed(() => {
     criteriaDefsHasError.value ||
     frequencyHasError.value ||
     tadsHasError.value ||
-    moreHasError.value
+    regulatoryHasError.value ||
+    tadsHasError.value
   )
 })
 
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(svFilterStore.storeState)
+  ['initial', 'initializing'].includes(svQueryStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {
@@ -72,10 +71,10 @@ const onSubmitCancelButtonClicked = () => {
     QueryStates.Finished.value,
     QueryStates.Fetching.value,
   ]
-  if (cancelableStates.includes(svFilterStore.queryState)) {
-    svFilterStore.cancelQuery()
+  if (cancelableStates.includes(svQueryStore.queryState)) {
+    svQueryStore.cancelQuery()
   } else {
-    svFilterStore.submitQuery()
+    svQueryStore.submitQuery()
   }
 }
 </script>
@@ -85,18 +84,18 @@ const onSubmitCancelButtonClicked = () => {
     <div
       class="card"
       v-if="
-        svFilterStore.querySettings !== null &&
-        svFilterStore.querySettingsPreset !== null
+        svQueryStore.querySettings !== null &&
+        svQueryStore.querySettingsPreset !== null
       "
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
       <div class="card-header">
         <SvFilterFormQuickPresets
-          :show-filtration-inline-help="svFilterStore.showFiltrationInlineHelp"
-          :quick-presets="svFilterStore.quickPresets"
-          :category-presets="svFilterStore.categoryPresets"
-          :query-settings="svFilterStore.querySettings"
-          :case="svFilterStore.caseObj"
+          :show-filtration-inline-help="svQueryStore.showFiltrationInlineHelp"
+          :quick-presets="svQueryStore.quickPresets"
+          :category-presets="svQueryStore.categoryPresets"
+          :query-settings="svQueryStore.querySettings"
+          :case="caseDetailsStore.caseObj"
         />
       </div>
       <div class="card-header row border-bottom-1 pt-1 pr-1">
@@ -171,73 +170,67 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="effectHasError" />
             </a>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
             <a
-              class="nav-link dropdown-toggle"
-              :class="{ 'text-danger': moreHasError }"
-              id="more-tab"
-              data-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="true"
-              aria-expanded="false"
+              class="nav-link"
+              :class="{ 'text-danger': tadsHasError }"
+              id="regulatory-tab"
+              data-toggle="tab"
+              href="#panel-regulatory"
+              role="tab"
+              title="Regulatory elements"
             >
-              More ...
-              <i-mdi-alert-circle-outline v-if="moreHasError" />
+              Regulatory
             </a>
-            <div class="dropdown-menu" style="z-index: 1030">
-              <a
-                class="dropdown-item"
-                id="regulatory-tab"
-                data-toggle="tab"
-                href="#panel-regulatory"
-                role="tab"
-                title="Regulatory elements"
-              >
-                Regulatory
-              </a>
-              <a
-                ref="tadsPaneRef"
-                :class="{ 'text-danger': tadsHasError }"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-tads"
-                role="tab"
-                title="Configure TADs annotation"
-                data-placement="left"
-              >
-                TADs
-                <i-mdi-alert-circle-outline v-if="tadsHasError" />
-              </a>
-              <a
-                ref="pathoPaneRef"
-                :class="{ 'text-danger': pathoHasError }"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-patho"
-                role="tab"
-                title="Configure ClinVar/known pathologic SVs annotation"
-                data-placement="left"
-              >
-                ClinVar &amp; Known Patho. SVs
-                <i-mdi-alert-circle-outline v-if="pathoHasError" />
-              </a>
-              <a
-                v-if="svFilterStore.filtrationComplexityMode === 'dev'"
-                ref="devPaneRef"
-                class="dropdown-item"
-                id="tads-tab"
-                data-toggle="tab"
-                href="#panel-dev"
-                role="tab"
-                title="Perform changes in JSON (wear a hard hat!)"
-                data-placement="left"
-              >
-                Developer Settings
-              </a>
-            </div>
+          </li>
+          <li class="nav-item">
+            <a
+              ref="tadsPaneRef"
+              class="nav-link"
+              :class="{ 'text-danger': tadsHasError }"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-tads"
+              role="tab"
+              title="Configure TADs annotation"
+              data-placement="left"
+            >
+              TADs
+              <i-mdi-alert-circle-outline v-if="tadsHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              ref="pathoPaneRef"
+              class="nav-link"
+              :class="{ 'text-danger': pathoHasError }"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-patho"
+              role="tab"
+              title="Configure ClinVar/known pathologic SVs annotation"
+              data-placement="left"
+            >
+              ClinVar &amp; Known Patho. SVs
+              <i-mdi-alert-circle-outline v-if="pathoHasError" />
+            </a>
+          </li>
+          <li
+            class="nav-item"
+            v-if="svQueryStore.filtrationComplexityMode === 'dev'"
+          >
+            <a
+              ref="devPaneRef"
+              class="nav-link"
+              id="tads-tab"
+              data-toggle="tab"
+              href="#panel-dev"
+              role="tab"
+              title="Perform changes in JSON (wear a hard hat!)"
+              data-placement="left"
+            >
+              Developer Settings
+            </a>
           </li>
         </ul>
       </div>
@@ -253,13 +246,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormGenotypePane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              :case-obj="svFilterStore.caseObj"
-              v-model:query-settings="svFilterStore.querySettings"
+              :case-obj="caseDetailsStore.caseObj"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -271,12 +264,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormCriteriaDefinitionPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -288,13 +281,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormFrequencyPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              :case="svFilterStore.caseObj"
-              :query-settings="svFilterStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              :query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -306,12 +299,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormImpactPane
               ref="effectPaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -323,12 +316,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormGenesRegionsPane
               ref="genePaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -340,12 +333,12 @@ const onSubmitCancelButtonClicked = () => {
             <SvFilterFormRegulatoryPane
               ref="regulatoryPaneRef"
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -356,12 +349,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormTadsPane
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -372,12 +365,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <SvFilterFormPatho
               :show-filtration-inline-help="
-                svFilterStore.showFiltrationInlineHelp
+                svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                svFilterStore.filtrationComplexityMode
+                svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
@@ -387,15 +380,15 @@ const onSubmitCancelButtonClicked = () => {
             aria-labelledby="dev-tab"
           >
             <SvFilterFormDev
-              v-model:query-settings="svFilterStore.querySettings"
+              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
         </div>
         <SvFilterFormFooter
-          :query-state="svFilterStore.queryState"
+          :query-state="svQueryStore.queryState"
           :any-has-error="anyHasError"
-          :filtration-complexity-mode="svFilterStore.filtrationComplexityMode"
-          v-model:database="svFilterStore.querySettings.database"
+          :filtration-complexity-mode="svQueryStore.filtrationComplexityMode"
+          v-model:database="svQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>
@@ -404,7 +397,7 @@ const onSubmitCancelButtonClicked = () => {
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2">Loading filter form ...</strong>
     </div>
-    <Overlay v-if="showOverlay" :message="svFilterStore.storeStateMessage" />
+    <Overlay v-if="showOverlay" :message="svQueryStore.storeStateMessage" />
   </form>
 </template>
 

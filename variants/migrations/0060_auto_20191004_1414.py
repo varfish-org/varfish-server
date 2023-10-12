@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0059_smallvariantqueryvariantscores_api_result")]
 
     operations = [

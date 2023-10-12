@@ -20,7 +20,6 @@ def backwards(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0039_acmgcriteriarating")]
 
     operations = [

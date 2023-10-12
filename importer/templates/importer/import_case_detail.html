@@ -8,7 +8,6 @@
 {% load json %}
 
 {% block navi_sub_project_extend %}
-  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item"><a href="{% url "bgjobs:list" project=project.sodar_uuid %}">Jobs</a></li>
   <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
 {% endblock %}
@@ -65,7 +64,7 @@
             <div class="col-10 p-1">
               {% with case=object.get_case %}
                 {% if case %}
-                  <a href="{% url 'variants:case-detail' project=object.project.sodar_uuid case=case.sodar_uuid %}">{{ object.case_name }}</a>
+                  <a href='{% url "cases:entrypoint" project=project.sodar_uuid %}/detail/{{ object.case_uuid }}'>{{ object.case_name }}</a>
                 {% else %}
                   {{ object.case_name }}
                 {% endif %}

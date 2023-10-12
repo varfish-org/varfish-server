@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("cohorts", "0003_auto_20200701_1255"),
         ("variants", "0074_caddsubmissionbgjob"),

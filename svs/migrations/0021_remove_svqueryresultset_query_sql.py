@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("svs", "0020_filtersvbgjob_svquery_svqueryresultrow_svqueryresultset"),
     ]

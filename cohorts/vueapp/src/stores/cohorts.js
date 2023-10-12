@@ -4,7 +4,7 @@
  */
 
 import { uuidv4 } from '@clinvarexport/helpers'
-import cohortsApi from '@cohorts/api/cohorts.js'
+import cohortsApi from '@cohorts/api/cohorts'
 import difference from 'lodash/difference'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -105,7 +105,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
       cohort = await cohortsApi.createCohort(
         csrfToken.value,
         project.value.sodar_uuid,
-        payload
+        payload,
       )
     } finally {
       serverInteractions.value -= 1
@@ -122,7 +122,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
           await cohortsApi.createCohortCase(
             csrfToken.value,
             project.value.sodar_uuid,
-            cohortCase
+            cohortCase,
           )
         } finally {
           serverInteractions.value -= 1
@@ -142,7 +142,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
       cohort = await cohortsApi.updateCohort(
         csrfToken.value,
         cohortUuid,
-        payload
+        payload,
       )
     } finally {
       serverInteractions.value -= 1
@@ -151,7 +151,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
     try {
       const cohortCases = await cohortsApi.listCohortCase(
         csrfToken.value,
-        cohortUuid
+        cohortUuid,
       )
       for (const cohortCase of cohortCases) {
         currentCasesUuids[cohortCase.case] = cohortCase.sodar_uuid
@@ -162,13 +162,13 @@ export const useCohortsStore = defineStore('cohorts', () => {
     if (cohort && currentCasesUuids) {
       for (const caseToRemove of difference(
         Object.keys(currentCasesUuids),
-        cases
+        cases,
       )) {
         serverInteractions.value += 1
         try {
           await cohortsApi.destroyCohortCase(
             csrfToken.value,
-            currentCasesUuids[caseToRemove]
+            currentCasesUuids[caseToRemove],
           )
         } finally {
           serverInteractions.value -= 1
@@ -176,7 +176,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
       }
       for (const caseToAdd of difference(
         cases,
-        Object.keys(currentCasesUuids)
+        Object.keys(currentCasesUuids),
       )) {
         const cohortCase = {
           sodar_uuid: uuidv4(),
@@ -188,7 +188,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
           await cohortsApi.createCohortCase(
             csrfToken.value,
             project.value.sodar_uuid,
-            cohortCase
+            cohortCase,
           )
         } finally {
           serverInteractions.value -= 1
@@ -221,7 +221,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
           orderBy: tableServerOptions.value.sortBy,
           orderDir: tableServerOptions.value.sortType,
           queryString: searchTerm.value,
-        }
+        },
       )
       cohortCount.value = response.count
       tableRows.value = response.results

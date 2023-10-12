@@ -1,7 +1,7 @@
 <script setup>
-import { useFilterQueryStore } from '../stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 
-const filterQueryStore = useFilterQueryStore()
+const variantQueryStore = useVariantQueryStore()
 
 const props = defineProps({
   fileType: String,
@@ -10,8 +10,8 @@ const props = defineProps({
 
 <template>
   <a
-    v-if="filterQueryStore.getDownloadStatus(props.fileType) === 'done'"
-    :href="filterQueryStore.serveDownloadResults(props.fileType)"
+    v-if="variantQueryStore.getDownloadStatus(props.fileType) === 'done'"
+    :href="variantQueryStore.serveDownloadResults(props.fileType)"
     class="dropdown-item text-success"
     download
   >
@@ -23,17 +23,19 @@ const props = defineProps({
     type="button"
     class="dropdown-item"
     :class="
-      filterQueryStore.getDownloadStatus(props.fileType) === 'failed'
+      variantQueryStore.getDownloadStatus(props.fileType) === 'failed'
         ? 'text-danger'
         : ''
     "
-    @click="filterQueryStore.generateDownloadResults(props.fileType)"
-    :disabled="filterQueryStore.getDownloadStatus(props.fileType) === 'running'"
+    @click="variantQueryStore.generateDownloadResults(props.fileType)"
+    :disabled="
+      variantQueryStore.getDownloadStatus(props.fileType) === 'running'
+    "
     onclick="event.stopPropagation();"
   >
     <i-fa-solid-circle-notch
       class="spin"
-      v-if="filterQueryStore.getDownloadStatus(props.fileType) === 'running'"
+      v-if="variantQueryStore.getDownloadStatus(props.fileType) === 'running'"
     />
     <i-fa-solid-cloud-download-alt v-else />
     Export as {{ props.fileType.toUpperCase() }}

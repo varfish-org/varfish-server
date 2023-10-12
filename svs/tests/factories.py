@@ -13,11 +13,6 @@ from django.utils import timezone
 import factory
 from factory.fuzzy import FuzzyDateTime
 
-from svs.forms import (
-    FILTER_FORM_TRANSLATE_EFFECTS,
-    FILTER_FORM_TRANSLATE_SV_SUB_TYPES,
-    FILTER_FORM_TRANSLATE_SV_TYPES,
-)
 from variants.models import Case
 from variants.tests.factories import CaseFactory, ProjectFactory
 
@@ -260,76 +255,6 @@ class StructuralVariantFlagsFactory(_UserAnnotationFactory):
     flag_summary = "empty"
 
 
-@attr.s(auto_attribs=True)
-class FormDataFactory:
-    """Factory for default filter form data.
-
-    The genotype filters are missing as they are added when running the test to fetch the current patient name that is
-    unknown up to then. Same holds true for the case sodar_uuid.
-    """
-
-    database_select: str = "refseq"
-
-    # database frequencies
-
-    dgv_enabled: bool = False
-    dgv_min_overlap: float = 0.75
-    dgv_max_count: int = None
-    dgv_gs_enabled: bool = False
-    dgv_gs_min_overlap: float = 0.75
-    dgv_gs_max_count: int = None
-    exac_enabled: bool = False
-    exac_min_overlap: float = 0.75
-    exac_max_count: int = None
-    gnomad_enabled: bool = False
-    gnomad_min_overlap: float = 0.75
-    gnomad_max_count: int = None
-    dbvar_enabled: bool = False
-    dbvar_min_overlap: float = 0.75
-    dbvar_max_count: int = None
-    g1k_enabled: bool = False
-    g1k_min_overlap: float = 0.75
-    g1k_max_count: int = None
-    inhouse_enabled: bool = False
-    inhouse_min_overlap: float = 0.75
-    inhouse_max_count: int = None
-
-    # variant effect
-
-    effects: typing.List[str] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
-
-    transcripts_coding: bool = True
-    transcripts_noncoding: bool = True
-    require_transcript_overlap: bool = False
-
-    sv_type: typing.List[str] = list(FILTER_FORM_TRANSLATE_SV_TYPES.values())
-
-    sv_size_min: int = None
-    sv_size_max: int = None
-
-    sv_sub_type: typing.List[str] = list(FILTER_FORM_TRANSLATE_SV_SUB_TYPES.values())
-
-    # gene lists / regions
-
-    genomic_region: typing.Optional[typing.List[str]] = None
-    gene_allowlist: typing.Optional[typing.List[str]] = None
-
-    # tads
-
-    tad_set_uuid: str = attrs.Factory(uuid.uuid4)
-
-    # regulatory features
-
-    regulatory_general_padding: typing.Optional[int] = None
-
-    regulatory_ensembl: typing.List[str] = []
-    regulatory_vista: typing.List[str] = []
-
-    regulatory_vista_any_validation: bool = False
-    regulatory_vista_positive: bool = False
-    regulatory_vista_negative: bool = False
-
-
 class BackgroundSvSetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BackgroundSvSet
@@ -403,6 +328,7 @@ class SvQueryResultSetFactory(factory.django.DjangoModelFactory):
         model = SvQueryResultSet
 
     svquery = factory.SubFactory(SvQueryFactory)
+    case = None
 
     start_time = FuzzyDateTime(timezone.now())
     end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))

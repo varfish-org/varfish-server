@@ -122,7 +122,7 @@ describe('helper functions', () => {
       'not provided',
       0,
       true,
-    ])
+    ]),
   )
 
   test.each(testTable)(
@@ -143,12 +143,12 @@ describe('helper functions', () => {
       const actual = extractVariantZygosity(
         smallVariant,
         ['singleton-index-uuid'],
-        individuals
+        individuals,
       )
       expect(actual).toStrictEqual({
         variantAlleleCount,
         variantZygosity,
       })
-    }
+    },
   )
 })

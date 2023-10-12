@@ -3,7 +3,7 @@ import SubmissionSetList from '@clinvarexport/components/SubmissionSetList.vue'
 import {
   useClinvarExportStore,
   WizardState,
-} from '@clinvarexport/stores/clinvar-export.js'
+} from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
@@ -19,8 +19,8 @@ import {
 } from 'vitest'
 import { nextTick } from 'vue'
 
-import { copy, waitNT } from '../../testUtils.js'
-import { firstSubmissionSet } from '../fixtures.js'
+import { copy, waitNT } from '../../testUtils'
+import { firstSubmissionSet } from '../fixtures'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState) => {
@@ -48,7 +48,7 @@ describe('SubmissionSetList.vue', () => {
     // Disable warnings
     vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Set reproducible time
-    vi.useFakeTimers('modern')
+    vi.useFakeTimers()
     vi.setSystemTime(new Date(2020, 3, 1))
     // Mock out jquery dollar function for showing modals
     global.$ = vi.fn()
@@ -108,12 +108,12 @@ describe('SubmissionSetList.vue', () => {
   // it for the cancel and download XML button tests
   const testClinvarXmlClick = async () => {
     clinvarExportApi.getSubmissionSetXml.mockResolvedValueOnce(
-      new Response('<fake-xml/>', { status: 200 })
+      new Response('<fake-xml/>', { status: 200 }),
     )
     clinvarExportApi.getSubmissionSetValid.mockResolvedValueOnce(
       new Response(JSON.stringify({ valid: true, details: [] }), {
         status: 200,
-      })
+      }),
     )
 
     const wrapper = makeWrapper()
@@ -144,14 +144,14 @@ describe('SubmissionSetList.vue', () => {
 
     expect(wrapper.vm.$refs.modalXmlPreview).toBeDefined()
     expect(
-      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList),
     ).not.toContainEqual('show')
     clinvarButton.click()
     expect(wrapper.vm.$data.submissionSetUuid).toEqual(
-      submissionSet1.sodar_uuid
+      submissionSet1.sodar_uuid,
     )
     expect(
-      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList),
     ).toContainEqual('show')
     expect(wrapper.vm.$refs.buttonClose).toBeDefined()
     expect(wrapper.vm.$refs.buttonDownloadXml).toBeDefined()
@@ -172,7 +172,7 @@ describe('SubmissionSetList.vue', () => {
     expect(global.$).toHaveBeenCalledTimes(1)
     expect(global.$).toHaveBeenNthCalledWith(
       1,
-      wrapper.vm.$refs.modalXmlPreview
+      wrapper.vm.$refs.modalXmlPreview,
     )
 
     return wrapper
@@ -217,7 +217,7 @@ describe('SubmissionSetList.vue', () => {
     expect(setAttributeSpy).toHaveBeenNthCalledWith(
       2,
       'download',
-      `clinvar-${submissionSet1.sodar_uuid}.xml`
+      `clinvar-${submissionSet1.sodar_uuid}.xml`,
     )
 
     expect(clickSpy).toHaveBeenCalledTimes(1)
@@ -232,13 +232,13 @@ describe('SubmissionSetList.vue', () => {
 
     wrapper.vm.$refs.buttonClose.click()
     expect(
-      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList),
     ).not.toContainEqual('show')
 
     expect(global.$).toHaveBeenCalledTimes(2)
     expect(global.$).toHaveBeenNthCalledWith(
       2,
-      wrapper.vm.$refs.modalXmlPreview
+      wrapper.vm.$refs.modalXmlPreview,
     )
   })
 
@@ -258,7 +258,7 @@ describe('SubmissionSetList.vue', () => {
     expect(store.editSubmissionSet).toHaveBeenCalledTimes(1)
     expect(store.editSubmissionSet).toHaveBeenNthCalledWith(
       1,
-      submissionSet1.sodar_uuid
+      submissionSet1.sodar_uuid,
     )
   })
 

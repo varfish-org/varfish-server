@@ -1,4 +1,4 @@
-import ColumnControl from './ColumnControl.vue'
+import ColumnControl from '@variants/components/ColumnControl.vue'
 
 export default {
   title: 'Variants / Column Control',

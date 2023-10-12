@@ -1,7 +1,7 @@
-import { updateUserSetting } from '@varfish/user-settings.js'
+import { useCohortsStore } from '@cohorts/stores/cohorts'
+import { StoreState } from '@varfish/storeUtils'
+import { updateUserSetting } from '@varfish/userSettings'
 import { computed, nextTick, onMounted, watch } from 'vue'
-
-import { StoreState, useCohortsStore } from './stores/cohorts'
 
 export const overlayShow = computed(() => {
   const cohortsStore = useCohortsStore()
@@ -31,34 +31,34 @@ export const connectTopRowControls = () => {
   watch(
     () => cohortsStore.showInlineHelp,
     (newValue, oldValue) => {
-      if (newValue !== oldValue && cohortsStore.appContext) {
+      if (newValue !== oldValue && cohortsStore.csfrToken) {
         updateUserSetting(
-          cohortsStore.appContext.csrf_token,
+          cohortsStore.csfrToken,
           'vueapp.filtration_inline_help',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-inline-help')
       if (elem) {
         elem.prop('checked', newValue)
       }
-    }
+    },
   )
   watch(
     () => cohortsStore.complexityMode,
     (newValue, oldValue) => {
-      if (newValue !== oldValue && cohortsStore.appContext) {
+      if (newValue !== oldValue && cohortsStore.csfrToken) {
         updateUserSetting(
-          cohortsStore.appContext.csrf_token,
+          cohortsStore.csfrToken,
           'vueapp.filtration_complexity_mode',
-          newValue
+          newValue,
         )
       }
       const elem = $('#vueapp-filtration-complexity-mode')
       if (elem) {
         elem.val(newValue).change()
       }
-    }
+    },
   )
 
   // Vice versa.
@@ -66,10 +66,10 @@ export const connectTopRowControls = () => {
     const handleUpdate = () => {
       const cohortsStore = useCohortsStore()
       cohortsStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
-        'checked'
+        'checked',
       )
       cohortsStore.complexityMode = $(
-        '#vueapp-filtration-complexity-mode'
+        '#vueapp-filtration-complexity-mode',
       ).val()
     }
     nextTick(() => {

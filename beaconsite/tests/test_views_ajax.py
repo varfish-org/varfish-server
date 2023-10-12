@@ -18,7 +18,7 @@ class TestBeaconInfoAjaxView(TestProjectAPIPermissionBase):
     @requests_mock.Mocker()
     def get_get(self, r_mock):
         url = reverse("beaconsite:ajax-beacon-info", kwargs={"project": self.project.sodar_uuid})
-        with self.login(self.contributor_as.user):
+        with self.login(self.user_contributor):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()

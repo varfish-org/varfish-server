@@ -5,7 +5,7 @@
  * You can configure it either by setting the props or handing the props to the show() method.
  */
 import { onMounted, ref } from 'vue'
-import { formatTimeAgo } from '@varfish/helpers.js'
+import { formatTimeAgo } from '@varfish/helpers'
 import { copy } from '@varfish/helpers'
 
 /** Define props, will be copied to propsCopy. */

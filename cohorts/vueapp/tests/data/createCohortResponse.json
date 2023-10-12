@@ -1,14 +1,3 @@
-{
-  "sodar_uuid": "cohort-fake-uuid",
-  "project": "project-fake-uuid",
-  "user": {
-    "username": "admin",
-    "name": "",
-    "email": "",
-    "sodar_uuid": "user-fake-uuid"
-  },
-  "cases": [],
-  "date_created": "2022-12-20T09:34:00.487021Z",
-  "date_modified": "2022-12-20T09:34:00.487036Z",
-  "name": "New Cohort"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:68c7a8952b04b0fd1e29a79273a006bb87036672ba20f96c4c19eceeae95d596
+size 321

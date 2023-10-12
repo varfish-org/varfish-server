@@ -5466,7 +5466,7 @@ class TestSmallVariantExtraAnno(SupportQueryTestBase):
                 bin=small_vars[2].bin,
                 reference=small_vars[2].reference,
                 alternative=small_vars[2].alternative,
-                anno_data=[10],
+                anno_data=[9.71],
             ),
         ]
 

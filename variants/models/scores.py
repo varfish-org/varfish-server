@@ -691,9 +691,7 @@ class VariantScoresUmd(VariantScoresBase):
         if not self.variants or not self.superuser:
             return
 
-        token = _app_settings.get_app_setting(
-            "variants", "umd_predictor_api_token", user=self.superuser
-        )
+        token = _app_settings.get("variants", "umd_predictor_api_token", user=self.superuser)
 
         if not token:
             return

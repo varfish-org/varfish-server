@@ -6,7 +6,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0082_auto_20210617_1409"),
     ]

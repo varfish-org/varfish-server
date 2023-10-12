@@ -1,11 +1,13 @@
 from rest_framework.authentication import SessionAuthentication
 
-from variants.views.ajax.presets import *  # noqa: F401 F403
 from variants.views.api import (
-    AcmgCriteriaRatingCreateApiView,
     AcmgCriteriaRatingDeleteApiView,
+    AcmgCriteriaRatingListCreateApiView,
     AcmgCriteriaRatingUpdateApiView,
+    CaseListQcStatsApiView,
     CaseRetrieveApiView,
+    ExtraAnnoFieldsApiView,
+    HpoTermsApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
     SmallVariantCommentUpdateApiView,
@@ -13,18 +15,18 @@ from variants.views.api import (
     SmallVariantFlagsDeleteApiView,
     SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsUpdateApiView,
-    SmallVariantQueryCreateApiView,
     SmallVariantQueryDownloadGenerateApiView,
     SmallVariantQueryDownloadServeApiView,
     SmallVariantQueryDownloadStatusApiView,
-    SmallVariantQueryFetchExtendedResultsApiView,
-    SmallVariantQueryFetchResultsApiView,
     SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
-    SmallVariantQueryRetrieveApiView,
+    SmallVariantQueryListCreateApiView,
+    SmallVariantQueryResultRowListApiView,
+    SmallVariantQueryResultRowRetrieveApiView,
+    SmallVariantQueryResultSetListApiView,
+    SmallVariantQueryResultSetRetrieveApiView,
+    SmallVariantQueryRetrieveUpdateDestroyApiView,
     SmallVariantQuerySettingsShortcutApiView,
-    SmallVariantQueryStatusApiView,
-    SmallVariantQueryUpdateApiView,
 )
 
 
@@ -56,25 +58,10 @@ class SmallVariantQueryListAjaxView(SmallVariantQueryListApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryCreateAjaxView(SmallVariantQueryCreateApiView):
-    """Create new small variant query for the given case.
+class SmallVariantQueryListCreateAjaxView(SmallVariantQueryListCreateApiView):
+    """Create or list small variant query.
 
-    **URL:** ``/variants/ajax/query-case/create/{case.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryRetrieveAjaxView(SmallVariantQueryRetrieveApiView):
-    """Retrieve small variant query details for the qiven query.
-
-    **URL:** ``/variants/ajax/query-case/retrieve/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query/list-create/{case.uuid}``
 
     **Methods:** See base API class.
 
@@ -86,25 +73,10 @@ class SmallVariantQueryRetrieveAjaxView(SmallVariantQueryRetrieveApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryStatusAjaxView(SmallVariantQueryStatusApiView):
-    """Returns the status of the small variant query.
+class SmallVariantQueryRetrieveUpdateDestroyAjaxView(SmallVariantQueryRetrieveUpdateDestroyApiView):
+    """Retrieve, update or destroy small variant query.
 
-    **URL:** ``/variants/ajax/query-case/status/{query.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryUpdateAjaxView(SmallVariantQueryUpdateApiView):
-    """Update small variant query for the qiven query.
-
-    **URL:** ``/variants/ajax/query-case/update/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query/retrieve-update-destroy/{smallvariantquery.uuid}``
 
     **Methods:** See base API class.
 
@@ -116,12 +88,10 @@ class SmallVariantQueryUpdateAjaxView(SmallVariantQueryUpdateApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryFetchResultsAjaxView(SmallVariantQueryFetchResultsApiView):
-    """Fetch results for small variant query.
+class SmallVariantQueryResultSetListAjaxView(SmallVariantQueryResultSetListApiView):
+    """Create or list small variant query
 
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query-result-set/list/{smallvariantqueryresultset.uuid}``
 
     **Methods:** See base API class.
 
@@ -133,12 +103,40 @@ class SmallVariantQueryFetchResultsAjaxView(SmallVariantQueryFetchResultsApiView
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryFetchExtendedResultsAjaxView(SmallVariantQueryFetchExtendedResultsApiView):
-    """Fetch extended results for small variant query.
+class SmallVariantQueryResultSetRetrieveAjaxView(SmallVariantQueryResultSetRetrieveApiView):
+    """Create or list small variant query
 
-    Will return an HTTP 503 if the results are not ready yet.
+    **URL:** ``/variants/ajax/query-result-set/retrieve/{smallvariantqueryresultset.uuid}``
 
-    **URL:** ``/variants/ajax/query-case/results-extended/{query.sodar_uuid}``
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryResultRowListAjaxView(SmallVariantQueryResultRowListApiView):
+    """Create or list small variant query
+
+    **URL:** ``/variants/ajax/query-result-row/list/{smallvariantqueryresultset.uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryResultRowRetrieveAjaxView(SmallVariantQueryResultRowRetrieveApiView):
+    """Create or list small variant query
+
+    **URL:** ``/variants/ajax/query-result-row/retrieve/{smallvariantqueryresultrow.uuid}``
 
     **Methods:** See base API class.
 
@@ -334,10 +332,10 @@ class SmallVariantCommentDeleteAjaxView(SmallVariantCommentDeleteApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class AcmgCriteriaRatingCreateAjaxView(AcmgCriteriaRatingCreateApiView):
+class AcmgCriteriaRatingListCreateAjaxView(AcmgCriteriaRatingListCreateApiView):
     """Create ACMG criteria rating
 
-    **URL:** ``/variants/ajax/acmg-criteria-rating/create/{case.sodar_uuid}/``
+    **URL:** ``/variants/ajax/acmg-criteria-rating/list-create/{case.sodar_uuid}/``
 
     **Methods:** See base API class.
 
@@ -374,6 +372,49 @@ class AcmgCriteriaRatingDeleteAjaxView(AcmgCriteriaRatingDeleteApiView):
     **Parameters:** See base API class.
 
     **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
+    """Delete ACMG criteria rating
+
+    **URL:** ``/variants/ajax/acmg-criteria-rating/delete/{acmgcriteriarating.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class HpoTermsAjaxView(HpoTermsApiView):
+    """A view that lists HPO terms based on a query string.
+    Also includes OMIM, ORPHAN and DECIPHER terms.
+
+    **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
+
+    **Methods:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CaseListQcStatsAjaxView(CaseListQcStatsApiView):
+    """A view that lists HPO terms based on a query string.
+    Also includes OMIM, ORPHAN and DECIPHER terms.
+
+    **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
+
+    **Methods:** ``GET``
+
+    **Returns:** List of HPO terms that were found for that term, HPO id and name.
     """
 
     authentication_classes = [SessionAuthentication]

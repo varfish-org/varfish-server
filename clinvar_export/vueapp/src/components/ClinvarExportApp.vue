@@ -6,8 +6,8 @@ import {
   useClinvarExportStore,
 } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionSetList from './SubmissionSetList.vue'
-import SubmissionSetWizard from './SubmissionSetWizard.vue'
+import SubmissionSetList from '@clinvarexport/components/SubmissionSetList.vue'
+import SubmissionSetWizard from '@clinvarexport/components/SubmissionSetWizard.vue'
 
 /* eslint-disable no-unused-vars */
 const components = { SubmissionSetWizard, SubmissionSetList }
@@ -16,7 +16,7 @@ const store = useClinvarExportStore()
 
 const rawAppContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}'
+    '{}',
 )
 store.initialize({
   baseUrl: rawAppContext.base_url,
@@ -24,7 +24,7 @@ store.initialize({
 })
 
 const showOverlay = computed(
-  () => store.appState === AppState.initializing || store.serverInteraction
+  () => store.appState === AppState.initializing || store.serverInteraction,
 )
 </script>
 

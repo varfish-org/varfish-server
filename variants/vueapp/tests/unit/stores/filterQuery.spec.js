@@ -1,5 +1,5 @@
 import { createTestingPinia } from '@pinia/testing'
-import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
@@ -7,15 +7,15 @@ import createFetchMock from 'vitest-fetch-mock'
 const fetchMock = createFetchMock(vi)
 fetchMock.enableMocks()
 
-describe('useFilterQueryStore', () => {
-  let filterQueryStore
+describe('useVariantQueryStore', () => {
+  let variantQueryStore
 
   beforeEach(() => {
     fetch.resetMocks()
     fetchMock.doMock()
 
     setActivePinia(createTestingPinia({ createSpy: vi.fn }))
-    filterQueryStore = useFilterQueryStore()
+    variantQueryStore = useVariantQueryStore()
   })
 
   afterEach(() => {
@@ -24,6 +24,6 @@ describe('useFilterQueryStore', () => {
 
   test('smoke test', async () => {
     expect(true).not.toBe(false)
-    const _ = filterQueryStore
+    const _ = variantQueryStore
   })
 })

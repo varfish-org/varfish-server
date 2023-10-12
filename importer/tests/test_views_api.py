@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.forms import model_to_dict
 from django.urls import reverse
 
+from cases_qc.tests.helpers import flatten_via_json
 from varfish import __version__ as varfish_version
 from variants.tests.helpers import ApiViewTestBase
 from variants.tests.test_views_api import transmogrify_pedigree
@@ -135,7 +136,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
             self.maxDiff = None
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_update(self):
         obj_data = case_import_info_to_dict(
@@ -170,7 +171,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
             expected.pop("case")
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             case = CaseImportInfo.objects.get(sodar_uuid=self.case_import_info.sodar_uuid)
             self.assertEqual(case.name, post_data["name"])
@@ -191,7 +192,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
 
             expected = None
             self.assertEqual(response.status_code, 204)
-            self.assertEqual(response.data, expected)
+            self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             with self.assertRaises(CaseImportInfo.DoesNotExist):
                 CaseImportInfo.objects.get(sodar_uuid=self.case_import_info.sodar_uuid)
@@ -241,7 +242,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
                 entry.pop("date_created")  # complex; not worth testing
                 entry.pop("date_modified")  # the same
                 response_content.append(entry)
-            self.assertEquals(response_content, expected)
+            self.assertEquals(flatten_via_json(response_content), flatten_via_json(expected))
 
     def test_create(self):
         obj = VariantSetImportInfoFactory(
@@ -268,7 +269,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             obj_uuid = response.data.pop("sodar_uuid")
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEquals(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
             self.assertIsNotNone(VariantSetImportInfo.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
@@ -289,7 +290,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             )
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_update(self):
         obj_data = variant_set_import_info_to_dict(
@@ -321,7 +322,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             }
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             case_import_info = VariantSetImportInfo.objects.get(
                 sodar_uuid=self.variant_set_import_info.sodar_uuid
@@ -343,7 +344,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
 
             expected = None
             self.assertEqual(response.status_code, 204)
-            self.assertEqual(response.data, expected)
+            self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             with self.assertRaises(VariantSetImportInfo.DoesNotExist):
                 VariantSetImportInfo.objects.get(sodar_uuid=self.variant_set_import_info.sodar_uuid)
@@ -380,7 +381,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
                 entry.pop("date_created")  # complex; not worth testing
                 entry.pop("date_modified")  # the same
                 response_content.append(entry)
-            self.assertEquals(response_content, expected)
+            self.assertEquals(flatten_via_json(response_content), flatten_via_json(expected))
 
     def test_create(self):
         obj = BamQcFileFactory(
@@ -408,7 +409,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             obj_uuid = response.data.pop("sodar_uuid")
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEquals(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
             self.assertIsNotNone(BamQcFile.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
@@ -427,7 +428,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             expected = bam_qc_file_to_dict(self.bam_qc_file, self.case_import_info)
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_destroy(self):
         with self.login(self.superuser):
@@ -444,7 +445,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
 
             expected = None
             self.assertEqual(response.status_code, 204)
-            self.assertEqual(response.data, expected)
+            self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             with self.assertRaises(BamQcFile.DoesNotExist):
                 BamQcFile.objects.get(sodar_uuid=self.bam_qc_file.sodar_uuid)
@@ -533,7 +534,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             expected = genotype_file_to_dict(self.genotype_file, self.variant_set_import_info)
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_destroy(self):
         with self.login(self.superuser):
@@ -550,7 +551,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
 
             expected = None
             self.assertEqual(response.status_code, 204)
-            self.assertEqual(response.data, expected)
+            self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
             with self.assertRaises(GenotypeFile.DoesNotExist):
                 GenotypeFile.objects.get(sodar_uuid=self.genotype_file.sodar_uuid)

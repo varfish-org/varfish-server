@@ -64,7 +64,7 @@ export function removeItemAll(arr, value) {
 export function validConfirmed(
   isValid,
   cb,
-  message = 'Please fix the problems first.'
+  message = 'Please fix the problems first.',
 ) {
   if (!isValid()) {
     alert(message)
@@ -112,7 +112,7 @@ export const HPO_INHERITANCE_MODE = Object.freeze(
     ['HP:0001423', 'X-linked dominant inheritance'],
     ['HP:0001417', 'X-linked inheritance'],
     ['HP:0001419', 'X-linked recessive inheritance'],
-  ])
+  ]),
 )
 export const HPO_AGE_OF_ONSET = Object.freeze(
   new Map([
@@ -129,5 +129,5 @@ export const HPO_AGE_OF_ONSET = Object.freeze(
     ['HP:0003596', 'Middle age'],
     ['HP:0003584', 'Late'],
     ['HP:0003577', 'Congenital'],
-  ])
+  ]),
 )

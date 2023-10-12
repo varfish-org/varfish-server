@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``variants``."""
+import datetime
 import typing
 import uuid
 
@@ -7,6 +8,7 @@ from bgjobs.tests.factories import BackgroundJobFactory
 import binning
 from django.utils import timezone
 import factory
+from factory.fuzzy import FuzzyDateTime
 from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
@@ -41,6 +43,8 @@ from ..models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
     SmallVariantSet,
     SmallVariantSummary,
     SyncCaseListBgJob,
@@ -158,8 +162,8 @@ class FormDataFactory(FormDataFactoryBase):
     effect_downstream_gene_variant: bool = True
     effect_exon_loss_variant: bool = True
     effect_feature_truncation: bool = True
-    effect_five_prime_UTR_exon_variant: bool = True
-    effect_five_prime_UTR_intron_variant: bool = True
+    effect_5_prime_UTR_exon_variant: bool = True
+    effect_5_prime_UTR_intron_variant: bool = True
     effect_frameshift_elongation: bool = True
     effect_frameshift_truncation: bool = True
     effect_frameshift_variant: bool = True
@@ -180,8 +184,8 @@ class FormDataFactory(FormDataFactoryBase):
     effect_stop_retained_variant: bool = True
     effect_structural_variant: bool = True
     effect_synonymous_variant: bool = True
-    effect_three_prime_UTR_exon_variant: bool = True
-    effect_three_prime_UTR_intron_variant: bool = True
+    effect_3_prime_UTR_exon_variant: bool = True
+    effect_3_prime_UTR_intron_variant: bool = True
     effect_transcript_ablation: bool = True
     effect_upstream_gene_variant: bool = True
     gene_blocklist: str = ""
@@ -262,63 +266,8 @@ class FlagsFormDataFactoryBase:
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsFormDataFactory(
-    FlagsFormDataFactoryBase, ChromosomalPositionFormDataFactoryBase
-):
-    pass
-
-
-@attr.s(auto_attribs=True)
-class SmallVariantCommentFormDataFactory(ChromosomalPositionFormDataFactoryBase):
-    text: str = "Comment X"
-
-
-@attr.s(auto_attribs=True)
 class MultiSmallVariantFlagsAndCommentFormDataFactory(FlagsFormDataFactoryBase):
     text: str = "Comment X"
-
-
-@attr.s(auto_attribs=True)
-class AcmgCriteriaRatingFormDataFactory(ChromosomalPositionFormDataFactoryBase):
-    pvs1: int = 0
-    ps1: int = 0
-    ps2: int = 0
-    ps3: int = 0
-    ps4: int = 0
-    pm1: int = 0
-    pm2: int = 0
-    pm3: int = 0
-    pm4: int = 0
-    pm5: int = 0
-    pm6: int = 0
-    pp1: int = 0
-    pp2: int = 0
-    pp3: int = 0
-    pp4: int = 0
-    pp5: int = 0
-    ba1: int = 0
-    bs1: int = 0
-    bs2: int = 0
-    bs3: int = 0
-    bs4: int = 0
-    bp1: int = 0
-    bp2: int = 0
-    bp3: int = 0
-    bp4: int = 0
-    bp5: int = 0
-    bp6: int = 0
-    bp7: int = 0
-
-
-@attr.s(auto_attribs=True)
-class CaseNotesStatusFormFactory:
-    notes: str = "This is some text"
-    status: str = "initial"
-
-
-@attr.s(auto_attribs=True)
-class CaseCommentsFormFactory:
-    comment: str = "This is some comment"
 
 
 class RemoteSiteFactory(factory.django.DjangoModelFactory):
@@ -359,6 +308,10 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
         #: moment.  This is only used for non-singletons.  When dominant, the father will be
         #: affected.
         inheritance = "denovo"
+
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
 
     release = factory.Sequence(lambda n: "GRCh%d" % (37 + n % 2))
     name = factory.LazyAttributeSequence(lambda o, n: "case %03d: %s" % (n, o.structure))
@@ -592,8 +545,6 @@ class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
         model = SmallVariantQuery
 
     case = factory.SubFactory(CaseFactory)
-    form_id = factory.Sequence(lambda n: str(n))
-    form_version = factory.Sequence(lambda n: n)
     query_settings = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
@@ -606,8 +557,6 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
         model = ProjectCasesSmallVariantQuery
 
     project = factory.SubFactory(ProjectFactory)
-    form_id = factory.Sequence(lambda n: str(n))
-    form_version = factory.Sequence(lambda n: n)
     query_settings = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.project.get_members()))
     )
@@ -774,6 +723,43 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
         obj.save()
+
+
+class SmallVariantQueryResultSetFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantQueryResult`` model."""
+
+    class Meta:
+        model = SmallVariantQueryResultSet
+
+    smallvariantquery = factory.SubFactory(SmallVariantQueryFactory)
+    case = None
+
+    start_time = FuzzyDateTime(timezone.now())
+    end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))
+    elapsed_seconds = factory.LazyAttribute(lambda o: (o.end_time - o.start_time).total_seconds())
+    result_row_count = 0
+
+
+class SmallVariantQueryResultRowFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantQueryResultRow`` model."""
+
+    class Meta:
+        model = SmallVariantQueryResultRow
+
+    smallvariantqueryresultset = factory.SubFactory(SmallVariantQueryResultSetFactory)
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
+
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
+
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
+
+    payload = {}
 
 
 class FilterBgJobFactory(factory.django.DjangoModelFactory):

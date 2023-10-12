@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0091_alter_casephenotypeterms_sodar_uuid"),
         ("cohorts", "0006_auto_20230102_1310"),

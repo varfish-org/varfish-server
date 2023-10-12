@@ -2,8 +2,17 @@ from celery.schedules import crontab
 
 from config.celery import app
 
-from . import file_export, models, submit_external, submit_filter, sync_upstream, variant_stats
+from . import (
+    file_export,
+    models,
+    submit_external,
+    submit_filter,
+    sync_upstream,
+    utils,
+    variant_stats,
+)
 from .helpers import get_engine
+from .models import jobs
 
 
 @app.task(bind=True)
@@ -56,6 +65,11 @@ def clear_expired_exported_files(_self):
 
 
 @app.task(bind=True)
+def create_queryresultset(_self, case_uuid, project_uuid, all_):
+    utils.create_queryresultset(case_uuid, project_uuid, all_)
+
+
+@app.task(bind=True)
 def compute_project_variants_stats(_self, export_job_pk):
     variant_stats.execute_rebuild_project_variant_stats_job(
         get_engine(), models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk)
@@ -70,7 +84,7 @@ def sync_project_upstream(_self, sync_job_pk):
 @app.task(bind=True)
 def single_case_filter_task(_self, filter_job_pk):
     """Task to submit filter and storing job for single case."""
-    return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
+    return jobs.run_query_bg_job(filter_job_pk)
 
 
 @app.task(bind=True)

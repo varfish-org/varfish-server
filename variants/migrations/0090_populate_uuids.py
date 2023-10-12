@@ -13,7 +13,6 @@ def gen_uuid(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0089_auto_20221109_1426"),
     ]

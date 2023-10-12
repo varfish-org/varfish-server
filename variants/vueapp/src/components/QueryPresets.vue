@@ -4,14 +4,16 @@
  * Editing is allowed for using a child `QueryPresetsEditor` component.
  */
 
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { minLength, required } from '@vuelidate/validators'
 
-import { StoreState, useQueryPresetsStore } from '../stores/queryPresets.js'
-import { useCasesStore } from '@cases/stores/cases.js'
+import { overlayShow, overlayMessage } from '@cases/common'
+import { StoreState, State } from '@varfish/storeUtils'
+import { useQueryPresetsStore } from '@variants/stores/queryPresets'
+import { useCaseListStore } from '@cases/stores/caseList'
 
-import QueryPresetsSetEditor from './QueryPresetsSetEditor.vue'
+import QueryPresetsSetEditor from '@variants/components/QueryPresets/SetEditor.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
@@ -26,7 +28,7 @@ const props = defineProps({
 })
 
 /** Access store with case list. */
-const casesStore = useCasesStore()
+const caseListStore = useCaseListStore()
 /** Access store with query presets. */
 const queryPresetsStore = useQueryPresetsStore()
 /** Access the router. */
@@ -118,7 +120,7 @@ const handleCloneClicked = async () => {
     } else {
       clonedPresetSet = await queryPresetsStore.cloneOtherPresetSet(
         presetSetModel.value,
-        label
+        label,
       )
     }
     presetSetModel.value = clonedPresetSet.sodar_uuid
@@ -177,21 +179,13 @@ const handleEditClicked = async () => {
   }
 }
 
-/** Whether to show overlay (state is inializing or has active server interactions. */
-const showOverlay = computed(
-  () =>
-    queryPresetsStore.storeState !== StoreState.active ||
-    queryPresetsStore.serverInteractions > 0
-)
-
 /** Initialize store on first mount. */
-onBeforeMount(() => {
-  casesStore.initializeRes.then(() => {
-    queryPresetsStore.initialize(
-      casesStore.appContext.csrf_token,
-      casesStore.appContext.project.sodar_uuid
-    )
-  })
+onMounted(async () => {
+  await caseListStore.initializeRes
+  await queryPresetsStore.initialize(
+    caseListStore.csrfToken,
+    caseListStore.projectUuid,
+  )
 })
 
 /** Return list of presets sets in a null/undefined safe manner. */
@@ -285,9 +279,6 @@ const presetSetModel = computed({
     <ModalInput ref="modalInputRef" />
     <ModalConfirm ref="modalConfirmRef" />
     <Toast ref="toastRef" :autohide="false" />
-    <Overlay
-      v-if="showOverlay"
-      :message="queryPresetsStore.storeStateMessage"
-    />
+    <Overlay v-if="overlayShow" :message="overlayMessage" />
   </div>
 </template>

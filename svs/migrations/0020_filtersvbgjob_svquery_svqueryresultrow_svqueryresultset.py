@@ -11,7 +11,6 @@ import varfish.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0091_alter_casephenotypeterms_sodar_uuid"),
         ("projectroles", "0021_remove_project_submit_status"),

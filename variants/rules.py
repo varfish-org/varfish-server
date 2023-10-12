@@ -9,6 +9,20 @@ rules.add_perm(
     | pr_rules.is_project_contributor
     | pr_rules.is_project_guest,
 )
+rules.add_perm(
+    "variants.update_data",
+    rules.is_superuser
+    | pr_rules.is_project_owner
+    | pr_rules.is_project_delegate
+    | pr_rules.is_project_contributor,
+)
+rules.add_perm(
+    "variants.delete_data",
+    rules.is_superuser
+    | pr_rules.is_project_owner
+    | pr_rules.is_project_delegate
+    | pr_rules.is_project_contributor,
+)
 
 rules.add_perm(
     "variants.add_case",

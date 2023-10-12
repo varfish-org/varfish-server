@@ -116,6 +116,22 @@ class CaseManager(models.Manager):
 class Case(CoreCase):
     """Stores information about a (germline) case."""
 
+    #: Case is currently in the initial import.
+    STATE_IMPORTING = "importing"
+    #: Case is currently in an update import.
+    STATE_UPDATING = "updating"
+    #: Case is currently active.
+    STATE_ACTIVE = "active"
+    #: Case is being deleted.
+    STATE_DELETING = "deleting"
+
+    STATE_CHOICES = (
+        (STATE_IMPORTING, STATE_IMPORTING),
+        (STATE_UPDATING, STATE_UPDATING),
+        (STATE_ACTIVE, STATE_ACTIVE),
+        (STATE_DELETING, STATE_DELETING),
+    )
+
     class Meta:
         ordering = ("-date_modified",)
         indexes = [models.Index(fields=["name"])]
@@ -129,6 +145,12 @@ class Case(CoreCase):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
+
+    #: The "version" of the case definition.  For version=1 we use variants from the
+    #: database while for version=2 we use variants from the internal S3 storage.
+    case_version = models.IntegerField(default=1, blank=False, null=False)
+    #: The "internal" state of the case (if case_version=2).
+    state = models.CharField(max_length=128, choices=STATE_CHOICES, blank=True, null=True)
 
     #: The number of small variants, ``None`` if no small variants have been imported.
     num_small_vars = models.IntegerField(
@@ -239,16 +261,21 @@ class Case(CoreCase):
 
     def get_absolute_url(self):
         """Return absolute URL for the detail view of this case."""
-        return reverse(
-            "variants:case-detail",
-            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
+        return (
+            reverse("cases:entrypoint", kwargs={"project": self.project.sodar_uuid})
+            + "#/detail/"
+            + str(self.sodar_uuid)
         )
 
     def get_filter_url(self):
         """Return absolute URL for the filtration view of this case."""
-        return reverse(
-            "variants:case-filter",
-            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
+        return (
+            reverse(
+                "cases:entrypoint",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            + "#/variants/filter/"
+            + str(self.sodar_uuid)
         )
 
     def get_background_jobs(self):
@@ -348,7 +375,7 @@ class Case(CoreCase):
         result = {}
 
         if disable_pedigree_sex_check is None:
-            disable_pedigree_sex_check = _app_settings.get_app_setting(
+            disable_pedigree_sex_check = _app_settings.get(
                 "variants", "disable_pedigree_sex_check", project=self.project
             )
 

@@ -107,7 +107,6 @@ class SvQuerySerializer(SODARModelSerializer):
 
 
 class SvQueryWithLogsSerializer(SvQuerySerializer):
-
     #: Log messages
     logs = serializers.SerializerMethodField()
 
@@ -149,6 +148,8 @@ class SvQueryResultSetSerializer(SODARModelSerializer):
 
     #: UUID of the related query
     svquery = serializers.ReadOnlyField(source="svquery.sodar_uuid")
+    #: UUID of the related case
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
 
     class Meta:
         model = SvQueryResultSet
@@ -157,6 +158,7 @@ class SvQueryResultSetSerializer(SODARModelSerializer):
             "date_created",
             "date_modified",
             "svquery",
+            "case",
             "start_time",
             "end_time",
             "elapsed_seconds",

@@ -1,13 +1,3 @@
-{
-  "presetset": "54a32d14-a818-4412-96e4-90b9b4062472",
-  "frequency": "1091abf8-ed3f-46ce-a9c3-5dc274df4fa0",
-  "impact": "c38b3a8e-c368-402a-b4b1-fe1447828f94",
-  "quality": "c32c7066-4609-483d-9d06-1ecce2582e9a",
-  "chromosome": "856ee395-fea4-4d45-8a9a-2879252e12b6",
-  "flagsetc": "4a330b10-d605-4d54-82d9-35e31310ea99",
-  "date_created": "2022-10-31T15:01:13.877156Z",
-  "date_modified": "2022-10-31T15:01:13.877176Z",
-  "sodar_uuid": "dcd26d83-bd33-4e87-8f00-f43a0a7e4192",
-  "label": "Quick Presets #0",
-  "inheritance": "de_novo"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:84fe63b95f48c8d9eaec63a220f5435fcefa0115118549e6916c1effe0ceb00a
+size 542

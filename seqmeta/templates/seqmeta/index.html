@@ -1,0 +1,65 @@
+{% extends 'projectroles/project_base.html' %}
+{% load static %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'seqmeta/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      Sequencing Metadata
+    </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="beaconsite-site-list-card">
+      <div class="card-header">
+        <h4><i class="iconify" data-icon="mdi:factory" data-inline="false"></i> Enrichment Kits</h4>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 10px;">#</th>
+              <th style="width: 200px;">Identifier</th>
+              <th style="width: 300px;">Title</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for object in object_list %}
+              <tr>
+                <td class="text-right text-muted">{{ forloop.counter }}</td>
+                <td>
+                  <a href="{{ object.get_absolute_url }}">
+                    {{ object.identifier }}
+                  </a>
+                </td>
+                <td>
+                  <a href="{{ object.get_absolute_url }}">
+                    {{ object.title }}
+                  </a>
+                </td>
+                <td>{{ object.description|default:"-" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3" class="text-center font-italic">
+                  No enrichment kits have been defined yet.
+                </td>
+              </tr>
+            {% endfor %}
+            <tr>
+              <td class="bg-faded" colspan="7">
+                <a class="btn btn-secondary" href="{% url "seqmeta:enrichmentkit-list" %}">
+                  <span class="iconify" data-icon="mdi:factory" data-inline="false"></span>
+                  See list of all enrichment kits.
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

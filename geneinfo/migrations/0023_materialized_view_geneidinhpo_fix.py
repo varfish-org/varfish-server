@@ -45,7 +45,6 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("geneinfo", "0022_materialized_view_geneidinhpo"),
     ]

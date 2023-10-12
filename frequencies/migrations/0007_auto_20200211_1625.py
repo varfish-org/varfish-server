@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("frequencies", "0006_remove_mtdb_gap"),
     ]

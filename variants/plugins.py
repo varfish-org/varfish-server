@@ -1,7 +1,6 @@
 """Definition of plugins and plugin points."""
 
 from bgjobs.plugins import BackgroundJobsPluginPoint
-from django.urls import reverse
 from django.utils.functional import lazy
 from djangoplugins.point import PluginPoint
 from projectroles.constants import get_sodar_constants
@@ -46,33 +45,33 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     """Plugin for registering app with Projectroles"""
 
     name = "variants"
-    title = "Cases"
+    title = "Variants"
     urls = lazy(get_urlpatterns, list)()
     # ...
 
     icon = "mdi:hospital-building"
 
-    entry_point_url_id = "variants:case-list"
+    entry_point_url_id = "cases:entrypoint"
 
-    description = "Cases"
+    description = "Variants"
 
     #: Required permission for accessing the app
     app_permission = "variants.view_data"
 
     #: Enable or disable general search from project title bar
-    search_enable = True
+    search_enable = False
 
     #: List of search object types for the app
-    search_types = ["case"]
+    search_types = []
 
     #: Search results template
-    search_template = "variants/_search_results.html"
+    search_template = None
 
     #: App card template for the project details page
-    details_template = "variants/_details_card.html"
+    details_template = None
 
     #: App card title for the project details page
-    details_title = "Cases Overview (top 5 most recently updated)"
+    details_title = "Variants"
 
     #: Position in plugin ordering
     plugin_ordering = 10
@@ -223,24 +222,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         return "".join(arr)
 
     def _get_action_buttons(self, project):
-        if len({case.release for case in Case.objects.filter(project=project)}) == 1:
-            tpl = """
-            <a href="%s" title="joint filtration " class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-              <i class="iconify" data-icon="mdi:filter"></i>
-            </a>
-            """
-            url = reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid})
-            return tpl % url
-        else:
-            html = """
-            <span
-              class="btn btn-primary sodar-list-btn sodar-ss-irods-btn disabled"
-              data-toggle="tooltip"
-              title="Different references in project; joint filtration impossible.">
-              <i class="iconify" data-icon="mdi:filter"></i>
-            </span>
-            """
-            return html
+        return """
+        <span
+          class="btn btn-primary sodar-list-btn sodar-ss-irods-btn disabled"
+          title="Currently unavailable.">
+          <i class="iconify" data-icon="mdi:filter"></i>
+        </span>
+        """
 
     def get_statistics(self):
         return {
@@ -326,6 +314,9 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
             return extra_data["flag_values"]
         else:
             return "(unknown %s)" % name
+
+    def get_object_link(self, *args, **kwargs):
+        return None
 
 
 ##

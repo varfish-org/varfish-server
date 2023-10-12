@@ -156,6 +156,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     developer_templates
     developer_checklists
     developer_data_builds
+    developer_tf
 
 .. raw:: latex
 

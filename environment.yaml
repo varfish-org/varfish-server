@@ -1,0 +1,7 @@
+name: varfish-db-downloader
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - varfish-server-worker =0.8.0

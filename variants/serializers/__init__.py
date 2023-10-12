@@ -5,22 +5,25 @@ import copy
 import typing
 
 import attrs
+
+# TODO pycharm marks the following as unused, but they are actually required.
 from django.db.models import Q
 from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
 
 from clinvar.models import Clinvar
-from extra_annos.models import ExtraAnno
+from extra_annos.models import ExtraAnno, ExtraAnnoField
 from geneinfo.models import Hgnc, Hpo, HpoName
 from geneinfo.serializers import GeneSerializer
 from genepanels.models import expand_panels_in_gene_list
-from variants.forms import FilterForm
 from variants.models import (
     AcmgCriteriaRating,
     SmallVariant,
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
 )
 from variants.query_schemas import (
     SCHEMA_QUERY_V1,
@@ -55,12 +58,13 @@ def query_settings_validator(value):
         proc_gene_list = expand_panels_in_gene_list(gene_list)
         records = Hgnc.objects.filter(
             Q(ensembl_gene_id__in=proc_gene_list)
+            | Q(hgnc_id__in=proc_gene_list)
             | Q(entrez_id__in=proc_gene_list)
             | Q(symbol__in=proc_gene_list)
         )
         result = []
         for record in records:
-            result += [record.ensembl_gene_id, record.entrez_id, record.symbol]
+            result += [record.ensembl_gene_id, record.hgnc_id, record.entrez_id, record.symbol]
         given_set = set(proc_gene_list)
         found_set = set(result)
         not_found = given_set - found_set
@@ -101,8 +105,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         """Make case and user writeable on creation."""
         validated_data["user"] = self.context["request"].user
         validated_data["case"] = self.context["case"]
-        validated_data["form_version"] = FilterForm.form_version
-        validated_data["form_id"] = FilterForm.form_id
         return super().create(validated_data)
 
     def validate(self, attrs):
@@ -120,8 +122,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             "date_created",
             "case",
             "user",
-            "form_id",
-            "form_version",
             "query_settings",
             "name",
             "public",
@@ -131,8 +131,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             "date_created",
             "case",
             "user",
-            "form_id",
-            "form_version",
         )
 
 
@@ -344,9 +342,100 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     details = serializers.ListField()
 
 
+class SmallVariantQueryWithLogsSerializer(SmallVariantQuerySerializer):
+    #: Log messages
+    logs = serializers.SerializerMethodField()
+
+    def get_logs(self, obj):
+        jobs = obj.filterbgjob_set.all()
+        if not jobs:
+            return []
+        else:
+            the_bg_job = jobs[0].bg_job
+            return [
+                f"{log_entry.date_created} | {log_entry.level} | {log_entry.message}"
+                for log_entry in the_bg_job.log_entries.all()
+            ]
+
+    class Meta:
+        model = SmallVariantQuery
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "user",
+            "case",
+            "query_state",
+            "query_state_msg",
+            "query_settings",
+            "logs",
+        )
+        read_only_fields = fields
+
+
+class SmallVariantQueryResultSetSerializer(SODARModelSerializer):
+    """Serializer for the ``SmallVariantQueryResultSet`` model.
+
+    This serializer is only used in a read-only context.
+
+    Note that the using views should ``preselect_related()`` aggressively to keep down the required database
+    queries.
+    """
+
+    #: UUID of the related query
+    smallvariantquery = serializers.ReadOnlyField(source="smallvariantquery.sodar_uuid")
+    #: UUID of the related case
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+
+    class Meta:
+        model = SmallVariantQueryResultSet
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "smallvariantquery",
+            "case",
+            "start_time",
+            "end_time",
+            "elapsed_seconds",
+            "result_row_count",
+        )
+        read_only_fields = fields
+
+
+class SmallVariantQueryResultRowSerializer(SODARModelSerializer):
+    """Serializer for the ``SmallVariantQueryResultRow`` model **with** the paylaod.
+
+    This serializer is only used in a read-only context.
+
+    Note that the using views should ``preselect_related()`` aggressively to keep down the required database
+    queries.
+    """
+
+    #: UUID of the related query result set
+    smallvariantqueryresultset = serializers.ReadOnlyField(
+        source="smallvariantqueryresultset.sodar_uuid"
+    )
+
+    class Meta:
+        model = SmallVariantQueryResultRow
+        fields = (
+            "sodar_uuid",
+            "smallvariantqueryresultset",
+            "release",
+            "chromosome",
+            "chromosome_no",
+            "bin",
+            "start",
+            "end",
+            "reference",
+            "alternative",
+            "payload",
+        )
+        read_only_fields = fields
+
+
 @attrs.define
 class HpoTerms:
-
     hpoterms: typing.Dict[str, typing.Any]
 
 
@@ -412,6 +501,8 @@ class ClinvarSerializer(serializers.ModelSerializer):
 
 
 class ExtraAnnoSerializer(serializers.ModelSerializer):
+    """Serializer for the ``ExtraAnno`` model."""
+
     class Meta:
         model = ExtraAnno
         fields = (
@@ -422,12 +513,21 @@ class ExtraAnnoSerializer(serializers.ModelSerializer):
             "bin",
             "reference",
             "alternative",
-            "anno_data",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.extra_anno_fields = ExtraAnnoField.objects.all()
+        self.fields["annotations"] = serializers.SerializerMethodField()
+
+    def get_annotations(self, obj):
+        """Given a variant, return the corresponding variant frequencies."""
+        return {
+            field.label: value for field, value in zip(list(self.extra_anno_fields), obj.anno_data)
+        }
 
 
 class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
-
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
 
@@ -604,6 +704,8 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
 
 
 class SmallVariantDetailsSerializer(serializers.Serializer):
+    """Serializer for the small variant details. Not based on a model"""
+
     clinvar = ClinvarSerializer(many=True)
     knowngeneaa = serializers.JSONField()
     effect_details = serializers.JSONField()
@@ -631,3 +733,31 @@ class QuickPresetSerializer(serializers.BaseSerializer):
             "chromosomes": instance.chromosomes,
             "flagsetc": instance.flagsetc,
         }
+
+
+class ExtraAnnoFieldSerializer(serializers.Serializer):
+    """Serializer for the ``ExtraAnnoFields`` model."""
+
+    field = serializers.IntegerField()
+    label = serializers.CharField()
+
+
+class HpoTermSerializer(serializers.Serializer):
+    """Serializer for HPO terms."""
+
+    id = serializers.CharField()
+    name = serializers.CharField()
+
+
+class CaseListQcStatsSerializer(serializers.Serializer):
+    """"""
+
+    pedigree = serializers.JSONField()
+    relData = serializers.JSONField()
+    varStats = serializers.JSONField()
+    sexErrors = serializers.JSONField()
+    chrXHetHomRatio = serializers.JSONField()
+    dps = serializers.JSONField()
+    dpQuantiles = serializers.JSONField()
+    hetRatioQuantiles = serializers.JSONField()
+    dpHetData = serializers.JSONField()

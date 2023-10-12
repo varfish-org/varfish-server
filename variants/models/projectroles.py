@@ -81,7 +81,7 @@ class CaseAwareProject(Project):
     def sex_errors(self):
         """Concatenate all contained case's sex errors dicts"""
         result = {}
-        disable_sex_check = _app_settings.get_app_setting(
+        disable_sex_check = _app_settings.get(
             "variants", "disable_pedigree_sex_check", project=self
         )
         if disable_sex_check:

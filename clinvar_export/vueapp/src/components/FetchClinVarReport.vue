@@ -20,13 +20,13 @@ const doFetch = () => {
     .fetchClinVarReport(
       props.appContext,
       props.submissionSet.sodar_uuid,
-      clinVarReportUrl.value
+      clinVarReportUrl.value,
     )
     .then(() => {
       isFetching.value = false
     })
     .catch((error) => {
-      console.log('Problem fetching ClinVar report', error)
+      console.error('Problem fetching ClinVar report', error)
       isFetching.value = false
     })
 }

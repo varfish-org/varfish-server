@@ -2,7 +2,7 @@ import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 
-import { rawAppContext } from '../fixtures.js'
+import { rawAppContext } from '../fixtures'
 
 const fetchMock = createFetchMock(vi)
 fetchMock.enableMocks()
@@ -60,7 +60,7 @@ describe('api', () => {
 
     const res = await clinvarExportApi.getSubmissionSetXml(
       appContext,
-      'uuid-arg'
+      'uuid-arg',
     )
 
     expect(fetch.mock.calls.length).toEqual(1)
@@ -76,7 +76,7 @@ describe('api', () => {
 
     const res = await clinvarExportApi.getSubmissionSetValid(
       appContext,
-      'uuid-arg'
+      'uuid-arg',
     )
 
     expect(fetch.mock.calls.length).toEqual(1)
@@ -220,7 +220,7 @@ describe('api', () => {
 
     const res = await clinvarExportApi.getUserAnnotations(
       appContext,
-      'family-uuid'
+      'family-uuid',
     )
 
     expect(fetch.mock.calls[0]).toEqual([
@@ -237,7 +237,7 @@ describe('api', () => {
       appContext,
       'name',
       'label',
-      'term-id'
+      'term-id',
     )
 
     expect(fetch.mock.calls[0]).toEqual([

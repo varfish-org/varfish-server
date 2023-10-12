@@ -1,5 +1,9 @@
+import datetime
+
 import factory
 
+from cases.models import Individual, Pedigree
+from seqmeta.tests.factories import EnrichmentKitFactory
 from variants.models import CaseAlignmentStats, PedigreeRelatedness
 from variants.tests.factories import CaseFactory, CaseVariantStatsFactory, SmallVariantSetFactory
 
@@ -90,7 +94,6 @@ class CaseAlignmentStatsFactory(factory.django.DjangoModelFactory):
 
 
 class PedigreeRelatednessFactory(factory.django.DjangoModelFactory):
-
     het_1_2 = 1
     het_1 = 1
     het_2 = 1
@@ -113,3 +116,30 @@ class PedigreeRelatednessFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = PedigreeRelatedness
+
+
+class PedigreeFactory(factory.django.DjangoModelFactory):
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    case = factory.SubFactory(CaseFactory)
+
+    class Meta:
+        model = Pedigree
+
+
+class IndividualFactory(factory.django.DjangoModelFactory):
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    pedigree = factory.SubFactory(PedigreeFactory)
+    name = factory.Sequence(lambda n: f"individual-{n}")
+    sex = Individual.SEX_MALE
+    karyotypic_sex = Individual.KARYOTYPE_XY
+    assay = Individual.ASSAY_WES
+    enrichmentkit = factory.SubFactory(EnrichmentKitFactory)
+
+    class Meta:
+        model = Individual

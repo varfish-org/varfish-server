@@ -10,12 +10,15 @@ from cases.serializers import (
     SampleVariantStatisticsSerializer,
 )
 from cases.tests.factories import CaseAlignmentStatsFactory, PedigreeRelatednessFactory
+from cases_qc.tests.helpers import flatten_via_json
+from svs.tests.factories import SvQueryResultSetFactory
 from variants.tests.factories import (
     CaseCommentsFactory,
     CaseFactory,
     CaseGeneAnnotationEntryFactory,
     CaseWithVariantSetFactory,
     SampleVariantStatisticsFactory,
+    SmallVariantQueryResultSetFactory,
 )
 from variants.tests.test_views_api import transmogrify_pedigree
 
@@ -54,7 +57,12 @@ class TestCaseGeneAnnotationSerializer(TestCase):
 class TestCaseSerializer(TestCase):
     def setUp(self):
         super().setUp()
+        self.maxDiff = None
         self.case = CaseFactory()
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            case=self.case, smallvariantquery=None
+        )
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case, svquery=None)
         self.maxDiff = None
 
     def testSerializeExisting(self):
@@ -70,21 +78,44 @@ class TestCaseSerializer(TestCase):
                 "index",
                 "pedigree",
                 "notes",
+                "state",
                 "status",
                 "tags",
                 "date_created",
                 "date_modified",
                 "num_small_vars",
                 "num_svs",
+                "case_version",
             ),
         )
+        expected["caseqc"] = None
         expected["pedigree"] = transmogrify_pedigree(expected["pedigree"])
         expected["project"] = self.case.project.sodar_uuid
         expected["sodar_uuid"] = str(self.case.sodar_uuid)
         expected["sex_errors"] = {}
         expected["date_created"] = self.case.date_created.strftime(TIMEF)
         expected["date_modified"] = self.case.date_modified.strftime(TIMEF)
-        self.assertDictEqual(serializer.data, expected)
+        expected["smallvariantqueryresultset"] = {
+            "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
+            "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
+            "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
+            "result_row_count": self.smallvariantqueryresultset.result_row_count,
+            "case": self.smallvariantqueryresultset.case.sodar_uuid,
+        }
+        expected["svqueryresultset"] = {
+            "sodar_uuid": str(self.svqueryresultset.sodar_uuid),
+            "date_created": self.svqueryresultset.date_created.strftime(TIMEF),
+            "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
+            "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
+            "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
+            "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
+            "result_row_count": self.svqueryresultset.result_row_count,
+            "case": self.svqueryresultset.case.sodar_uuid,
+        }
+        self.assertDictEqual(flatten_via_json(serializer.data), flatten_via_json(expected))
 
 
 class TestCaseAlignmentStatsSerializer(TestCase):

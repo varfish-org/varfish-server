@@ -132,7 +132,6 @@ class RelatedMixin:
 
 
 class VariantSetImportBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = VariantSetImportInfoSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
@@ -172,7 +171,6 @@ class VariantSetImportInfoRetrieveUpdateDestroyView(
 
 
 class BamQcFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = BamQcFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
@@ -210,7 +208,6 @@ class BamQcFileRetrieveDestroyView(BamQcFileBaseMixin, RetrieveDestroyAPIView):
 
 
 class GenotypeFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = GenotypeFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
@@ -248,7 +245,6 @@ class GenotypeFileRetrieveDestroyView(GenotypeFileBaseMixin, RetrieveDestroyAPIV
 
 
 class EffectsFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = EffectFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
@@ -286,7 +282,6 @@ class EffectsFileRetrieveDestroyView(EffectsFileBaseMixin, RetrieveDestroyAPIVie
 
 
 class DatabaseInfoFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = DatabaseInfoFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
@@ -324,7 +319,6 @@ class DatabaseInfoFileRetrieveDestroyView(DatabaseInfoFileBaseMixin, RetrieveDes
 
 
 class CaseGeneAnnotationFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
-
     serializer_class = CaseGeneAnnotationFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning

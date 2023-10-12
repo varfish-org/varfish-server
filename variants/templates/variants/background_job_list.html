@@ -8,8 +8,8 @@
 {% load json %}
 
 {% block navi_sub_project_extend %}
-  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
-  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">{{ object.name }}</a></li>
+  <li class="breadcrumb-item"><a href='{% url "cases:entrypoint" project=project.sodar_uuid %}'>Cases</a></li>
+  <li class="breadcrumb-item"><a href='{% url "cases:entrypoint" project=project.sodar_uuid %}/detail/{{ object.sodar_uuid }}'>{{ object.name }}</a></li>
   <li class="breadcrumb-item active">Jobs</li>
 {% endblock %}
 
@@ -31,6 +31,6 @@
   </div>
 
   <div class="container-fluid sodar-page-container">
-    {% include 'bgjobs/_backgroundjob_list.html' with object_list=case.get_background_jobs related_type="case" %}
+    {% include 'bgjobs/_backgroundjob_list.html' with object_list=object.get_background_jobs related_type="case" %}
   </div>
 {% endblock %}

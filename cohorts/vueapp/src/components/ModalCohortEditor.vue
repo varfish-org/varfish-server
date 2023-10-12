@@ -14,8 +14,8 @@ import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 
 import ModalBase from '@varfish/components/ModalBase.vue'
-import { randomString } from '@varfish/common.js'
-import { copy } from '@varfish/helpers.js'
+import { randomString } from '@varfish/common'
+import { copy } from '@varfish/helpers'
 
 const props = defineProps({
   title: {
@@ -121,12 +121,12 @@ import { helpers } from '@vuelidate/validators'
 
 const selectAtLeastTwoCases = helpers.withMessage(
   'Select at least two cases',
-  (value) => value.length > 1
+  (value) => value.length > 1,
 )
 
 const selectAtLeastOneCase = helpers.withMessage(
   'Select at least one case',
-  (value) => value.length > 0
+  (value) => value.length > 0,
 )
 
 /** The state to use in vuelidate. */
@@ -193,11 +193,11 @@ const buildProjectCasesSelected = () => {
       indeterminate: computed(() => {
         const currentSelection = new Set(propsCopy.value.modelValue.cases)
         const allSet = project.case_set.every((kase) =>
-          currentSelection.has(kase.sodar_uuid)
+          currentSelection.has(kase.sodar_uuid),
         )
         if (allSet) return false
         const noneSet = project.case_set.every(
-          (kase) => !currentSelection.has(kase.sodar_uuid)
+          (kase) => !currentSelection.has(kase.sodar_uuid),
         )
         return !noneSet
       }),
@@ -205,7 +205,7 @@ const buildProjectCasesSelected = () => {
         get() {
           const currentSelection = new Set(propsCopy.value.modelValue.cases)
           return project.case_set.every((kase) =>
-            currentSelection.has(kase.sodar_uuid)
+            currentSelection.has(kase.sodar_uuid),
           )
         },
         set(newValue) {
@@ -374,12 +374,12 @@ defineExpose({ show, hide })
                   role="progressbar"
                   :style="`width: ${computeProgressBar(
                     getSelectedProjectCasesCount(project.case_set),
-                    project.case_set.length
+                    project.case_set.length,
                   )}%`"
                   :aria-valuenow="
                     computeProgressBar(
                       getSelectedProjectCasesCount(project.case_set),
-                      project.case_set.length
+                      project.case_set.length,
                     )
                   "
                   aria-valuemin="0"

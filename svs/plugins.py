@@ -22,7 +22,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     icon = "mdi:hospital-building"
 
-    entry_point_url_id = "variants:case-list"
+    entry_point_url_id = "cases:entrypoint"
 
     description = "Structural Variants"
 
@@ -75,4 +75,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
 
     def get_extra_data_link(self, _extra_data, _name):
         """Return a link for timeline label starting with 'extra-'"""
+        return None
+
+    def get_object_link(self, *args, **kwargs):
         return None

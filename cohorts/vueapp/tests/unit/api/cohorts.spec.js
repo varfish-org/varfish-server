@@ -1,4 +1,4 @@
-import cohortsApi from '@cohorts/api/cohorts.js'
+import cohortsApi from '@cohorts/api/cohorts'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 
@@ -184,7 +184,7 @@ describe('api', () => {
     const res = await cohortsApi.createCohortCase(
       csrfToken,
       projectUuid,
-      payload
+      payload,
     )
 
     expect(fetch.mock.calls.length).toEqual(1)

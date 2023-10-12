@@ -1,21 +1,23 @@
 <script setup>
 import Overlay from '@varfish/components/Overlay.vue'
-import FilterFormGenotypePane from './FilterFormGenotypePane.vue'
-import FilterFormFrequencyPane from './FilterFormFrequencyPane.vue'
-import FilterFormFooter from './FilterFormFooter.vue'
-import FilterFormPriotizationPane from './FilterFormPrioritizationPane.vue'
-import FilterFormEffectPane from './FilterFormEffectPane.vue'
-import FilterFormClinvarPane from './FilterFormClinvarPane.vue'
-import FilterFormGenesRegionsPane from './FilterFormGenesRegionsPane.vue'
-import FilterFormFlagsPane from './FilterFormFlagsPane.vue'
-import FilterFormQualityPane from './FilterFormQualityPane.vue'
-import FilterFormQuickPresets from './FilterFormQuickPresets.vue'
+import FilterFormGenotypePane from '@variants/components/FilterForm//GenotypePane.vue'
+import FilterFormFrequencyPane from '@variants/components/FilterForm//FrequencyPane.vue'
+import FilterFormFooter from '@variants/components/FilterForm//Footer.vue'
+import FilterFormPriotizationPane from '@variants/components/FilterForm//PrioritizationPane.vue'
+import FilterFormEffectPane from '@variants/components/FilterForm//EffectPane.vue'
+import FilterFormClinvarPane from '@variants/components/FilterForm//ClinvarPane.vue'
+import FilterFormGenesRegionsPane from '@variants/components/FilterForm//GenesRegionsPane.vue'
+import FilterFormFlagsPane from '@variants/components/FilterForm//FlagsPane.vue'
+import FilterFormQualityPane from '@variants/components/FilterForm//QualityPane.vue'
+import FilterFormQuickPresets from '@variants/components/FilterForm//QuickPresets.vue'
 import { QueryStates } from '@variants/enums'
 import { computed, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { useFilterQueryStore } from '../stores/filterQuery'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
-const filterQueryStore = useFilterQueryStore()
+const variantQueryStore = useVariantQueryStore()
+const caseDetailsStore = useCaseDetailsStore()
 
 const genotypePaneRef = ref(null)
 const frequencyPaneRef = ref(null)
@@ -40,8 +42,11 @@ const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
 
-const moreHasError = computed(() => {
+const anyHasError = computed(() => {
   return (
+    genotypeHasError.value ||
+    frequencyHasError.value ||
+    prioritizationHasError.value ||
     effectHasError.value ||
     qualityHasError.value ||
     geneHasError.value ||
@@ -49,19 +54,10 @@ const moreHasError = computed(() => {
   )
 })
 
-const anyHasError = computed(() => {
-  return (
-    genotypeHasError.value ||
-    frequencyHasError.value ||
-    prioritizationHasError.value ||
-    moreHasError.value
-  )
-})
-
 const v$ = useVuelidate()
 
 const showOverlay = computed(() =>
-  ['initial', 'initializing'].includes(filterQueryStore.storeState)
+  ['initial', 'initializing'].includes(variantQueryStore.storeState),
 )
 
 const onSubmitCancelButtonClicked = () => {
@@ -71,10 +67,10 @@ const onSubmitCancelButtonClicked = () => {
     QueryStates.Finished.value,
     QueryStates.Fetching.value,
   ]
-  if (cancelableStates.includes(filterQueryStore.queryState)) {
-    filterQueryStore.cancelQuery()
+  if (cancelableStates.includes(variantQueryStore.queryState)) {
+    variantQueryStore.cancelQuery()
   } else {
-    filterQueryStore.submitQuery()
+    variantQueryStore.submitQuery()
   }
 }
 </script>
@@ -85,19 +81,19 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
       v-if="
-        filterQueryStore.querySettings !== null &&
-        filterQueryStore.querySettingsPreset !== null
+        variantQueryStore.querySettings !== null &&
+        variantQueryStore.querySettingsPreset !== null
       "
     >
       <div class="card-header">
         <FilterFormQuickPresets
           :show-filtration-inline-help="
-            filterQueryStore.showFiltrationInlineHelp
+            variantQueryStore.showFiltrationInlineHelp
           "
-          :quick-presets="filterQueryStore.quickPresets"
-          :category-presets="filterQueryStore.categoryPresets"
-          :query-settings="filterQueryStore.querySettings"
-          :case="filterQueryStore.caseObj"
+          :quick-presets="variantQueryStore.quickPresets"
+          :category-presets="variantQueryStore.categoryPresets"
+          :query-settings="variantQueryStore.querySettings"
+          :case="caseDetailsStore.caseObj"
         />
       </div>
       <div class="card-header row border-bottom-1 pt-1 pr-1">
@@ -130,7 +126,7 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="frequencyHasError" />
             </a>
           </li>
-          <li class="nav-item d-none d-md-block">
+          <li class="nav-item">
             <a
               class="nav-link"
               :class="{ 'border-danger text-danger': prioritizationHasError }"
@@ -144,78 +140,71 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="prioritizationHasError" />
             </a>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item">
             <a
-              class="nav-link dropdown-toggle"
-              :class="{ 'text-danger': moreHasError }"
-              id="more-tab"
-              data-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="true"
-              aria-expanded="false"
+              class="nav-link"
+              :class="{ 'text-danger': effectHasError }"
+              id="effect-tab"
+              data-toggle="tab"
+              href="#panel-effect"
+              role="tab"
+              title="Variant types/effects, coding/non-coding transcripts"
             >
-              More ...
-              <i-mdi-alert-circle-outline v-if="moreHasError" />
+              Variants &amp; Effects
+              <i-mdi-alert-circle-outline v-if="effectHasError" />
             </a>
-            <div class="dropdown-menu" style="z-index: 1030">
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': effectHasError }"
-                id="effect-tab"
-                data-toggle="tab"
-                href="#panel-effect"
-                role="tab"
-                title="Variant types/effects, coding/non-coding transcripts"
-              >
-                Variants &amp; Effects
-                <i-mdi-alert-circle-outline v-if="effectHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': qualityHasError }"
-                id="quality-tab"
-                data-toggle="tab"
-                href="#panel-quality"
-                role="tab"
-                title="Quality, allelic balance, coverage"
-              >
-                Quality
-                <i-mdi-alert-circle-outline v-if="qualityHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                id="clinvar-tab"
-                data-toggle="tab"
-                href="#panel-clinvar"
-                role="tab"
-                title="Filter based on ClinVar"
-              >
-                ClinVar
-              </a>
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': geneHasError }"
-                id="allowlist-tab"
-                data-toggle="tab"
-                href="#panel-allowlist"
-                role="tab"
-                title="Allow-list genes and genomic regions"
-              >
-                Gene Lists &amp; Regions
-                <i-mdi-alert-circle-outline v-if="geneHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                id="flags-tab"
-                data-toggle="tab"
-                href="#panel-flags"
-                role="tab"
-                title="Filter for user flags and comments"
-              >
-                Flags &amp; Comments
-              </a>
-            </div>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'text-danger': qualityHasError }"
+              id="quality-tab"
+              data-toggle="tab"
+              href="#panel-quality"
+              role="tab"
+              title="Quality, allelic balance, coverage"
+            >
+              Quality
+              <i-mdi-alert-circle-outline v-if="qualityHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="clinvar-tab"
+              data-toggle="tab"
+              href="#panel-clinvar"
+              role="tab"
+              title="Filter based on ClinVar"
+            >
+              ClinVar
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'text-danger': geneHasError }"
+              id="allowlist-tab"
+              data-toggle="tab"
+              href="#panel-allowlist"
+              role="tab"
+              title="Allow-list genes and genomic regions"
+            >
+              Gene Lists &amp; Regions
+              <i-mdi-alert-circle-outline v-if="geneHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="flags-tab"
+              data-toggle="tab"
+              href="#panel-flags"
+              role="tab"
+              title="Filter for user flags and comments"
+            >
+              Flags &amp; Comments
+            </a>
           </li>
         </ul>
       </div>
@@ -231,13 +220,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormGenotypePane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case="filterQueryStore.caseObj"
-              v-model:query-settings="filterQueryStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -249,13 +238,13 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormFrequencyPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case="filterQueryStore.caseObj"
-              :query-settings="filterQueryStore.querySettings"
+              :case="caseDetailsStore.caseObj"
+              :query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -266,23 +255,25 @@ const onSubmitCancelButtonClicked = () => {
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
-              :csrf-token="filterQueryStore.csrfToken"
+              :csrf-token="variantQueryStore.csrfToken"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
-              :exomiser-enabled="filterQueryStore.exomiserEnabled"
-              :cadd-enabled="filterQueryStore.caddEnabled"
-              v-model:prio-enabled="filterQueryStore.querySettings.prio_enabled"
+              :exomiser-enabled="variantQueryStore.exomiserEnabled"
+              :cadd-enabled="variantQueryStore.caddEnabled"
+              v-model:prio-enabled="
+                variantQueryStore.querySettings.prio_enabled
+              "
               v-model:prio-algorithm="
-                filterQueryStore.querySettings.prio_algorithm
+                variantQueryStore.querySettings.prio_algorithm
               "
               v-model:prio-hpo-terms="
-                filterQueryStore.querySettings.prio_hpo_terms
+                variantQueryStore.querySettings.prio_hpo_terms
               "
               v-model:patho-enabled="
-                filterQueryStore.querySettings.patho_enabled
+                variantQueryStore.querySettings.patho_enabled
               "
-              v-model:patho-score="filterQueryStore.querySettings.patho_score"
+              v-model:patho-score="variantQueryStore.querySettings.patho_score"
             />
           </div>
           <div
@@ -294,12 +285,12 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormEffectPane
               ref="effectPaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -311,13 +302,13 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormQualityPane
               ref="qualityPaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              :case-obj="filterQueryStore.caseObj"
-              v-model:query-settings="filterQueryStore.querySettings"
+              :case-obj="caseDetailsStore.caseObj"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -329,12 +320,12 @@ const onSubmitCancelButtonClicked = () => {
             <FilterFormGenesRegionsPane
               ref="genePaneRef"
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -345,12 +336,12 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormFlagsPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
@@ -361,22 +352,22 @@ const onSubmitCancelButtonClicked = () => {
           >
             <FilterFormClinvarPane
               :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
+                variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
+                variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="filterQueryStore.querySettings"
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
         </div>
         <FilterFormFooter
-          :query-state="filterQueryStore.queryState"
+          :query-state="variantQueryStore.queryState"
           :any-has-error="anyHasError"
           :filtration-complexity-mode="
-            filterQueryStore.filtrationComplexityMode
+            variantQueryStore.filtrationComplexityMode
           "
-          v-model:database="filterQueryStore.querySettings.database"
+          v-model:database="variantQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>
@@ -385,7 +376,10 @@ const onSubmitCancelButtonClicked = () => {
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2">Loading filter form ...</strong>
     </div>
-    <Overlay v-if="showOverlay" :message="filterQueryStore.storeStateMessage" />
+    <Overlay
+      v-if="showOverlay"
+      :message="variantQueryStore.storeStateMessage"
+    />
   </form>
 </template>
 

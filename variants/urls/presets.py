@@ -3,7 +3,7 @@ from itertools import chain
 
 from django.conf.urls import url
 
-from variants.views import ajax as views_ajax
+import variants.views.ajax.presets as views_ajax
 
 _entity_names = [
     "FrequencyPresets",

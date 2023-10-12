@@ -2,13 +2,16 @@
 import Multiselect from '@vueform/multiselect'
 import { onMounted, ref, watch } from 'vue'
 
-import { hpoInheritance, hpoAgeOfOnset } from './HpoTermInput.values'
-import { declareWrapper } from '../helpers.js'
+import {
+  hpoInheritance,
+  hpoAgeOfOnset,
+} from '@variants/components/HpoTermInput.values'
+import { declareWrapper } from '@variants/helpers'
 
 const props = defineProps({
   apiEndpoint: {
     type: String,
-    default: '/variants/hpo-terms-api/',
+    default: '/variants/ajax/hpo-terms/',
   },
   csrfToken: String,
   showFiltrationInlineHelp: Boolean,
@@ -69,7 +72,7 @@ const refreshTextValue = async (termsArray) => {
       } else {
         return null
       }
-    })
+    }),
   )
   const withLabel = withLabelUnfiltered.filter((elem) => elem !== null)
   textValue.value = withLabel.join('; ')
@@ -133,7 +136,7 @@ watch(
   () => props.modelValue,
   (newValue, _oldValue) => {
     refreshTextValue(newValue)
-  }
+  },
 )
 
 onMounted(() => {

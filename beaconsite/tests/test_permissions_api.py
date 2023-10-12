@@ -60,9 +60,9 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]
@@ -78,9 +78,9 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]
@@ -99,9 +99,9 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]
@@ -139,9 +139,9 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]
@@ -160,9 +160,9 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]
@@ -184,9 +184,9 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         all_users = [
             self.superuser,
             self.owner_as.user,
-            self.delegate_as.user,
-            self.contributor_as.user,
-            self.guest_as.user,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
             self.user_no_roles,
             self.anonymous,
         ]

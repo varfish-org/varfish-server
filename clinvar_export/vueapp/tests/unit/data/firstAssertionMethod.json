@@ -1,8 +1,3 @@
-{
-  "sodar_uuid": "55555555-5555-5555-5555-555555555555",
-  "date_created": "2020-11-09 13:37",
-  "date_modified": "2020-11-09 13:37",
-  "is_builtin": true,
-  "title": "ACMG Guidelines, 2015",
-  "reference": "PMID:25741868"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:469726ea8deb06294b65134713df3f76ee2c5901fb8c939867c1d1fb3d0b7f1c
+size 226

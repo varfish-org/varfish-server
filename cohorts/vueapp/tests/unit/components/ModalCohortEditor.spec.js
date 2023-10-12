@@ -66,22 +66,22 @@ describe('ModalCohortEditor.vue', () => {
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[0].sodar_uuid
-      ].indeterminate
+      ].indeterminate,
     ).toBe(false)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[0].sodar_uuid
-      ].checked
+      ].checked,
     ).toBe(true)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[1].sodar_uuid
-      ].indeterminate
+      ].indeterminate,
     ).toBe(true)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[1].sodar_uuid
-      ].checked
+      ].checked,
     ).toBe(false)
 
     expect(wrapper.vm.getSelectedMembersCount).toBe(5)
@@ -90,23 +90,23 @@ describe('ModalCohortEditor.vue', () => {
 
     expect(
       wrapper.vm.getSelectedProjectMembersCount(
-        accessibleProjectsCasesResponse[0].case_set
-      )
+        accessibleProjectsCasesResponse[0].case_set,
+      ),
     ).toBe(4)
     expect(
       wrapper.vm.getSelectedProjectCasesCount(
-        accessibleProjectsCasesResponse[0].case_set
-      )
+        accessibleProjectsCasesResponse[0].case_set,
+      ),
     ).toBe(2)
     expect(
       wrapper.vm.getSelectedProjectMembersCount(
-        accessibleProjectsCasesResponse[1].case_set
-      )
+        accessibleProjectsCasesResponse[1].case_set,
+      ),
     ).toBe(1)
     expect(
       wrapper.vm.getSelectedProjectCasesCount(
-        accessibleProjectsCasesResponse[1].case_set
-      )
+        accessibleProjectsCasesResponse[1].case_set,
+      ),
     ).toBe(1)
   })
 
@@ -141,22 +141,22 @@ describe('ModalCohortEditor.vue', () => {
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[0].sodar_uuid
-      ].indeterminate
+      ].indeterminate,
     ).toBe(false)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[0].sodar_uuid
-      ].checked
+      ].checked,
     ).toBe(false)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[1].sodar_uuid
-      ].indeterminate
+      ].indeterminate,
     ).toBe(false)
     expect(
       wrapper.vm.projectsCasesSelected[
         accessibleProjectsCasesResponse[1].sodar_uuid
-      ].checked
+      ].checked,
     ).toBe(false)
 
     expect(wrapper.vm.getSelectedMembersCount).toBe(0)
@@ -165,23 +165,23 @@ describe('ModalCohortEditor.vue', () => {
 
     expect(
       wrapper.vm.getSelectedProjectMembersCount(
-        accessibleProjectsCasesResponse[0].case_set
-      )
+        accessibleProjectsCasesResponse[0].case_set,
+      ),
     ).toBe(0)
     expect(
       wrapper.vm.getSelectedProjectCasesCount(
-        accessibleProjectsCasesResponse[0].case_set
-      )
+        accessibleProjectsCasesResponse[0].case_set,
+      ),
     ).toBe(0)
     expect(
       wrapper.vm.getSelectedProjectMembersCount(
-        accessibleProjectsCasesResponse[1].case_set
-      )
+        accessibleProjectsCasesResponse[1].case_set,
+      ),
     ).toBe(0)
     expect(
       wrapper.vm.getSelectedProjectCasesCount(
-        accessibleProjectsCasesResponse[1].case_set
-      )
+        accessibleProjectsCasesResponse[1].case_set,
+      ),
     ).toBe(0)
   })
 

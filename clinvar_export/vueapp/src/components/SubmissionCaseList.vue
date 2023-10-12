@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
-import SubmissionCaseListEntry from './SubmissionCaseListEntry.vue'
+import SubmissionCaseListEntry from '@clinvarexport/components/SubmissionCaseListEntry.vue'
 
 const components = { SubmissionCaseListEntry }
 
@@ -38,11 +38,11 @@ const caseSubmissionIndividuals = computed(() => {
 const getModalIndividualList = () => {
   const blockedIndividualUuids = new Set(
     store.currentSubmission.submission_individuals.map(
-      (uuid) => store.submissionIndividuals[uuid].individual
-    )
+      (uuid) => store.submissionIndividuals[uuid].individual,
+    ),
   )
   const result = Object.values(store.individuals).filter(
-    (obj) => !blockedIndividualUuids.has(obj.sodar_uuid)
+    (obj) => !blockedIndividualUuids.has(obj.sodar_uuid),
   )
   return result
 }

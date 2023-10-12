@@ -1,15 +1,3 @@
-[
-  {
-    "hgnc_id": "HGNC:20324",
-    "symbol": "TGDS",
-    "ensembl_gene_id": "ENSG00000088451",
-    "entrez_id": "23483"
-  },
-  {
-    "hgnc_id": "HGNC:12403",
-    "symbol": "TTN",
-    "ensembl_gene_id": "ENSG00000155657",
-    "entrez_id": "7273"
-  },
-  { "detail": "Not found." }
-]
+version https://git-lfs.github.com/spec/v1
+oid sha256:9c1ff5a4c8420501ecbd9023b113f8836dedb9db8549c99edc65a5be222148e4
+size 285

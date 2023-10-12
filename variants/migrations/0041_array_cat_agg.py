@@ -10,7 +10,6 @@ ARRAY_TYPE = "anyarray" if POSTGRES_VERSION < 140000 else "anycompatiblearray"
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("variants", "0040_case_variant_counts")]
 
     operations = [

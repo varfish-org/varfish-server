@@ -73,6 +73,24 @@ class SvSubType(Enum):
 
 
 @unique
+class TranscriptEffect(Enum):
+    #: Affects the full transcript.
+    TRANSCRIPT_VARIANT = "transcript_variant"
+    #: An exon is affected by the SV.
+    EXON_VARIANT = "exon_variant"
+    #: The splice region is affected by the SV.
+    SPLICE_REGION_VARIANT = "splice_region_variant"
+    #: The intron is affected by the SV.
+    INTRON_VARIANT = "intron_variant"
+    #: The upstream region of the transcript is affected.
+    UPSTREAM_VARIANT = "upstream_variant"
+    #: The downstream region of the transcript is affected.
+    DOWNSTREAM_VARIANT = "downstream_variant"
+    #: Only intergenic regions is affected,
+    INTERGENIC_VARIANT = "intergenic_variant"
+
+
+@unique
 class VariantEffect(Enum):
     CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
     CODING_TRANSCRIPT_INTRON_VARIANT = "coding_transcript_intron_variant"
@@ -234,6 +252,18 @@ class GenotypeCriteria:
     min_srpr_var: typing.Optional[int] = None
     #: Maximal sum of variant paired-end/split read coverage.
     max_srpr_var: typing.Optional[int] = None
+    #: Minimal split read allelic balance.
+    min_sr_ab: typing.Optional[float] = None
+    #: Maximal split read allelic balance.
+    max_sr_ab: typing.Optional[float] = None
+    #: Minimal paired read allelic balance.
+    min_pr_ab: typing.Optional[float] = None
+    #: Maximal paired read allelic balance.
+    max_pr_ab: typing.Optional[float] = None
+    #: Minimal split read or paired read allelic balance.
+    min_srpr_ab: typing.Optional[float] = None
+    #: Maximal split read or paired read allelic balance.
+    max_srpr_ab: typing.Optional[float] = None
     #: Minimal coverage deviation.
     min_rd_dev: typing.Optional[float] = None
     #: Maximal coverage deviation.
@@ -326,6 +356,8 @@ class CaseQuery:
     sv_types: typing.List[SvType] = attrs.field(factory=list)
     #: The SV subtypes to consider.
     sv_sub_types: typing.List[SvSubType] = attrs.field(factory=list)
+    #: The effect on the transcript to consider.
+    tx_effects: typing.List[TranscriptEffect] = attrs.field(factory=list)
 
     #: List of genes to require.
     gene_allowlist: typing.Optional[typing.List[str]] = None
