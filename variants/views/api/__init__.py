@@ -21,7 +21,7 @@ from django.utils import timezone
 import numpy as np
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
-from rest_framework import views
+from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
     DestroyAPIView,
@@ -66,7 +66,7 @@ from variants.models import (
     load_molecular_impact,
     only_source_name,
 )
-from variants.queries import KnownGeneAAQuery
+from variants.queries import CaseLoadUserAnnotatedOnlyQuery, KnownGeneAAQuery
 from variants.query_presets import (
     CHROMOSOME_PRESETS,
     FLAGSETC_PRESETS,
@@ -90,6 +90,7 @@ from variants.serializers import (
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
+    SmallVariantForResultSerializer,
     SmallVariantQueryHpoTermSerializer,
     SmallVariantQueryResultRowSerializer,
     SmallVariantQueryResultSetSerializer,
@@ -97,6 +98,7 @@ from variants.serializers import (
     SmallVariantQueryWithLogsSerializer,
 )
 from variants.tasks import export_file_task, single_case_filter_task
+from variants.submit_mehari import MehariSeqVarApi
 
 
 class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):
@@ -1929,3 +1931,51 @@ class CaseListQcStatsApiView(RetrieveAPIView):
         }
 
         return result
+
+
+class SmallVariantAnnotatedListApiView(ListAPIView):
+    """A view that allows exporting all user annotated variants.
+
+    **URL:** ``/variants/api/small-variant/list/{case.sodar_uuid}/``
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    - list of annotated variants (flagged, acmg rated or commented)
+    - transcript information for all returned variants
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [SODARAPIProjectPermission]
+    queryset = Case.objects.all()
+    mehari = MehariSeqVarApi(settings.VARFISH_BACKEND_URL_MEHARI)
+
+    # serializer_class = SmallVariantForResultSerializer
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+    def get(self, request, *args, **kwargs):
+        # Build and run the query.
+        query = CaseLoadUserAnnotatedOnlyQuery(case_or_cases=self.get_object(), engine=get_engine())
+        # Fetch all results and compute elapsed time
+        with contextlib.closing(query.run(kwargs={})) as results:
+            rows = list(map(lambda row: dict(row.items()), results.fetchall()))
+
+        for row in rows:
+            resp = self.mehari.get_variant(
+                row["release"].lower(),
+                row["chromosome"],
+                row["start"],
+                row["reference"],
+                row["alternative"],
+            )
+            row["mehari"] = resp.dict()
+
+        return Response(rows, status=status.HTTP_200_OK)

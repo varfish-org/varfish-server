@@ -1715,6 +1715,19 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
         ] + get_qp_extender_classes_from_plugins()
 
 
+class CaseLoadUserAnnotatedOnlyQueryPartsBuilder(QueryPartsBuilder):
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsUserAnnotatedFilter,
+            ExtendQueryPartsAcmgCriteriaJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsCaseJoin,
+            ExtendQueryPartsCommentsExtraAnnoJoin,
+            ExtendQueryPartsCommentsJoin,
+            ExtendQueryPartsFlagsJoin,
+        ] + get_qp_extender_classes_from_plugins()
+
+
 class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
     """Same as normal query, just with Conservation part added."""
 
@@ -1978,6 +1991,10 @@ class CaseLoadPrefetchedQuery(CasePrefetchQuery):
 
 class CaseLoadUserAnnotatedQuery(CasePrefetchQuery):
     builder = CaseLoadUserAnnotatedQueryPartsBuilder
+
+
+class CaseLoadUserAnnotatedOnlyQuery(CasePrefetchQuery):
+    builder = CaseLoadUserAnnotatedOnlyQueryPartsBuilder
 
 
 class CaseExportTableQuery(CasePrefetchQuery):

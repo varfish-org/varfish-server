@@ -963,3 +963,15 @@ class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
 
     def test_get_acmg_criteria_rating_guest(self):
         self._test_get_acmg_criteria_rating_as_user(self.user_guest)
+
+
+class TestSmallVariantAnnotatedListApiView(TestSmallVariantQueryBase):
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-annotated-list", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)

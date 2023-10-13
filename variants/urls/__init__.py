@@ -455,6 +455,11 @@ api_urlpatterns = [
         name="api-extra-anno-fields",
     ),
     url(regex=r"^api/hpo-terms/?$", view=views_api.HpoTermsApiView.as_view(), name="api-hpo-terms"),
+    url(
+        r"^api/small-variant/list/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantAnnotatedListApiView.as_view(),
+        name="api-small-variant-annotated-list",
+    ),
 ]
 
 
