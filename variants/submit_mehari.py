@@ -1,4 +1,5 @@
 import typing
+
 import requests
 
 from .models import mehari

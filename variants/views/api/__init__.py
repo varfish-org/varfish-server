@@ -90,15 +90,14 @@ from variants.serializers import (
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
-    SmallVariantForResultSerializer,
     SmallVariantQueryHpoTermSerializer,
     SmallVariantQueryResultRowSerializer,
     SmallVariantQueryResultSetSerializer,
     SmallVariantQuerySerializer,
     SmallVariantQueryWithLogsSerializer,
 )
-from variants.tasks import export_file_task, single_case_filter_task
 from variants.submit_mehari import MehariSeqVarApi
+from variants.tasks import export_file_task, single_case_filter_task
 
 
 class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):
