@@ -188,8 +188,6 @@ class CaseQueryV1:
     quality: typing.Dict[str, QualitySettingsV1]
     genotype: typing.Dict[str, typing.Optional[GenotypeChoiceV1]]
 
-    selected_variants: typing.Optional[typing.List[str]] = None
-
     transcripts_coding: bool = True
     transcripts_noncoding: bool = False
 
@@ -298,7 +296,6 @@ class QueryJsonToFormConverter:
 
     def convert(self, case: Case, query: CaseQueryV1) -> typing.Dict[str, typing.Any]:
         result = {
-            "selected_variants": query.selected_variants,
             "database_select": query.database,
             "var_type_snv": query.var_type_snv,
             "var_type_mnv": query.var_type_mnv,

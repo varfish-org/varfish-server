@@ -67,10 +67,14 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
         return obj.sex_errors(disable_pedigree_sex_check=self.disable_pedigree_sex_check)
 
     def get_smallvariantqueryresultset(self, obj):
-        return SmallVariantQueryResultSetSerializer(obj.smallvariantqueryresultset_set.first()).data
+        return SmallVariantQueryResultSetSerializer(
+            obj.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
+        ).data
 
     def get_svqueryresultset(self, obj):
-        return SvQueryResultSetSerializer(obj.svqueryresultset_set.first()).data
+        return SvQueryResultSetSerializer(
+            obj.svqueryresultset_set.filter(svquery=None).first()
+        ).data
 
     def get_caseqc(self, obj):
         """Obtain the latest CaseQC for this in active state and serialize it.

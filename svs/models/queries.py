@@ -101,7 +101,7 @@ class SvQueryResultSet(models.Model):
     #: The elapsed seconds.
     elapsed_seconds = models.FloatField(help_text="Elapsed seconds")
 
-    #: The case that this result is for, in case smallvariantquery is null.
+    #: The case that this result is for, in case svqueryresultset is null.
     case = models.ForeignKey(
         Case,
         on_delete=models.CASCADE,

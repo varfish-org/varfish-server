@@ -134,7 +134,7 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
             return
 
         result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
-        result_set = case.svqueryresultset_set.first()
+        result_set = case.svqueryresultset_set.filter(svquery=None).first()
         try:
             result_set.svqueryresultrow_set.get(
                 release=serializer.instance.release,
@@ -168,7 +168,7 @@ class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
         return "variants.update_data"
 
     def perform_destroy(self, instance):
-        result_set = instance.case.svqueryresultset_set.first()
+        result_set = instance.case.svqueryresultset_set.filter(svquery=None).first()
         if result_set:
             result_row_set = result_set.svqueryresultrow_set.filter(
                 release=instance.release,
@@ -238,7 +238,7 @@ class StructuralVariantCommentListCreateAjaxView(
             return
 
         result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
-        result_set = case.svqueryresultset_set.first()
+        result_set = case.svqueryresultset_set.filter(svquery=None).first()
         try:
             result_set.svqueryresultrow_set.get(
                 release=serializer.instance.release,
@@ -272,7 +272,7 @@ class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
         return "variants.update_data"
 
     def perform_destroy(self, instance):
-        result_set = instance.case.svqueryresultset_set.first()
+        result_set = instance.case.svqueryresultset_set.filter(svquery=None).first()
         if result_set:
             result_row_set = result_set.svqueryresultrow_set.filter(
                 release=instance.release,
