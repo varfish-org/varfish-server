@@ -33,9 +33,9 @@ pandas = "~=2.1"
 phenopackets = "~=2.0"
 protobuf = "~=3.20"
 prettytable = "~=3.3"
-psutil = "~=5.9.0"
-pysam = "~=0.21.0"
-python-dateutil = "~=2.8.1"
+psutil = "~=5.9"
+pysam = "~=0.21"
+python-dateutil = "~=2.8"
 python-dotenv = "~=1.0"
 pyyaml = "~=6.0"
 redis = "~=5.0"
@@ -82,8 +82,8 @@ werkzeug = "~=3.0.0"
 [ldap-packages]
 # Dependencies for enabling LDAP support.  You will need the system library
 # named `libldap` (or similar).
-django-auth-ldap = "~=4.1.0"
-python-ldap = "~=3.4.3"
+django-auth-ldap = "~=4.1"
+python-ldap = "~=3.4"
 # Packages needed in production.
 
 [prod-packages]
