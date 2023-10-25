@@ -10,12 +10,14 @@ from cases_qc.models.samtools import (
     SamtoolsStatsMainMetrics,
     SamtoolsStatsSupplementaryMetrics,
 )
+from cases_qc.tests import helpers
 from cases_qc.tests.factories import CaseQcFactory
-from cases_qc.tests.helpers import extract_from_dict
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
+class SamtoolsLoadBcftoolsStatsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -34,7 +36,7 @@ class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
         self.assertMatchSnapshot(
-            extract_from_dict(
+            helpers.extract_from_dict(
                 metrics,
                 (
                     "sample",
@@ -54,7 +56,9 @@ class SamtoolsLoadBcftoolsStatsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
+class SamtoolsLoadSamtoolsFlagstatTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -75,11 +79,15 @@ class SamtoolsLoadSamtoolsFlagstatTest(TestCaseSnapshot, TestCase):
         metrics = SamtoolsFlagstatMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "qc_pass", "qc_fail")))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(metrics, ("sample", "qc_pass", "qc_fail"))
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
+class SamtoolsLoadSamtoolsStatsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -103,7 +111,7 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
         main_metrics = SamtoolsStatsMainMetrics.objects.first()
         self.assertMatchSnapshot(list(vars(main_metrics).keys()))
         self.assertMatchSnapshot(
-            extract_from_dict(
+            helpers.extract_from_dict(
                 main_metrics,
                 (
                     "sample",
@@ -123,7 +131,7 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
         supp_metrics = SamtoolsStatsMainMetrics.objects.first()
         self.assertMatchSnapshot(list(vars(supp_metrics).keys()))
         self.assertMatchSnapshot(
-            extract_from_dict(
+            helpers.extract_from_dict(
                 supp_metrics,
                 (
                     "sample",
@@ -140,7 +148,9 @@ class SamtoolsLoadSamtoolsStatsTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SamtoolsLoadSamtoolsIdxstatsTest(TestCaseSnapshot, TestCase):
+class SamtoolsLoadSamtoolsIdxstatsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -161,4 +171,4 @@ class SamtoolsLoadSamtoolsIdxstatsTest(TestCaseSnapshot, TestCase):
         metrics = SamtoolsIdxstatsMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "records")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(metrics, ("sample", "records")))

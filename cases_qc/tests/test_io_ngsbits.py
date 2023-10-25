@@ -4,12 +4,14 @@ from test_plus import TestCase
 
 from cases_qc.io import ngsbits as io_ngsbits
 from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics
+from cases_qc.tests import helpers
 from cases_qc.tests.factories import CaseQcFactory
-from cases_qc.tests.helpers import extract_from_dict
 
 
 @freeze_time("2012-01-14 12:00:01")
-class NgsbitsMappingqcLoadTest(TestCaseSnapshot, TestCase):
+class NgsbitsMappingqcLoadTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -32,7 +34,7 @@ class NgsbitsMappingqcLoadTest(TestCaseSnapshot, TestCase):
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
         self.assertMatchSnapshot(
-            extract_from_dict(
+            helpers.extract_from_dict(
                 metrics,
                 (
                     "sample",

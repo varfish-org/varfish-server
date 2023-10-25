@@ -63,7 +63,9 @@ from cases_qc.tests.factories import (
 
 
 @freeze_time("2012-01-14 12:00:01")
-class SerializerTest(helpers.FixRandomSeedMixin, TestCase, TestCaseSnapshot):
+class SerializerTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff

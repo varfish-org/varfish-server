@@ -1,11 +1,17 @@
 import datetime
 import json
 import random
+import sys
 import typing
 from unittest import mock
 import uuid
 
 import factory
+
+# Import factories here so all classes have been declared here and we
+# can reset their counters in ResetFactoryCountersMixin.
+import cases.tests.factories
+import cases_qc.tests.factories
 
 
 def extract_from_dict(vals: typing.Any, keys: typing.Iterable[str]) -> dict[str, typing.Any]:
@@ -81,3 +87,21 @@ class FixRandomSeedMixin:
         # recover the os.urandom function
         self._FixRandomSeedMixin_patcher.stop()
         random.setstate(self._FixRandomSeedMixin__random_state)
+
+
+class ResetFactoryCountersMixin:
+    def setUp(self):
+        """Reset the factory counters."""
+        super().setUp()
+        self._reset_subclasses_of(factory.Factory)
+
+    def _reset_subclasses_of(self, cls):
+        for subcls in cls.__subclasses__():
+            try:
+                subcls.reset_sequence()
+            except ValueError as e:
+                if "Can't reset a sequence on descendant factory" in str(e):
+                    pass  # swallow
+                else:
+                    raise  # re-raise
+            self._reset_subclasses_of(subcls)

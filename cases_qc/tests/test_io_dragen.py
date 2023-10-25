@@ -25,12 +25,14 @@ from cases_qc.models.dragen import (
     DragenWgsHist,
     DragenWgsOverallMeanCov,
 )
+from cases_qc.tests import helpers
 from cases_qc.tests.factories import CaseQcFactory
-from cases_qc.tests.helpers import extract_from_dict
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TryCastTest(TestCaseSnapshot, TestCase):
+class TryCastTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -50,7 +52,9 @@ class TryCastTest(TestCaseSnapshot, TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenLoadCnvMetricsTest(TestCaseSnapshot, TestCase):
+class DragenLoadCnvMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -70,11 +74,13 @@ class DragenLoadCnvMetricsTest(TestCaseSnapshot, TestCase):
         metrics = DragenCnvMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(metrics, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenLoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
+class DragenLoadVcHethomRatioMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -94,11 +100,13 @@ class DragenLoadVcHethomRatioMetricsTest(TestCaseSnapshot, TestCase):
         metrics = DragenVcHethomRatioMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(metrics, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenLoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
+class DragenLoadFragmentLengthHistTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -119,11 +127,13 @@ class DragenLoadFragmentLengthHistTest(TestCaseSnapshot, TestCase):
         hist = DragenFragmentLengthHistogram.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "keys", "values")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenMappingMetricsTest(TestCaseSnapshot, TestCase):
+class DragenMappingMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -144,11 +154,13 @@ class DragenMappingMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenMappingMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenPloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
+class DragenPloidyEstimationMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -169,11 +181,13 @@ class DragenPloidyEstimationMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenPloidyEstimationMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenRohMetricsTest(TestCaseSnapshot, TestCase):
+class DragenRohMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -194,11 +208,13 @@ class DragenRohMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenRohMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
+class DragenVcMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -218,11 +234,13 @@ class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenVcMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenSvMetricsTest(TestCaseSnapshot, TestCase):
+class DragenSvMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -242,11 +260,13 @@ class DragenSvMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenSvMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenTimeMetricsTest(TestCaseSnapshot, TestCase):
+class DragenTimeMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -267,11 +287,13 @@ class DragenTimeMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenTimeMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenTrimmerMetricsTest(TestCaseSnapshot, TestCase):
+class DragenTrimmerMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -292,11 +314,13 @@ class DragenTrimmerMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenTrimmerMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
+class DragenVcMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -316,11 +340,13 @@ class DragenVcMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenVcMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenWgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
+class DragenWgsContigMeanCovMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -341,11 +367,13 @@ class DragenWgsContigMeanCovMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsContigMeanCovMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenWgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
+class DragenWgsCoverageMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -366,11 +394,13 @@ class DragenWgsCoverageMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsCoverageMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenWgsFineHistTest(TestCaseSnapshot, TestCase):
+class DragenWgsFineHistTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -391,11 +421,13 @@ class DragenWgsFineHistTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsFineHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "keys", "values")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenWgsHistTest(TestCaseSnapshot, TestCase):
+class DragenWgsHistTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -416,11 +448,13 @@ class DragenWgsHistTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "keys", "values")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "keys", "values")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenWgsOverallMeanCovTest(TestCaseSnapshot, TestCase):
+class DragenWgsOverallMeanCovTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -441,11 +475,13 @@ class DragenWgsOverallMeanCovTest(TestCaseSnapshot, TestCase):
         hist = DragenWgsOverallMeanCov.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "metrics")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenRegionCoverageMetricsTest(TestCaseSnapshot, TestCase):
+class DragenRegionCoverageMetricsTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -467,11 +503,15 @@ class DragenRegionCoverageMetricsTest(TestCaseSnapshot, TestCase):
         hist = DragenRegionCoverageMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(hist, ("sample", "region_name", "metrics"))
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenRegionFineHistTest(TestCaseSnapshot, TestCase):
+class DragenRegionFineHistTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -493,11 +533,15 @@ class DragenRegionFineHistTest(TestCaseSnapshot, TestCase):
         hist = DragenRegionFineHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(hist, ("sample", "region_name", "metrics"))
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenRegionHistTest(TestCaseSnapshot, TestCase):
+class DragenRegionHistTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -519,11 +563,15 @@ class DragenRegionHistTest(TestCaseSnapshot, TestCase):
         hist = DragenRegionHist.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(hist, ("sample", "region_name", "metrics"))
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenRegionOverallMeanCovTest(TestCaseSnapshot, TestCase):
+class DragenRegionOverallMeanCovTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
+):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -545,4 +593,6 @@ class DragenRegionOverallMeanCovTest(TestCaseSnapshot, TestCase):
         hist = DragenRegionOverallMeanCov.objects.first()
 
         self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(extract_from_dict(hist, ("sample", "region_name", "metrics")))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(hist, ("sample", "region_name", "metrics"))
+        )
