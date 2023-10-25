@@ -203,7 +203,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         fa = external_file.file_attributes
         if fa.get("designation") != "quality_control":
             return  # can only handle QC data here
-        file_identifier_to_individual: dict[str, str] = {
+        file_identifier_to_individual: typing.Dict[str] = {
             v: k for k, v in (external_file.identifier_map or {}).items()
         }
 
@@ -230,7 +230,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         self,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_cnv_metrics(
@@ -244,7 +244,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -260,7 +260,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -276,7 +276,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -292,7 +292,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -307,7 +307,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         self,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_sv_metrics(
@@ -321,7 +321,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -337,7 +337,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -352,7 +352,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         self,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_hethom_ratio_metrics(
@@ -365,7 +365,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         self,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         with self.external_fs.open(external_file.path, "rt") as inputf:
             io_dragen.load_vc_metrics(
@@ -379,7 +379,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -395,7 +395,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -411,7 +411,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -427,7 +427,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -443,7 +443,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -459,7 +459,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
@@ -477,7 +477,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
@@ -495,7 +495,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
@@ -513,7 +513,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: IndividualExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")
@@ -530,7 +530,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         self,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         with self.external_fs.open(external_file.path, "rt") as inputf:
             io_samtools.load_bcftools_stats(
@@ -544,7 +544,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -560,7 +560,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -576,7 +576,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -592,7 +592,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         with self.external_fs.open(external_file.path, "rt") as inputf:
@@ -608,7 +608,7 @@ class DragenQcImportExecutor(FileImportExecutorBase):
         individual_name: str,
         external_file: PedigreeExternalFile,
         caseqc: CaseQc,
-        file_identifier_to_individual: dict[str, str] | None = None,
+        file_identifier_to_individual: typing.Dict[str] | None = None,
     ):
         sample_name = external_file.identifier_map.get(individual_name, individual_name)
         region_name = external_file.file_attributes.get("region_name", "UNKNOWN REGION")

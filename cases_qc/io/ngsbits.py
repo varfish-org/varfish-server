@@ -34,7 +34,7 @@ def load_mappingqc(
     region_name: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-    file_identifier_to_individual: dict[str, str],
+    file_identifier_to_individual: typing.Dict[str],
 ) -> cases_qc.models.ngsbits.NgsbitsMappingqcMetrics:
     """Load a ngs-bits MappingQC output file into a ``cases_qc.models.NgsbitsMappingqcMetrics``
     record"""

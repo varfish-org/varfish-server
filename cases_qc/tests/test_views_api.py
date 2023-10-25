@@ -73,7 +73,7 @@ class VarfishStatsRetrieveApiView(
         super().setUp()
         self.maxDiff = None
 
-    def _setUpExecutor(self, fac_kwargs: dict[str, str]):
+    def _setUpExecutor(self, fac_kwargs: typing.Dict[str]):
         self.caseimportaction = CaseImportActionFactory(
             action=CaseImportAction.ACTION_CREATE,
             state=CaseImportAction.STATE_SUBMITTED,
