@@ -2,6 +2,7 @@
 
 This has been broken away from ``test_models.py`` for better structure.
 """
+import itertools
 import os
 from unittest import mock
 
@@ -14,7 +15,7 @@ import yaml
 
 from cases.models import Case
 from cases.tests.factories import IndividualFactory, PedigreeFactory
-from cases_files.models import AbstractFile
+from cases_files.models import AbstractFile, PedigreeExternalFile, PedigreeInternalFile
 from cases_import.models.base import CaseImportAction
 from cases_import.models.executors import (
     CaseImportBackgroundJobExecutor,
@@ -23,6 +24,7 @@ from cases_import.models.executors import (
 )
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
 from cases_qc.models import CaseQc
+from cases_qc.tests import helpers
 from seqmeta.tests.factories import TargetBedFileFactory
 from variants.tests.factories import CaseFactory
 
@@ -55,7 +57,7 @@ class ExecutorTestMixin:
         )
 
 
-class ImportCreateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+class ImportCreateTest(ExecutorTestMixin, TestCase):
     """Test the executor with action=create
 
     This will only create the external files objects but not perform an import of quality
@@ -70,6 +72,67 @@ class ImportCreateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.executor.run()
         self.assertEqual(Case.objects.count(), 1)
+
+
+class ImportCreateWithSeqvarVcfTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+    """Test the executor with action=create and external files for seqvar VCF."""
+
+    def setUp(self):
+        super().setUp()
+        self.maxDiff = None
+        self._setUpExecutor(
+            CaseImportAction.ACTION_CREATE,
+            fac_kwargs={"path_phenopacket_yaml": "cases_import/tests/data/singleton_seqvars.yaml"},
+        )
+
+    @mock.patch("cases_import.models.executors.SeqvarImportExecutor._run_worker")
+    def test_run(self, mock_seqvarimprotexecutor_run_worker):
+        """Test import of a case with a seqvar VCF file."""
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(PedigreeExternalFile.objects.count(), 0)
+        self.assertEqual(PedigreeInternalFile.objects.count(), 0)
+
+        self.executor.run()
+
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(PedigreeExternalFile.objects.count(), 2)
+        self.assertEqual(PedigreeInternalFile.objects.count(), 3)
+
+        mock_seqvarimprotexecutor_run_worker.assert_called_once()
+
+        keys_shared = (
+            "date_created",
+            "date_modified",
+            "designation",
+            "file_attributes",
+            "genombuild",
+            "identifier_map",
+            "mimetype",
+            "path",
+        )
+        keys_ext = tuple(
+            itertools.chain(
+                keys_shared,
+                (
+                    "available",
+                    "last_checked",
+                ),
+            )
+        )
+        dicts_ext = [
+            helpers.extract_from_dict(obj, keys=keys_ext)
+            for obj in PedigreeExternalFile.objects.all()
+        ]
+        self.assertMatchSnapshot(dicts_ext, "external files")
+
+        keys_int = tuple(itertools.chain(keys_shared, ("checksum",)))
+        dicts_int = [
+            helpers.extract_from_dict(obj, keys=keys_int)
+            for obj in PedigreeInternalFile.objects.all()
+        ]
+        self.assertMatchSnapshot(dicts_int, "internal files")
 
 
 class ImportCreateWithDragenQcTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):

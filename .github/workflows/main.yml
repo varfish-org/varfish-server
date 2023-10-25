@@ -28,11 +28,34 @@ jobs:
           --health-retries 10
         ports:
           - 5432:5432
+
+      # We launch a minio instance for testing.  Note that we use the bitnami
+      # image because of the issue lined out in this SO discussion:
+      #
+      # - https://stackoverflow.com/questions/64031598
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minio-root-password
+          MINIO_DEFAULT_BUCKETS: varfish-server-test
+        ports:
+          - 9000:9000
+        options: --name minio-server
+
     env:
       CELERY_BROKER_URL: redis://0.0.0.0:6379/0
       DATABASE_URL: 'postgres://varfish_web:varfish_web@0.0.0.0/varfish_web'
       POSTGRES_HOST: 0.0.0.0
       POSTGRES_PORT: 5432
+      VARFISH_CASE_IMPORT_INTERNAL_STORAGE: |
+        {
+          "bucket": "varfish-server-test",
+          "host": "minio",
+          "port": 3010,
+          "access_key": "minioadmin",
+          "secret_key": "minio-root-password",
+        }
 
     steps:
       - name: Install system dependencies

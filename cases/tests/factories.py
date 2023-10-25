@@ -136,6 +136,9 @@ class IndividualFactory(factory.django.DjangoModelFactory):
 
     pedigree = factory.SubFactory(PedigreeFactory)
     name = factory.Sequence(lambda n: f"individual-{n}")
+    father = None
+    mother = None
+    affected = True
     sex = Individual.SEX_MALE
     karyotypic_sex = Individual.KARYOTYPE_XY
     assay = Individual.ASSAY_WES

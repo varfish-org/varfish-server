@@ -1,3 +1,4 @@
+import typing
 import uuid as uuid_object
 
 from django.db import models
@@ -88,6 +89,12 @@ class Individual(models.Model):
 
     #: The name of the individual.
     name = models.CharField(max_length=128)
+    #: The name of the father, if any.
+    father = models.CharField(max_length=128, null=True, blank=True)
+    #: The name of the mother, if any.
+    mother = models.CharField(max_length=128, null=True, blank=True)
+    #: Whether the individual is assumed to be affected.
+    affected = models.BooleanField(default=False)
     #: The "sex assigned at birth" of the individual.
     sex = models.CharField(max_length=128, choices=SEX_CHOICES)
     #: The karyotypic sex.
@@ -132,3 +139,35 @@ class Disease(TermCore):
 
 class PhenotypicFeature(TermCore):
     """Phenotypic feature associated with an ``Individual``."""
+
+
+def write_pedigree_as_plink(pedigree: Pedigree, outputf: typing.TextIO, family_name="FAM"):
+    """Write a pedigree as a PLINK file.
+
+    :param pedigree: The pedigree to write.
+    :param outputf: The output file.
+    """
+    sex_map = {
+        Individual.SEX_UNKNOWN: "0",
+        Individual.SEX_MALE: "1",
+        Individual.SEX_FEMALE: "2",
+        Individual.SEX_OTHER: "0",
+    }
+    affected_map = {
+        False: "1",
+        True: "2",
+        None: "0",
+    }
+    for individual in pedigree.individual_set.order_by("name"):
+        row = [
+            family_name,
+            individual.name,
+            individual.father or "0",
+            individual.mother or "0",
+            sex_map.get(individual.sex, "0"),
+            affected_map.get(individual.affected, "0"),
+        ]
+        print(
+            "\t".join(row),
+            file=outputf,
+        )
