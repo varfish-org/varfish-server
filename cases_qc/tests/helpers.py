@@ -1,10 +1,10 @@
 import datetime
 import json
 import random
+import sys
 import typing
 from unittest import mock
 import uuid
-import sys
 
 import factory
 
