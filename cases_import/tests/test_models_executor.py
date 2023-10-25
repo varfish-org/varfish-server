@@ -79,7 +79,9 @@ class ImportCreateTest(ExecutorTestMixin, TestCase):
 # Cannot use freeze time here as real S3 access is used here and the server
 # refuses connection otherwise.
 # @freeze_time("2012-01-14 12:00:01")
-class ImportCreateWithSeqvarVcfTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
+class ImportCreateWithSeqvarVcfTest(
+    helpers.FixRandomSeedMixin, ExecutorTestMixin, TestCaseSnapshot, TestCase
+):
     """Test the executor with action=create and external files for seqvar VCF."""
 
     def setUp(self):
@@ -115,8 +117,9 @@ class ImportCreateWithSeqvarVcfTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
         self.assertEqual(len(call_2_args), 6)
 
         keys_shared = (
-            "date_created",
-            "date_modified",
+            # cannot freeze time
+            # "date_created",
+            # "date_modified",
             "designation",
             "file_attributes",
             "genombuild",
@@ -129,7 +132,7 @@ class ImportCreateWithSeqvarVcfTest(ExecutorTestMixin, TestCaseSnapshot, TestCas
                 keys_shared,
                 (
                     "available",
-                    "last_checked",
+                    # "last_checked",
                 ),
             )
         )
