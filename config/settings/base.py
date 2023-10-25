@@ -10,12 +10,12 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import logging
 import os
-import re
 import sys
 
 from dotenv import load_dotenv
 import environ
 
+from config.common import InternalStorageConfig
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -942,6 +942,19 @@ VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", defa
 VARFISH_CASE_IMPORT_ALLOW_FILE = env.bool("VARFISH_CASE_IMPORT_ALLOW_FILE", default=False)
 #: Prefix to enforce when importing from local file.
 VARFISH_CASE_IMPORT_FILE_PREFIX = env.str("VARFISH_CASE_IMPORT_FILE_PREFIX", default="")
+#: Configure the internal storage
+VARFISH_CASE_IMPORT_INTERNAL_STORAGE = InternalStorageConfig(
+    **env.json(
+        "VARFISH_CASE_IMPORT_INTERNAL_STORAGE",
+        # default configuration is for local setup of varfish-docker-compose defaults
+        {
+            "host": "localhost",
+            "port": 3010,
+            "access_key": "varfish",
+            "secret_key": "minio-varfish-password",
+        },
+    )
+)
 
 # VarFish Microservices
 #

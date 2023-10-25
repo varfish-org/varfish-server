@@ -4,7 +4,7 @@ import uuid as uuid_object
 from django.db import models
 
 from cases.models import Individual, Pedigree
-from cases_import.proto import FileDesignation
+from cases_import.proto import ExternalFileDesignation
 from variants.models import Case
 
 
@@ -26,8 +26,6 @@ class AbstractFile(models.Model):
         (GENOMEBUILD_GRCH38, GENOMEBUILD_GRCH38),
     )
 
-    FILE_DESIGNATION_CHOICES = tuple(((val, val) for val in FileDesignation.all_values()))
-
     #: Record UUID.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
     #: DateTime of creation.
@@ -44,10 +42,8 @@ class AbstractFile(models.Model):
 
     #: The file's path relative to the internal or project's external storage base URI.  That is,
     #: the path will not start with a slash.
-    path = models.CharField(max_length=1024, null=False, blank=False, unique=True)
+    path = models.CharField(max_length=1024, null=False, blank=False)
 
-    #: The designation of the file.
-    designation = models.CharField(max_length=128, null=False, choices=FILE_DESIGNATION_CHOICES)
     #: The genome assembly, if any.
     genomebuild = models.CharField(max_length=128, null=True, choices=GENOMEBUILD_CHOICES)
     #: The file format as MIME type.
@@ -63,6 +59,11 @@ class ExternalFile(AbstractFile):
     Such files are either used for import (and then conversion to internal files)
     before being used in queries etc., or they are used for redisplay only.
     """
+
+    FILE_DESIGNATION_CHOICES = tuple(((val, val) for val in ExternalFileDesignation.all_values()))
+
+    #: The designation of the external file.
+    designation = models.CharField(max_length=128, null=False, choices=FILE_DESIGNATION_CHOICES)
 
     #: Whether or not the file was available on the last check.
     available = models.BooleanField(null=True, default=None)
@@ -83,6 +84,13 @@ class InternalFile(AbstractFile):
     Such files are used for queries etc.
     """
 
+    #: All file attributes from phenopackets and possibly more.
+    file_attributes = models.JSONField(null=False)
+    #: The mapping from individual to file identifiers.
+    identifier_map = models.JSONField(null=False)
+    #: The designation of the internal file, more fine-grained as for the exernal ones, but
+    #: not limited to options as this is not user-facing.
+    designation = models.CharField(max_length=128, null=False)
     #: The checksum of the file.
     checksum = models.CharField(max_length=128, null=True)
 
@@ -100,6 +108,9 @@ class IndividualExternalFile(ExternalFile):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        unique_together = (("individual", "path"),)
+
 
 class IndividualInternalFile(InternalFile):
     """Reference to a file on internal storage for an individual."""
@@ -110,6 +121,9 @@ class IndividualInternalFile(InternalFile):
         null=False,
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        unique_together = (("individual", "path"),)
 
 
 class PedigreeExternalFile(ExternalFile):
@@ -122,6 +136,9 @@ class PedigreeExternalFile(ExternalFile):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        unique_together = (("pedigree", "path"),)
+
 
 class PedigreeInternalFile(InternalFile):
     """Reference to a file on internal storage for a pedigree."""
@@ -132,3 +149,6 @@ class PedigreeInternalFile(InternalFile):
         null=False,
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        unique_together = (("pedigree", "path"),)
