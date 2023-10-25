@@ -19,7 +19,9 @@ from variants.tests.helpers import ApiViewTestBase
 
 
 @freeze_time("2012-01-14 12:00:01")
-class CaseQcRetrieveApiViewTest(helpers.FixRandomSeedMixin, ApiViewTestBase, TestCaseSnapshot):
+class CaseQcRetrieveApiViewTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, ApiViewTestBase, TestCaseSnapshot
+):
     """Test retrieval of ``CaseQc`` objects."""
 
     def setUp(self):
@@ -59,7 +61,11 @@ class CaseQcRetrieveApiViewTest(helpers.FixRandomSeedMixin, ApiViewTestBase, Tes
 
 @freeze_time("2012-01-14 12:00:01")
 class VarfishStatsRetrieveApiView(
-    helpers.FixRandomSeedMixin, ApiViewTestBase, ExecutorTestMixin, TestCaseSnapshot
+    helpers.FixRandomSeedMixin,
+    helpers.ResetFactoryCountersMixin,
+    ApiViewTestBase,
+    ExecutorTestMixin,
+    TestCaseSnapshot,
 ):
     """Test retrieval / building of ``VarfishStats`` objects."""
 

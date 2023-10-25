@@ -8,6 +8,12 @@ import uuid
 import factory
 
 
+# Import factories here so all classes have been declared here and we
+# can reset their counters in ResetFactoryCountersMixin.
+import cases.tests.factories
+import cases_qc.tests.factories
+
+
 def extract_from_dict(vals: typing.Any, keys: typing.Iterable[str]) -> dict[str, typing.Any]:
     """Helper to extract certain values from the dictionary."""
     return {key: value for key, value in vars(vals).items() if key in keys}
@@ -81,3 +87,11 @@ class FixRandomSeedMixin:
         # recover the os.urandom function
         self._FixRandomSeedMixin_patcher.stop()
         random.setstate(self._FixRandomSeedMixin__random_state)
+
+
+class ResetFactoryCountersMixin:
+    def setUp(self):
+        """Reset the factory counters."""
+        super().setUp()
+        for cls in factory.Factory.__subclasses__():
+            cls.reset_sequence()
