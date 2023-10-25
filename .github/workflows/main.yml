@@ -54,7 +54,7 @@ jobs:
           "host": "minio",
           "port": 3010,
           "access_key": "minioadmin",
-          "secret_key": "minio-root-password",
+          "secret_key": "minio-root-password"
         }
 
     steps:
