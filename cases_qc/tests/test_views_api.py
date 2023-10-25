@@ -1,4 +1,5 @@
 import random
+import typing
 import unittest.mock
 
 from django.urls import reverse
@@ -73,7 +74,7 @@ class VarfishStatsRetrieveApiView(
         super().setUp()
         self.maxDiff = None
 
-    def _setUpExecutor(self, fac_kwargs: dict[str, str]):
+    def _setUpExecutor(self, fac_kwargs: typing.Dict[str, str]):
         self.caseimportaction = CaseImportActionFactory(
             action=CaseImportAction.ACTION_CREATE,
             state=CaseImportAction.STATE_SUBMITTED,
