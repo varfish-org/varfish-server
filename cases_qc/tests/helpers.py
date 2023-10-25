@@ -7,7 +7,6 @@ import uuid
 
 import factory
 
-
 # Import factories here so all classes have been declared here and we
 # can reset their counters in ResetFactoryCountersMixin.
 import cases.tests.factories
