@@ -4,6 +4,7 @@ import random
 import typing
 from unittest import mock
 import uuid
+import sys
 
 import factory
 
@@ -92,5 +93,15 @@ class ResetFactoryCountersMixin:
     def setUp(self):
         """Reset the factory counters."""
         super().setUp()
-        for cls in factory.Factory.__subclasses__():
-            cls.reset_sequence()
+        self._reset_subclasses_of(factory.Factory)
+
+    def _reset_subclasses_of(self, cls):
+        for subcls in cls.__subclasses__():
+            try:
+                subcls.reset_sequence()
+            except ValueError as e:
+                if "Can't reset a sequence on descendant factory" in str(e):
+                    pass  # swallow
+                else:
+                    raise  # re-raise
+            self._reset_subclasses_of(subcls)

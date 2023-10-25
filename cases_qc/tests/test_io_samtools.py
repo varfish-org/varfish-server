@@ -79,8 +79,8 @@ class SamtoolsLoadSamtoolsFlagstatTest(
         metrics = SamtoolsFlagstatMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        helpers.self.assertMatchSnapshot(
-            extract_from_dict(metrics, ("sample", "qc_pass", "qc_fail"))
+        self.assertMatchSnapshot(
+            helpers.extract_from_dict(metrics, ("sample", "qc_pass", "qc_fail"))
         )
 
 
@@ -171,4 +171,4 @@ class SamtoolsLoadSamtoolsIdxstatsTest(
         metrics = SamtoolsIdxstatsMetrics.objects.first()
 
         self.assertMatchSnapshot(list(vars(metrics).keys()))
-        helpers.self.assertMatchSnapshot(extract_from_dict(metrics, ("sample", "records")))
+        self.assertMatchSnapshot(helpers.extract_from_dict(metrics, ("sample", "records")))
