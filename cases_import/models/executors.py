@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -32,6 +33,7 @@ from cases_qc.io import dragen as io_dragen
 from cases_qc.io import ngsbits as io_ngsbits
 from cases_qc.io import samtools as io_samtools
 from cases_qc.models import CaseQc
+from config.common import PrefilterConfig
 from seqmeta.models import TargetBedFile
 from variants.models import Case
 
@@ -684,9 +686,14 @@ class SeqvarImportExecutor(FileImportExecutorBase):
 
     def run(self):
         """Perform the import."""
-        vcf_on_s3 = self._copy_external_internal()
-        if vcf_on_s3:
-            self._annotate(vcf_on_s3)
+        ext_vcf_on_s3 = self._copy_external_internal()
+        if ext_vcf_on_s3:
+            int_on_s3 = self._annotate(ext_vcf_on_s3)
+            int_vcf_on_s3 = [
+                obj for obj in int_on_s3 if obj.designation == "variant_calls/seqvars/ingested-vcf"
+            ]
+            if int_vcf_on_s3:
+                self._prefilter(int_vcf_on_s3[0])
 
     def _copy_external_internal(self) -> typing.Optional[PedigreeInternalFile]:
         """Copy the external VCF file to the internal storage.
@@ -807,6 +814,82 @@ class SeqvarImportExecutor(FileImportExecutorBase):
                     ".tbi",
                 ),
             )
+        ]
+
+    def _prefilter(self, ingested_on_s3: PedigreeInternalFile):
+        with tempfile.NamedTemporaryFile(mode="w+t") as tmpf:
+            configs: list[PrefilterConfig] = settings.VARFISH_CASE_IMPORT_SEQVAR_PREFILTER_CONFIGS
+            out_lst = []
+            for idx, config in enumerate(configs):
+                dirname = os.path.dirname(ingested_on_s3.path)
+                prefilter_path = f"{dirname}/prefiltered-{idx}.vcf.gz"
+                out_lst.append(
+                    PrefilterConfig(
+                        **{
+                            **config.dict(),
+                            "prefilter_path": prefilter_path,
+                        }
+                    )
+                )
+            json.dump([obj.dict() for obj in out_lst], tmpf)
+            tmpf.flush()
+            self._prefilter_inner(
+                ingested_on_s3=ingested_on_s3, configs=out_lst, path_config=tmpf.name
+            )
+
+    def _prefilter_inner(
+        self, ingested_on_s3: PedigreeInternalFile, configs: list[PrefilterConfig], path_config: str
+    ):
+        # Create arguments to use.
+        args = [
+            "seqvars",
+            "prefilter",
+            "--params",
+            f"@{path_config}",
+            "--path-in",
+            ingested_on_s3.path,
+        ]
+        # Setup environment so the worker can access the internal S3 storage.
+        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
+        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
+        env = {
+            **dict(os.environ.items()),
+            "LC_ALL": "C",
+            "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
+            "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
+            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            # "AWS_REGION": "us-east-1",
+        }
+        # Actually execute the worker.
+        self._run_worker(args=args, env=env)
+        # Create the `PedigreeInternalFile` records after prefilter is complete.
+        return [
+            PedigreeInternalFile.objects.create(
+                case=self.case,
+                path=f"{config.prefilter_path}{suffix}",
+                genomebuild=ingested_on_s3.genomebuild,
+                mimetype=mimetype,
+                identifier_map=ingested_on_s3.identifier_map,
+                designation=designation,
+                file_attributes={
+                    "prefilter_config": json.dumps(config.dict()),
+                },
+                # checksum=extfile.checksum,  # TODO
+                pedigree=self.case.pedigree_obj,
+            )
+            for mimetype, designation, suffix in (
+                (
+                    "text/plain+x-bgzip+x-variant-call-format",
+                    "variant_calls/seqvars/prefiltered-vcf",
+                    "",
+                ),
+                (
+                    "application/octet-stream+x-tabix-tbi-index",
+                    "variant_calls/seqvars/prefiltered-tbi",
+                    ".tbi",
+                ),
+            )
+            for config in configs
         ]
 
     def _run_worker(self, args: list[str], env: typing.Dict[str, str] | None = None):

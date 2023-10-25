@@ -15,7 +15,7 @@ import sys
 from dotenv import load_dotenv
 import environ
 
-from config.common import InternalStorageConfig
+from config.common import InternalStorageConfig, PrefilterConfig
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -956,6 +956,18 @@ VARFISH_CASE_IMPORT_INTERNAL_STORAGE = InternalStorageConfig(
         },
     )
 )
+#: Prefilter configurations.
+VARFISH_CASE_IMPORT_SEQVAR_PREFILTER_CONFIGS: list[PrefilterConfig] = [
+    PrefilterConfig(**vals)
+    for vals in env.json(
+        "VARFISH_CASE_IMPORT_SEQVAR_PREFILTER_CONFIGS",
+        # default prefilter configuration
+        [
+            {"max_freq": 0.05, "max_exon_dist": 1000},
+            {"max_freq": 0.01, "max_exon_dist": 100},
+        ],
+    )
+]
 
 # VarFish Microservices
 #

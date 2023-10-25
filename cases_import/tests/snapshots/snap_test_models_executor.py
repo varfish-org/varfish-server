@@ -10,10 +10,10 @@ snapshots["ImportCreateWithSeqvarVcfTest::test_run external files"] = [
     {
         "available": None,
         "date_created": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 499829, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 488009, tzinfo=<UTC>)"
         ),
         "date_modified": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 499842, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 488021, tzinfo=<UTC>)"
         ),
         "designation": "variant_calls",
         "file_attributes": {
@@ -31,10 +31,10 @@ snapshots["ImportCreateWithSeqvarVcfTest::test_run external files"] = [
     {
         "available": None,
         "date_created": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 500613, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 488657, tzinfo=<UTC>)"
         ),
         "date_modified": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 500625, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 488669, tzinfo=<UTC>)"
         ),
         "designation": "variant_calls",
         "file_attributes": {
@@ -55,10 +55,10 @@ snapshots["ImportCreateWithSeqvarVcfTest::test_run internal files"] = [
     {
         "checksum": None,
         "date_created": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 791638, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 824401, tzinfo=<UTC>)"
         ),
         "date_modified": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 791679, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 824419, tzinfo=<UTC>)"
         ),
         "designation": "variant_calls/seqvars/orig-copy",
         "file_attributes": {
@@ -70,34 +70,98 @@ snapshots["ImportCreateWithSeqvarVcfTest::test_run internal files"] = [
         },
         "identifier_map": {"index": "NA12878-PCRF450-1"},
         "mimetype": "text/plain+x-bgzip+x-variant-call-format",
-        "path": "case-data/63/517f2b-34f9-481e-bfe0-91f0d702adae/0ab5c70a-caab-473e-9210-ff030d19b8b6/seqvar/external-copy.vcf.gz",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/external-copy.vcf.gz",
     },
     {
         "checksum": None,
         "date_created": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 795019, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 828810, tzinfo=<UTC>)"
         ),
         "date_modified": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 795034, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 828838, tzinfo=<UTC>)"
         ),
         "designation": "variant_calls/seqvars/ingested-vcf",
         "file_attributes": {},
         "identifier_map": {"index": "NA12878-PCRF450-1"},
         "mimetype": "text/plain+x-bgzip+x-variant-call-format",
-        "path": "case-data/63/517f2b-34f9-481e-bfe0-91f0d702adae/0ab5c70a-caab-473e-9210-ff030d19b8b6/seqvar/ingested.vcf.gz",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/ingested.vcf.gz",
     },
     {
         "checksum": None,
         "date_created": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 795757, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 829572, tzinfo=<UTC>)"
         ),
         "date_modified": GenericRepr(
-            "datetime.datetime(2023, 10, 25, 12, 30, 41, 795771, tzinfo=<UTC>)"
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 829584, tzinfo=<UTC>)"
         ),
         "designation": "variant_calls/seqvars/ingested-tbi",
         "file_attributes": {},
         "identifier_map": {"index": "NA12878-PCRF450-1"},
         "mimetype": "application/octet-stream+x-tabix-tbi-index",
-        "path": "case-data/63/517f2b-34f9-481e-bfe0-91f0d702adae/0ab5c70a-caab-473e-9210-ff030d19b8b6/seqvar/ingested.vcf.gz.tbi",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/ingested.vcf.gz.tbi",
+    },
+    {
+        "checksum": None,
+        "date_created": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 832143, tzinfo=<UTC>)"
+        ),
+        "date_modified": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 832159, tzinfo=<UTC>)"
+        ),
+        "designation": "variant_calls/seqvars/prefiltered-vcf",
+        "file_attributes": {
+            "prefilter_config": '{"max_freq": 0.05, "max_exon_dist": 1000, "prefilter_path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-0.vcf.gz"}'
+        },
+        "identifier_map": {"index": "NA12878-PCRF450-1"},
+        "mimetype": "text/plain+x-bgzip+x-variant-call-format",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-0.vcf.gz",
+    },
+    {
+        "checksum": None,
+        "date_created": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 832824, tzinfo=<UTC>)"
+        ),
+        "date_modified": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 832836, tzinfo=<UTC>)"
+        ),
+        "designation": "variant_calls/seqvars/prefiltered-vcf",
+        "file_attributes": {
+            "prefilter_config": '{"max_freq": 0.01, "max_exon_dist": 100, "prefilter_path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-1.vcf.gz"}'
+        },
+        "identifier_map": {"index": "NA12878-PCRF450-1"},
+        "mimetype": "text/plain+x-bgzip+x-variant-call-format",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-1.vcf.gz",
+    },
+    {
+        "checksum": None,
+        "date_created": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 833415, tzinfo=<UTC>)"
+        ),
+        "date_modified": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 833426, tzinfo=<UTC>)"
+        ),
+        "designation": "variant_calls/seqvars/prefiltered-tbi",
+        "file_attributes": {
+            "prefilter_config": '{"max_freq": 0.05, "max_exon_dist": 1000, "prefilter_path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-0.vcf.gz"}'
+        },
+        "identifier_map": {"index": "NA12878-PCRF450-1"},
+        "mimetype": "application/octet-stream+x-tabix-tbi-index",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-0.vcf.gz.tbi",
+    },
+    {
+        "checksum": None,
+        "date_created": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 834024, tzinfo=<UTC>)"
+        ),
+        "date_modified": GenericRepr(
+            "datetime.datetime(2023, 10, 25, 13, 26, 50, 834036, tzinfo=<UTC>)"
+        ),
+        "designation": "variant_calls/seqvars/prefiltered-tbi",
+        "file_attributes": {
+            "prefilter_config": '{"max_freq": 0.01, "max_exon_dist": 100, "prefilter_path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-1.vcf.gz"}'
+        },
+        "identifier_map": {"index": "NA12878-PCRF450-1"},
+        "mimetype": "application/octet-stream+x-tabix-tbi-index",
+        "path": "case-data/fa/59725d-4acc-4734-aa91-3834ab483f77/19d32d6f-7e9e-4e5a-a442-b2fb5ff8921b/seqvar/prefiltered-1.vcf.gz.tbi",
     },
 ]
