@@ -52,7 +52,7 @@ jobs:
         {
           "bucket": "varfish-server-test",
           "host": "minio",
-          "port": 3010,
+          "port": 9000,
           "access_key": "minioadmin",
           "secret_key": "minio-root-password"
         }
