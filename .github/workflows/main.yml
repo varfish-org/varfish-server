@@ -73,7 +73,9 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          # We need to fix the patch version here otherwise, snapshot tests
+          # with randomness will / may fail.
+          python-version: "3.10.13"
 
       - name: Install pip and Pipenv
         run: |
