@@ -58,6 +58,8 @@ jobs:
         }
 
     steps:
+      - run: ping -c 3 minio
+    
       - name: Install system dependencies
         run: |
           sudo apt-get update
