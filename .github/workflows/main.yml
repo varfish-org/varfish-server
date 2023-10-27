@@ -41,7 +41,6 @@ jobs:
           MINIO_DEFAULT_BUCKETS: varfish-server-test
         ports:
           - 9000:9000
-        options: --name minio-server
 
     env:
       CELERY_BROKER_URL: redis://0.0.0.0:6379/0
