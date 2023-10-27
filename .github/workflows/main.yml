@@ -57,7 +57,7 @@ jobs:
         }
 
     steps:
-      - run: ping -c 3 minio
+      - run: echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
     
       - name: Install system dependencies
         run: |
