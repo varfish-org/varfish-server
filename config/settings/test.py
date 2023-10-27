@@ -103,3 +103,22 @@ VARFISH_CASE_IMPORT_ALLOW_FILE = True
 
 # Eanble for testing.
 VARFISH_ENABLE_BEACON_SITE = env.bool("VARFISH_ENABLE_BEACON_SITE", default=True)
+
+# Varfish: S3 Internal Storage
+# ------------------------------------------------------------------------------
+
+#: Configure the internal storage
+VARFISH_CASE_IMPORT_INTERNAL_STORAGE = InternalStorageConfig(
+    **env.json(
+        "VARFISH_CASE_IMPORT_INTERNAL_STORAGE",
+        # configure with default settings to use for testing, same as in
+        # varfish-docker-compose-ng default setup
+        {
+            "bucket": "varfish-server-test",
+            "host": "localhost",
+            "port": 3010,
+            "access_key": "minioadmin",
+            "secret_key": "minio-root-password",
+        },
+    )
+)

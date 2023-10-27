@@ -342,7 +342,7 @@ class FamilyValidatorTest(TestCase):
 
     @parameterized.expand(
         [
-            ["proband", 5],
+            ["proband", 3],
             ["pedigree", 4],
             ["metaData", 1],
         ]

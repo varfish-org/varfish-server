@@ -71,7 +71,7 @@ class FixRandomSeedMixin:
             the_factory._Generator__random = random.Random(seed)
         # patch the os.urandom function
         self._FixRandomSeedMixin_patcher = mock.patch("os.urandom", new=fake_urandom)
-        random.seed(seed)
+        self._FixRandomSeedMixin_patcher.start()
 
     def tearDown(self):
         """Reset the random state"""
@@ -86,7 +86,6 @@ class FixRandomSeedMixin:
         random.setstate(self._FixRandomSeedMixin__random_state)
         # recover the os.urandom function
         self._FixRandomSeedMixin_patcher.stop()
-        random.setstate(self._FixRandomSeedMixin__random_state)
 
 
 class ResetFactoryCountersMixin:
