@@ -97,7 +97,7 @@ jobs:
             ]
           }
           EOF
-          mc admin policy add minio varfish-server-test-policy /tmp/policy.json
+          mc admin policy create minio varfish-server-test-policy /tmp/policy.json
           mc admin policy set local varfish-server-test-policy user=varfish-server-test
 
       - name: Install system dependencies
