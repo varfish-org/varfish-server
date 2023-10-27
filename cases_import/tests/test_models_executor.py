@@ -79,7 +79,7 @@ class ImportCreateTest(ExecutorTestMixin, TestCase):
 # Cannot use freeze time here as real S3 access is used here and the server
 # refuses connection otherwise.
 # @freeze_time("2012-01-14 12:00:01")
-class ImportCreateWithSeqvarVcfTest(
+class ImportCreateWithSeqvarsVcfTest(
     helpers.FixRandomSeedMixin, ExecutorTestMixin, TestCaseSnapshot, TestCase
 ):
     """Test the executor with action=create and external files for seqvar VCF."""
@@ -92,9 +92,9 @@ class ImportCreateWithSeqvarVcfTest(
             fac_kwargs={"path_phenopacket_yaml": "cases_import/tests/data/singleton_seqvars.yaml"},
         )
 
-    @mock.patch("cases_import.models.executors.SeqvarImportExecutor._run_worker")
-    def test_run(self, mock_seqvarimprotexecutor_run_worker):
-        """Test import of a case with a seqvar VCF file."""
+    @mock.patch("cases_import.models.executors.VariantImportExecutorBase.run_worker")
+    def test_run(self, mock_seqvarsimprotexecutor_run_worker):
+        """Test import of a case with a seqvars VCF file."""
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(PedigreeExternalFile.objects.count(), 0)
@@ -107,7 +107,7 @@ class ImportCreateWithSeqvarVcfTest(
         self.assertEqual(PedigreeExternalFile.objects.count(), 2)
         self.assertEqual(PedigreeInternalFile.objects.count(), 7)
 
-        call_list = mock_seqvarimprotexecutor_run_worker.call_args_list
+        call_list = mock_seqvarsimprotexecutor_run_worker.call_args_list
         self.assertEqual(len(call_list), 2)
         call_1_args = call_list[0].kwargs["args"]
         self.assertEqual(call_1_args[0:3], ["seqvars", "ingest", "--file-date"])
@@ -132,6 +132,7 @@ class ImportCreateWithSeqvarVcfTest(
                 keys_shared,
                 (
                     "available",
+                    # cannot freeze time
                     # "last_checked",
                 ),
             )
@@ -145,7 +146,81 @@ class ImportCreateWithSeqvarVcfTest(
         keys_int = tuple(itertools.chain(keys_shared, ("checksum",)))
         dicts_int = [
             helpers.extract_from_dict(obj, keys=keys_int)
-            for obj in PedigreeInternalFile.objects.all()
+            for obj in PedigreeInternalFile.objects.all().order_by("id")
+        ]
+        self.assertMatchSnapshot(dicts_int, "internal files")
+
+
+# Cannot use freeze time here as real S3 access is used here and the server
+# refuses connection otherwise.
+# @freeze_time("2012-01-14 12:00:01")
+class ImportCreateWithStrucvarsVcfTest(
+    helpers.FixRandomSeedMixin, ExecutorTestMixin, TestCaseSnapshot, TestCase
+):
+    """Test the executor with action=create and external files for seqvar VCF."""
+
+    def setUp(self):
+        super().setUp()
+        self.maxDiff = None
+        self._setUpExecutor(
+            CaseImportAction.ACTION_CREATE,
+            fac_kwargs={
+                "path_phenopacket_yaml": "cases_import/tests/data/singleton_strucvars.yaml"
+            },
+        )
+
+    @mock.patch("cases_import.models.executors.VariantImportExecutorBase.run_worker")
+    def test_run(self, mock_strucvarsimprotexecutor_run_worker):
+        """Test import of a case with a strucvars VCF file."""
+        self.assertEqual(Case.objects.count(), 0)
+        self.assertEqual(CaseQc.objects.count(), 0)
+        self.assertEqual(PedigreeExternalFile.objects.count(), 0)
+        self.assertEqual(PedigreeInternalFile.objects.count(), 0)
+
+        self.executor.run()
+
+        self.assertEqual(Case.objects.count(), 1)
+        self.assertEqual(CaseQc.objects.count(), 1)
+        self.assertEqual(PedigreeExternalFile.objects.count(), 2)
+        self.assertEqual(PedigreeInternalFile.objects.count(), 3)
+
+        call_list = mock_strucvarsimprotexecutor_run_worker.call_args_list
+        self.assertEqual(len(call_list), 1)
+        call_1_args = call_list[0].kwargs["args"]
+        self.assertEqual(call_1_args[0:3], ["strucvars", "ingest", "--file-date"])
+        self.assertEqual(len(call_1_args), 16)
+
+        keys_shared = (
+            # cannot freeze time
+            # "date_created",
+            # "date_modified",
+            "designation",
+            "file_attributes",
+            "genombuild",
+            "identifier_map",
+            "mimetype",
+            "path",
+        )
+        keys_ext = tuple(
+            itertools.chain(
+                keys_shared,
+                (
+                    "available",
+                    # cannot freeze time
+                    # "last_checked",
+                ),
+            )
+        )
+        dicts_ext = [
+            helpers.extract_from_dict(obj, keys=keys_ext)
+            for obj in PedigreeExternalFile.objects.all()
+        ]
+        self.assertMatchSnapshot(dicts_ext, "external files")
+
+        keys_int = tuple(itertools.chain(keys_shared, ("checksum",)))
+        dicts_int = [
+            helpers.extract_from_dict(obj, keys=keys_int)
+            for obj in PedigreeInternalFile.objects.all().order_by("id")
         ]
         self.assertMatchSnapshot(dicts_int, "internal files")
 

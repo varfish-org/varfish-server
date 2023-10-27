@@ -957,10 +957,10 @@ VARFISH_CASE_IMPORT_INTERNAL_STORAGE = InternalStorageConfig(
     )
 )
 #: Prefilter configurations.
-VARFISH_CASE_IMPORT_SEQVAR_PREFILTER_CONFIGS: list[PrefilterConfig] = [
+VARFISH_CASE_IMPORT_SEQVARS_PREFILTER_CONFIGS: list[PrefilterConfig] = [
     PrefilterConfig(**vals)
     for vals in env.json(
-        "VARFISH_CASE_IMPORT_SEQVAR_PREFILTER_CONFIGS",
+        "VARFISH_CASE_IMPORT_SEQVARS_PREFILTER_CONFIGS",
         # default prefilter configuration
         [
             {"max_freq": 0.05, "max_exon_dist": 1000},
