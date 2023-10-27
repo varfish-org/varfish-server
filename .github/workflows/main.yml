@@ -64,6 +64,7 @@ jobs:
     steps:
       - name: Perform minio client setup
         run: |
+          set -x
           # create host alias for minio
           echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
           # install minio client and configure default alias
@@ -98,7 +99,7 @@ jobs:
           }
           EOF
           mc admin policy create minio varfish-server-test-policy /tmp/policy.json
-          mc admin policy set local varfish-server-test-policy user=varfish-server-test
+          mc admin policy attach local varfish-server-test-policy user=varfish-server-test
 
       - name: Install system dependencies
         run: |
