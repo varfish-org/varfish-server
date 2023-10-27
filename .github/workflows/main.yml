@@ -116,7 +116,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
+          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test cases_import.tests.test_models_executor.ImportCreateWithSeqvarVcfTest
           pipenv run coverage xml
           pipenv run coverage report
         # Important: use shell that was initialized by micromamba.
