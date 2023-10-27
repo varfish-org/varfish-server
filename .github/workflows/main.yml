@@ -38,7 +38,6 @@ jobs:
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minio-root-password
-          MINIO_DEFAULT_BUCKETS: varfish-server-test
         options: >-
           --name=minio
           --health-cmd "curl http://localhost:9000/minio/health/live"
@@ -58,14 +57,48 @@ jobs:
           "bucket": "varfish-server-test",
           "host": "minio",
           "port": 9000,
-          "access_key": "minioadmin",
-          "secret_key": "minio-root-password"
+          "access_key": "varfish-server-test",
+          "secret_key": "varfish-server-test"
         }
 
     steps:
-      # - name: Create network aliases for named access to services
-      #   run: echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
-      - run: ping -c 1 minio
+      - name: Perform minio client setup
+        run: |
+          # create host alias for minio
+          echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
+          # install minio client and configure default alias
+          wget -O /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x /usr/local/bin/mc
+          mc alias set minio/ http://minio minioadmin minio-root-password
+          # setup bucket and access key for tests
+          mc mb minio/varfish-server-test
+          mc admin user add minio varfish-server-test varfish-server-test
+          # write policy file for bucket access, add it to server, and associate with
+          # access key created above
+          cat >/tmp/policy.json <<"EOF"
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Action": [
+                      "s3:DeleteObject",
+                      "s3:GetBucketLocation",
+                      "s3:GetObject",
+                      "s3:ListBucket",
+                      "s3:PutObject"
+                  ],
+                "Effect": "Allow",
+                "Resource": [
+                  "arn:aws:s3:::varfish-server-test/*",
+                  "arn:aws:s3:::varfish-server-test"
+                ],
+                "Sid": "BucketAccessForUser"
+              }
+            ]
+          }
+          EOF
+          mc admin policy add minio varfish-server-test-policy /tmp/policy.json
+          mc admin policy set local varfish-server-test-policy user=varfish-server-test
 
       - name: Install system dependencies
         run: |
