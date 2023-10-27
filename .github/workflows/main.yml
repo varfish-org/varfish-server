@@ -69,7 +69,7 @@ jobs:
           # install minio client and configure default alias
           wget -O /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
           chmod +x /usr/local/bin/mc
-          mc alias set minio/ http://minio minioadmin minio-root-password
+          mc alias set minio/ http://minio:9000 minioadmin minio-root-password
           # setup bucket and access key for tests
           mc mb minio/varfish-server-test
           mc admin user add minio varfish-server-test varfish-server-test
