@@ -36,9 +36,15 @@ jobs:
       minio:
         image: bitnami/minio:latest
         env:
-          MINIO_ACCESS_KEY: minioadmin
-          MINIO_SECRET_KEY: minio-root-password
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minio-root-password
           MINIO_DEFAULT_BUCKETS: varfish-server-test
+        options: >-
+          --name=minio
+          --health-cmd "curl http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
         ports:
           - 9000:9000
 
@@ -57,8 +63,10 @@ jobs:
         }
 
     steps:
-      - run: echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
-    
+      # - name: Create network aliases for named access to services
+      #   run: echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
+      - run: ping -c 1 minio
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
