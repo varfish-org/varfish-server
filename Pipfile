@@ -76,7 +76,7 @@ snapshottest = "*"
 tblib = "~=2.0.0"
 # packages for local development
 ipdb = "*"
-jedi = "==0.17.2"
+jedi = "==0.19.1"
 werkzeug = "~=3.0.0"
 
 [ldap-packages]
