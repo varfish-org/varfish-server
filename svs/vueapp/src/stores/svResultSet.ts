@@ -80,9 +80,8 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
     const svClient = new SvClient(csrfToken.value)
-    const responseResultSetList = await svClient.listSvQueryResultSet(
-      queryUuid$,
-    )
+    const responseResultSetList =
+      await svClient.listSvQueryResultSet(queryUuid$)
     if (!responseResultSetList.length) {
       console.error('ERROR: no results in response')
     } else {

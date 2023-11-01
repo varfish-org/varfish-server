@@ -223,9 +223,8 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
     let revertedPresetSet: PresetSet
     try {
-      revertedPresetSet = await queryPresetsClient.retrievePresetSet(
-        presetSetUuid,
-      )
+      revertedPresetSet =
+        await queryPresetsClient.retrievePresetSet(presetSetUuid)
       presetSets.value[presetSetUuid] = revertedPresetSet
 
       storeState.value.state = oldState
@@ -390,9 +389,8 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
     let revertedPresets: any
     try {
-      revertedPresets = await queryPresetsClient[`retrieve${cat.name}`](
-        presetUuid,
-      )
+      revertedPresets =
+        await queryPresetsClient[`retrieve${cat.name}`](presetUuid)
       const presetsSet = presetSets.value[presetSetUuid][`${category}_set`]
       for (let i = 0; i < presetsSet.length; i++) {
         if (presetsSet[i].sodar_uuid === presetUuid) {
