@@ -126,8 +126,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
     const variantClient = new VariantClient(csrfToken.value)
-    const responseResultSetList =
-      await variantClient.listQueryResultSet(queryUuid$)
+    const responseResultSetList = await variantClient.listQueryResultSet(
+      queryUuid$,
+    )
     if (!responseResultSetList.length) {
       console.error('ERROR: no results in response')
     } else {
@@ -166,11 +167,13 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     storeState.serverInteractions += 1
 
     try {
-      const resultRow$ =
-        await variantClient.retrieveQueryResultRow(resultRowUuid)
+      const resultRow$ = await variantClient.retrieveQueryResultRow(
+        resultRowUuid,
+      )
       const resultSetUuid$ = resultRow$.smallvariantqueryresultset
-      const resultSet$ =
-        await variantClient.retrieveQueryResultSet(resultSetUuid$)
+      const resultSet$ = await variantClient.retrieveQueryResultSet(
+        resultSetUuid$,
+      )
 
       if (resultSet$.smallvariantquery) {
         // The result set belongs to a query so we retrieve it and get the case UUID
