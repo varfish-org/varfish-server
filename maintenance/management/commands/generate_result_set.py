@@ -11,7 +11,6 @@ from variants.models import Case
 from variants.tasks import create_queryresultset as task_create_queryresultset
 from variants.utils import create_queryresultset
 
-
 MSG_RESULT_SETS_CREATED = """
 - SmallVariantQueryResultSets created: {smallvariantqueryresultset}
 - SvQueryResultSets created: {svqueryresultset}
