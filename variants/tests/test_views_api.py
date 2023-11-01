@@ -38,8 +38,10 @@ class TestCaseApiViews(ApiViewTestBase):
         super().setUp()
         self.maxDiff = None
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
-        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
-        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            case=self.case, smallvariantquery=None
+        )
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case, svquery=None)
 
     def _expected_case_data(self, case=None, legacy=False):
         case = case or self.case
@@ -65,7 +67,6 @@ class TestCaseApiViews(ApiViewTestBase):
                 "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
                 "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
                 "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
-                "smallvariantquery": self.smallvariantqueryresultset.smallvariantquery.sodar_uuid,
                 "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
                 "result_row_count": self.smallvariantqueryresultset.result_row_count,
                 "case": self.case.sodar_uuid,
@@ -76,7 +77,6 @@ class TestCaseApiViews(ApiViewTestBase):
                 "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
                 "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
                 "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
-                "svquery": self.svqueryresultset.svquery.sodar_uuid,
                 "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
                 "result_row_count": self.svqueryresultset.result_row_count,
                 "case": self.case.sodar_uuid,

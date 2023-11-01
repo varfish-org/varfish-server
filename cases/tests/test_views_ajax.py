@@ -35,8 +35,10 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
         self.case = CaseFactory(project=self.project, presetset=self.presetset)
-        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(case=self.case)
-        self.svqueryresultset = SvQueryResultSetFactory(case=self.case)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            case=self.case, smallvariantquery=None
+        )
+        self.svqueryresultset = SvQueryResultSetFactory(case=self.case, svquery=None)
 
     def test_get(self):
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
@@ -55,7 +57,6 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
             "date_modified": self.smallvariantqueryresultset.date_modified.strftime(TIMEF),
             "end_time": self.smallvariantqueryresultset.end_time.strftime(TIMEF),
             "start_time": self.smallvariantqueryresultset.start_time.strftime(TIMEF),
-            "smallvariantquery": str(self.smallvariantqueryresultset.smallvariantquery.sodar_uuid),
             "elapsed_seconds": self.smallvariantqueryresultset.elapsed_seconds,
             "result_row_count": self.smallvariantqueryresultset.result_row_count,
             "case": str(self.case.sodar_uuid),
@@ -66,7 +67,6 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
             "date_modified": self.svqueryresultset.date_modified.strftime(TIMEF),
             "end_time": self.svqueryresultset.end_time.strftime(TIMEF),
             "start_time": self.svqueryresultset.start_time.strftime(TIMEF),
-            "svquery": str(self.svqueryresultset.svquery.sodar_uuid),
             "elapsed_seconds": self.svqueryresultset.elapsed_seconds,
             "result_row_count": self.svqueryresultset.result_row_count,
             "case": str(self.case.sodar_uuid),
