@@ -1,10 +1,15 @@
+import json
 import os
 import shutil
+import subprocess
+import tempfile
 import typing
+import uuid
 
 from bgjobs.models import LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_WARNING
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 import fsspec
 from google.protobuf.json_format import ParseDict, ParseError
 import phenopackets
@@ -13,7 +18,7 @@ from projectroles.app_settings import AppSettingAPI
 from projectroles.models import Project
 import pydantic
 
-from cases.models import Disease, Individual, Pedigree, PhenotypicFeature
+from cases.models import Disease, Individual, Pedigree, PhenotypicFeature, write_pedigree_as_plink
 from cases_files.models import (
     AbstractFile,
     IndividualExternalFile,
@@ -28,6 +33,7 @@ from cases_qc.io import dragen as io_dragen
 from cases_qc.io import ngsbits as io_ngsbits
 from cases_qc.io import samtools as io_samtools
 from cases_qc.models import CaseQc
+from config.common import PrefilterConfig
 from seqmeta.models import TargetBedFile
 from variants.models import Case
 
@@ -40,6 +46,12 @@ class FileSystemOptions(pydantic.BaseModel):
     user: str | None
     password: str | None
     use_https: bool = False
+
+
+def uuid_frag(uuid: uuid.UUID | str) -> str:
+    """Create path fragment from UUID by splitting off the first two characters."""
+    uuid_str = str(uuid)
+    return f"{uuid_str[:2]}/{uuid_str[2:]}"
 
 
 class FileSystemWrapper:
@@ -649,8 +661,10 @@ ASSAY_MAP = {
 }
 
 
-class SeqvarImportExecutor(FileImportExecutorBase):
-    """Run the import of sequence variant import."""
+class VariantImportExecutorBase(FileImportExecutorBase):
+    """Base class for variant import."""
+
+    var_type: str
 
     def __init__(self, case: Case, bgjob: CaseImportBackgroundJob):
         super().__init__(case.project)
@@ -672,15 +686,21 @@ class SeqvarImportExecutor(FileImportExecutorBase):
         #: The `FileSystemWrapper` for the internal storage.
         self.internal_fs = FileSystemWrapper(self.internal_fs_options)
 
-    def run(self):
-        """Perform the import."""
-        if self._copy_external_internal():
-            self._annotate()
+    def run(self) -> typing.List[PedigreeInternalFile]:
+        """Perform the import.
 
-    def _copy_external_internal(self) -> bool:
+        :returns: the `PedigreeInternalFile` objects resulting from the import
+        """
+        ext_vcf_on_s3 = self.copy_external_internal()
+        if ext_vcf_on_s3:
+            return self.annotate_outer(ext_vcf_on_s3)
+        else:
+            return []
+
+    def copy_external_internal(self) -> typing.Optional[PedigreeInternalFile]:
         """Copy the external VCF file to the internal storage.
 
-        :return: whether a file was copied
+        :return: the corresponding `PedigreeInternalFile` object
         :raises ValueError: if more than one file is found
         """
         # Find files with the correct designation, variant_type, and mimetype; ensure that there
@@ -688,18 +708,22 @@ class SeqvarImportExecutor(FileImportExecutorBase):
         extfile_qs = PedigreeExternalFile.objects.filter(
             pedigree=self.case.pedigree_obj,
             designation=ExternalFileDesignation.VARIANT_CALLS.value,
+            file_attributes__variant_type=self.var_type,
             mimetype="text/plain+x-bgzip+x-variant-call-format",
         )
         if extfile_qs.count() > 1:
-            raise ValueError(f"expected at most one seqvar VCF file, found {extfile_qs.count()}")
+            raise ValueError(
+                f"expected at most one {self.var_type} VCF file, found {extfile_qs.count()}"
+            )
         elif extfile_qs.count() == 0:
-            return False
+            return None
         extfile = extfile_qs.first()
 
         # Copy the file from the external to the internal storage.
         bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
         path_int = (
-            f"case-data/{self.case.sodar_uuid}/{self.bgjob.sodar_uuid}/seqvar/external-copy.vcf.gz"
+            f"case-data/{uuid_frag(self.case.sodar_uuid)}/{self.bgjob.sodar_uuid}/"
+            f"{self.var_type}/external-copy.vcf.gz"
         )
         path_int_full = f"s3://{bucket}/{path_int}"
         with (
@@ -709,23 +733,285 @@ class SeqvarImportExecutor(FileImportExecutorBase):
             shutil.copyfileobj(inputf, outputf)
 
         # Create the `PedigreeInternalFile` record after copying is complete.
-        PedigreeInternalFile.objects.create(
+        return PedigreeInternalFile.objects.create(
             case=self.case,
             path=path_int,
             genomebuild=extfile.genomebuild,
             mimetype=extfile.mimetype,
             file_attributes=extfile.file_attributes,
             identifier_map=extfile.identifier_map,
-            # is copy of the original seqvar VCF file
-            designation="variant_calls/seqvars/orig-copy",
+            # is copy of the original VCF file
+            designation=f"variant_calls/{self.var_type}/orig-copy",
             # checksum=extfile.checksum,  # TODO
             pedigree=self.case.pedigree_obj,
         )
 
-        return True
+    def annotate_outer(self, vcf_on_s3: PedigreeExternalFile) -> typing.List[PedigreeExternalFile]:
+        """Annotate the VCF file from the internal storage.
 
-    def _annotate(self):
-        """Annotate the VCF file from the internal storage."""
+        Will write temporary PLINK PED file and then call the actual annotation functin.
+        """
+        with tempfile.NamedTemporaryFile(mode="w+t") as tmpf:
+            write_pedigree_as_plink(self.case.pedigree_obj, tmpf)
+            tmpf.flush()
+            return self.annotate(vcf_on_s3, path_ped=tmpf.name)
+
+    def annotate(
+        self, vcf_on_s3: PedigreeExternalFile, path_ped: str
+    ) -> typing.List[PedigreeExternalFile]:
+        _ = vcf_on_s3
+        _ = path_ped
+        raise NotImplementedError
+
+    def run_worker(self, args: list[str], env: typing.Dict[str, str] | None = None):
+        """Run the worker with the given arguments.
+
+        The worker will create a new VCF file and a TBI file.
+        """
+        cmd = [settings.WORKER_EXE_PATH, *args]
+        subprocess.check_call(cmd, env=env)
+
+
+class SeqvarsImportExecutor(VariantImportExecutorBase):
+    """Run the import of sequence variant import."""
+
+    var_type = "seqvars"
+
+    def run(self) -> typing.List[PedigreeInternalFile]:
+        """Override superclass behaviour to also prefilter the VCF file."""
+        int_on_s3 = super().run()
+        int_vcf_on_s3 = [
+            obj
+            for obj in int_on_s3
+            if obj.designation == f"variant_calls/{self.var_type}/ingested-vcf"
+        ]
+        if int_vcf_on_s3:
+            self.prefilter_seqvars_outer(int_vcf_on_s3[0])
+        return int_on_s3
+
+    def annotate(
+        self, vcf_on_s3: PedigreeExternalFile, path_ped: str
+    ) -> typing.List[PedigreeExternalFile]:
+        """Implementation of sequence variant annotation."""
+        # Path create path of the new fiel.
+        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
+        path_out = (
+            f"case-data/{uuid_frag(self.case.sodar_uuid)}/{self.bgjob.sodar_uuid}/"
+            "seqvars/ingested.vcf.gz"
+        )
+        # Create arguments to use.
+        args = [
+            "seqvars",
+            "ingest",
+            "--file-date",
+            timezone.now().strftime("%Y%m%d"),
+            "--case-uuid",
+            str(self.case.sodar_uuid),
+            "--genomebuild",
+            vcf_on_s3.genomebuild,
+            "--path-mehari-db",
+            f"{settings.WORKER_DB_PATH}/mehari",
+            "--path-ped",
+            path_ped,
+            "--path-in",
+            vcf_on_s3.path,
+            "--path-out",
+            f"{bucket}/{path_out}",
+        ]
+        # Setup environment so the worker can access the internal S3 storage.
+        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
+        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
+        env = {
+            **dict(os.environ.items()),
+            "LC_ALL": "C",
+            "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
+            "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
+            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            # "AWS_REGION": "us-east-1",
+        }
+        # Actually execute the worker.
+        self.run_worker(args=args, env=env)
+        # Create the `PedigreeInternalFile` record after ingest is complete.
+        return [
+            PedigreeInternalFile.objects.create(
+                case=self.case,
+                path=f"{path_out}{suffix}",
+                genomebuild=vcf_on_s3.genomebuild,
+                mimetype=mimetype,
+                identifier_map=vcf_on_s3.identifier_map,
+                designation=designation,
+                file_attributes={},
+                # checksum=extfile.checksum,  # TODO
+                pedigree=self.case.pedigree_obj,
+            )
+            for mimetype, designation, suffix in (
+                (
+                    "text/plain+x-bgzip+x-variant-call-format",
+                    "variant_calls/seqvars/ingested-vcf",
+                    "",
+                ),
+                (
+                    "application/octet-stream+x-tabix-tbi-index",
+                    "variant_calls/seqvars/ingested-tbi",
+                    ".tbi",
+                ),
+            )
+        ]
+
+    def prefilter_seqvars_outer(self, ingested_on_s3: PedigreeInternalFile):
+        """Writes out the prefilter configuration JSON to file and then calls the actual
+        prefiltration.
+        """
+        with tempfile.NamedTemporaryFile(mode="w+t") as tmpf:
+            configs: list[PrefilterConfig] = settings.VARFISH_CASE_IMPORT_SEQVARS_PREFILTER_CONFIGS
+            out_lst = []
+            for idx, config in enumerate(configs):
+                dirname = os.path.dirname(ingested_on_s3.path)
+                prefilter_path = f"{dirname}/prefiltered-{idx}.vcf.gz"
+                out_lst.append(
+                    PrefilterConfig(
+                        **{
+                            **config.dict(),
+                            "prefilter_path": prefilter_path,
+                        }
+                    )
+                )
+            json.dump([obj.dict() for obj in out_lst], tmpf)
+            tmpf.flush()
+            self.prefilter_seqvars(
+                ingested_on_s3=ingested_on_s3, configs=out_lst, path_config=tmpf.name
+            )
+
+    def prefilter_seqvars(
+        self, ingested_on_s3: PedigreeInternalFile, configs: list[PrefilterConfig], path_config: str
+    ):
+        """Run prefiltration of sequence variants."""
+        # Create arguments to use.
+        args = [
+            "seqvars",
+            "prefilter",
+            "--params",
+            f"@{path_config}",
+            "--path-in",
+            ingested_on_s3.path,
+        ]
+        # Setup environment so the worker can access the internal S3 storage.
+        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
+        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
+        env = {
+            **dict(os.environ.items()),
+            "LC_ALL": "C",
+            "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
+            "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
+            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            # "AWS_REGION": "us-east-1",
+        }
+        # Actually execute the worker.
+        self.run_worker(args=args, env=env)
+        # Create the `PedigreeInternalFile` records after prefilter is complete.
+        return [
+            PedigreeInternalFile.objects.create(
+                case=self.case,
+                path=f"{config.prefilter_path}{suffix}",
+                genomebuild=ingested_on_s3.genomebuild,
+                mimetype=mimetype,
+                identifier_map=ingested_on_s3.identifier_map,
+                designation=designation,
+                file_attributes={
+                    "prefilter_config": json.dumps(config.dict()),
+                },
+                # checksum=extfile.checksum,  # TODO
+                pedigree=self.case.pedigree_obj,
+            )
+            for mimetype, designation, suffix in (
+                (
+                    "text/plain+x-bgzip+x-variant-call-format",
+                    "variant_calls/seqvars/prefiltered-vcf",
+                    "",
+                ),
+                (
+                    "application/octet-stream+x-tabix-tbi-index",
+                    "variant_calls/seqvars/prefiltered-tbi",
+                    ".tbi",
+                ),
+            )
+            for config in configs
+        ]
+
+
+class StrucvarsImportExecutor(VariantImportExecutorBase):
+    """Run the import of structural variant import."""
+
+    var_type = "strucvars"
+
+    def annotate(
+        self, vcf_on_s3: PedigreeExternalFile, path_ped: str
+    ) -> typing.List[PedigreeExternalFile]:
+        """Implementation of structural variant annotation."""
+        # Path create path of the new fiel.
+        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
+        path_out = (
+            f"case-data/{uuid_frag(self.case.sodar_uuid)}/{self.bgjob.sodar_uuid}/"
+            "strucvars/ingested.vcf.gz"
+        )
+        # Create arguments to use.
+        args = [
+            "strucvars",
+            "ingest",
+            "--file-date",
+            timezone.now().strftime("%Y%m%d"),
+            "--case-uuid",
+            str(self.case.sodar_uuid),
+            "--genomebuild",
+            vcf_on_s3.genomebuild,
+            "--path-mehari-db",
+            f"{settings.WORKER_DB_PATH}/mehari",
+            "--path-ped",
+            path_ped,
+            "--path-in",
+            vcf_on_s3.path,
+            "--path-out",
+            f"{bucket}/{path_out}",
+        ]
+        # Setup environment so the worker can access the internal S3 storage.
+        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
+        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
+        env = {
+            **dict(os.environ.items()),
+            "LC_ALL": "C",
+            "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
+            "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
+            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            # "AWS_REGION": "us-east-1",
+        }
+        # Actually execute the worker.
+        self.run_worker(args=args, env=env)
+        # Create the `PedigreeInternalFile` record after ingest is complete.
+        return [
+            PedigreeInternalFile.objects.create(
+                case=self.case,
+                path=f"{path_out}{suffix}",
+                genomebuild=vcf_on_s3.genomebuild,
+                mimetype=mimetype,
+                identifier_map=vcf_on_s3.identifier_map,
+                designation=designation,
+                file_attributes={},
+                # checksum=extfile.checksum,  # TODO
+                pedigree=self.case.pedigree_obj,
+            )
+            for mimetype, designation, suffix in (
+                (
+                    "text/plain+x-bgzip+x-variant-call-format",
+                    "variant_calls/strucvars/ingested-vcf",
+                    "",
+                ),
+                (
+                    "application/octet-stream+x-tabix-tbi-index",
+                    "variant_calls/strucvars/ingested-tbi",
+                    ".tbi",
+                ),
+            )
+        ]
 
 
 class CaseImportBackgroundJobExecutor:
@@ -928,6 +1214,8 @@ class CaseImportBackgroundJobExecutor:
             individual = Individual.objects.create(
                 pedigree=pedigree,
                 name=person.individual_id,
+                father=person.paternal_id,
+                mother=person.maternal_id,
                 sex=SEX_MAP[person.sex],
                 karyotypic_sex=karyotypic_sex[person.individual_id],
                 assay=assay[person.individual_id],
@@ -1071,8 +1359,11 @@ class CaseImportBackgroundJobExecutor:
 
     def _run_seqvars_import(self, case: Case):
         self.caseimportbackgroundjob.add_log_entry("running sequence variant import...")
-        SeqvarImportExecutor(case, bgjob=self.caseimportbackgroundjob).run()
+        SeqvarsImportExecutor(case, bgjob=self.caseimportbackgroundjob).run()
         self.caseimportbackgroundjob.add_log_entry("... done with sequence variant import")
+        self.caseimportbackgroundjob.add_log_entry("running structural variant import...")
+        StrucvarsImportExecutor(case, bgjob=self.caseimportbackgroundjob).run()
+        self.caseimportbackgroundjob.add_log_entry("... done with structural variant import")
 
     def _run_strucvars_import(self, case: Case):
         self.caseimportbackgroundjob.add_log_entry("strucvars annotation not implemented yet")
