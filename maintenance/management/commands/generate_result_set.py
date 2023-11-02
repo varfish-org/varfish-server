@@ -15,11 +15,11 @@ MSG_RESULT_SETS_CREATED = """
 - SmallVariantQueryResultSets created: {smallvariantqueryresultset}
 - SvQueryResultSets created: {svqueryresultset}
 - SmallVariantQueryResultSets:
-  - Added: {count['sms_added]}
-  - Removed: {count['sms']['removed']}
+  - Added: {sms_added}
+  - Removed: {sms_removed}
 - SvQueryResultSets:
-  - Added: {count['svs']['added']}
-  - Removed: {count['svs']['removed']}"""
+  - Added: {svs_added}
+  - Removed: {svs_removed}"""
 
 MSG_RESULT_SETS_NOTHING = """
 - Nothing to do."""
