@@ -337,6 +337,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       csrfToken.value,
       querySettings.value.prio_hpo_terms,
     )
+    queryUuid.value = previousQueryDetails.value.sodar_uuid
     await nextTick()
     await runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }
