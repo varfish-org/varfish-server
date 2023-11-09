@@ -14,6 +14,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 
 import { CaseClient } from '@cases/api/caseClient'
 import { useCaseListStore } from '@cases/stores/caseList'
+import { displayName } from '@varfish/helpers'
 
 /** Alias definition of Case type; to be defined later. */
 type Case = any
@@ -43,6 +44,8 @@ type CasePhenotypeTerms = any
 type CaseAnnotationReleaseInfos = any
 /** Alias definition of CaseSvAnnotationReleaseInfos type; to be defined later. */
 type CaseSvAnnotationReleaseInfos = any
+/** Alias definition of GenotypeMapping type; to be defined later. */
+type GenotypeMapping = any
 
 export const useCaseDetailsStore = defineStore('caseDetails', () => {
   // store dependencies
@@ -123,6 +126,8 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     null,
   )
 
+  const genotypeMapping = ref<GenotypeMapping | null>({})
+
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any>>(null)
 
@@ -174,6 +179,12 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     initializeRes.value = Promise.all([
       caseClient.retrieveCase(caseUuid.value).then((res) => {
         caseObj.value = res
+        caseObj.value.pedigree.map(({ name }) => {
+          genotypeMapping.value[`genotype_${displayName(name)}`] = {
+            displayName: displayName(name),
+            sortByName: `genotype_${name}`,
+          }
+        })
       }),
       caseClient.listCaseComment(caseUuid.value).then((res) => {
         caseComments.value = res
@@ -409,6 +420,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     casePhenotypeTerms,
     caseAnnotationReleaseInfos,
     caseSvAnnotationReleaseInfos,
+    genotypeMapping,
     // functions
     initialize,
     updateCase,

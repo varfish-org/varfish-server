@@ -166,7 +166,7 @@ const refreshStores = async () => {
       props.caseUuid,
       appContext,
     ),
-    variantResultSetStore.initialize(appContext.csrf_token, true),
+    variantResultSetStore.initialize(appContext.csrf_token),
   ]).then(async () => {
     await variantResultSetStore.loadResultSetViaQuery(
       variantQueryStore.queryUuid,

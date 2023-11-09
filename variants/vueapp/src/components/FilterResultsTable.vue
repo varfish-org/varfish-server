@@ -153,19 +153,19 @@ const optionalColumns = () => {
   }))
 }
 
-const genotypeMapping = {}
 const genotypeColumns = () => {
   if (!caseDetailsStore.caseObj) {
     return []
   }
-  return caseDetailsStore.caseObj.pedigree.map(({ name }) => {
-    genotypeMapping[`genotype_${displayName(name)}`] = name
-    return {
-      text: displayName(name),
-      value: `genotype_${displayName(name)}`,
-      sortable: true,
-    }
-  })
+  return Object.entries(caseDetailsStore.genotypeMapping).map(
+    ([value, textData]) => {
+      return {
+        text: textData.displayName,
+        value: value,
+        sortable: true,
+      }
+    },
+  )
 }
 
 const scoreColumns = () => {
@@ -448,7 +448,8 @@ const loadFromServer = async () => {
             : tableServerOptions.value.sortBy === 'constraints'
             ? constraintFieldName.value
             : tableServerOptions.value.sortBy?.startsWith('genotype_')
-            ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
+            ? caseDetailsStore.genotypeMapping[tableServerOptions.value.sortBy]
+                .sortByName
             : tableServerOptions.value.sortBy,
         orderDir: tableServerOptions.value.sortType,
       },
