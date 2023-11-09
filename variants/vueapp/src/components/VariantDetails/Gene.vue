@@ -64,10 +64,10 @@ const clinsigColor = ['#5d9936', '#a3f56c', '#f5c964', '#f59f9f', '#b05454']
 const perImpactCounts = computed(() => {
   const result = []
   const sum = {
-    impact: variantImpactLabels.length - 1,
+    impact: variantImpactLabels?.length - 1,
     counts: [0, 0, 0, 0, 0],
   }
-  if (props.geneClinvar?.perImpactCounts?.length) {
+  if (props?.geneClinvar?.perImpactCounts?.length) {
     for (const perImpactCount of props.geneClinvar?.perImpactCounts) {
       result.push(perImpactCount)
       for (let i = 0; i < sum.counts.length; ++i) {
@@ -469,7 +469,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 <a
                   :href="`https://www.omim.org/entry/${gene?.hgnc?.omimId[0]}`"
                   target="_blank"
-                  v-if="gene?.hgnc?.omimId.length"
+                  v-if="gene?.hgnc?.omimId?.length"
                 >
                   <i-mdi-launch />
                   OMIM
@@ -574,7 +574,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </span>
         </div>
         <div class="card-body pb-2 pt-2">
-          <div v-if="gene.orpha?.orphaDiseases?.length" class="mb-2">
+          <div v-if="gene?.orpha?.orphaDiseases?.length" class="mb-2">
             <strong> Orphanet Disorders: </strong>
             <template v-for="(disease, idx) in gene.orpha?.orphaDiseases">
               <template v-if="idx > 0">, </template>
@@ -591,7 +591,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </div>
           <div v-else class="text-muted">No Orphanet disorders annotated.</div>
 
-          <div v-if="gene.omim?.omimDiseases?.length" class="mb-2">
+          <div v-if="gene?.omim?.omimDiseases?.length" class="mb-2">
             <strong> OMIM Diseases: </strong>
             <template v-for="(disease, idx) in gene.omim?.omimDiseases">
               <template v-if="idx > 0">, </template>
@@ -620,7 +620,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
         <div class="card-body pb-2 pt-2">
           <div
-            v-if="gene.clingen?.diseaseRecords?.length"
+            v-if="gene?.clingen?.diseaseRecords?.length"
             class="overflow-auto mb-2"
             style="max-height: 200px; font-size: 90%"
           >
@@ -650,7 +650,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 <strong> actionability </strong>
                 <ul
                   v-if="
-                    diseaseRecord.actionabilityAssertionClassifications?.length
+                    diseaseRecord?.actionabilityAssertionClassifications?.length
                   "
                   class="pl-3"
                 >
@@ -680,7 +680,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 <strong> validity </strong>
                 <ul
                   v-if="
-                    diseaseRecord.geneDiseaseValidityAssertionClassifications
+                    diseaseRecord?.geneDiseaseValidityAssertionClassifications
                       ?.length
                   "
                   class="pl-3"
@@ -814,7 +814,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             ClinVar By Impact
           </span>
         </div>
-        <div class="card-body pb-2 pt-2" v-if="perImpactCounts.length">
+        <div class="card-body pb-2 pt-2" v-if="perImpactCounts?.length">
           <table class="table table-sm">
             <tr>
               <thead>

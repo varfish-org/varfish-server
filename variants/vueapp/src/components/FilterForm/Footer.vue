@@ -109,6 +109,7 @@ const devStoreState = () => {
           type="button"
           id="submitFilter"
           class="btn"
+          :disabled="anyHasError"
           :class="filterButtonColor"
           @click="emit('submitCancelButtonClick')"
           title="Filter variants with current settings"
