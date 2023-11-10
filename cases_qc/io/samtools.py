@@ -32,7 +32,7 @@ class ParserRunMixin:
 class BcftoolsStatsParser(ParserRunMixin):
     """Helper class for parsing ``bcftools stats`` output."""
 
-    def __init__(self, file_identifier_to_individual: dict[str, str]):
+    def __init__(self, file_identifier_to_individual: typing.Dict[str, str]):
         self.file_identifier_to_individual = file_identifier_to_individual
         self.sn: list[models_samtools.BcftoolsStatsSnRecord] = []
         self.tstv: list[models_samtools.BcftoolsStatsTstvRecord] = []
@@ -150,7 +150,7 @@ def load_bcftools_stats(
     *,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-    file_identifier_to_individual: dict[str, str],
+    file_identifier_to_individual: typing.Dict[str, str],
 ) -> models_samtools.BcftoolsStatsMetrics:
     """Load a ``bcftools stats`` file into a ``cases_qc.models_samtools.BcftoolsStats`` record."""
     parser = BcftoolsStatsParser(file_identifier_to_individual)
@@ -174,7 +174,7 @@ def load_samtools_flagstat(  # noqa: C901
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-    file_identifier_to_individual: dict[str, str],
+    file_identifier_to_individual: typing.Dict[str, str],
 ) -> models_samtools.SamtoolsFlagstatMetrics:
     """Load the output of ``samtools idxstats``"""
     qc_pass = models_samtools.SamtoolsFlagstatRecord()
@@ -451,7 +451,7 @@ def load_samtools_stats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-    file_identifier_to_individual: dict[str, str],
+    file_identifier_to_individual: typing.Dict[str, str],
 ) -> tuple[
     models_samtools.SamtoolsStatsMainMetrics,
     models_samtools.SamtoolsStatsSupplementaryMetrics,
@@ -496,7 +496,7 @@ def load_samtools_idxstats(
     sample: str,
     input_file: typing.TextIO,
     caseqc: models.CaseQc,
-    file_identifier_to_individual: dict[str, str],
+    file_identifier_to_individual: typing.Dict[str, str],
 ) -> models_samtools.SamtoolsIdxstatsMetrics:
     """Load the output of ``samtools idxstats`"""
     reader = csv.reader(input_file, delimiter="\t")

@@ -352,6 +352,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       csrfToken.value,
       querySettings.value.prio_hpo_terms,
     )
+    queryUuid.value = previousQueryDetails.value.sodar_uuid
     await nextTick()
     await runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }
@@ -577,7 +578,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
         })
         // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
         .then(() => {
-          if (querySettings.value?.prio_hpo_terms.length > 0) {
+          if (querySettings.value?.prio_hpo_terms?.length > 0) {
             hpoNames.value = fetchHpoTerms(
               csrfToken.value,
               querySettings.value.prio_hpo_terms,

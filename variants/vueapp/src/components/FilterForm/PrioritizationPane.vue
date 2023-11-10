@@ -43,7 +43,7 @@ const faceEnabledWrapper = declareWrapper(props, 'faceEnabled', emit)
 const pathoScoreWrapper = declareWrapper(props, 'pathoScore', emit)
 
 const prioEnabledWarning = () => {
-  return !prioEnabledWrapper.value && prioHpoTermsWrapper.value.length > 0
+  return !prioEnabledWrapper.value && prioHpoTermsWrapper.value?.length > 0
 }
 
 const v$ = useVuelidate()

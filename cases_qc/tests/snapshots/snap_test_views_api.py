@@ -44,7 +44,7 @@ snapshots["CaseQcRetrieveApiViewTest::test_retrieve_existing 1"] = {
                     "value_float": 3.14,
                 }
             ],
-            "sample": "index_285-N1-DNA1-WES1",
+            "sample": "index_000-N1-DNA1-WES1",
             "sodar_uuid": "bd9c66b3-ad3c-4d6d-9a3d-1fa7bc8960a9",
         }
     ],

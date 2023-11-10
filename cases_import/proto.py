@@ -93,7 +93,7 @@ class Assay(enum.Enum):
 
 
 @enum.unique
-class FileDesignation(enum.Enum):
+class ExternalFileDesignation(enum.Enum):
     """Known file designations."""
 
     #: Sequencing enrichment targets.
@@ -221,7 +221,7 @@ class PhenopacketValidator:
                 first = self.pp.files[0]
                 if (
                     first.file_attributes.get("designation")
-                    != FileDesignation.SEQUENCINGE_TARGETS.value
+                    != ExternalFileDesignation.SEQUENCINGE_TARGETS.value
                 ):
                     result.append(
                         ValidationWarning(
@@ -384,7 +384,7 @@ class FileValidator:
             result.append(FileValidationWarning(f"File {self.file.uri} has no designation."))
         else:
             designation = self.file.file_attributes["designation"]
-            if not FileDesignation.is_value(designation):
+            if not ExternalFileDesignation.is_value(designation):
                 result.append(
                     FileValidationWarning(
                         f"File {self.file.uri} has invalid designation {designation}."

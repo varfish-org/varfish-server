@@ -11,7 +11,7 @@ snapshots["SerializerTest::test_load_00 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
-    "sample": "index_260-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "values": [1, 100, 101],
 }
@@ -33,7 +33,7 @@ snapshots["SerializerTest::test_load_02 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_262-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -44,7 +44,7 @@ snapshots["SerializerTest::test_load_03 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_263-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -56,7 +56,7 @@ snapshots["SerializerTest::test_load_04 1"] = {
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
-    "sample": "index_264-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -66,7 +66,7 @@ snapshots["SerializerTest::test_load_05 1"] = {
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
     "region_name": "wait",
-    "sample": "index_265-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "values": [1, 100, 101],
 }
@@ -79,7 +79,7 @@ snapshots["SerializerTest::test_load_06 1"] = {
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
-    "sample": "index_266-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -91,7 +91,7 @@ snapshots["SerializerTest::test_load_07 1"] = {
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
-    "sample": "index_267-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -102,7 +102,7 @@ snapshots["SerializerTest::test_load_08 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_268-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -133,7 +133,7 @@ snapshots["SerializerTest::test_load_11 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_271-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -144,7 +144,7 @@ snapshots["SerializerTest::test_load_12 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_272-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -163,7 +163,7 @@ snapshots["SerializerTest::test_load_14 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [{"contig_len": 12345, "contig_name": "wait", "cov": 3.0}],
-    "sample": "index_274-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -174,7 +174,7 @@ snapshots["SerializerTest::test_load_15 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_275-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -183,7 +183,7 @@ snapshots["SerializerTest::test_load_16 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
-    "sample": "index_276-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "values": [1, 100, 101],
 }
@@ -196,7 +196,7 @@ snapshots["SerializerTest::test_load_17 1"] = {
         "PCT of bases in wgs with coverage [100x:inf)",
         "PCT of bases in wgs with coverage [50x:100x)",
     ],
-    "sample": "index_277-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "values": [0.21, 26.83],
 }
@@ -208,7 +208,7 @@ snapshots["SerializerTest::test_load_18 1"] = {
     "metrics": [
         {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
     ],
-    "sample": "index_278-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -228,14 +228,14 @@ snapshots["SerializerTest::test_load_19 1"] = {
         {
             "cycle": 1084,
             "percentages": [
-                -99827297893.8517,
-                7805745017.86484,
-                248532577.634277,
-                2932138724758.29,
-                -86.776914130792,
-                -79352.5047709743,
-                -6573.49133818601,
-                -390853813771.612,
+                -89827297893.7517,
+                9649191672.73579,
+                -919.440592919024,
+                66612908200.1489,
+                2.2251691342586,
+                50432.8573276057,
+                713328.773869166,
+                -5573.39133818601,
             ],
         }
     ],
@@ -243,13 +243,13 @@ snapshots["SerializerTest::test_load_19 1"] = {
     "frl": [{"count": 9891, "value": 5635}],
     "gcd": [
         {
-            "dp_percentile_10": 0.4460967357,
-            "dp_percentile_25": 0.40640404287,
-            "dp_percentile_50": 0.881,
-            "dp_percentile_75": 0.197251,
-            "dp_percentile_90": 0.7022674,
-            "gc_content": 0.9,
-            "unique_seq_percentiles": 0.8536477,
+            "dp_percentile_10": 0.3460967357,
+            "dp_percentile_25": 0.30640404287,
+            "dp_percentile_50": 0.98,
+            "dp_percentile_75": 0.1628231594989,
+            "dp_percentile_90": 0.6022674,
+            "gc_content": 0.8,
+            "unique_seq_percentiles": 0.7536477,
         }
     ],
     "idd": [{"dels": 2045, "ins": 8785, "length": 7527}],
@@ -264,20 +264,16 @@ snapshots["SerializerTest::test_load_19 1"] = {
     ],
     "lbc": [
         {
-            "cycle": 2927,
+            "cycle": 7123,
             "percentages": [
-                -9.37992917375175,
-                679153816.916449,
-                -74042.108365197,
-                -4.43896130686746,
-                -2218980537952.78,
-                -705362105548.269,
-                -322086.679064766,
-                -508.838713541566,
-                -3030113.43273328,
-                -5048238267651.85,
-                98818668867694.1,
-                6814782857409.19,
+                -70454522783883.2,
+                -8.27992917375175,
+                579153816.999816,
+                -64042.8365197,
+                -3.33896130686746,
+                -1218980537952.97,
+                -605362105548.169,
+                -222086.997413271,
             ],
         }
     ],
@@ -285,7 +281,7 @@ snapshots["SerializerTest::test_load_19 1"] = {
         {"counts": [3432, 1169, 8751, 2677, 6216, 9125, 5313, 3752, 5168, 4386], "cycle": 2664}
     ],
     "lrl": [{"count": 711, "value": 4333}],
-    "sample": "index_279-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sn": [{"key": "wait", "value": 8935}],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -298,43 +294,43 @@ snapshots["SerializerTest::test_load_20 1"] = {
         {
             "cycle": 3811,
             "percentages": [
-                850800.797808098,
-                -46890615212.1106,
-                -448.268697172873,
-                -23.7683367452945,
-                -748245888.37737,
-                -649.516278088865,
-                -969693.774996843,
-                19116.9786748825,
-                -20.5096777394726,
-                -70855700.7120868,
-                -324956459.802729,
-                723.287410804707,
+                750800.697808098,
+                -36890615212.106,
+                -348.168697172873,
+                -13.6683367452945,
+                -648245888.27737,
+                -549.416278088865,
+                -869693.674996843,
+                92349.298737106,
+                -10.4096777394726,
+                -60855700.6120868,
+                -224956459.702729,
+                623.187410804707,
             ],
         }
     ],
-    "gcf": [{"count": 6912, "gc_content": 0.734036506}],
-    "gcl": [{"count": 3582, "gc_content": 0.2}],
+    "gcf": [{"count": 6912, "gc_content": 0.634036506}],
+    "gcl": [{"count": 3582, "gc_content": 0.1}],
     "gct": [
         {
             "cycle": 8751,
             "percentages": [
-                -5528972.95899313,
-                -1916.62894468092,
-                6535001295567.37,
-                -29175900.5443951,
-                -90517811206.8019,
-                248532577.634277,
-                2932138724758.29,
-                -86.776914130792,
-                -79352.5047709743,
+                -4528972.85899313,
+                -916.52894468092,
+                5535001295567.27,
+                -19175900.4443951,
+                -80517811206.7019,
+                148532577.534277,
+                1932138724758.19,
+                -76.676914130792,
+                -69352.4047709743,
             ],
         }
     ],
     "ic": [{"cycle": 1827, "dels_fwd": 7123, "dels_rev": 7433, "ins_fwd": 4808, "ins_rev": 2591}],
     "mapq": [{"count": 5573, "value": 4371}],
     "rl": [{"count": 8797, "value": 1876}],
-    "sample": "index_280-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -378,7 +374,7 @@ snapshots["SerializerTest::test_load_21 1"] = {
         "with_mate_mapped_to_different_chr": 8928,
         "with_mate_mapped_to_different_chr_mapq5": 6873,
     },
-    "sample": "index_281-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -387,16 +383,16 @@ snapshots["SerializerTest::test_load_22 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "records": [{"contig_len": 8935, "contig_name": "wait", "mapped": 1424, "unmapped": 9674}],
-    "sample": "index_282-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
 snapshots["SerializerTest::test_load_23 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
-    "chrom_counts": [{"chrom_name": "begin", "normalized_counts": 0.1136505587}],
+    "chrom_counts": [{"chrom_name": "begin", "normalized_counts": 0.136505587}],
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "sample": "index_283-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "summary": [{"key": "wait", "value": 8935}],
 }
@@ -405,9 +401,9 @@ snapshots["SerializerTest::test_load_24 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"key": "wait", "value": 0.734036506}],
+    "records": [{"key": "wait", "value": 0.634036506}],
     "region_name": "WGS",
-    "sample": "index_284-N1-DNA1-WES1",
+    "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 

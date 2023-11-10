@@ -10,12 +10,12 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import logging
 import os
-import re
 import sys
 
 from dotenv import load_dotenv
 import environ
 
+from config.common import InternalStorageConfig, PrefilterConfig
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -483,7 +483,7 @@ QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
 # Timeout (in hours) for VarFish cleaning up background SV sets in "building" state.
 SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
 
-# Path to database for the worker.
+# Path to database for the worker (base database with sub entries for mehari etc.).
 WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "")
 
 # Path to executable for worker.
@@ -945,6 +945,32 @@ VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", defa
 VARFISH_CASE_IMPORT_ALLOW_FILE = env.bool("VARFISH_CASE_IMPORT_ALLOW_FILE", default=False)
 #: Prefix to enforce when importing from local file.
 VARFISH_CASE_IMPORT_FILE_PREFIX = env.str("VARFISH_CASE_IMPORT_FILE_PREFIX", default="")
+#: Configure the internal storage
+VARFISH_CASE_IMPORT_INTERNAL_STORAGE = InternalStorageConfig(
+    **env.json(
+        "VARFISH_CASE_IMPORT_INTERNAL_STORAGE",
+        # default configuration is for local setup of varfish-docker-compose defaults
+        {
+            "bucket": "varfish-server",
+            "host": "localhost",
+            "port": 3010,
+            "access_key": "varfish",
+            "secret_key": "minio-varfish-password",
+        },
+    )
+)
+#: Prefilter configurations.
+VARFISH_CASE_IMPORT_SEQVARS_PREFILTER_CONFIGS: list[PrefilterConfig] = [
+    PrefilterConfig(**vals)
+    for vals in env.json(
+        "VARFISH_CASE_IMPORT_SEQVARS_PREFILTER_CONFIGS",
+        # default prefilter configuration
+        [
+            {"max_freq": 0.05, "max_exon_dist": 1000},
+            {"max_freq": 0.01, "max_exon_dist": 100},
+        ],
+    )
+]
 
 # VarFish Microservices
 #

@@ -171,12 +171,16 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     def get_smallvariantqueryresultset(self, obj):
         from variants.serializers import SmallVariantQueryResultSetSerializer
 
-        return SmallVariantQueryResultSetSerializer(obj.smallvariantqueryresultset_set.first()).data
+        return SmallVariantQueryResultSetSerializer(
+            obj.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
+        ).data
 
     def get_svqueryresultset(self, obj):
         from svs.serializers import SvQueryResultSetSerializer
 
-        return SvQueryResultSetSerializer(obj.svqueryresultset_set.first()).data
+        return SvQueryResultSetSerializer(
+            obj.svqueryresultset_set.filter(svquery=None).first()
+        ).data
 
     def create(self, validated_data):
         """Make project and release writeable on creation."""

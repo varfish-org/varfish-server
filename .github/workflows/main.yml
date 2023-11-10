@@ -28,13 +28,79 @@ jobs:
           --health-retries 10
         ports:
           - 5432:5432
+
+      # We launch a minio instance for testing.  Note that we use the bitnami
+      # image because of the issue lined out in this SO discussion:
+      #
+      # - https://stackoverflow.com/questions/64031598
+      minio:
+        image: bitnami/minio:latest
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minio-root-password
+        options: >-
+          --name=minio
+          --health-cmd "curl http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 9000:9000
+
     env:
       CELERY_BROKER_URL: redis://0.0.0.0:6379/0
       DATABASE_URL: 'postgres://varfish_web:varfish_web@0.0.0.0/varfish_web'
       POSTGRES_HOST: 0.0.0.0
       POSTGRES_PORT: 5432
+      VARFISH_CASE_IMPORT_INTERNAL_STORAGE: |
+        {
+          "bucket": "varfish-server-test",
+          "host": "minio",
+          "port": 9000,
+          "access_key": "varfish-server-test",
+          "secret_key": "varfish-server-test"
+        }
 
     steps:
+      - name: Perform minio client setup
+        run: |
+          set -x
+          # create host alias for minio
+          echo "127.0.0.1 minio" | sudo tee -a /etc/hosts
+          # install minio client and configure default alias
+          wget -O /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x /usr/local/bin/mc
+          mc alias set minio/ http://minio:9000 minioadmin minio-root-password
+          # setup bucket and access key for tests
+          mc mb minio/varfish-server-test
+          mc admin user add minio varfish-server-test varfish-server-test
+          # write policy file for bucket access, add it to server, and associate with
+          # access key created above
+          cat >/tmp/policy.json <<"EOF"
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Action": [
+                      "s3:DeleteObject",
+                      "s3:GetBucketLocation",
+                      "s3:GetObject",
+                      "s3:ListBucket",
+                      "s3:PutObject"
+                  ],
+                "Effect": "Allow",
+                "Resource": [
+                  "arn:aws:s3:::varfish-server-test/*",
+                  "arn:aws:s3:::varfish-server-test"
+                ],
+                "Sid": "BucketAccessForUser"
+              }
+            ]
+          }
+          EOF
+          mc admin policy create minio varfish-server-test-policy /tmp/policy.json
+          mc admin policy attach minio varfish-server-test-policy --user varfish-server-test
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -50,7 +116,9 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          # We need to fix the patch version here otherwise, snapshot tests
+          # with randomness will / may fail.
+          python-version: "3.10.13"
 
       - name: Install pip and Pipenv
         run: |
