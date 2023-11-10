@@ -1247,7 +1247,7 @@ class SmallVariantCommentListCreateApiView(
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
-        result_set = case.smallvariantqueryresultset_set.first()
+        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
         try:
             result_set.smallvariantqueryresultrow_set.get(
                 release=serializer.instance.release,
@@ -1330,7 +1330,7 @@ class SmallVariantFlagsListCreateApiView(
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
-        result_set = case.smallvariantqueryresultset_set.first()
+        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
         try:
             result_set.smallvariantqueryresultrow_set.get(
                 release=serializer.instance.release,
@@ -1403,7 +1403,9 @@ class SmallVariantFlagsDeleteApiView(
         return "variants.view_data"
 
     def perform_destroy(self, instance):
-        result_set = instance.case.smallvariantqueryresultset_set.first()
+        result_set = instance.case.smallvariantqueryresultset_set.filter(
+            smallvariantquery=None
+        ).first()
         if result_set:
             result_row_set = result_set.smallvariantqueryresultrow_set.filter(
                 release=instance.release,
@@ -1493,7 +1495,9 @@ class SmallVariantCommentDeleteApiView(
         return "variants.view_data"
 
     def perform_destroy(self, instance):
-        result_set = instance.case.smallvariantqueryresultset_set.first()
+        result_set = instance.case.smallvariantqueryresultset_set.filter(
+            smallvariantquery=None
+        ).first()
         if result_set:
             result_row_set = result_set.smallvariantqueryresultrow_set.filter(
                 release=instance.release,
@@ -1603,7 +1607,7 @@ class AcmgCriteriaRatingListCreateApiView(
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
-        result_set = case.smallvariantqueryresultset_set.first()
+        result_set = case.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
         try:
             result_set.smallvariantqueryresultrow_set.get(
                 release=serializer.instance.release,
@@ -1676,7 +1680,9 @@ class AcmgCriteriaRatingDeleteApiView(
         return "variants.view_data"
 
     def perform_destroy(self, instance):
-        result_set = instance.case.smallvariantqueryresultset_set.first()
+        result_set = instance.case.smallvariantqueryresultset_set.filter(
+            smallvariantquery=None
+        ).first()
         if result_set:
             result_row_set = result_set.smallvariantqueryresultrow_set.filter(
                 release=instance.release,

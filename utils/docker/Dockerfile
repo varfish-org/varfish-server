@@ -1,33 +1,6 @@
 # syntax=docker/dockerfile:1.3
 
 # ---------------------------------------------------------------------------
-# Rust Dependencies
-# ---------------------------------------------------------------------------
-
-FROM rust:1-bookworm AS rust-deps
-
-# The worker repository to use
-ARG WORKER_GIT_URL=https://github.com/bihealth/varfish-server-worker.git
-# The worker branch/commit/tag to checkout, defaults to main.
-ARG WORKER_GIT_TREEISH=main
-
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update && \
-    apt-get install -y build-essential cmake libclang-dev protobuf-compiler
-
-# ---------------------------------------------------------------------------
-# Rust Build
-# ---------------------------------------------------------------------------
-
-FROM rust-deps AS rust-build
-
-RUN git clone --depth 1 --branch $WORKER_GIT_TREEISH $WORKER_GIT_URL \
-        /tmp/varfish-server-worker && \
-    cd /tmp/varfish-server-worker && \
-    cargo install --path .
-
-# ---------------------------------------------------------------------------
 # NodeJS Base Image
 # ---------------------------------------------------------------------------
 
@@ -173,11 +146,11 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         conda install -c conda-forge -y mamba && \
         mamba create -c conda-forge -c bioconda -y \
             -n varfish-server \
-            varfish-server-worker==0.10.0 && \
+            varfish-server-worker==0.10.2 && \
         rm -f Mambaforge-Linux-x86_64.sh"]
 
 # Copy the worker from the dedicated worker build.
-COPY --from=rust-build /usr/local/cargo/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+COPY --from=ghcr.io/bihealth/varfish-server-worker:main /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv

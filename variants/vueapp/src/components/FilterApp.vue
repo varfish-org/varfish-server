@@ -144,7 +144,7 @@ const refreshStores = async () => {
     props.caseUuid,
   )
 
-  await Promise.all([
+  Promise.all([
     variantFlagsStore.initialize(
       appContext.csrf_token,
       appContext.project?.sodar_uuid,
@@ -167,7 +167,11 @@ const refreshStores = async () => {
       appContext,
     ),
     variantResultSetStore.initialize(appContext.csrf_token),
-  ])
+  ]).then(async () => {
+    await variantResultSetStore.loadResultSetViaQuery(
+      variantQueryStore.queryUuid,
+    )
+  })
 }
 
 // Initialize (=refresh) stores when mounted.

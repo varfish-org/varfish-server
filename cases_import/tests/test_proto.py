@@ -10,8 +10,8 @@ import yaml
 
 from cases_import.proto import (
     Assay,
+    ExternalFileDesignation,
     FamilyValidator,
-    FileDesignation,
     FileValidator,
     MetaDataValidator,
     PedigreeValidator,
@@ -55,14 +55,14 @@ class AssayTest(TestCase):
 
 class FileDesignationTest(TestCase):
     def test_is_value(self):
-        self.assertTrue(FileDesignation.is_value("sequencing_targets"))
-        self.assertTrue(FileDesignation.is_value("read_alignments"))
-        self.assertTrue(FileDesignation.is_value("variant_calls"))
-        self.assertTrue(FileDesignation.is_value("other"))
+        self.assertTrue(ExternalFileDesignation.is_value("sequencing_targets"))
+        self.assertTrue(ExternalFileDesignation.is_value("read_alignments"))
+        self.assertTrue(ExternalFileDesignation.is_value("variant_calls"))
+        self.assertTrue(ExternalFileDesignation.is_value("other"))
 
     def test_all_values(self):
         self.assertEqual(
-            FileDesignation.all_values(),
+            ExternalFileDesignation.all_values(),
             [
                 "sequencing_targets",
                 "read_alignments",
@@ -342,7 +342,7 @@ class FamilyValidatorTest(TestCase):
 
     @parameterized.expand(
         [
-            ["proband", 5],
+            ["proband", 3],
             ["pedigree", 4],
             ["metaData", 1],
         ]

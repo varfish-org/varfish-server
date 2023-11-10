@@ -1,4 +1,5 @@
 import random
+import typing
 import unittest.mock
 
 from django.urls import reverse
@@ -19,7 +20,9 @@ from variants.tests.helpers import ApiViewTestBase
 
 
 @freeze_time("2012-01-14 12:00:01")
-class CaseQcRetrieveApiViewTest(helpers.FixRandomSeedMixin, ApiViewTestBase, TestCaseSnapshot):
+class CaseQcRetrieveApiViewTest(
+    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, ApiViewTestBase, TestCaseSnapshot
+):
     """Test retrieval of ``CaseQc`` objects."""
 
     def setUp(self):
@@ -59,7 +62,11 @@ class CaseQcRetrieveApiViewTest(helpers.FixRandomSeedMixin, ApiViewTestBase, Tes
 
 @freeze_time("2012-01-14 12:00:01")
 class VarfishStatsRetrieveApiView(
-    helpers.FixRandomSeedMixin, ApiViewTestBase, ExecutorTestMixin, TestCaseSnapshot
+    helpers.FixRandomSeedMixin,
+    helpers.ResetFactoryCountersMixin,
+    ApiViewTestBase,
+    ExecutorTestMixin,
+    TestCaseSnapshot,
 ):
     """Test retrieval / building of ``VarfishStats`` objects."""
 
@@ -67,7 +74,7 @@ class VarfishStatsRetrieveApiView(
         super().setUp()
         self.maxDiff = None
 
-    def _setUpExecutor(self, fac_kwargs: dict[str, str]):
+    def _setUpExecutor(self, fac_kwargs: typing.Dict[str, str]):
         self.caseimportaction = CaseImportActionFactory(
             action=CaseImportAction.ACTION_CREATE,
             state=CaseImportAction.STATE_SUBMITTED,
