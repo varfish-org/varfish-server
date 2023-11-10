@@ -59,8 +59,8 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         },
         "import_data_port": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
-            "type": "STRING",
-            "default": "",
+            "type": "INTEGER",
+            "default": 0,
             "label": "Import Port",
             "description": "Optional port for import connection (ignored if protocol is file)",
         },
