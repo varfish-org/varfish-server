@@ -7,7 +7,7 @@ from projectroles.plugins import get_backend_api
 from geneinfo.models import Hpo
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import get_engine
-from variants.models import VariantScoresFactory, prioritize_genes
+from variants.models import VariantScoresFactory, prioritize_genes, prioritize_genes_gm
 
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
@@ -51,6 +51,7 @@ class FilterBase:
             self._store_results(_results)
             self._prioritize_gene_phenotype(_results)
             self._prioritize_variant_pathogenicity(_results)
+            self._prioritize_gene_face(_results)
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
@@ -93,6 +94,28 @@ class FilterBase:
                 entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
             ):
                 self.variant_query.smallvariantquerygenescores_set.create(
+                    gene_id=gene_id,
+                    gene_symbol=gene_symbol,
+                    score=score,
+                    priority_type=priority_type,
+                )
+        except ConnectionError as e:
+            self.job.add_log_entry(e)
+
+    def _prioritize_gene_face(self, results):
+        """Prioritize genes in ``results`` and store in ``SmallVariantQueryFaceScores``."""
+        faceEnabled = self.variant_query.query_settings.get("face_enabled")
+        gm_response = self.variant_query.query_settings.get("prio_face")
+
+        if not all((settings.VARFISH_ENABLE_FACE, faceEnabled, gm_response)):
+            return
+
+        self.job.add_log_entry("Prioritizing genes based on face scores")
+        try:
+            for gene_id, gene_symbol, score, priority_type in prioritize_genes_gm(
+                gm_response, logging=self.job.add_log_entry
+            ):
+                self.variant_query.smallvariantqueryfacescores_set.create(
                     gene_id=gene_id,
                     gene_symbol=gene_symbol,
                     score=score,

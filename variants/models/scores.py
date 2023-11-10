@@ -1,5 +1,5 @@
 """Code supporting scoring of variants by pathogenicity or phenotype."""
-
+import json
 import re
 import time
 
@@ -75,6 +75,27 @@ class SmallVariantQueryGeneScores(models.Model):
     #: The score.
     score = models.FloatField(null=False, blank=False, help_text="The gene score")
 
+class SmallVariantQueryFaceScores(models.Model):
+    """Annotate ``SmallVariantQuery`` with face scores (if configured to do so)."""
+
+    #: The query to annotate.
+    query = models.ForeignKey("SmallVariantQuery", on_delete=models.CASCADE)
+
+    #: The Entrez gene ID.
+    gene_id = models.CharField(max_length=64, null=False, blank=False, help_text="Entrez gene ID")
+
+    #: The gene symbol.
+    gene_symbol = models.CharField(
+        max_length=128, null=False, blank=False, help_text="The gene symbol"
+    )
+
+    #: The priority type.
+    priority_type = models.CharField(
+        max_length=64, null=False, blank=False, help_text="The priority type"
+    )
+
+    #: The score.
+    score = models.FloatField(null=False, blank=False, help_text="The gene score")
 
 class SmallVariantQueryVariantScores(models.Model):
     """Annotate ``SmallVariantQuery`` with pathogenicity score."""
@@ -268,6 +289,30 @@ class RowWithPhenotypeScore(wrapt.ObjectProxy):
         else:
             return self.__wrapped__.__getitem__(key)
 
+class RowWithFaceScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for face score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_face_rank = None
+        self._self_face_score = -1
+
+    @property
+    def face_rank(self):
+        return self._self_face_rank
+
+    @property
+    def face_score(self):
+        return self._self_face_score
+
+    def __getitem__(self, key):
+        if key == "face_rank":
+            return self.face_rank
+        elif key == "face_score":
+            return self.face_score
+        else:
+            return self.__wrapped__.__getitem__(key)
+
 
 class RowWithTranscripts(wrapt.ObjectProxy):
     """Wrap a result row and add members for phenotype score and rank."""
@@ -325,6 +370,32 @@ def annotate_with_phenotype_scores(rows, gene_scores):
             prev_gene_score = row.phenotype_score
             prev_gene = row.entrez_id
         row._self_phenotype_rank = rank
+    return rows
+
+def annotate_with_face_scores(rows, face_scores):
+    """Annotate the results in ``rows`` with face scores stored in ``small_variant_query``.
+
+    Variants are ranked by the face scores, automatically ranking them by gene.
+    """
+    rows = [RowWithFaceScore(row) for row in rows]
+    for row in rows:
+        row._self_face_score = face_scores.get(row.entrez_id, -1)
+    rows.sort(key=lambda row: (row._self_face_score, row.entrez_id or ""), reverse=True)
+    # Re-compute ranks
+    prev_gene = rows[0].entrez_id if rows else None
+    prev_face_score = rows[0].face_score if rows else None
+    rank = 1
+    same_score_count = 1
+    for row in rows:
+        if row.entrez_id != prev_gene:
+            if prev_face_score == row.face_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            prev_face_score = row.face_score
+            prev_gene = row.entrez_id
+        row._self_face_rank = rank
     return rows
 
 
@@ -560,6 +631,19 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm, logging=lambda text:
         logging("Prioritize genes with Exomiser ...")
         yield from prio_exomiser(entrez_ids, hpo_terms, prio_algorithm)
 
+def prioritize_genes_gm(gm_response, logging=lambda text: True):
+    """Perform gene prioritization query.
+
+    Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
+    """
+    try:
+        res = json.loads(gm_response)
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_API_URL)
+        )
+    for entry in res:
+        yield entry["gene_entrez_id"], entry["gene_name"], entry["distance"], "GestaltMatcher"
 
 def prio_exomiser(entrez_ids, hpo_terms, prio_algorithm):
     if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:

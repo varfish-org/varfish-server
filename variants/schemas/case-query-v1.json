@@ -1279,6 +1279,31 @@
         }
       ]
     },
+    "prio_face": {
+      "$id": "#/properties/prio_face",
+      "type": "string",
+      "title": "The prio_face schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "face_enabled": {
+      "$id": "#/properties/face_enabled",
+      "type": "boolean",
+      "title": "Enable face-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "photo_file": {
+      "$id": "#/properties/photo_file",
+      "type": ["string", "null"],
+      "title": "photo_file for prioritization of variants",
+      "description": " ",
+      "default": "Empty"
+    },
     "require_in_hgmd_public": {
       "$id": "#/properties/require_in_hgmd_public",
       "type": "boolean",

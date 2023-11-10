@@ -36,6 +36,8 @@ const props = defineProps({
   pathoEnabled: Boolean,
   /** The phenotype score enabled. */
   prioEnabled: Boolean,
+  /** The face score enabled. */
+  faceEnabled: Boolean,
 })
 
 /**
@@ -195,6 +197,16 @@ const scoreColumns = () => {
       {
         text: 'patho+pheno score',
         value: 'patho_pheno_score',
+        sortable: true,
+      },
+    ]
+  }
+  if (props.faceEnabled) {
+    data = [
+      ...data,
+      {
+        text: 'face score',
+        value: 'face_score',
         sortable: true,
       },
     ]
@@ -786,6 +798,9 @@ watch(
         </template>
         <template #item-patho_pheno_score="{ payload }">
           {{ formatFloat(payload.patho_pheno_score, 3) }}
+        </template>
+        <template #item-face_score="{ payload }">
+          {{ formatFloat(payload.face_score, 3) }}
         </template>
         <template #item-igv="item">
           <div class="btn-group btn-group-sm">

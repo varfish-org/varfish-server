@@ -26,9 +26,11 @@ from .models import (
     VariantScoresFactory,
     annotate_with_joint_scores,
     annotate_with_pathogenicity_scores,
+    annotate_with_face_scores,
     annotate_with_phenotype_scores,
     annotate_with_transcripts,
     prioritize_genes,
+    prioritize_genes_gm,
     unroll_extra_annos_result,
 )
 from .queries import (
@@ -120,6 +122,11 @@ if settings.KIOSK_MODE:
 HEADERS_PHENO_SCORES = (
     ("phenotype_score", "Phenotype Score", float),
     ("phenotype_rank", "Phenotype Rank", int),
+)
+
+HEADERS_FACE_SCORES = (
+    ("face_score", "Face Score", float),
+    ("face_rank", "Face Rank", int),
 )
 
 #: Names of the pathogenicity scoring header columns.
@@ -322,6 +329,12 @@ class CaseExporterBase:
             )
         )
 
+    def _is_face_enabled(self):
+        """Return whether face prioritization is enabled in this query."""
+        return (
+            settings.VARFISH_ENABLE_FACE and self.query_args.get("face_enabled")
+        )
+
     def _is_pathogenicity_enabled(self):
         """Return whether pathogenicity scoring is enabled in this query."""
         return settings.VARFISH_ENABLE_CADD and all(
@@ -350,6 +363,8 @@ class CaseExporterBase:
         header += HEADER_FIXED
         if self._is_prioritization_enabled():
             header += HEADERS_PHENO_SCORES
+        if self._is_face_enabled():
+            header += HEADERS_FACE_SCORES
         if self._is_pathogenicity_enabled():
             header += HEADERS_PATHO_SCORES
         if _is_jannovar_enabled():
@@ -382,6 +397,9 @@ class CaseExporterBase:
             if self._is_prioritization_enabled():
                 gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in _result])
                 _result = annotate_with_phenotype_scores(_result, gene_scores)
+            if self._is_face_enabled():
+                gene_scores = self._fetch_face_scores([entry.entrez_id for entry in _result])
+                _result = annotate_with_face_scores(_result, gene_scores)
             if self._is_pathogenicity_enabled():
                 variant_scores = self._fetch_variant_scores(
                     [
@@ -403,7 +421,7 @@ class CaseExporterBase:
             total = len(_result)
             steps = math.ceil(total / 10)
             for i, small_var in enumerate(_result):
-                if self._is_prioritization_enabled() or self._is_pathogenicity_enabled():
+                if self._is_prioritization_enabled() or self._is_pathogenicity_enabled() or self._is_face_enabled:
                     if i % steps == 0:
                         self.job.add_log_entry("{}%".format(int(100 * i / total)))
                 else:
@@ -432,6 +450,21 @@ class CaseExporterBase:
                     str(gene_id): score
                     for gene_id, _, score, _ in prioritize_genes(
                         entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
+                    )
+                }
+            except ConnectionError as e:
+                self.job.add_log_entry(e)
+        else:
+            return {}
+
+    def _fetch_face_scores(self, entrez_ids):
+        if self._is_face_enabled():
+            try:
+                prio_face = self.query_args.get("prio_face")
+                return {
+                    str(gene_id): score
+                    for gene_id, gene_symbol, score, priority_type in prioritize_genes_gm(
+                        prio_face, logging=self.job.add_log_entry
                     )
                 }
             except ConnectionError as e:
