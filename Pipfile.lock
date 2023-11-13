@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "960919374539dbc4f5b9680dd2cecaa154a4bb1ea72cdaeaee2ebc2ddcef4b1a"
+            "sha256": "8b79b914e2adafbdf263e2148389e27d20d6c898ee17bd7acf3b2b4f1f68ba92"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -877,6 +877,21 @@
             ],
             "markers": "python_version >= '3' and (platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32'))))))",
             "version": "==3.0.1"
+        },
+        "http-message-signatures": {
+            "hashes": [
+                "sha256:7b2b504c75222b3ea3bbc9acf1285df6b67a2d88d42464f626a6533b70c286f7",
+                "sha256:a186572ba3d3b020c5cf1c3dbd6a12dbc07fc96768fead9eb421dc739098671b"
+            ],
+            "version": "==0.4.4"
+        },
+        "http-sfv": {
+            "hashes": [
+                "sha256:654eae7cd6cf27b907da50fd8554e4b64d390782c50ade9e2ce02c139ef90116",
+                "sha256:711507bc2aeab0b00890eeff5274f5702c915dab808d4041576beed166ba1d71"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==0.9.8"
         },
         "httpsig": {
             "hashes": [
@@ -1900,15 +1915,16 @@
                 "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"
             ],
             "index": "pypi",
-            "version": "==2.31"
+            "markers": "python_version >= '3.7'",
+            "version": "==2.31.0"
         },
         "requests-http-signature": {
             "hashes": [
-                "sha256:850672f64b1481ffd406a7a30572fa2f3336e5ee8ff2ff53a6c1544bee66c479",
-                "sha256:b121d66a0e7d8d3ea5679b39405b9dcf79fd2e099f8cbf33a10abe9e89c2c50b"
+                "sha256:5770fa5c6cd9dd700bc2aa92d3d1dd8e26b9a7c083585d2db0c8bf9ec482c906",
+                "sha256:ebc5b2fbb95d4519385afd385b31a34e9bdff20fd0b3f36e8ce42945b8340997"
             ],
             "index": "pypi",
-            "version": "==0.2.0"
+            "version": "==0.7.1"
         },
         "rpds-py": {
             "hashes": [
@@ -2319,7 +2335,7 @@
                 "sha256:8f92fc8806f9a6b641eaa5318da32b44d401efaac0f6678c9bc448ba3605faa0",
                 "sha256:df8e4339e9cb77357558cbdbceca33c303714cf861d1eef15e1070055ae8b7ef"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version >= '3.8'",
             "version": "==4.8.0"
         },
         "tzdata": {
