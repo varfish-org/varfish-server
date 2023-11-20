@@ -8,7 +8,7 @@ aldjemy = "~=2.2"
 altamisa = "~=0.2.5"
 attrs = "~=23.1"
 beautifulsoup4 = "~=4.9"
-cattrs = "~=23.1"
+cattrs = "~=23.2"
 django = "*"  # whatever django-sodar-core enforces
 django-clone = "~=5.3"
 django-cryptographic-fields-bihealth = "~=0.6.0"

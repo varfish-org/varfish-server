@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "960919374539dbc4f5b9680dd2cecaa154a4bb1ea72cdaeaee2ebc2ddcef4b1a"
+            "sha256": "42a275c59106fa1f8742c293e75c62ba8469b1e1055d9a7261655ed76dc1a9cc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -221,6 +221,7 @@
                 "sha256:6279836d581513a26f1bf235f9acd333bc9115683f14f7e8fae46c98fc50e015"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.7'",
             "version": "==23.1.0"
         },
         "awesome-slugify": {
@@ -262,11 +263,12 @@
         },
         "cattrs": {
             "hashes": [
-                "sha256:b2bb14311ac17bed0d58785e5a60f022e5431aca3932e3fc5cc8ed8639de50a4",
-                "sha256:db1c821b8c537382b2c7c66678c3790091ca0275ac486c76f3c8f3920e83c657"
+                "sha256:c505344019b1a2708c775ffb1b8d092654d22a570799bb7b925c9effefc22703",
+                "sha256:c9685821a75dc8588b90e847f47bcb6fba7bce8f280d5dc4edd3290e827854ec"
             ],
             "index": "pypi",
-            "version": "==23.1.2"
+            "markers": "python_version >= '3.8'",
+            "version": "==23.2.1"
         },
         "celery": {
             "hashes": [
