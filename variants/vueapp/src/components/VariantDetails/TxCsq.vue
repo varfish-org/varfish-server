@@ -16,16 +16,36 @@ const props = defineProps<{ txCsq: any }>()
         </tr>
       </thead>
       <tbody>
-        <tr v-for="txCsq in props.txCsq">
-          <td>{{ txCsq['gene-symbol'] }}</td>
+        <tr
+          v-for="txCsq in props.txCsq"
+          :class="{
+            'table-info': (txCsq.feature_tag ?? []).includes('ManeSelect'),
+            'table-secondary': (txCsq.feature_tag ?? []).includes(
+              'ManePlusClinical',
+            ),
+          }"
+        >
+          <td>{{ txCsq.gene_symbol }}</td>
           <td>
-            {{ txCsq['feature-id'] }}
-            ({{ txCsq['feature-biotype'] }})
+            {{ txCsq.feature_id }}
+            <small> ({{ txCsq.feature_biotype }}) </small>
+            <span
+              class="badge badge-primary"
+              v-if="(txCsq.feature_tag ?? []).includes('ManeSelect')"
+            >
+              MANE Select
+            </span>
+            <span
+              class="badge badge-secondary"
+              v-if="(txCsq.feature_tag ?? []).includes('ManePlusClinical')"
+            >
+              MANE Plus Clinical
+            </span>
           </td>
-          <td>{{ (txCsq['consequences'] ?? []).join(', ') }}</td>
-          <td>{{ txCsq['hgvs-t'] }}</td>
-          <td>{{ txCsq['hgvs-p'] }}</td>
-          <td>{{ txCsq['rank'].ord }} / {{ txCsq['rank'].total }}</td>
+          <td>{{ txCsq.consequences?.join(', ') }}</td>
+          <td>{{ txCsq.hgvs_t }}</td>
+          <td>{{ txCsq.hgvs_p }}</td>
+          <td>{{ txCsq.rank?.ord }} / {{ txCsq.rank?.total }}</td>
         </tr>
       </tbody>
     </table>

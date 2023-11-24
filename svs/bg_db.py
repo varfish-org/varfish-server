@@ -484,6 +484,10 @@ def sv_model_to_attrs(model_record: StructuralVariant) -> SvRecord:
         carriers_hom=model_record.num_hom_alt or 0,
         carriers_hemi=model_record.num_hemi_alt or 0,
     )
+    if model_record.pe_orientation is None:
+        orientation = None
+    else:
+        orientation = PairedEndOrientation(model_record.pe_orientation)
     # We write out chrom2=chrom1 etc. to work around NULL values left-over from old SVs
     return SvRecord(
         release=model_record.release,
@@ -492,7 +496,7 @@ def sv_model_to_attrs(model_record: StructuralVariant) -> SvRecord:
         pos=model_record.start,
         chrom2=model_record.chromosome2 or model_record.chromosome,
         end=model_record.end,
-        orientation=model_record.pe_orientation,
+        orientation=orientation,
         counts=counts,
     )
 
