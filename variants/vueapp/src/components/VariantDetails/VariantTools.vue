@@ -8,7 +8,7 @@ import ScoreDisplay from '@varfish/components/ScoreDisplay.vue'
 const props = defineProps<{
   smallVar: any
   varAnnos: any
-  umdPredictorApiToken: string
+  umdPredictorApiToken: string | null
 }>()
 
 const bestOf = (obj: any, keys: string[]) => {
@@ -203,7 +203,7 @@ const varsomeLinkout = computed((): string => {
 })
 
 const umdpredictorLinkout = computed((): string => {
-  if (!props.umdPredictorApiToken.length || !props.smallVar) {
+  if (!props.umdPredictorApiToken?.length || !props.smallVar) {
     return '#'
   }
 
