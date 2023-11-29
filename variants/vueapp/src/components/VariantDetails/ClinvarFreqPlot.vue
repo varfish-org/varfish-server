@@ -59,7 +59,6 @@ const vegaData = computed(() => {
           freqBucket: bucketLabels[i],
           value: record.counts[i],
         }
-        console.log(val)
         values.push(val)
       }
     }

@@ -19,7 +19,32 @@ const props = defineProps<{
   currentSvRecord?: SvRecord
 }>()
 
+const clingenDosageScore: { [key: string]: number } = {
+  CLINGEN_DOSAGE_SCORE_UNKNOWN: 0,
+  CLINGEN_DOSAGE_SCORE_SUFFICIENT_EVIDENCE_AVAILABLE: 3,
+  CLINGEN_DOSAGE_SCORE_SOME_EVIDENCE_AVAILABLE: 2,
+  CLINGEN_DOSAGE_SCORE_LITTLE_EVIDENCE: 1,
+  CLINGEN_DOSAGE_SCORE_NO_EVIDENCE_AVAILABLE: 0,
+  CLINGEN_DOSAGE_SCORE_RECESSIVE: 30,
+  CLINGEN_DOSAGE_SCORE_UNLIKELY: 40,
+}
+const clingenDosageLabel: { [key: string]: string } = {
+  CLINGEN_DOSAGE_SCORE_UNKNOWN: 'unknown',
+  CLINGEN_DOSAGE_SCORE_SUFFICIENT_EVIDENCE_AVAILABLE:
+    'sufficient evidence for dosage pathogenicity',
+  CLINGEN_DOSAGE_SCORE_SOME_EVIDENCE_AVAILABLE:
+    'some evidence for dosage pathogenicity',
+  CLINGEN_DOSAGE_SCORE_LITTLE_EVIDENCE:
+    'little evidence for dosage pathogenicity',
+  CLINGEN_DOSAGE_SCORE_NO_EVIDENCE_AVAILABLE:
+    'no evidence for dosage pathogenicity',
+  CLINGEN_DOSAGE_SCORE_RECESSIVE:
+    'gene associated with autosomal recessive phenotype',
+  CLINGEN_DOSAGE_SCORE_UNLIKELY: 'dosage sensitivity unlikely',
+}
+
 const currentGeneInfos: Ref<any> = ref(null)
+const currentGeneClinvar: Ref<any> = ref(null)
 
 const genesInfosByHgnc: ComputedRef<Map<string, any>> = computed(
   (): Map<string, any> => {
@@ -34,13 +59,13 @@ const genesInfosByHgnc: ComputedRef<Map<string, any>> = computed(
 const headers: Header[] = [
   {
     text: 'symbol',
-    value: 'dbnsfp.gene_name',
+    value: 'dbnsfp.geneName',
     width: 150,
     sortable: true,
   },
   {
     text: 'name',
-    value: 'dbnsfp.gene_full_name',
+    value: 'dbnsfp.geneFullName',
     width: 200,
   },
   {
@@ -55,13 +80,13 @@ const headers: Header[] = [
   },
   {
     text: 'pLI',
-    value: 'gnomad_constraints.pli',
+    value: 'gnomadConstraints.pli',
     width: 50,
     sortable: true,
   },
   {
     text: 'o/e LoF (upper)',
-    value: 'gnomad_constraints.oe_lof_upper',
+    value: 'gnomadConstraints.oeLofUpper',
     width: 100,
     sortable: true,
   },
@@ -79,24 +104,24 @@ const headers: Header[] = [
   {
     text: 'pHaplo',
     width: 100,
-    value: 'rcnv.p_haplo',
+    value: 'rcnv.pHaplo',
     sortable: true,
   },
   {
     text: 'pTriplo',
     width: 100,
-    value: 'rcnv.p_triplo',
+    value: 'rcnv.pTriplo',
     sortable: true,
   },
   {
     text: 'CG haploin.',
     width: 100,
-    value: 'clingen.haplo_summary',
+    value: 'clingen.haploSummary',
   },
   {
     text: 'CG triploin.',
     width: 100,
-    value: 'clingen.triplo_summary',
+    value: 'clingen.triploSummary',
   },
 ]
 
@@ -161,78 +186,6 @@ const geneInfoBadge = (geneInfo: any): string | null => {
   }
 }
 
-/** Compute list of gene infos to protect against empty `props.genesInfos`. */
-const items: ComputedRef<GeneInfo[]> = computed(() => {
-  if (props.genesInfos) {
-    const genesInfos = JSON.parse(JSON.stringify(props.genesInfos))
-    for (const geneInfo of genesInfos) {
-      if (geneInfo.clingen) {
-        const haploLabels = new Map<number, string>()
-        const triploLabels = new Map<number, string>()
-
-        for (const diseaseRecord of geneInfo.clingen.disease_records) {
-          if (diseaseRecord.dosage_haploinsufficiency_assertion?.length) {
-            const val = parseInt(
-              diseaseRecord.dosage_haploinsufficiency_assertion.split(' ')[0],
-            )
-            haploLabels.set(
-              val,
-              diseaseRecord.dosage_haploinsufficiency_assertion,
-            )
-          }
-          if (diseaseRecord.dosage_triplosensitivity_assertion?.length) {
-            const val = parseInt(
-              diseaseRecord.dosage_triplosensitivity_assertion.split(' ')[0],
-            )
-            triploLabels.set(
-              val,
-              diseaseRecord.dosage_triplosensitivity_assertion,
-            )
-          }
-        }
-
-        if (haploLabels.size) {
-          geneInfo.clingen.haplo_summary = Math.max(...haploLabels.keys())
-          geneInfo.clingen.haplo_label = haploLabels.get(
-            geneInfo.clingen.haplo_summary,
-          )
-        } else {
-          geneInfo.clingen.haplo_summary = null
-          geneInfo.clingen.haplo_label = null
-        }
-        if (triploLabels.size) {
-          geneInfo.clingen.triplo_summary = Math.max(...triploLabels.keys())
-          geneInfo.clingen.triplo_label = triploLabels.get(
-            geneInfo.clingen.triplo_summary,
-          )
-        } else {
-          geneInfo.clingen.triplo_summary = null
-          geneInfo.clingen.triplo_label = null
-        }
-      }
-    }
-    return genesInfos
-  } else {
-    return []
-  }
-})
-
-/** Helper formats the dbNSFP `FUNCTION` strings. */
-const formatFunctions = (strs: string[]): string => {
-  const mapped = strs.map((s) => {
-    // strip prefix
-    const preStripped = s.replace(/^FUNCTION: /, '')
-    // strip source/evidence suffix
-    const sufStripped = preStripped.replace(/ {([^},]+)(, ([^},]+))*}\.$/, '')
-    // format links into pubmed
-    return sufStripped.replace(/PubMed:(\d+)/g, (match) => {
-      const pmid = match.replace('PubMed:', '')
-      return `<a href="https://pubmed.ncbi.nlm.nih.gov/${pmid}/" target="_blank">${pmid}</a>`
-    })
-  })
-  return mapped.join(' // ')
-}
-
 const onRowClicked = (item: ClickRowArgument) => {
   currentGeneInfos.value = item
 }
@@ -243,8 +196,8 @@ const onRowClicked = (item: ClickRowArgument) => {
     <div class="p-2">
       <EasyDataTable
         :headers="headers"
-        :items="items"
-        :loading="!items"
+        :items="props.genesInfos ?? []"
+        :loading="!props.genesInfos?.length"
         buttons-pagination
         show-index
         @click-row="onRowClicked"
@@ -367,7 +320,7 @@ const onRowClicked = (item: ClickRowArgument) => {
       >
         Gene Details: {{ currentGeneInfos.hgnc.symbol }}
       </div>
-      <VariantDetailsGene :gene="currentGeneInfos" />
+      <VariantDetailsGene :gene="currentGeneInfos" :gene-clinvar="null" />
     </div>
     <div v-else class="text-muted text-center font-italic pt-2">
       Select gene in table above to see details.
