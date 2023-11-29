@@ -37,9 +37,26 @@ const reviewStatusStars: { [key: string]: number } = {
   REVIEW_STATUS_NO_ASSERTION_CRITERIA_PROVIDED: 0,
   REVIEW_STATUS_NO_ASSERTION_PROVIDED: 0,
 }
+
+const genomePos = computed<string>(() => {
+  if (!variantDetailsStore.smallVariant) {
+    return ''
+  } else {
+    const { release, chromosome, start } = variantDetailsStore.smallVariant
+    return `${release}:${chromosome}:${start}`
+  }
+})
 </script>
 
 <template>
+  <div class="p-2">
+    <a
+      :href="`https://www.ncbi.nlm.nih.gov/clinvar/?term=${genomePos}`"
+      target="_blank"
+    >
+      This location in ClinVar.
+    </a>
+  </div>
   <div class="p-2">
     <div class="text-muted small pb-2">
       <i-mdi-information />
@@ -50,12 +67,12 @@ const reviewStatusStars: { [key: string]: number } = {
     <div v-if="clinvar?.rcv">
       <div>
         <strong>Interpretation: </strong>
-        {{ clinicalSignificanceLabel[clinvar.clinical_significance] }}
+        {{ clinicalSignificanceLabel[clinvar.clinicalSignificance] }}
       </div>
       <div>
         <strong>Review Status: </strong>
         <template v-for="i of [1, 2, 3, 4, 5]">
-          <i-mdi-star v-if="i <= reviewStatusStars[clinvar.review_status]" />
+          <i-mdi-star v-if="i <= reviewStatusStars[clinvar.reviewStatus]" />
           <i-mdi-star-outline v-else />
         </template>
         {{ reviewStatusLabel[clinvar.review_status] }}
