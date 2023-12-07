@@ -14,7 +14,12 @@ from projectroles.models import Project
 from sqlalchemy import and_
 
 from importer.management.helpers import open_file, tsv_reader
-from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, SvAnnotationReleaseInfo
+from svs.models import (
+    StructuralVariant,
+    StructuralVariantGeneAnnotation,
+    SvAnnotationReleaseInfo,
+    SvQueryResultSet,
+)
 from varfish.utils import receiver_subclasses
 from variants.helpers import get_engine, get_meta
 from variants.models import (
@@ -24,6 +29,7 @@ from variants.models import (
     CaseGeneAnnotationEntry,
     CoreCase,
     SmallVariant,
+    SmallVariantQueryResultSet,
     SmallVariantSet,
     update_variant_counts,
 )
@@ -395,6 +401,21 @@ class CaseImporter:
                         raise RuntimeError(
                             "Inconsistent genome builds for import and existing case"
                         )
+                else:
+                    SmallVariantQueryResultSet.objects.create(
+                        case=self.case,
+                        result_row_count=0,
+                        start_time=self.case.date_created,
+                        end_time=self.case.date_created,
+                        elapsed_seconds=0,
+                    )
+                    SvQueryResultSet.objects.create(
+                        case=self.case,
+                        result_row_count=0,
+                        start_time=self.case.date_created,
+                        end_time=self.case.date_created,
+                        elapsed_seconds=0,
+                    )
                 self._import_case_gene_annotation(self.import_info)
         for variant_set_info in self.import_info.variantsetimportinfo_set.filter(
             state=VariantSetImportState.UPLOADED.value
