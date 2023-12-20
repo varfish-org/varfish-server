@@ -92,6 +92,7 @@ const devStoreState = () => {
             type="button"
             id="submitFilter"
             name="submit"
+            :disabled="anyHasError"
             class="btn"
             :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
             @click="emit('submitCancelButtonClick')"
