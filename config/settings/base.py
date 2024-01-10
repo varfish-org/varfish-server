@@ -36,7 +36,7 @@ CELERY_TASK_EAGER_PROPAGATES = False
 load_dotenv()
 
 # Load operating system environment variables and then prepare to use them
-env = environ.Env()
+env = environ.FileAwareEnv()
 
 # .env file, should load only in development environment
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
