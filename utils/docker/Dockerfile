@@ -96,8 +96,7 @@ COPY Pipfile Pipfile.lock ./
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
         --python=/usr/local/bin/python \
         --categories=packages,prod-packages,ldap-packages \
-        --deploy && \
-    pipenv run python -m nltk.downloader stopwords
+        --deploy
 
 
 # ---------------------------------------------------------------------------

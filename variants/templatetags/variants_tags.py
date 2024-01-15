@@ -1,6 +1,5 @@
 from django import template
 from django.conf import settings
-import nltk
 from projectroles.app_settings import AppSettingAPI
 
 from geneinfo.models import GeneIdToInheritance, Hpo, HpoName
@@ -9,9 +8,6 @@ from variants.models import only_source_name as _models_only_source_name
 
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
-
-nltk.data.path.append("misc/nltk_data")
-stop_words = set(nltk.corpus.stopwords.words("english"))
 
 
 @register.simple_tag
