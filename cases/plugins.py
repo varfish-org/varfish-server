@@ -1,3 +1,4 @@
+from django.db.utils import DataError
 from projectroles.plugins import ProjectAppPluginPoint
 
 from cases.urls import urlpatterns
@@ -10,8 +11,6 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     name = "cases"
     title = "Cases"
     urls = urlpatterns
-
-    plugin_ordering = 10
 
     icon = "mdi:hospital-building"
 
@@ -51,13 +50,20 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         :return: Dict
         """
         items = []
-
+        cases = Case.objects.find(search_terms, keywords)
         if not search_type:
-            cases = Case.objects.find(search_terms, keywords)
-            items = [case for case in cases if user.has_perm("variants.view_data", case.project)]
+            try:
+                items = [
+                    case for case in cases if user.has_perm("variants.view_data", case.project)
+                ]
+            except DataError:
+                items = []
             items.sort(key=lambda x: x.name.lower())
         elif search_type == "case":
-            items = Case.objects.find(search_terms, keywords).order_by("name")
+            try:
+                items = list(cases.order_by("name"))
+            except DataError:
+                items = []
 
         return {"all": {"title": "Cases", "search_types": ["case"], "items": items}}
 
