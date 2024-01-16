@@ -108,7 +108,7 @@ class CaseManager(models.Manager):
         objects = super().get_queryset().order_by("name")
         term_query = Q()
         for t in search_terms:
-            term_query.add(Q(name__iexact=t), Q.OR)
+            term_query.add(Q(name__iregex=rf"{t}"), Q.OR)
             term_query.add(Q(search_tokens__icontains=t), Q.OR)
         return objects.filter(term_query)
 
