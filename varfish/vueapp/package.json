@@ -35,7 +35,7 @@
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.2.5",
     "vue3-easy-data-table": "^1.5.47",
-    "yarn": "^1.22.19"
+    "yarn": "^1.22.21"
   },
   "devDependencies": {
     "@babel/core": "^7.22.20",
