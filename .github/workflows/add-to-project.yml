@@ -18,8 +18,10 @@ jobs:
           labeled: bug, needs-triage
           label-operator: OR
 
-      - name: register all issues with release planning project
+      - name: register bug/enhancement issues with release planning project
         uses: actions/add-to-project@v0.5.0
         with:
           project-url: https://github.com/orgs/varfish-org/projects/2
+          labeled: bug, needs-triage, enhancement
+          label-operator: OR
           github-token: ${{ secrets.BOT_TOKEN }}
