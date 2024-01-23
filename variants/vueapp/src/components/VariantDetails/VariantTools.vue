@@ -222,11 +222,8 @@ const umdpredictorLinkout = computed((): string => {
 })
 
 const jumpToLocus = async () => {
-  const chrPrefixed = props.smallVar.chromosome.startsWith('chr')
-    ? props.smallVar.chromosome
-    : `chr${props.smallVar.chromosome}`
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.smallVar.start}-${props.smallVar.end}`,
+    `http://127.0.0.1:60151/goto?locus=${props.smallVar.chromosome}:${props.smallVar.start}-${props.smallVar.end}`,
   ).catch((e) => {
     const msg =
       "Couldn't connect to IGV. Please make sure IGV is running and try again."
