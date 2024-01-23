@@ -89,7 +89,7 @@
     "react-dom": "^18.2.0",
     "storybook": "^7.4.3",
     "storybook-addon-fetch-mock": "^1.0.1",
-    "unplugin-icons": "^0.17.0",
+    "unplugin-icons": "^0.18.2",
     "unplugin-vue-components": "^0.25.2",
     "vite": "^4.5.2",
     "vite-plugin-dynamic-import": "^1.5.0",
