@@ -11,8 +11,13 @@ from cases.tests.factories import (
     CaseAlignmentStatsFactory,
     PedigreeRelatednessFactory,
 )
-from svs.tests.factories import SvQueryResultSetFactory
-from variants.models import CaseComments, CasePhenotypeTerms
+from svs.models import StructuralVariant
+from svs.tests.factories import (
+    StructuralVariantFactory,
+    StructuralVariantSetFactory,
+    SvQueryResultSetFactory,
+)
+from variants.models import Case, CaseComments, CasePhenotypeTerms, SmallVariant
 from variants.tests.factories import (
     CaseCommentsFactory,
     CaseFactory,
@@ -21,7 +26,9 @@ from variants.tests.factories import (
     CaseWithVariantSetFactory,
     PresetSetFactory,
     SampleVariantStatisticsFactory,
+    SmallVariantFactory,
     SmallVariantQueryResultSetFactory,
+    SmallVariantSetFactory,
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
@@ -116,14 +123,16 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestCaseUpdateAjaxView(TestProjectAPIPermissionBase):
+class TestCaseRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.presetset = PresetSetFactory(project=self.project)
 
     def test_patch_set_presetset_null(self):
-        url = reverse("cases:ajax-case-retrieveupdate", kwargs={"case": self.case.sodar_uuid})
+        url = reverse(
+            "cases:ajax-case-retrieveupdatedestroy", kwargs={"case": self.case.sodar_uuid}
+        )
         data = {"presetset": ""}
         with self.login(self.user_contributor):
             response = self.client.patch(url, data=data)
@@ -134,13 +143,62 @@ class TestCaseUpdateAjaxView(TestProjectAPIPermissionBase):
         self.assertIsNone(self.case.presetset_id)
 
     def test_patch_set_presetset_not_null(self):
-        url = reverse("cases:ajax-case-retrieveupdate", kwargs={"case": self.case.sodar_uuid})
+        url = reverse(
+            "cases:ajax-case-retrieveupdatedestroy", kwargs={"case": self.case.sodar_uuid}
+        )
         data = {"presetset": str(self.presetset.sodar_uuid)}
         with self.login(self.user_contributor):
             response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
         self.assertEqual(res_json["presetset"], str(self.presetset.sodar_uuid))
+
+    def _test_destroy_case_base(self, user, allowed):
+        case2 = CaseFactory(project=self.project)
+        sm_set1 = SmallVariantSetFactory(case=self.case)
+        sm_set2 = SmallVariantSetFactory(case=case2)
+        sv_set1 = StructuralVariantSetFactory(case=self.case)
+        sv_set2 = StructuralVariantSetFactory(case=case2)
+        SmallVariantFactory.create_batch(1, variant_set=sm_set1)
+        SmallVariantFactory.create_batch(2, variant_set=sm_set2)
+        StructuralVariantFactory.create_batch(3, variant_set=sv_set1)
+        StructuralVariantFactory.create_batch(4, variant_set=sv_set2)
+
+        url = reverse("cases:ajax-case-retrieveupdatedestroy", kwargs={"case": case2.sodar_uuid})
+        self.assertEqual(Case.objects.count(), 2)
+        self.assertEqual(SmallVariant.objects.count(), 3)
+        self.assertEqual(StructuralVariant.objects.count(), 7)
+        with self.login(user):
+            response = self.client.delete(url)
+        if allowed:
+            self.assertEqual(response.status_code, 204)
+            self.assertEqual(Case.objects.count(), 1)
+            self.assertEqual(SmallVariant.objects.count(), 1)
+            self.assertEqual(StructuralVariant.objects.count(), 3)
+            self.assertEqual(Case.objects.first(), self.case)
+        else:
+            self.assertEqual(response.status_code, 403)
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(SmallVariant.objects.count(), 3)
+            self.assertEqual(StructuralVariant.objects.count(), 7)
+
+    def test_destroy_case_superuser(self):
+        self._test_destroy_case_base(self.superuser, allowed=True)
+
+    def test_destroy_case_owner(self):
+        self._test_destroy_case_base(self.user_owner, allowed=False)
+
+    def test_destroy_case_delegate(self):
+        self._test_destroy_case_base(self.user_delegate, allowed=False)
+
+    def test_destroy_case_contributor(self):
+        self._test_destroy_case_base(self.user_contributor, allowed=False)
+
+    def test_destroy_case_guest(self):
+        self._test_destroy_case_base(self.user_guest, allowed=False)
+
+    def test_destroy_case_no_roles(self):
+        self._test_destroy_case_base(self.user_no_roles, allowed=False)
 
 
 class TestCasePhenotypeTermsListCreateAjaxView(TestProjectAPIPermissionBase):

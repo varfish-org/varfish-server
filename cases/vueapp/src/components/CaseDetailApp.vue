@@ -12,6 +12,7 @@ import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { useSvFlagsStore } from '@svs/stores/svFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { overlayShow, overlayMessage } from '@cases/common'
+import { useRouter } from 'vue-router'
 
 import ModalSelect from '@varfish/components/ModalSelect.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
@@ -48,6 +49,10 @@ const variantResultSetStore = useVariantResultSetStore()
 const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
+
+// Routing-related.
+
+const router = useRouter()
 
 const refreshStores = async () => {
   if (
@@ -248,7 +253,6 @@ const handleDeleteCaseCommentClicked = async (caseCommentUuid) => {
     title: 'Please Confirm Deletion',
     isDanger: true,
   })
-
   try {
     await caseDetailsStore.destroyCaseComment(caseCommentUuid)
     toastRef.value.show({
@@ -311,7 +315,7 @@ const handleEditCaseStatusClicked = async () => {
 const handleEditCaseNotesClicked = async () => {
   try {
     const notes = await modalInputRef.value.show({
-      title: `Update Case Notess`,
+      title: `Update Case Notes`,
       label: `Case Notes`,
       defaultValue: caseDetailsStore.caseObj?.notes ?? '',
       widget: 'textarea',
@@ -413,6 +417,35 @@ const handleUpdateCasePhenotypeTermsClicked = async ({
   }
 }
 
+/** Handle clicks on "add case comment".
+ *
+ * Display a modal for editing the comment and save via API.
+ */
+const handleDestroyCaseClicked = async () => {
+  await modalConfirmRef.value.show({
+    title: 'Please Confirm Deletion',
+    isDanger: true,
+  })
+  try {
+    await caseDetailsStore.destroyCase()
+    router.push({
+      name: 'case-list',
+    })
+    toastRef.value.show({
+      level: 'success',
+      title: 'Success!',
+      text: `The case was deleted successfully.`,
+    })
+  } catch (err) {
+    console.error(err)
+    toastRef.value.show({
+      level: 'error',
+      title: 'Error!',
+      text: `There was a problem deleting the case.`,
+    })
+  }
+}
+
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
   () => caseListStore.showInlineHelp,
@@ -473,6 +506,7 @@ onMounted(() => {
       @edit-case-status-click="handleEditCaseStatusClicked"
       @edit-case-notes-click="handleEditCaseNotesClicked"
       @edit-pedigree-click="handleEditPedigreeClicked"
+      @destroy-case-click="handleDestroyCaseClicked"
     />
     <div
       class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"

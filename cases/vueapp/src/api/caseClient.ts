@@ -7,7 +7,7 @@ export class CaseClient extends ClientBase {
   /** Retrieve case with the given UUID. */
   async retrieveCase(caseUuid: string) {
     return await this.fetchHelper(
-      `/cases/ajax/case/retrieve-update/${caseUuid}/`,
+      `/cases/ajax/case/retrieve-update-destroy/${caseUuid}/`,
       'GET',
     )
   }
@@ -20,9 +20,20 @@ export class CaseClient extends ClientBase {
    */
   async updateCase(caseUuid: string, payload: any): Promise<any> {
     return await this.fetchHelper(
-      `/cases/ajax/case/retrieve-update/${caseUuid}/`,
+      `/cases/ajax/case/retrieve-update-destroy/${caseUuid}/`,
       'PATCH',
       payload,
+    )
+  }
+
+  /** Destroy the case with the given UUID.
+   *
+   * @param caseUuid Case's UUID.
+   */
+  async destroyCase(caseUuid: string): Promise<any> {
+    return await this.fetchHelper(
+      `/cases/ajax/case/retrieve-update-destroy/${caseUuid}/`,
+      'DELETE',
     )
   }
 
