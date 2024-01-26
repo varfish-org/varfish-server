@@ -17,6 +17,7 @@ const emit = defineEmits([
   'editCaseNotesClick',
   'editQueryPresetsClick',
   'editPedigreeClick',
+  'destroyCaseClick',
 ])
 
 /** The currently used router. */
@@ -161,6 +162,7 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
               v-if="userHasPerms('cases.delete_case')"
               class="dropdown-item text-danger"
               href="#"
+              @click.prevent="emit('destroyCaseClick')"
             >
               <i-mdi-delete-forever />
               Delete Case
