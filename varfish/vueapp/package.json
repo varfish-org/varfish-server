@@ -83,7 +83,7 @@
     "happy-dom": "^12.1.6",
     "ndb": "^1.1.5",
     "node-fetch": "^3.3.2",
-    "npm-check-updates": "^16.14.4",
+    "npm-check-updates": "^16.14.14",
     "prettier": "3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
