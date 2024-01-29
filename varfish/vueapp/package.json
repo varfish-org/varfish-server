@@ -43,7 +43,7 @@
     "@babel/preset-env": "^7.22.20",
     "@iconify-json/bi": "^1.1.20",
     "@iconify-json/carbon": "^1.1.21",
-    "@iconify-json/cil": "^1.1.5",
+    "@iconify-json/cil": "^1.1.8",
     "@iconify-json/entypo": "^1.1.5",
     "@iconify-json/fa": "^1.1.5",
     "@iconify-json/fa-regular": "^1.1.5",
