@@ -414,6 +414,12 @@ watch(
       buttons-pagination
       show-index
     >
+      <template #empty-message>
+        <em class="ml-2 text-dark" style="font-size: 150%">
+          <strong>No variant passed the current filter settings.</strong><br />
+          Please try relaxing your settings.
+        </em>
+      </template>
       <template #[`header-payload.overlap_counts.inhouse`]="header">
         <div :title="header.text">
           <i-mdi-house />

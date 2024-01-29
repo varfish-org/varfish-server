@@ -539,6 +539,13 @@ watch(
         show-index
         buttons-pagination
       >
+        <template #empty-message>
+          <em class="ml-2 text-dark" style="font-size: 150%">
+            <strong>No variant passed the current filter settings.</strong
+            ><br />
+            Please try relaxing your settings.
+          </em>
+        </template>
         <template #item-variant_icons="{ sodar_uuid, payload }">
           <span class="text-nowrap">
             <i-fa-solid-search

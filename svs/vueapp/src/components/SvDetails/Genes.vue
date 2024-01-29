@@ -202,6 +202,11 @@ const onRowClicked = (item: ClickRowArgument) => {
         show-index
         @click-row="onRowClicked"
       >
+        <template #empty-message>
+          <em class="ml-2 text-dark">
+            <strong>No genes available.</strong>
+          </em>
+        </template>
         <template #item-dbnsfp.gene_name="geneInfo">
           <span v-html="geneInfoBadge(geneInfo)" />
           <span :class="geneInfoClass(geneInfo)">
