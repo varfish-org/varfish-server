@@ -1,6 +1,6 @@
 <script setup>
 import { sortBy } from 'sort-by-typescript'
-import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
+import { computed, onBeforeMount, reactive, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EasyDataTable from 'vue3-easy-data-table'
@@ -91,18 +91,18 @@ const tableLoading = ref(false)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = computed({
   get() {
-    return {
-      page: svResultSetStore.pageNo || 1,
-      rowsPerPage: svResultSetStore.pageSize || 50,
-      sortBy: svResultSetStore.sortBy || 'chrom-pos',
-      sortType: svResultSetStore.sortType || 'asc',
-    }
+    return reactive({
+      page: svResultSetStore.tablePageNo || 1,
+      rowsPerPage: svResultSetStore.tablePageSize || 50,
+      sortBy: svResultSetStore.tableSortBy || 'chrom-pos',
+      sortType: svResultSetStore.tableSortType || 'asc',
+    })
   },
   set(options) {
-    svResultSetStore.pageNo = options.page
-    svResultSetStore.pageSize = options.rowsPerPage
-    svResultSetStore.sortBy = options.sortBy
-    svResultSetStore.sortType = options.sortType
+    svResultSetStore.tablePageNo = options.page
+    svResultSetStore.tablePageSize = options.rowsPerPage
+    svResultSetStore.tableSortBy = options.sortBy
+    svResultSetStore.tableSortType = options.sortType
   },
 })
 
@@ -316,6 +316,22 @@ onBeforeMount(async () => {
     await loadFromServer()
   }
 })
+
+/** Update display when pagination or sorting changed. */
+watch(
+  [
+    () => tableServerOptions.value.page,
+    () => tableServerOptions.value.rowsPerPage,
+    () => tableServerOptions.value.sortBy,
+    () => tableServerOptions.value.sortType,
+  ],
+  async (
+    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
+  ) => {
+    await loadFromServer()
+  },
+)
 
 watch(
   () => svResultSetStore.resultSetUuid,
