@@ -1,8 +1,24 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
     "resolveJsonModule": true,
-    "downlevelIteration": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noEmit": true,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+
+    "downlevelIteration": true,
     "paths": {
       "@varfish/*": ["./src/varfish/*"],
       "@variantsTest/*": ["./tests/variants/*"],
@@ -11,7 +27,8 @@
       "@svs/*": ["./src/svs/*"],
       "@cases/*": ["./src/cases/*"],
       "@cases_qc/*": ["./src/cases_qc/*"],
-      "@cohorts/*": ["./src/cohorts/*"]
+      "@cohorts/*": ["./src/cohorts/*"],
+      "@bihealth/*": ["./src/bihealth/*"]
     }
   }
 }

@@ -55,3 +55,4 @@ const showStructuralVariantDetails = async (event) => {
     </div>
   </div>
 </template>
+@variants/api/variantClient/client

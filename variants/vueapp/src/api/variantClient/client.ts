@@ -1,5 +1,7 @@
 import { ClientBase } from '@varfish/apiUtils'
 
+import { ExtraAnnoFields } from './types'
+
 type QuickPresets = any
 type InheritancePresets = any
 type CategoryPresets = any
@@ -335,7 +337,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async fetchExtraAnnoFields() {
+  async fetchExtraAnnoFields(): Promise<ExtraAnnoFields> {
     return await this.fetchHelper(`/variants/ajax/extra-anno-fields/`, 'GET')
   }
 

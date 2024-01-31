@@ -1,13 +1,10 @@
-import App from '@cases/App.vue'
 import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
 import CaseListApp from '@cases/components/CaseListApp.vue'
 import SvDetails from '@svs/components/SvDetails.vue'
 import SvFilterApp from '@svs/components/SvFilterApp.vue'
 import { useHistoryStore } from '@varfish/stores/history'
 import FilterApp from '@variants/components/FilterApp.vue'
-import VariantDetails from '@variants/components/VariantDetails.vue'
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
+import { SeqvarDetails } from '@variants/views'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
@@ -92,7 +89,7 @@ const routes = [
   {
     name: 'variant-details',
     path: '/variants/details/:row/:selectedSection?',
-    component: VariantDetails,
+    component: SeqvarDetails,
     props: (route) => ({
       resultRowUuid: route.params.row,
       selectedSection: route.params.selectedSection || 'genes',
@@ -117,7 +114,7 @@ const routes = [
   },
 ]
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
@@ -133,12 +130,6 @@ const router = createRouter({
     }
   },
 })
-
-const pinia = createPinia()
-const app = createApp(App)
-app.use(router)
-app.use(pinia)
-app.mount('#app')
 
 router.beforeEach((_to, from) => {
   // Push history element, initial will be swallowed by store.

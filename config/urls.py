@@ -99,6 +99,14 @@ urlpatterns += [
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),
+    # Augment url patterns with proxy for PubTator3
+    url(
+        r"^proxy/remote/pubtator3-api/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url="https://www.ncbi.nlm.nih.gov/research/pubtator3-api/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
     # Augment URL patterns with proxy for local services.
     url(
         r"^proxy/varfish/annonars/(?P<url>.*)$",

@@ -6,8 +6,10 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
-import { VariantClient } from '@variants/api/variantClient'
+import { VariantClient } from '@variants/api/variantClient/client'
 import { DisplayColumns } from '@variants/enums'
+import { ResultRow, SortType } from './types'
+import { ExtraAnnoFields } from '../../api/variantClient/types'
 
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // no store dependencies
@@ -15,63 +17,65 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // data passed to `initialize` and store state
 
   /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
+  const csrfToken = ref<string>("")
   /** UUID of the case that this store holds annotations for. */
-  const caseUuid = ref<string | null>(null)
+  const caseUuid = ref<string | undefined>(undefined)
   /** The current application state. */
   const storeState = reactive<StoreState>(new StoreState())
   /** Extra annotation fields available. */
-  const extraAnnoFields = ref<any | null>(null)
+  const extraAnnoFields = ref<ExtraAnnoFields>([])
 
   // other data (loaded via REST API or computed)
 
   /** Last result row as loaded from server. */
-  const resultRow = ref<any | null>(null)
+  const resultRow = ref<ResultRow | undefined>(undefined)
   /** UUID of the result set. */
-  const resultSetUuid = ref<string | null>(null)
+  const resultSetUuid = ref<string | undefined>(undefined)
   /** Result set of query. */
-  const resultSet = ref<any | null>(null)
+  const resultSet = ref<any | undefined>(undefined)
   /** Query of result set, if any. */
-  const query = ref<any | null>(null)
+  const query = ref<any | undefined>(undefined)
 
   /** Table server option page number. */
-  const tablePageNo = ref<number | null>(null)
+  const tablePageNo = ref<number | undefined>(undefined)
   /** Table server option page size. */
-  const tablePageSize = ref<number | null>(null)
+  const tablePageSize = ref<number | undefined>(undefined)
   /** Table server option to sort column by. */
-  const tableSortBy = ref<any | null>(null)
+  const tableSortBy = ref<any | undefined>(undefined)
   /** Table server option sort asc or desc. */
-  const tableSortType = ref<string | null>(null)
+  const tableSortType = ref<SortType>('asc')
   /** Which details to display, integer value from {@code DisplayDetails}. */
-  const displayDetails = ref<number | null>(null)
+  const displayDetails = ref<number | undefined>(undefined)
   /** Which frequency information to display, integer value from {@code DisplayFrequency}. */
-  const displayFrequency = ref<number | null>(null)
+  const displayFrequency = ref<number | undefined>(undefined)
   /** The constraint to display, integer value from {@code DisplayConstraint}. */
-  const displayConstraint = ref<number | null>(null)
+  const displayConstraint = ref<number | undefined>(undefined)
   /** The additional columns to display; Integers from {@code DisplayColumns}. */
-  const displayColumns = ref<any | null>(null)
+  const displayColumns = ref<string[]>([])
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any> | null>(null)
+  const initializeRes = ref<Promise<any> | undefined>(undefined)
 
   const $reset = () => {
+    csrfToken.value = ""
+
     storeState.state = State.Initial
     storeState.serverInteractions = 0
     storeState.message = null
 
-    resultRow.value = null
-    resultSetUuid.value = null
-    resultSet.value = null
-    query.value = null
+    resultRow.value = undefined
+    resultSetUuid.value = undefined
+    resultSet.value = undefined
+    query.value = undefined
 
-    tablePageNo.value = null
-    tablePageSize.value = null
-    tableSortBy.value = null
-    tableSortType.value = null
-    displayDetails.value = null
-    displayFrequency.value = null
-    displayConstraint.value = null
-    displayColumns.value = null
+    tablePageNo.value = undefined
+    tablePageSize.value = undefined
+    tableSortBy.value = undefined
+    tableSortType.value = 'asc'
+    displayDetails.value = undefined
+    displayFrequency.value = undefined
+    displayConstraint.value = undefined
+    displayColumns.value = []
   }
 
   /**

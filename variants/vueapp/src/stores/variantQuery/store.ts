@@ -1,10 +1,10 @@
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { State, StoreState } from '@varfish/storeUtils'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import { VariantClient } from '@variants/api/variantClient'
+import { VariantClient } from '@variants/api/variantClient/client'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
 import { copy } from '@variants/helpers'
-import { previousQueryDetailsToQuerySettings } from '@variants/stores/variantQuery.funcs'
+import { previousQueryDetailsToQuerySettings } from './lib'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
@@ -12,7 +12,7 @@ import { nextTick, reactive, ref } from 'vue'
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */
 const fetchPresets = async (
-  csrfToken,
+  csrfToken: string,
   caseObj,
   quickPresets,
   categoryPresets,
@@ -206,9 +206,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   /** UMD Predictor API token (from app context). */
   const umdPredictorApiToken = ref(null)
   /** Whether HGMD Pro is enabled (from app contet). */
-  const hgmdProEnabled = ref(null)
+  const hgmdProEnabled = ref<boolean>(false)
   /** The URL prefix for HGMD Pro (from app context). */
-  const hgmdProPrefix = ref(null)
+  const hgmdProPrefix = ref<string>("")
   /** Whether the GA4GH beacon network widget is enabled (from app context). */
   const ga4ghBeaconNetworkWidgetEnabled = ref(null)
   /** Whether exomiser support is enabled (from app context). */
@@ -602,8 +602,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     csrfToken.value = null
     caseUuid.value = null
     umdPredictorApiToken.value = null
-    hgmdProEnabled.value = null
-    hgmdProPrefix.value = null
+    hgmdProEnabled.value = false
+    hgmdProPrefix.value = ""
     ga4ghBeaconNetworkWidgetEnabled.value = null
     exomiserEnabled.value = null
     caddEnabled.value = null

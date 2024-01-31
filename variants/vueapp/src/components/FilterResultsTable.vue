@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
@@ -13,11 +13,15 @@ import { getAcmgBadge } from '@variants/helpers'
 import { VariantClient } from '@variants/api/variantClient'
 import ColumnControl from '@variants/components/ColumnControl.vue'
 import ExportResults from '@variants/components/ExportResults.vue'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/store/seqvarInfo'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
+import {
+  useVariantResultSetStore,
+  type ServerOptions,
+} from '@variants/stores/variantResultSet'
 import { copy, declareWrapper } from '@variants/helpers'
 import {
   DisplayConstraints,
@@ -104,7 +108,7 @@ const displayColumns = computed({
 })
 
 /** The table server options, updated by Vue3EasyDataTable. */
-const tableServerOptions = computed({
+const tableServerOptions = computed<ServerOptions>({
   get() {
     return reactive({
       page: variantResultSetStore.tablePageNo || 1,
@@ -122,8 +126,9 @@ const tableServerOptions = computed({
 })
 
 const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
+  document
+    .getElementById('sodar-ss-app-context')
+    ?.getAttribute('app-context') || '{}',
 )
 
 /**
@@ -146,7 +151,7 @@ const optionalColumns = () => {
   for (const { field, label } of extraAnnoFields.value) {
     optionalColumnTexts[`extra_anno${field}`] = label
   }
-  return displayColumns.value.map((field) => ({
+  return displayColumns.value.map((field: any) => ({
     text: optionalColumnTexts[field],
     value: field,
     sortable: field.startsWith('extra_anno'),
@@ -168,8 +173,14 @@ const genotypeColumns = () => {
   )
 }
 
+interface ScoreColumn {
+  text: string
+  value: string
+  sortable: boolean
+}
+
 const scoreColumns = () => {
-  let data = []
+  let data: ScoreColumn[] = []
   if (props.pathoEnabled) {
     data = [
       {
@@ -378,7 +389,7 @@ const getClinvarSignificanceBadge = (patho) => {
   return 'badge-secondary'
 }
 
-const showVariantDetails = (sodarUuid, section) => {
+const showVariantDetails = (sodarUuid: string, section?: string) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
     selectedSection: section ?? 'gene',
@@ -959,3 +970,5 @@ watch(
   margin-left: 0;
 }
 </style>
+@variants/stores/variantResultSet/store
+@variants/api/variantClient/client

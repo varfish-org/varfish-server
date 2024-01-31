@@ -7,7 +7,7 @@ import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
 import { SvClient } from '@svs/api/svClient'
-import { VariantClient } from '@variants/api/variantClient'
+import { VariantClient } from '@variants/api/variantClient/client'
 
 export const useSvResultSetStore = defineStore('svResultSet', () => {
   // no store dependencies

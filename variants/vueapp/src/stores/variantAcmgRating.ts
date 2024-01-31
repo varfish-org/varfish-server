@@ -9,7 +9,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
-import { VariantClient } from '@variants/api/variantClient'
+import { VariantClient } from '@variants/api/variantClient/client'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
 /** Alias definition of SmallVariant type; to be defined later. */

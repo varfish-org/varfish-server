@@ -535,3 +535,4 @@ onMounted(() => {
     <Toast ref="toastRef" :autohide="false" />
   </div>
 </template>
+@variants/stores/variantResultSet/store

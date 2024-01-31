@@ -305,3 +305,4 @@ watch(
 </template>
 
 <style scoped></style>
+@variants/stores/variantResultSet/store

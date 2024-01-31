@@ -47,6 +47,7 @@ export default defineConfig({
       '@cases': resolve(__dirname, './src/cases'),
       '@cases_qc': resolve(__dirname, './src/cases_qc'),
       '@cohorts': resolve(__dirname, './src/cohorts'),
+      '@bihealth': resolve(__dirname, './src/bihealth'),
     },
     preserveSymlinks: true,
   },
