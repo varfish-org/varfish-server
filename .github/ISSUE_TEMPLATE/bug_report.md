@@ -10,7 +10,7 @@ assignees: ''
 <!--
 For general questions please use the Discussions section of the project:
 
-https://github.com/bihealth/varfish-server/discussions
+https://github.com/varfish-org/varfish-server/discussions
 
 For bug reports and feature requests please open a ticket using the templates!
 -->

@@ -12,7 +12,7 @@ However, we add two important features, as explained below.
 1. The client sends the current user in the ``X-Beacon-User`` header.
 2. The client has to sign the ``X-Beacon-User`` and ``Date`` HTTP headers using the `Signing HTTP Messages <https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures-12>`__ IETF draft.
 
-You can find a simple Python implementation of a standalone client `on Github <https://github.com/bihealth/varfish-clinical-beacon-client>`__.
+You can find a simple Python implementation of a standalone client `on Github <https://github.com/varfish-org/varfish-clinical-beacon-client>`__.
 
 ------------------------
 ``X-Beacon-User`` Header
@@ -67,7 +67,7 @@ We use standard RSA and ECDSA keys, Varfish supports the following algorithms:
 - ``ecdsa-sha256``
 - ``ecdsa-sha256``
 
-The `standalone client on Github <https://github.com/bihealth/varfish-clinical-beacon-client>`__ provides examples for key generation.
+The `standalone client on Github <https://github.com/varfish-org/varfish-clinical-beacon-client>`__ provides examples for key generation.
 
 Key exchange is trivial as only the public key needs to be registered by the server but it also **must** be registered by the server before making any query.
 

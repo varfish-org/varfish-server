@@ -13,10 +13,10 @@ Docker containers allow to the whole runtime environment of complex software pac
 
 For the following, knowledge of Linux administration and exposure to Docker is required.
 Deeper knowledge to Docker and Docker Compose is of greater help in case of debugging.
-In the case that have problems, please open an issue in our `Issue Tracker <https://github.com/bihealth/varfish-docker-compose/issues>`__ or send an email to cubi-helpdesk@bihealth.de.
+In the case that have problems, please open an issue in our `Issue Tracker <https://github.com/varfish-org/varfish-docker-compose/issues>`__ or send an email to cubi-helpdesk@bihealth.de.
 Please note that VarFish is academic software and we try to provide support on a best-effort.
 
-You can find a quickstart-style manual in the `varfish-docker-compose <https://github.com/bihealth/varfish-docker-compose#run-varfish-server-using-docker-compose>`__ README.
+You can find a quickstart-style manual in the `varfish-docker-compose <https://github.com/varfish-org/varfish-docker-compose#run-varfish-server-using-docker-compose>`__ README.
 
 Note that this will only perform installation of VarFish and related services with data (re)distributed by the VarFish authors.
 See :ref:`admin_extras` for installing extra services such as annotation with CADD scores.
@@ -74,7 +74,7 @@ But this will come later.
 
 .. code-block:: bash
 
-    $ git clone https://github.com/bihealth/varfish-docker-compose.git
+    $ git clone https://github.com/varfish-org/varfish-docker-compose.git
     $ cd varfish-docker-compose
 
 Next, download and extract the VarFish site data archive which contains everything you need to get started (the download is ~100GB of data).
@@ -129,11 +129,11 @@ You can check that everything is running (the versions might be different in you
 .. code-block:: bash
 
     $ docker ps
-    3ec78fb9f12c   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-import_1
-    313afb611ab1   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 30 seconds   8080/tcp                                   compose_varfish-celerybeat_1
-    4d865726e83b   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-query_1
-    a5f90232c4da   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-default_1
-    96cec7caebe4   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 33 seconds   8080/tcp                                   compose_varfish-web_1
+    3ec78fb9f12c   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-import_1
+    313afb611ab1   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 30 seconds   8080/tcp                                   compose_varfish-celerybeat_1
+    4d865726e83b   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-query_1
+    a5f90232c4da   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 31 seconds   8080/tcp                                   compose_varfish-celeryd-default_1
+    96cec7caebe4   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   17 hours ago   Up 33 seconds   8080/tcp                                   compose_varfish-web_1
     8d1f310c9b48   postgres:12                                                 "docker-entrypoint.s…"   17 hours ago   Up 32 seconds   5432/tcp                                   compose_postgres_1
     8f12e16e20cd   minio/minio                                                 "/usr/bin/docker-ent…"   17 hours ago   Up 32 seconds   9000/tcp                                   compose_minio_1
     03e877ac11db   quay.io/biocontainers/jannovar-cli:0.33--0                  "jannovar -Xmx6G -Xm…"   17 hours ago   Up 33 seconds                                              compose_jannovar_1
@@ -141,7 +141,7 @@ You can check that everything is running (the versions might be different in you
     514cb4386224   redis:6                                                     "docker-entrypoint.s…"   19 hours ago   Up 32 seconds   6379/tcp                                   compose_redis_1
     5678b9e6797b   quay.io/biocontainers/exomiser-rest-prioritiser:12.1.0--1   "exomiser-rest-prior…"   19 hours ago   Up 34 seconds                                              compose_exomiser-rest-prioritiser_1
 
-In the case of any error please report it to us via the `Issue Tracker <https://github.com/bihealth/varfish-docker-compose/issues>`__ or email to cubi-helpdesk@bihealth.de.
+In the case of any error please report it to us via the `Issue Tracker <https://github.com/varfish-org/varfish-docker-compose/issues>`__ or email to cubi-helpdesk@bihealth.de.
 Please include the full output as a text file attachment.
 
 Actually, your VarFish website is now ready to be used.
@@ -172,6 +172,6 @@ Notably:
 - When installing ``v1.2.1`` then you need to apply the patch to data version ``20210728c``.
   This is done by first upgrading to ``20210728b`` (if you are not there already) and then upgrading to ``20210728c`` as described in :ref:`admin_update_1_2_2_to_1_2_3`.
 
-In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
+In case of any issues, contact us in the `Github Discussion <https://github.com/varfish-org/varfish-server/discussions>`__ or directly by email.
 
 
