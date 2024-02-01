@@ -4,7 +4,7 @@
 Upgrade Varfish Installation
 ============================
 
-This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
+This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/varfish-org/varfish-docker-compose>`__.
 
 .. _admin_upgrade_data_release_20210728:
 
@@ -26,7 +26,7 @@ You can then apply the patch to your database with the following command.
     $ docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
         import_tables --tables-path /data --truncate --force
 
-You can find out more details, give feedback, and ask for help `in this Github discussion <https://github.com/bihealth/varfish-server/discussions/451>`__.
+You can find out more details, give feedback, and ask for help `in this Github discussion <https://github.com/varfish-org/varfish-server/discussions/451>`__.
 
 ----------------
 v1.2.* to v2.*.*
@@ -142,7 +142,7 @@ To fix this, you have to run the following.
 
 This command may run for a long time, depending on the number of samples in your database and your disk speed.
 
-In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
+In case of any issues, contact us in the `Github Discussion <https://github.com/varfish-org/varfish-server/discussions>`__ or directly by email.
 
 ------------------
 v0.23.0 to v1.2.2
@@ -170,7 +170,7 @@ v0.22.1 to v0.23.0
 
 **Summary**
 
-- The Docker Compose installer now provides support for setting up CADD score annotation via `cadd-rest-api <https://github.com/bihealth/cadd-rest-api>`__.
+- The Docker Compose installer now provides support for setting up CADD score annotation via `cadd-rest-api <https://github.com/varfish-org/cadd-rest-api>`__.
 - The environment variable ``FIELD_ENCRYPTION_KEY`` **should** be setup properly by the user.
 - Two new celery queues are needed: ``maintenance`` and ``export``.
 - To enable the new and optional feature for uploading variants to SPANR you have to set the environment variable ``VARFISH_ENABLE_SPANR_SUBMISSION`` to ``1``.

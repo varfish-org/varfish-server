@@ -83,7 +83,7 @@ Clone the VarFish Server repository and switch into the checkout.
 
 .. code-block:: bash
 
-    $ git clone https://github.com/bihealth/varfish-server
+    $ git clone https://github.com/varfish-org/varfish-server
     $ cd varfish-server
 
 

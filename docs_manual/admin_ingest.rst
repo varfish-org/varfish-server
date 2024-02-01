@@ -22,7 +22,7 @@ This is done using the Varfish Annotator software.
 Installing the Annotator
 ========================
 
-The VarFish Annotator is written in Java and you can find the JAR on `varfish-annotator Github releases page <https://github.com/bihealth/varfish-annotator/releases>`__.
+The VarFish Annotator is written in Java and you can find the JAR on `varfish-annotator Github releases page <https://github.com/varfish-org/varfish-annotator/releases>`__.
 However, it is recommended to install it via bioconda.
 For this, you first have to install bioconda `as described in their manual <http://bioconda.github.io/user/install.html>`__.
 Please ensure that you have the channels ``conda-forge``, ``bioconda``, and ``defaults`` set in the correct order as described in the bioconda installation manual.
@@ -106,7 +106,7 @@ You must provide an bgzip-compressed VCF file ``INPUT.vcf.gz``
         -XX:+UseConcMarkSweepGC \
         annotate \
         --
-        
+
         ./varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
         --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
         --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \

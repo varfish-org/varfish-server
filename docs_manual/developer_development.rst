@@ -95,7 +95,7 @@ We do use `git rebase <https://gitready.com/intermediate/2009/01/31/intro-to-reb
 In general, we recommend to work with ``git gui`` and ``gitk``.
 
 The first thing for you to do is to create a fork of our github repository in your github space.
-To do so, go to the `VarFish repository <https://github.com/bihealth/varfish-server>`_ and click on the ``Fork`` button in the top right.
+To do so, go to the `VarFish repository <https://github.com/varfish-org/varfish-server>`_ and click on the ``Fork`` button in the top right.
 
 Update Main
 ===========

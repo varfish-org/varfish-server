@@ -34,7 +34,7 @@ The script will ask you for some decisions and the corresponding lines are highl
     :emphasize-lines: 13-20
 
     $ docker run -it -e CADD=/opt/miniconda3/share/cadd-scripts-1.6-0 \
-        -v $PWD/volumes/cadd-rest-api:/data bihealth/cadd-rest-api:0.3.1-0 \
+        -v $PWD/volumes/cadd-rest-api:/data varfish-org/cadd-rest-api:0.3.1-0 \
         bash /data/install.sh -b
     Using kircherlab.bihealth.org as download server
     CADD-v1.6 (c) University of Washington, Hudson-Alpha Institute for Biotechnology and Berlin Institute of Health 2013-
@@ -103,7 +103,7 @@ Also, uncomment the lines in the ``docker-compose.yml`` file for the ``cadd-rest
     # is used for variant prioritization using the CADD score.  We need both
     # the server and the CADD-based worker.
     cadd-rest-api-server:
-      image: bihealth/cadd-rest-api:0.3.1-0
+      image: varfish-org/cadd-rest-api:0.3.1-0
       env_file: cadd-rest-api.env
       command: ["wsgi"]
       # [...]
@@ -113,7 +113,7 @@ Also, uncomment the lines in the ``docker-compose.yml`` file for the ``cadd-rest
     cadd-rest-api-celeryd-worker-1:
     [...]
     cadd-rest-api-celeryd-worker-3:
-      image: bihealth/cadd-rest-api:0.3.2-0
+      image: varfish-org/cadd-rest-api:0.3.2-0
       env_file: cadd-rest-api.env
       command: ["celeryd"]
       networks: [varfish]
