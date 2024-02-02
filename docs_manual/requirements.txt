@@ -119,7 +119,7 @@ pathspec==0.11.2
 pexpect==4.8.0
 phenopackets==2.0.2.post1
 pickleshare==0.7.5
-Pillow==10.1.0
+Pillow==10.2.0
 platformdirs==3.11.0
 prettytable==3.9.0
 prompt-toolkit==3.0.41
