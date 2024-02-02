@@ -271,39 +271,29 @@ const effectiveGenotype = (callInfo) => {
 
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
-  const classNoToClass = [null, 'negative-row', 'uncertain-row', 'positive-row']
-  const valueToClassNo = {
-    empty: 0,
-    positive: 3,
-    uncertain: 2,
-    negative: 1,
+  if (!svFlagsStore.caseFlags) {
+    return ''
   }
-
-  const flag = svFlagsStore.getFlag(item)
-  if (flag?.flag_summary && flag?.flag_summary !== 'empty') {
-    return classNoToClass[valueToClassNo[flag.flag_summary]]
-  } else {
-    const values = [
-      flag?.flag_molecular ?? 'empty',
-      flag?.flag_phenotype_match ?? 'empty',
-      flag?.flag_summary ?? 'empty',
-      flag?.flag_validation ?? 'empty',
-      flag?.flag_visual ?? 'empty',
-    ]
-    const classNos = values
-      .filter((value) => value !== 'empty')
-      .map((value) => valueToClassNo[value] ?? 0)
-    const classNo = Math.min(...classNos)
-    if (isFinite(classNo) && classNo > 0) {
-      return classNoToClass[classNo]
-    }
+  const flagColors = ['positive', 'uncertain', 'negative']
+  const flags = svFlagsStore.getFlags(item)
+  if (!flags) {
+    return ''
   }
-
-  if (flag) {
-    return 'bookmarked-row'
+  if (flagColors.includes(flags.flag_summary)) {
+    return `${flags.flag_summary}-row`
   }
-
-  return ''
+  return flagColors.includes(flags.flag_visual) ||
+    flagColors.includes(flags.flag_validation) ||
+    flagColors.includes(flags.flag_molecular) ||
+    flagColors.includes(flags.flag_phenotype_match) ||
+    flags.flag_candidate ||
+    flags.flag_doesnt_segregate ||
+    flags.flag_final_causative ||
+    flags.flag_for_validation ||
+    flags.flag_no_disease_association ||
+    flags.flag_segregates
+    ? 'bookmarked-row'
+    : ''
 }
 
 const appContext = JSON.parse(
@@ -441,7 +431,7 @@ watch(
             role="button"
           />
           <i-fa-solid-bookmark
-            v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
+            v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
             @click="showVariantDetails(sodar_uuid, 'flags')"
