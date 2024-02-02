@@ -271,7 +271,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   /**
    * Return first matching flag for the given `sv`.
    */
-  const getFlag = (sv: StructuralVariant): StructuralVariantFlags | null => {
+  const getFlags = (sv: StructuralVariant): StructuralVariantFlags | null => {
     if (!caseFlags.value) {
       return null
     }
@@ -312,6 +312,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     createFlags,
     updateFlags,
     deleteFlags,
-    getFlag,
+    getFlags,
   }
 })
