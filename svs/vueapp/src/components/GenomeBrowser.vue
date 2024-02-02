@@ -31,7 +31,7 @@ const translateGenome = (value) => {
   if (value === 'GRCh37') {
     return 'hg19'
   } else if (value === 'GRCh38') {
-    return 'b38'
+    return 'hg38'
   } else {
     return value
   }
