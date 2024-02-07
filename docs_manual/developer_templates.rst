@@ -5,7 +5,7 @@ Templates (for Issues etc.)
 ===========================
 
 We do organize bug reports and feature request in the
-`Github issue tracker <https://github.com/bihealth/varfish-server/issues/new/choose>`_.
+`Github issue tracker <https://github.com/varfish-org/varfish-server/issues/new/choose>`_.
 Please choose the template that fits best what you want to report and fill out
 the questions to help us decide on how to approach the task.
 

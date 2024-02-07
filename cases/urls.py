@@ -18,9 +18,9 @@ ajax_urlpatterns = [
         name="ajax-case-list",
     ),
     url(
-        regex=r"^ajax/case/retrieve-update/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.CaseRetrieveUpdateAjaxView.as_view(),
-        name="ajax-case-retrieveupdate",
+        regex=r"^ajax/case/retrieve-update-destroy/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.CaseRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-case-retrieveupdatedestroy",
     ),
     url(
         regex=r"^ajax/case-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
@@ -86,9 +86,9 @@ api_urlpatterns = [
         name="api-case-list",
     ),
     url(
-        regex=r"^api/case/retrieve-update/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.CaseRetrieveUpdateApiView.as_view(),
-        name="api-case-retrieveupdate",
+        regex=r"^api/case/retrieve-update-destroy/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.CaseRetrieveUpdateDestroyApiView.as_view(),
+        name="api-case-retrieveupdatedestroy",
     ),
     url(
         regex=r"^api/case-comment/list-create/(?P<case>[0-9a-f-]+)/?$",

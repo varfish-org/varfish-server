@@ -110,7 +110,7 @@ const refreshStores = async () => {
     appContext.project?.sodar_uuid,
     props.caseUuid,
   )
-  await Promise.all([
+  Promise.all([
     svFlagsStore.initialize(
       appContext.csrf_token,
       appContext.project?.sodar_uuid,
@@ -121,19 +121,16 @@ const refreshStores = async () => {
       appContext.project?.sodar_uuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svQueryStore
-      .initialize(
-        appContext.csrf_token,
-        appContext?.project?.sodar_uuid,
-        props.caseUuid,
-        appContext,
-      )
-      .then(() => {
-        svResultSetStore.initialize(appContext.csrf_token).then(async () => {
-          await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
-        })
-      }),
-  ])
+    svQueryStore.initialize(
+      appContext.csrf_token,
+      appContext?.project?.sodar_uuid,
+      props.caseUuid,
+      appContext,
+    ),
+    svResultSetStore.initialize(appContext.csrf_token),
+  ]).then(async () => {
+    await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+  })
 }
 
 // Initialize (=refresh) stores when mounted.

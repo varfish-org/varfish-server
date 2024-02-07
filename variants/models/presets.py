@@ -139,6 +139,7 @@ class ImpactPresets(PresetBase):
     var_type_indel = models.BooleanField(null=False, default=True)
     transcripts_coding = models.BooleanField(null=False, default=True)
     transcripts_noncoding = models.BooleanField(null=False, default=True)
+    max_exon_dist = models.IntegerField(null=True, default=None)
     effects = ArrayField(models.CharField(max_length=64), null=False, default=list)
 
 

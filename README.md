@@ -1,5 +1,5 @@
 [![Documentation Status](https://readthedocs.org/projects/varfish-server/badge/?version=latest)](https://varfish-server.readthedocs.io/en/latest/?badge=latest)
-[![Code Coverage](https://codecov.io/gh/bihealth/varfish-server/branch/main/graph/badge.svg?token=5ZACSH5MZZ)](https://codecov.io/gh/bihealth/varfish-server)
+[![Code Coverage](https://codecov.io/gh/varfish-org/varfish-server/branch/main/graph/badge.svg?token=5ZACSH5MZZ)](https://codecov.io/gh/varfish-org/varfish-server)
 [![image](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 # VarFish
@@ -15,15 +15,15 @@ Holtgrewe, M.; Stolpe, O.; Nieminen, M.; Mundlos, S.; Knaus, A.; Kornak, U.; See
 - [VarFish Homepage](https://www.cubi.bihealth.org/software/varfish/)
 - [Manual](https://varfish-server.readthedocs.io/en/latest/)
   - [Installation Instructions](https://varfish-server.readthedocs.io/en/latest/admin_install.html).
-- [Docker Compose Installer](https://github.com/bihealth/varfish-docker-compose#run-varfish-server-using-docker-compose).
+- [Docker Compose Installer](https://github.com/varfish-org/varfish-docker-compose#run-varfish-server-using-docker-compose).
 
 ## VarFish Repositories
 
-- [varfish-server](https://github.com/bihealth/varfish-server) The VarFish Server is the web frontend used by the end users / data analysts.
-- [varfish-annotator](https://github.com/bihealth/varfish-annotator) The VarFish Annotator is a command line utility used for annotating VCF files and converting them to files that can be imported into VarFish Server.
-- [varfish-cli](https://github.com/bihealth/varfish-cli) The VarFish Command Line Interface allows to import data through the VarFish REST API.
-- [varfish-db-downloader](https://github.com/bihealth/varfish-db-downloader) The VarFish DB Downloader is a command line tool for downloading the background database.
-- [varfish-docker-compose](https://github.com/bihealth/varfish-docker-compose) Quickly get started running a VarFish server by using Docker Compose. We provide a prebuilt data set with some already imported data.
+- [varfish-server](https://github.com/varfish-org/varfish-server) The VarFish Server is the web frontend used by the end users / data analysts.
+- [varfish-annotator](https://github.com/varfish-org/varfish-annotator) The VarFish Annotator is a command line utility used for annotating VCF files and converting them to files that can be imported into VarFish Server.
+- [varfish-cli](https://github.com/varfish-org/varfish-cli) The VarFish Command Line Interface allows to import data through the VarFish REST API.
+- [varfish-db-downloader](https://github.com/varfish-org/varfish-db-downloader) The VarFish DB Downloader is a command line tool for downloading the background database.
+- [varfish-docker-compose](https://github.com/varfish-org/varfish-docker-compose) Quickly get started running a VarFish server by using Docker Compose. We provide a prebuilt data set with some already imported data.
 
 ## At a Glance
 

@@ -660,6 +660,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
+                "max_exon_dist": None,
                 "effects": [
                     "complex_substitution",
                     "direct_tandem_duplication",

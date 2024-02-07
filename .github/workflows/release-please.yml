@@ -42,7 +42,7 @@ jobs:
           context: docker
           push: true
           # NB: no "latest" tag in contrast to true release
-          tags: "ghcr.io/bihealth/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
+          tags: "ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
 
       - name: Build and push Docker release image
         if: ${{ steps.release.outputs.release_created && !github.event.release.prerelease }}
@@ -50,4 +50,4 @@ jobs:
         with:
           context: docker
           push: true
-          tags: "ghcr.io/bihealth/varfish-server:latest,ghcr.io/bihealth/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
+          tags: "ghcr.io/varfish-org/varfish-server:latest,ghcr.io/varfish-org/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"

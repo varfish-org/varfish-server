@@ -38,7 +38,7 @@ In particular, the QCOW driver of KVM is known to offer bad performance.
 Configuration Tuning
 --------------------
 
-The `varfish-docker-compose <https://github.com/bihealth/varfish-docker-compose>`__ repository contains a ``postgresql.conf`` file with pre-tuned database settings.
+The `varfish-docker-compose <https://github.com/varfish-org/varfish-docker-compose>`__ repository contains a ``postgresql.conf`` file with pre-tuned database settings.
 When using Docker Compose for your VarFish site you will get this configuration automatically.
 This should be good enough for most instances.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/bihealth/varfish-server/main/importer/schemas/case-qc-v1.json",
+  "$id": "https://raw.githubusercontent.com/varfish-org/varfish-server/main/importer/schemas/case-qc-v1.json",
   "type": "object",
   "title": "varfish-server case QC info",
   "description": "Per case quality control information for varfish",

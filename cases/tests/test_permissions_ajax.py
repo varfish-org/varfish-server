@@ -3,7 +3,7 @@ import json
 from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
-from variants.models import CaseComments, CasePhenotypeTerms
+from variants.models import Case, CaseComments, CasePhenotypeTerms
 from variants.tests.factories import CaseCommentsFactory, CaseFactory, CasePhenotypeTermsFactory
 
 
@@ -34,7 +34,7 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "cases:api-case-retrieveupdate",
+            "cases:ajax-case-retrieveupdatedestroy",
             kwargs={"case": self.case.sodar_uuid},
         )
         good_users = [
@@ -44,17 +44,13 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
             self.user_contributor,
             self.user_guest,
         ]
-        bad_users_401 = [
-            self.anonymous,
-        ]
-        bad_users_403 = [self.user_no_roles]
+        bad_users_403 = [self.anonymous, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="GET")
-        self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
 
     def test_update(self):
         url = reverse(
-            "cases:api-case-retrieveupdate",
+            "cases:ajax-case-retrieveupdatedestroy",
             kwargs={"case": self.case.sodar_uuid},
         )
         good_users = [
@@ -63,13 +59,39 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
             self.user_delegate,
             self.user_contributor,
         ]
-        bad_users_401 = [
+        bad_users_403 = [
+            self.user_guest,
+            self.user_no_roles,
             self.anonymous,
         ]
-        bad_users_403 = [self.user_guest, self.user_no_roles]
         self.assert_response(url, good_users, 200, method="PATCH", data={})
-        self.assert_response(url, bad_users_401, 401, method="PATCH", data={})
         self.assert_response(url, bad_users_403, 403, method="PATCH", data={})
+
+    def test_destroy(self):
+        case_uuid = self.case.sodar_uuid
+
+        def cleanup():
+            """Re-create self.casecomments with the correct UUID if necessary."""
+            if not Case.objects.filter(sodar_uuid=case_uuid):
+                self.case = CaseFactory(sodar_uuid=case_uuid, project=self.project)
+
+        url = reverse(
+            "cases:ajax-case-retrieveupdatedestroy",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+        ]
+        bad_users_403 = [
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+            self.user_no_roles,
+            self.anonymous,
+        ]
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
 class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):

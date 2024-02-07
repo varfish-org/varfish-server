@@ -335,7 +335,9 @@ export const useSvQueryStore = defineStore('svQuery', () => {
           if (response) {
             queryUuid.value = response
             // Retrieve query details and extract query settings.
-            return svClient.retrieveSvQuery(response)
+          }
+          if (queryUuid.value) {
+            return svClient.retrieveSvQuery(queryUuid.value)
           }
         })
         // 2.1 once we have previous query UUID, fetch query details
@@ -385,6 +387,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     querySettingsPresets.value = null
     querySettings.value = null
     previousQueryDetails.value = null
+    queryUuid.value = null
     queryState.value = QueryStates.None.value
     queryStateMsg.value = null
     queryLogs.value = null

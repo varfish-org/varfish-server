@@ -455,7 +455,7 @@ class TestModelToAttrs(TestCase):
             pos=1000,
             chrom2="3",
             end=2000,
-            orientation="3to5",
+            orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
             counts=bg_db.GenotypeCounts(
                 src_count=1, carriers=1, carriers_het=1, carriers_hom=0, carriers_hemi=0
             ),

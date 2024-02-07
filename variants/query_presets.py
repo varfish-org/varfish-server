@@ -552,6 +552,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
+        "max_exon_dist": None,
         "effects": [
             "exon_loss_variant",
             "feature_truncation",
@@ -575,6 +576,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
+        "max_exon_dist": None,
         "effects": [
             "complex_substitution",
             "direct_tandem_duplication",
@@ -607,6 +609,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
+        "max_exon_dist": None,
         "effects": [
             "coding_transcript_intron_variant",
             "complex_substitution",
@@ -641,6 +644,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": True,
+        "max_exon_dist": None,
         "effects": [
             "3_prime_UTR_exon_variant",
             "3_prime_UTR_intron_variant",
@@ -684,6 +688,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": True,
+        "max_exon_dist": None,
         "effects": [
             "3_prime_UTR_exon_variant",
             "3_prime_UTR_intron_variant",

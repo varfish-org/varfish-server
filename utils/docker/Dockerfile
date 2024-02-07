@@ -45,7 +45,7 @@ RUN npm run build --prefix varfish/vueapp
 FROM python:3.10-bookworm AS python-base
 
 LABEL org.opencontainers.image.authors="Manuel.Holtgrewe@bih-charite.de"
-LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
+LABEL org.opencontainers.image.source https://github.com/varfish-org/varfish-server
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
@@ -96,8 +96,7 @@ COPY Pipfile Pipfile.lock ./
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
         --python=/usr/local/bin/python \
         --categories=packages,prod-packages,ldap-packages \
-        --deploy && \
-    pipenv run python -m nltk.downloader stopwords
+        --deploy
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +149,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         rm -f Mambaforge-Linux-x86_64.sh"]
 
 # Copy the worker from the dedicated worker build.
-COPY --from=ghcr.io/bihealth/varfish-server-worker:main /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+COPY --from=ghcr.io/varfish-org/varfish-server-worker:main /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv

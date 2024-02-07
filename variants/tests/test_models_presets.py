@@ -168,6 +168,7 @@ class TestImpactPresetsFactory(TestCase):
             "var_type_indel": True,
             "transcripts_coding": True,
             "transcripts_noncoding": False,
+            "max_exon_dist": None,
             "effects": [
                 "exon_loss_variant",
                 "feature_truncation",

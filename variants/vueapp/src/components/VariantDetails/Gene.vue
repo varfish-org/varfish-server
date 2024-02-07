@@ -64,11 +64,11 @@ const clinsigColor = ['#5d9936', '#a3f56c', '#f5c964', '#f59f9f', '#b05454']
 const perImpactCounts = computed(() => {
   const result = []
   const sum = {
-    impact: variantImpactLabels.length - 1,
+    impact: variantImpactLabels?.length - 1,
     counts: [0, 0, 0, 0, 0],
   }
-  if (props.geneClinvar?.per_impact_counts?.length) {
-    for (const perImpactCount of props.geneClinvar?.per_impact_counts) {
+  if (props?.geneClinvar?.perImpactCounts?.length) {
+    for (const perImpactCount of props.geneClinvar?.perImpactCounts) {
       result.push(perImpactCount)
       for (let i = 0; i < sum.counts.length; ++i) {
         sum.counts[i] += perImpactCount.counts[i]
@@ -119,17 +119,17 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </div>
           <div>
             <strong>aliases:</strong>
-            {{ gene?.hgnc?.alias_name?.join(', ') }}
+            {{ gene?.hgnc?.aliasName?.join(', ') }}
           </div>
           <div>
             <strong>synonyms:</strong>
-            {{ gene?.hgnc?.alias_symbol?.join(', ') }}
+            {{ gene?.hgnc?.aliasSymbol?.join(', ') }}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-3 mb-2 pl-2 pr-0" v-if="gene?.gnomad_constraints">
+    <div class="col-3 mb-2 pl-2 pr-0" v-if="gene?.gnomadConstraints">
       <div class="card h-100">
         <div class="card-header pl-2 pt-1 pb-1 pr-2">
           <span class="font-weight-bolder" style="font-size: 120%">
@@ -153,25 +153,25 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                   <td>Synonymous</td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.exp_syn, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.expSyn, 1)"
                   ></td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.obs_syn, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.obsSyn, 1)"
                   ></td>
                   <td class="pl-2">
                     Z =
                     <span
-                      v-html="roundIt(gene?.gnomad_constraints?.syn_z)"
+                      v-html="roundIt(gene?.gnomadConstraints?.synZ)"
                     /><br />
                     o/e =
-                    <span v-html="roundIt(gene?.gnomad_constraints?.oe_syn)" />
+                    <span v-html="roundIt(gene?.gnomadConstraints?.oeSyn)" />
                     (<span
-                      v-html="roundIt(gene?.gnomad_constraints?.oe_syn_lower)"
+                      v-html="roundIt(gene?.gnomadConstraints?.oeSynLower)"
                     />
                     -
                     <span
-                      v-html="roundIt(gene?.gnomad_constraints?.oe_syn_upper)"
+                      v-html="roundIt(gene?.gnomadConstraints?.oeSynUpper)"
                     />)
                   </td>
                 </tr>
@@ -179,25 +179,25 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                   <td>Missense</td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.exp_mis, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.expMis, 1)"
                   ></td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.obs_mis, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.obsMis, 1)"
                   ></td>
                   <td class="pl-2">
                     Z =
                     <span
-                      v-html="roundIt(gene?.gnomad_constraints?.mis_z)"
+                      v-html="roundIt(gene?.gnomadConstraints?.mis_z)"
                     /><br />
                     o/e =
-                    <span v-html="roundIt(gene?.gnomad_constraints?.oe_mis)" />
+                    <span v-html="roundIt(gene?.gnomadConstraints?.oeMis)" />
                     (<span
-                      v-html="roundIt(gene?.gnomad_constraints?.oe_mis_lower)"
+                      v-html="roundIt(gene?.gnomadConstraints?.oeMisLower)"
                     />
                     -
                     <span
-                      v-html="roundIt(gene?.gnomad_constraints?.oe_mis_upper)"
+                      v-html="roundIt(gene?.gnomadConstraints?.oeMisUpper)"
                     />)
                   </td>
                 </tr>
@@ -205,31 +205,27 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                   <td>pLoF</td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.exp_lof, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.expLof, 1)"
                   ></td>
                   <td
                     class="text-right pr-2"
-                    v-html="roundIt(gene?.gnomad_constraints?.obs_lof, 1)"
+                    v-html="roundIt(gene?.gnomadConstraints?.obsLof, 1)"
                   ></td>
                   <td class="pl-2">
                     pLI =
                     <span
-                      v-html="roundIt(gene?.gnomad_constraints?.pli)"
+                      v-html="roundIt(gene?.gnomadConstraints?.pli)"
                     /><br />
                     o/e =
-                    <span v-html="roundIt(gene?.gnomad_constraints?.oe_lof)" />
+                    <span v-html="roundIt(gene?.gnomadConstraints?.oeLof)" />
                     (<span
-                      v-html="roundIt(gene?.gnomad_constraints?.oe_lof_lower)"
+                      v-html="roundIt(gene?.gnomadConstraints?.oeLofLower)"
                     />
                     -
                     <mark
                       class="bg-warning"
                       v-html="
-                        roundIt(
-                          gene?.gnomad_constraints?.oe_lof_upper,
-                          2,
-                          'LOEUF',
-                        )
+                        roundIt(gene?.gnomadConstraints?.oeLofUpper, 2, 'LOEUF')
                       "
                     />)
                   </td>
@@ -296,7 +292,10 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         <div class="card-body pb-2 pt-2">
           <div class="overflow-auto" style="max-height: 200px; font-size: 90%">
             {{ gene?.ncbi?.summary }}
-            <a :href="`https://www.ncbi.nlm.nih.gov/gene/672`" target="_blank">
+            <a
+              :href="`https://www.ncbi.nlm.nih.gov/gene/${gene?.hgnc?.hgncId}`"
+              target="_blank"
+            >
               <i-mdi-launch />
               source
             </a>
@@ -316,7 +315,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           <div>
             <strong> ENSEMBL: </strong>
             <a
-              :href="`https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${gene?.hgnc?.ensembl_gene_id}`"
+              :href="`https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${gene?.hgnc?.ensemblGeneId}`"
               target="_blank"
             >
               <i-mdi-launch />
@@ -326,30 +325,30 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           <div>
             <strong> HGNC: </strong>
             <a
-              :href="`https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${gene?.hgnc?.hgnc_id}`"
+              :href="`https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${gene?.hgnc?.hgncId}`"
               target="_blank"
             >
               <i-mdi-launch />
-              {{ gene?.hgnc?.hgnc_id }}
+              {{ gene?.hgnc?.hgncId }}
             </a>
           </div>
-          <div v-if="gene?.hgnc?.mgd_id?.length">
+          <div v-if="gene?.hgnc?.mgdId?.length">
             <strong>MGI: </strong>
-            <template v-for="(mgd_id, index) in gene.hgnc.mgd_id">
+            <template v-for="(mgdId, index) in gene.hgnc.mgdId">
               <template v-if="index > 0">, </template>
               <a
-                :href="`https://www.informatics.jax.org/marker/${mgd_id}`"
+                :href="`https://www.informatics.jax.org/marker/${mgdId}`"
                 target="_blank"
               >
                 <i-mdi-launch />
-                {{ mgd_id }}
+                {{ mgdId }}
               </a>
             </template>
           </div>
           <span class="text-muted" v-else> No MGI </span>
-          <div v-if="gene?.hgnc?.pubmed_id?.length">
+          <div v-if="gene?.hgnc?.pubmedId?.length">
             <strong>Primary PMID: </strong>
-            <template v-for="(pmid, index) in gene.hgnc.pubmed_id">
+            <template v-for="(pmid, index) in gene.hgnc.pubmedId">
               <template v-if="index > 0">, </template>
               <a
                 :href="`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`"
@@ -361,9 +360,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             </template>
           </div>
           <div v-else class="text-muted">No primary PMID</div>
-          <div v-if="gene?.hgnc?.refseq_accession?.length">
+          <div v-if="gene?.hgnc?.refseqAccession?.length">
             <strong> RefSeq: </strong>
-            <template v-for="(accession, index) in gene.hgnc.refseq_accession">
+            <template v-for="(accession, index) in gene.hgnc.refseqAccession">
               <template v-if="index > 0">, </template>
               <a
                 :href="`https://www.ncbi.nlm.nih.gov/nuccore/?term=${accession}+AND+srcdb_refseq[PROP]`"
@@ -375,9 +374,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             </template>
           </div>
           <div v-else class="text-muted">No RefSeq</div>
-          <div v-if="gene?.hgnc?.uniprot_ids?.length">
+          <div v-if="gene?.hgnc?.uniprotIds?.length">
             <strong> UniProt: </strong>
-            <template v-for="(uniprotid, index) in gene.hgnc.uniprot_ids">
+            <template v-for="(uniprotid, index) in gene.hgnc.uniprotIds">
               <template v-if="index > 0">, </template>
               <a
                 :href="`https://www.uniprot.org/uniprotkb/${uniprotid}/entry`"
@@ -427,7 +426,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
               </div>
               <div>
                 <a
-                  :href="`https://search.thegencc.org/genes/${gene?.hgnc?.hgnc_id}`"
+                  :href="`https://search.thegencc.org/genes/${gene?.hgnc?.hgncId}`"
                   target="_blank"
                 >
                   <i-mdi-launch />
@@ -468,9 +467,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
               </div>
               <div>
                 <a
-                  :href="`https://www.omim.org/entry/${gene?.hgnc?.omim_id[0]}`"
+                  :href="`https://www.omim.org/entry/${gene?.hgnc?.omimId[0]}`"
                   target="_blank"
-                  v-if="gene?.hgnc?.omim_id.length"
+                  v-if="gene?.hgnc?.omimId?.length"
                 >
                   <i-mdi-launch />
                   OMIM
@@ -526,7 +525,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
 
               <div v-if="props.smallVar">
                 <a
-                  :href="`https://stuart.radboudumc.nl/metadome/dashboard/transcript/${smallVar.ensembl_transcript_id}`"
+                  :href="`https://stuart.radboudumc.nl/metadome/dashboard/transcript/${smallVar.ensemblTranscriptId}`"
                   target="_blank"
                 >
                   <i-mdi-launch />
@@ -535,8 +534,8 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
               </div>
 
               <div>
-                <template v-if="gene?.hgnc?.uniprot_ids?.length">
-                  <template v-for="(uniprotid, index) in gene.hgnc.uniprot_ids">
+                <template v-if="gene?.hgnc?.uniprotIds?.length">
+                  <template v-for="(uniprotid, index) in gene.hgnc.uniprotIds">
                     <template v-if="index > 0">, </template>
                     <a
                       :href="`http://missense3d.bc.ic.ac.uk:8080/search_direct?uniprot=${uniprotid}`"
@@ -554,7 +553,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
               </div>
               <div>
                 <a
-                  :href="`https://varsome.com/gene/hg19/${gene?.hgnc?.hgnc_id}`"
+                  :href="`https://varsome.com/gene/hg19/${gene?.hgnc?.hgncId}`"
                   target="_blank"
                 >
                   <i-mdi-launch />
@@ -575,12 +574,12 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </span>
         </div>
         <div class="card-body pb-2 pt-2">
-          <div v-if="gene.orpha?.orpha_diseases?.length" class="mb-2">
+          <div v-if="gene?.orpha?.orphaDiseases?.length" class="mb-2">
             <strong> Orphanet Disorders: </strong>
-            <template v-for="(disease, idx) in gene.orpha?.orpha_diseases">
+            <template v-for="(disease, idx) in gene.orpha?.orphaDiseases">
               <template v-if="idx > 0">, </template>
               <a
-                :href="`https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Expert=${disease.orpha_id.replace(
+                :href="`https://www.orpha.net/consor/cgi-bin/OC_Exp.php?Expert=${disease.orphaId.replace(
                   'ORPHA:',
                   '',
                 )}`"
@@ -592,12 +591,12 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </div>
           <div v-else class="text-muted">No Orphanet disorders annotated.</div>
 
-          <div v-if="gene.omim?.omim_diseases?.length" class="mb-2">
+          <div v-if="gene?.omim?.omimDiseases?.length" class="mb-2">
             <strong> OMIM Diseases: </strong>
-            <template v-for="(disease, idx) in gene.omim?.omim_diseases">
+            <template v-for="(disease, idx) in gene.omim?.omimDiseases">
               <template v-if="idx > 0">, </template>
               <a
-                :href="`https://www.omim.org/entry/${disease.omim_id.replace(
+                :href="`https://www.omim.org/entry/${disease.omimId.replace(
                   'OMIM:',
                   '',
                 )}`"
@@ -621,55 +620,52 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
         <div class="card-body pb-2 pt-2">
           <div
-            v-if="gene.clingen?.disease_records?.length"
+            v-if="gene?.clingen?.diseaseRecords?.length"
             class="overflow-auto mb-2"
             style="max-height: 200px; font-size: 90%"
           >
             <div
-              v-for="(disease_record, idx) in gene.clingen?.disease_records"
+              v-for="(diseaseRecord, idx) in gene.clingen?.diseaseRecords"
               :class="{ 'mt-3': idx > 0 }"
             >
               <div class="font-weight-bolder">
-                <a :href="disease_record.disease_url" target="_blank">
-                  {{ disease_record.disease_label }}
+                <a :href="diseaseRecord.diseaseUrl" target="_blank">
+                  {{ diseaseRecord.diseaseLabel }}
                 </a>
               </div>
               <div>
                 <strong>
                   <abbr title="haploinsufficiency"> haplo. </abbr>
                 </strong>
-                {{ disease_record.dosage_haploinsufficiency_assertion }}
+                {{ diseaseRecord.dosageHaploinsufficiencyAssertion }}
               </div>
               <div>
                 <strong>
                   <abbr title="triplosensitivity"> triplo. </abbr>
                 </strong>
-                {{ disease_record.dosage_triplosensitivity_assertion }}
+                {{ diseaseRecord.dosageTriplosensitivityAssertion }}
               </div>
 
               <div>
                 <strong> actionability </strong>
                 <ul
                   v-if="
-                    disease_record.actionability_assertion_classifications
-                      ?.length
+                    diseaseRecord?.actionabilityAssertionClassifications?.length
                   "
                   class="pl-3"
                 >
                   <li
                     v-for="(
                       a, idx2
-                    ) in disease_record.actionability_assertion_classifications"
+                    ) in diseaseRecord.actionabilityAssertionClassifications"
                   >
-                    <em>{{ disease_record.actionability_groups[idx2] }}: </em>
+                    <em>{{ diseaseRecord.actionabilityGroups[idx2] }}: </em>
                     <a
-                      :href="
-                        disease_record.actionability_assertion_reports[idx2]
-                      "
+                      :href="diseaseRecord.actionabilityAssertionReports[idx2]"
                       target="_blank"
                     >
                       {{
-                        disease_record.actionability_assertion_classifications[
+                        diseaseRecord.actionabilityAssertionClassifications[
                           idx2
                         ]
                       }}
@@ -684,30 +680,28 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
                 <strong> validity </strong>
                 <ul
                   v-if="
-                    disease_record
-                      .gene_disease_validity_assertion_classifications?.length
+                    diseaseRecord?.geneDiseaseValidityAssertionClassifications
+                      ?.length
                   "
                   class="pl-3"
                 >
                   <li
                     v-for="(
                       a, idx2
-                    ) in disease_record.gene_disease_validity_assertion_classifications"
+                    ) in diseaseRecord.geneDiseaseValidityAssertionClassifications"
                   >
                     <em
-                      >{{ disease_record.gene_disease_validity_gceps[idx2] }}:
+                      >{{ diseaseRecord.geneDiseaseValidityGceps[idx2] }}:
                     </em>
                     <a
                       :href="
-                        disease_record.gene_disease_validity_assertion_reports[
-                          idx2
-                        ]
+                        diseaseRecord.geneDiseaseValidityAssertionReports[idx2]
                       "
                       target="_blank"
                     >
                       {{
-                        disease_record
-                          .gene_disease_validity_assertion_classifications[idx2]
+                        diseaseRecord
+                          .geneDiseaseValidityAssertionClassifications[idx2]
                       }}
                     </a>
                   </li>
@@ -729,18 +723,16 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             ACMG Supplementary Findings List
           </span>
         </div>
-        <div class="card-body pb-2 pt-2" v-if="gene?.acmg_sf">
+        <div class="card-body pb-2 pt-2" v-if="gene?.acmgSf">
           <div>
             <strong>since ACMG SF:</strong>
-            v{{ gene.acmg_sf.sf_list_version }}
+            v{{ gene.acmgSf.sfListVersion }}
           </div>
-          <div>
-            <strong>inheritance:</strong> {{ gene.acmg_sf.inheritance }}
-          </div>
+          <div><strong>inheritance:</strong> {{ gene.acmgSf.inheritance }}</div>
           <div>
             <strong>phenotype:</strong>
-            {{ gene.acmg_sf.phenotype_category }} /
-            {{ gene.acmg_sf.disease_phenotype }}
+            {{ gene.acmgSf.phenotypeCategory }} /
+            {{ gene.acmgSf.diseasePhenotype }}
           </div>
         </div>
         <div v-else class="text-muted text-center font-italic">
@@ -760,9 +752,9 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           <ul
             class="list-unstyled overflow-auto"
             style="max-height: 200px; font-size: 90%"
-            v-if="gene?.ncbi?.rif_entries?.length"
+            v-if="gene?.ncbi?.rifEntries?.length"
           >
-            <template v-for="entry in gene.ncbi.rif_entries">
+            <template v-for="entry in gene.ncbi.rifEntries">
               <li v-if="entry?.text?.length">
                 {{ entry.text }}
                 <a
@@ -822,7 +814,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
             ClinVar By Impact
           </span>
         </div>
-        <div class="card-body pb-2 pt-2" v-if="perImpactCounts.length">
+        <div class="card-body pb-2 pt-2" v-if="perImpactCounts?.length">
           <table class="table table-sm">
             <tr>
               <thead>
@@ -882,11 +874,11 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
         </div>
         <div
           class="card-body pb-2 pt-2"
-          v-if="geneClinvar?.per_freq_counts?.length"
+          v-if="geneClinvar?.perFreqCounts?.length"
         >
           <ClinvarFreqPlot
             :gene-symbol="gene?.hgnc?.symbol"
-            :per-freq-counts="geneClinvar?.per_freq_counts"
+            :per-freq-counts="geneClinvar?.perFreqCounts"
           />
         </div>
         <div v-else class="text-muted text-center font-italic">
@@ -905,7 +897,7 @@ const linkOutPubMedHpoTerms = computed((): string | null => {
           </span>
           <small>
             <a
-              :href="`https://gtexportal.org/home/gene/${gene?.gtex.ensembl_gene_id}`"
+              :href="`https://gtexportal.org/home/gene/${gene?.gtex.ensemblGeneId}`"
               target="_blank"
               v-if="gene?.gtex"
             >

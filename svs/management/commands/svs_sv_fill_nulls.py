@@ -1,6 +1,6 @@
 """Django management command for filling NULL values in StructuralVariant records.
 
-Also see https://github.com/bihealth/varfish-server/issues/566.
+Also see https://github.com/varfish-org/varfish-server/issues/566.
 """
 
 import itertools
