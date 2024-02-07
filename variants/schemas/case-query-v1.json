@@ -1261,17 +1261,28 @@
         }
       ]
     },
-    "prio_face": {
-      "$id": "#/properties/prio_face",
+    "prio_gm": {
+      "$id": "#/properties/prio_gm",
       "type": "string",
-      "title": "The prio_face schema",
+      "title": "The prio_gm schema",
       "description": "An explanation about the purpose of this instance.",
       "default": ""
     },
-    "face_enabled": {
-      "$id": "#/properties/face_enabled",
+    "gm_enabled": {
+      "$id": "#/properties/gm_enabled",
       "type": "boolean",
       "title": "Enable face-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "pedia_enabled": {
+      "$id": "#/properties/pedia_enabled",
+      "type": "boolean",
+      "title": "Enable PEDIA-based prioritization of variants",
       "description": "Select ",
       "default": false,
       "examples": [

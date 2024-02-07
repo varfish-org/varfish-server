@@ -249,10 +249,11 @@ class CaseQueryV1:
     patho_score: typing.Optional[str] = None
 
     prio_enabled: bool = False
-    face_enabled: bool = False
+    gm_enabled: bool = False
+    pedia_enabled: bool = False
     prio_algorithm: typing.Optional[str] = None
     prio_hpo_terms: typing.Optional[typing.List[str]] = None
-    prio_face: typing.Optional[str] = None
+    prio_gm: typing.Optional[str] = None
     photo_file: typing.Optional[str] = None
 
     recessive_mode: typing.Optional[RecessiveModeV1] = None
@@ -377,10 +378,11 @@ class QueryJsonToFormConverter:
             "prio_enabled": query.prio_enabled,
             "prio_algorithm": query.prio_algorithm,
             "prio_hpo_terms": query.prio_hpo_terms,
-            "prio_face": query.prio_face,
+            "prio_gm": query.prio_gm,
             "photo_file": query.photo_file,
             "patho_enabled": query.patho_enabled,
-            "face_enabled": query.face_enabled,
+            "gm_enabled": query.gm_enabled,
+            "pedia_enabled": query.pedia_enabled,
             "patho_score": query.patho_score,
             "effects": [e.value for e in query.effects],
             # Add static values that are not relevant for the API use case
