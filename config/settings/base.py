@@ -128,6 +128,7 @@ LOCAL_APPS = [
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
     "varannos.apps.VarannosConfig",
+    "ext_gestaltmatcher.apps.ExtGestaltmatcherConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -239,6 +240,10 @@ MANAGERS = ADMINS
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # Uses django-environ to accept uri format
 # See: https://django-environ.readthedocs.io/en/latest/#supported-types
+#DATABASES = {
+#    "default": env.db("DATABASE_URL", default="postgres:///varfish"),
+#}
+
 DATABASES = {
     "default": env.db("DATABASE_URL", default="postgres:///varfish"),
 }
@@ -525,8 +530,18 @@ VARFISH_CADA_REST_API_URL = env.str(
     "VARFISH_CADA_REST_API_URL", "https://cada.gene-talk.de/api/process"
 )
 
-# Enable Face prioritization.
-VARFISH_ENABLE_FACE = env.bool("VARFISH_ENABLE_FACE", default=True)
+# Enable PEDIA prioritization.
+VARFISH_ENABLE_PEDIA = env.bool("VARFISH_ENABLE_PEDIA", default=False)
+VARFISH_PEDIA_REST_API_URL = env.str(
+    "VARFISH_PEDIA_REST_API_URL", "http://127.0.0.1:9000/pedia"
+)
+
+# Enable Gestalt-based prioritization.
+VARFISH_ENABLE_GESTALT_MATCHER = env.bool("VARFISH_ENABLE_GESTALT_MATCHER", default=False)
+# Configure URL to GestaltMatcher REST API
+VARFISH_GM_SENDER_URL = env.str(
+    "VARFISH_GM_SENDER_URL", "http://127.0.0.1:7000/"
+)
 
 # Enable submission of variants to CADD server.
 VARFISH_ENABLE_CADD_SUBMISSION = env.bool("VARFISH_ENABLE_CADD_SUBMISSION", default=False)

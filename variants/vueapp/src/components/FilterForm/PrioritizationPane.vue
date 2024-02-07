@@ -15,10 +15,11 @@ const props = defineProps({
   prioEnabled: Boolean,
   prioAlgorithm: String,
   prioHpoTerms: Array,
-  prioFace: String,
+  prioGm: String,
   photoFile: String,
   pathoEnabled: Boolean,
-  faceEnabled: Boolean,
+  gmEnabled: Boolean,
+  pediaEnabled: Boolean,
   pathoScore: String,
 })
 
@@ -26,20 +27,22 @@ const emit = defineEmits([
   'update:prioEnabled',
   'update:prioAlgorithm',
   'update:prioHpoTerms',
-  'update:prioFace',
+  'update:prioGm',
   'update:photoFile',
   'update:pathoEnabled',
-  'update:faceEnabled',
+  'update:gmEnabled',
+  'update:pediaEnabled',
   'update:pathoScore',
 ])
 
 const prioEnabledWrapper = declareWrapper(props, 'prioEnabled', emit)
 const prioAlgorithmWrapper = declareWrapper(props, 'prioAlgorithm', emit)
 const prioHpoTermsWrapper = declareWrapper(props, 'prioHpoTerms', emit)
-const prioFaceWrapper = declareWrapper(props, 'prioFace', emit)
+const prioGmWrapper = declareWrapper(props, 'prioGm', emit)
 const photoFileWrapper = declareWrapper(props, 'photoFile', emit)
 const pathoEnabledWrapper = declareWrapper(props, 'pathoEnabled', emit)
-const faceEnabledWrapper = declareWrapper(props, 'faceEnabled', emit)
+const gmEnabledWrapper = declareWrapper(props, 'gmEnabled', emit)
+const pediaEnabledWrapper = declareWrapper(props, 'pediaEnabled', emit)
 const pathoScoreWrapper = declareWrapper(props, 'pathoScore', emit)
 
 const prioEnabledWarning = () => {
@@ -50,6 +53,19 @@ const v$ = useVuelidate()
 
 defineExpose({ v$ })
 
+import { ref } from "vue";
+
+let checked = ref(true);
+
+function selectOption() {
+    if (!pediaEnabledWrapper.value) {
+        prioEnabledWrapper.value = true
+        pathoEnabledWrapper.value = true
+        gmEnabledWrapper.value = true
+        prioAlgorithmWrapper.value = "CADA"
+        pathoScoreWrapper.value = "cadd"
+    }
+}
 </script>
 
 <template>
@@ -176,18 +192,18 @@ defineExpose({ v$ })
         class="alert alert-secondary small mt-2 mb-0 p-2"
       >
         <i-mdi-information />
-        Enable the face-based prioritization.
+        Enable the GestaltMatcher-based prioritization.
       </div>
 
       <div class="custom-control custom-checkbox mt-2">
         <input
-          v-model="faceEnabledWrapper"
+          v-model="gmEnabledWrapper"
           class="custom-control-input"
           type="checkbox"
-          id="face-enabled"
+          id="gm-enabled"
         />
-        <label class="custom-control-label" for="face-enabled">
-          Enable variant face-based prioritization
+        <label class="custom-control-label" for="gm-enabled">
+          Enable GestaltMatcher-based prioritization
         </label>
         <div id="PreviousImageModal" v-if=props.photoFile class="form-text text-muted small">
 
@@ -199,9 +215,35 @@ defineExpose({ v$ })
             </iframe>
         </div>
       </div>
+      <h5 class="card-title mb-0">Combined Prioritization</h5>
+      <div class="custom-control custom-checkbox mt-2">
+            <input
+              v-model="pediaEnabledWrapper"
+              class="custom-control-input"
+              type="checkbox"
+              id="pedia-enabled"
+              @click="selectOption"
+            />
+            <label class="custom-control-label" for="pedia-enabled">
+              Enable PEDIA based prioritization
+            </label>
+            <div id="PEDIAInfoModal" class="form-text text-muted small">
+                PEDIA is "Prioritization of Exome Data by Image Analysis".
+                It combines phenotypic, pathogenic and
+                facial scores together to produce a single score per gene.
+
+                <p>Selecting PEDIA based prioritization will automatically enable all of the following prioritization configurations:
+                  <ol type="1">
+                    <li>Phenotype based prioritization with "CADA" algorithm.</li>
+                    <li>Variant pathogenicity-based prioritization with "CADD" scores.</li>
+                    <li>GestaltMatcher-based prioritization.</li>
+                  </ol>
+                </p>
+            </div>
+        </div>
     </div>
     </div>
 
 
   </div>
-</template>:q:q
+</template>

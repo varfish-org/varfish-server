@@ -66,16 +66,16 @@ var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
 var imageRes;
 
 // Listen to message from child window
-eventer(messageEvent,function(e) {
-    var key = e.message ? "jsonRes" : "data";
-    imageRes = e[key];
+eventer(messageEvent, function(event) {
+    var key = event.message ? "jsonRes" : "data";
+    imageRes = event[key];
 
-    if (JSON.stringify(imageRes).includes("gene_entrez_id")) {
-        variantQueryStore.querySettings.prio_face = JSON.stringify(imageRes)
-        // console.log("New Message received from the child: " + variantQueryStore.querySettings.prio_face);
-    } else if (JSON.stringify(imageRes).includes("ImageName")){
-        variantQueryStore.querySettings.photo_file = JSON.stringify(imageRes).split(':')[1];
-        // console.log("New Message received from the child: " + variantQueryStore.querySettings.photo_file);
+    if (event.origin == "http://127.0.0.1:7000") {
+        if (JSON.stringify(imageRes).includes("gene_entrez_id")) {
+            variantQueryStore.querySettings.prio_gm = JSON.stringify(imageRes)
+        } else if (JSON.stringify(imageRes).includes("ImageName")){
+            variantQueryStore.querySettings.photo_file = JSON.stringify(imageRes).split(':')[1];
+        }
     }
 },false);
 
@@ -290,14 +290,17 @@ const onSubmitCancelButtonClicked = () => {
               v-model:prio-hpo-terms="
                 variantQueryStore.querySettings.prio_hpo_terms
               "
-              v-model:prio-face="
-                variantQueryStore.querySettings.prio_face
+              v-model:prio-gm="
+                variantQueryStore.querySettings.prio_gm
               "
               v-model:photo-file="
                 variantQueryStore.querySettings.photo_file
               "
-              v-model:face-enabled="
-                variantQueryStore.querySettings.face_enabled
+              v-model:gm-enabled="
+                variantQueryStore.querySettings.gm_enabled
+              "
+              v-model:pedia-enabled="
+                variantQueryStore.querySettings.pedia_enabled
               "
               v-model:patho-enabled="
                 variantQueryStore.querySettings.patho_enabled

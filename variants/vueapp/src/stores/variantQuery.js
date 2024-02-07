@@ -115,14 +115,17 @@ const fetchDefaultSettings = async (
   if (querySettings.value.prio_enabled === undefined) {
     querySettings.value.prio_enabled = false
   }
-  if (querySettings.value.face_enabled === undefined) {
-    querySettings.value.face_enabled = false
+  if (querySettings.value.gm_enabled === undefined) {
+    querySettings.value.gm_enabled = false
+  }
+  if (querySettings.value.pedia_enabled === undefined) {
+    querySettings.value.pedia_enabled = false
   }
   if (querySettings.value.prio_algorithm === undefined) {
     querySettings.value.prio_algorithm = 'hiphive-human'
   }
-  if (querySettings.value.prio_face === undefined) {
-    querySettings.value.prio_face = ''
+  if (querySettings.value.prio_gm === undefined) {
+    querySettings.value.prio_gm = ''
   }
   if (querySettings.value.photo_file === undefined) {
     querySettings.value.photo_file = ''
@@ -226,10 +229,12 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   const caddEnabled = ref(null)
   /** Whether CADA is enabled (from app context). */
   const cadaEnabled = ref(null)
-  /** Whether Face prioritization is enabled (from app context). */
-  const faceEnabled = ref(null)
+  /** Whether GestaltMatcher prioritization is enabled (from app context). */
+  const gmEnabled = ref(null)
+  /** Whether PEDIA prioritization is enabled (from app context). */
+  const pediaEnabled = ref(null)
   /** The response from gestaltMatcher (from app context). */
-  const prioFace = ref(null)
+  const prioGm = ref(null)
 
   // loaded via API
   /** Query settings presets. */
@@ -528,8 +533,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     exomiserEnabled.value = appContext.exomiser_enabled
     caddEnabled.value = appContext.cadd_enabled
     cadaEnabled.value = appContext.cada_enabled
-    faceEnabled.value = appContext.face_enabled
-    prioFace.value = appContext.prio_face
+    gmEnabled.value = appContext.gm_enabled
+    pediaEnabled.value = appContext.pedia_enabled
+    prioGm.value = appContext.prio_gm
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -626,8 +632,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     exomiserEnabled.value = null
     caddEnabled.value = null
     cadaEnabled.value = null
-    faceEnabled.value = null
-    prioFace.value = null
+    gmEnabled.value = null
+    pediaEnabled.value = null
+    prioGm.value = null
     querySettingsPresets.value = null
     querySettings.value = null
     previousQueryDetails.value = null
@@ -670,8 +677,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     exomiserEnabled,
     caddEnabled,
     cadaEnabled,
-    faceEnabled,
-    prioFace,
+    gmEnabled,
+    pediaEnabled,
+    prioGm,
     querySettingsPresets,
     querySettings,
     previousQueryDetails,

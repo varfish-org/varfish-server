@@ -36,8 +36,10 @@ const props = defineProps({
   pathoEnabled: Boolean,
   /** The phenotype score enabled. */
   prioEnabled: Boolean,
-  /** The face score enabled. */
-  faceEnabled: Boolean,
+  /** The GestaltMatcher score enabled. */
+  gmEnabled: Boolean,
+  /** The PEDIA score enabled. */
+  pediaEnabled: Boolean,
 })
 
 /**
@@ -201,12 +203,22 @@ const scoreColumns = () => {
       },
     ]
   }
-  if (props.faceEnabled) {
+  if (props.gmEnabled) {
     data = [
       ...data,
       {
-        text: 'face score',
-        value: 'face_score',
+        text: 'Gestalt score',
+        value: 'gm_score',
+        sortable: true,
+      },
+    ]
+  }
+  if (props.pediaEnabled) {
+    data = [
+      ...data,
+      {
+        text: 'PEDIA score',
+        value: 'pedia_score',
         sortable: true,
       },
     ]
@@ -800,8 +812,11 @@ watch(
         <template #item-patho_pheno_score="{ payload }">
           {{ formatFloat(payload.patho_pheno_score, 3) }}
         </template>
-        <template #item-face_score="{ payload }">
-          {{ formatFloat(payload.face_score, 3) }}
+        <template #item-gm_score="{ payload }">
+          {{ formatFloat(payload.gm_score, 3) }}
+        </template>
+        <template #item-pedia_score="{ payload }">
+          {{ formatFloat(payload.pedia_score, 3) }}
         </template>
         <template #item-igv="item">
           <div class="btn-group btn-group-sm">

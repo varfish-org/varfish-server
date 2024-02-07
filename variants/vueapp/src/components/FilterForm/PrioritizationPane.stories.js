@@ -58,9 +58,10 @@ const Template = (args) => ({
     '    v-model:prio-algorithm="args.prioAlgorithm"\n' +
     '    v-model:prio-hpo-terms="args.prioHpoTerms"\n' +
     '    v-model:patho-enabled="args.pathoEnabled"\n' +
-    '    v-model:face-enabled="args.faceEnabled"\n' +
+    '    v-model:gm-enabled="args.gmEnabled"\n' +
+    '    v-model:pedia-enabled="args.pediaEnabled"\n' +
     '    v-model:patho-score="args.pathoScore"\n' +
-    '    v-model:prio-face="args.prioFace"\n' +
+    '    v-model:prio-gm="args.prioGm"\n' +
     '    v-model:photo-file="args.photoFile"\n' +
     '/>',
 })
@@ -75,10 +76,11 @@ Prefilled.args = {
   prioEnabled: true,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
-  prioFace: '',
+  prioGm: '',
   photoFile: '',
   pathoEnabled: true,
-  faceEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -92,10 +94,11 @@ PrefilledWithHelp.args = {
   prioEnabled: true,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
-  prioFace: '',
+  prioGm: '',
   photoFile: '',
   pathoEnabled: true,
-  faceEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -109,10 +112,11 @@ PrefilledWithWarning.args = {
   prioEnabled: false,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
-  prioFace: '',
+  prioGm: '',
   photoFile: '',
   pathoEnabled: true,
-  faceEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -126,9 +130,10 @@ Empty.args = {
   prioEnabled: false,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: [],
-  prioFace: '',
+  prioGm: '',
   photoFile: '',
   pathoEnabled: false,
-  faceEnabled: false,
+  gmEnabled: false,
+  pediaEnabled: false,
   pathoScore: 'mutationtaster',
 }

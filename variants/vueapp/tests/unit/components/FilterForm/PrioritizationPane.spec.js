@@ -14,11 +14,12 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioEnabled: true,
         prioAlgorithm: 'hiphive-human',
         prioHpoTerms: ['HP:0000245'],
-        prioFace: '',
+        prioGm: '',
         photoFile: '',
         pathoEnabled: true,
         pathoScore: 'cadd',
-        faceEnabled: true,
+        gmEnabled: true,
+        pediaEnabled: true
       },
     })
 
@@ -26,7 +27,8 @@ describe('FilterFormPrioritizationPane.vue', () => {
     const pathoScore = wrapper.get('#patho-score')
     const prioEnabled = wrapper.get('#prio-enabled')
     const prioAlgorithm = wrapper.get('#prio-algorithm')
-    const faceEnabled = wrapper.get('#face-enabled')
+    const gmEnabled = wrapper.get('#gm-enabled')
+    const pediaEnabled = wrapper.get('#pedia-enabled')
 
     expect(wrapper.findAll('.alert-secondary').length).toBe(0)
 
@@ -34,7 +36,8 @@ describe('FilterFormPrioritizationPane.vue', () => {
     expect(pathoScore.element.value).toBe('cadd')
     expect(prioEnabled.element.checked).toBe(true)
     expect(prioAlgorithm.element.value).toBe('hiphive-human')
-    expect(faceEnabled.element.checked).toBe(true)
+    expect(gmEnabled.element.checked).toBe(true)
+    expect(pediaEnabled.element.checked).toBe(true)
   })
 
   test('prioritization prefilled change values', async () => {
@@ -48,28 +51,32 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioEnabled: true,
         prioAlgorith: 'hiphive-human',
         prioHpoTerms: ['HP:0000245'],
-        prioFace: '',
+        prioGm: '',
         photoFile: '',
         pathoEnabled: true,
         pathoScore: 'cadd',
-        faceEnabled: true,
+        gmEnabled: true,
+        pediaEnabled: true,
       },
     })
 
     const pathoEnabled = wrapper.get('#patho-enabled')
     const prioEnabled = wrapper.get('#prio-enabled')
     const prioAlgorithm = wrapper.get('#prio-algorithm')
-    const faceEnabled = wrapper.get('#face-enabled')
+    const gmEnabled = wrapper.get('#gm-enabled')
+    const pediaEnabled = wrapper.get('#pedia-enabled')
 
     await pathoEnabled.setValue(false)
     await prioEnabled.setValue(false)
     await prioAlgorithm.setValue('phenix')
-    await faceEnabled.setValue(false)
+    await gmEnabled.setValue(false)
+    await pediaEnabled.setValue(false)
 
     expect(pathoEnabled.element.checked).toBe(false)
     expect(prioEnabled.element.checked).toBe(false)
     expect(prioAlgorithm.element.value).toBe('phenix')
-    expect(faceEnabled.element.checked).toBe(false)
+    expect(gmEnabled.element.checked).toBe(false)
+    expect(pediaEnabled.element.checked).toBe(false)
   })
 
   test('prioritization prefilled with help', () => {
@@ -83,11 +90,12 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioEnabled: true,
         prioAlgorith: 'hiphive-human',
         prioHpoTerms: ['HP:0000245'],
-        prioFace: '',
+        prioGm: '',
         photoFile: '',
         pathoEnabled: true,
         pathoScore: 'cadd',
-        faceEnabled: true,
+        gmEnabled: true,
+        pediaEnabled: true
       },
     })
 
@@ -105,11 +113,12 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioEnabled: false,
         prioAlgorith: 'hiphive-human',
         prioHpoTerms: ['HP:0000245'],
-        prioFace: '',
+        prioGm: '',
         photoFile: '',
         pathoEnabled: true,
         pathoScore: 'cadd',
-        faceEnabled: true,
+        gmEnabled: true,
+        pediaEnabled: true
       },
     })
 
@@ -127,10 +136,11 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioEnabled: false,
         prioAlgorith: 'hiphive-human',
         prioHpoTerms: [],
-        prioFace: '',
+        prioGm: '',
         photoFile: '',
         pathoEnabled: false,
-        faceEnabled: false,
+        gmEnabled: false,
+        pediaEnabled: false,
       },
     })
 

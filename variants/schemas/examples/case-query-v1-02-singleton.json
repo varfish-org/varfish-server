@@ -99,12 +99,13 @@
   "patho_enabled": true,
   "patho_score": "cadd",
   "prio_enabled": true,
-  "face_enabled": true,
+  "gm_enabled": true,
+  "pedia_enabled": true,
   "prio_algorithm": "hiphive-human",
   "prio_hpo_terms": [
     "HP:0000001"
   ],
-  "prio_face": "",
+  "prio_gm": "",
   "remove_if_in_dbsnp": false,
   "require_in_hgmd_public": false,
   "thousand_genomes_enabled": true,

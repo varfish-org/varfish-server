@@ -240,11 +240,14 @@ watch(
         :prio-enabled="
           variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
-        :face-enabled="
-          variantQueryStore.previousQueryDetails.query_settings.face_enabled
+        :gm-enabled="
+          variantQueryStore.previousQueryDetails.query_settings.gm_enabled
         "
-        :prio-face="
-          variantQueryStore.previousQueryDetails.query_settings.prio_face
+        :pedia-enabled="
+          variantQueryStore.previousQueryDetails.query_settings.pedia_enabled
+        "
+        :prio-gm="
+          variantQueryStore.previousQueryDetails.query_settings.prio_gm
         "
       />
     </div>
