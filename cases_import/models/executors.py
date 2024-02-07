@@ -35,7 +35,8 @@ from cases_qc.io import samtools as io_samtools
 from cases_qc.models import CaseQc
 from config.common import PrefilterConfig
 from seqmeta.models import TargetBedFile
-from variants.models import Case
+from svs.models import SvQueryResultSet
+from variants.models import Case, SmallVariantQueryResultSet
 
 
 class FileSystemOptions(pydantic.BaseModel):
@@ -1101,6 +1102,20 @@ class CaseImportBackgroundJobExecutor:
             name=caseimportaction.get_case_name(),
             index=family.proband.id,
             pedigree=build_legacy_pedigree(family),
+        )
+        SmallVariantQueryResultSet.objects.create(
+            case=case,
+            result_row_count=0,
+            start_time=case.date_created,
+            end_time=case.date_created,
+            elapsed_seconds=0,
+        )
+        SvQueryResultSet.objects.create(
+            case=case,
+            result_row_count=0,
+            start_time=case.date_created,
+            end_time=case.date_created,
+            elapsed_seconds=0,
         )
         self._create_pedigree(case, family)
         return case

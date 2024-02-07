@@ -124,7 +124,7 @@ VarFish links out to the following databases and tools.
 Adding and Updating Databases and Tools
 ---------------------------------------
 
-We invite users to contribute to VarFish databases and tools (of course also VarFish itself) through our project and GitHub issue tracker at https://github.com/bihealth/varfish-server or by emailing us directly.
+We invite users to contribute to VarFish databases and tools (of course also VarFish itself) through our project and GitHub issue tracker at https://github.com/varfish-org/varfish-server or by emailing us directly.
 In this section, we summarise the process of extending the databases and tool selection.
 However, as this a very large topic, we suggest users contact us with their suggestions by email or through the GitHub issue tracker to get more information.
 We will also be happy to work with users in finding the best way of integrating new tools and database.
@@ -151,7 +151,7 @@ Updating databases is more complicated.
 Overall, the steps are as follows:
 
 - The data must be downloaded and converted into TSV (tab-separated values) file(s).
-  For this, we are maintaining a Snakemake workflow on GitHub at https://github.com/bihealth/varfish-db-downloader.
+  For this, we are maintaining a Snakemake workflow on GitHub at https://github.com/varfish-org/varfish-db-downloader.
 - The VarFish source code must be modified to
 
     - create a new Django model class to manage the database table(s) for the new database,

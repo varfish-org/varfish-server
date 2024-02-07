@@ -200,6 +200,8 @@ def run_sv_query_bg_job(pk):
             os.path.join(tmpdir, "input.tsv"),
             "--path-output-svs",
             os.path.join(tmpdir, "output.tsv"),
+            "--genome-release",
+            filter_job.case.release.lower(),
         ]
         subprocess.check_call(cmd)
         worker_results = os.path.join(tmpdir, "output.tsv")

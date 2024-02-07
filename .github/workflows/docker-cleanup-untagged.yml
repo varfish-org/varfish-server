@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: bots-house/ghcr-delete-image-action@v1.1.0
         with:
-          owner: bihealth
+          owner: varfish-org
           name: varfish-server
           token: ${{ secrets.GITHUB_TOKEN }}
           untagged-keep-latest: 3

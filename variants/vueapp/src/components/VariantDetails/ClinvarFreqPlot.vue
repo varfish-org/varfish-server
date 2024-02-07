@@ -4,6 +4,12 @@ import { computed, ref } from 'vue'
 
 import VegaPlot from '@varfish/components/VegaPlot.vue'
 
+// const coarseClinsigLabels: { [key: string]: string } = {
+//   COARSE_CLINICAL_SIGNIFICANCE_BENIGN: 'benign',
+//   COARSE_CLINICAL_SIGNIFICANCE_UNCERTAIN: 'uncertain',
+//   COARSE_CLINICAL_SIGNIFICANCE_PATHOGENIC: 'pathogenic',
+// }
+
 const coarseClinsigLabels = ['benign', 'uncertain', 'pathogenic']
 
 const bucketLabels = [
@@ -28,7 +34,7 @@ const bucketLabels = [
 
 export interface CountsRecord {
   /** Coarse clinical significance ID */
-  coarse_clinsig: number
+  coarseClinsig: string
   /** Counts per bucket */
   counts: number[]
 }
@@ -44,18 +50,19 @@ const props = withDefaults(defineProps<Props>(), {})
 
 const vegaData = computed(() => {
   const values = []
+  let idx = 0
   for (const record of props?.perFreqCounts || []) {
     for (let i = 0; i < record.counts.length; i++) {
       if (record.counts[i] > 0) {
-        values.push({
-          coarseClinsig: coarseClinsigLabels[record.coarse_clinsig],
-          coarseClinsigNo: record.coarse_clinsig,
+        const val = {
+          coarseClinsig: coarseClinsigLabels[idx],
           freqBucket: bucketLabels[i],
-          freqBucketNo: i,
           value: record.counts[i],
-        })
+        }
+        values.push(val)
       }
     }
+    idx++
   }
   if (values.length) {
     return values
@@ -100,6 +107,7 @@ const vegaEncoding = {
   },
   xOffset: {
     field: 'coarseClinsig',
+    title: 'clinical sig.',
     type: 'nominal',
     sort: coarseClinsigLabels,
   },

@@ -74,6 +74,8 @@ const tokens = () => {
   }
 }
 
+const htmlTokens = ref({})
+
 /** Wrapper around `props.modelValue`. */
 const modelValueWrapper = computed({
   get() {
@@ -81,12 +83,12 @@ const modelValueWrapper = computed({
   },
   set(newValue) {
     const newValue2 = newValue || []
+    emit('update:modelValue', newValue2)
     if (!isEqual(tokens(), newValue2)) {
       // update internal text value if it changed
       textValueRef.value = newValue2.join(' ')
-      runValidationAndUpdateBackdrop()
+      runValidation()
     }
-    emit('update:modelValue', newValue2)
   },
 })
 
@@ -104,118 +106,77 @@ const backdropRef = ref(null)
 /** Ref on the highlights `<div>` within the backdrop `<div>`. */
 const highlightsRef = ref(null)
 
-/** Map token values to objects with `state`, `result`, and `promise` entry. */
-const validationResults = {}
-
-/** Update `isValidationRunning` */
-const updateIsValidationRunning = () => {
-  let result = false
-  for (const entry of Object.values(validationResults)) {
-    result = result || entry.state === 'resolving'
-  }
-  isValidationRunning.value = result
-  nextTick()
-}
-
 /** Callback used for highlighting a text token depending on validation. */
-const highlightToken = (token) => {
-  if (!(token in validationResults)) {
-    const cbResult = props.validate(token)
-    if (cbResult === true || cbResult === false) {
-      validationResults[token] = {
-        state: 'resolved',
-        result: {
-          valid: cbResult,
-        },
-      }
-    } else if (cbResult instanceof Promise) {
-      validationResults[token] = {
-        state: 'resolving',
-        result: null,
-        promise: new Promise(() => {
-          cbResult.then(
-            (value) => {
-              validationResults[token].state = 'resolved'
-              if (value === true || value === false) {
-                validationResults[token].result = { valid: value }
+const highlightTokens = (tokenListBatch) => {
+  htmlTokens.value = {}
+  if (
+    !tokenListBatch['genepanel'][0].length &&
+    !tokenListBatch['other'][0].length
+  ) {
+    return
+  }
+  Object.keys(tokenListBatch).forEach((typ) => {
+    for (let i = 0; i < tokenListBatch[typ].length; ++i) {
+      tokenListBatch[typ][i].forEach((token) => {
+        htmlTokens.value[token] = 'waiting'
+      })
+    }
+  })
+  Object.keys(tokenListBatch).forEach((typ) => {
+    for (let i = 0; i < tokenListBatch[typ].length; ++i) {
+      props.validate(tokenListBatch[typ][i], typ).then((result) => {
+        tokenListBatch[typ][i].forEach((token) => {
+          if (typ === 'genepanel') {
+            if (token in result && result[token] === 'active') {
+              htmlTokens.value[token] = 'good'
+            } else {
+              htmlTokens.value[token] = 'bad'
+            }
+          } else {
+            if ('genes' in result) {
+              if (!(token in result.genes) || result.genes[token] === null) {
+                htmlTokens.value[token] = 'bad'
               } else {
-                validationResults[token].result = value
+                htmlTokens.value[token] = 'good'
               }
-              updateIsValidationRunning()
-              runValidationAndUpdateBackdrop()
-            },
-            () => {
-              validationResults[token].state = 'rejected'
-              updateIsValidationRunning()
-              runValidationAndUpdateBackdrop()
-            },
-          )
-        }).then(),
-      }
-      updateIsValidationRunning()
-    } else if ('valid' in cbResult) {
-      validationResults[token].result = cbResult
-    } else {
-      throw new Error(
-        'Invalid result, not boolean, or has valid, or is Promise! ' + cbResult,
-      )
+            } else {
+              if (token in result && result[token].valid) {
+                htmlTokens.value[token] = 'good'
+              } else {
+                htmlTokens.value[token] = 'bad'
+              }
+            }
+          }
+        })
+      })
     }
-  }
+  })
+}
 
-  let cssClass
-  let label = null
-  if (validationResults[token].state === 'resolving') {
-    cssClass = 'waiting'
-  } else if (validationResults[token].state === 'rejected') {
-    cssClass = 'error'
-  } else {
-    cssClass = validationResults[token].result.valid ? 'good' : 'bad'
-    label = validationResults[token].result.label
-  }
-  if (label) {
-    return `<mark class="${cssClass}" title="${label}">${token}</mark>`
-  } else {
-    return `<mark class="${cssClass}">${token}</mark>`
+const highlightToken = (token) => {
+  return `<mark class="${htmlTokens.value[token]}">${token}</mark>`
+}
+
+const _runUpdateBackdrop = () => {
+  isValidationRunning.value = false
+  isValueValid.value = true
+  Object.values(htmlTokens.value).forEach((value) => {
+    isValidationRunning.value = isValidationRunning.value || value === 'waiting'
+    isValueValid.value = isValueValid.value && value !== 'bad'
+  })
+  highlightsRef.value.innerHTML = textValueRef.value
+    .replace(/\n$/g, '\n\n')
+    .replace(tokenizeRegexp(), highlightToken)
+  if (isValidationRunning.value) {
+    runUpdateBackdrop()
   }
 }
 
-/** Collect error messages by field. */
-const collectErrorMessages = (tokens) => {
-  const tmp = {}
-  for (const token of tokens) {
-    const res = validationResults[token]
-    if (res.state === 'resolved') {
-      if (!res.result.valid) {
-        let key = 'failed validation'
-        if (res.result.error) {
-          key = res.error
-        }
-        if (key in tmp) {
-          tmp[key].push(token)
-        } else {
-          tmp[key] = [token]
-        }
-      }
-    } else if (res.state === 'rejected') {
-      const key = 'error during validation'
-      if (key in tmp) {
-        tmp[key].push(token)
-      } else {
-        tmp[key] = [token]
-      }
-    }
-  }
-
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1)
-  }
-
-  const result = []
-  for (const [msg, fields] of Object.entries(tmp)) {
-    result.push(capitalizeFirstLetter(msg) + ': ' + fields.join(', ') + '.')
-  }
-  return result
-}
+const runUpdateBackdrop = debounce(_runUpdateBackdrop, 200, {
+  leading: true,
+  maxWait: 2,
+  trailing: true,
+})
 
 /** Return regexp to use for tokenization. */
 const tokenizeRegexp = () => {
@@ -226,31 +187,43 @@ const tokenizeRegexp = () => {
 }
 
 /** Helper function that runs validation on the tokens and runs highlighting. */
-const _runValidationAndUpdateBackdrop = () => {
-  const highlightedHtml = textValueRef.value
-    .replace(/\n$/g, '\n\n')
-    .replace(tokenizeRegexp(), highlightToken)
-  const theTokens = tokens()
-  if (theTokens) {
-    errorMessages.value = collectErrorMessages(theTokens)
-  } else {
-    errorMessages.value = []
+const runValidation = () => {
+  let runningLength = 0
+  let runningLengthGenepanel = 0
+  const batchSize = 1000
+  let batchCount = 0
+  let batchCountGenepanel = 0
+  const tokenListBatch = {
+    genepanel: [[]],
+    other: [[]],
   }
-  isValueValid.value = Object.keys(errorMessages.value).length === 0
-  highlightsRef.value.innerHTML = highlightedHtml
-  emit('validation')
+  modelValueWrapper.value.forEach((token) => {
+    if (token === '' || token === ' ') {
+      return
+    }
+    if (token.startsWith('GENEPANEL:')) {
+      runningLengthGenepanel += token.length
+      if (runningLengthGenepanel <= batchSize) {
+        tokenListBatch['genepanel'][batchCountGenepanel].push(token)
+      } else {
+        batchCountGenepanel += 1
+        tokenListBatch['genepanel'].push([token])
+        runningLengthGenepanel = token.length
+      }
+    } else {
+      runningLength += token.length
+      if (runningLength <= batchSize) {
+        tokenListBatch['other'][batchCount].push(token)
+      } else {
+        batchCount += 1
+        tokenListBatch['other'].push([token])
+        runningLength = token.length
+      }
+    }
+  })
+  highlightTokens(tokenListBatch)
+  runUpdateBackdrop()
 }
-
-/** The debounced version of `_runValidationAndUpdateBackdrop`. */
-const runValidationAndUpdateBackdrop = debounce(
-  _runValidationAndUpdateBackdrop,
-  200,
-  {
-    leading: true,
-    maxWait: 2,
-    trailing: true,
-  },
-)
 
 /** Event handler that keeps the textarea's and backdrop's scrolling in sync. */
 const updateScroll = () => {
@@ -263,16 +236,17 @@ const updateSize = () => {
 }
 
 /** Event handler for input that ensures update of the backdrop. */
-const handleInput = () => {
+const handleInput = async () => {
   modelValueWrapper.value = tokens()
+  await nextTick()
   emit('input')
-  runValidationAndUpdateBackdrop()
+  runValidation()
 }
 
 /** Update internal value and run validation/highlighting on mounting. */
 onMounted(() => {
   modelValueWrapper.value = props.modelValue
-  runValidationAndUpdateBackdrop()
+  runValidation()
 })
 
 /** Whether the value of this component is valid.  This function is exposed. */
@@ -431,5 +405,14 @@ mark.error {
   to {
     transform: rotate(360deg);
   }
+}
+</style>
+
+<style scoped>
+.form-control.is-invalid,
+.pass,
+.confirmpass:invalid {
+  background-image: none !important;
+  padding: 0.375rem 0.75rem !important;
 }
 </style>

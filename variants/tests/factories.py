@@ -1118,6 +1118,7 @@ class ImpactPresetsFactory(factory.django.DjangoModelFactory):
 
     presetset = factory.SubFactory(PresetSetFactory)
     label = factory.Sequence(lambda n: f"Impact Presets #{n}")
+    max_exon_dist = None
     effects = ["synonymous_variant"]
 
 

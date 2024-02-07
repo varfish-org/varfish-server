@@ -18,7 +18,7 @@ const props = defineProps({
   /** API endpoint for querying genes. */
   lookupGeneApiEndpoint: {
     type: String,
-    default: '/geneinfo/api/lookup-gene/',
+    default: '/proxy/varfish/annonars/genes/lookup',
   },
   lookupGenePanelApiEndpoint: {
     type: String,
@@ -37,9 +37,9 @@ const listType = computed({
   },
   set(value) {
     if (value === 'gene_allowlist') {
-      props.querySettings.genomic_region = ''
+      props.querySettings.genomic_region = []
     } else if (value === 'genomic_region') {
-      props.querySettings.gene_allowlist = ''
+      props.querySettings.gene_allowlist = []
     }
     listTypeRef.value = value
   },
@@ -51,6 +51,8 @@ const genomicRegionArrRef = ref([])
 const genomicRegionStrRef = ref('')
 // local gene panel categories
 const genePanelCategories = ref([])
+// local gene panel categories loading
+const loadingGenePanelCategories = ref(true)
 // genomics england panel
 const genomicsEnglandPanels = ref([])
 // genomics england confidence
@@ -113,46 +115,67 @@ const insertLocalPanel = (panel) => {
 }
 
 /** Validation function for genomic region. */
-const validateRegion = (token) => {
-  const matches = token.match(regexRegion)
-  if (
-    matches &&
-    matches.groups &&
-    matches.groups.start &&
-    matches.groups.stop
-  ) {
-    const start = parseInt(matches.groups.start.replace(',', ''))
-    const stop = parseInt(matches.groups.stop.replace(',', ''))
-    return new Promise((resolved) => {
-      resolved({ valid: stop >= start, label: 'example label' })
-    })
-  } else {
-    return new Promise((resolved) => {
-      resolved(!!matches)
-    })
-  }
+const validateRegionBatch = (tokenBatch, _typ) => {
+  const validatedBatch = {}
+  tokenBatch.forEach((token) => {
+    const matches = token.match(regexRegion)
+    if (
+      matches &&
+      matches.groups &&
+      matches.groups.start &&
+      matches.groups.stop
+    ) {
+      const start = parseInt(matches.groups.start.replace(',', ''))
+      const stop = parseInt(matches.groups.stop.replace(',', ''))
+      validatedBatch[token] = { valid: stop >= start }
+    } else {
+      validatedBatch[token] = { valid: !!matches }
+    }
+  })
+  return new Promise((resolved) => {
+    resolved(validatedBatch)
+  })
 }
 
 /** Validation function for genes. */
-const validateGene = async (token) => {
-  let url = `${props.lookupGeneApiEndpoint}?query=${token}`
-  if (token.startsWith('GENEPANEL:')) {
-    url = `${props.lookupGenePanelApiEndpoint}?query=${token}`
+const validateGeneBatch = async (tokenBatch, typ) => {
+  if (tokenBatch.length === 0) {
+    return
   }
-  const response = await fetch(url, {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-CSRFToken': props.csrfToken,
-  })
-  if (response.status === 404) {
-    return false // not found
+  if (typ === 'genepanel') {
+    const validation = await Promise.all(
+      tokenBatch.map(async (token) => {
+        let url = `${props.lookupGenePanelApiEndpoint}?query=${token}`
+        const response = await fetch(url, {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': props.csrfToken,
+        })
+        if (response.status === 404) {
+          return { identifier: token.slice(10), state: 'not_found' }
+        } else {
+          // Conversion to JSON will fail with an exception on error.
+          return await response.json()
+        }
+      }),
+    )
+    return Object.fromEntries(
+      validation.map((item) => ['GENEPANEL:' + item.identifier, item.state]),
+    )
   } else {
-    // Conversion to JSON will fail with an exception on error.
-    const responseJson = await response.json()
-    if (token.startsWith('GENEPANEL:')) {
-      return !!responseJson.identifier
+    const queryString = tokenBatch.join(',')
+    let url = `${props.lookupGeneApiEndpoint}?q=${queryString},`
+    const response = await fetch(url, {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-CSRFToken': props.csrfToken,
+    })
+    if (response.status === 404) {
+      return false // not found
+    } else {
+      // Conversion to JSON will fail with an exception on error.
+      return await response.json()
     }
-    return !!responseJson.hgnc_id
   }
 }
 
@@ -194,7 +217,7 @@ const invalidTextareas = () => {
 
 /** Whether the tab is valid. */
 const isValid = () => {
-  return invalidTextareas().length == 0
+  return invalidTextareas().length === 0
 }
 
 /** Whether any subcomponent on tab is still validating. */
@@ -208,9 +231,11 @@ const isValidating = () => {
 }
 
 const loadGenePanelCategories = async () => {
+  loadingGenePanelCategories.value = true
   await fetch('/geneinfo/api/genepanel-category/list/').then(
     async (response) => {
       genePanelCategories.value = await response.json()
+      loadingGenePanelCategories.value = false
     },
   )
 }
@@ -270,7 +295,7 @@ defineExpose({
         <TokenizingTextarea
           ref="genomicRegionTextareaRef"
           v-model="props.querySettings.genomic_region"
-          :validate="validateRegion"
+          :validate="validateRegionBatch"
         />
         <small class="form-text">
           Enter a list of genomic regions to restrict your query to. For
@@ -301,39 +326,53 @@ defineExpose({
             and above
           </label>
 
-          <button
-            class="btn btn-sm btn-outline-secondary dropdown-toggle"
-            type="button"
-            id="presets-menu-button"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <span class="d-none d-sm-inline"> Add Local Panel </span>
+          <div class="dropdown">
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              disabled
+              v-if="loadingGenePanelCategories"
+            >
+              <i-fa-solid-circle-notch class="spin" />
+              <em>Loading Local Panels</em>
+            </button>
+            <button
+              v-else
+              class="btn btn-sm btn-outline-secondary dropdown-toggle"
+              type="button"
+              id="presets-menu-button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <span class="d-none d-sm-inline"> Add Local Panel </span>
+            </button>
             <div
-              v-for="category in genePanelCategories"
               class="dropdown-menu"
               aria-labelledby="presets-menu-button"
+              v-if="
+                !loadingGenePanelCategories && genePanelCategories.length > 0
+              "
             >
-              <h6 class="dropdown-header">{{ category.title }}</h6>
-              <a
-                v-for="genepanel in category.genepanel_set"
-                class="dropdown-item"
-                href="#"
-                @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
-              >
-                {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
-                  genepanel.version_minor
-                }})
-              </a>
+              <template v-for="category in genePanelCategories">
+                <h6 class="dropdown-header">{{ category.title }}</h6>
+                <a
+                  v-for="genepanel in category.genepanel_set"
+                  class="dropdown-item"
+                  @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
+                >
+                  {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
+                    genepanel.version_minor
+                  }})
+                </a>
+              </template>
             </div>
-          </button>
+          </div>
         </div>
 
         <TokenizingTextarea
           ref="geneAllowListRegionTextareaRef"
           v-model="props.querySettings.gene_allowlist"
-          :validate="validateGene"
+          :validate="validateGeneBatch"
         />
         <small class="form-text">
           Enter a list of genes to restrict your query to, separated with

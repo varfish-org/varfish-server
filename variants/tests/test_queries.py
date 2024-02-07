@@ -159,7 +159,7 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
 class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
     """Test the case that the entrez ID does not correspond to the ensembl ID
 
-    cf. bug in https://github.com/bihealth/varfish-server/issues/622
+    cf. bug in https://github.com/varfish-org/varfish-server/issues/622
     """
 
     def setUp(self):

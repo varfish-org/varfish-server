@@ -75,6 +75,7 @@ class EffectsV1(Enum):
     INFRAME_INSERTION = "inframe_insertion"
     INTERGENIC_VARIANT = "intergenic_variant"
     INTERNAL_FEATURE_ELONGATION = "internal_feature_elongation"
+    MAX_EXON_DIST = "max_exon_dist"
     MISSENSE_VARIANT = "missense_variant"
     MNV = "mnv"
     NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"

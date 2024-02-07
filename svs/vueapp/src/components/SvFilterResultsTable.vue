@@ -1,6 +1,6 @@
 <script setup>
 import { sortBy } from 'sort-by-typescript'
-import { computed, onBeforeMount, onMounted, watch, ref } from 'vue'
+import { computed, onBeforeMount, reactive, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EasyDataTable from 'vue3-easy-data-table'
@@ -91,18 +91,18 @@ const tableLoading = ref(false)
 /** The table server options, updated by Vue3EasyDataTable. */
 const tableServerOptions = computed({
   get() {
-    return {
-      page: svResultSetStore.pageNo || 1,
-      rowsPerPage: svResultSetStore.pageSize || 50,
-      sortBy: svResultSetStore.sortBy || 'chrom-pos',
-      sortType: svResultSetStore.sortType || 'asc',
-    }
+    return reactive({
+      page: svResultSetStore.tablePageNo || 1,
+      rowsPerPage: svResultSetStore.tablePageSize || 50,
+      sortBy: svResultSetStore.tableSortBy || 'chrom-pos',
+      sortType: svResultSetStore.tableSortType || 'asc',
+    })
   },
   set(options) {
-    svResultSetStore.pageNo = options.page
-    svResultSetStore.pageSize = options.rowsPerPage
-    svResultSetStore.sortBy = options.sortBy
-    svResultSetStore.sortType = options.sortType
+    svResultSetStore.tablePageNo = options.page
+    svResultSetStore.tablePageSize = options.rowsPerPage
+    svResultSetStore.tableSortBy = options.sortBy
+    svResultSetStore.tableSortType = options.sortType
   },
 })
 
@@ -271,39 +271,29 @@ const effectiveGenotype = (callInfo) => {
 
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
-  const classNoToClass = [null, 'negative-row', 'uncertain-row', 'positive-row']
-  const valueToClassNo = {
-    empty: 0,
-    positive: 3,
-    uncertain: 2,
-    negative: 1,
+  if (!svFlagsStore.caseFlags) {
+    return ''
   }
-
-  const flag = svFlagsStore.getFlag(item)
-  if (flag?.flag_summary && flag?.flag_summary !== 'empty') {
-    return classNoToClass[valueToClassNo[flag.flag_summary]]
-  } else {
-    const values = [
-      flag?.flag_molecular ?? 'empty',
-      flag?.flag_phenotype_match ?? 'empty',
-      flag?.flag_summary ?? 'empty',
-      flag?.flag_validation ?? 'empty',
-      flag?.flag_visual ?? 'empty',
-    ]
-    const classNos = values
-      .filter((value) => value !== 'empty')
-      .map((value) => valueToClassNo[value] ?? 0)
-    const classNo = Math.min(...classNos)
-    if (isFinite(classNo) && classNo > 0) {
-      return classNoToClass[classNo]
-    }
+  const flagColors = ['positive', 'uncertain', 'negative']
+  const flags = svFlagsStore.getFlags(item)
+  if (!flags) {
+    return ''
   }
-
-  if (flag) {
-    return 'bookmarked-row'
+  if (flagColors.includes(flags.flag_summary)) {
+    return `${flags.flag_summary}-row`
   }
-
-  return ''
+  return flagColors.includes(flags.flag_visual) ||
+    flagColors.includes(flags.flag_validation) ||
+    flagColors.includes(flags.flag_molecular) ||
+    flagColors.includes(flags.flag_phenotype_match) ||
+    flags.flag_candidate ||
+    flags.flag_doesnt_segregate ||
+    flags.flag_final_causative ||
+    flags.flag_for_validation ||
+    flags.flag_no_disease_association ||
+    flags.flag_segregates
+    ? 'bookmarked-row'
+    : ''
 }
 
 const appContext = JSON.parse(
@@ -316,6 +306,22 @@ onBeforeMount(async () => {
     await loadFromServer()
   }
 })
+
+/** Update display when pagination or sorting changed. */
+watch(
+  [
+    () => tableServerOptions.value.page,
+    () => tableServerOptions.value.rowsPerPage,
+    () => tableServerOptions.value.sortBy,
+    () => tableServerOptions.value.sortType,
+  ],
+  async (
+    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType],
+  ) => {
+    await loadFromServer()
+  },
+)
 
 watch(
   () => svResultSetStore.resultSetUuid,
@@ -398,6 +404,12 @@ watch(
       buttons-pagination
       show-index
     >
+      <template #empty-message>
+        <em class="ml-2 text-dark" style="font-size: 150%">
+          <strong>No variant passed the current filter settings.</strong><br />
+          Please try relaxing your settings.
+        </em>
+      </template>
       <template #[`header-payload.overlap_counts.inhouse`]="header">
         <div :title="header.text">
           <i-mdi-house />
@@ -419,7 +431,7 @@ watch(
             role="button"
           />
           <i-fa-solid-bookmark
-            v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
+            v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
             @click="showVariantDetails(sodar_uuid, 'flags')"
