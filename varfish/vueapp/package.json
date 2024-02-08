@@ -62,7 +62,7 @@
     "@storybook/vue3-vite": "^7.4.3",
     "@testing-library/vue": "^7.0.0",
     "@types/jquery": "^3.5.19",
-    "@vitejs/plugin-vue": "^4.3.4",
+    "@vitejs/plugin-vue": "^4.6.2",
     "@vitest/coverage-istanbul": "^0.34.5",
     "@vue/compiler-sfc": "^3.3.4",
     "@vue/eslint-config-prettier": "^8.0.0",
