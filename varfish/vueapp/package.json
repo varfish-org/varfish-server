@@ -60,7 +60,7 @@
     "@storybook/testing-library": "0.2.2",
     "@storybook/vue3": "^7.4.3",
     "@storybook/vue3-vite": "^7.4.3",
-    "@testing-library/vue": "^7.0.0",
+    "@testing-library/vue": "^8.0.2",
     "@types/jquery": "^3.5.19",
     "@vitejs/plugin-vue": "^4.6.2",
     "@vitest/coverage-istanbul": "^0.34.5",
