@@ -183,7 +183,7 @@ onMounted(() => {
             />
             <label
               for="flagFinalCausative"
-              title="final causative/reported"
+              title="final report"
               class="form-check-label"
             >
               <i-fa-solid-flag-checkered />
