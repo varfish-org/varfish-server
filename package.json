@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/varfish-org/varfish-server#readme",
   "devDependencies": {
-    "@pinia/testing": "^0.0.14",
+    "@pinia/testing": "0.0.14",
     "vue3-easy-data-table": "^1.5.22"
+  },
+  "dependencies": {
+    "pinia": "^2.1.7"
   }
 }
