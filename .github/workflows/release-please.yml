@@ -11,7 +11,7 @@ jobs:
     steps:
 
       - name: Create GitHub release
-        uses: GoogleCloudPlatform/release-please-action@v3
+        uses: GoogleCloudPlatform/release-please-action@v4
         id: release
         with:
           release-type: python
