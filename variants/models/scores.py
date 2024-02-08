@@ -10,10 +10,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.utils.html import strip_tags
 from projectroles.app_settings import AppSettingAPI
-from ext_gestaltmatcher.models import (
-    SmallVariantQueryGestaltMatcherScores,
-    SmallVariantQueryPediaScores,
-)
+from ext_gestaltmatcher.models import SmallVariantQueryGestaltMatcherScores
 import requests
 import wrapt
 import pandas as pd

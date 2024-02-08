@@ -146,7 +146,7 @@ To set initial user permissions on first login, you can use the following option
 ``SAML_NEW_USER_SUPERUSER_STATUS``
     [Default False] New users are marked superusers (I advise leaving this one alone).
 
-If you encounter any troubles with this rather involved procedure, feel free to take a look at the discussion forums on `github <https://github.com/bihealth/varfish-server/discussions>`__ and open a thread.
+If you encounter any troubles with this rather involved procedure, feel free to take a look at the discussion forums on `github <https://github.com/varfish-org/varfish-server/discussions>`__ and open a thread.
 
 -----------------
 Sending of Emails

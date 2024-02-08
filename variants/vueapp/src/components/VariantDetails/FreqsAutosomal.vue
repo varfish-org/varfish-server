@@ -20,7 +20,7 @@ const selAnnos = computed(() => {
 })
 
 const noCohort = computed(() => {
-  for (const elem of selAnnos.value?.allele_counts ?? []) {
+  for (const elem of selAnnos.value?.alleleCounts ?? []) {
     if (!elem.cohort) {
       return elem
     }
@@ -29,12 +29,12 @@ const noCohort = computed(() => {
 })
 
 const bySex = computed(() => {
-  return noCohort.value?.by_sex
+  return noCohort.value?.bySex
 })
 
 const byPop = computed(() => {
   const res = {}
-  for (const record of noCohort.value?.by_population ?? []) {
+  for (const record of noCohort.value?.byPopulation ?? []) {
     res[record.population] = record
   }
   return res
@@ -101,9 +101,24 @@ const sexExpanded = ref({})
         <tr>
           <th>Population</th>
           <th></th>
-          <th class="text-right text-nowrap">Allele Count</th>
-          <th class="text-right text-nowrap">Homozygotes</th>
-          <th class="text-right text-nowrap">Allele Frequency</th>
+          <th class="text-right text-nowrap">
+            <abbr title="total number of alleles"> Allele Count </abbr>
+          </th>
+          <th class="text-right text-nowrap">
+            <abbr title="variant alleles in high-quality calls">
+              Allele Number
+            </abbr>
+          </th>
+          <th class="text-right text-nowrap">
+            <abbr title="number of individuals with homozygote alleles">
+              Homozygotes
+            </abbr>
+          </th>
+          <th class="text-right text-nowrap">
+            <abbr title="frequency of variant alleles called with high quality">
+              Allele Frequency
+            </abbr>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -124,14 +139,19 @@ const sexExpanded = ref({})
               </td>
               <td></td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key]?.counts?.overall?.an) }}
+                {{ sep(byPop[key]?.counts?.overall?.an ?? 0) }}
               </td>
               <td class="text-right text-nowrap">
-                {{ sep(byPop[key]?.counts?.overall?.nhomalt) }}
+                {{ sep(byPop[key]?.counts?.overall?.ac ?? 0) }}
+              </td>
+              <td class="text-right text-nowrap">
+                {{ sep(byPop[key]?.counts?.overall?.nhomalt ?? 0) }}
               </td>
               <td
                 class="text-right text-nowrap"
-                v-html="roundIt(byPop[key]?.counts?.overall?.af, FREQ_DIGITS)"
+                v-html="
+                  roundIt(byPop[key]?.counts?.overall?.af ?? 0.0, FREQ_DIGITS)
+                "
               ></td>
             </tr>
             <tr
@@ -163,6 +183,9 @@ const sexExpanded = ref({})
                 {{ sep(byPop[key].counts?.xy?.an) }}
               </td>
               <td class="text-right text-nowrap">
+                {{ sep(byPop[key].counts?.xy?.ac) }}
+              </td>
+              <td class="text-right text-nowrap">
                 {{ sep(byPop[key].counts?.xy?.nhomalt) }}
               </td>
               <td
@@ -173,16 +196,17 @@ const sexExpanded = ref({})
           </template>
         </template>
 
-        <tr>
+        <tr class="table-info">
           <th>Total</th>
           <td></td>
           <td class="text-right text-nowrap">{{ sep(bySex?.overall?.an) }}</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.overall?.ac) }}</td>
           <td class="text-right text-nowrap">
             {{ sep(bySex?.overall?.nhomalt) }}
           </td>
           <td
             class="text-right text-nowrap"
-            v-html="roundIt(bySex?.overall?.af, FREQ_DIGITS)"
+            v-html="roundIt(bySex?.overall?.af ?? 0.0, FREQ_DIGITS)"
           ></td>
         </tr>
 
@@ -190,6 +214,7 @@ const sexExpanded = ref({})
           <td></td>
           <td class="text-right text-nowrap">XX</td>
           <td class="text-right text-nowrap">{{ sep(bySex?.xx?.an) }}</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xx?.ac) }}</td>
           <td class="text-right text-nowrap">{{ sep(bySex?.xx?.nhomalt) }}</td>
           <td
             class="text-right text-nowrap"
@@ -201,6 +226,7 @@ const sexExpanded = ref({})
           <td></td>
           <td class="text-right text-nowrap">XY</td>
           <td class="text-right text-nowrap">{{ sep(bySex?.xy?.an) }}</td>
+          <td class="text-right text-nowrap">{{ sep(bySex?.xy?.ac) }}</td>
           <td class="text-right text-nowrap">{{ sep(bySex?.xy?.nhomalt) }}</td>
           <td
             class="text-right text-nowrap"

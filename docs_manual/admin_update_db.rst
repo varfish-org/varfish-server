@@ -9,7 +9,7 @@ In the case that you want to do this on your own, here is how to do this.
 
 First, the tables that are to be updated should be generated. For this,
 follow the instructions in the
-`VarFish DB Downloader repository <https://github.com/bihealth/varfish-db-downloader/#building-specific-tables>`_.
+`VarFish DB Downloader repository <https://github.com/varfish-org/varfish-db-downloader/#building-specific-tables>`_.
 
 At this point you should have a folder structure available that resembles::
 
@@ -54,7 +54,7 @@ Take Docker compose down (this will shut down your VarFish instance!):
 Modify the ``docker-compose.yml`` file by finding the following entry::
 
       varfish-web:
-        image: ghcr.io/bihealth/varfish-server:VERSION
+        image: ghcr.io/varfish-org/varfish-server:VERSION
         env_file:
           - .env
         networks:

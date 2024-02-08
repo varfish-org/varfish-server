@@ -28,7 +28,7 @@ The database is built in ``varfish-docker-compose``.
 
 ::
 
-    $ git clone git@github.com:bihealth/varfish-docker-compose.git
+    $ git clone git@github.com:varfish-org/varfish-docker-compose.git
     $ cd varfish-docker-compose
     $ ./init.sh
 
@@ -87,11 +87,11 @@ Get the name of the running varfish-web container.
     44be6ece102e   minio/minio                                                 "/usr/bin/docker-ent…"   11 minutes ago   Up About a minute   9000/tcp                                   varfish-docker-compose_minio_1
     3b23113e5aa1   quay.io/biocontainers/exomiser-rest-prioritiser:12.1.0--1   "exomiser-rest-prior…"   11 minutes ago   Up About a minute                                              varfish-docker-compose_exomiser-rest-prioritiser_1
     b8c49e8c24a6   quay.io/biocontainers/jannovar-cli:0.33--0                  "jannovar -Xmx6G -Xm…"   11 minutes ago   Up About a minute                                              varfish-docker-compose_jannovar_1
-    409a535b9951   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celerybeat_1
-    7eb7425c59e2   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-import_1
-    020811fde306   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-query_1
-    87b03ee0249b   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-default_1
-    7a3fdb337fae   bihealth/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-web_1
+    409a535b9951   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celerybeat_1
+    7eb7425c59e2   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-import_1
+    020811fde306   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-query_1
+    87b03ee0249b   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-celeryd-default_1
+    7a3fdb337fae   varfish-org/varfish-server:0.22.1-0                            "docker-entrypoint.s…"   12 minutes ago   Up About a minute   8080/tcp                                   varfish-docker-compose_varfish-web_1
     9295a101570f   postgres:12                                                 "docker-entrypoint.s…"   12 minutes ago   Up About a minute   5432/tcp                                   varfish-docker-compose_postgres_1
     1c4d6e235074   traefik:v2.3.1                                              "/entrypoint.sh --pr…"   12 minutes ago   Up About a minute   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   varfish-docker-compose_traefik_1
     8d72fd096743   redis:6                                                     "docker-entrypoint.s…"   12 minutes ago   Up About a minute   6379/tcp                                   varfish-docker-compose_redis_1

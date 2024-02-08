@@ -12,7 +12,7 @@ from cases.views_api import (
     CaseListApiView,
     CasePhenotypeTermsListCreateApiView,
     CasePhenotypeTermsRetrieveUpdateDestroyApiView,
-    CaseRetrieveUpdateApiView,
+    CaseRetrieveUpdateDestroyApiView,
     PedigreeRelatednessListApiView,
     SampleVariantStatisticsListApiView,
     SvAnnotationReleaseInfoApiView,
@@ -33,10 +33,10 @@ class CaseListAjaxView(CaseListApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class CaseRetrieveUpdateAjaxView(CaseRetrieveUpdateApiView):
+class CaseRetrieveUpdateDestroyAjaxView(CaseRetrieveUpdateDestroyApiView):
     """Update details of the specified case.
 
-    **URL:** ``/cases/ajax/case/update/{case.sodar_uuid}/``
+    **URL:** ``/cases/ajax/case/retrieve-update-destroy/{case.sodar_uuid}/``
 
     **Methods:** See base API class.
 

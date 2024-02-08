@@ -182,6 +182,11 @@ onMounted(async () => {
             buttons-pagination
             show-index
           >
+            <template #empty-message>
+              <em class="ml-2 text-dark">
+                <strong>No cohorts available.</strong>
+              </em>
+            </template>
             <template #item-date_created="{ date_created }">{{
               formatTimeAgo(date_created)
             }}</template>

@@ -174,6 +174,11 @@ onMounted(async () => {
             buttons-pagination
             show-index
           >
+            <template #empty-message>
+              <em class="ml-2 text-dark">
+                <strong>No cases available.</strong>
+              </em>
+            </template>
             <template #item-name="{ sodar_uuid, name }">
               <a
                 href="#"

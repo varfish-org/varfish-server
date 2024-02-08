@@ -5,7 +5,7 @@ REST API Overview
 =================
 
 Varfish provides a growing set of REST APIs.
-You can find an Python library for accessing the API and a command line interface in `varfish-cli <https://github.com/bihealth/varfish-cli>`_.
+You can find an Python library for accessing the API and a command line interface in `varfish-cli <https://github.com/varfish-org/varfish-cli>`_.
 
 .. note::
     This documentation section is under development.

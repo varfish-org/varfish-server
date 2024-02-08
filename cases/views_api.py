@@ -1,3 +1,5 @@
+from bgjobs.models import BackgroundJob
+from django.db import transaction
 from projectroles.views_api import (
     SODARAPIBaseMixin,
     SODARAPIBaseProjectMixin,
@@ -6,7 +8,6 @@ from projectroles.views_api import (
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
-    RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
@@ -30,6 +31,8 @@ from variants.models import (
     CaseComments,
     CaseGeneAnnotationEntry,
     CasePhenotypeTerms,
+    ComputeProjectVariantsStatsBgJob,
+    DeleteCaseBgJob,
     PedigreeRelatedness,
     SampleVariantStatistics,
 )
@@ -38,6 +41,7 @@ from variants.serializers import (
     CasePhenotypeTermsSerializer,
     SvAnnotationReleaseInfoSerializer,
 )
+from variants.tasks import delete_case_bg_job
 
 
 class CasePagination(PageNumberPagination):
@@ -109,13 +113,13 @@ class CaseApiBaseMixin(SODARAPIBaseMixin):
         return "cases.view_data"
 
 
-class CaseRetrieveUpdateApiView(CaseApiBaseMixin, RetrieveUpdateAPIView):
+class CaseRetrieveUpdateDestroyApiView(CaseApiBaseMixin, RetrieveUpdateDestroyAPIView):
     """
     Update a given case.
 
     **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
 
-    **Methods:** ``PATCH``, ``PUT``.
+    **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
 
     **Returns:** Updated case details.
     """
@@ -128,8 +132,38 @@ class CaseRetrieveUpdateApiView(CaseApiBaseMixin, RetrieveUpdateAPIView):
     def get_permission_required(self):
         if self.request.method == "GET":
             return "cases.view_data"
+        elif self.request.method == "DELETE":
+            return "cases.delete_case"
         else:
             return "cases.update_case"
+
+    def perform_destroy(self, instance):
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Delete case",
+                project=instance.project,
+                job_type=DeleteCaseBgJob.spec_name,
+                user=self.request.user,
+            )
+            delete_job = DeleteCaseBgJob.objects.create(
+                project=instance.project,
+                bg_job=bg_job,
+                case=instance,
+            )
+            # Construct background job objects
+            bg_job2 = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=instance.project,
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                user=self.request.user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=instance.project, bg_job=bg_job2
+            )
+            delete_case_bg_job.delay(
+                delete_case_bg_job_pk=delete_job.pk, export_job_pk=recreate_job.pk
+            )
 
 
 class AnnotationReleaseInfoApiView(CaseApiBaseMixin, ListAPIView):

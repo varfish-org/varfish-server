@@ -11,7 +11,6 @@ from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import get_engine
 from variants.models import (
     VariantScoresFactory,
-    generate_pedia_input,
     prioritize_genes,
     prioritize_genes_gm,
     prioritize_genes_pedia,

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Extend StructuralVariant table as needed by varfish-annotator extension described here:
 
-https://github.com/bihealth/varfish-annotator/issues/41
+https://github.com/varfish-org/varfish-annotator/issues/41
 
 To support non-linear variants better
 

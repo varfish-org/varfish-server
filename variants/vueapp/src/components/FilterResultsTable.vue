@@ -431,6 +431,25 @@ const displayAmbiguousFrequencyWarning = (item) => {
   return ambiguousTables
 }
 
+const displayAmbiguousFrequencyWarningBool = ref(false)
+const displayGenotypeInconsitencyWarning = () => {
+  caseDetailsStore.caseObj?.pedigree.forEach((item) => {
+    Object.entries(tableRows.value).forEach(([row_no, row]) => {
+      if (!(item.name in row.payload.genotype)) {
+        displayAmbiguousFrequencyWarningBool.value = true
+        console.log(
+          `Genotype inconsistency: ${item.name} missing in row ${row_no}`,
+        )
+      } else if (!('gt' in row.payload.genotype[item.name])) {
+        displayAmbiguousFrequencyWarningBool.value = true
+        console.log(
+          `Genotype inconsistency: ${item.name} genotype has no \`gt\` field in row ${row_no}`,
+        )
+      }
+    })
+  })
+}
+
 const displayAmbiguousFrequencyWarningMsg = (item) => {
   const tables = displayAmbiguousFrequencyWarning(item)
   const tablesStr = tables.join(' ')
@@ -480,6 +499,7 @@ const loadFromServer = async () => {
     )
     tableRows.value = response.results.map((row) => transmogrify(row))
     tableLoading.value = false
+    displayGenotypeInconsitencyWarning()
   }
 }
 
@@ -522,6 +542,13 @@ watch(
 </script>
 
 <template>
+  <div v-if="displayAmbiguousFrequencyWarningBool" class="alert alert-warning">
+    <i-mdi-alert-circle-outline />
+    <em class="ml-1"
+      ><strong>Data inconsistency warning</strong>: At least one variant is
+      missing the genotype information for one or more individuals.</em
+    >
+  </div>
   <div class="card mb-0 h-100">
     <div class="card-header d-flex flex-row pt-1 pb-1">
       <div class="pr-3 align-self-start record-count">
@@ -563,6 +590,13 @@ watch(
         show-index
         buttons-pagination
       >
+        <template #empty-message>
+          <em class="ml-2 text-dark" style="font-size: 150%">
+            <strong>No variant passed the current filter settings.</strong
+            ><br />
+            Please try relaxing your settings.
+          </em>
+        </template>
         <template #item-variant_icons="{ sodar_uuid, payload }">
           <span class="text-nowrap">
             <i-fa-solid-search
@@ -801,7 +835,24 @@ watch(
           v-for="{ name } in caseDetailsStore.caseObj?.pedigree"
           v-slot:[`item-genotype_${displayName(name)}`]="{ payload }"
         >
-          {{ payload.genotype[name].gt }}
+          <template v-if="!(name in payload.genotype)">
+            <span
+              title="Info for the admin: the individual has no genotype information for this variant."
+            >
+              <i-mdi-do-not-disturb-on />
+            </span>
+          </template>
+          <template v-else-if="!('gt' in payload.genotype[name])">
+            <span
+              title="Info for the admin: the `gt` field in the genotype information of the individual is missing."
+            >
+              <i-mdi-do-not-disturb-on />
+              <em><sup>gt</sup></em>
+            </span>
+          </template>
+          <template v-else>
+            {{ payload.genotype[name].gt }}
+          </template>
         </template>
         <template #item-pathogenicity_score="{ payload }">
           {{ formatFloat(payload.pathogenicity_score, 3) }}

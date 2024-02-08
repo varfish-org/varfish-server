@@ -16,7 +16,7 @@ const ucscConservation = computed(() => {
 })
 
 const transcriptIds = computed(() => {
-  let res: string[] = ucscConservation.value.map(({ enst_id }) => enst_id)
+  let res: string[] = ucscConservation.value.map(({ enstId }) => enstId)
   res = [...new Set(res)]
   res.sort()
   return res
@@ -26,19 +26,19 @@ const consInfo = computed(() => {
   let seen = new Set()
   let res = {}
   for (const {
-    chromosome,
-    enst_id,
+    chrom,
+    enstId,
     start,
     stop,
     alignment,
   } of ucscConservation.value) {
-    const key = `${enst_id}-${chromosome}-${enst_id}-${start}-${stop}`
+    const key = `${enstId}-${chrom}-${enstId}-${start}-${stop}`
     if (!seen.has(key)) {
       seen.add(key)
-      if (!(enst_id in res)) {
-        res[enst_id] = []
+      if (!(enstId in res)) {
+        res[enstId] = []
       }
-      res[enst_id].push({ chromosome, start, stop, alignment })
+      res[enstId].push({ chrom, start, stop, alignment })
     }
   }
 
@@ -81,7 +81,7 @@ onMounted(initSelectedTranscript)
       </div>
       <p>The following shows UCSC 100 vertebrate conservation.</p>
       <pre><b><u>  chr  start      end          |  alignment                                                                                           </u></b>
-<template v-for="row in consInfo[selectedTranscript]">{{ row.chromosome.padStart(5) }} {{ sepIt(row.start, ',').padStart(11) }}-{{ sepIt(row.stop, ',').padEnd(11) }}  |  {{ row.alignment }}
+<template v-for="row in consInfo[selectedTranscript]">{{ row.chrom.padStart(5) }} {{ sepIt(row.start, ',').padStart(11) }}-{{ sepIt(row.stop, ',').padEnd(11) }}  |  {{ row.alignment }}
 </template></pre>
     </div>
     <div v-else class="text-muted text-center font-italic"></div>
@@ -94,7 +94,7 @@ onMounted(initSelectedTranscript)
       <pre
         v-if="props.knownGeneAa.length > 0"
       ><b><u>  chr  start      end          |  alignment                                                                                           </u></b>
-<template v-for="(row, index) in props.knownGeneAa" :key="index">{{ row.chromosome.padStart(5) }} {{ row.start.toLocaleString().padStart(11) }}-{{ row.end.toLocaleString().padEnd(11) }}  |  {{ row.alignment }}
+<template v-for="(row, index) in props.knownGeneAa" :key="index">{{ row.chrom.padStart(5) }} {{ row.start.toLocaleString().padStart(11) }}-{{ row.end.toLocaleString().padEnd(11) }}  |  {{ row.alignment }}
 </template></pre>
       <p v-else class="text-muted text-center">
         <i>No conservation information available.</i>

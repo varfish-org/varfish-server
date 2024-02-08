@@ -51,6 +51,11 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
     resultSetUuid.value = null
     resultSet.value = null
+
+    tablePageNo.value = null
+    tablePageSize.value = null
+    tableSortBy.value = null
+    tableSortType.value = null
   }
 
   /**

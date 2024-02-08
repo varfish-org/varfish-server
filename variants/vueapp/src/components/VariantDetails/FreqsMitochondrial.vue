@@ -17,8 +17,8 @@ const helixMtDb = computed(() => {
 })
 
 const gnomadMtDna = computed(() => {
-  if (props?.varAnnos && props?.varAnnos['gnomad-mtdna']) {
-    return props?.varAnnos['gnomad-mtdna']
+  if (props?.varAnnos && props?.varAnnos['gnomad_mtdna']) {
+    return props?.varAnnos['gnomad_mtdna']
   } else {
     return null
   }

@@ -255,6 +255,22 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     }
   }
 
+  /** Destroy the case with the given data. */
+  const destroyCase = async () => {
+    const caseClient = new CaseClient(csrfToken.value)
+
+    storeState.serverInteractions += 1
+    const oldState = storeState.state
+    storeState.state = State.Fetching
+
+    try {
+      caseObj.value = await caseClient.destroyCase(caseObj.value.sodar_uuid)
+    } finally {
+      storeState.serverInteractions -= 1
+      storeState.state = oldState
+    }
+  }
+
   /** Get case comment by UUID. */
   const getCaseComment = (caseCommentUuid: string): CaseComment | null => {
     for (const obj of caseComments.value) {
@@ -424,6 +440,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     // functions
     initialize,
     updateCase,
+    destroyCase,
     getCaseComment,
     createCaseComment,
     updateCaseComment,
