@@ -140,7 +140,7 @@ pysam==0.22.0
 pysaml2==7.4.2
 PySocks==1.7.1
 python-dateutil==2.8.2
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 pytz==2023.3.post1
 PyYAML==6.0.1
 redis==5.0.1
