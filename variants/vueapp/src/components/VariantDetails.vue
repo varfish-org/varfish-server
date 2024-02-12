@@ -10,8 +10,12 @@
  * See `SvDetails` for a peer app for structural variants
  */
 
-import { computed, onMounted } from 'vue'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { StoreState } from '@bihealth/reev-frontend-lib/stores'
+import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
+import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { useVariantQueryStore } from '@variants/stores/variantQuery'
@@ -41,6 +45,14 @@ import Overlay from '@varfish/components/Overlay.vue'
 import { allNavItems } from '@variants/components/VariantDetails.fields'
 import { watch } from 'vue'
 
+const GeneOverviewCard = defineAsyncComponent(
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
+    ),
+)
+
+/** This component's props. */
 const props = defineProps<{
   /** UUID of the result row to display. */
   resultRowUuid?: string
@@ -59,6 +71,11 @@ const appContext = JSON.parse(
 const router = useRouter()
 
 // Store-related
+
+/** Information about the sequence variant, used to fetch information on load. */
+const seqvarInfoStore = useSeqvarInfoStore()
+/** Information about the affected gene, used to fetch information on load. */
+const geneInfoStore = useGeneInfoStore()
 
 const historyStore = useHistoryStore()
 
@@ -125,6 +142,10 @@ const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
     await variantResultSetStore.initialize(appContext.csrf_token)
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
+    console.log(
+      'variantResultSetStore.resultRow',
+      variantResultSetStore.resultRow,
+    )
     await Promise.all([
       variantFlagsStore.initialize(
         appContext.csrf_token,
@@ -147,7 +168,29 @@ const refreshStores = async () => {
         variantResultSetStore.caseUuid,
       ),
     ])
-    variantDetailsStore.fetchVariantDetails(variantResultSetStore.resultRow)
+    await variantDetailsStore.fetchVariantDetails(
+      variantResultSetStore.resultRow,
+    )
+
+    // TODO: properly use types
+    if (variantResultSetStore.resultRow !== undefined) {
+      const seqvar: Seqvar = new SeqvarImpl(
+        variantResultSetStore.resultRow.release === 'GRCh37'
+          ? 'grch37'
+          : 'grch38',
+        variantResultSetStore.resultRow.chromosome,
+        variantResultSetStore.resultRow.start,
+        variantResultSetStore.resultRow.reference,
+        variantResultSetStore.resultRow.alternative,
+      )
+      await Promise.all([
+        seqvarInfoStore.initialize(seqvar),
+        geneInfoStore.initialize(
+          variantResultSetStore.resultRow.payload!.hgnc_id,
+          seqvar.genomeBuild,
+        ),
+      ])
+    }
   }
 
   document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
@@ -170,6 +213,11 @@ onMounted(() => {
 </script>
 
 <template>
+  <v-app>
+    <GeneOverviewCard :gene-info="seqvarInfoStore?.geneInfo" />
+  </v-app>
+
+  <!--
   <div
     v-if="caseDetailsStore.caseObj && variantDetailsStore.smallVariant"
     class="d-flex flex-column h-100"
@@ -301,4 +349,5 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  -->
 </template>

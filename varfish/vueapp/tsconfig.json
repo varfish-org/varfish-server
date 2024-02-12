@@ -11,7 +11,8 @@
       "@svs/*": ["./src/svs/*"],
       "@cases/*": ["./src/cases/*"],
       "@cases_qc/*": ["./src/cases_qc/*"],
-      "@cohorts/*": ["./src/cohorts/*"]
+      "@cohorts/*": ["./src/cohorts/*"],
+      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"]
     }
   }
 }

@@ -2,6 +2,7 @@ const { resolve } = require('path')
 import Vue from '@vitejs/plugin-vue'
 import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
+import Unfonts from 'unplugin-fonts/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 
@@ -30,12 +31,23 @@ export default defineConfig({
   plugins: [
     Vue(),
     Components({
-      resolvers: [IconsResolver()],
+      dts: true,
+      resolvers: [IconsResolver({  enabledCollections: ['mdi'],})],
     }),
     Icons({
-      autoInstall: true,
+      // autoInstall: true,
       compiler: 'vue3',
     }),
+    Unfonts({
+      google: {
+        families: [
+          {
+            name: 'Roboto',
+            styles: 'wght@100;300;400;500;700;900'
+          }
+        ]
+      }
+    })
   ],
   resolve: {
     alias: {
@@ -47,8 +59,12 @@ export default defineConfig({
       '@cases': resolve(__dirname, './src/cases'),
       '@cases_qc': resolve(__dirname, './src/cases_qc'),
       '@cohorts': resolve(__dirname, './src/cohorts'),
+      '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
     },
     preserveSymlinks: true,
+  },
+  server: {
+    origin: "http://127.0.0.1:3000"
   },
   test: {
     coverage: {
