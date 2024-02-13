@@ -760,7 +760,7 @@ export default {
                     }"
                     :title="`${
                       item.flags.flag_final_causative ? '' : 'NOT '
-                    }flagged as final causative`"
+                    }flagged as final report`"
                   >
                     <i class="iconify" data-icon="fa-solid:flag-checkered"></i>
                   </span>

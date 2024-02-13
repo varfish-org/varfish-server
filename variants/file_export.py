@@ -158,7 +158,7 @@ HEADERS_JOINT_SCORES = (
 HEADER_FLAGS = (
     ("flag_bookmarked", "Flag: bookmarked", str),
     ("flag_candidate", "Flag: selected as candidate disease-causing", str),
-    ("flag_final_causative", "Flag: selected as final causative variant", str),
+    ("flag_final_causative", "Flag: selected as final report variant", str),
     ("flag_for_validation", "Flag: selected for validation", str),
     ("flag_no_disease_association", "Flag: selected for no known disease association", str),
     ("flag_segregates", "Flag: selected as segregating variant", str),

@@ -768,8 +768,8 @@
     "flag_final_causative": {
       "$id": "#/properties/flag_final_causative",
       "type": "boolean",
-      "title": "Include variants marked with \"final causative\" flag",
-      "description": "When set (default) then variants that have the \"final causative\" simple flag set are included in the result",
+      "title": "Include variants marked with \"final report\" flag",
+      "description": "When set (default) then variants that have the \"final report\" simple flag set are included in the result",
       "default": true,
       "examples": [
         true,
