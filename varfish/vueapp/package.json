@@ -31,6 +31,7 @@
     "lodash.isequal": "^4.5.0",
     "luxon": "^3.4.4",
     "pinia": "^2.1.6",
+    "plotly.js-dist": "^2.29.0",
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
     "title-case": "^4.3.1",

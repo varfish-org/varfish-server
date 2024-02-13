@@ -6,9 +6,8 @@ export function setupBackendUrls() {
   urlConfig.baseUrlViguno = '/proxy/varfish/viguno'
   urlConfig.baseUrlNginx = '/proxy/varfish/nginx'
   urlConfig.baseUrlPubtator = '/proxy/remote/pubtator3-api'
+  urlConfig.baseUrlVariantValidator = '/proxy/variantvalidator'
 
   // urlConfig.baseUrlCadaPrio = '/internal/proxy/cada-prio'
   // urlConfig.baseUrlDotty = '/internal/proxy/dotty'
-  // urlConfig.baseUrlVariantValidator = '/remote/variantvalidator'
-  // urlConfig.baseUrlPubtator = '/remote/pubtator3-api'
 }
