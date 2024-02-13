@@ -35,7 +35,7 @@ crispy-bootstrap4==2022.1
 cryptography==42.0.0
 decorator==5.1.1
 defusedxml==0.7.1
-Django==3.2.23
+Django==3.2.24
 django-autocomplete-light==3.9.4
 django-clone==5.3.3
 django-coverage-plugin==3.1.0
@@ -140,7 +140,7 @@ pysam==0.22.0
 pysaml2==7.4.2
 PySocks==1.7.1
 python-dateutil==2.8.2
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 pytz==2023.3.post1
 PyYAML==6.0.1
 redis==5.0.1

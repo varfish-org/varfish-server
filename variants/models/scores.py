@@ -778,7 +778,7 @@ def prio_exomiser(entrez_ids, hpo_terms, prio_algorithm):
                 "phenotypes": sorted(set(hpo_terms)),
                 "genes": sorted(set(entrez_ids)),
                 "prioritiser": prio_algorithm,
-                "prioritiser-params": ",".join(prio_params),
+                "prioritiserParams": ",".join(prio_params),
             },
         )
         if not res.status_code == 200:

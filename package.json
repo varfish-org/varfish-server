@@ -22,6 +22,7 @@
     "vue3-easy-data-table": "^1.5.22"
   },
   "dependencies": {
+    "node": "^20.11.0",
     "pinia": "^2.1.7"
   }
 }
