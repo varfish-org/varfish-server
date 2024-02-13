@@ -12,7 +12,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { deepEqual } from 'vega-lite'
+import * as deepEqual from 'deep-equal'
 
 /** Alias definition of SmallVariantFlags type; to be defined later. */
 type SmallVariantFlags = any
@@ -187,7 +187,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
     let result
     try {
-      console.log(seqvar, payload)
+      console.log(seqvar)
       result = await variantClient.createFlags(caseUuid.value, seqvar, {
         ...{
           release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',

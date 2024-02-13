@@ -123,11 +123,11 @@ onMounted(async () => {
   <template v-else>
     <v-card>
       <v-card-title class="pb-0 pr-2">
-        Comments
-        <!-- <DocsLink anchor="comments" /> -->
+        Flags
+        <!-- <DocsLink anchor="flags" /> -->
       </v-card-title>
       <v-card-subtitle class="text-overline">
-        View, create, or update comments
+        View, create, or update flags
       </v-card-subtitle>
       <v-card-text>
         <v-row no-gutters>

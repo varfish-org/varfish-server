@@ -622,7 +622,10 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
         validated_data["user"] = self.context["request"].user
         keys = ("case", "release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
-            validated_data[key] = self.context[key]
+            if key in ("start", "end"):
+                validated_data[key] = int(self.context[key])
+            else:
+                validated_data[key] = self.context[key]
         validated_data["bin"] = binning.assign_bin(validated_data["start"] - 1, validated_data["end"])
         validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)

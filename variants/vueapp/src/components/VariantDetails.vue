@@ -426,19 +426,20 @@ onMounted(() => {
           :seqvar="seqvarInfoStore.seqvar"
           :var-annos="seqvarInfoStore.varAnnos"
         />
-      </div> -->
+      </div>
       <div id="flags">
         <FlagsCard
           :flags-store="variantFlagsStore"
           :variant="seqvarInfoStore.seqvar"
         />
-      </div>
-      <!-- <div id="comments">
+      </div> -->
+      <div id="comments">
         <CommentsCard
-                :comments-store="variantCommentsStore"
-                :variant="seqvarInfoStore.seqvar"
-              />
+          :comments-store="variantCommentsStore"
+          :variant="seqvarInfoStore.seqvar"
+        />
       </div>
+      <!--
       <div id="seqvar-ga4ghbeacons" class="mt-3">
         <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
@@ -447,138 +448,4 @@ onMounted(() => {
       </div> -->
     </template>
   </v-app>
-
-  <!--
-  <div
-    v-if="caseDetailsStore.caseObj && variantDetailsStore.smallVariant"
-    class="d-flex flex-column h-100"
-  >
-    <Header
-      :small-var="variantDetailsStore.smallVariant"
-      :case="caseDetailsStore.caseObj"
-    />
-    <div class="container-fluid">
-      <div class="row">
-        <div
-          class="col-10 pl-0 pr-0 pt-2"
-          v-if="variantDetailsStore.smallVariant"
-        >
-          <div>
-            <SimpleCard id="gene" title="Gene">
-              <VariantDetailsGene
-                :gene="variantDetailsStore.gene"
-                :geneClinvar="variantDetailsStore.geneClinvar"
-                :small-var="variantDetailsStore.smallVariant"
-                :hgmd-pro-enabled="queryStore.hgmdProEnabled"
-                :hgmd-pro-prefix="queryStore.hgmdProPrefix"
-              />
-            </SimpleCard>
-            <SimpleCard
-              id="beacon-network"
-              title="Beacon Network"
-              v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
-            >
-              <VariantDetailsGa4ghBeacons
-                :small-variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-            <SimpleCard id="clinvar" title="ClinVar">
-              <VariantDetailsClinvar />
-            </SimpleCard>
-            <SimpleCard id="freqs" title="Population Frequencies">
-              <VariantDetailsFreqs
-                :small-var="variantDetailsStore.smallVariant"
-                :var-annos="variantDetailsStore.varAnnos"
-              />
-            </SimpleCard>
-            <SimpleCard id="variant-tools" title="Variant Tools">
-              <VariantDetailsVariantTools
-                :small-var="variantDetailsStore.smallVariant"
-                :var-annos="variantDetailsStore.varAnnos"
-                :umd-predictor-api-token="queryStore.umdPredictorApiToken"
-              />
-            </SimpleCard>
-            <SimpleCard id="tx-csq" title="Consequences">
-              <VariantDetailsTxCsq :tx-csq="variantDetailsStore.txCsq" />
-            </SimpleCard>
-            <SimpleCard id="call-details" title="Call Details">
-              <VariantDetailsCallDetails
-                :case-description="caseDetailsStore.caseObj"
-                :small-variant="variantDetailsStore.smallVariant?.payload"
-              />
-            </SimpleCard>
-            <SimpleCard id="conservation" title="Conservation">
-              <VariantDetailsConservation
-                :var-annos="variantDetailsStore.varAnnos"
-              />
-            </SimpleCard>
-            <SimpleCard id="flags" title="Flags">
-              <VariantDetailsFlags
-                :flags-store="variantFlagsStore"
-                :variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-            <SimpleCard id="comments" title="Comments">
-              <VariantDetailsComments
-                :comments-store="variantCommentsStore"
-                :variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-            <SimpleCard id="acmg-rating" title="ACMG Rating">
-              <VariantDetailsAcmgRating
-                :small-variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-            <SimpleCard id="second-hit" title="Second Hit">
-              <div class="alert alert-secondary">
-                <i-mdi-clock />
-                Work in progress ...
-              </div>
-            </SimpleCard>
-            <SimpleCard id="other-carriers" title="OtherCarriers">
-              <div class="alert alert-secondary">
-                <i-mdi-clock />
-                Work in progress ...
-              </div>
-            </SimpleCard>
-            <SimpleCard id="variant-validator" title="VariantValidator">
-              <VariantDetailsVariantValidator
-                :small-variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-          </div>
-          <Overlay v-if="overlayShow" :message="overlayMessage" />
-        </div>
-
-        <div class="col-2 pr-0">
-          <ul
-            class="nav flex-column nav-pills position-sticky pt-2"
-            style="top: 0px"
-          >
-            <li class="nav-item mt-0 mb-3">
-              <a
-                class="nav-link user-select-none btn btn-secondary"
-                @click.prevent="navigateBack()"
-                type="button"
-              >
-                <i-mdi-arrow-left-circle />
-                Back
-              </a>
-            </li>
-            <li class="nav-item mt-0" v-for="{ name, title } in navItems">
-              <a
-                class="nav-link user-select-none"
-                :class="{ active: props.selectedSection === name }"
-                @click="onTabClick(name)"
-                type="button"
-              >
-                {{ title }}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-  -->
 </template>

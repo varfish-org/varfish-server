@@ -11,9 +11,9 @@ import { ref, reactive } from 'vue'
 import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import * as deepEqual from 'deep-equal'
 
-/** Alias definition of SmallVariant type; to be defined later. */
-type SmallVariant = any
 /** Alias definition of SmallVariantComments type; to be defined later. */
 type SmallVariantComment = any
 
@@ -37,7 +37,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   // other data (loaded via REST API or computed)
 
   /** The small variant that comments are handled for. */
-  const smallVariant = ref<SmallVariant | null>(null)
+  const seqvar = ref<Seqvar | null>(null)
   /** The small variants as fetched from API. */
   const comments = ref<SmallVariantComment | null>(null)
   /** The comments for all variants of the case with the given `caseUuid`. */
@@ -119,9 +119,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   /**
    * Retrieve comments for the given variant.
    */
-  const retrieveComments = async (smallVariant$: SmallVariant) => {
+  const retrieveComments = async (seqvar$: Seqvar) => {
     // Prevent re-retrieval of the comments.
-    if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+    if (deepEqual(seqvar.value, seqvar$)) {
       return
     }
 
@@ -132,12 +132,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     storeState.serverInteractions += 1
 
     try {
-      comments.value = await variantClient.listComment(
-        caseUuid.value,
-        smallVariant$,
-      )
+      comments.value = await variantClient.listComment(caseUuid.value, seqvar$)
 
-      smallVariant.value = smallVariant$
+      seqvar.value = seqvar$
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -153,9 +150,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    * Create a new comment.
    */
   const createComment = async (
-    smallVariant: SmallVariant,
+    seqvar: Seqvar,
     text: string,
-  ): Promise<SmallVariant> => {
+  ): Promise<Seqvar> => {
     const variantClient = new VariantClient(csrfToken.value)
 
     storeState.state = State.Fetching
@@ -163,8 +160,15 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     let result
     try {
-      result = await variantClient.createComment(caseUuid.value, smallVariant, {
-        ...smallVariant,
+      result = await variantClient.createComment(caseUuid.value, seqvar, {
+        ...{
+          release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+          chromosome: seqvar.chrom,
+          start: seqvar.pos,
+          end: seqvar.pos + seqvar.del.length - 1,
+          reference: seqvar.del,
+          alternative: seqvar.ins,
+        },
         text,
       })
 
@@ -189,7 +193,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const updateComment = async (
     commentUuid: string,
     text: string,
-  ): Promise<SmallVariant> => {
+  ): Promise<Seqvar> => {
     const variantClient = new VariantClient(csrfToken.value)
 
     storeState.state = State.Fetching
@@ -198,7 +202,14 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     let result
     try {
       result = await variantClient.updateComment(commentUuid, {
-        ...smallVariant,
+        ...{
+          release: seqvar.value.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+          chromosome: seqvar.value.chrom,
+          start: seqvar.value.pos,
+          end: seqvar.value.pos + seqvar.value.del.length - 1,
+          reference: seqvar.value.del,
+          alternative: seqvar.value.ins,
+        },
         text,
       })
 
@@ -253,15 +264,16 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   /**
    * Does a variant have comments?
    */
-  const hasComments = (variant: SmallVariant): boolean => {
+  const hasComments = (seqvar: Seqvar): boolean => {
     for (const comment of caseComments.value.values()) {
       if (
-        comment.release === variant.release &&
-        comment.chromosome === variant.chromosome &&
-        comment.start === variant.start &&
-        comment.end === variant.end &&
-        comment.reference === variant.reference &&
-        comment.alternative === variant.alternative
+        comment.release ===
+          (seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38') &&
+        comment.chromosome === seqvar.chrom &&
+        comment.start === seqvar.pos &&
+        comment.end === seqvar.pos + seqvar.del.length - 1 &&
+        comment.reference === seqvar.del &&
+        comment.alternative === seqvar.ins
       ) {
         return true
       }
@@ -276,7 +288,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     storeState,
     caseUuid,
     projectUuid,
-    smallVariant,
+    seqvar,
     comments,
     caseComments,
     initializeRes,

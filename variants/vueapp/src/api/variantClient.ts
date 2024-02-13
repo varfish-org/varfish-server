@@ -11,6 +11,7 @@ type QueryResultSet = any
 type QueryResultRow = any
 type AcmgRating = any
 type VariantFlags = any
+type VariantComment = any
 
 /**
  * Encode the list arguments.
@@ -167,7 +168,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listComment(caseUuid, seqvar?: Seqvar): Promise<Comment[]> {
+  async listComment(caseUuid, seqvar?: Seqvar): Promise<VariantComment[]> {
     let query = ''
     if (seqvar) {
       const { genomeBuild, chrom, pos, del, ins } = seqvar
@@ -186,8 +187,8 @@ export class VariantClient extends ClientBase {
   async createComment(
     caseUuid: string,
     seqvar: Seqvar,
-    payload: Comment,
-  ): Promise<Comment> {
+    payload: VariantComment,
+  ): Promise<VariantComment> {
     const { genomeBuild, chrom, pos, del, ins } = seqvar
     const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
     const end = pos + del.length - 1
@@ -201,7 +202,10 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async updateComment(commentUuid, payload: string): Promise<Comment> {
+  async updateComment(
+    commentUuid,
+    payload: VariantComment,
+  ): Promise<VariantComment> {
     return await this.fetchHelper(
       `/variants/ajax/small-variant-comment/update/${commentUuid}/`,
       'PATCH',

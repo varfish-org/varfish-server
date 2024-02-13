@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
+import { DateTime } from 'luxon'
 
 import { State } from '@varfish/storeUtils'
+// import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 
 /** This component's props. */
@@ -107,143 +109,183 @@ watch(
     />
   </template>
   <!-- otherwise, display actual card -->
-  <template v-else> </template>
-  <div
-    class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
-  >
-    <div>
-      <ul
-        v-if="commentsStore.comments?.length"
-        class="list-group list-group-flush list"
-      >
-        <li
-          v-for="(comment, index) in commentsStore.comments"
-          :key="index"
-          class="list-group-item list-item p-4"
-        >
-          <div
-            v-if="
-              editCommentMode === EditCommentModes.Edit &&
-              editCommentIndex === index
-            "
-            class="input-group form-inline"
+  <template v-else>
+    <v-card>
+      <v-card-title class="pb-0 pr-2">
+        Comments
+        <!-- <DocsLink anchor="flags" /> -->
+      </v-card-title>
+      <v-card-subtitle class="text-overline">
+        View, create, or update comments
+      </v-card-subtitle>
+      <v-card-text>
+        <template v-if="commentsStore.comments?.length">
+          <v-sheet
+            v-for="(comment, index) in commentsStore.comments"
+            :key="`comment-${index}`"
+            class="bg-grey-lighten-3 p-3"
+            :class="{ 'mt-2': index > 0 }"
           >
-            <textarea
-              rows="1"
-              cols="40"
-              class="form-control"
-              v-model="commentToSubmit"
-            ></textarea>
-            <span class="btn-group pull-right">
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                @click="unsetEditComment()"
+            <v-row
+              v-if="
+                editCommentMode === EditCommentModes.Edit &&
+                editCommentIndex === index
+              "
+              class="no-gutters flex-nowrap"
+            >
+              <v-col
+                cols="10"
+                class="flex-grow-0 pl-3"
+                style="min-width: 100px; max-width: 100%"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-primary"
-                @click="onClickSubmitComment()"
-                :disabled="!commentToSubmit"
+                <v-textarea
+                  v-model="commentToSubmit"
+                  variant="outlined"
+                  rows="2"
+                  label="Update comment text"
+                  hide-details
+                />
+              </v-col>
+              <v-col cols="2" class="flex-shrink-0">
+                <v-btn-group
+                  variant="tonal"
+                  rounded="xs"
+                  class="float-right mx-2"
+                >
+                  <v-btn @click="unsetEditComment()"> Cancel </v-btn>
+                  <v-btn
+                    color="primary"
+                    @click="onClickSubmitComment()"
+                    :disabled="!commentToSubmit"
+                  >
+                    Save
+                  </v-btn>
+                </v-btn-group>
+              </v-col>
+            </v-row>
+            <v-row
+              v-else-if="
+                editCommentMode === EditCommentModes.Delete &&
+                editCommentIndex === index
+              "
+              class="no-gutters flex-nowrap"
+            >
+              <v-col cols="10">
+                <div>
+                  <span class="text-grey-darken-1">#{{ index + 1 }}</span>
+                  &nbsp;
+                  <span class="font-bolder">{{ comment.user }}</span>
+                  <span class="font-italic"
+                    >@{{
+                      DateTime.fromISO(comment.date_created).toFormat(
+                        'yyyy/MM/dd hh:mm',
+                      )
+                    }}</span
+                  >
+                </div>
+                <div>
+                  {{ comment.text }}
+                </div>
+              </v-col>
+              <v-col cols="2">
+                <v-btn-group
+                  variant="tonal"
+                  rounded="xs"
+                  density="compact"
+                  class="float-right mx-2"
+                >
+                  <v-btn @click="unsetEditComment()"> Cancel </v-btn>
+                  <v-btn color="error" @click="onClickDeleteComment()">
+                    Delete
+                  </v-btn>
+                </v-btn-group>
+              </v-col>
+            </v-row>
+            <div v-else-if="comment">
+              <v-btn-group
+                divided
+                variant="outlined"
+                rounded="xs"
+                density="compact"
+                class="float-right"
               >
-                Submit
-              </button>
-            </span>
-          </div>
-          <div
-            v-else-if="
-              editCommentMode === EditCommentModes.Delete &&
-              editCommentIndex === index
-            "
-          >
-            <span class="small text-muted">
-              <strong>{{ comment.user }}</strong>
-              {{ comment.date_created }}:
-            </span>
-            <em>{{ comment.text }}</em>
-            <span class="btn-group pull-right">
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                @click="unsetEditComment()"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                @click="onClickDeleteComment()"
-              >
-                Delete
-              </button>
-            </span>
-          </div>
-          <div v-else-if="comment">
-            <span class="small text-muted">
-              <strong>{{ comment.user }}</strong>
-              {{ comment.date_created }}:
-            </span>
-            <em>{{ comment.text }}</em>
-            <div class="btn-group pull-right" v-if="comment.user_can_edit">
-              <button
-                class="btn btn-sm btn-outline-secondary"
-                @click="setEditComment(comment.sodar_uuid, comment.text, index)"
-              >
-                <i-mdi-pencil />
-              </button>
-              <button
-                class="btn btn-sm btn-outline-secondary"
-                @click="setDeleteComment(comment.sodar_uuid, index)"
-              >
-                <i-fa-solid-times-circle />
-              </button>
+                <v-btn
+                  size="default"
+                  icon="mdi-pencil"
+                  @click="
+                    setEditComment(comment.sodar_uuid, comment.text, index)
+                  "
+                />
+                <v-btn
+                  size="default"
+                  icon="mdi-delete"
+                  @click="setDeleteComment(comment.sodar_uuid, index)"
+                />
+              </v-btn-group>
+              <div>
+                <span class="text-grey-darken-1">#{{ index + 1 }}</span> &nbsp;
+                <span class="font-bolder">{{ comment.user }}</span>
+                <span class="font-italic"
+                  >@{{
+                    DateTime.fromISO(comment.date_created).toFormat(
+                      'yyyy/MM/dd hh:mm',
+                    )
+                  }}</span
+                >
+              </div>
+              <div>
+                {{ comment.text }}
+              </div>
             </div>
-          </div>
-          <div v-else>
-            <i class="text-muted">Comment has been deleted.</i>
-          </div>
-        </li>
-      </ul>
-      <div v-else class="card-body">
-        <p class="text-muted font-italic text-center">
-          <i-fa-solid-info-circle />
-          No comments.
-        </p>
-      </div>
-      <div
-        class="card-footer pl-2 pr-2 text-right"
-        v-if="editCommentMode === EditCommentModes.Off"
-      >
-        <textarea
-          v-model="commentToSubmit"
-          class="form-control mb-2"
-          placeholder="Comment variant here ..."
-        ></textarea>
-        <div class="btn-group ml-auto mb-2">
-          <button class="btn btn-secondary" @click="commentToSubmit = ''">
-            Clear
-          </button>
-          <button
-            class="btn btn-primary"
-            @click="onClickSubmitComment()"
-            :disabled="!commentToSubmit"
-          >
-            Submit
-          </button>
+            <div v-else class="text-center text-muted font-italic">
+              Comment has been deleted.
+            </div>
+          </v-sheet>
+        </template>
+        <div v-else>
+          <p class="text-muted text-center font-italic">No comments yet.</p>
         </div>
-      </div>
-      <div class="card-footer" v-else>
-        <i class="text-muted">
-          <i-fa-solid-info-circle />
-          The form for placing comments will appear when you finished editing
-          your comment.
-        </i>
-      </div>
-    </div>
-    <Overlay v-if="overlayShow" />
-  </div>
+      </v-card-text>
+      <v-card-text v-if="editCommentMode === EditCommentModes.Off">
+        <v-textarea
+          hide-details
+          variant="outlined"
+          label="Comment Text"
+          prepend-icon="mdi-comment-outline"
+          v-model="commentToSubmit"
+          class="mb-3"
+        >
+        </v-textarea>
+        <v-row>
+          <v-col cols="12" class="text-center">
+            <v-btn
+              variant="outlined"
+              prepend-icon="mdi-close-circle-outline"
+              rounded="xs"
+              class="mr-3"
+              @click="commentToSubmit = ''"
+            >
+              Clear
+            </v-btn>
+            <v-btn
+              variant="tonal"
+              prepend-icon="mdi-cloud-upload"
+              rounded="xs"
+              @click="onClickSubmitComment()"
+              :disabled="!commentToSubmit"
+            >
+              Submit
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-text v-else class="text-center text-muted font-italic">
+        <v-icon>mdi-information-outline</v-icon>
+        The form for placing comments will reappear when you finish/cancel
+        editing your comment.
+      </v-card-text>
+    </v-card>
+  </template>
 </template>
 
 <style>
