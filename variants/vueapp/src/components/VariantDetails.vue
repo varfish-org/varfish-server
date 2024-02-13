@@ -30,8 +30,8 @@ import Header from '@variants/components/VariantDetails/Header.vue'
 import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
 import VariantDetailsClinvar from '@variants/components/VariantDetails/Clinvar.vue'
 import VariantDetailsFreqs from '@variants/components/VariantDetails/Freqs.vue'
-import VariantDetailsComments from '@varfish/components/VariantDetails/Comments.vue'
-import VariantDetailsFlags from '@varfish/components/VariantDetails/Flags.vue'
+import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import VariantDetailsCallDetails from '@variants/components/VariantDetails/CallDetails.vue'
@@ -53,51 +53,77 @@ const GeneOverviewCard = defineAsyncComponent(
 )
 const GenePathogenicityCard = defineAsyncComponent(
   () =>
-    import('@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue')
+    import(
+      '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
+    ),
 )
 const GeneConditionsCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
+    ),
 )
 // const CadaRanking = defineAsyncComponent(() => import('@/components/CadaRanking/CadaRanking.vue'))
 const GeneExpressionCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
+    ),
 )
 const GeneClinvarCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
+    ),
 )
 const GeneLiteratureCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
+    ),
 )
 
 const SeqvarBeaconNetworkCard = defineAsyncComponent(
   () =>
     import(
       '@bihealth/reev-frontend-lib/components/SeqvarBeaconNetworkCard/SeqvarBeaconNetworkCard.vue'
-    )
+    ),
 )
 const SeqvarClinvarCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/SeqvarClinvarCard/SeqvarClinvarCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/SeqvarClinvarCard/SeqvarClinvarCard.vue'
+    ),
 )
 const SeqvarConsequencesCard = defineAsyncComponent(
   () =>
     import(
       '@bihealth/reev-frontend-lib/components/SeqvarConsequencesCard/SeqvarConsequencesCard.vue'
-    )
+    ),
 )
 const SeqvarFreqsCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/SeqvarFreqsCard/SeqvarFreqsCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/SeqvarFreqsCard/SeqvarFreqsCard.vue'
+    ),
 )
 const SeqvarToolsCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
+    ),
 )
 const SeqvarScoresCard = defineAsyncComponent(
-  () => import('@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue')
+  () =>
+    import(
+      '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
+    ),
 )
 const SeqvarVariantValidatorCard = defineAsyncComponent(
   () =>
     import(
       '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
-    )
+    ),
 )
 
 /** This component's props. */
@@ -208,14 +234,14 @@ const seqvar = computed<Seqvar | undefined>(() => {
     return undefined
   } else {
     return new SeqvarImpl(
-        variantResultSetStore.resultRow.release === 'GRCh37'
-          ? 'grch37'
-          : 'grch38',
-        variantResultSetStore.resultRow.chromosome,
-        variantResultSetStore.resultRow.start,
-        variantResultSetStore.resultRow.reference,
-        variantResultSetStore.resultRow.alternative,
-      )
+      variantResultSetStore.resultRow.release === 'GRCh37'
+        ? 'grch37'
+        : 'grch38',
+      variantResultSetStore.resultRow.chromosome,
+      variantResultSetStore.resultRow.start,
+      variantResultSetStore.resultRow.reference,
+      variantResultSetStore.resultRow.alternative,
+    )
   }
 })
 /** HGVS description of SeqVar from result row. */
@@ -225,12 +251,20 @@ const seqvarHgvs = computed<string | undefined>(() => {
   } else {
     const arr = [variantResultSetStore.resultRow?.payload?.transcript_id]
     if (variantResultSetStore.resultRow?.payload?.symbol?.length) {
-      arr.push(...["(", variantResultSetStore.resultRow?.payload?.symbol, ")"])
+      arr.push(...['(', variantResultSetStore.resultRow?.payload?.symbol, ')'])
     }
     if (variantResultSetStore.resultRow?.payload?.hgvs_p?.length) {
-      arr.push(...[":", variantResultSetStore.resultRow?.payload?.hgvs_p, " (", variantResultSetStore.resultRow?.payload?.hgvs_c, ")"])
+      arr.push(
+        ...[
+          ':',
+          variantResultSetStore.resultRow?.payload?.hgvs_p,
+          ' (',
+          variantResultSetStore.resultRow?.payload?.hgvs_c,
+          ')',
+        ],
+      )
     } else {
-      arr.push(...[":", variantResultSetStore.resultRow?.payload?.hgvs_c])
+      arr.push(...[':', variantResultSetStore.resultRow?.payload?.hgvs_c])
     }
     return arr.join('')
   }
@@ -314,12 +348,10 @@ onMounted(() => {
       </template>
     </div>
     <template v-if="!seqvarInfoStore?.geneInfo">
-      <div class="text-h5 mt-6 mb-3 ml-1">
-        No Gene
-      </div>
+      <div class="text-h5 mt-6 mb-3 ml-1">No Gene</div>
     </template>
     <template v-else>
-      <div class="text-h5 mt-6 mb-3 ml-1">
+      <!-- <div class="text-h5 mt-6 mb-3 ml-1">
         Gene <span class="font-italic"> {{  seqvarInfoStore?.geneInfo.hgnc!.symbol }} </span>
       </div>
       <div id="gene-overview">
@@ -327,7 +359,7 @@ onMounted(() => {
       </div>
       <div id="gene-pathogenicity" class="mt-3">
         <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo">
-          <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
+          <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" />
         </GenePathogenicityCard>
       </div>
       <div id="gene-conditions" class="mt-3">
@@ -358,16 +390,14 @@ onMounted(() => {
       </div>
       <div id="gene-literature" class="mt-3 mb-3">
         <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
-      </div>
+      </div> -->
     </template>
 
     <template v-if="!seqvarInfoStore.seqvar">
-      <div class="text-h5 mt-6 mb-3 ml-1">
-        No Variant Information
-      </div>
+      <div class="text-h5 mt-6 mb-3 ml-1">No Variant Information</div>
     </template>
     <template v-else>
-      <div class="text-h5 mt-6 mb-3 ml-1">
+      <!-- <div class="text-h5 mt-6 mb-3 ml-1">
         Variant Details
       </div>
       <div id="seqvar-clinsig">
@@ -396,26 +426,25 @@ onMounted(() => {
           :seqvar="seqvarInfoStore.seqvar"
           :var-annos="seqvarInfoStore.varAnnos"
         />
+      </div> -->
+      <div id="flags">
+        <FlagsCard
+          :flags-store="variantFlagsStore"
+          :variant="seqvarInfoStore.seqvar"
+        />
       </div>
-      <SimpleCard id="flags" title="Flags">
-              <VariantDetailsFlags
-                :flags-store="variantFlagsStore"
-                :variant="variantDetailsStore.smallVariant"
-              />
-            </SimpleCard>
-            <SimpleCard id="comments" title="Comments">
-              <VariantDetailsComments
+      <!-- <div id="comments">
+        <CommentsCard
                 :comments-store="variantCommentsStore"
-                :variant="variantDetailsStore.smallVariant"
+                :variant="seqvarInfoStore.seqvar"
               />
-            </SimpleCard>
-
+      </div>
       <div id="seqvar-ga4ghbeacons" class="mt-3">
         <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
       <div id="seqvar-variantvalidator" class="mt-3">
         <SeqvarVariantValidatorCard :seqvar="seqvarInfoStore.seqvar" />
-      </div>
+      </div> -->
     </template>
   </v-app>
 

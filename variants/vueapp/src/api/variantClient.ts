@@ -1,4 +1,5 @@
 import { ClientBase } from '@varfish/apiUtils'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 type QuickPresets = any
 type InheritancePresets = any
@@ -31,15 +32,6 @@ export interface RetrieveVariantDetailsArgs {
   reference: string
   alternative: string
   gene_id: string
-}
-
-export interface SmallVariant {
-  release: string
-  chromosome: string
-  start: number
-  end: number
-  reference: string
-  alternative: string
 }
 
 /**
@@ -175,14 +167,15 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listComment(caseUuid, smallVariant?: SmallVariant): Promise<Comment[]> {
+  async listComment(caseUuid, seqvar?: Seqvar): Promise<Comment[]> {
     let query = ''
-    if (smallVariant) {
-      const { release, chromosome, start, end, reference, alternative } =
-        smallVariant
+    if (seqvar) {
+      const { genomeBuild, chrom, pos, del, ins } = seqvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      const end = pos + del.length - 1
       query =
-        `?release=${release}&chromosome=${chromosome}&start=${start}` +
-        `&end=${end}&reference=${reference}&alternative=${alternative}`
+        `?release=${release}&chromosome=${chrom}&start=${pos}` +
+        `&end=${end}&reference=${del}&alternative=${ins}`
     }
     return await this.fetchHelper(
       `/variants/ajax/small-variant-comment/list-create/${caseUuid}/${query}`,
@@ -192,14 +185,15 @@ export class VariantClient extends ClientBase {
 
   async createComment(
     caseUuid: string,
-    smallVariant: SmallVariant,
+    seqvar: Seqvar,
     payload: Comment,
   ): Promise<Comment> {
-    const { release, chromosome, start, end, reference, alternative } =
-      smallVariant
+    const { genomeBuild, chrom, pos, del, ins } = seqvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    const end = pos + del.length - 1
     const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&reference=${reference}&alternative=${alternative}`
+      `release=${release}&chromosome=${chrom}&start=${pos}` +
+      `&end=${end}&reference=${del}&alternative=${ins}`
     return await this.fetchHelper(
       `/variants/ajax/small-variant-comment/list-create/${caseUuid}/?${query}`,
       'POST',
@@ -222,17 +216,15 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listFlags(
-    caseUuid: string,
-    variant?: SmallVariant,
-  ): Promise<VariantFlags[]> {
+  async listFlags(caseUuid: string, seqvar?: Seqvar): Promise<VariantFlags[]> {
     let query = ''
-    if (variant) {
-      const { release, chromosome, start, end, reference, alternative } =
-        variant
+    if (seqvar) {
+      const { genomeBuild, chrom, pos, del, ins } = seqvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      const end = pos + del.length - 1
       query =
-        `?release=${release}&chromosome=${chromosome}&start=${start}` +
-        `&end=${end}&reference=${reference}&alternative=${alternative}`
+        `?release=${release}&chromosome=${chrom}&start=${pos}` +
+        `&end=${end}&reference=${del}&alternative=${ins}`
     }
 
     return await this.fetchHelper(
@@ -241,16 +233,13 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async createFlags(
-    caseUuid: string,
-    smallVariant: SmallVariant,
-    payload: VariantFlags,
-  ) {
-    const { release, chromosome, start, end, reference, alternative } =
-      smallVariant
+  async createFlags(caseUuid: string, seqvar: Seqvar, payload: VariantFlags) {
+    const { genomeBuild, chrom, pos, del, ins } = seqvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    const end = pos + del.length - 1
     const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&reference=${reference}&alternative=${alternative}`
+      `release=${release}&chromosome=${chrom}&start=${pos}` +
+      `&end=${end}&reference=${del}&alternative=${ins}`
     return await this.fetchHelper(
       `/variants/ajax/small-variant-flags/list-create/${caseUuid}/?${query}`,
       'POST',
@@ -273,14 +262,15 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listAcmgRating(caseUuid, variant?: SmallVariant = null) {
+  async listAcmgRating(caseUuid, seqvar?: Seqvar) {
     let query = ''
-    if (variant) {
-      const { release, chromosome, start, end, reference, alternative } =
-        variant
+    if (seqvar) {
+      const { genomeBuild, chrom, pos, del, ins } = seqvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      const end = pos + del.length - 1
       query =
-        `?release=${release}&chromosome=${chromosome}&start=${start}` +
-        `&end=${end}&reference=${reference}&alternative=${alternative}`
+        `?release=${release}&chromosome=${chrom}&start=${pos}` +
+        `&end=${end}&reference=${del}&alternative=${ins}`
     }
 
     return await this.fetchHelper(
@@ -291,14 +281,15 @@ export class VariantClient extends ClientBase {
 
   async createAcmgRating(
     caseUuid: string,
-    smallVariant: SmallVariant,
+    seqvar: Seqvar,
     payload: AcmgRating,
   ) {
-    const { release, chromosome, start, end, reference, alternative } =
-      smallVariant
+    const { genomeBuild, chrom, pos, del, ins } = seqvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    const end = pos + del.length - 1
     const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&reference=${reference}&alternative=${alternative}`
+      `release=${release}&chromosome=${chrom}&start=${pos}` +
+      `&end=${end}&reference=${del}&alternative=${ins}`
     return await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/?${query}`,
       'POST',

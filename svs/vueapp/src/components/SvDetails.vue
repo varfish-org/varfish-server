@@ -13,8 +13,8 @@
 import { onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import VariantDetailsComments from '@varfish/components/VariantDetails/Comments.vue'
-import VariantDetailsFlags from '@varfish/components/VariantDetails/Flags.vue'
+import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
@@ -205,13 +205,13 @@ onMounted(() => {
               />
             </SimpleCard>
             <SimpleCard id="flags" title="Flags">
-              <VariantDetailsFlags
+              <FlagsCard
                 :flags-store="svFlagsStore"
                 :variant="svDetailsStore.currentSvRecord"
               />
             </SimpleCard>
             <SimpleCard id="comments" title="Comments">
-              <VariantDetailsComments
+              <CommentsCard
                 :comments-store="svCommentsStore"
                 :variant="svDetailsStore.currentSvRecord"
               />

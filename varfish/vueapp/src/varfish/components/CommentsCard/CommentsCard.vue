@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 
 import { State } from '@varfish/storeUtils'
 import Overlay from '@varfish/components/Overlay.vue'
 
-const props = defineProps({
-  commentsStore: Object,
-  variant: Object,
-})
+/** This component's props. */
+const props = defineProps<{
+  commentsStore: any
+  variant: any
+}>()
 
 /** Whether to show the overlay. */
 const overlayShow = computed(
@@ -31,15 +32,16 @@ onMounted(() => {
   }
 })
 
-const EditCommentModes = Object.freeze({
-  Off: 0,
-  Edit: 1,
-  Delete: 2,
-})
-const commentToSubmit = ref('')
-const editCommentMode = ref(EditCommentModes.Off)
-const editCommentUuid = ref('')
-const editCommentIndex = ref(null)
+enum EditCommentModes {
+  Off = 0,
+  Edit = 1,
+  Delete = 2,
+}
+
+const commentToSubmit = ref<string>('')
+const editCommentMode = ref<EditCommentModes>(EditCommentModes.Off)
+const editCommentUuid = ref<string>('')
+const editCommentIndex = ref<number | undefined>(undefined)
 
 const setDeleteComment = (commentUuid, index) => {
   editCommentMode.value = EditCommentModes.Delete
@@ -97,6 +99,15 @@ watch(
 </script>
 
 <template>
+  <!-- missing data => display loader-->
+  <template v-if="!(commentsStore && variant)">
+    <v-skeleton-loader
+      class="mt-3 mx-auto border"
+      type="heading,subtitle,text,text"
+    />
+  </template>
+  <!-- otherwise, display actual card -->
+  <template v-else> </template>
   <div
     class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
   >
@@ -234,3 +245,9 @@ watch(
     <Overlay v-if="overlayShow" />
   </div>
 </template>
+
+<style>
+label.v-label {
+  margin-bottom: 0;
+}
+</style>
