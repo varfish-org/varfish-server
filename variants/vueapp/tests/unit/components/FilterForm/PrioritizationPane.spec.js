@@ -79,6 +79,43 @@ describe('FilterFormPrioritizationPane.vue', () => {
     expect(pediaEnabled.element.checked).toBe(false)
   })
 
+  test('prioritization prefilled enable pedia value', async () => {
+    const wrapper = shallowMount(FilterFormPrioritizationPane, {
+      props: {
+        csrfToken: 'fake token',
+        showFiltrationInlineHelp: false,
+        exomiserEnabled: true,
+        caddEnabled: true,
+        cadaEnabled: true,
+        prioEnabled: false,
+        prioAlgorith: 'hiphive-human',
+        prioHpoTerms: ['HP:0000245'],
+        prioGm: '',
+        photoFile: '',
+        pathoEnabled: false,
+        pathoScore: 'cadd',
+        gmEnabled: false,
+        pediaEnabled: false,
+      },
+    })
+
+    const pediaEnabled = wrapper.get('#pedia-enabled')
+    const gmEnabled = wrapper.get('#gm-enabled')
+
+    pediaEnabled.element.checked = true
+    await pediaEnabled.trigger('click')
+    await pediaEnabled.trigger('change')
+    await pediaEnabled.setChecked()
+
+    expect(pediaEnabled.element.checked).toBeTruthy()
+
+    const pathoEnabled = wrapper.get('#patho-enabled')
+    const prioEnabled = wrapper.get('#prio-enabled')
+    var prioAlgorithm = wrapper.get('#prio-algorithm')
+
+    expect(pediaEnabled.element.checked).toBe(true)
+  })
+
   test('prioritization prefilled with help', () => {
     const wrapper = shallowMount(FilterFormPrioritizationPane, {
       props: {
