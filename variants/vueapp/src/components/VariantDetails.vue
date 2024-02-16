@@ -40,7 +40,7 @@ import VariantDetailsVariantTools from '@variants/components/VariantDetails/Vari
 import VariantDetailsGa4ghBeacons from '@variants/components/VariantDetails/Ga4ghBeacons.vue'
 import VariantDetailsTxCsq from '@variants/components/VariantDetails/TxCsq.vue'
 import VariantDetailsVariantValidator from '@variants/components/VariantDetails/VariantValidator.vue'
-import VariantDetailsAcmgRating from '@variants/components/VariantDetails/AcmgRating.vue'
+import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 import { allNavItems } from '@variants/components/VariantDetails.fields'
 import { watch } from 'vue'
@@ -432,15 +432,17 @@ onMounted(() => {
           :flags-store="variantFlagsStore"
           :variant="seqvarInfoStore.seqvar"
         />
-      </div> -->
+      </div>
       <div id="comments">
         <CommentsCard
           :comments-store="variantCommentsStore"
           :variant="seqvarInfoStore.seqvar"
         />
+      </div>-->
+      <div id="acmg-rating" class="mt-3">
+        <AcmgRatingCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
-      <!--
-      <div id="seqvar-ga4ghbeacons" class="mt-3">
+      <!--<div id="seqvar-ga4ghbeacons" class="mt-3">
         <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
       <div id="seqvar-variantvalidator" class="mt-3">

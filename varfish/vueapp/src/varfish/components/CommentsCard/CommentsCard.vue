@@ -170,7 +170,7 @@ watch(
               "
               class="no-gutters flex-nowrap"
             >
-              <v-col cols="10">
+              <v-col cols="10" class="ml-2">
                 <div>
                   <span class="text-grey-darken-1">#{{ index + 1 }}</span>
                   &nbsp;

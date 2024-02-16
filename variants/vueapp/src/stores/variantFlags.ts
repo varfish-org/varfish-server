@@ -187,7 +187,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
     let result
     try {
-      console.log(seqvar)
       result = await variantClient.createFlags(caseUuid.value, seqvar, {
         ...{
           release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
@@ -288,7 +287,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const getFlags = (variant: Seqvar): SmallVariantFlags | null => {
     for (const flag of caseFlags.value.values()) {
       if (
-        flag.release.toLowerCase() === variant.genomeBuild.toLowerCase() &&
+        flag.release.toLowerCase() === variant.genomeBuild &&
         flag.chromosome === variant.chrom &&
         flag.start === variant.pos &&
         flag.reference === variant.del &&

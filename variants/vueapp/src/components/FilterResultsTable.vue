@@ -27,6 +27,7 @@ import {
   DisplayDetails,
   DisplayColumns,
 } from '@variants/enums'
+import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /**
  * The component's props.
@@ -237,7 +238,15 @@ const tableRowClassName = (item, _rowNumber) => {
     return ''
   }
   const flagColors = ['positive', 'uncertain', 'negative']
-  const flags = flagsStore.getFlags(item.payload)
+  const flags = flagsStore.getFlags(
+    new SeqvarImpl(
+      item.payload.genome_build == "GRCh37" ? "grch37" : "grch38",
+      item.payload.chromosome,
+      item.payload.start,
+      item.payload.reference,
+      item.payload.alternative,
+    )
+  )
   if (!flags) {
     return ''
   }

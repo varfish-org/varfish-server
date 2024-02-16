@@ -22,7 +22,6 @@ export const useUiStore = defineStore('ui', () => {
     ]
 
     elementIdsToggle.forEach((elementId) => {
-      console.log(elementId)
       document.getElementById(elementId).style.display = dispValue
     })
 

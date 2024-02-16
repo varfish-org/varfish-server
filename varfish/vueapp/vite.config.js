@@ -32,7 +32,7 @@ export default defineConfig({
     Vue(),
     Components({
       dts: true,
-      resolvers: [IconsResolver({  enabledCollections: ['mdi'],})],
+      resolvers: [IconsResolver()],
     }),
     Icons({
       // autoInstall: true,
