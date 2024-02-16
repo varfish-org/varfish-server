@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 
 import { State } from '@varfish/storeUtils'
 // import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
-import Overlay from '@varfish/components/Overlay.vue'
 
 /** This component's props. */
 const props = defineProps<{

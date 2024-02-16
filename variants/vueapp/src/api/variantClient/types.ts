@@ -49,7 +49,7 @@ export interface AcmgRating$Api extends Seqvar$Api {
   bp6: number
   bp7: number
   class_override: number | null
-  class_auto: string | null
+  class_auto: number | null
 }
 
 /**
@@ -86,7 +86,7 @@ export interface AcmgRating extends Seqvar {
   bp6: number
   bp7: number
   classOverride?: number
-  classAuto?: string
+  classAuto?: number
 }
 
 /**

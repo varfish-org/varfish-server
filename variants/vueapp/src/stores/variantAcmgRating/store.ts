@@ -1,9 +1,5 @@
 /**
  * Pinia store for handling per-variant ACMG rating.
- *
- * ## Store Dependencies
- *
- * - `caseDetailsStore`
  */
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
@@ -19,9 +15,6 @@ export const useVariantAcmgRatingStore = defineStore(
   'variantAcmgRating',
   () => {
     // store dependencies
-
-    /** The caseDetails store */
-    const caseDetailsStore = useCaseDetailsStore()
 
     // data passed to `initialize` and store state
 
@@ -65,14 +58,6 @@ export const useVariantAcmgRatingStore = defineStore(
       caseUuid$: string,
       forceReload: boolean = false,
     ): Promise<any> => {
-      // Initialize store dependencies.
-      await caseDetailsStore.initialize(
-        csrfToken$,
-        projectUuid$,
-        caseUuid$,
-        forceReload,
-      )
-
       // Initialize only once for each case.
       if (
         !forceReload &&
@@ -183,7 +168,7 @@ export const useVariantAcmgRatingStore = defineStore(
     /**
      * Update existing acmgRating.
      */
-    const updateAcmgRating = async (payload) => {
+    const updateAcmgRating = async (payload: AcmgRating): Promise<AcmgRating> => {
       const variantClient = new VariantClient(csrfToken.value)
 
       if (!acmgRating.value) {
@@ -195,14 +180,11 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
-      let result
+      let result: AcmgRating
       try {
         result = await variantClient.updateAcmgRating(
           acmgRating.value.sodarUuid,
-          {
-            ...seqvar,
-            ...payload,
-          },
+          payload,
         )
 
         storeState.serverInteractions -= 1
@@ -214,7 +196,7 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.set(result.sodar_uuid, result)
+      caseAcmgRatings.value.set(result.sodarUuid, result)
       acmgRating.value = result
 
       return result

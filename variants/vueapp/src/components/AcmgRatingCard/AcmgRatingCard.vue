@@ -3,28 +3,30 @@ import isEqual from 'lodash.isequal'
 import { State } from '@varfish/storeUtils'
 import { getAcmgBadge } from '@variants/helpers'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { copy } from '@variants/helpers'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-
-import { type AcmgRating } from '@variants/api/variantClient'
-import { EMPTY_ACMG_RATING_TEMPLATE } from '@variants/stores/variantAcmgRating'
-import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
+import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
+import { CRITERIA_PATHOGENIC, CRITERIA_BENIGN, CATEGORY_LABELS } from './constants'
+import { pairwise, acmgColor, acmgLabel } from './lib'
+import { AcmgRating } from '@variants/api/variantClient'
 
 /** This component's props. */
 const props = defineProps<{
+  /** Project UUID. */
+  projectUuid: string
+  /** Case UUID. */
+  caseUuid: string
   /** Sequence variant to assess. */
   seqvar?: Seqvar
 }>()
 
-/** Information about the sequence variant, used to fetch information on load. */
-const seqvarInfoStore = useSeqvarInfoStore()
 /** Store for loading/storing Seqvar ACMG Ratings. */
 const acmgRatingStore = useVariantAcmgRatingStore()
 
 /** component state; currently edited `AcmgRating` */
 const acmgRatingToSubmit = ref<AcmgRating>(
-  structuredClone(EMPTY_ACMG_RATING_TEMPLATE),
+  EMPTY_ACMG_RATING_TEMPLATE
 )
 /** component state; whether the `AcmgRating` is conflicting. */
 const acmgRatingConflicting = ref(false)
@@ -33,6 +35,9 @@ const acmgRatingConflicting = ref(false)
 const unsetAcmgRating = () => {
   acmgRatingToSubmit.value = structuredClone(EMPTY_ACMG_RATING_TEMPLATE)
 }
+
+/** component state; whether to display detailed information */
+const showHints = ref<boolean>(false)
 
 /** reset the component state ACMG rating to the one from the store */
 const resetAcmgRating = () => {
@@ -66,8 +71,8 @@ const resetAcmgRating = () => {
     acmgRatingToSubmit.value.bp6 = acmgRatingStore.acmgRating.bp6
     acmgRatingToSubmit.value.bp7 = acmgRatingStore.acmgRating.bp7
     acmgRatingToSubmit.value.classAuto = acmgRatingStore.acmgRating.classAuto
-    acmgRatingToSubmit.value.class_override =
-      acmgRatingStore.acmgRating.class_override
+    acmgRatingToSubmit.value.classOverride =
+      acmgRatingStore.acmgRating.classOverride
   } else {
     unsetAcmgRating()
   }
@@ -79,37 +84,36 @@ const acmgRatingSubmitted = computed(() => {
     return false
   }
   return (
-    parseInt(acmgRatingToSubmit.value.pvs1) ===
-      acmgRatingStore.acmgRating.pvs1 &&
-    parseInt(acmgRatingToSubmit.value.ps1) === acmgRatingStore.acmgRating.ps1 &&
-    parseInt(acmgRatingToSubmit.value.ps2) === acmgRatingStore.acmgRating.ps2 &&
-    parseInt(acmgRatingToSubmit.value.ps3) === acmgRatingStore.acmgRating.ps3 &&
-    parseInt(acmgRatingToSubmit.value.ps4) === acmgRatingStore.acmgRating.ps4 &&
-    parseInt(acmgRatingToSubmit.value.pm1) === acmgRatingStore.acmgRating.pm1 &&
-    parseInt(acmgRatingToSubmit.value.pm2) === acmgRatingStore.acmgRating.pm2 &&
-    parseInt(acmgRatingToSubmit.value.pm3) === acmgRatingStore.acmgRating.pm3 &&
-    parseInt(acmgRatingToSubmit.value.pm4) === acmgRatingStore.acmgRating.pm4 &&
-    parseInt(acmgRatingToSubmit.value.pm5) === acmgRatingStore.acmgRating.pm5 &&
-    parseInt(acmgRatingToSubmit.value.pm6) === acmgRatingStore.acmgRating.pm6 &&
-    parseInt(acmgRatingToSubmit.value.pp1) === acmgRatingStore.acmgRating.pp1 &&
-    parseInt(acmgRatingToSubmit.value.pp2) === acmgRatingStore.acmgRating.pp2 &&
-    parseInt(acmgRatingToSubmit.value.pp3) === acmgRatingStore.acmgRating.pp3 &&
-    parseInt(acmgRatingToSubmit.value.pp4) === acmgRatingStore.acmgRating.pp4 &&
-    parseInt(acmgRatingToSubmit.value.pp5) === acmgRatingStore.acmgRating.pp5 &&
-    parseInt(acmgRatingToSubmit.value.ba1) === acmgRatingStore.acmgRating.ba1 &&
-    parseInt(acmgRatingToSubmit.value.bs1) === acmgRatingStore.acmgRating.bs1 &&
-    parseInt(acmgRatingToSubmit.value.bs2) === acmgRatingStore.acmgRating.bs2 &&
-    parseInt(acmgRatingToSubmit.value.bs3) === acmgRatingStore.acmgRating.bs3 &&
-    parseInt(acmgRatingToSubmit.value.bs4) === acmgRatingStore.acmgRating.bs4 &&
-    parseInt(acmgRatingToSubmit.value.bp1) === acmgRatingStore.acmgRating.bp1 &&
-    parseInt(acmgRatingToSubmit.value.bp2) === acmgRatingStore.acmgRating.bp2 &&
-    parseInt(acmgRatingToSubmit.value.bp3) === acmgRatingStore.acmgRating.bp3 &&
-    parseInt(acmgRatingToSubmit.value.bp4) === acmgRatingStore.acmgRating.bp4 &&
-    parseInt(acmgRatingToSubmit.value.bp5) === acmgRatingStore.acmgRating.bp5 &&
-    parseInt(acmgRatingToSubmit.value.bp6) === acmgRatingStore.acmgRating.bp6 &&
-    parseInt(acmgRatingToSubmit.value.bp7) === acmgRatingStore.acmgRating.bp7 &&
-    acmgRatingToSubmit.value.class_override ===
-      acmgRatingStore.acmgRating.class_override
+    acmgRatingToSubmit.value.pvs1 === acmgRatingStore.acmgRating.pvs1 &&
+    acmgRatingToSubmit.value.ps1 === acmgRatingStore.acmgRating.ps1 &&
+    acmgRatingToSubmit.value.ps2 === acmgRatingStore.acmgRating.ps2 &&
+    acmgRatingToSubmit.value.ps3 === acmgRatingStore.acmgRating.ps3 &&
+    acmgRatingToSubmit.value.ps4 === acmgRatingStore.acmgRating.ps4 &&
+    acmgRatingToSubmit.value.pm1 === acmgRatingStore.acmgRating.pm1 &&
+    acmgRatingToSubmit.value.pm2 === acmgRatingStore.acmgRating.pm2 &&
+    acmgRatingToSubmit.value.pm3 === acmgRatingStore.acmgRating.pm3 &&
+    acmgRatingToSubmit.value.pm4 === acmgRatingStore.acmgRating.pm4 &&
+    acmgRatingToSubmit.value.pm5 === acmgRatingStore.acmgRating.pm5 &&
+    acmgRatingToSubmit.value.pm6 === acmgRatingStore.acmgRating.pm6 &&
+    acmgRatingToSubmit.value.pp1 === acmgRatingStore.acmgRating.pp1 &&
+    acmgRatingToSubmit.value.pp2 === acmgRatingStore.acmgRating.pp2 &&
+    acmgRatingToSubmit.value.pp3 === acmgRatingStore.acmgRating.pp3 &&
+    acmgRatingToSubmit.value.pp4 === acmgRatingStore.acmgRating.pp4 &&
+    acmgRatingToSubmit.value.pp5 === acmgRatingStore.acmgRating.pp5 &&
+    acmgRatingToSubmit.value.ba1 === acmgRatingStore.acmgRating.ba1 &&
+    acmgRatingToSubmit.value.bs1 === acmgRatingStore.acmgRating.bs1 &&
+    acmgRatingToSubmit.value.bs2 === acmgRatingStore.acmgRating.bs2 &&
+    acmgRatingToSubmit.value.bs3 === acmgRatingStore.acmgRating.bs3 &&
+    acmgRatingToSubmit.value.bs4 === acmgRatingStore.acmgRating.bs4 &&
+    acmgRatingToSubmit.value.bp1 === acmgRatingStore.acmgRating.bp1 &&
+    acmgRatingToSubmit.value.bp2 === acmgRatingStore.acmgRating.bp2 &&
+    acmgRatingToSubmit.value.bp3 === acmgRatingStore.acmgRating.bp3 &&
+    acmgRatingToSubmit.value.bp4 === acmgRatingStore.acmgRating.bp4 &&
+    acmgRatingToSubmit.value.bp5 === acmgRatingStore.acmgRating.bp5 &&
+    acmgRatingToSubmit.value.bp6 === acmgRatingStore.acmgRating.bp6 &&
+    acmgRatingToSubmit.value.bp7 === acmgRatingStore.acmgRating.bp7 &&
+    acmgRatingToSubmit.value.classOverride ===
+      acmgRatingStore.acmgRating.classOverride
   )
 })
 
@@ -163,35 +167,35 @@ const calculateAcmgRating = computed(() => {
   const isBenign = ba > 0 || bs >= 2
   const isConflicting =
     (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
-  acmgRatingToSubmit.value.class_auto = 3
+  acmgRatingToSubmit.value.classAuto = 3
   if (isPathogenic) {
-    acmgRatingToSubmit.value.class_auto = 5
+    acmgRatingToSubmit.value.classAuto = 5
   } else if (isLikelyPathogenic) {
-    acmgRatingToSubmit.value.class_auto = 4
+    acmgRatingToSubmit.value.classAuto = 4
   } else if (isBenign) {
-    acmgRatingToSubmit.value.class_auto = 1
+    acmgRatingToSubmit.value.classAuto = 1
   } else if (isLikelyBenign) {
-    acmgRatingToSubmit.value.class_auto = 2
+    acmgRatingToSubmit.value.classAuto = 2
   }
   if (isConflicting) {
-    acmgRatingToSubmit.value.class_auto = 3
+    acmgRatingToSubmit.value.classAuto = 3
     acmgRatingConflicting.value = true
   } else {
     acmgRatingConflicting.value = false
   }
-  return acmgRatingToSubmit.value.class_auto
+  return acmgRatingToSubmit.value.classAuto
 })
 
 /** convert empty  */
 const convertEmptyToNull = () => {
-  if (acmgRatingToSubmit.value.class_override === '') {
-    acmgRatingToSubmit.value.class_override = null
+  if (!acmgRatingToSubmit.value.classOverride) {
+    acmgRatingToSubmit.value.classOverride = undefined
   }
 }
 
 const onSubmitAcmgRating = async () => {
   const acmgRatingToSubmitNoAuto = copy(acmgRatingToSubmit.value)
-  delete acmgRatingToSubmitNoAuto['class_auto']
+  delete acmgRatingToSubmitNoAuto['classAuto']
   const acmgRatingToSubmitEmpty = isEqual(
     acmgRatingToSubmitNoAuto,
     EMPTY_ACMG_RATING_TEMPLATE,
@@ -208,18 +212,18 @@ const onSubmitAcmgRating = async () => {
   } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(
-      seqvarInfoStore.seqvar,
+      props.seqvar,
       acmgRatingToSubmit.value,
     )
   }
 }
 
 watch(
-  () => [props.seqvar, acmgRatingStore.storeState.state],
+  () => [props.seqvar, acmgRatingStore.storeState?.state],
   async () => {
     if (
       props.seqvar &&
-      acmgRatingStore.storeState.state === State.Active
+      acmgRatingStore.storeState?.state === State.Active
     ) {
       await acmgRatingStore.retrieveAcmgRating(props.seqvar)
       resetAcmgRating()
@@ -228,6 +232,11 @@ watch(
 )
 onMounted(async () => {
   if (props.seqvar) {
+    await acmgRatingStore.initialize(
+      'unusedCsrfToken',
+      props.projectUuid,
+      props.caseUuid,
+    )
     await acmgRatingStore.retrieveAcmgRating(props.seqvar)
     resetAcmgRating()
   }
@@ -235,713 +244,153 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- missing data => display loader-->
+  <template v-if="!seqvar || acmgRatingStore.storeState?.state === State.Initial">
+    <v-skeleton-loader
+      class="mt-3 mx-auto border"
+      type="heading,subtitle,text,text"
+    />
+  </template>
+  <!-- otherwise, display card with editor -->
+  <template v-else>
+    <v-card>
+      <v-card-title class="pb-0 pr-2">
+        ACMG Rating
+        <!-- <DocsLink anchor="flags" /> -->
+      </v-card-title>
+      <v-card-subtitle class="text-overline">
+        Fill criteria to compute ACMG rating
+      </v-card-subtitle>
+      <v-card-text class="py-0">
+        <v-checkbox
+          v-model="showHints"
+          label="show criteria definitions"
+          hide-details
+          density="compact"
+          />
+      </v-card-text>
+      <v-card-text>
+        <v-row no-gutters>
+          <v-col cols="4">
+            <div class="text-overline">
+              Pathogenic Rules
+            </div>
+            <template v-for="[crit, prev] in pairwise(CRITERIA_PATHOGENIC)" :key="`crit-${crit.name}`">
+              <div class="text-caption" v-if="crit?.category !== prev?.category">
+                {{ CATEGORY_LABELS[crit.category] }}
+              </div>
+              <v-checkbox
+                v-model="acmgRatingToSubmit[crit.name]"
+                :hide-details="!showHints"
+                :hint="crit.description"
+                persistent-hint
+                density="compact"
+              >
+                <template v-slot:label>
+                  {{ crit.title }}
+                  <span class="text-caption ml-1">
+                    ({{ crit.synopsis }})
+                  </span>
+                </template>
+              </v-checkbox>
+            </template>
+          </v-col>
+          <v-col cols="4">
+            <div class="text-overline">
+              Benign Rules
+            </div>
+            <template v-for="[crit, prev] in pairwise(CRITERIA_BENIGN)" :key="`crit-${crit.name}`">
+              <div class="text-caption" v-if="crit?.category !== prev?.category">
+                {{ CATEGORY_LABELS[crit.category] }}
+              </div>
+              <v-checkbox
+                v-model="acmgRatingToSubmit[crit.name]"
+                :true-value="1"
+                :false-value="0"
+                :hide-details="!showHints"
+                :hint="crit.description"
+                persistent-hint
+                density="compact"
+              >
+                <template v-slot:label>
+                  {{ crit.title }}
+                  <span class="text-caption ml-1">
+                    ({{ crit.synopsis }})
+                  </span>
+                </template>
+              </v-checkbox>
+            </template>
+          </v-col>
+          <v-col cols="4">
+            <div class="text-overline">
+              Classification
+            </div>
+            <v-sheet class="bg-grey-lighten-2 pa-3">
+              <div class="text-center text-h5">
+                Computed Class
+              </div>
+              <div class="text-center">
+                <v-chip
+                  variant="flat"
+                  rounded="xl"
+                  :color="acmgColor(calculateAcmgRating)">
+                  <div class="text-h4">
+                    {{ calculateAcmgRating }}
+                  </div>
+                </v-chip>
+                <div class="text-h6">
+                  {{ acmgLabel(calculateAcmgRating) }}
+                </div>
+
+                <v-responsive
+                    class="mx-auto"
+                    max-width="300"
+                  >
+                  <v-text-field
+                  class="mt-6"
+                  density="compact"
+                  variant="outlined"
+                  label="ACMG class override"
+                  persistent-hint
+                  hint="Fill this field to override the automatically determined class."
+                  v-model.number="acmgRatingToSubmit.classOverride"
+                  />
+                </v-responsive>
+              </div>
+            </v-sheet>
+            <div class="text-overline mt-6">
+              Data &amp; Actions
+            </div>
+            <div>
+              <v-sheet :border="true" class="text-center py-2">
+                <v-icon>mdi-asterisk</v-icon>
+                no ACMG rating on server yet
+              </v-sheet>
+              <v-sheet :border="true" class="text-center py-2 mt-3">
+                <v-icon>mdi-check-circle</v-icon>
+                in sync with server
+              </v-sheet>
+              <v-sheet :border="true" class="text-center py-2 mt-3">
+                <v-icon>mdi-close-circle-outline</v-icon>
+                differences to server
+              </v-sheet>
+              <v-btn block variant="outlined" rounded="xs" prepend-icon="mdi-cloud-upload" class="mt-3">
+                Save to Server
+              </v-btn>
+              <v-btn block variant="outlined" rounded="xs" prepend-icon="mdi-cloud-download" class="mt-2">
+                Reset to Server State
+              </v-btn>
+              <v-btn block variant="outlined" rounded="xs" prepend-icon="mdi-eraser" class="mt-2">
+                Clear all Criteria
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </template>
+
   <div class="row p-2">
-    <div class="col px-0">
-      <div class="row">
-        <div class="col px-0">
-          <h6>Pathogenic</h6>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Very Strong Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Null variant (nonsense, frameshift, canonical ±1 or 2 splice sites, initiation codon, single or multi-exon deletion) in a gene where LOF is a known mechanism of disease"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pvs1"
-              type="checkbox"
-              name="pvs1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pvs1"
-            />
-            <label for="acmg-pvs1" class="m-0">
-              <strong class="pr-2">PVS1</strong>
-              <span class="text-muted">null variant</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Strong Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Same amino acid change as a previously established pathogenic variant regardless of nucleotide change"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-ps1"
-              type="checkbox"
-              name="ps1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.ps1"
-            />
-            <label for="acmg-ps1" class="m-0">
-              <strong class="pr-2">PS1</strong>
-              <span class="text-muted">literature: this AA exchange</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="De novo (both maternity and paternity confirmed) in a patient with the disease and no family history"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-ps2"
-              type="checkbox"
-              name="ps2"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.ps2"
-            />
-            <label for="acmg-ps2" class="m-0">
-              <strong class="pr-2">PS2</strong>
-              <span class="text-muted"><u>confirmed</u> de novo</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Well-established in vitro or in vivo functional studies supportive of a damaging effect on the gene or gene product"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-ps3"
-              type="checkbox"
-              name="ps3"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.ps3"
-            />
-            <label for="acmg-ps3" class="m-0">
-              <strong class="pr-2">PS3</strong>
-              <span class="text-muted">supported by functional studies</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="The prevalence of the variant in affected individuals is significantly increased compared with the prevalence in controls"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-ps4"
-              type="checkbox"
-              name="ps4"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.ps4"
-            />
-            <label for="acmg-ps4" class="m-0">
-              <strong class="pr-2">PS4</strong>
-              <span class="text-muted"
-                >prevalence in disease &gt; controls</span
-              >
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Moderate Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Located in a mutational hot spot and/or critical and well-established functional domain (e.g., active site of an enzyme) without benign variation"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pm1"
-              type="checkbox"
-              name="pm1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm1"
-            />
-            <label for="acmg-pm1" class="m-0">
-              <strong class="pr-2">PM1</strong>
-              <span class="text-muted">variant in hotspot (missense)</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Absent from controls (or at extremely low frequency if recessive) in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pm2"
-              type="checkbox"
-              name="pm2"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm2"
-            />
-            <label for="acmg-pm2" class="m-0">
-              <strong class="pr-2">PM2</strong>
-              <span class="text-muted">rare; &lt; 1:20.000 in ExAC</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="For recessive disorders, detected in trans with a pathogenic variant"
-          >
-            <input
-              class="form-check-input pm"
-              id="acmg-pm3"
-              type="checkbox"
-              name="pm3"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm3"
-            />
-            <label for="acmg-pm3" class="m-0">
-              <strong class="pr-2">PM3</strong>
-              <span class="text-muted"
-                >AR: <i>trans</i> with known pathogenic</span
-              >
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Protein length changes as a result of in-frame deletions/insertions in a nonrepeat region or stop-loss variants"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pm4"
-              type="checkbox"
-              name="pm4"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm4"
-            />
-            <label for="acmg-pm4" class="m-0">
-              <strong class="pr-2">PM4</strong>
-              <span class="text-muted">protein length change</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Novel missense change at an amino acid residue where a different missense change determined to be pathogenic has been seen before"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pm5"
-              type="checkbox"
-              name="pm5"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm5"
-            />
-            <label for="acmg-pm5" class="m-0">
-              <strong class="pr-2">PM5</strong>
-              <span class="text-muted">literature: AA exchange same pos</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Assumed de novo, but without confirmation of paternity and maternity"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pm6"
-              type="checkbox"
-              name="pm6"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pm6"
-            />
-            <label for="acmg-pm6" class="m-0">
-              <strong class="pr-2">PM6</strong>
-              <span class="text-muted"><u>assumed</u> de novo</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Supporting Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Cosegregation with disease in multiple affected family members in a gene definitively known to cause the disease"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pp1"
-              type="checkbox"
-              name="pp1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pp1"
-            />
-            <label for="acmg-pp1" class="m-0">
-              <strong class="pr-2">PP1</strong>
-              <span class="text-muted">cosegregates in family</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Missense variant in a gene that has a low rate of benign missense variation and in which missense variants are a common mechanism of disease"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pp2"
-              type="checkbox"
-              name="pp2"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pp2"
-            />
-            <label for="acmg-pp2" class="m-0">
-              <strong class="pr-2">PP2</strong>
-              <span class="text-muted">few missense in gene</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Multiple lines of computational evidence support a deleterious effect on the gene or gene product (conservation, evolutionary, splicing impact, etc.)"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pp3"
-              type="checkbox"
-              name="pp3"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pp3"
-            />
-            <label for="acmg-pp3" class="m-0">
-              <strong class="pr-2">PP3</strong>
-              <span class="text-muted">predicted pathogenic &geq; 2</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Patient's phenotype or family history is highly specific for a disease with a single genetic etiology"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pp4"
-              type="checkbox"
-              name="pp4"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pp4"
-            />
-            <label for="acmg-pp4" class="m-0">
-              <strong class="pr-2">PP4</strong>
-              <span class="text-muted">phenotype/pedigree match gene</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Reputable source recently reports variant as pathogenic, but the evidence is not available to the laboratory
-to perform an independent evaluation"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-pp5"
-              type="checkbox"
-              name="pp5"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.pp5"
-            />
-            <label for="acmg-pp5" class="m-0">
-              <strong class="pr-2">PP5</strong>
-              <span class="text-muted">reliable source: pathogenic</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col px-0">
-      <div class="row">
-        <div class="col px-0"><h6>Benign</h6></div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Standalone Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-ba1"
-              type="checkbox"
-              name="ba1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.ba1"
-            />
-            <label for="acmg-ba1" class="m-0">
-              <strong class="pr-2">BA1</strong>
-              <span class="text-muted">allele frequency &gt; 5%</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Strong Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Allele frequency is greater than expected for disorder"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bs1"
-              type="checkbox"
-              name="bs1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bs1"
-            />
-            <label for="acmg-bs1" class="m-0">
-              <strong class="pr-2">BS1</strong>
-              <span class="text-muted">disease: allele freq. too high</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or X-linked (hemizygous) disorder, with full penetrance expected at an early age"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bs2"
-              type="checkbox"
-              name="bs2"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bs2"
-            />
-            <label for="acmg-bs2" class="m-0">
-              <strong class="pr-2">BS2</strong>
-              <span class="text-muted">observed in healthy individual</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Well-established in vitro or in vivo functional studies show no damaging effect on protein function or splicing"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bs3"
-              type="checkbox"
-              name="bs3"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bs3"
-            />
-            <label for="acmg-bs3" class="m-0">
-              <strong class="pr-2">BS3</strong>
-              <span class="text-muted">functional studies: benign</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Lack of segregation in affected members of a family"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bs4"
-              type="checkbox"
-              name="bs4"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bs4"
-            />
-            <label for="acmg-bs4" class="m-0">
-              <strong class="pr-2">BS4</strong>
-              <span class="text-muted">lack of segregation</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <strong
-            style="font-variant: small-caps"
-            class="text-small text-muted text-capitalize"
-          >
-            Supporting Evidence
-          </strong>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Missense variant in a gene for which primarily truncating variants are known to cause disease"
-          >
-            <input
-              class="form-check-input bp"
-              id="acmg-bp1"
-              type="checkbox"
-              name="bp1"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp1"
-            />
-            <label for="acmg-bp1" class="m-0">
-              <strong class="pr-2">BP1</strong>
-              <span class="text-muted">missense in truncation gene</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder or observed in cis with a pathogenic variant in any inheritance pattern"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp2"
-              type="checkbox"
-              name="bp2"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp2"
-            />
-            <label for="acmg-bp2" class="m-0">
-              <strong class="pr-2">BP2</strong>
-              <span class="text-muted">other variant is causative</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="In-frame deletions/insertions in a repetitive region without a known function"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp3"
-              type="checkbox"
-              name="bp3"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp3"
-            />
-            <label for="acmg-bp3" class="m-0">
-              <strong class="pr-2">BP3</strong>
-              <span class="text-muted">in-frame indel in repeat</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Multiple lines of computational evidence suggest no impact on gene or gene product (conservation, evolutionary,
-splicing impact, etc.)"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp4"
-              type="checkbox"
-              name="bp4"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp4"
-            />
-            <label for="acmg-bp4" class="m-0">
-              <strong class="pr-2">BP4</strong>
-              <span class="text-muted">prediction: benign</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Variant found in a case with an alternate molecular basis for disease"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp5"
-              type="checkbox"
-              name="bp5"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp5"
-            />
-            <label for="acmg-bp5" class="m-0">
-              <strong class="pr-2">BP5</strong>
-              <span class="text-muted">different gene in other case</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="Reputable source recently reports variant as benign, but the evidence is not available to the laboratory to perform an
-independent evaluation"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp6"
-              type="checkbox"
-              name="bp6"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp6"
-            />
-            <label for="acmg-bp6" class="m-0">
-              <strong class="pr-2">BP6</strong>
-              <span class="text-muted">reputable source: benign</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col px-0">
-          <div
-            class="form-check form-check-inline"
-            title="A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice consensus
-sequence nor the creation of a new splice site AND the nucleotide is not highly conserved"
-          >
-            <input
-              class="form-check-input"
-              id="acmg-bp7"
-              type="checkbox"
-              name="bp7"
-              true-value="1"
-              false-value="0"
-              v-model="acmgRatingToSubmit.bp7"
-            />
-            <label for="acmg-bp7" class="m-0">
-              <strong class="pr-2">BP7</strong>
-              <span class="text-muted">silent, no splicing/conservation</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="col px-0">
       <div class="row pt-4">
         <div class="col px-0">
@@ -980,7 +429,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             title="ACMG rating"
             class="badge"
             style="font-size: 1.5em"
-            :class="getAcmgBadge(acmgRatingToSubmit.class_auto)"
+            :class="getAcmgBadge(acmgRatingToSubmit.classAuto)"
           >
             {{ calculateAcmgRating }}
           </div>
@@ -1001,8 +450,8 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             id="acmg-class-override"
             type="text"
             style="width: 2em"
-            @change="convertEmptyToNull(acmgRatingToSubmit.class_override)"
-            v-model.number="acmgRatingToSubmit.class_override"
+            @change="convertEmptyToNull()"
+            v-model.number="acmgRatingToSubmit.classOverride"
           />
         </div>
       </div>
@@ -1076,3 +525,13 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
     </div>
   </div>
 </template>
+
+<style>
+/** fix bootstrap label spacing */
+.v-input--density-compact {
+  --v-input-control-height: 20px;
+}
+.v-application label {
+  margin-bottom: 0;
+}
+</style>

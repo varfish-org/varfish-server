@@ -327,6 +327,7 @@ export class VariantClient extends ClientBase {
    * @param payload Payload to use for update.
    */
   async updateAcmgRating(acmgRatingUuid: string, payload: AcmgRating) {
+    console.log('payload', payload)
     return await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
       'PATCH',

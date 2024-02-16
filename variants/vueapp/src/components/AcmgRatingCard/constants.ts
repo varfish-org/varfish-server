@@ -1,3 +1,6 @@
+
+
+import { AcmgRating } from '@variants/api/variantClient'
 import { Category, Criterion } from './types'
 
 /** Labels for `Category`. */
@@ -242,3 +245,42 @@ export const CRITERIA_BENIGN: Criterion[] = [
       'A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved',
   },
 ]
+
+/** Empty ACMG rating data. */
+/** Template for an empty ACMG rating. */
+export const EMPTY_ACMG_RATING_TEMPLATE: AcmgRating = {
+  pvs1: 0,
+  ps1: 0,
+  ps2: 0,
+  ps3: 0,
+  ps4: 0,
+  pm1: 0,
+  pm2: 0,
+  pm3: 0,
+  pm4: 0,
+  pm5: 0,
+  pm6: 0,
+  pp1: 0,
+  pp2: 0,
+  pp3: 0,
+  pp4: 0,
+  pp5: 0,
+  ba1: 0,
+  bs1: 0,
+  bs2: 0,
+  bs3: 0,
+  bs4: 0,
+  bp1: 0,
+  bp2: 0,
+  bp3: 0,
+  bp4: 0,
+  bp5: 0,
+  bp6: 0,
+  bp7: 0,
+  genomeBuild: 'grch37',
+  chrom: '',
+  pos: 0,
+  del: '',
+  ins: '',
+  userRepr: ''
+}
