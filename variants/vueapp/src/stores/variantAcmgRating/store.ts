@@ -11,11 +11,9 @@ import { ref, reactive } from 'vue'
 import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-
-/** Alias definition of SmallVariant type; to be defined later. */
-type SmallVariant = any
-/** Alias definition of AcmgRating type; to be defined later. */
-type AcmgRating = any
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { AcmgRating, seqvarEqual } from '@variants/api/variantClient/types'
+import * as deepEqual from 'deep-equal'
 
 export const useVariantAcmgRatingStore = defineStore(
   'variantAcmgRating',
@@ -28,25 +26,25 @@ export const useVariantAcmgRatingStore = defineStore(
     // data passed to `initialize` and store state
 
     /** The CSRF token. */
-    const csrfToken = ref<string | null>(null)
+    const csrfToken = ref<string | undefined>(undefined)
     /** UUID of the project.  */
-    const projectUuid = ref<string | null>(null)
+    const projectUuid = ref<string | undefined>(undefined)
     /** UUID of the case that this store holds annotations for. */
-    const caseUuid = ref<string | null>(null)
+    const caseUuid = ref<string | undefined>(undefined)
     /** The current application state. */
     const storeState = reactive<StoreState>(new StoreState())
 
     // other data (loaded via REST API or computed)
 
-    /** The small variant that acmgRating are handled for. */
-    const smallVariant = ref<SmallVariant | null>(null)
+    /** The sequence variant that acmgRating are handled for. */
+    const seqvar = ref<Seqvar | undefined>(undefined)
     /** The small variants ACMG rating as fetched from API. */
-    const acmgRating = ref<AcmgRating | null>(null)
+    const acmgRating = ref<AcmgRating | undefined>(undefined)
     /** The ACMG ratings for all variants of the case with the given `caseUuid`. */
     const caseAcmgRatings = ref<Map<string, AcmgRating>>(new Map())
 
     /** Promise for initialization of the store. */
-    const initializeRes = ref<Promise<any>>(null)
+    const initializeRes = ref<Promise<any>>(Promise.resolve(undefined))
 
     /**
      * Initialize the store for the given case.
@@ -101,7 +99,7 @@ export const useVariantAcmgRatingStore = defineStore(
         .then((acmgRatings) => {
           caseAcmgRatings.value.clear()
           for (const acmgRating of acmgRatings) {
-            caseAcmgRatings.value.set(acmgRating.sodar_uuid, acmgRating)
+            caseAcmgRatings.value.set(acmgRating.sodarUuid, acmgRating)
           }
 
           storeState.serverInteractions -= 1
@@ -119,30 +117,27 @@ export const useVariantAcmgRatingStore = defineStore(
     /**
      * Retrieve acmgRating for the given variant.
      */
-    const retrieveAcmgRating = async (smallVariant$) => {
+    const retrieveAcmgRating = async (seqvar$: Seqvar) => {
       // Prevent re-retrieval of the ACMG rating.
-      if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+      if (deepEqual(seqvar.value, seqvar$)) {
         return
       }
 
       const variantClient = new VariantClient(csrfToken.value)
 
-      smallVariant.value = null
+      seqvar.value = undefined
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
       try {
-        const res = await variantClient.listAcmgRating(
-          caseUuid.value,
-          smallVariant$,
-        )
+        const res = await variantClient.listAcmgRating(caseUuid.value, seqvar$)
         if (res.length) {
           acmgRating.value = res[0]
         } else {
-          acmgRating.value = null
+          acmgRating.value = undefined
         }
 
-        smallVariant.value = smallVariant$
+        seqvar.value = seqvar$
 
         storeState.serverInteractions -= 1
         storeState.state = State.Active
@@ -157,7 +152,7 @@ export const useVariantAcmgRatingStore = defineStore(
     /**
      * Create a new acmgRating entry.
      */
-    const createAcmgRating = async (smallVariant, payload) => {
+    const createAcmgRating = async (seqvar: Seqvar, payload: AcmgRating) => {
       const variantClient = new VariantClient(csrfToken.value)
 
       storeState.state = State.Fetching
@@ -165,11 +160,10 @@ export const useVariantAcmgRatingStore = defineStore(
 
       let result
       try {
-        result = await variantClient.createAcmgRating(
-          caseUuid.value,
-          smallVariant,
-          { ...smallVariant, ...payload },
-        )
+        result = await variantClient.createAcmgRating(caseUuid.value, seqvar, {
+          ...seqvar,
+          ...payload,
+        })
 
         storeState.serverInteractions -= 1
         storeState.state = State.Active
@@ -204,9 +198,9 @@ export const useVariantAcmgRatingStore = defineStore(
       let result
       try {
         result = await variantClient.updateAcmgRating(
-          acmgRating.value.sodar_uuid,
+          acmgRating.value.sodarUuid,
           {
-            ...smallVariant,
+            ...seqvar,
             ...payload,
           },
         )
@@ -243,7 +237,7 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.serverInteractions += 1
 
       try {
-        await variantClient.deleteAcmgRating(acmgRating.value.sodar_uuid)
+        await variantClient.deleteAcmgRating(acmgRating.value.sodarUuid)
 
         storeState.serverInteractions -= 1
         storeState.state = State.Active
@@ -254,27 +248,20 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.delete(acmgRating.value.sodar_uuid)
-      acmgRating.value = null
+      caseAcmgRatings.value.delete(acmgRating.value.sodarUuid)
+      acmgRating.value = undefined
     }
 
     /**
      * Return acmgRating for a given variant from the store.
      */
-    const getAcmgRating = (variant) => {
+    const getAcmgRating = (variant: Seqvar) => {
       for (const caseAcmgRating of caseAcmgRatings.value.values()) {
-        if (
-          caseAcmgRating.release === variant.release &&
-          caseAcmgRating.chromosome === variant.chromosome &&
-          caseAcmgRating.start === variant.start &&
-          caseAcmgRating.end === variant.end &&
-          caseAcmgRating.reference === variant.reference &&
-          caseAcmgRating.alternative === variant.alternative
-        ) {
-          return caseAcmgRating.class_override || caseAcmgRating.class_auto
+        if (seqvarEqual(caseAcmgRating, variant)) {
+          return caseAcmgRating.classOverride || caseAcmgRating.classAuto
         }
       }
-      return null
+      return undefined
     }
 
     return {
@@ -283,7 +270,7 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState,
       caseUuid,
       projectUuid,
-      smallVariant,
+      seqvar,
       acmgRating,
       caseAcmgRatings,
       initializeRes,

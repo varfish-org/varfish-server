@@ -3,26 +3,38 @@ import isEqual from 'lodash.isequal'
 import { State } from '@varfish/storeUtils'
 import { getAcmgBadge } from '@variants/helpers'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { computed, onMounted, ref, watch } from 'vue'
 import { copy } from '@variants/helpers'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
-import { emptyAcmgRatingTemplate } from './constants'
+import { type AcmgRating } from '@variants/api/variantClient'
+import { EMPTY_ACMG_RATING_TEMPLATE } from '@variants/stores/variantAcmgRating'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 
-const props = defineProps({
-  smallVariant: Object,
-})
+/** This component's props. */
+const props = defineProps<{
+  /** Sequence variant to assess. */
+  seqvar?: Seqvar
+}>()
 
+/** Information about the sequence variant, used to fetch information on load. */
+const seqvarInfoStore = useSeqvarInfoStore()
+/** Store for loading/storing Seqvar ACMG Ratings. */
 const acmgRatingStore = useVariantAcmgRatingStore()
-const variantDetailsStore = useVariantDetailsStore()
 
-const acmgRatingToSubmit = ref({ ...emptyAcmgRatingTemplate })
+/** component state; currently edited `AcmgRating` */
+const acmgRatingToSubmit = ref<AcmgRating>(
+  structuredClone(EMPTY_ACMG_RATING_TEMPLATE),
+)
+/** component state; whether the `AcmgRating` is conflicting. */
 const acmgRatingConflicting = ref(false)
 
+/** clears the ACMG rating to the blank table */
 const unsetAcmgRating = () => {
-  acmgRatingToSubmit.value = { ...emptyAcmgRatingTemplate }
+  acmgRatingToSubmit.value = structuredClone(EMPTY_ACMG_RATING_TEMPLATE)
 }
 
+/** reset the component state ACMG rating to the one from the store */
 const resetAcmgRating = () => {
   if (acmgRatingStore.acmgRating) {
     acmgRatingToSubmit.value.pvs1 = acmgRatingStore.acmgRating.pvs1
@@ -53,7 +65,7 @@ const resetAcmgRating = () => {
     acmgRatingToSubmit.value.bp5 = acmgRatingStore.acmgRating.bp5
     acmgRatingToSubmit.value.bp6 = acmgRatingStore.acmgRating.bp6
     acmgRatingToSubmit.value.bp7 = acmgRatingStore.acmgRating.bp7
-    acmgRatingToSubmit.value.class_auto = acmgRatingStore.acmgRating.class_auto
+    acmgRatingToSubmit.value.classAuto = acmgRatingStore.acmgRating.classAuto
     acmgRatingToSubmit.value.class_override =
       acmgRatingStore.acmgRating.class_override
   } else {
@@ -61,6 +73,7 @@ const resetAcmgRating = () => {
   }
 }
 
+/** returns whether the ACMG rating equals the submitted one */
 const acmgRatingSubmitted = computed(() => {
   if (!acmgRatingStore.acmgRating) {
     return false
@@ -100,6 +113,7 @@ const acmgRatingSubmitted = computed(() => {
   )
 })
 
+/** returns the calculated AMCG rating following Richards et al. (2015) */
 const calculateAcmgRating = computed(() => {
   const pvs = acmgRatingToSubmit.value.pvs1
   const ps =
@@ -168,6 +182,7 @@ const calculateAcmgRating = computed(() => {
   return acmgRatingToSubmit.value.class_auto
 })
 
+/** convert empty  */
 const convertEmptyToNull = () => {
   if (acmgRatingToSubmit.value.class_override === '') {
     acmgRatingToSubmit.value.class_override = null
@@ -179,41 +194,41 @@ const onSubmitAcmgRating = async () => {
   delete acmgRatingToSubmitNoAuto['class_auto']
   const acmgRatingToSubmitEmpty = isEqual(
     acmgRatingToSubmitNoAuto,
-    emptyAcmgRatingTemplate,
+    EMPTY_ACMG_RATING_TEMPLATE,
   )
   if (acmgRatingStore.acmgRating && acmgRatingToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the ACMG rating
     await acmgRatingStore.deleteAcmgRating()
   } else if (!acmgRatingStore.acmgRating && acmgRatingToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
-    acmgRatingToSubmit.value = copy(emptyAcmgRatingTemplate)
+    acmgRatingToSubmit.value = copy(EMPTY_ACMG_RATING_TEMPLATE)
   } else if (acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the ACMG rating
     await acmgRatingStore.updateAcmgRating(acmgRatingToSubmit.value)
   } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(
-      variantDetailsStore.smallVariant,
+      seqvarInfoStore.seqvar,
       acmgRatingToSubmit.value,
     )
   }
 }
 
 watch(
-  () => [props.smallVariant, acmgRatingStore.storeState.state],
+  () => [props.seqvar, acmgRatingStore.storeState.state],
   async () => {
     if (
-      props.smallVariant &&
+      props.seqvar &&
       acmgRatingStore.storeState.state === State.Active
     ) {
-      await acmgRatingStore.retrieveAcmgRating(props.smallVariant)
+      await acmgRatingStore.retrieveAcmgRating(props.seqvar)
       resetAcmgRating()
     }
   },
 )
 onMounted(async () => {
-  if (props.smallVariant) {
-    await acmgRatingStore.retrieveAcmgRating(props.smallVariant)
+  if (props.seqvar) {
+    await acmgRatingStore.retrieveAcmgRating(props.seqvar)
     resetAcmgRating()
   }
 })

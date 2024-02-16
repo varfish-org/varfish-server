@@ -1,5 +1,6 @@
 import { ClientBase } from '@varfish/apiUtils'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { AcmgRating, AcmgRating$Api } from './types'
 
 type QuickPresets = any
 type InheritancePresets = any
@@ -9,7 +10,6 @@ type CaseQuery = any
 type Case = any
 type QueryResultSet = any
 type QueryResultRow = any
-type AcmgRating = any
 type VariantFlags = any
 type VariantComment = any
 
@@ -266,7 +266,17 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listAcmgRating(caseUuid, seqvar?: Seqvar) {
+  /**
+   * List all ACMG ratings for a given case possibly seqvar.
+   *
+   * @param caseUuid UUID of case to query.
+   * @param seqvar Optional seqvar to retrieve data for, if any.
+   * @returns List of
+   */
+  async listAcmgRating(
+    caseUuid: string,
+    seqvar?: Seqvar,
+  ): Promise<AcmgRating[]> {
     let query = ''
     if (seqvar) {
       const { genomeBuild, chrom, pos, del, ins } = seqvar
@@ -277,12 +287,21 @@ export class VariantClient extends ClientBase {
         `&end=${end}&reference=${del}&alternative=${ins}`
     }
 
-    return await this.fetchHelper(
+    const resultJson = (await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`,
       'GET',
-    )
+    )) as AcmgRating$Api[]
+    const result = resultJson.map((item) => AcmgRating.fromJson(item))
+    return result
   }
 
+  /**
+   * Create a new ACMG rating for a given case and seqvar.
+   *
+   * @param caseUuid UUID of case to create rating for.
+   * @param seqvar Seqvar to create rating for.
+   * @param payload Payload to use for creation.
+   */
   async createAcmgRating(
     caseUuid: string,
     seqvar: Seqvar,
@@ -297,18 +316,29 @@ export class VariantClient extends ClientBase {
     return await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/?${query}`,
       'POST',
-      payload,
+      AcmgRating.toJson(payload),
     )
   }
 
+  /**
+   * Update a given ACMG rating.
+   *
+   * @param acmgRatingUuid UUID of the ACMG rating to update.
+   * @param payload Payload to use for update.
+   */
   async updateAcmgRating(acmgRatingUuid: string, payload: AcmgRating) {
     return await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
       'PATCH',
-      payload,
+      AcmgRating.toJson(payload),
     )
   }
 
+  /**
+   * Delete a given ACMG rating.
+   *
+   * @param acmgRatingUuid UUID of the ACMG rating to delete.
+   */
   async deleteAcmgRating(acmgRatingUuid: string) {
     return await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/delete/${acmgRatingUuid}/`,

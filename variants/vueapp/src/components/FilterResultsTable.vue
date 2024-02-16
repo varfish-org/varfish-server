@@ -240,12 +240,12 @@ const tableRowClassName = (item, _rowNumber) => {
   const flagColors = ['positive', 'uncertain', 'negative']
   const flags = flagsStore.getFlags(
     new SeqvarImpl(
-      item.payload.genome_build == "GRCh37" ? "grch37" : "grch38",
+      item.payload.genome_build == 'GRCh37' ? 'grch37' : 'grch38',
       item.payload.chromosome,
       item.payload.start,
       item.payload.reference,
       item.payload.alternative,
-    )
+    ),
   )
   if (!flags) {
     return ''
