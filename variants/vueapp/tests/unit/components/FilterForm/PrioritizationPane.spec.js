@@ -99,7 +99,7 @@ describe('FilterFormPrioritizationPane.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('.alert-secondary').length).toBe(2)
+    expect(wrapper.findAll('.alert-secondary').length).toBe(3)
   })
 
   test('prioritization prefilled with warning', () => {

@@ -232,13 +232,13 @@ function selectOption() {
                 It combines phenotypic, pathogenic and
                 facial scores together to produce a single score per gene.
 
-                <p>Selecting PEDIA based prioritization will automatically enable all of the following prioritization configurations:
+                <div>Selecting PEDIA based prioritization will automatically enable all of the following prioritizatio configurations:
                   <ol type="1">
                     <li>Phenotype based prioritization with "CADA" algorithm.</li>
                     <li>Variant pathogenicity-based prioritization with "CADD" scores.</li>
                     <li>GestaltMatcher-based prioritization.</li>
                   </ol>
-                </p>
+                </div>
             </div>
         </div>
     </div>
