@@ -102,6 +102,7 @@
   "prio_enabled": true,
   "gm_enabled": true,
   "pedia_enabled": true,
+  "photo_file": "Empty",
   "prio_algorithm": "hiphive-human",
   "prio_hpo_terms": [
     "HP:0000001"
