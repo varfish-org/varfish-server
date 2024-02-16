@@ -12,12 +12,12 @@ from django.utils import timezone
 from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
-from variants.helpers import get_engine, get_meta
-from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
 from ext_gestaltmatcher.models import (
     SmallVariantQueryGestaltMatcherScores,
     SmallVariantQueryPediaScores,
 )
+from variants.helpers import get_engine, get_meta
+from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
 from variants.models.queries import (
     FilterBgJob,
     SmallVariantQuery,
