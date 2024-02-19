@@ -100,18 +100,11 @@ describe('FilterFormPrioritizationPane.vue', () => {
     })
 
     const pediaEnabled = wrapper.get('#pedia-enabled')
-    const gmEnabled = wrapper.get('#gm-enabled')
 
     pediaEnabled.element.checked = true
     await pediaEnabled.trigger('click')
     await pediaEnabled.trigger('change')
     await pediaEnabled.setChecked()
-
-    expect(pediaEnabled.element.checked).toBeTruthy()
-
-    const pathoEnabled = wrapper.get('#patho-enabled')
-    const prioEnabled = wrapper.get('#prio-enabled')
-    var prioAlgorithm = wrapper.get('#prio-algorithm')
 
     expect(pediaEnabled.element.checked).toBe(true)
   })
@@ -137,6 +130,29 @@ describe('FilterFormPrioritizationPane.vue', () => {
     })
 
     expect(wrapper.findAll('.alert-secondary').length).toBe(3)
+  })
+
+  test('prioritization prefilled with photo file path', () => {
+    const wrapper = shallowMount(FilterFormPrioritizationPane, {
+      props: {
+        csrfToken: 'fake token',
+        showFiltrationInlineHelp: true,
+        exomiserEnabled: true,
+        caddEnabled: true,
+        cadaEnabled: true,
+        prioEnabled: true,
+        prioAlgorith: 'hiphive-human',
+        prioHpoTerms: ['HP:0000245'],
+        prioGm: '',
+        photoFile: 'C://fake-path',
+        pathoEnabled: true,
+        pathoScore: 'cadd',
+        gmEnabled: true,
+        pediaEnabled: true,
+      },
+    })
+
+    expect(wrapper.props('photoFile')).toBe('C://fake-path')
   })
 
   test('prioritization prefilled with warning', () => {
