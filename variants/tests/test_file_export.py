@@ -74,7 +74,15 @@ class ExportTestBase(TestCase):
             project=self.bg_job.project,
             bg_job=self.bg_job,
             case=self.case,
-            query_args={"export_flags": True, "export_comments": True},
+            query_args={"export_flags": True,
+                        "export_comments": True,
+                        "pedia_enabled": True,
+                        "gm_enabled": True,
+                        "patho_enabled": True,
+                        "patho_score": 'CADD',
+                        "prio_enabled": True,
+                        "prio_algorithm": 'CADA',
+                        "prio_hpo_terms": []},
             file_type="xlsx",
         )
 
@@ -308,6 +316,10 @@ class CaseExporterTest(ExportTestBase):
             )
         self.assertEquals(content[3], "")
 
+    @patch("django.conf.settings.VARFISH_ENABLE_GESTALT_MATCHER", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_PEDIA", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
     @Mocker()
     def test_export_xlsx(self, mock):
         self._test_export_xlsx("refseq", mock)
