@@ -111,12 +111,13 @@ const vegaData = computed(() => {
       const indelSizes = stats.ontarget_indel_sizes
       const counters = {}
       for (const [indelSize, count] of Object.entries(indelSizes)) {
+        let indelSize$
         if (indelSize <= -10) {
-          indelSize = -10
+          indelSize$ = -10
         } else if (indelSize >= 10) {
-          indelSize = 10
+          indelSize$ = 10
         }
-        const indelSizeLabel = indelSizeToLabel[String(indelSize)]
+        const indelSizeLabel = indelSizeToLabel[String(indelSize$)]
         counters[indelSizeLabel] = (counters[indelSizeLabel] ?? 0) + count
       }
 

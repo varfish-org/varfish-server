@@ -366,7 +366,7 @@ export default {
           // eslint-disable-next-line camelcase
           for (const { term_id, term_name } of individual.phenotype_terms) {
             // eslint-disable-next-line camelcase
-            term_name = term_name.split(';')[0].trim()
+            const term_name_ = term_name.split(';')[0].trim()
             inheritance = inheritance || HPO_INHERITANCE_MODE.get(term_id) || ''
             ageOfOnset = ageOfOnset || HPO_AGE_OF_ONSET.get(term_id) || ''
             // eslint-disable-next-line camelcase
@@ -376,7 +376,7 @@ export default {
               !diseases.some((x) => x.term_id === term_id)
             ) {
               // eslint-disable-next-line camelcase
-              diseases.push({ term_id, term_name })
+              diseases.push({ term_id, term_name_ })
             }
           }
         }
