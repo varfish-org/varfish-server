@@ -1,5 +1,5 @@
 <script setup>
-import isEqual from 'lodash.isequal'
+import isEqual from 'fast-deep-equal'
 import { onMounted, computed, ref } from 'vue'
 import { copy } from '@varfish/helpers'
 import { useSvQueryStore } from '@svs/stores/svQuery'

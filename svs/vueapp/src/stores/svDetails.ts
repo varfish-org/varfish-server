@@ -32,10 +32,10 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
   /** The current UUID record. */
   const currentSvRecord = ref<SvRecord>(null)
   /** Infos on the variants of the record. */
-  const genesInfos = ref<GeneInfo[]>(null)
+  const genesInfos = ref<GeneInfo[] | null>(null)
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
   /** Fetch SV details.
@@ -57,7 +57,9 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
       genesInfos.value = null
 
       // Fetch new details
-      const annonarsClient = new AnnonarsApiClient(csrfToken.value)
+      const annonarsClient = new AnnonarsApiClient(
+        csrfToken.value ?? 'undefined-csrf-token',
+      )
       const hgncIds = []
       for (const txEffect of svRecord.payload.tx_effects) {
         if (txEffect.gene.hgnc_id) {

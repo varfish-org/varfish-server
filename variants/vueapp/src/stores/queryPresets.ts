@@ -89,10 +89,10 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
   // other data (loaded via REST API or computed)
 
   /** Mapping from PresetSet UUID to PresetSet object. */
-  const presetSets = ref({})
+  const presetSets = ref<{ [key: string]: PresetSet }>({})
 
   /** A promise storing the result of initialize. */
-  const initializeRes = ref(null)
+  const initializeRes = ref<Promise<void> | null>(null)
 
   // functions
 
@@ -129,7 +129,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     storeState.value.state = State.Fetching
     storeState.value.serverInteractions += 1
 
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = queryPresetsClient
       .listPresetSet(projectUuid.value)
@@ -151,7 +153,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Clone the factory preset set in the current project. */
   const cloneFactoryPresetSet = async (label: string): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.value.message = 'Cloning factory defaults...'
     const oldState = storeState.value.state
@@ -184,7 +188,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     label: string,
   ): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.value.message = 'Cloning preset set...'
     const oldState = storeState.value.state
@@ -214,7 +220,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Revert the given presetSet to the server value. */
   const revertPresetSet = async (presetSetUuid: string): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.value.message = 'Loading preset set from server...'
     const oldState = storeState.value.state
@@ -245,7 +253,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     label: string,
   ): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.value.message = 'Updating preset set...'
     const oldState = storeState.value.state
@@ -275,7 +285,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Destroy the given presetSet. */
   const destroyPresetSet = async (presetSetUuid: string): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.value.message = 'Deleting preset set...'
     const oldState = storeState.value.state
@@ -303,17 +315,23 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     category: string,
     presetSetUuid: string,
     payload: T,
-  ): Promise<T> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+  ): Promise<T | undefined> => {
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
-    const cat = Category[category]
+    const cat = Category.get(category)
+    if (!cat) {
+      throw new Error(`Invalid category: ${category}`)
+    }
     storeState.value.message = `Creating ${cat.title}...`
     const oldState = storeState.value.state
     storeState.value.state = State.Fetching
     storeState.value.serverInteractions += 1
 
-    let createdPresets: T
+    let createdPresets: T | undefined = undefined
     try {
+      // @ts-ignore
       createdPresets = await queryPresetsClient[`create${cat.name}`](
         presetSetUuid,
         payload,
@@ -342,9 +360,14 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetsUuid: string,
     label: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
-    const cat = Category[category]
+    const cat = Category.get(category)
+    if (!cat) {
+      throw new Error(`Invalid category: ${category}`)
+    }
     storeState.value.message = `Cloning ${cat.title}...`
     const oldState = storeState.value.state
     storeState.value.state = State.Fetching
@@ -352,6 +375,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
     let resultPresets
     try {
+      // @ts-ignore
       resultPresets = await queryPresetsClient[`cloneOther${cat.name}`](
         presetsUuid,
         { label, presetset: presetSetUuid },
@@ -379,9 +403,14 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     presetUuid: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
-    const cat = Category[category]
+    const cat = Category.get(category)
+    if (!cat) {
+      throw new Error(`Invalid category: ${category}`)
+    }
     storeState.value.message = `Reverting ${cat.title}...`
     const oldState = storeState.value.state
     storeState.value.state = State.Fetching
@@ -390,6 +419,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     let revertedPresets: any
     try {
       revertedPresets =
+        // @ts-ignore
         await queryPresetsClient[`retrieve${cat.name}`](presetUuid)
       const presetsSet = presetSets.value[presetSetUuid][`${category}_set`]
       for (let i = 0; i < presetsSet.length; i++) {
@@ -419,9 +449,14 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetsUuid: string,
     presetsObj: T,
   ): Promise<T> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
-    const cat = Category[category]
+    const cat = Category.get(category)
+    if (!cat) {
+      throw new Error(`Invalid category: ${category}`)
+    }
     storeState.value.message = `Updating ${cat.title}...`
     const oldState = storeState.value.state
     storeState.value.state = State.Fetching
@@ -429,6 +464,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
     let updatedPresets: any
     try {
+      // @ts-ignore
       updatedPresets = await queryPresetsClient[`update${cat.name}`](
         presetsUuid,
         presetsObj,
@@ -459,9 +495,14 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     presetsUuid: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(csrfToken.value)
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
-    const cat = Category[category]
+    const cat = Category.get(category)
+    if (!cat) {
+      throw new Error(`Invalid category: ${category}`)
+    }
     storeState.value.message = `Deleting ${cat.title}...`
     const oldState = storeState.value.state
     storeState.value.state = State.Fetching
@@ -493,7 +534,9 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
       presetSets.value[presetSetUuid][`${category}_set`] = presetSets.value[
         presetSetUuid
-      ][`${category}_set`].filter((p) => p.sodar_uuid !== presetsUuid)
+      ][`${category}_set`].filter(
+        (p: PresetSet) => p.sodar_uuid !== presetsUuid,
+      )
 
       storeState.value.state = oldState
       storeState.value.message = ''

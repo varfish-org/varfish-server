@@ -12,7 +12,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import * as deepEqual from 'deep-equal'
+import isEqual from 'fast-deep-equal'
 
 /** Alias definition of SmallVariantComments type; to be defined later. */
 type SmallVariantComment = any
@@ -44,7 +44,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const caseComments = ref<Map<string, SmallVariantComment>>(new Map())
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -94,7 +94,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = variantClient
       .listComment(caseUuid.value)
@@ -120,12 +122,17 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    * Retrieve comments for the given variant.
    */
   const retrieveComments = async (seqvar$: Seqvar) => {
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
     // Prevent re-retrieval of the comments.
-    if (deepEqual(seqvar.value, seqvar$)) {
+    if (isEqual(seqvar.value, seqvar$)) {
       return
     }
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     comments.value = null
     storeState.state = State.Fetching
@@ -153,7 +160,12 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     seqvar: Seqvar,
     text: string,
   ): Promise<Seqvar> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -194,7 +206,12 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     commentUuid: string,
     text: string,
   ): Promise<Seqvar> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    if (!seqvar.value) {
+      throw new Error('seqvar not set')
+    }
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -238,7 +255,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    * Delete a comment by UUID.
    */
   const deleteComment = async (commentUuid: string) => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -257,7 +276,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     caseComments.value.delete(commentUuid)
     comments.value = comments.value.filter(
-      (comment) => comment.sodar_uuid !== commentUuid,
+      (comment: SmallVariantComment) => comment.sodar_uuid !== commentUuid,
     )
   }
 

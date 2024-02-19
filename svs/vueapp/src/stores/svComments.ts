@@ -45,7 +45,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const caseComments = ref<Map<string, StructuralVariantComment>>(new Map())
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   /**
    * Initialize the store for the given case.
@@ -93,7 +93,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     initializeRes.value = svClient
       .listComment(caseUuid.value)
@@ -123,8 +123,12 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
       return
     }
+    // Error if case UUID is unset.
+    if (!caseUuid.value) {
+      throw new Error('Case UUID is not set')
+    }
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     sv.value = null
     storeState.state = State.Fetching
@@ -152,7 +156,11 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     sv: StructuralVariant,
     text: string,
   ): Promise<StructuralVariant> => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    // Error if case UUID is unset.
+    if (!caseUuid.value) {
+      throw new Error('Case UUID is not set')
+    }
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -186,7 +194,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     commentUuid: string,
     text: string,
   ): Promise<StructuralVariant> => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -207,7 +215,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       throw err // re-throw
     }
 
-    caseComments.value.set(result.sodar_uuid, result)
+    caseComments.value.set(result.sodarUuid, result)
 
     for (let i = 0; i < comments.value.length; i++) {
       if (comments.value[i].sodar_uuid === commentUuid) {
@@ -223,7 +231,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    * Delete a comment by UUID.
    */
   const deleteComment = async (commentUuid: string) => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -242,7 +250,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     caseComments.value.delete(commentUuid)
     comments.value = comments.value.filter(
-      (comment) => comment.sodar_uuid !== commentUuid,
+      (comment: any) => comment.sodar_uuid !== commentUuid,
     )
   }
 

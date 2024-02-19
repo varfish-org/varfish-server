@@ -1,5 +1,5 @@
 <script setup>
-import isEqual from 'lodash.isequal'
+import isEqual from 'fast-deep-equal'
 import { onMounted, watch, computed, reactive, ref } from 'vue'
 import { copy } from '@variants/helpers'
 import { useVariantQueryStore } from '@variants/stores/variantQuery'

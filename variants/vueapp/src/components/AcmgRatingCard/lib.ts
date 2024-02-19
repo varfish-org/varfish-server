@@ -19,7 +19,7 @@ export function pairwise<T>(arr: T[]): [T, T | undefined][] {
   if (arr.length === 0) {
     return []
   } else {
-    const tmp = arr as (T | undefined)[]
+    const tmp = arr
     return zip(tmp, ([undefined] as (T | undefined)[]).concat(tmp))
   }
 }

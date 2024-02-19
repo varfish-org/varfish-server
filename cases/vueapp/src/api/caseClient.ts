@@ -64,7 +64,7 @@ export class CaseClient extends ClientBase {
    * @param caseCommentUuid UUID of the CaseComment
    * @returns Promise with the CaseComment object.
    */
-  async retrieveCaseComment(caseCommentUuid): Promise<any> {
+  async retrieveCaseComment(caseCommentUuid: string): Promise<any> {
     return await this.fetchHelper(
       `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
       'GET',
@@ -155,7 +155,7 @@ export class CaseClient extends ClientBase {
   }
 
   /** Fetch all case phenotype terms. */
-  async listCasePhenotypeTerms(caseUuid): Promise<any> {
+  async listCasePhenotypeTerms(caseUuid: string): Promise<any> {
     return await this.fetchHelper(
       `/cases/ajax/case-phenotype-terms/list-create/${caseUuid}/`,
       'GET',

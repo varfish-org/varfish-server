@@ -18,22 +18,32 @@ const flagIds = [
   'flag_no_disease_association',
   'flag_segregates',
   'flag_doesnt_segregate',
-]
+] as const
+type FlagIds = (typeof flagIds)[number]
+type Level = 1 | 2 | 3 | 4 | 5
 
 // Component state.
 
-const acmgCountByLevel = computed(() => {
+const acmgCountByLevel = computed<{ [level in Level]: number }>(() => {
   const result = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
   for (const acmgRating of caseDetailsStore.acmgRatingList) {
-    const level = acmgRating.class_override ?? acmgRating.class_auto ?? 3
+    const level: Level = acmgRating.class_override ?? acmgRating.class_auto ?? 3
     result[level] += 1
   }
   return result
 })
 
 const buildComputedAnnoCountByFlag = (theList: any[]) => {
-  return computed(() => {
-    const result = Object.fromEntries(flagIds.map((flagId) => [flagId, 0]))
+  return computed<{ [flagId in FlagIds]: number }>(() => {
+    const result = {
+      flag_bookmarked: 0,
+      flag_candidate: 0,
+      flag_final_causative: 0,
+      flag_for_validation: 0,
+      flag_no_disease_association: 0,
+      flag_segregates: 0,
+      flag_doesnt_segregate: 0,
+    }
     for (const varAnno of theList) {
       for (const flagId of flagIds) {
         if (varAnno[flagId]) {
@@ -45,12 +55,11 @@ const buildComputedAnnoCountByFlag = (theList: any[]) => {
   })
 }
 
-const varAnnoCountByFlag = computed(() =>
-  buildComputedAnnoCountByFlag(caseDetailsStore.varAnnoList),
+const varAnnoCountByFlag = buildComputedAnnoCountByFlag(
+  caseDetailsStore.varAnnoList,
 )
-
-const svAnnoCountByFlag = computed(() =>
-  buildComputedAnnoCountByFlag(caseDetailsStore.svAnnoList),
+const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
+  caseDetailsStore.svAnnoList,
 )
 </script>
 

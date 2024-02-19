@@ -117,8 +117,9 @@ const props = defineProps<{
 
 /** Obtain global application content (as for all entry level components) */
 const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
+  document
+    .getElementById('sodar-ss-app-context')
+    ?.getAttribute('app-context') ?? '{}',
 )
 
 // Store-related
@@ -194,6 +195,9 @@ const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
     await variantResultSetStore.initialize(appContext.csrf_token)
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
+    if (!variantResultSetStore.caseUuid) {
+      throw new Error('No case UUID found')
+    }
     await Promise.all([
       variantFlagsStore.initialize(
         appContext.csrf_token,
@@ -220,6 +224,9 @@ const refreshStores = async () => {
       variantResultSetStore.resultRow,
     )
     // TODO: properly use types
+    if (!seqvar.value) {
+      throw new Error('No seqvar found')
+    }
     if (variantResultSetStore.resultRow !== undefined) {
       await Promise.all([
         seqvarInfoStore.initialize(seqvar.value),
@@ -257,7 +264,7 @@ onMounted(() => {
       <template v-if="seqvarHgvs">
         <small class="font-italic">
           {{ seqvarHgvs }}
-          [{{ seqvar.userRepr }}]
+          [{{ seqvar?.userRepr }}]
         </small>
       </template>
       <template v-else>
@@ -364,7 +371,7 @@ onMounted(() => {
       <div id="acmg-rating" class="mt-3">
         <AcmgRatingCard
           :project-uuid="appContext.project?.sodar_uuid"
-          :case-uuid="variantResultSetStore.caseUuid"
+          :case-uuid="variantResultSetStore.caseUuid ?? undefined"
           :seqvar="seqvarInfoStore.seqvar"
         />
       </div>

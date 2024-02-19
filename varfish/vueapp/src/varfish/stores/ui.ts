@@ -22,17 +22,23 @@ export const useUiStore = defineStore('ui', () => {
     ]
 
     elementIdsToggle.forEach((elementId) => {
-      document.getElementById(elementId).style.display = dispValue
+      const element = document.getElementById(elementId)
+      if (element) {
+        element.style.display = dispValue
+      }
     })
 
     const elementIdMargin = 'sodar-app-content'
-    if (origMargin.value === null) {
-      origMargin.value = document.getElementById(elementIdMargin).style.padding
-    }
-    if (maximized.value) {
-      document.getElementById(elementIdMargin).style.padding = '14px'
-    } else {
-      document.getElementById(elementIdMargin).style.padding = origMargin.value
+    const elementMargin = document.getElementById(elementIdMargin)
+    if (elementMargin) {
+      if (origMargin.value === null) {
+        origMargin.value = elementMargin.style.padding
+      }
+      if (maximized.value) {
+        elementMargin.style.padding = '14px'
+      } else {
+        elementMargin.style.padding = origMargin.value
+      }
     }
   }
 

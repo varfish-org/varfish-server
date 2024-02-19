@@ -137,7 +137,7 @@ export function acmgRatingEqual(lhs: AcmgRating, rhs: AcmgRating): boolean {
     'bp6',
     'bp7',
     'classOverride',
-  ]
+  ] as const
   return keys.every((key) => lhs[key] === rhs[key])
 }
 

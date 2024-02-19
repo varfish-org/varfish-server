@@ -154,7 +154,7 @@ const onSubmitAcmgRating = async () => {
   } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the ACMG rating
     await acmgRatingStore.createAcmgRating(
-      props.seqvar,
+      props.seqvar!,
       acmgRatingToSubmit.value,
     )
   }

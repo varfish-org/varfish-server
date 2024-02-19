@@ -2,6 +2,7 @@
 /** Display summary read statistics for all samples in a table.
  */
 import { type SampleAlignmentStats } from '@cases_qc/api/types'
+import { zip } from '@variants/components/AcmgRatingCard/lib'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 import { computed } from 'vue'
 
@@ -47,8 +48,6 @@ const largeNumberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
   maximumFractionDigits: 1,
 })
-
-const zip = (a, b) => a.map((k, i) => [k, b[i]])
 </script>
 
 <template>

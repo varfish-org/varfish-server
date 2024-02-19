@@ -81,7 +81,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async createQuery(caseUuid, payload: string): Promise<CaseQuery> {
+  async createQuery(caseUuid: string, payload: string): Promise<CaseQuery> {
     return await this.fetchHelper(
       `/variants/ajax/query/list-create/${caseUuid}/`,
       'POST',
@@ -113,7 +113,7 @@ export class VariantClient extends ClientBase {
   }
 
   async listQueryResultRow(
-    queryResultSetUuid,
+    queryResultSetUuid: string,
     args?: ListArgs,
   ): Promise<QueryResultRow[]> {
     const pageNo = args?.pageNo ?? 1
@@ -168,7 +168,10 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async listComment(caseUuid, seqvar?: Seqvar): Promise<VariantComment[]> {
+  async listComment(
+    caseUuid: string,
+    seqvar?: Seqvar,
+  ): Promise<VariantComment[]> {
     let query = ''
     if (seqvar) {
       const { genomeBuild, chrom, pos, del, ins } = seqvar
@@ -203,7 +206,7 @@ export class VariantClient extends ClientBase {
   }
 
   async updateComment(
-    commentUuid,
+    commentUuid: string,
     payload: VariantComment,
   ): Promise<VariantComment> {
     return await this.fetchHelper(
@@ -251,7 +254,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async updateFlags(flagsUuid, payload: string) {
+  async updateFlags(flagsUuid: string, payload: string) {
     return await this.fetchHelper(
       `/variants/ajax/small-variant-flags/update/${flagsUuid}/`,
       'PATCH',
@@ -358,7 +361,7 @@ export class VariantClient extends ClientBase {
     )
   }
 
-  async generateDownloadResults(fileType, queryUuid: string) {
+  async generateDownloadResults(fileType: string, queryUuid: string) {
     return await this.fetchHelper(
       `/variants/ajax/query-case/download/generate/${fileType}/${queryUuid}`, // no trailing slash!!!
       'GET',

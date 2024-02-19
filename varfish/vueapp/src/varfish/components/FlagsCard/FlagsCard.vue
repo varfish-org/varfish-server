@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import isEqual from 'fast-deep-equal'
 import { computed, onMounted, ref, watch } from 'vue'
-import isEqual from 'lodash.isequal'
 
 import { State } from '@varfish/storeUtils'
 import { copy } from '@varfish/helpers'

@@ -45,8 +45,9 @@ const props = defineProps<{
 
 /** Obtain global application content (as for all entry level components) */
 const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
+  document
+    .getElementById('sodar-ss-app-context')
+    ?.getAttribute('app-context') ?? '{}',
 )
 
 // Routing-related
@@ -87,9 +88,9 @@ const genomeRelease = computed(() => {
 })
 
 // Pretty display of coordinates.
-const svLocus = (record: SvRecord): string | null => {
+const svLocus = (record: SvRecord): string | undefined => {
   if (!record) {
-    return null
+    return undefined
   }
 
   let locus: string
@@ -131,6 +132,9 @@ const navigateBack = () => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
+  if (!svResultSetStore.caseUuid) {
+    throw new Error('caseUuid not set')
+  }
   if (props.resultRowUuid && props.selectedSection) {
     await svResultSetStore.initialize(appContext.csrf_token)
     await svResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
@@ -188,7 +192,7 @@ onMounted(() => {
           <div>
             <SimpleCard id="genes" title="Genes">
               <SvDetailsGenes
-                :genes-infos="svDetailsStore.genesInfos"
+                :genes-infos="svDetailsStore.genesInfos ?? undefined"
                 :current-sv-record="svDetailsStore.currentSvRecord"
               />
             </SimpleCard>
@@ -218,7 +222,7 @@ onMounted(() => {
             </SimpleCard>
             <SimpleCard id="genome-browser" title="Genome Browser">
               <GenomeBrowser
-                :case-uuid="caseDetailsStore.caseUuid"
+                :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                 :genome="genomeRelease"
                 :locus="svLocus(svDetailsStore.currentSvRecord)"
               />

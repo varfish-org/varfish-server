@@ -75,7 +75,9 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
-      const variantClient = new VariantClient(csrfToken.value)
+      const variantClient = new VariantClient(
+        csrfToken.value ?? 'undefined-csrf-token',
+      )
 
       // Fetch all ratings via API.
       //
@@ -86,7 +88,7 @@ export const useVariantAcmgRatingStore = defineStore(
         .then((acmgRatings) => {
           caseAcmgRatings.value.clear()
           for (const acmgRating of acmgRatings) {
-            caseAcmgRatings.value.set(acmgRating.sodarUuid, acmgRating)
+            caseAcmgRatings.value.set(acmgRating.sodarUuid!, acmgRating)
           }
 
           storeState.serverInteractions -= 1
@@ -129,7 +131,12 @@ export const useVariantAcmgRatingStore = defineStore(
      * Create a new acmgRating entry.
      */
     const createAcmgRating = async (seqvar: Seqvar, payload: AcmgRating) => {
-      const variantClient = new VariantClient(csrfToken.value)
+      if (!caseUuid.value) {
+        throw new Error('No case UUID set')
+      }
+      const variantClient = new VariantClient(
+        csrfToken.value ?? 'undefined-csrf-token',
+      )
 
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
@@ -150,7 +157,7 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.set(result.sodarUuid, result)
+      caseAcmgRatings.value.set(result.sodarUuid!, result)
       setSeqvar(seqvar)
 
       return result
@@ -162,10 +169,12 @@ export const useVariantAcmgRatingStore = defineStore(
     const updateAcmgRating = async (
       acmgRating$: AcmgRating,
     ): Promise<AcmgRating> => {
-      const variantClient = new VariantClient(csrfToken.value)
+      const variantClient = new VariantClient(
+        csrfToken.value ?? 'undefined-csrf-token',
+      )
 
       if (!acmgRating.value) {
-        console.warn(
+        throw new Error(
           'Trying to update acmgRating with acmgRating.value being falsy',
         )
       }
@@ -176,7 +185,7 @@ export const useVariantAcmgRatingStore = defineStore(
       let result: AcmgRating | undefined
       try {
         result = await variantClient.updateAcmgRating(
-          acmgRating.value.sodarUuid,
+          acmgRating.value.sodarUuid!,
           acmgRating$,
         )
 
@@ -189,7 +198,7 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.set(result.sodarUuid, result)
+      caseAcmgRatings.value.set(result.sodarUuid!, result)
       setSeqvar(
         new SeqvarImpl(
           result.genomeBuild,
@@ -207,20 +216,20 @@ export const useVariantAcmgRatingStore = defineStore(
      * Delete current acmgRating.
      */
     const deleteAcmgRating = async () => {
-      const variantClient = new VariantClient(csrfToken.value)
-
       if (!acmgRating.value) {
-        console.warn(
+        throw new Error(
           'Trying to delete acmgRating with acmgRating.value being falsy',
         )
-        return
       }
+      const variantClient = new VariantClient(
+        csrfToken.value ?? 'undefined-csrf-token',
+      )
 
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
       try {
-        await variantClient.deleteAcmgRating(acmgRating.value.sodarUuid)
+        await variantClient.deleteAcmgRating(acmgRating.value.sodarUuid!)
 
         storeState.serverInteractions -= 1
         storeState.state = State.Active
@@ -231,7 +240,7 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.delete(acmgRating.value.sodarUuid)
+      caseAcmgRatings.value.delete(acmgRating.value.sodarUuid!)
       acmgRating.value = undefined
     }
 

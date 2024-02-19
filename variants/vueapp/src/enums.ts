@@ -1,6 +1,7 @@
-function enumToText(enu) {
-  const reversed = {}
+function enumToText(enu: any) {
+  const reversed: { [key in string]: string } = {}
   for (const data of Object.values(enu)) {
+    // @ts-ignore
     reversed[data.value] = data.text
   }
   return reversed
@@ -78,7 +79,7 @@ export const ResultStates = Object.freeze({
   },
 })
 
-export const apiQueryStateToQueryState = (apiQueryState) => {
+export const apiQueryStateToQueryState = (apiQueryState: string) => {
   if (apiQueryState === 'initial') {
     return QueryStates.Initial.value
   } else if (apiQueryState === 'running') {

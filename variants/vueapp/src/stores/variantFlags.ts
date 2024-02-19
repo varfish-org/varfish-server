@@ -12,7 +12,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import * as deepEqual from 'deep-equal'
+import isEqual from 'fast-deep-equal'
 
 /** Alias definition of SmallVariantFlags type; to be defined later. */
 type SmallVariantFlags = any
@@ -66,7 +66,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   })
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -116,7 +116,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = variantClient
       .listFlags(caseUuid.value)
@@ -143,18 +145,23 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    */
   const retrieveFlags = async (seqvar$: Seqvar) => {
     // Prevent re-retrieval of the flags.
-    if (deepEqual(seqvar.value, seqvar$)) {
+    if (isEqual(seqvar.value, seqvar$)) {
       return
     }
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     flags.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      const res = await variantClient.listFlags(caseUuid.value, seqvar$)
+      const res = await variantClient.listFlags(
+        caseUuid.value ?? 'undefined-csrf-token',
+        seqvar$,
+      )
       if (res.length) {
         flags.value = res[0]
       } else {
@@ -180,24 +187,30 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     seqvar: Seqvar,
     payload: SmallVariantFlags,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     let result
     try {
-      result = await variantClient.createFlags(caseUuid.value, seqvar, {
-        ...{
-          release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
-          chromosome: seqvar.chrom,
-          start: seqvar.pos,
-          end: seqvar.pos + seqvar.del.length - 1,
-          reference: seqvar.del,
-          alternative: seqvar.ins,
+      result = await variantClient.createFlags(
+        caseUuid.value ?? 'undefined-csrf-token',
+        seqvar,
+        {
+          ...{
+            release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+            chromosome: seqvar.chrom,
+            start: seqvar.pos,
+            end: seqvar.pos + seqvar.del.length - 1,
+            reference: seqvar.del,
+            alternative: seqvar.ins,
+          },
+          ...payload,
         },
-        ...payload,
-      })
+      )
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -220,7 +233,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const updateFlags = async (
     payload: SmallVariantFlags,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     if (!flags.value) {
       console.warn('Trying to update flags with flags.value being falsy')
@@ -255,7 +270,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    * Delete current flags.
    */
   const deleteFlags = async () => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     if (!flags.value) {
       console.warn('Trying to delete flags with flags.value being falsy')
@@ -299,7 +316,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     return null
   }
 
-  const flagAsArtifact = async (variant) => {
+  const flagAsArtifact = async (variant: Seqvar) => {
     await retrieveFlags(variant)
     if (flags.value) {
       // update existing flags

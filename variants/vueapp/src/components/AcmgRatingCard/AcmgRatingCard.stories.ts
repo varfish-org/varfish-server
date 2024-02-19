@@ -62,7 +62,7 @@ const acmgRatingExampleBenign: AcmgRating$Api = {
   bp5: 0,
   bp6: 0,
   bp7: 0,
-  class_override: undefined,
+  class_override: null,
   class_auto: 3,
 }
 const acmgRatingExamplePathogenic: AcmgRating$Api = {
@@ -102,7 +102,7 @@ const acmgRatingExamplePathogenic: AcmgRating$Api = {
   bp5: 0,
   bp6: 0,
   bp7: 0,
-  class_override: undefined,
+  class_override: null,
   class_auto: 3,
 }
 

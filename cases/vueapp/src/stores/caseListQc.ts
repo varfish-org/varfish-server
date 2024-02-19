@@ -39,7 +39,7 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
   const qcValues = ref<CaseListQcValues | null>(null)
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -78,7 +78,9 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseListClient = new CaseListClient(csrfToken.value)
+    const caseListClient = new CaseListClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     return caseListClient
       .loadProjectQcValues(caseListStore.project.sodar_uuid)

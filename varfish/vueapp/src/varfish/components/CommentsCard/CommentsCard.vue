@@ -39,13 +39,13 @@ const editCommentMode = ref<EditCommentModes>(EditCommentModes.Off)
 const editCommentUuid = ref<string>('')
 const editCommentIndex = ref<number | undefined>(undefined)
 
-const setDeleteComment = (commentUuid, index) => {
+const setDeleteComment = (commentUuid: string, index: number) => {
   editCommentMode.value = EditCommentModes.Delete
   editCommentUuid.value = commentUuid
   editCommentIndex.value = index
 }
 
-const setEditComment = (commentUuid, text, index) => {
+const setEditComment = (commentUuid: string, text: string, index: number) => {
   editCommentMode.value = EditCommentModes.Edit
   editCommentUuid.value = commentUuid
   commentToSubmit.value = text
@@ -56,7 +56,7 @@ const unsetEditComment = () => {
   editCommentMode.value = EditCommentModes.Off
   editCommentUuid.value = ''
   commentToSubmit.value = ''
-  editCommentIndex.value = null
+  editCommentIndex.value = undefined
 }
 
 const onClickSubmitComment = async () => {

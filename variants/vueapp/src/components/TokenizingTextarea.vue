@@ -18,7 +18,7 @@
 
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import debounce from 'lodash.debounce'
-import isEqual from 'lodash.isequal'
+import isEqual from 'fast-deep-equal'
 
 /** Props of the component. */
 const props = defineProps({

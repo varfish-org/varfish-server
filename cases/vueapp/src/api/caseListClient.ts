@@ -37,7 +37,7 @@ export class CaseListClient extends ClientBase {
     if (orderDir !== undefined && orderDir !== null) {
       queryArr.push(`order_dir=${orderDir}`)
     }
-    if (queryString?.length > 0) {
+    if ((queryString?.length ?? 0) > 0) {
       queryArr.push(`q=${queryString}`)
     }
     const queryStr = queryArr.length ? '?' + queryArr.join('&') : ''
@@ -91,22 +91,22 @@ export class CaseListClient extends ClientBase {
     )
   }
 
-  fetchVarComments(_projectUuid) {
+  fetchVarComments(_projectUuid: string) {
     console.warn('fetchVarComments not implemented yet')
     return Promise.resolve([])
   }
 
-  fetchVarAcmgRatings(_projectUuid) {
+  fetchVarAcmgRatings(_projectUuid: string) {
     console.warn('fetchVarAcmgRatings not implemented yet')
     return Promise.resolve([])
   }
 
-  fetchSvAnnos(_projectUuid) {
+  fetchSvAnnos(_projectUuid: string) {
     console.warn('fetchSvAnnos not implemented yet')
     return Promise.resolve([])
   }
 
-  fetchSvComments(_projectUuid) {
+  fetchSvComments(_projectUuid: string) {
     console.warn('fetchSvComments not implemented yet')
     return Promise.resolve([])
   }

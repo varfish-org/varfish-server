@@ -61,7 +61,7 @@ export const separateIt = (value: number, separator: string = ' '): string => {
  * @param smallVar Small variant to check.
  * @returns whether the position is on the mitochondrial genome
  */
-export const isVariantMt = (smallVar): boolean => {
+export const isVariantMt = (smallVar: any): boolean => {
   return ['MT', 'M', 'chrMT', 'chrM'].includes(smallVar?.chromosome)
 }
 
@@ -71,12 +71,12 @@ export const isVariantMt = (smallVar): boolean => {
  * @param smallVar Small variant to check.
  * @returns whether the position is in a mitochondrial homopolymer
  */
-export const isVariantMtHomopolymer = (smallVar): boolean => {
+export const isVariantMtHomopolymer = (smallVar: any): boolean => {
   if (!smallVar) {
     return false
   }
   const { start, end } = smallVar
-  const positionCheck = (pos) => {
+  const positionCheck = (pos: number) => {
     return (
       (pos >= 66 && pos <= 71) ||
       (pos >= 300 && pos <= 316) ||
@@ -88,5 +88,7 @@ export const isVariantMtHomopolymer = (smallVar): boolean => {
   }
   if (isVariantMt(smallVar)) {
     return positionCheck(start) || positionCheck(end)
+  } else {
+    return false
   }
 }

@@ -54,10 +54,10 @@ export const useCaseListStore = defineStore('caseList', () => {
   /** The optional query string. */
   const caseQueryString = ref<string>('')
   /** The permissions that the user has. */
-  const userPerms = ref<UserPerms>(null)
+  const userPerms = ref<UserPerms | null>(null)
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -76,12 +76,16 @@ export const useCaseListStore = defineStore('caseList', () => {
     projectUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
-    // Initialize only once for each project.
+    // Initialize only once for each project and bail out of project UUID unset.
     if (
-      !forceReload &&
-      storeState.state !== State.Initial &&
-      projectUuid.value === projectUuid$
+      (!forceReload &&
+        storeState.state !== State.Initial &&
+        projectUuid.value === projectUuid$) ||
+      !projectUuid$
     ) {
+      if (initializeRes.value === null) {
+        initializeRes.value = Promise.resolve()
+      }
       return initializeRes.value
     }
 
@@ -93,7 +97,9 @@ export const useCaseListStore = defineStore('caseList', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseListClient = new CaseListClient(csrfToken.value)
+    const caseListClient = new CaseListClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = caseListClient
       .fetchProject(projectUuid.value)
@@ -108,7 +114,7 @@ export const useCaseListStore = defineStore('caseList', () => {
             .then((res) => {
               caseCount.value = res.count
             }),
-          caseListClient.fetchPermissions(projectUuid.value).then((res) => {
+          caseListClient.fetchPermissions(projectUuid.value!).then((res) => {
             userPerms.value = res
           }),
         ])

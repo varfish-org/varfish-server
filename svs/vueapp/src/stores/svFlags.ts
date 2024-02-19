@@ -61,7 +61,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const caseFlags = ref<Map<string, StructuralVariantFlags>>(new Map())
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -111,7 +111,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     initializeRes.value = svClient
       .listFlags(caseUuid.value)
@@ -141,8 +141,12 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
       return
     }
+    // Throw error if case UUID has not been set.
+    if (!caseUuid.value) {
+      throw new Error('Case UUID not set')
+    }
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     flags.value = null
     storeState.state = State.Fetching
@@ -174,7 +178,11 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     sv: StructuralVariant,
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    // Throw error if case UUID has not been set.
+    if (!caseUuid.value) {
+      throw new Error('Case UUID not set')
+    }
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -207,7 +215,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const updateFlags = async (
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     if (!flags.value) {
       console.warn('Trying to update flags with flags.value being falsy')
@@ -242,7 +250,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Delete current flags.
    */
   const deleteFlags = async () => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     if (!flags.value) {
       console.warn('Trying to delete flags with flags.value being falsy')

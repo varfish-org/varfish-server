@@ -5,9 +5,15 @@ import SvFilterApp from '@svs/components/SvFilterApp.vue'
 import { useHistoryStore } from '@varfish/stores/history'
 import FilterApp from '@variants/components/FilterApp.vue'
 import VariantDetails from '@variants/components/VariantDetails.vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import {
+  RouteLocationNormalized,
+  RouteLocationNormalizedLoaded,
+  createRouter,
+  createWebHashHistory,
+  RouteRecordRaw,
+} from 'vue-router'
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     name: 'case-list',
     path: '/',
@@ -37,7 +43,7 @@ const routes = [
     name: 'case-list-query-presets-non-factory',
     path: '/query-presets/:presetSet',
     component: CaseListApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       currentTab: 'case-list-query-presets',
       presetSet: route.params.presetSet,
     }),
@@ -46,7 +52,7 @@ const routes = [
     name: 'case-detail-overview',
     path: '/detail/:case',
     component: CaseDetailApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
       currentTab: 'overview',
     }),
@@ -55,7 +61,7 @@ const routes = [
     name: 'case-detail-qc',
     path: '/detail/:case/qc',
     component: CaseDetailApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
       currentTab: 'qc',
     }),
@@ -64,7 +70,7 @@ const routes = [
     name: 'case-detail-annotation',
     path: '/detail/:case/annotation',
     component: CaseDetailApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
       currentTab: 'annotation',
     }),
@@ -73,7 +79,7 @@ const routes = [
     name: 'case-detail-browser',
     path: '/detail/:case/browser',
     component: CaseDetailApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
       currentTab: 'browser',
     }),
@@ -82,7 +88,7 @@ const routes = [
     name: 'variants-filter',
     path: '/variants/filter/:case',
     component: FilterApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
     }),
   },
@@ -90,7 +96,7 @@ const routes = [
     name: 'variant-details',
     path: '/variants/details/:row/:selectedSection?',
     component: VariantDetails,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       resultRowUuid: route.params.row,
       selectedSection: route.params.selectedSection || 'genes',
     }),
@@ -99,7 +105,7 @@ const routes = [
     name: 'svs-filter',
     path: '/svs/filter/:case',
     component: SvFilterApp,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
     }),
   },
@@ -107,26 +113,36 @@ const routes = [
     name: 'sv-details',
     path: '/svs/details/:row/:selectedSection?',
     component: SvDetails,
-    props: (route) => ({
+    props: (route: RouteLocationNormalized) => ({
       resultRowUuid: route.params.row,
       selectedSection: route.params.selectedSection || 'genes',
     }),
   },
 ]
 
+export type _ScrollPositionNormalized = {
+  behavior?: ScrollOptions['behavior']
+  left: number
+  top: number
+}
+
 export const router = createRouter({
   history: createWebHashHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(
+    to: RouteLocationNormalized,
+    _from: RouteLocationNormalizedLoaded,
+    savedPosition: null | _ScrollPositionNormalized,
+  ) {
     if (
-      ['variant-details', 'sv-details'].includes(to.name) &&
+      ['variant-details', 'sv-details'].includes(String(to.name)) &&
       to.params.selectedSection
     ) {
       const res = { el: `#${to.params.selectedSection}` }
       document.querySelector(res.el)?.scrollIntoView()
       return res
     } else {
-      return savedPosition || { x: 0, y: 0 }
+      return savedPosition || { left: 0, top: 0 }
     }
   },
 })

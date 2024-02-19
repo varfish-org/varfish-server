@@ -84,7 +84,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
     const responseResultSetList =
       await svClient.listSvQueryResultSet(queryUuid$)
     if (!responseResultSetList.length) {
@@ -98,7 +98,9 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     const case$ = await variantClient.retrieveCase(caseUuid$)
     if (case$.svqueryresultset) {
       resultSet.value = case$.svqueryresultset
@@ -117,7 +119,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
       return
     }
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1

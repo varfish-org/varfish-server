@@ -7,7 +7,7 @@ export default {
   component: PaneQc,
 }
 
-const Template = (args) => ({
+const Template = (args: any) => ({
   components: { PaneQc },
   setup() {
     return { args }
@@ -17,11 +17,13 @@ const Template = (args) => ({
 })
 
 export const Empty = Template.bind({})
+// @ts-ignore
 Empty.args = {
   stats: null,
 }
 
 export const Dragen = Template.bind({})
+// @ts-ignore
 Dragen.args = {
   stats: storyData.dragen,
 }
