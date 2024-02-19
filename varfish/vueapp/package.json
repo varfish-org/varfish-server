@@ -41,7 +41,7 @@
     "@babel/core": "^7.22.20",
     "@babel/eslint-parser": "^7.23.10",
     "@babel/preset-env": "^7.22.20",
-    "@iconify-json/bi": "^1.1.20",
+    "@iconify-json/bi": "^1.1.23",
     "@iconify-json/carbon": "^1.1.21",
     "@iconify-json/cil": "^1.1.8",
     "@iconify-json/entypo": "^1.1.8",
