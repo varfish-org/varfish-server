@@ -90,11 +90,6 @@ const regionStats = computed<SampleStats[]>(() => {
 
   return result
 })
-
-const numberFormatter = Intl.NumberFormat('en', {
-  notation: 'compact',
-  maximumFractionDigits: 1,
-})
 </script>
 
 <template>
@@ -104,18 +99,24 @@ const numberFormatter = Intl.NumberFormat('en', {
         Alignment Stats (Coverage)
 
         <select
-          class="custom-select custom-select-sm ml-auto"
-          v-model="selectedRegionName"
           v-if="regionNames?.length"
+          v-model="selectedRegionName"
+          class="custom-select custom-select-sm ml-auto"
         >
-          <option v-for="regionName of regionNames">
+          <option
+            v-for="regionName of regionNames"
+            :key="`region-${regionName}`"
+          >
             {{ regionName }}
           </option>
         </select>
       </div>
     </template>
 
-    <template v-for="sampleStats of regionStats">
+    <template
+      v-for="sampleStats of regionStats"
+      :key="`sample-stats-${sampleStats.regionName}`"
+    >
       <div v-if="sampleStats.regionName === selectedRegionName">
         <div class="table-responsive">
           <table class="table table-sm table-hover mb-0">
@@ -123,19 +124,27 @@ const numberFormatter = Intl.NumberFormat('en', {
               <tr>
                 <th>Sample</th>
                 <th class="text-right">mean cov.</th>
-                <th v-for="cov of covKeys" class="text-right text-nowrap">
+                <th
+                  v-for="cov of covKeys"
+                  :key="`cov-${cov}`"
+                  class="text-right text-nowrap"
+                >
                   &geq; {{ cov }}x
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(name, nameIdx) of sampleNames">
+              <tr
+                v-for="(name, nameIdx) of sampleNames"
+                :key="`sample-${name}`"
+              >
                 <td class="text-nowrap">
                   {{ name }}
                 </td>
                 <td class="text-right">{{ sampleStats.meanRd[nameIdx] }}x</td>
                 <td
                   v-for="value of sampleStats.minRdFraction"
+                  :key="`min-rd-frac-${value}`"
                   class="text-right"
                 >
                   {{ value[nameIdx] }}%
@@ -147,8 +156,8 @@ const numberFormatter = Intl.NumberFormat('en', {
       </div>
     </template>
     <div
-      class="text-muted text-center font-italic pt-2 pb-2"
       v-if="!regionStats?.length"
+      class="text-muted text-center font-italic pt-2 pb-2"
     >
       No coverage data available.
     </div>

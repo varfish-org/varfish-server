@@ -5,8 +5,11 @@
 import { randomString } from '@varfish/common'
 
 /** Define props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   presetSet: Object,
+  // eslint-disable-next-line vue/require-default-prop
   querySettings: Object,
   idSuffix: {
     type: String,
@@ -16,13 +19,14 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="mr-2 mt-2" v-if="querySettings">
+  <!-- eslint-disable -->
+  <div v-if="querySettings" class="mr-2 mt-2">
     <div class="form-group">
       <label :for="'inheritance' + idSuffix"> Inheritance </label>
       <select
-        class="custom-select"
-        v-model="querySettings.inheritance"
         :id="'inheritance' + idSuffix"
+        v-model="querySettings.inheritance"
+        class="custom-select"
       >
         <option value="de_novo">de novo</option>
         <option value="dominant">dominant</option>
@@ -41,9 +45,9 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'frequency' + idSuffix"> Frequency Presets </label>
       <select
-        class="custom-select"
         :id="'frequency' + idSuffix"
         v-model="querySettings.frequency"
+        class="custom-select"
       >
         <template v-if="presetSet">
           <option
@@ -62,9 +66,9 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'impact' + idSuffix"> Variant Effect Presets </label>
       <select
-        class="custom-select"
         :id="'impact' + idSuffix"
         v-model="querySettings.impact"
+        class="custom-select"
       >
         <template v-if="presetSet">
           <option
@@ -83,9 +87,9 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'quality' + idSuffix"> Quality </label>
       <select
-        class="custom-select"
         :id="'quality' + idSuffix"
         v-model="querySettings.quality"
+        class="custom-select"
       >
         <template v-if="presetSet">
           <option
@@ -102,9 +106,9 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'chromosome' + idSuffix"> Genes &amp; Regions </label>
       <select
-        class="custom-select"
         :id="'chromosome' + idSuffix"
         v-model="querySettings.chromosome"
+        class="custom-select"
       >
         <template v-if="presetSet">
           <option
@@ -123,9 +127,9 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'flagsetc' + idSuffix"> Flags etc. &amp; ClinVar </label>
       <select
-        class="custom-select"
         :id="'flagsetc' + idSuffix"
         v-model="querySettings.flagsetc"
+        class="custom-select"
       >
         <template v-if="presetSet">
           <option
@@ -141,4 +145,5 @@ const props = defineProps({
       </small>
     </div>
   </div>
+  <!-- eslint-enable -->
 </template>

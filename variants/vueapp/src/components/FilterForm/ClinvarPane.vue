@@ -31,10 +31,10 @@ const interpretations = [
 
       <div class="custom-control custom-checkbox">
         <input
+          id="clinvar-require-in-clinvar"
+          v-model="props.querySettings.require_in_clinvar"
           type="checkbox"
           class="custom-control-input"
-          v-model="props.querySettings.require_in_clinvar"
-          id="clinvar-require-in-clinvar"
         />
         <label class="custom-control-label" for="clinvar-require-in-clinvar">
           require ClinVar membership
@@ -47,10 +47,10 @@ const interpretations = [
       </div>
       <div class="custom-control custom-checkbox">
         <input
+          id="clinvar-paranoid-mode"
+          v-model="props.querySettings.clinvar_paranoid_mode"
           type="checkbox"
           class="custom-control-input"
-          v-model="props.querySettings.clinvar_paranoid_mode"
-          id="clinvar-paranoid-mode"
           :disabled="!props.querySettings.require_in_clinvar"
         />
         <label class="custom-control-label" for="clinvar-paranoid-mode">
@@ -82,10 +82,10 @@ const interpretations = [
         class="custom-control custom-checkbox"
       >
         <input
+          :id="`clinvar-include-${interpretation.id}`"
+          v-model="props.querySettings[`clinvar_include_${interpretation.id}`]"
           type="checkbox"
           class="custom-control-input"
-          v-model="props.querySettings[`clinvar_include_${interpretation.id}`]"
-          :id="`clinvar-include-${interpretation.id}`"
           :disabled="!props.querySettings.require_in_clinvar"
         />
         <label

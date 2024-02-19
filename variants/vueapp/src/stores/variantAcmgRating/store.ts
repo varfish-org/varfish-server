@@ -6,10 +6,8 @@ import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { AcmgRating, seqvarEqual } from '@variants/api/variantClient/types'
-import * as deepEqual from 'deep-equal'
+import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { AcmgRating, seqvarEqual } from '@variants/api/variantClient'
 
 export const useVariantAcmgRatingStore = defineStore(
   'variantAcmgRating',
@@ -79,6 +77,10 @@ export const useVariantAcmgRatingStore = defineStore(
 
       const variantClient = new VariantClient(csrfToken.value)
 
+      // Fetch all ratings via API.
+      //
+      // We use thennable `initializeRes` so we can expose the Promise for the
+      // initialization to the outside.
       initializeRes.value = variantClient
         .listAcmgRating(caseUuid.value)
         .then((acmgRatings) => {
@@ -100,37 +102,26 @@ export const useVariantAcmgRatingStore = defineStore(
     }
 
     /**
-     * Retrieve acmgRating for the given variant.
+     * Select current seuence variant.
+     *
+     * Will re-use ACMG rating fetched previously.
+     *
+     * @param seqvar$ The sequence variant to select.
+     * @returns Promise with the finalization results.
+     * @throws Error if no ACMG rating is found for the given variant.
      */
-    const retrieveAcmgRating = async (seqvar$: Seqvar) => {
-      // Prevent re-retrieval of the ACMG rating.
-      if (deepEqual(seqvar.value, seqvar$)) {
-        return
-      }
-
-      const variantClient = new VariantClient(csrfToken.value)
-
-      seqvar.value = undefined
-      storeState.state = State.Fetching
-      storeState.serverInteractions += 1
-
-      try {
-        const res = await variantClient.listAcmgRating(caseUuid.value, seqvar$)
-        if (res.length) {
-          acmgRating.value = res[0]
-        } else {
-          acmgRating.value = undefined
+    const setSeqvar = (seqvar$?: Seqvar) => {
+      seqvar.value = seqvar$
+      if (seqvar$ === undefined) {
+        acmgRating.value = undefined
+      } else {
+        for (const caseAcmgRating of caseAcmgRatings.value.values()) {
+          if (seqvarEqual(caseAcmgRating, seqvar$)) {
+            acmgRating.value = caseAcmgRating
+            return
+          }
         }
-
-        seqvar.value = seqvar$
-
-        storeState.serverInteractions -= 1
-        storeState.state = State.Active
-      } catch (err) {
-        console.error('Problem loading ACMG ratings for variant', err)
-        storeState.serverInteractions -= 1
-        storeState.state = State.Error
-        throw err // re-throw
+        acmgRating.value = undefined
       }
     }
 
@@ -143,7 +134,7 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
-      let result
+      let result: AcmgRating | undefined
       try {
         result = await variantClient.createAcmgRating(caseUuid.value, seqvar, {
           ...seqvar,
@@ -159,8 +150,8 @@ export const useVariantAcmgRatingStore = defineStore(
         throw err // re-throw
       }
 
-      caseAcmgRatings.value.set(result.sodar_uuid, result)
-      acmgRating.value = result
+      caseAcmgRatings.value.set(result.sodarUuid, result)
+      setSeqvar(seqvar)
 
       return result
     }
@@ -168,7 +159,9 @@ export const useVariantAcmgRatingStore = defineStore(
     /**
      * Update existing acmgRating.
      */
-    const updateAcmgRating = async (payload: AcmgRating): Promise<AcmgRating> => {
+    const updateAcmgRating = async (
+      acmgRating$: AcmgRating,
+    ): Promise<AcmgRating> => {
       const variantClient = new VariantClient(csrfToken.value)
 
       if (!acmgRating.value) {
@@ -180,11 +173,11 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
-      let result: AcmgRating
+      let result: AcmgRating | undefined
       try {
         result = await variantClient.updateAcmgRating(
           acmgRating.value.sodarUuid,
-          payload,
+          acmgRating$,
         )
 
         storeState.serverInteractions -= 1
@@ -197,7 +190,15 @@ export const useVariantAcmgRatingStore = defineStore(
       }
 
       caseAcmgRatings.value.set(result.sodarUuid, result)
-      acmgRating.value = result
+      setSeqvar(
+        new SeqvarImpl(
+          result.genomeBuild,
+          result.chrom,
+          result.pos,
+          result.del,
+          result.ins,
+        ),
+      )
 
       return result
     }
@@ -258,7 +259,7 @@ export const useVariantAcmgRatingStore = defineStore(
       initializeRes,
       // functions
       initialize,
-      retrieveAcmgRating,
+      setSeqvar,
       createAcmgRating,
       updateAcmgRating,
       deleteAcmgRating,

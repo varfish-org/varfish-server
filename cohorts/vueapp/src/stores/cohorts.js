@@ -135,7 +135,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
   const updateCohort = async (cohortUuid, payload) => {
     const cases = payload.cases
     let cohort = null
-    let currentCasesUuids = {}
+    const currentCasesUuids = {}
     delete payload.cases
     serverInteractions.value += 1
     try {

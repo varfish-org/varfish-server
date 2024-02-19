@@ -6,7 +6,7 @@ const config: StorybookConfig = {
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
-    'storybook-addon-fetch-mock',
+    'storybook-addon-mock',
   ],
   framework: {
     name: '@storybook/vue3-vite',

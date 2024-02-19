@@ -235,19 +235,23 @@ onMounted(() => {
             <li class="nav-item mt-0 mb-3">
               <a
                 class="nav-link user-select-none btn btn-secondary"
-                @click.prevent="navigateBack()"
                 type="button"
+                @click.prevent="navigateBack()"
               >
                 <i-mdi-arrow-left-circle />
                 Back
               </a>
             </li>
-            <li class="nav-item mt-0" v-for="{ name, title } in navItems">
+            <li
+              v-for="{ name, title } in navItems"
+              :key="`section-${name}`"
+              class="nav-item mt-0"
+            >
               <a
                 class="nav-link user-select-none"
                 :class="{ active: props.selectedSection === name }"
-                @click="onTabClick(name)"
                 type="button"
+                @click="onTabClick(name)"
               >
                 {{ title }}
               </a>

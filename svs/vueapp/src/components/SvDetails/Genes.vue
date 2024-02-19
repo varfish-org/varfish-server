@@ -153,7 +153,7 @@ const resultsInfos: ComputedRef<Map<string, ResultsInfo>> = computed(() => {
 
 /** Compute geneInfo's class. */
 const geneInfoClass = (geneInfo: any): string | null => {
-  let resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
+  const resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
   if (resultsInfo?.isDiseaseGene) {
     return 'text-danger'
   } else {
@@ -167,7 +167,7 @@ const geneInfoBadge = (geneInfo: any): string | null => {
     return `<span class="badge badge-${color}" title="${title}">${text}</span>&nbsp;`
   }
 
-  let resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
+  const resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
   switch (resultsInfo?.txEffect) {
     case 'transcript_variant':
       return badge('danger', 'whole transcript is affected', 'tx')

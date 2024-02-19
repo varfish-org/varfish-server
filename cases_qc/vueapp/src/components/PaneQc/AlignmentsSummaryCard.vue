@@ -62,7 +62,11 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
         <thead>
           <tr>
             <th>Metric</th>
-            <th v-for="name in sampleNames" class="text-left text-nowrap">
+            <th
+              v-for="name in sampleNames"
+              :key="`metric-${name}`"
+              class="text-left text-nowrap"
+            >
               {{ name }}
             </th>
           </tr>
@@ -70,14 +74,22 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
         <tbody>
           <tr>
             <td class="text-nowrap">reads mapped</td>
-            <td v-for="value in sampleStats.mapped" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.mapped"
+              :key="`mapped-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">duplicates</td>
             <td
-              v-for="[d, m] in zip(sampleStats.duplicates, sampleStats.mapped)"
+              v-for="([d, m], idx) in zip(
+                sampleStats.duplicates,
+                sampleStats.mapped,
+              )"
+              :key="`duplicates-${idx}`"
               class="text-right"
             >
               <template v-if="m && m > 0">
@@ -88,19 +100,31 @@ const zip = (a, b) => a.map((k, i) => [k, b[i]])
           </tr>
           <tr>
             <td class="text-nowrap">mismatch rate</td>
-            <td v-for="value in sampleStats.mismatchRate" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.mismatchRate"
+              :key="`mismatch-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value * 100) }}%
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">fragment length mean [bp]</td>
-            <td v-for="value in sampleStats.isizeMean" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.isizeMean"
+              :key="`isize-mean-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">fragment length stddev [bp]</td>
-            <td v-for="value in sampleStats.isizeStddev" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.isizeStddev"
+              :key="`isize-std-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>

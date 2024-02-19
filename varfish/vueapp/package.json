@@ -97,7 +97,7 @@
     "react-dom": "^18.2.0",
     "sass": "^1.70.0",
     "storybook": "^7.6.10",
-    "storybook-addon-fetch-mock": "^1.0.1",
+    "storybook-addon-mock": "^4.3.0",
     "unplugin-fonts": "^1.1.1",
     "unplugin-icons": "^0.18.3",
     "unplugin-vue-components": "^0.26.0",

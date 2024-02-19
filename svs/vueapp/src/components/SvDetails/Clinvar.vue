@@ -23,6 +23,7 @@ const vcvUrl = (vcv: string): string => {
         <li
           v-for="vcv in svDetailsStore.currentSvRecord?.payload
             ?.clinvar_ovl_vcvs ?? []"
+          :key="`vcv-url-${vcv}`"
         >
           <a :href="vcvUrl(vcv)">
             {{ vcv }}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { DateTime } from 'luxon'
 
 import { State } from '@varfish/storeUtils'
@@ -10,11 +10,6 @@ const props = defineProps<{
   commentsStore: any
   variant: any
 }>()
-
-/** Whether to show the overlay. */
-const overlayShow = computed(
-  () => (props.commentsStore?.serverInteractions ?? 0) > 0,
-)
 
 watch(
   () => props.variant,
@@ -154,8 +149,8 @@ watch(
                   <v-btn @click="unsetEditComment()"> Cancel </v-btn>
                   <v-btn
                     color="primary"
-                    @click="onClickSubmitComment()"
                     :disabled="!commentToSubmit"
+                    @click="onClickSubmitComment()"
                   >
                     Save
                   </v-btn>
@@ -247,11 +242,11 @@ watch(
       </v-card-text>
       <v-card-text v-if="editCommentMode === EditCommentModes.Off">
         <v-textarea
+          v-model="commentToSubmit"
           hide-details
           variant="outlined"
           label="Comment Text"
           prepend-icon="mdi-comment-outline"
-          v-model="commentToSubmit"
           class="mb-3"
         >
         </v-textarea>
@@ -270,8 +265,8 @@ watch(
               variant="tonal"
               prepend-icon="mdi-cloud-upload"
               rounded="xs"
-              @click="onClickSubmitComment()"
               :disabled="!commentToSubmit"
+              @click="onClickSubmitComment()"
             >
               Submit
             </v-btn>

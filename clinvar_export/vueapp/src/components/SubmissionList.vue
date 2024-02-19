@@ -2,7 +2,6 @@
 import { mapActions, mapState } from 'pinia'
 import Multiselect from '@vueform/multiselect'
 import { VueDraggableNext } from 'vue-draggable-next'
-import { ref } from 'vue'
 
 import {
   getSubmissionLabel,
@@ -365,7 +364,7 @@ export default {
         const individual = this.individuals[individualUuid]
         if (individual.phenotype_terms) {
           // eslint-disable-next-line camelcase
-          for (let { term_id, term_name } of individual.phenotype_terms) {
+          for (const { term_id, term_name } of individual.phenotype_terms) {
             // eslint-disable-next-line camelcase
             term_name = term_name.split(';')[0].trim()
             inheritance = inheritance || HPO_INHERITANCE_MODE.get(term_id) || ''

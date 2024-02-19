@@ -16,6 +16,15 @@ export interface Seqvar$Api {
 }
 
 /**
+ * API response for a page of ACMG ratings.
+ */
+export interface AcmgRatingPage$Api {
+  next: string | null
+  previous: string | null
+  results: AcmgRating$Api[]
+}
+
+/**
  * Seqvar ACMG rating as returned by the API.
  */
 export interface AcmgRating$Api extends Seqvar$Api {
@@ -87,6 +96,49 @@ export interface AcmgRating extends Seqvar {
   bp7: number
   classOverride?: number
   classAuto?: number
+}
+
+/**
+ * Returns whether the two `AcmgRating` objects have the same rating.
+ *
+ * Effectively, this will only compare the categories and `classOverrides`.
+ *
+ * @param lhs left-hand side
+ * @param rhs right-hand side
+ */
+export function acmgRatingEqual(lhs: AcmgRating, rhs: AcmgRating): boolean {
+  const keys = [
+    'pvs1',
+    'ps1',
+    'ps2',
+    'ps3',
+    'ps4',
+    'pm1',
+    'pm2',
+    'pm3',
+    'pm4',
+    'pm5',
+    'pm6',
+    'pp1',
+    'pp2',
+    'pp3',
+    'pp4',
+    'pp5',
+    'ba1',
+    'bs1',
+    'bs2',
+    'bs3',
+    'bs4',
+    'bp1',
+    'bp2',
+    'bp3',
+    'bp4',
+    'bp5',
+    'bp6',
+    'bp7',
+    'classOverride',
+  ]
+  return keys.every((key) => lhs[key] === rhs[key])
 }
 
 /**
@@ -195,6 +247,20 @@ export class AcmgRating$Type {
  * Helper instance for converting between `AcmgRating` and `AcmgRating$Api`.
  */
 export const AcmgRating = new AcmgRating$Type()
+
+/**
+ * Assign `Seqvar` data from object complying to `Seqvar` interface to another.
+ *
+ * @param lhs receiving object
+ * @param rhs source object
+ */
+export function seqvarAssign(lhs: Seqvar, rhs: Seqvar): void {
+  lhs.genomeBuild = rhs.genomeBuild
+  lhs.chrom = rhs.chrom
+  lhs.pos = rhs.pos
+  lhs.del = rhs.del
+  lhs.ins = rhs.ins
+}
 
 /**
  * Return whether values equal on the seqvar fields.

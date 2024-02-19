@@ -58,7 +58,7 @@ watch(
         </a>
       </div>
     </div>
-    <ul class="list-group list-group-flush" v-if="caseDetailsStore.caseObj">
+    <ul v-if="caseDetailsStore.caseObj" class="list-group list-group-flush">
       <li class="list-group-item pl-0">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">

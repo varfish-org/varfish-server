@@ -139,13 +139,13 @@ onMounted(async () => {
                 :key="`boolean-flag-${flag.key}`"
               >
                 <v-checkbox
+                  v-model="flagsToSubmit[flag.key]"
                   hide-details
                   density="compact"
-                  v-model="flagsToSubmit[flag.key]"
                   :label="flag.label"
                   class="mr-2"
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <v-icon>{{ flag.icon }}</v-icon>
                     <v-tooltip
                       activator="parent"
@@ -175,7 +175,7 @@ onMounted(async () => {
                       :key="`color-value-${colorFlag}-${colorValue}`"
                     >
                       <v-radio hide-details :value="colorValue.value">
-                        <template v-slot:label>
+                        <template #label>
                           <v-icon :color="colorValue.color">{{
                             colorValue.icon
                           }}</v-icon>
@@ -221,8 +221,8 @@ onMounted(async () => {
               prepend-icon="mdi-cloud-upload"
               variant="tonal"
               rounded="xs"
-              @click="onSubmitFlags()"
               :loading="flagsStore.storeState.state === State.Fetching"
+              @click="onSubmitFlags()"
             >
               Submit
             </v-btn>

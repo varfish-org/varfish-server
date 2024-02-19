@@ -56,7 +56,10 @@ const percentDuplicates = (bamstats) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="member of caseDetailsStore.caseObj.pedigree">
+        <tr
+          v-for="member of caseDetailsStore.caseObj.pedigree"
+          :key="`member-summary-${member.name}`"
+        >
           <th>{{ displayName(member.name) }}</th>
           <td class="text-right">
             {{ formatLargeInt(bamStats[member.name].bamstats?.sequences / 2) }}
@@ -75,15 +78,15 @@ const percentDuplicates = (bamstats) => {
             }}
           </td>
           <td
-            class="text-right"
             v-if="bamStats[member.name].summary?.['mean coverage']"
+            class="text-right"
           >
             {{ bamStats[member.name].summary['mean coverage'] }}&nbsp;x
           </td>
           <td v-else class="text-right">-</td>
           <td
-            class="text-right"
             v-if="bamStats[member.name].summary?.['total target size']"
+            class="text-right"
           >
             {{
               bamStats[member.name].summary?.['total target size'] ?? '-'
@@ -102,6 +105,7 @@ const percentDuplicates = (bamstats) => {
           <th style="width: 15%" class="text-center">Sample</th>
           <th
             v-for="coverage of coverages"
+            :key="`coverage-${coverage}`"
             style="width: 0"
             class="text-nowrap text-right"
           >
@@ -113,10 +117,17 @@ const percentDuplicates = (bamstats) => {
         <template
           v-if="caseDetailsStore.storeState.state === State.Active && bamStats"
         >
-          <tr v-for="member of caseDetailsStore.caseObj.pedigree">
+          <tr
+            v-for="member of caseDetailsStore.caseObj.pedigree"
+            :key="`member-cov-${member.name}`"
+          >
             <template v-if="member.name in bamStats">
               <th>{{ displayName(member.name) }}</th>
-              <td v-for="coverage in coverages" class="text-right">
+              <td
+                v-for="coverage in coverages"
+                :key="`cov-${coverage}`"
+                class="text-right"
+              >
                 {{ getMinCovTarget(member.name, coverage) }}
               </td>
             </template>

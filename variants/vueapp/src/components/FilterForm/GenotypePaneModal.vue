@@ -59,8 +59,8 @@ const setGenotypePresets = () => {
 
   <!-- Modal -->
   <div
-    class="modal fade"
     id="genotypePresetModal"
+    class="modal fade"
     tabindex="-1"
     role="dialog"
     aria-labelledby="genotypePresetModalLabel"
@@ -69,7 +69,7 @@ const setGenotypePresets = () => {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="genotypePresetModalLabel">
+          <h5 id="genotypePresetModalLabel" class="modal-title">
             Genotype Presets
           </h5>
           <button
@@ -90,10 +90,10 @@ const setGenotypePresets = () => {
             <div class="col">
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-skip"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-skip"
                   :value="presetValues.skip"
                 />
                 <label
@@ -105,10 +105,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-any"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-any"
                   :value="presetValues.any"
                 />
                 <label
@@ -120,10 +120,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-ref"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-ref"
                   :value="presetValues.ref"
                 />
                 <label
@@ -135,10 +135,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-het"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-het"
                   :value="presetValues.het"
                 />
                 <label
@@ -150,10 +150,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-nohom"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-nohom"
                   :value="presetValues.nonhom"
                 />
                 <label
@@ -165,10 +165,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-novar"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-novar"
                   :value="presetValues.nonvariant"
                 />
                 <label
@@ -180,10 +180,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-unaffected-noref"
                   v-model="genotypePresetUnaffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-unaffected-noref"
                   :value="presetValues.nonreference"
                 />
                 <label
@@ -197,10 +197,10 @@ const setGenotypePresets = () => {
             <div class="col">
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-skip"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-skip"
                   :value="presetValues.skip"
                 />
                 <label
@@ -212,10 +212,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-any"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-any"
                   :value="presetValues.any"
                 />
                 <label
@@ -227,10 +227,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-het"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-het"
                   :value="presetValues.het"
                 />
                 <label
@@ -242,10 +242,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-hom"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-hom"
                   :value="presetValues.hom"
                 />
                 <label
@@ -257,10 +257,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-nohom"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-nohom"
                   :value="presetValues.nonhom"
                 />
                 <label
@@ -272,10 +272,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-variant"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-variant"
                   :value="presetValues.variant"
                 />
                 <label
@@ -287,10 +287,10 @@ const setGenotypePresets = () => {
               </div>
               <div class="form-check">
                 <input
+                  id="genotype-preset-affected-noref"
                   v-model="genotypePresetAffected"
                   class="form-check-input"
                   type="radio"
-                  id="genotype-preset-affected-noref"
                   :value="presetValues.nonreference"
                 />
                 <label

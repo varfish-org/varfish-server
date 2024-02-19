@@ -1,6 +1,5 @@
 <script setup>
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { useCaseListStore } from '@cases/stores/caseList'
 import { formatTime } from '@varfish/helpers'
 
 /** Obtain global application content (as for all entry level components) */
@@ -16,7 +15,6 @@ const emit = defineEmits([
   'deleteCaseCommentClick',
 ])
 
-const caseListStore = useCaseListStore()
 const caseDetailStore = useCaseDetailsStore()
 
 /** Helper that returns whether the user has the permission to perform the action on the casecomment. */
@@ -61,9 +59,9 @@ const userHasPerm = (casecomment, action) => {
       </div>
     </div>
     <ul
+      id="case-comment-list"
       class="list-group list-group-flush list"
       style="overflow-y: auto !important; max-height: 300px"
-      id="case-comment-list"
     >
       <template
         v-if="
@@ -73,6 +71,7 @@ const userHasPerm = (casecomment, action) => {
       >
         <li
           v-for="caseComment in caseDetailStore.caseComments"
+          :key="`case-comment-${caseComment.sodar_uuid}`"
           class="list-group-item list-item"
         >
           <div>

@@ -6,7 +6,7 @@ export default {
     projectUuid,
     { pageNo, pageSize, orderBy, orderDir, queryString },
   ) {
-    let queryArr = []
+    const queryArr = []
     if (pageNo !== undefined) {
       queryArr.push(`page=${pageNo}`)
     }

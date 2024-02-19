@@ -5,9 +5,9 @@ import ExportResultsButton from '@variants/components/ExportResultsButton.vue'
 <template>
   <div class="align-self-center ml-auto">
     <button
+      id="filterDisplayOptions"
       class="btn btn-outline-secondary dropdown-toggle"
       type="button"
-      id="filterDisplayOptions"
       data-toggle="dropdown"
       aria-haspopup="true"
       aria-expanded="false"
@@ -18,9 +18,9 @@ import ExportResultsButton from '@variants/components/ExportResultsButton.vue'
       class="dropdown-menu dropdown-menu-right"
       aria-labelledby="filterDisplayOptions"
     >
-      <ExportResultsButton fileType="tsv" />
-      <ExportResultsButton fileType="xlsx" />
-      <ExportResultsButton fileType="vcf" />
+      <ExportResultsButton file-type="tsv" />
+      <ExportResultsButton file-type="xlsx" />
+      <ExportResultsButton file-type="vcf" />
     </div>
   </div>
 </template>

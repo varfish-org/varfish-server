@@ -90,7 +90,7 @@ const insertGenomicsEnglandPanel = async (panel) => {
     `/proxy/panelapp/v1/panels/${panel.id}/?version=${panel.version}`,
   ).then(async (response) => {
     const responseJson = await response.json()
-    let symbols = []
+    const symbols = []
 
     for (const gene of responseJson.genes) {
       const confidence = parseInt(gene.confidence_level)
@@ -141,7 +141,7 @@ const validateGeneBatch = async (tokenBatch, typ) => {
   if (typ === 'genepanel') {
     const validation = await Promise.all(
       tokenBatch.map(async (token) => {
-        let url = `${props.lookupGenePanelApiEndpoint}?query=${token}`
+        const url = `${props.lookupGenePanelApiEndpoint}?query=${token}`
         const response = await fetch(url, {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ const validateGeneBatch = async (tokenBatch, typ) => {
     )
   } else {
     const queryString = tokenBatch.join(',')
-    let url = `${props.lookupGeneApiEndpoint}?q=${queryString},`
+    const url = `${props.lookupGeneApiEndpoint}?q=${queryString},`
     const response = await fetch(url, {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -266,10 +266,10 @@ defineExpose({
       <div class="form-inline pl-0 pr-0 pb-3 mt-3">
         <label class="mr-2" for="gene-regions-list-type">List Type</label>
         <select
+          id="gene-regions-list-type"
           v-model="listType"
           :class="{ 'is-invalid': !isValid() }"
           class="custom-select"
-          id="gene-regions-list-type"
         >
           <option value="gene_allowlist">
             Gene Allow List{{ indicateFailure('gene_allowlist') }}
@@ -285,8 +285,8 @@ defineExpose({
 
       <div
         v-show="listType === 'genomic_region'"
-        class="form-group"
         id="genomic-region-section"
+        class="form-group"
       >
         <TokenizingTextarea
           ref="genomicRegionTextareaRef"
@@ -302,8 +302,8 @@ defineExpose({
 
       <div
         v-show="listType === 'gene_allowlist'"
-        class="form-group"
         id="gene-allowlist-section"
+        class="form-group"
       >
         <div class="form-inline">
           <label class="form-group">
@@ -314,7 +314,7 @@ defineExpose({
               @select="insertGenomicsEnglandPanel"
             />
             Confidence
-            <select class="form-control" v-model="genomicsEnglandConfidence">
+            <select v-model="genomicsEnglandConfidence" class="form-control">
               <option value="3">green</option>
               <option value="2">amber</option>
               <option value="1">red</option>
@@ -324,18 +324,18 @@ defineExpose({
 
           <div class="dropdown">
             <button
+              v-if="loadingGenePanelCategories"
               class="btn btn-sm btn-outline-secondary"
               disabled
-              v-if="loadingGenePanelCategories"
             >
               <i-fa-solid-circle-notch class="spin" />
               <em>Loading Local Panels</em>
             </button>
             <button
               v-else
+              id="presets-menu-button"
               class="btn btn-sm btn-outline-secondary dropdown-toggle"
               type="button"
-              id="presets-menu-button"
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
@@ -343,11 +343,11 @@ defineExpose({
               <span class="d-none d-sm-inline"> Add Local Panel </span>
             </button>
             <div
-              class="dropdown-menu"
-              aria-labelledby="presets-menu-button"
               v-if="
                 !loadingGenePanelCategories && genePanelCategories.length > 0
               "
+              class="dropdown-menu"
+              aria-labelledby="presets-menu-button"
             >
               <template v-for="category in genePanelCategories">
                 <h6 class="dropdown-header">{{ category.title }}</h6>

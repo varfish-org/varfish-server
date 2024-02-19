@@ -80,8 +80,8 @@ defineExpose({
         <label for="tadSetInput"> TAD Set </label>
         <div class="input-group input-group-sm ml-2 mr-4">
           <select
-            class="custom-select custom-select-sm"
             v-model="v$.tad_set.$model"
+            class="custom-select custom-select-sm"
           >
             <option value="hesc">hESC TADs (Dixon et al., 2019)</option>
             <option value="imr90">IMR90 TADs (Dixon et al., 2019)</option>

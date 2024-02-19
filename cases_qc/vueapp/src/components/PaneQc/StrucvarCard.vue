@@ -56,7 +56,11 @@ const numberFormatter = Intl.NumberFormat('en', {
         <thead>
           <tr>
             <th>Metric</th>
-            <th v-for="name in sampleNames" class="text-left">
+            <th
+              v-for="name in sampleNames"
+              :key="`metric-${name}`"
+              class="text-left"
+            >
               {{ name }}
             </th>
           </tr>
@@ -64,14 +68,19 @@ const numberFormatter = Intl.NumberFormat('en', {
         <tbody>
           <tr>
             <td class="text-nowrap">DEL</td>
-            <td v-for="value in sampleStats.deletionCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.deletionCount"
+              :key="`del-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">DUP</td>
             <td
-              v-for="value in sampleStats.duplicationCount"
+              v-for="(value, idx) in sampleStats.duplicationCount"
+              :key="`dup-${idx}`"
               class="text-right"
             >
               {{ numberFormatter.format(value) }}
@@ -79,19 +88,31 @@ const numberFormatter = Intl.NumberFormat('en', {
           </tr>
           <tr>
             <td class="text-nowrap">INS</td>
-            <td v-for="value in sampleStats.insertionCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.insertionCount"
+              :key="`ins-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">INV</td>
-            <td v-for="value in sampleStats.inversionCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.inversionCount"
+              :key="`inv-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">BND</td>
-            <td v-for="value in sampleStats.breakendCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.breakendCount"
+              :key="`bnd-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>

@@ -13,12 +13,12 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import { useCaseListStore } from '@cases/stores/caseList'
 
-type FrequencyPresets = any
-type ImpactPresets = any
-type QualityPresets = any
-type ChromosomePresets = any
-type FlagsEtcPresets = any
-type QuickPresets = any
+// type FrequencyPresets = any
+// type ImpactPresets = any
+// type QualityPresets = any
+// type ChromosomePresets = any
+// type FlagsEtcPresets = any
+// type QuickPresets = any
 type PresetSet = any
 
 export interface CategoryEntry {

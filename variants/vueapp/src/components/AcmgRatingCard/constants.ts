@@ -1,5 +1,3 @@
-
-
 import { AcmgRating } from '@variants/api/variantClient'
 import { Category, Criterion } from './types'
 
@@ -282,5 +280,5 @@ export const EMPTY_ACMG_RATING_TEMPLATE: AcmgRating = {
   pos: 0,
   del: '',
   ins: '',
-  userRepr: ''
+  userRepr: '',
 }

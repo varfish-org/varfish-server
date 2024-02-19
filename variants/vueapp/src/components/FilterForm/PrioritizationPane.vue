@@ -78,10 +78,10 @@ defineExpose({ v$ })
 
       <div class="custom-control custom-checkbox mt-2">
         <input
+          id="prio-enabled"
           v-model="prioEnabledWrapper"
           class="custom-control-input"
           type="checkbox"
-          id="prio-enabled"
         />
         <label class="custom-control-label" for="prio-enabled">
           Enable phenotype-based prioritization
@@ -94,9 +94,9 @@ defineExpose({ v$ })
       <div class="form-group pt-2">
         <label for="prio-algorithm"> Phenotype Similarity Algorithm </label>
         <select
+          id="prio-algorithm"
           v-model="prioAlgorithmWrapper"
           class="custom-select"
-          id="prio-algorithm"
         >
           <option value="phenix">Phenix</option>
           <option value="phive">Phive</option>
@@ -111,7 +111,7 @@ defineExpose({ v$ })
       </div>
     </div>
 
-    <div class="col-6 pt-3" v-if="props.caddEnabled">
+    <div v-if="props.caddEnabled" class="col-6 pt-3">
       <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
       <div
         v-if="props.showFiltrationInlineHelp"
@@ -124,10 +124,10 @@ defineExpose({ v$ })
 
       <div class="custom-control custom-checkbox mt-2">
         <input
+          id="patho-enabled"
           v-model="pathoEnabledWrapper"
           class="custom-control-input"
           type="checkbox"
-          id="patho-enabled"
         />
         <label class="custom-control-label" for="patho-enabled">
           Enable variant pathogenicity-based prioritization
@@ -141,15 +141,15 @@ defineExpose({ v$ })
       <div class="form-group">
         <label for="patho-score"> Pathogenicity Score </label>
         <select
+          id="patho-score"
           v-model="pathoScoreWrapper"
           class="custom-select"
-          id="patho-score"
         >
           <option v-if="props.caddEnabled" value="cadd">CADD</option>
         </select>
       </div>
     </div>
-    <div class="col-6 pt-3" v-else>
+    <div v-else class="col-6 pt-3">
       <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
       <div class="mt-2 font-italic text-muted">
         No scoring method activated.

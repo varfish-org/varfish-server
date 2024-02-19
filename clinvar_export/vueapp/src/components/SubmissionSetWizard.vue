@@ -10,6 +10,7 @@ import SubmissionList from '@clinvarexport/components/SubmissionList.vue'
 import SubmissionSetEditor from '@clinvarexport/components/SubmissionSetEditor.vue'
 import SubmissionSetWizardFooter from '@clinvarexport/components/SubmissionSetWizardFooter.vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = {
   SubmissionSetEditor,
   SubmissionList,

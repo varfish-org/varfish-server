@@ -88,7 +88,7 @@ onMounted(() => initSelectedCriteriaDef())
         <div class="input-group-prepend">
           <span class="input-group-text"> Genotype Criteria Definition </span>
         </div>
-        <select class="custom-select" v-model="selectedCriteriaDefNo">
+        <select v-model="selectedCriteriaDefNo" class="custom-select">
           <option v-for="(label, key) in criteriaDefLabels" :value="key">
             {{ label }}
           </option>

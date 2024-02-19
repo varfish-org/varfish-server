@@ -9,6 +9,7 @@ const props = defineProps({
     type: String,
     default: 'case-list', // keep in sync with Tabs.caseList
   },
+  // eslint-disable-next-line vue/require-default-prop
   presetSet: String,
 })
 
@@ -46,7 +47,7 @@ const updateCurrentTab = (newValue) => {
 
 <template>
   <div class="d-flex flex-column flex-grow-1">
-    <ul class="nav nav-tabs" id="cases-tab" role="tablist">
+    <ul id="cases-tab" class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a
           class="nav-link"
@@ -96,11 +97,11 @@ const updateCurrentTab = (newValue) => {
         </a>
       </li>
     </ul>
-    <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
+    <div id="cases-content" class="tab-content flex-grow-1 d-flex flex-column">
       <div
         v-if="props.currentTab === Tabs.caseList"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
+        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         role="tabpanel"
       >
         <CaseListPaneCases />

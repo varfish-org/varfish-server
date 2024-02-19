@@ -16,9 +16,9 @@ const caseListStore = useCaseListStore()
       }}</small>
 
       <a
+        id="sodar-pr-btn-copy-uuid"
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-        id="sodar-pr-btn-copy-uuid"
         data-clipboard-text="{{ caseListStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"

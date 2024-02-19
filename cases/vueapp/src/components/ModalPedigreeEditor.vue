@@ -33,7 +33,7 @@ const props = defineProps({
   },
   modelValue: {
     type: Array,
-    default: [],
+    default: () => [],
   },
   modalClass: {
     type: String,
@@ -138,14 +138,17 @@ defineExpose({ show, hide })
           </tr>
         </thead>
         <tbody>
-          <template v-for="(_row, index) in propsCopy.modelValue">
+          <template
+            v-for="(_row, index) in propsCopy.modelValue"
+            :key="`row-${index}`"
+          >
             <Row
-              :name="propsCopy.modelValue[index].name"
-              :pedigree="propsCopy.modelValue"
               v-model:father="propsCopy.modelValue[index].father"
               v-model:mother="propsCopy.modelValue[index].mother"
               v-model:sex="propsCopy.modelValue[index].sex"
               v-model:affected="propsCopy.modelValue[index].affected"
+              :name="propsCopy.modelValue[index].name"
+              :pedigree="propsCopy.modelValue"
             />
           </template>
         </tbody>

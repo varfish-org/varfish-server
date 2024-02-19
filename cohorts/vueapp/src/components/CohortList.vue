@@ -10,6 +10,7 @@ import ModalCohortEditor from '@cohorts/components/ModalCohortEditor.vue'
 import { useCohortsStore } from '@cohorts/stores/cohorts'
 import Overlay from '@varfish/components/Overlay.vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({})
 
 /** Ref to the cohort editor modal. */

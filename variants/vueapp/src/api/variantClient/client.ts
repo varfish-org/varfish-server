@@ -1,6 +1,6 @@
 import { ClientBase } from '@varfish/apiUtils'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { AcmgRating, AcmgRating$Api } from './types'
+import { AcmgRating, AcmgRating$Api, AcmgRatingPage$Api } from './types'
 
 type QuickPresets = any
 type InheritancePresets = any
@@ -287,12 +287,19 @@ export class VariantClient extends ClientBase {
         `&end=${end}&reference=${del}&alternative=${ins}`
     }
 
-    const resultJson = (await this.fetchHelper(
-      `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`,
-      'GET',
-    )) as AcmgRating$Api[]
-    const result = resultJson.map((item) => AcmgRating.fromJson(item))
-    return result
+    let nextUrl:
+      | string
+      | null = `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`
+    const result: AcmgRating$Api[] = []
+    while (nextUrl !== null) {
+      const resultJson = (await this.fetchHelper(
+        nextUrl,
+        'GET',
+      )) as AcmgRatingPage$Api
+      result.push(...resultJson.results)
+      nextUrl = resultJson.next
+    }
+    return result.map((item) => AcmgRating.fromJson(item))
   }
 
   /**
@@ -306,18 +313,19 @@ export class VariantClient extends ClientBase {
     caseUuid: string,
     seqvar: Seqvar,
     payload: AcmgRating,
-  ) {
+  ): Promise<AcmgRating> {
     const { genomeBuild, chrom, pos, del, ins } = seqvar
     const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
     const end = pos + del.length - 1
     const query =
       `release=${release}&chromosome=${chrom}&start=${pos}` +
       `&end=${end}&reference=${del}&alternative=${ins}`
-    return await this.fetchHelper(
+    const result = (await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/?${query}`,
       'POST',
       AcmgRating.toJson(payload),
-    )
+    )) as AcmgRating$Api
+    return AcmgRating.fromJson(result)
   }
 
   /**
@@ -326,13 +334,16 @@ export class VariantClient extends ClientBase {
    * @param acmgRatingUuid UUID of the ACMG rating to update.
    * @param payload Payload to use for update.
    */
-  async updateAcmgRating(acmgRatingUuid: string, payload: AcmgRating) {
-    console.log('payload', payload)
-    return await this.fetchHelper(
+  async updateAcmgRating(
+    acmgRatingUuid: string,
+    payload: AcmgRating,
+  ): Promise<AcmgRating> {
+    const result = (await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
       'PATCH',
       AcmgRating.toJson(payload),
-    )
+    )) as AcmgRating$Api
+    return AcmgRating.fromJson(result)
   }
 
   /**
@@ -340,8 +351,8 @@ export class VariantClient extends ClientBase {
    *
    * @param acmgRatingUuid UUID of the ACMG rating to delete.
    */
-  async deleteAcmgRating(acmgRatingUuid: string) {
-    return await this.fetchHelper(
+  async deleteAcmgRating(acmgRatingUuid: string): Promise<void> {
+    await this.fetchHelper(
       `/variants/ajax/acmg-criteria-rating/delete/${acmgRatingUuid}/`,
       'DELETE',
     )

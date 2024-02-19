@@ -152,7 +152,7 @@ const fetchExtraAnnoFields = async (csrfToken) => {
  */
 const fetchHpoTerms = async (csrfToken, hpoTerms) => {
   const variantClient = new VariantClient(csrfToken)
-  let _hpoNames = []
+  const _hpoNames = []
   for (const hpoTerm of hpoTerms) {
     await variantClient.fetchHpoTerms(hpoTerm).then((res) => {
       if (res.length === 0) {

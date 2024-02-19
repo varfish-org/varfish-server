@@ -316,9 +316,9 @@ onMounted(() => {
         <i-mdi-arrow-right />
       </label>
       <select
+        :id="'quickPresets-' + idSuffix"
         v-model="quickPresetWrapper"
         class="custom-select custom-select-sm"
-        :id="'quickPresets-' + idSuffix"
       >
         <option v-for="(value, name) in quickPresets" :value="name">
           {{ value.label ?? name }}
@@ -336,9 +336,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsInheritance-' + idSuffix"
         v-model="inheritanceWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsInheritance-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.inheritance"
@@ -359,9 +359,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsFrequency-' + idSuffix"
         v-model="frequencyWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsFrequency-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.frequency"
@@ -382,9 +382,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsImpact-' + idSuffix"
         v-model="impactWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsImpact-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.impact" :value="name">
           {{ value.label ?? name }}
@@ -402,9 +402,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsQuality-' + idSuffix"
         v-model="qualityWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsQuality-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.quality" :value="name">
           {{ value.label ?? name }}
@@ -422,9 +422,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsChromosomes-' + idSuffix"
         v-model="chromosomesWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsChromosomes-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.chromosomes"
@@ -445,9 +445,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'flagsWrapper-' + idSuffix"
         v-model="flagsWrapper"
         class="custom-select custom-select-sm"
-        :id="'flagsWrapper-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.flagsetc" :value="name">
           {{ value.label ?? name }}

@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
 
 const props = defineProps<{
   case?: any
   smallVar?: any
 }>()
-
-const emit = defineEmits(['navigateBack'])
-
-const router = useRouter()
 
 const smallVariantLabel = computed(() => {
   const theVar = props.smallVar

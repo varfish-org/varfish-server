@@ -62,7 +62,7 @@ describe('FilterFormFooter.vue', () => {
       },
     })
 
-    let radioRefseq = wrapper.get('#id_database_selector_refseq')
+    const radioRefseq = wrapper.get('#id_database_selector_refseq')
     // let radioEnsembl = wrapper.get('#id_database_selector_ensembl')
 
     await radioRefseq.setValue()

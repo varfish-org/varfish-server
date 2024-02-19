@@ -10,14 +10,7 @@ import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { updateUserSetting } from '@varfish/userSettings'
-import {
-  DisplayColumns,
-  DisplayConstraints,
-  DisplayDetails,
-  DisplayFrequencies,
-  QueryStates,
-  QueryStateToText,
-} from '@variants/enums'
+import { QueryStates, QueryStateToText } from '@variants/enums'
 
 import Header from '@variants/components/FilterApp/Header.vue'
 import FilterForm from '@variants/components/FilterForm.vue'
@@ -56,30 +49,6 @@ const showDetails = async (event) => {
 const formVisible = ref(true)
 /** Whether the query logs are visible. */
 const queryLogsVisible = ref(false)
-/** The details columns to show. */
-const displayDetails = ref(
-  variantResultSetStore.displayDetails === null
-    ? DisplayDetails.Coordinates.value
-    : variantResultSetStore.displayDetails,
-)
-/** The frequency columns to show. */
-const displayFrequency = ref(
-  variantResultSetStore.displayFrequency === null
-    ? DisplayFrequencies.GnomadExomes.value
-    : variantResultSetStore.displayFrequency,
-)
-/** The constraint columns to show. */
-const displayConstraint = ref(
-  variantResultSetStore.displayConstraint === null
-    ? DisplayConstraints.GnomadPli.value
-    : variantResultSetStore.displayConstraint,
-)
-/** The additional columns to display. */
-const displayColumns = ref(
-  variantResultSetStore.displayColumns === null
-    ? [DisplayColumns.Effect.value]
-    : variantResultSetStore.displayColumns,
-)
 
 // Toggle visibility of the form.
 const toggleForm = () => {
@@ -233,13 +202,13 @@ watch(
       class="flex-grow-1 mb-2"
     >
       <FilterResultsTable
-        @variant-selected="showDetails"
         :patho-enabled="
           variantQueryStore.previousQueryDetails.query_settings.patho_enabled
         "
         :prio-enabled="
           variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
+        @variant-selected="showDetails"
       />
     </div>
     <div

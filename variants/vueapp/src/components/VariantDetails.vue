@@ -11,38 +11,19 @@
  */
 
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { StoreState, seqvarInfo } from '@bihealth/reev-frontend-lib/stores'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantFlagsStore } from '@variants/stores/variantFlags'
-import { useHistoryStore } from '@varfish/stores/history'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
-import { State } from '@varfish/storeUtils'
 
-import Header from '@variants/components/VariantDetails/Header.vue'
-import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
-import VariantDetailsClinvar from '@variants/components/VariantDetails/Clinvar.vue'
-import VariantDetailsFreqs from '@variants/components/VariantDetails/Freqs.vue'
 import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
-import SimpleCard from '@varfish/components/SimpleCard.vue'
 
-import VariantDetailsCallDetails from '@variants/components/VariantDetails/CallDetails.vue'
-import VariantDetailsConservation from '@variants/components/VariantDetails/Conservation.vue'
-import VariantDetailsVariantTools from '@variants/components/VariantDetails/VariantTools.vue'
-import VariantDetailsGa4ghBeacons from '@variants/components/VariantDetails/Ga4ghBeacons.vue'
-import VariantDetailsTxCsq from '@variants/components/VariantDetails/TxCsq.vue'
-import VariantDetailsVariantValidator from '@variants/components/VariantDetails/VariantValidator.vue'
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
-import Overlay from '@varfish/components/Overlay.vue'
-import { allNavItems } from '@variants/components/VariantDetails.fields'
 import { watch } from 'vue'
 
 const GeneOverviewCard = defineAsyncComponent(
@@ -140,10 +121,6 @@ const appContext = JSON.parse(
     '{}',
 )
 
-// Routing-related
-
-const router = useRouter()
-
 // Store-related
 
 /** Information about the sequence variant, used to fetch information on load. */
@@ -151,20 +128,12 @@ const seqvarInfoStore = useSeqvarInfoStore()
 /** Information about the affected gene, used to fetch information on load. */
 const geneInfoStore = useGeneInfoStore()
 
-const historyStore = useHistoryStore()
-
-const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 const variantDetailsStore = useVariantDetailsStore()
-const queryStore = useVariantQueryStore()
 const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
 
-/** Component state; use for opening sections by default. */
-const openedSection = ref<string[]>(['gene', 'seqvar'])
-/** Component state; any error message. */
-const errorMessage = ref<string>('')
 /** Component state; control snackbar display. */
 const errSnackbarShow = ref<boolean>(false)
 /** Component state; error message for snack bar. */
@@ -176,56 +145,6 @@ const errSnackbarMsg = ref<string>('')
 const handleDisplayError = async (msg: string) => {
   errSnackbarMsg.value = msg
   errSnackbarShow.value = true
-}
-
-const overlayShow = computed(() => {
-  return (
-    variantResultSetStore.storeState.state === State.Fetching ||
-    variantDetailsStore.storeState.state === State.Fetching ||
-    variantFlagsStore.storeState.state === State.Fetching ||
-    variantCommentsStore.storeState.state === State.Fetching
-  )
-})
-
-const overlayMessage = computed(() => {
-  if (overlayShow.value) {
-    return 'Loading...'
-  } else {
-    return ''
-  }
-})
-
-const navItems = computed(() =>
-  allNavItems.filter((navItem) => {
-    if (navItem.name === 'beacon-network') {
-      return queryStore.ga4ghBeaconNetworkWidgetEnabled
-    } else {
-      return true
-    }
-  }),
-)
-
-/** Event handler for clicking on the given tab.
- *
- * Will select the tab by pushing a route.
- */
-const onTabClick = (selectedSection: string) => {
-  router.push({
-    name: 'variant-details',
-    params: {
-      row: props.resultRowUuid,
-      selectedSection,
-    },
-  })
-}
-
-const navigateBack = () => {
-  const dest = historyStore.lastWithDifferentName('variant-details')
-  if (dest) {
-    router.push(dest)
-  } else {
-    router.push(`/variants/filter/${caseDetailsStore.caseObj?.sodar_uuid}`)
-  }
 }
 
 /** Currently displayed seqvar. */
@@ -351,8 +270,11 @@ onMounted(() => {
       <div class="text-h5 mt-6 mb-3 ml-1">No Gene</div>
     </template>
     <template v-else>
-      <!-- <div class="text-h5 mt-6 mb-3 ml-1">
-        Gene <span class="font-italic"> {{  seqvarInfoStore?.geneInfo.hgnc!.symbol }} </span>
+      <div class="text-h5 mt-6 mb-3 ml-1">
+        Gene
+        <span class="font-italic">
+          {{ seqvarInfoStore?.geneInfo.hgnc!.symbol }}
+        </span>
       </div>
       <div id="gene-overview">
         <GeneOverviewCard :gene-info="seqvarInfoStore?.geneInfo" />
@@ -390,18 +312,16 @@ onMounted(() => {
       </div>
       <div id="gene-literature" class="mt-3 mb-3">
         <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
-      </div> -->
+      </div>
     </template>
 
     <template v-if="!seqvarInfoStore.seqvar">
       <div class="text-h5 mt-6 mb-3 ml-1">No Variant Information</div>
     </template>
     <template v-else>
-      <!-- <div class="text-h5 mt-6 mb-3 ml-1">
-        Variant Details
-      </div>
+      <div class="text-h5 mt-6 mb-3 ml-1">Variant Details</div>
       <div id="seqvar-clinsig">
-      <SeqvarClinsigCard
+        <SeqvarClinsigCard
           :seqvar="seqvarInfoStore.seqvar"
           @error-display="handleDisplayError"
         />
@@ -410,7 +330,9 @@ onMounted(() => {
         <SeqvarConsequencesCard :consequences="seqvarInfoStore.txCsq" />
       </div>
       <div id="seqvar-clinvar" class="mt-3">
-        <SeqvarClinvarCard :clinvar-record="seqvarInfoStore.varAnnos?.clinvar" />
+        <SeqvarClinvarCard
+          :clinvar-record="seqvarInfoStore.varAnnos?.clinvar"
+        />
       </div>
       <div id="seqvar-scores" class="mt-3">
         <SeqvarScoresCard :var-annos="seqvarInfoStore.varAnnos" />
@@ -427,27 +349,31 @@ onMounted(() => {
           :var-annos="seqvarInfoStore.varAnnos"
         />
       </div>
-      <div id="flags">
+      <div id="flags" class="mt-3">
         <FlagsCard
           :flags-store="variantFlagsStore"
           :variant="seqvarInfoStore.seqvar"
         />
       </div>
-      <div id="comments">
+      <div id="comments" class="mt-3">
         <CommentsCard
           :comments-store="variantCommentsStore"
           :variant="seqvarInfoStore.seqvar"
         />
-      </div>-->
-      <div id="acmg-rating" class="mt-3">
-        <AcmgRatingCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
-      <!--<div id="seqvar-ga4ghbeacons" class="mt-3">
+      <div id="acmg-rating" class="mt-3">
+        <AcmgRatingCard
+          :project-uuid="appContext.project?.sodar_uuid"
+          :case-uuid="variantResultSetStore.caseUuid"
+          :seqvar="seqvarInfoStore.seqvar"
+        />
+      </div>
+      <div id="seqvar-ga4ghbeacons" class="mt-3">
         <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
       </div>
       <div id="seqvar-variantvalidator" class="mt-3">
         <SeqvarVariantValidatorCard :seqvar="seqvarInfoStore.seqvar" />
-      </div> -->
+      </div>
     </template>
   </v-app>
 </template>

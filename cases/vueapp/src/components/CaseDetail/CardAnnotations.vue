@@ -87,7 +87,11 @@ const svAnnoCountByFlag = computed(() =>
           </div>
           <div class="col-1 text-right">6</div>
           <div class="col-8">
-            <span v-for="flagId in flagIds" class="mr-3">
+            <span
+              v-for="flagId in flagIds"
+              :key="`seqvar-flag-${flagId}`"
+              class="mr-3"
+            >
               <CaseDetailsFlagIcon :flag="flagId" />:{{
                 varAnnoCountByFlag[flagId]
               }}
@@ -112,7 +116,11 @@ const svAnnoCountByFlag = computed(() =>
           </div>
           <div class="col-1 text-right">6</div>
           <div class="col-8">
-            <span v-for="flagId in flagIds" class="mr-3">
+            <span
+              v-for="flagId in flagIds"
+              :key="`strucvar-flag-${flagId}`"
+              class="mr-3"
+            >
               <CaseDetailsFlagIcon :flag="flagId" />:{{
                 svAnnoCountByFlag[flagId]
               }}

@@ -1,4 +1,5 @@
 <script setup>
+// eslint-disable
 /**
  * A text area that allows for "semi-structured" input of value.
  *
@@ -20,16 +21,18 @@ import debounce from 'lodash.debounce'
 import isEqual from 'lodash.isequal'
 
 /** Props of the component. */
-const props = defineProps([
+const props = defineProps({
   /** The component's model value. */
-  'modelValue',
+  // eslint-disable-next-line vue/require-default-prop
+  modelValue: Object,
   /**
    * Definition on tokenizing.
    *
    * RegExp - regular expression, each match is a token
    * other - tokenize based on whitespace
    */
-  'tokenize',
+  // eslint-disable-next-line vue/require-default-prop
+  tokenize: Function,
   /**
    * Definition on token validation
    *
@@ -43,10 +46,12 @@ const props = defineProps([
    *   Object.  The object must have the members `valid` (Boolean)
    *   and optionally a String `error` with validation error message.
    */
-  'validate',
+  // eslint-disable-next-line vue/require-default-prop
+  validate: Function,
   /** HTML `id` for the textarea */
-  'textareaId',
-])
+  // eslint-disable-next-line vue/require-default-prop
+  textareaId: String,
+})
 
 /**
  * The component's emitted events.
@@ -274,6 +279,7 @@ defineExpose({
 </script>
 
 <template>
+  <!-- eslint-disable -->
   <div>
     <!-- Reproduce is-invalid on wrapper to make .invalid-feedback render correctly. -->
     <div
@@ -293,19 +299,19 @@ defineExpose({
           validating...
         </small>
         <div
-          ref="highlightsRef"
           id="textarea-highlights"
+          ref="highlightsRef"
           class="textarea-highlights"
         ></div>
       </div>
       <textarea
+        :id="textareaId"
         ref="textareaRef"
         v-model="textValueRef"
         class="position-absolute form-control textarea-highlighted"
         :class="{
           'is-invalid': !isValid(),
         }"
-        :id="textareaId"
         @input="handleInput()"
         @scroll="updateScroll()"
         @mouseup="updateSize()"
@@ -315,6 +321,7 @@ defineExpose({
       {{ errorMessage }}
     </div>
   </div>
+  <!-- eslint-enable -->
 </template>
 
 <style>

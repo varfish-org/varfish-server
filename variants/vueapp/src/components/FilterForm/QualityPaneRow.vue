@@ -71,8 +71,8 @@ defineExpose({ isValid })
     <td>{{ displayName(member.mother) }}</td>
     <td v-for="key in numericKeys">
       <input
-        type="number"
         v-model="v$[key].$model"
+        type="number"
         class="form-control form-control-sm"
         :class="{
           // 'is-valid': !v$[key].$error,

@@ -21,7 +21,7 @@ const props = defineProps({
 
 /** Pre-computed mapping of member name to role in trio analysis.  Used for informative purpose only. */
 const roleMap = computed(() => {
-  let roles = {}
+  const roles = {}
   if (props.case && props.case.pedigree) {
     const index = props.case.index
     const pedigree = props.case.pedigree
@@ -189,7 +189,7 @@ defineExpose({ v$ })
           <th class="text-center" style="width: 250px">
             Genotype
             <FilterFormGenotypePaneModal
-              :querySettings="props.querySettings"
+              :query-settings="props.querySettings"
               :pedigree="props.case.pedigree"
             />
           </th>
@@ -211,9 +211,9 @@ defineExpose({ v$ })
           </td>
           <td class="text-right text-muted">
             <select
-              class="custom-select custom-select-sm"
-              v-model="genotypeWrappers[item.name]"
               :id="`id_${item.name}_gt`"
+              v-model="genotypeWrappers[item.name]"
+              class="custom-select custom-select-sm"
               :name="`${item.name}_gt`"
             >
               <option value="any">any</option>

@@ -1,4 +1,4 @@
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
 
 /**
  * The possible states of a store.

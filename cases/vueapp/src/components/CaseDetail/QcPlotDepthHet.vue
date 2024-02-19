@@ -6,9 +6,13 @@ import VegaPlot from '@varfish/components/VegaPlot.vue'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   hetRatioQuantiles: Array,
+  // eslint-disable-next-line vue/require-default-prop
   dpQuantiles: Array,
+  // eslint-disable-next-line vue/require-default-prop
   dpHetData: Array,
+  // eslint-disable-next-line vue/require-default-prop
   renderer: String,
 })
 

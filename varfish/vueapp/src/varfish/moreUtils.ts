@@ -75,7 +75,7 @@ export const isVariantMtHomopolymer = (smallVar): boolean => {
   if (!smallVar) {
     return false
   }
-  const { chromosome, start, end } = smallVar
+  const { start, end } = smallVar
   const positionCheck = (pos) => {
     return (
       (pos >= 66 && pos <= 71) ||

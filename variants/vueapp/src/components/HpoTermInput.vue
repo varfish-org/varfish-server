@@ -13,12 +13,14 @@ const props = defineProps({
     type: String,
     default: '/variants/ajax/hpo-terms/',
   },
+  // eslint-disable-next-line vue/require-default-prop
   csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   modelValue: {
     type: Array,
     default: () => [],
   },
+  // eslint-disable-next-line vue/require-default-prop
   id: String,
   showHpoShortcutsButton: Boolean,
 })
@@ -158,8 +160,8 @@ onMounted(() => {
       <div class="input-group-append">
         <span
           class="input-group-text refresh-button"
-          @click="manuallyRefreshModelValue()"
           title="Verify and clean terms from text input"
+          @click="manuallyRefreshModelValue()"
         >
           <i-mdi-refresh :class="{ spin: refreshing }" />
         </span>
@@ -208,14 +210,14 @@ onMounted(() => {
       <div class="col pl-0 pr-0 small">
         <h6 class="mt-2" style="font-size: 1.2em">Inheritance</h6>
         <template v-for="(item, index) in hpoInheritance">
-          <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+          <span v-if="index > 0" class="pl-1 pr-1">&middot;</span>
           <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
             item.label
           }}</a>
         </template>
         <h6 class="mt-2" style="font-size: 1.2em">Age of Onset</h6>
         <template v-for="(item, index) in hpoAgeOfOnset">
-          <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+          <span v-if="index > 0" class="pl-1 pr-1">&middot;</span>
           <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
             item.label
           }}</a>

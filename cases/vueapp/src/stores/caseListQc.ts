@@ -36,7 +36,7 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
   // other data (loaded via REST API or computed)
 
   /** QC values retrieved from API. */
-  let qcValues = ref<CaseListQcValues | null>(null)
+  const qcValues = ref<CaseListQcValues | null>(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any>>(null)

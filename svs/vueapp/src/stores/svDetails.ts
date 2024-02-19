@@ -58,7 +58,7 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
 
       // Fetch new details
       const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-      let hgncIds = []
+      const hgncIds = []
       for (const txEffect of svRecord.payload.tx_effects) {
         if (txEffect.gene.hgnc_id) {
           hgncIds.push(txEffect.gene.hgnc_id)

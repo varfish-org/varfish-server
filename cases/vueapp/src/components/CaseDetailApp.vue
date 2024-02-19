@@ -28,8 +28,10 @@ import ModalTermsEditor from '@cases/components/ModalTermsEditor.vue'
 
 const props = defineProps({
   /** The case UUID. */
+  // eslint-disable-next-line vue/require-default-prop
   caseUuid: String,
   /** The current tab. */
+  // eslint-disable-next-line vue/require-default-prop
   currentTab: String,
 })
 

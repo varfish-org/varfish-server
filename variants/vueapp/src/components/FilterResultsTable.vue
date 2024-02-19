@@ -18,10 +18,9 @@ import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
-import { copy, declareWrapper } from '@variants/helpers'
+import { copy } from '@variants/helpers'
 import {
   DisplayConstraints,
-  DisplayConstraintsToText,
   DisplayFrequencies,
   DisplayColumnsToText,
   DisplayDetails,
@@ -122,11 +121,6 @@ const tableServerOptions = computed({
   },
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
 /**
  * Setup for easy-data-table.
  */
@@ -205,7 +199,7 @@ const scoreColumns = () => {
 
 const extraAnnoFieldFormat = (value, pos) => {
   if (!value) return '-'
-  let ret = parseFloat(value[0][pos - 1])
+  const ret = parseFloat(value[0][pos - 1])
   return Number.isInteger(ret) ? ret : formatFloat(ret, 4)
 }
 
@@ -277,7 +271,7 @@ const formatConstraint = (value) => {
 
 const getSymbol = (item) => item.symbol || item.gene_symbol || '-'
 const getAcmgBadgeClasses = (acmgClass) => {
-  let acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
+  const acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
   if (!acmgClass) {
     acmgBadgeClasses.push('badge-outline')
   }
@@ -360,7 +354,7 @@ const goToLocus = async (item) => {
     : `chr${item.chromosome}`
   await fetch(
     `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${item.start}-${item.end}`,
-  ).catch((e) => {
+  ).catch(() => {
     const msg =
       "Couldn't connect to IGV. Please make sure IGV is running and try again."
     alert(msg)
@@ -402,7 +396,7 @@ const displayAmbiguousFrequencyWarning = (item) => {
     'gnomad_genomes',
     'inhouse',
   ]
-  let ambiguousTables = []
+  const ambiguousTables = []
   for (const table of tables) {
     const hom_field =
       table === 'inhouse' ? 'inhouse_hom_alt' : table + '_homozygous'
@@ -543,7 +537,7 @@ watch(
           </label>
         </div>
         <div class="text-center">
-          <span class="btn btn-sm btn-outline-secondary" id="results-button">
+          <span id="results-button" class="btn btn-sm btn-outline-secondary">
             {{ variantResultSetStore?.resultSet?.result_row_count }}
           </span>
         </div>
@@ -586,35 +580,35 @@ watch(
           <span class="text-nowrap">
             <i-fa-solid-search
               class="text-muted"
-              @click="showVariantDetails(sodar_uuid)"
               role="button"
+              @click="showVariantDetails(sodar_uuid)"
             />
             <i-fa-solid-bookmark
               v-if="flagsStore.getFlags(payload)"
               class="text-muted ml-1"
               title="flags & bookmarks"
-              @click="showVariantDetails(sodar_uuid, 'flags')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
             />
             <i-fa-regular-bookmark
               v-else
               class="text-muted ml-1"
               title="flags & bookmarks"
-              @click="showVariantDetails(sodar_uuid, 'flags')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'flags')"
             />
 
             <i-fa-solid-comment
               v-if="commentsStore.hasComments(payload)"
               class="text-muted ml-1"
-              @click="showVariantDetails(sodar_uuid, 'comments')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
             />
             <i-fa-regular-comment
               v-else
               class="text-muted ml-1"
-              @click="showVariantDetails(sodar_uuid, 'comments')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'comments')"
             />
 
             <span
@@ -622,8 +616,8 @@ watch(
               :class="
                 getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))
               "
-              @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
               >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
             >
 
@@ -640,8 +634,8 @@ watch(
             <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
 
             <span
-              @click="showVariantDetails(sodar_uuid, 'clinvar')"
               role="button"
+              @click="showVariantDetails(sodar_uuid, 'clinvar')"
             >
               <i-fa-regular-hospital
                 v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
@@ -671,30 +665,30 @@ watch(
         </template>
         <template #item-position="{ sodar_uuid, position }">
           <div
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
           >
             {{ position }}
           </div>
         </template>
         <template #item-reference="{ sodar_uuid, reference }">
           <div
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
           >
             <span :title="reference">{{ truncateText(reference, 5) }}</span>
           </div>
         </template>
         <template #item-alternative="{ sodar_uuid, alternative }">
           <div
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
           >
             <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
           </div>
         </template>
         <template #item-clinvar="{ payload }">
-          <span class="badge-group" v-if="payload.summary_pathogenicity_label">
+          <span v-if="payload.summary_pathogenicity_label" class="badge-group">
             <span
               class="badge"
               :class="
@@ -720,7 +714,7 @@ watch(
           <span v-else class="badge badge-light">-</span>
         </template>
         <template #item-frequency="{ sodar_uuid, payload }">
-          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+          <div role="button" @click="showVariantDetails(sodar_uuid, 'freqs')">
             <abbr
               v-if="displayAmbiguousFrequencyWarning(payload)?.length"
               :title="displayAmbiguousFrequencyWarningMsg(payload)"
@@ -734,14 +728,14 @@ watch(
           </div>
         </template>
         <template #item-homozygous="{ sodar_uuid, payload }">
-          <div @click="showVariantDetails(sodar_uuid, 'freqs')" role="button">
+          <div role="button" @click="showVariantDetails(sodar_uuid, 'freqs')">
             {{ displayHomozygousContent(payload) }}
           </div>
         </template>
         <template #item-constraints="{ payload }">
           <div
-            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
             role="button"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
           >
             {{ displayConstraintsContent(payload) }}
           </div>
@@ -750,8 +744,8 @@ watch(
           <span
             class="user-select-none"
             href="#"
-            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
             role="button"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
           >
             {{ getSymbol(payload) }}
           </span>
@@ -788,8 +782,8 @@ watch(
         <template #item-effect_summary="{ sodar_uuid, payload }">
           <span
             :title="`${effectSummary(payload)} [${payload.effect.join(', ')}]`"
-            @click="showVariantDetails(sodar_uuid, 'tx-csq')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'tx-csq')"
           >
             {{ truncateText(effectSummary(payload), 12) }}
           </span>
@@ -812,13 +806,13 @@ watch(
         </template>
         <template
           v-for="{ field } in extraAnnoFields"
-          v-slot:[`item-extra_anno${field}`]="{ payload }"
+          #[`item-extra_anno${field}`]="{ payload }"
         >
           {{ extraAnnoFieldFormat(payload.extra_annos, field) }}
         </template>
         <template
           v-for="{ name } in caseDetailsStore.caseObj?.pedigree"
-          v-slot:[`item-genotype_${displayName(name)}`]="{ payload }"
+          #[`item-genotype_${displayName(name)}`]="{ payload }"
         >
           <template v-if="!(name in payload.genotype)">
             <span
@@ -853,8 +847,8 @@ watch(
             <div
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
-              @click="flagsStore.flagAsArtifact(item)"
               role="button"
+              @click="flagsStore.flagAsArtifact(item)"
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>
@@ -868,12 +862,12 @@ watch(
               MT
             </a>
             <button
-              @click="goToLocus(item)"
               type="button"
               title="Go to locus in IGV"
               style="font-size: 80%"
               class="btn btn-sm btn-secondary"
               role="button"
+              @click="goToLocus(item)"
             >
               IGV
             </button>
