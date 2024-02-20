@@ -158,10 +158,10 @@ onMounted(async () => {
                 </span>
               </div>
               <input
+                v-model="cohortsStore.searchTerm"
                 type="text"
                 class="form-control"
                 placeholder="search text"
-                v-model="cohortsStore.searchTerm"
               />
             </div>
           </div>
@@ -169,12 +169,12 @@ onMounted(async () => {
 
         <div class="card-body p-0 position-relative">
           <EasyDataTable
+            v-model:server-options="cohortsStore.tableServerOptions"
             :headers="headers"
             :items="cohortsStore.tableRows"
             table-class-name="custom-table"
             :search-value="cohortsStore.searchTerm"
             :server-items-length="cohortsStore.cohortCount"
-            v-model:server-options="cohortsStore.tableServerOptions"
             :loading="cohortsStore.tableLoading"
             :rows-items="[10, 20, 50, 100]"
             theme-color="#6c757d"
@@ -197,7 +197,11 @@ onMounted(async () => {
               getMemberCount(cases)
             }}</template>
             <template #item-cases="{ cases }">
-              <span class="badge-group" v-for="kase in cases">
+              <span
+                v-for="kase in cases"
+                :key="`case-${kase.name}`"
+                class="badge-group"
+              >
                 <span class="badge badge-dark">{{ kase.name }}</span>
                 <span class="badge badge-secondary">{{
                   kase.pedigree.length
@@ -211,11 +215,11 @@ onMounted(async () => {
             </template>
             <template #item-inaccessible_cases="{ inaccessible_cases }">
               <span class="badge-group">
-                <span class="badge badge-warning" v-if="inaccessible_cases > 0">
+                <span v-if="inaccessible_cases > 0" class="badge badge-warning">
                   <i-mdi-alert-decagram />
                   Inaccessible Cases
                 </span>
-                <span class="badge badge-dark" v-if="inaccessible_cases > 0">
+                <span v-if="inaccessible_cases > 0" class="badge badge-dark">
                   {{ inaccessible_cases }}
                 </span>
               </span>

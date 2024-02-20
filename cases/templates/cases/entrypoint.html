@@ -2,6 +2,16 @@
 {% load projectroles_common_tags %}
 {% load vite_tags %}
 
+{% block css_custom %}
+<style type="text/css">
+  /* make space more narrow and put on gray background */
+  .sodar-app-content-project {
+    padding: 14px;
+    background-color: rgb(238, 238, 238);
+  }
+</style>
+{% endblock css_custom %}
+
 {% block title %}
   Cases {{ project.name }}
 {% endblock title %}
@@ -12,6 +22,6 @@
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app" class="h-100"></div>
 
-  {% vite_scripts 'src/cases/main.js' %}
-  {% vite_styles 'src/cases/main.js' %}
+  {% vite_scripts 'src/cases/main.ts' %}
+  {% vite_styles 'src/cases/main.ts' %}
 {% endblock %}

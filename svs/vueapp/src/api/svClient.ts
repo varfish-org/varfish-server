@@ -7,6 +7,7 @@ type QuerySettingsShortcuts = any
 type CaseSvQuery = any
 type SvQueryResultSet = any
 type SvQueryResultRow = any
+type SvComment = any
 type SvFlags = any
 
 /**
@@ -69,7 +70,7 @@ export class SvClient extends ClientBase {
     )
   }
 
-  async createSvQuery(caseUuid, payload: string): Promise<CaseSvQuery> {
+  async createSvQuery(caseUuid: string, payload: string): Promise<CaseSvQuery> {
     return await this.fetchHelper(
       `/svs/ajax/sv-query/list-create/${caseUuid}/`,
       'POST',
@@ -101,13 +102,13 @@ export class SvClient extends ClientBase {
   }
 
   async listSvQueryResultRow(svQueryResultSetUuid: string, args?: ListArgs) {
-    const pageNo = args.pageNo ?? 1
-    const pageSize = args.pageSize ?? 50
-    const orderByRaw = args.orderBy ?? 'chromosome_no,start'
+    const pageNo = args?.pageNo ?? 1
+    const pageSize = args?.pageSize ?? 50
+    const orderByRaw = args?.orderBy ?? 'chromosome_no,start'
     const orderBy = ['start', 'end'].includes(orderByRaw)
       ? `chromosome_no,${orderByRaw}`
       : orderByRaw
-    const orderDir = args.orderDir ?? 'asc'
+    const orderDir = args?.orderDir ?? 'asc'
 
     const urlQuery = `?page=${pageNo}&page_size=${pageSize}&order_by=${orderBy}&order_dir=${orderDir}`
     return await this.fetchHelper(
@@ -144,8 +145,8 @@ export class SvClient extends ClientBase {
   async createComment(
     caseUuid: string,
     sv: StructuralVariant,
-    payload: Comment,
-  ): Promise<Comment> {
+    payload: SvComment,
+  ): Promise<SvComment> {
     const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
     const query =
       `release=${release}&chromosome=${chromosome}&start=${start}` +
@@ -158,7 +159,10 @@ export class SvClient extends ClientBase {
     )
   }
 
-  async updateComment(commentUuid: string, payload: Comment): Promise<Comment> {
+  async updateComment(
+    commentUuid: string,
+    payload: SvComment,
+  ): Promise<SvComment> {
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-comment/retrieve-update-destroy/${commentUuid}/`,
       'PATCH',

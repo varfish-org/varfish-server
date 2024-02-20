@@ -1,7 +1,9 @@
-<script setup>
-const props = defineProps({
-  flag: String,
-})
+<script setup lang="ts">
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps<{
+  flag?: string
+}>()
 </script>
 
 <template>

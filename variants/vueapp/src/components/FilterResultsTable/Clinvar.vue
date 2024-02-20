@@ -1,5 +1,5 @@
 <script setup>
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   params: Object,
 })
@@ -21,7 +21,7 @@ const getClinvarSignificanceBadge = (patho) => {
 </script>
 
 <template>
-  <span class="badge-group" v-if="params.data.summary_pathogenicity_label">
+  <span v-if="params.data.summary_pathogenicity_label" class="badge-group">
     <span
       class="badge"
       :class="

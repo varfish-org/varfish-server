@@ -6,6 +6,7 @@ const variantDetailsStore = useVariantDetailsStore()
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   params: Object,
 })
 
@@ -17,7 +18,7 @@ const selectCommentFlags = () => {
 const symbol = props.params.data.symbol || props.params.data.gene_symbol
 const acmgClass =
   props.params.data.acmg_class_override || props.params.data.acmg_class_auto
-let acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
+const acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
 if (!acmgClass) {
   acmgBadgeClasses.push('icon-inactive')
 }

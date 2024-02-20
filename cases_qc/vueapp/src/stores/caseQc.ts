@@ -26,7 +26,7 @@ export const useCaseQcStore = defineStore('caseQc', () => {
   // other data (loaded via REST API or computed)
 
   /** The current QC statistics. */
-  const varfishStats = ref<VarfishStats>(null)
+  const varfishStats = ref<VarfishStats | null>(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any>>(Promise.resolve(null))
@@ -46,7 +46,7 @@ export const useCaseQcStore = defineStore('caseQc', () => {
     varfishStats.value = null
 
     // Fetch new details
-    const caseQcClient = new CaseQcClient(csrfToken.value)
+    const caseQcClient = new CaseQcClient(csrfToken.value ?? 'csrf-undefined')
     varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
 
     caseUuid.value = caseUuid$

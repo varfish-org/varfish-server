@@ -1,4 +1,5 @@
 <script setup>
+// eslint-disable
 /** Component for editing a single preset set.
  *
  * Displays the list of preset category entries on the left as an accordion.
@@ -423,9 +424,11 @@ watch(
     handleCategoryClicked('presetset')
   },
 )
+// eslint-enable
 </script>
 
 <template>
+  <!-- eslint-disable -->
   <div>
     <div v-if="!presetSetUuid" class="text-muted text-center font-italic">
       No query preset selected.
@@ -490,18 +493,18 @@ watch(
                     v-if="getPresetSetEntries(category.name).length > 0"
                   >
                     <div
-                      class="nav nav-pills flex-column"
                       v-for="entry in getPresetSetEntries(category.name)"
+                      class="nav nav-pills flex-column"
                     >
                       <a
                         class="nav-link"
                         :class="{
                           active: entry.sodar_uuid === selectedPresetsUuid,
                         }"
+                        style="cursor: pointer"
                         @click="
                           handlePresetsClicked(category.name, entry.sodar_uuid)
                         "
-                        style="cursor: pointer"
                       >
                         {{ entry.label }}
                       </a>
@@ -591,9 +594,9 @@ watch(
           <!-- PresetSet Properties -->
           <div v-if="selectedCategory === 'presetset' && presetSet">
             <QueryPresetsSetProperties
+              v-model:label="presetSet.label"
               filtration-complexity-mode="advanced"
               :case="{ release: 'GRCh37' }"
-              v-model:label="presetSet.label"
             />
           </div>
           <!-- Quick Presets -->
@@ -678,4 +681,5 @@ watch(
     <ModalInput ref="modalInputRef" />
     <Toast ref="toastRef" :autohide="false" />
   </div>
+  <!-- eslint-enable -->
 </template>

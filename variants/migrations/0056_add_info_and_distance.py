@@ -1,4 +1,5 @@
 """Add ``SmallVariant.info`` and ``SmallVariant.{ensembl,refseq}_exon_dist`` fields."""
+
 from django.conf import settings
 from django.db import migrations, models
 

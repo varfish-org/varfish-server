@@ -47,7 +47,10 @@ const caseDetailsStore = useCaseDetailsStore()
       </thead>
       <tbody>
         <template v-if="caseDetailsStore.caseObj">
-          <tr v-for="member in caseDetailsStore.caseObj.pedigree">
+          <tr
+            v-for="member in caseDetailsStore.caseObj.pedigree"
+            :key="`pedigree-member-${member.name}`"
+          >
             <td>
               {{ displayName(member.name) }}
             </td>

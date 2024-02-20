@@ -168,9 +168,11 @@ class Inheritance(Enum):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    s.name: GenotypeChoice.VARIANT.value
-                    if s.is_affected()
-                    else GenotypeChoice.ANY.value
+                    s.name: (
+                        GenotypeChoice.VARIANT.value
+                        if s.is_affected()
+                        else GenotypeChoice.ANY.value
+                    )
                     for s in samples
                 },
             }
@@ -179,9 +181,11 @@ class Inheritance(Enum):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    s.name: GenotypeChoice.VARIANT.value
-                    if s.name == index_candidates[0].name
-                    else GenotypeChoice.REF.value
+                    s.name: (
+                        GenotypeChoice.VARIANT.value
+                        if s.name == index_candidates[0].name
+                        else GenotypeChoice.REF.value
+                    )
                     for s in samples
                 },
             }
@@ -190,9 +194,9 @@ class Inheritance(Enum):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    s.name: GenotypeChoice.HET.value
-                    if s.is_affected()
-                    else GenotypeChoice.REF.value
+                    s.name: (
+                        GenotypeChoice.HET.value if s.is_affected() else GenotypeChoice.REF.value
+                    )
                     for s in samples
                 },
             }

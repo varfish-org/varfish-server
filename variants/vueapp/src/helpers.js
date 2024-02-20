@@ -36,8 +36,8 @@ export const getAcmgBadge = (acmgClass) => {
   return acmgClass == null
     ? 'badge-light text-muted'
     : acmgClass > 3
-    ? 'badge-danger text-white'
-    : acmgClass === 3
-    ? 'badge-warning text-black'
-    : 'badge-success text-white'
+      ? 'badge-danger text-white'
+      : acmgClass === 3
+        ? 'badge-warning text-black'
+        : 'badge-success text-white'
 }

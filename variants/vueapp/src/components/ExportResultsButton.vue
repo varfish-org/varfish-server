@@ -27,15 +27,15 @@ const props = defineProps({
         ? 'text-danger'
         : ''
     "
-    @click="variantQueryStore.generateDownloadResults(props.fileType)"
     :disabled="
       variantQueryStore.getDownloadStatus(props.fileType) === 'running'
     "
     onclick="event.stopPropagation();"
+    @click="variantQueryStore.generateDownloadResults(props.fileType)"
   >
     <i-fa-solid-circle-notch
-      class="spin"
       v-if="variantQueryStore.getDownloadStatus(props.fileType) === 'running'"
+      class="spin"
     />
     <i-fa-solid-cloud-download-alt v-else />
     Export as {{ props.fileType.toUpperCase() }}

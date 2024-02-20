@@ -82,6 +82,7 @@ vue_test-coverage:
 .PHONY: vue_lint
 vue_lint:
 	npm run --prefix varfish/vueapp lint $(arg)
+	npm run --prefix varfish/vueapp type-check $(arg)
 	npm run --prefix varfish/vueapp prettier-check $(arg)
 
 .PHONY: prettier

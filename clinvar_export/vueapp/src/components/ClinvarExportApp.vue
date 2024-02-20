@@ -9,7 +9,7 @@ import {
 import SubmissionSetList from '@clinvarexport/components/SubmissionSetList.vue'
 import SubmissionSetWizard from '@clinvarexport/components/SubmissionSetWizard.vue'
 
-/* eslint-disable no-unused-vars */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = { SubmissionSetWizard, SubmissionSetList }
 
 const store = useClinvarExportStore()

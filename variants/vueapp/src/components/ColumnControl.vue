@@ -8,11 +8,6 @@ import {
 } from '@variants/enums'
 import { computed } from 'vue'
 
-const components = { Multiselect }
-
-// We define two-way bound props here.  Internally, they are accessed through computed *Wrapper properties
-// that perform the appropriate ag-grid calls to apply the changes.
-
 const props = defineProps({
   // model props
   displayDetails: Number,
@@ -102,8 +97,8 @@ const displayColumnsWrapper = computed({
     >
       <option
         v-for="option in DisplayDetails"
-        :value="option.value"
         :key="option"
+        :value="option.value"
       >
         {{ option.text }}
       </option>
@@ -117,14 +112,14 @@ const displayColumnsWrapper = computed({
       </label>
     </div>
     <select
+      v-model="displayFrequencyWrapper"
       class="custom-select custom-select-sm"
       style="width: 150px"
-      v-model="displayFrequencyWrapper"
     >
       <option
         v-for="option in DisplayFrequencies"
-        :value="option.value"
         :key="option"
+        :value="option.value"
       >
         {{ option.text }}
       </option>
@@ -144,8 +139,8 @@ const displayColumnsWrapper = computed({
     >
       <option
         v-for="option in DisplayConstraints"
-        :value="option.value"
         :key="option"
+        :value="option.value"
       >
         {{ option.text }}
       </option>

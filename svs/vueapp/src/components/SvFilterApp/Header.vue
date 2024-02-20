@@ -7,7 +7,7 @@ import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 // TODO: change to sv presets
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 
@@ -57,9 +57,9 @@ watch(
       </small>
 
       <a
+        id="sodar-pr-btn-copy-uuid"
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-        id="sodar-pr-btn-copy-uuid"
         data-clipboard-text="{{ svQueryStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"

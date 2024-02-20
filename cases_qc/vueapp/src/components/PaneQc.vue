@@ -30,12 +30,12 @@ const sampleNames = computed<string[]>(() => {
 
 <template>
   <div class="container-fluid">
-    <div class="row" v-if="!stats || !sampleNames.length">
+    <div v-if="!stats || !sampleNames.length" class="row">
       <div class="col text-center text-muted font-italic">
         No QC data available.
       </div>
     </div>
-    <div class="row" v-else>
+    <div v-else class="row">
       <ReadsCard :sample-names="sampleNames" :read-stats="stats?.readstats" />
       <AlignmentsSummaryCard
         :sample-names="sampleNames"

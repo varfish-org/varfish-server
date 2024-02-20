@@ -78,12 +78,12 @@ const onSubmitCancelButtonClicked = () => {
 <template>
   <form id="filterForm" method="post" class="position-relative">
     <div
-      class="card"
-      :class="{ 'border-danger': v$.$error || geneHasError }"
       v-if="
         variantQueryStore.querySettings !== null &&
         variantQueryStore.querySettingsPreset !== null
       "
+      class="card"
+      :class="{ 'border-danger': v$.$error || geneHasError }"
     >
       <div class="card-header">
         <FilterFormQuickPresets
@@ -100,9 +100,9 @@ const onSubmitCancelButtonClicked = () => {
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a
+              id="genotype-tab"
               class="nav-link active"
               :class="{ 'border-danger text-danger': genotypeHasError }"
-              id="genotype-tab"
               data-toggle="tab"
               href="#panel-genotype"
               role="tab"
@@ -114,9 +114,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="frequency-tab"
               class="nav-link"
               :class="{ 'texborder-danger -danger': frequencyHasError }"
-              id="frequency-tab"
               data-toggle="tab"
               href="#panel-frequency"
               role="tab"
@@ -128,9 +128,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="prioritization-tab"
               class="nav-link"
               :class="{ 'border-danger text-danger': prioritizationHasError }"
-              id="prioritization-tab"
               data-toggle="tab"
               href="#panel-prioritization"
               role="tab"
@@ -142,9 +142,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="effect-tab"
               class="nav-link"
               :class="{ 'text-danger': effectHasError }"
-              id="effect-tab"
               data-toggle="tab"
               href="#panel-effect"
               role="tab"
@@ -156,9 +156,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="quality-tab"
               class="nav-link"
               :class="{ 'text-danger': qualityHasError }"
-              id="quality-tab"
               data-toggle="tab"
               href="#panel-quality"
               role="tab"
@@ -170,8 +170,8 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
-              class="nav-link"
               id="clinvar-tab"
+              class="nav-link"
               data-toggle="tab"
               href="#panel-clinvar"
               role="tab"
@@ -182,9 +182,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="allowlist-tab"
               class="nav-link"
               :class="{ 'text-danger': geneHasError }"
-              id="allowlist-tab"
               data-toggle="tab"
               href="#panel-allowlist"
               role="tab"
@@ -196,8 +196,8 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
-              class="nav-link"
               id="flags-tab"
+              class="nav-link"
               data-toggle="tab"
               href="#panel-flags"
               role="tab"
@@ -212,13 +212,14 @@ const onSubmitCancelButtonClicked = () => {
       <div class="card-body p-0">
         <div class="tab-content">
           <div
+            id="panel-genotype"
             ref="genotypePaneRef"
             class="tab-pane fade show active"
-            id="panel-genotype"
             role="tabpanel"
             aria-labelledby="genotype-tab"
           >
             <FilterFormGenotypePane
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
@@ -226,13 +227,12 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.filtrationComplexityMode
               "
               :case="caseDetailsStore.caseObj"
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
+            id="panel-frequency"
             ref="frequencyPaneRef"
             class="tab-pane fade"
-            id="panel-frequency"
             role="tabpanel"
             aria-labelledby="frequency-tab"
           >
@@ -248,19 +248,13 @@ const onSubmitCancelButtonClicked = () => {
             />
           </div>
           <div
+            id="panel-prioritization"
             ref="prioritizationPaneRef"
             class="tab-pane fade"
-            id="panel-prioritization"
             role="tabpanel"
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
-              :csrf-token="variantQueryStore.csrfToken"
-              :show-filtration-inline-help="
-                variantQueryStore.showFiltrationInlineHelp
-              "
-              :exomiser-enabled="variantQueryStore.exomiserEnabled"
-              :cadd-enabled="variantQueryStore.caddEnabled"
               v-model:prio-enabled="
                 variantQueryStore.querySettings.prio_enabled
               "
@@ -274,33 +268,40 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.querySettings.patho_enabled
               "
               v-model:patho-score="variantQueryStore.querySettings.patho_score"
+              :csrf-token="variantQueryStore.csrfToken"
+              :show-filtration-inline-help="
+                variantQueryStore.showFiltrationInlineHelp
+              "
+              :exomiser-enabled="variantQueryStore.exomiserEnabled"
+              :cadd-enabled="variantQueryStore.caddEnabled"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-effect"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="effect-tab"
           >
             <FilterFormEffectPane
               ref="effectPaneRef"
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-quality"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="quality-tab"
           >
             <FilterFormQualityPane
               ref="qualityPaneRef"
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
@@ -308,66 +309,65 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.filtrationComplexityMode
               "
               :case-obj="caseDetailsStore.caseObj"
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-allowlist"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="allowlist-tab"
           >
             <FilterFormGenesRegionsPane
               ref="genePaneRef"
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-flags"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="flags-tab"
           >
             <FilterFormFlagsPane
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-clinvar"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="clinvar-tab"
           >
             <FilterFormClinvarPane
+              v-model:query-settings="variantQueryStore.querySettings"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 variantQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
         </div>
         <FilterFormFooter
+          v-model:database="variantQueryStore.querySettings.database"
           :query-state="variantQueryStore.queryState"
           :any-has-error="anyHasError"
           :filtration-complexity-mode="
             variantQueryStore.filtrationComplexityMode
           "
-          v-model:database="variantQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>

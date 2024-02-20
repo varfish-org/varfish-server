@@ -112,7 +112,11 @@ const badgeStatusColor = computed(() => {
               </span>
             </h4>
             <div v-if="caseObj && caseObj.tags.length">
-              <span v-for="tag in caseObj.tags" class="badge badge-secondary">
+              <span
+                v-for="tag in caseObj.tags"
+                :key="`tag-${tag}`"
+                class="badge badge-secondary"
+              >
                 {{ tag }}
               </span>
             </div>

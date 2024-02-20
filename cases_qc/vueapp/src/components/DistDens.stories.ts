@@ -7,7 +7,7 @@ export default {
   component: DistDensPlot,
 }
 
-const Template = (args) => ({
+const Template = (args: any) => ({
   components: { DistDensPlot },
   setup() {
     return { args }
@@ -26,6 +26,7 @@ const Template = (args) => ({
 })
 
 export const InsertSizes = Template.bind({})
+// @ts-ignore
 InsertSizes.args = {
   datasets: [storyData.isize],
 }

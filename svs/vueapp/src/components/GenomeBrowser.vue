@@ -12,10 +12,13 @@ import {
 // Define the props.
 const props = defineProps({
   // Case UUID
+  // eslint-disable-next-line vue/require-default-prop
   caseUuid: String,
   // Genome build, e.g., "hg19" or "b37"
+  // eslint-disable-next-line vue/require-default-prop
   genome: String,
   // Locus to go to, e.g., "chr1:1,900,000-2,000,000"
+  // eslint-disable-next-line vue/require-default-prop
   locus: String,
 })
 

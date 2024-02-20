@@ -23,7 +23,7 @@ export default {
               { id: 'HP:0000419', name: 'Abnormality of the nasal septum' },
             ]
 
-            for (let item of items) {
+            for (const item of items) {
               if (decodedUrl.endsWith(item.id)) {
                 return {
                   status: 200,

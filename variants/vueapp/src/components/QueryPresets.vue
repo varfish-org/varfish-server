@@ -9,7 +9,6 @@ import { useRouter } from 'vue-router'
 import { minLength, required } from '@vuelidate/validators'
 
 import { overlayShow, overlayMessage } from '@cases/common'
-import { StoreState, State } from '@varfish/storeUtils'
 import { useQueryPresetsStore } from '@variants/stores/queryPresets'
 import { useCaseListStore } from '@cases/stores/caseList'
 
@@ -24,6 +23,7 @@ const labelRules = Object.freeze([required, minLength(5)])
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-ignore-next-line vue/require-default-prop
   presetSet: String,
 })
 
@@ -232,17 +232,17 @@ const presetSetModel = computed({
             </div>
             <select
               id="select-preset"
-              class="custom-select"
               v-model="presetSetModel"
+              class="custom-select"
             >
               <option value="factory-defaults">
                 factory defaults (read-only)
               </option>
               <option
-                v-for="presetSet in presetSets"
-                :value="presetSet.sodar_uuid"
+                v-for="presetSetEntry in presetSets"
+                :value="presetSetEntry.sodar_uuid"
               >
-                {{ presetSet.label }}
+                {{ presetSetEntry.label }}
               </option>
             </select>
             <div class="input-group-append">

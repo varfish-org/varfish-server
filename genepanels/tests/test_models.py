@@ -1,4 +1,5 @@
 """Test models and factories"""
+
 from test_plus.test import TestCase
 
 from genepanels.models import (

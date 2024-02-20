@@ -1,4 +1,5 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
+
 import gzip
 import json
 

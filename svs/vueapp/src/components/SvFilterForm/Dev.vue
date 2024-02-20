@@ -29,8 +29,8 @@ const applySettings = () => {
       <div class="form-group">
         <label for="raw-filter-criteria-ref">Raw Filter Criteria</label>
         <textarea
-          ref="rawFilterCriteriaRef"
           id="raw-filter-criteria-ref"
+          ref="rawFilterCriteriaRef"
           class="form-control"
           rows="5"
         ></textarea>

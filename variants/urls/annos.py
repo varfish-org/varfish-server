@@ -1,4 +1,5 @@
 """User annotation--related urls."""
+
 from django.conf.urls import url
 
 from variants.views.ajax.annos import CaseUserAnnotatedVariantsAjaxView

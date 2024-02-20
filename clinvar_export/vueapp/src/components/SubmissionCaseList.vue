@@ -4,6 +4,7 @@ import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
 import SubmissionCaseListEntry from '@clinvarexport/components/SubmissionCaseListEntry.vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = { SubmissionCaseListEntry }
 
 // References

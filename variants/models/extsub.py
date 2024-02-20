@@ -2,6 +2,7 @@
 
 This will eventually go into their own apps via a plugin.
 """
+
 import uuid as uuid_object
 
 from bgjobs.models import BackgroundJob, JobModelMessageMixin

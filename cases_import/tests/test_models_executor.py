@@ -2,6 +2,7 @@
 
 This has been broken away from ``test_models.py`` for better structure.
 """
+
 import itertools
 import os
 from unittest import mock

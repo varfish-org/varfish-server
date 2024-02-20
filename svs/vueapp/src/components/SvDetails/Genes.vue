@@ -7,7 +7,7 @@ import EasyDataTable from 'vue3-easy-data-table'
 import type { ClickRowArgument, Header, Item } from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
+// import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
 
 /** `GeneInfo` is a type alias for easier future interface definition. */
 type GeneInfo = any
@@ -43,8 +43,8 @@ const clingenDosageLabel: { [key: string]: string } = {
   CLINGEN_DOSAGE_SCORE_UNLIKELY: 'dosage sensitivity unlikely',
 }
 
-const currentGeneInfos: Ref<any> = ref(null)
-const currentGeneClinvar: Ref<any> = ref(null)
+const currentGeneInfos: Ref<any> = ref(undefined)
+const currentGeneClinvar: Ref<any> = ref(undefined)
 
 const genesInfosByHgnc: ComputedRef<Map<string, any>> = computed(
   (): Map<string, any> => {
@@ -152,8 +152,8 @@ const resultsInfos: ComputedRef<Map<string, ResultsInfo>> = computed(() => {
 })
 
 /** Compute geneInfo's class. */
-const geneInfoClass = (geneInfo: any): string | null => {
-  let resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
+const geneInfoClass = (geneInfo: any): string | undefined => {
+  const resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
   if (resultsInfo?.isDiseaseGene) {
     return 'text-danger'
   } else {
@@ -162,12 +162,12 @@ const geneInfoClass = (geneInfo: any): string | null => {
 }
 
 /** Compute geneInfo's badge HTML (if any). */
-const geneInfoBadge = (geneInfo: any): string | null => {
+const geneInfoBadge = (geneInfo: any): string | undefined => {
   const badge = (color: string, title: string, text: string): string => {
     return `<span class="badge badge-${color}" title="${title}">${text}</span>&nbsp;`
   }
 
-  let resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
+  const resultsInfo = resultsInfos.value.get(geneInfo.hgnc.hgnc_id)
   switch (resultsInfo?.txEffect) {
     case 'transcript_variant':
       return badge('danger', 'whole transcript is affected', 'tx')
@@ -325,7 +325,7 @@ const onRowClicked = (item: ClickRowArgument) => {
       >
         Gene Details: {{ currentGeneInfos.hgnc.symbol }}
       </div>
-      <VariantDetailsGene :gene="currentGeneInfos" :gene-clinvar="null" />
+      <VariantDetailsGene :gene="currentGeneInfos" :gene-clinvar="undefined" />
     </div>
     <div v-else class="text-muted text-center font-italic pt-2">
       Select gene in table above to see details.

@@ -7,13 +7,13 @@ const props = defineProps({
 <template>
   <span>
     <i-fa-solid-venus
-      id="sex-female-icon"
       v-if="props.sex === 2 || props.sex === 'female'"
+      id="sex-female-icon"
     />
     <i-fa-solid-mars
-      id="sex-male-icon"
       v-else-if="props.sex === 1 || props.sex === 'male'"
+      id="sex-male-icon"
     />
-    <i-fa-solid-question id="sex-unknown-icon" v-else />
+    <i-fa-solid-question v-else id="sex-unknown-icon" />
   </span>
 </template>

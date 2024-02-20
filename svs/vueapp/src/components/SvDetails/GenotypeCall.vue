@@ -32,7 +32,7 @@ const allKeys = computed(() => {
   }
 
   let tmp = []
-  for (let call_info of Object.values(
+  for (const call_info of Object.values(
     props.currentSvRecord.payload.call_info,
   )) {
     tmp = tmp.concat(
@@ -41,7 +41,7 @@ const allKeys = computed(() => {
         .map(([key, _]) => key),
     )
   }
-  let result = Array.from(new Set(tmp))
+  const result = Array.from(new Set(tmp))
   result.sort()
   return result
 })
@@ -49,7 +49,7 @@ const allKeys = computed(() => {
 
 <template>
   <div class="card">
-    <table class="table table-striped table-hover" v-if="currentSvRecord">
+    <table v-if="currentSvRecord" class="table table-striped table-hover">
       <thead>
         <tr>
           <th>Sample</th>

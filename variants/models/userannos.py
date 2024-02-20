@@ -1,4 +1,5 @@
 """Code for user annotations of small variants."""
+
 import uuid as uuid_object
 
 import binning
@@ -650,3 +651,6 @@ class AcmgCriteriaRating(models.Model):
         if self.class_override:
             result += ", ACMG class. override: %s" % self.class_override
         return result
+
+    class Meta:
+        ordering = ["chromosome", "start", "reference", "alternative"]

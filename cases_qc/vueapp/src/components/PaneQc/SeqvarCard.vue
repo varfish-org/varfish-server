@@ -63,7 +63,11 @@ const floatNumberFormatter = Intl.NumberFormat('en', {
         <thead>
           <tr>
             <th>Metric</th>
-            <th v-for="name in sampleNames" class="text-left">
+            <th
+              v-for="name in sampleNames"
+              :key="`metric-${name}`"
+              class="text-left"
+            >
               {{ name }}
             </th>
           </tr>
@@ -71,20 +75,29 @@ const floatNumberFormatter = Intl.NumberFormat('en', {
         <tbody>
           <tr>
             <td class="text-nowrap">SNVs</td>
-            <td v-for="value in sampleStats.snvCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.snvCount"
+              :key="`snv-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">InDels</td>
-            <td v-for="value in sampleStats.indelCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.indelCount"
+              :key="`indelx-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">multiallelic</td>
             <td
-              v-for="value in sampleStats.multiallelicCount"
+              v-for="(value, idx) in sampleStats.multiallelicCount"
+              :key="`multiallelic-${idx}`"
               class="text-right"
             >
               {{ largeNumberFormatter.format(value) }}
@@ -92,14 +105,19 @@ const floatNumberFormatter = Intl.NumberFormat('en', {
           </tr>
           <tr>
             <td class="text-nowrap">transitions</td>
-            <td v-for="value in sampleStats.transitionCount" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.transitionCount"
+              :key="`ts-${idx}`"
+              class="text-right"
+            >
               {{ largeNumberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">transversions</td>
             <td
-              v-for="value in sampleStats.transversionCount"
+              v-for="(value, idx) in sampleStats.transversionCount"
+              :key="`tv-${idx}`"
               class="text-right"
             >
               {{ largeNumberFormatter.format(value) }}
@@ -107,7 +125,11 @@ const floatNumberFormatter = Intl.NumberFormat('en', {
           </tr>
           <tr>
             <td class="text-nowrap">Ts/Tv ratio</td>
-            <td v-for="value in sampleStats.tsvtvRatio" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.tsvtvRatio"
+              :key="`tstsv-${idx}`"
+              class="text-right"
+            >
               {{ floatNumberFormatter.format(value) }}
             </td>
           </tr>

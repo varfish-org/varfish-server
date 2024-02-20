@@ -13,8 +13,8 @@
 import { onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import VariantDetailsComments from '@varfish/components/VariantDetails/Comments.vue'
-import VariantDetailsFlags from '@varfish/components/VariantDetails/Flags.vue'
+import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 import SimpleCard from '@varfish/components/SimpleCard.vue'
 
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
@@ -45,8 +45,9 @@ const props = defineProps<{
 
 /** Obtain global application content (as for all entry level components) */
 const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
+  document
+    .getElementById('sodar-ss-app-context')
+    ?.getAttribute('app-context') ?? '{}',
 )
 
 // Routing-related
@@ -87,9 +88,9 @@ const genomeRelease = computed(() => {
 })
 
 // Pretty display of coordinates.
-const svLocus = (record: SvRecord): string | null => {
+const svLocus = (record: SvRecord): string | undefined => {
   if (!record) {
-    return null
+    return undefined
   }
 
   let locus: string
@@ -131,6 +132,9 @@ const navigateBack = () => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
+  if (!svResultSetStore.caseUuid) {
+    throw new Error('caseUuid not set')
+  }
   if (props.resultRowUuid && props.selectedSection) {
     await svResultSetStore.initialize(appContext.csrf_token)
     await svResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
@@ -188,7 +192,7 @@ onMounted(() => {
           <div>
             <SimpleCard id="genes" title="Genes">
               <SvDetailsGenes
-                :genes-infos="svDetailsStore.genesInfos"
+                :genes-infos="svDetailsStore.genesInfos ?? undefined"
                 :current-sv-record="svDetailsStore.currentSvRecord"
               />
             </SimpleCard>
@@ -205,20 +209,20 @@ onMounted(() => {
               />
             </SimpleCard>
             <SimpleCard id="flags" title="Flags">
-              <VariantDetailsFlags
+              <FlagsCard
                 :flags-store="svFlagsStore"
                 :variant="svDetailsStore.currentSvRecord"
               />
             </SimpleCard>
             <SimpleCard id="comments" title="Comments">
-              <VariantDetailsComments
+              <CommentsCard
                 :comments-store="svCommentsStore"
                 :variant="svDetailsStore.currentSvRecord"
               />
             </SimpleCard>
             <SimpleCard id="genome-browser" title="Genome Browser">
               <GenomeBrowser
-                :case-uuid="caseDetailsStore.caseUuid"
+                :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                 :genome="genomeRelease"
                 :locus="svLocus(svDetailsStore.currentSvRecord)"
               />
@@ -235,19 +239,23 @@ onMounted(() => {
             <li class="nav-item mt-0 mb-3">
               <a
                 class="nav-link user-select-none btn btn-secondary"
-                @click.prevent="navigateBack()"
                 type="button"
+                @click.prevent="navigateBack()"
               >
                 <i-mdi-arrow-left-circle />
                 Back
               </a>
             </li>
-            <li class="nav-item mt-0" v-for="{ name, title } in navItems">
+            <li
+              v-for="{ name, title } in navItems"
+              :key="`section-${name}`"
+              class="nav-item mt-0"
+            >
               <a
                 class="nav-link user-select-none"
                 :class="{ active: props.selectedSection === name }"
-                @click="onTabClick(name)"
                 type="button"
+                @click="onTabClick(name)"
               >
                 {{ title }}
               </a>

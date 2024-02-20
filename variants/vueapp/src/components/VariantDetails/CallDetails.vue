@@ -3,8 +3,10 @@ import { displayName } from '@varfish/helpers'
 
 const props = defineProps({
   /** Case description object. */
+  // eslint-disable-next-line vue/require-default-prop
   caseDescription: Object,
   /** Small variant to display for. */
+  // eslint-disable-next-line vue/require-default-prop
   smallVariant: Object,
 })
 
@@ -20,16 +22,16 @@ const allelicBalance = (value) => {
 <template>
   <div>
     <table
-      class="card-body table table-striped table-sm"
       v-if="props.caseDescription && props.smallVariant"
+      class="card-body table table-striped table-sm"
     >
       <thead>
         <tr>
           <th class="text-center">Sample</th>
           <th
-            class="text-center"
             v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
+            class="text-center"
           >
             {{ displayName(member.name) }}
           </th>
@@ -39,9 +41,9 @@ const allelicBalance = (value) => {
         <tr>
           <th class="text-center">Genotype</th>
           <td
-            class="text-center"
             v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
+            class="text-center"
           >
             <span
               v-if="!(member.name in props.smallVariant.genotype)"

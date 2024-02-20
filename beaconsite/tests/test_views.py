@@ -1,4 +1,5 @@
 """Tests for UI views in the beaconsite app"""
+
 from Crypto.PublicKey import RSA
 from django.urls import reverse
 

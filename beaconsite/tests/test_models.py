@@ -1,4 +1,5 @@
 """Test models and factories."""
+
 from django.core.exceptions import ValidationError
 from test_plus.test import TestCase
 

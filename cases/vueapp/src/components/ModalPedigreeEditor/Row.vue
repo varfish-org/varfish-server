@@ -9,11 +9,17 @@ import { displayName } from '@varfish/helpers'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   pedigree: Array,
+  // eslint-disable-next-line vue/require-default-prop
   name: String,
+  // eslint-disable-next-line vue/require-default-prop
   father: String,
+  // eslint-disable-next-line vue/require-default-prop
   mother: String,
+  // eslint-disable-next-line vue/require-default-prop
   sex: Number,
+  // eslint-disable-next-line vue/require-default-prop
   affected: Number,
 })
 
@@ -97,16 +103,20 @@ defineExpose({ v$ })
     </td>
     <td>
       <select
-        class="custom-select custom-select-sm"
         v-model="v$.father.$model"
+        class="custom-select custom-select-sm"
         :class="{
           // 'is-valid': !v$.father.$error,
           'is-invalid': v$.father.$error,
         }"
       >
         <option value="0">0 (founder)</option>
-        <option v-for="name in names" :value="name">
-          {{ displayName(name) }}
+        <option
+          v-for="nameInner in names"
+          :key="`father-error-${nameInner}`"
+          :value="nameInner"
+        >
+          {{ displayName(nameInner) }}
         </option>
       </select>
       <div
@@ -119,16 +129,20 @@ defineExpose({ v$ })
     </td>
     <td>
       <select
-        class="custom-select custom-select-sm"
         v-model="v$.mother.$model"
+        class="custom-select custom-select-sm"
         :class="{
           // 'is-valid': !v$.mother.$error,
           'is-invalid': v$.mother.$error,
         }"
       >
         <option value="0">0 (founder)</option>
-        <option v-for="name in names" :value="name">
-          {{ displayName(name) }}
+        <option
+          v-for="nameInner in names"
+          :key="`mother-error-${nameInner}`"
+          :value="nameInner"
+        >
+          {{ displayName(nameInner) }}
         </option>
       </select>
       <div
@@ -141,8 +155,8 @@ defineExpose({ v$ })
     </td>
     <td>
       <select
-        class="custom-select custom-select-sm"
         v-model="v$.sex.$model"
+        class="custom-select custom-select-sm"
         :class="{
           // 'is-valid': !v$.sex.$error,
           'is-invalid': v$.sex.$error,
@@ -162,8 +176,8 @@ defineExpose({ v$ })
     </td>
     <td>
       <select
-        class="custom-select custom-select-sm"
         v-model="v$.affected.$model"
+        class="custom-select custom-select-sm"
         :class="{
           // 'is-valid': !v$.affected.$error,
           'is-invalid': v$.affected.$error,

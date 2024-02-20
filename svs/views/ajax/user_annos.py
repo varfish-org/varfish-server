@@ -1,4 +1,5 @@
 """AJAX views for dealing with user annotations (flags and comments)."""
+
 import uuid
 
 from iterable_orm import QuerySet

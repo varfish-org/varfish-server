@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { formatLargeInt } from '@varfish/helpers'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const props = defineProps<{
   case?: any

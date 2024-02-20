@@ -152,7 +152,7 @@ const fetchExtraAnnoFields = async (csrfToken) => {
  */
 const fetchHpoTerms = async (csrfToken, hpoTerms) => {
   const variantClient = new VariantClient(csrfToken)
-  let _hpoNames = []
+  const _hpoNames = []
   for (const hpoTerm of hpoTerms) {
     await variantClient.fetchHpoTerms(hpoTerm).then((res) => {
       if (res.length === 0) {
@@ -269,7 +269,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (queryUuid, failuresSeen = 0) => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -321,7 +323,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
       { query_settings: copy(querySettings.value) },
@@ -353,7 +357,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Generate the files for download.
    */
   const generateDownloadResults = async (fileType) => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     await variantClient
       .generateDownloadResults(fileType, queryUuid.value)
       .then((response) => {
@@ -404,7 +410,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     fileType,
     failuresSeen = 0,
   ) => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
     try {
@@ -519,7 +527,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
     // trigger the loading of any previous results.
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = Promise.all([
       // 1. fetch default settings
@@ -575,9 +585,11 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
         categoryPresets,
       ),
       // 4. fetch extra anno fields
-      fetchExtraAnnoFields(csrfToken.value).then((result) => {
-        extraAnnoFields.value = result
-      }),
+      fetchExtraAnnoFields(csrfToken.value ?? 'undefined-csrf-token').then(
+        (result) => {
+          extraAnnoFields.value = result
+        },
+      ),
     ])
       .then(() => {
         storeState.serverInteractions -= 1

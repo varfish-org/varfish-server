@@ -26,7 +26,7 @@ export class MehariApiClient {
       `chromosome=${chromosome}&position=${pos}&reference=${reference}&` +
       `alternative=${alternative}${hgncSuffix}`
 
-    const headers = {
+    const headers: { [key in string]: string } = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     }

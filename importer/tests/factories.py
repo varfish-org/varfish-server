@@ -1,4 +1,5 @@
 """Factory classes for models."""
+
 import hashlib
 
 import factory

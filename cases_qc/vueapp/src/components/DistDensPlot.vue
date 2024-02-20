@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import * as vega from 'vega'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import VegaPlot from '@varfish/components/VegaPlot.vue'
 
@@ -10,19 +9,20 @@ export interface Dataset {
   values: number[]
 }
 
-export interface Props {
-  datasets: Dataset[]
-  title?: string
-  xLabel?: string
-  yLabel?: string
-  xMin?: number | null
-  xMax?: number | null
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  xMin: null,
-  xMax: null,
-})
+const props = withDefaults(
+  defineProps<{
+    datasets: Dataset[]
+    title?: string
+    xLabel?: string
+    yLabel?: string
+    xMin?: number | null
+    xMax?: number | null
+  }>(),
+  {
+    xMin: null,
+    xMax: null,
+  },
+)
 
 interface DataForVegaLite {
   key: number

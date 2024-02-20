@@ -1,4 +1,5 @@
 """After introducing the models for variant statistics and QC, we have to rebuild them for existing cases."""
+
 from __future__ import unicode_literals
 
 from django.db import migrations

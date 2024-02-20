@@ -1,4 +1,5 @@
 """Django command for generating query result sets."""
+
 import json
 import sys
 

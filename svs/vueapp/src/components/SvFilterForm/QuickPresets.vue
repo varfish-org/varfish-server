@@ -1,5 +1,5 @@
 <script setup>
-import isEqual from 'lodash.isequal'
+import isEqual from 'fast-deep-equal'
 import { onMounted, computed, ref } from 'vue'
 import { copy } from '@varfish/helpers'
 import { useSvQueryStore } from '@svs/stores/svQuery'
@@ -319,9 +319,9 @@ onMounted(() => {
         <i-mdi-arrow-right />
       </label>
       <select
+        :id="'quickPresets-' + idSuffix"
         v-model="quickPresetWrapper"
         class="custom-select custom-select-sm"
-        :id="'quickPresets-' + idSuffix"
       >
         <option v-for="(value, name) in quickPresets" :value="name">
           {{ value.label ?? name }}
@@ -339,9 +339,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsGenotypeCriteria-' + idSuffix"
         v-model="genotypeCriteriaWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsGenotypeCriteria-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.genotypeCriteria"
@@ -362,9 +362,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsInheritance-' + idSuffix"
         v-model="inheritanceWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsInheritance-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.inheritance"
@@ -385,9 +385,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsFrequency-' + idSuffix"
         v-model="frequencyWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsFrequency-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.frequency"
@@ -408,9 +408,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsImpact-' + idSuffix"
         v-model="impactWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsImpact-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.impact" :value="name">
           {{ value.label ?? name }}
@@ -428,9 +428,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsSvType-' + idSuffix"
         v-model="svTypeWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsSvType-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.svType" :value="name">
           {{ value.label ?? name }}
@@ -448,9 +448,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsRegulatory-' + idSuffix"
         v-model="regulatoryWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsRegulatory-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.regulatory"
@@ -471,9 +471,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsChromosomes-' + idSuffix"
         v-model="chromosomesWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsChromosomes-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.chromosomes"
@@ -494,9 +494,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsTad-' + idSuffix"
         v-model="tadWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsTad-' + idSuffix"
       >
         <option v-for="(value, name) in categoryPresets.tad" :value="name">
           {{ value.label ?? name }}
@@ -514,9 +514,9 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
+        :id="'presetsKnownPatho-' + idSuffix"
         v-model="knownPathoWrapper"
         class="custom-select custom-select-sm"
-        :id="'presetsKnownPatho-' + idSuffix"
       >
         <option
           v-for="(value, name) in categoryPresets.knownPatho"

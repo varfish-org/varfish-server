@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``variants``."""
+
 import datetime
 import typing
 import uuid

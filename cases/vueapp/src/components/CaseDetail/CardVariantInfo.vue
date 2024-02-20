@@ -20,7 +20,10 @@ const caseDetailsStore = useCaseDetailsStore()
       </thead>
       <tbody>
         <template v-if="caseDetailsStore.caseAnnotationReleaseInfos">
-          <tr v-for="info in caseDetailsStore.caseAnnotationReleaseInfos">
+          <tr
+            v-for="info in caseDetailsStore.caseAnnotationReleaseInfos"
+            :key="`${info.genomebuild}-${info.table}-${info.release}`"
+          >
             <td>{{ info.genomebuild }}</td>
             <td>{{ info.table }}</td>
             <td>{{ info.release }}</td>

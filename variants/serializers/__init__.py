@@ -5,6 +5,7 @@ import copy
 import typing
 
 import attrs
+import binning
 
 # TODO pycharm marks the following as unused, but they are actually required.
 from django.db.models import Q
@@ -535,6 +536,9 @@ class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
         """Make case and user writeable on creation."""
         validated_data["user"] = self.context["request"].user
         validated_data["case"] = self.context["case"]
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
         return super().create(validated_data)
 
     class Meta:
@@ -549,7 +553,6 @@ class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
             "chromosome",
             "start",
             "end",
-            "bin",
             "reference",
             "alternative",
             "pvs1",
@@ -590,6 +593,7 @@ class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
             "date_modified",
             "case",
             "user",
+            "bin",
         )
 
 
@@ -620,7 +624,14 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
         validated_data["user"] = self.context["request"].user
         keys = ("case", "release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
-            validated_data[key] = self.context[key]
+            if key in ("start", "end"):
+                validated_data[key] = int(self.context[key])
+            else:
+                validated_data[key] = self.context[key]
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
+        validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)
 
     def get_user_can_edit(self, instance):
@@ -639,10 +650,8 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
             "user",
             "release",
             "chromosome",
-            "chromosome_no",
             "start",
             "end",
-            "bin",
             "reference",
             "alternative",
             "text",
@@ -654,7 +663,24 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
             "date_modified",
             "case",
             "user",
+            "chromosome_no",
+            "bin",
         )
+
+
+#: Mapping from chromosome names to numbers
+CHROM_TO_NO = {
+    **{f"{i}": i for i in range(1, 23)},
+    **{f"chr{i}": i for i in range(1, 23)},
+    "X": 23,
+    "chrX": 23,
+    "Y": 24,
+    "chrY": 24,
+    "M": 25,
+    "chrM": 25,
+    "MT": 25,
+    "chrMT": 25,
+}
 
 
 class SmallVariantFlagsSerializer(SODARModelSerializer):
@@ -665,6 +691,10 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
     def create(self, validated_data):
         """Make case writeable on creation."""
         validated_data["case"] = self.context["case"]
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
+        validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)
 
     class Meta:
@@ -676,10 +706,8 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
             "case",
             "release",
             "chromosome",
-            "chromosome_no",
             "start",
             "end",
-            "bin",
             "reference",
             "alternative",
             "flag_bookmarked",
@@ -700,6 +728,8 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
             "date_created",
             "date_modified",
             "case",
+            "chromosome_no",
+            "bin",
         )
 
 

@@ -153,9 +153,9 @@ defineExpose({ show, hide })
               {{ propsCopy.label }}
             </label>
             <select
-              class="custom-select"
-              v-model="v$.inputValue.$model"
               :id="'modal-input-' + idSuffix"
+              v-model="v$.inputValue.$model"
+              class="custom-select"
             >
               <option
                 v-for="item in propsCopy.options"

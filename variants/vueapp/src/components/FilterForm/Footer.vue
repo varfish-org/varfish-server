@@ -74,11 +74,11 @@ const devStoreState = () => {
             for="id_database_selector_refseq"
           >
             <input
+              id="id_database_selector_refseq"
               v-model="databaseWrapper"
               name="databaseSelect"
               type="radio"
               value="refseq"
-              id="id_database_selector_refseq"
             />
             RefSeq
           </label>
@@ -88,11 +88,11 @@ const devStoreState = () => {
             for="id_database_selector_ensembl"
           >
             <input
+              id="id_database_selector_ensembl"
               v-model="databaseWrapper"
               name="databaseSelect"
               type="radio"
               value="ensembl"
-              id="id_database_selector_ensembl"
             />
             EnsEMBL
           </label>
@@ -106,13 +106,13 @@ const devStoreState = () => {
           <br />You must fix the errors before you can filter.
         </small>
         <button
-          type="button"
           id="submitFilter"
+          type="button"
           class="btn"
           :disabled="anyHasError"
           :class="filterButtonColor"
-          @click="emit('submitCancelButtonClick')"
           title="Filter variants with current settings"
+          @click="emit('submitCancelButtonClick')"
         >
           <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
           {{ filterButtonText }}

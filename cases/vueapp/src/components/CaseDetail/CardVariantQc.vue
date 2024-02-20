@@ -40,7 +40,10 @@ const tsTv = (member) => {
       </thead>
       <tbody>
         <template v-if="caseDetailsStore.storeState.state === State.Active">
-          <template v-for="member of caseDetailsStore.caseObj.pedigree">
+          <template
+            v-for="member of caseDetailsStore.caseObj.pedigree"
+            :key="`member-${member.name}`"
+          >
             <tr v-if="member.name in caseDetailsStore.caseVariantStats">
               <td class="font-weight-bold">
                 {{ displayName(member.name) }}
