@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 /** The component's props. */
 const props = defineProps<{
   /** The seqvar to display for. */
-  seqvar?: Seqvar,
+  seqvar?: Seqvar
   /** Payload from row in seqvar result store. */
   // TODO: use proper type here
   resultRowPayload?: any
 }>()
 
-/** HGsVS description of SeqVar from result row. */
+/** HGVS description of SeqVar from result row. */
 const seqvarHgvs = computed<string | undefined>(() => {
   if (!props.resultRowPayload) {
     return undefined

@@ -10,7 +10,7 @@
  * See `SvDetails` for a peer app for structural variants
  */
 
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
@@ -24,7 +24,9 @@ import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 
 import SeqvarDetailsHeader from '@variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
+import SeqvarDetailsNavi from '@variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
+import ScrollToTopButton from '@varfish/components/ScrollToTopButton/ScrollToTopButton.vue'
 import { watch } from 'vue'
 
 const GeneOverviewCard = defineAsyncComponent(
@@ -153,7 +155,6 @@ const seqvar = computed<Seqvar | undefined>(() => {
   }
 })
 
-
 /** Refresh the stores. */
 const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
@@ -223,111 +224,134 @@ onMounted(() => {
 
 <template>
   <v-app>
-    <div class="mt-6 mb-3 ml-1">
-      <SeqvarDetailsHeader :seqvar="seqvarInfoStore.seqvar" :result-row-payload="variantResultSetStore?.resultRow?.payload"/>
-    </div>
-    <template v-if="!seqvarInfoStore?.geneInfo">
-      <div class="text-h5 mt-6 mb-3 ml-1">No Gene</div>
-    </template>
-    <template v-else>
-      <div class="text-h5 mt-6 mb-3 ml-1">
-        Gene
-        <span class="font-italic">
-          {{ seqvarInfoStore?.geneInfo.hgnc!.symbol }}
-        </span>
-      </div>
-      <div id="gene-overview">
-        <GeneOverviewCard :gene-info="seqvarInfoStore?.geneInfo" />
-      </div>
-      <div id="gene-pathogenicity" class="mt-3">
-        <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo">
-          <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
-        </GenePathogenicityCard>
-      </div>
-      <div id="gene-conditions" class="mt-3">
-        <GeneConditionsCard
-          :gene-info="seqvarInfoStore?.geneInfo"
-          :hpo-terms="seqvarInfoStore.hpoTerms"
-        />
-      </div>
-      <div id="gene-expression" class="mt-3">
-        <GeneExpressionCard
-          :gene-symbol="seqvarInfoStore?.geneInfo?.hgnc?.symbol"
-          :expression-records="seqvarInfoStore?.geneInfo?.gtex?.records"
-          :ensembl-gene-id="seqvarInfoStore?.geneInfo?.gtex?.ensemblGeneId"
-        />
-      </div>
-      <div
-        v-if="geneInfoStore?.geneClinvar && seqvar?.genomeBuild"
-        id="gene-clinvar"
-        class="mt-3"
-      >
-        <GeneClinvarCard
-          :clinvar-per-gene="geneInfoStore.geneClinvar"
-          :transcripts="geneInfoStore.transcripts"
-          :genome-build="seqvar.genomeBuild"
-          :gene-info="geneInfoStore.geneInfo"
-          :per-freq-counts="geneInfoStore?.geneClinvar?.perFreqCounts"
-        />
-      </div>
-      <div id="gene-literature" class="mt-3 mb-3">
-        <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
-      </div>
-    </template>
+    <v-main>
+      <v-container fluid class="pa-0">
+        <v-row no-gutters>
+          <v-col cols="2" class="pr-3">
+            <div style="position: sticky; top: 20px">
+              <SeqvarDetailsNavi
+                :seqvar="seqvarInfoStore.seqvar"
+                :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId"
+                :case-uuid="variantResultSetStore.caseUuid ?? undefined"
+              />
+            </div>
+          </v-col>
+          <v-col cols="10">
+            <ScrollToTopButton />
+            <div id="top" class="mt-6 mb-3 ml-1">
+              <SeqvarDetailsHeader
+                :seqvar="seqvarInfoStore.seqvar"
+                :result-row-payload="variantResultSetStore?.resultRow?.payload"
+              />
+            </div>
+            <template v-if="!seqvarInfoStore?.geneInfo">
+              <div class="text-h5 mt-6 mb-3 ml-1">No Gene</div>
+            </template>
+            <template v-else>
+              <div class="text-h5 mt-6 mb-3 ml-1">
+                Gene
+                <span class="font-italic">
+                  {{ seqvarInfoStore?.geneInfo.hgnc!.symbol }}
+                </span>
+              </div>
+              <div id="gene-overview">
+                <GeneOverviewCard :gene-info="seqvarInfoStore?.geneInfo" />
+              </div>
+              <div id="gene-pathogenicity" class="mt-3">
+                <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo">
+                  <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
+                </GenePathogenicityCard>
+              </div>
+              <div id="gene-conditions" class="mt-3">
+                <GeneConditionsCard
+                  :gene-info="seqvarInfoStore?.geneInfo"
+                  :hpo-terms="seqvarInfoStore.hpoTerms"
+                />
+              </div>
+              <div id="gene-expression" class="mt-3">
+                <GeneExpressionCard
+                  :gene-symbol="seqvarInfoStore?.geneInfo?.hgnc?.symbol"
+                  :expression-records="seqvarInfoStore?.geneInfo?.gtex?.records"
+                  :ensembl-gene-id="
+                    seqvarInfoStore?.geneInfo?.gtex?.ensemblGeneId
+                  "
+                />
+              </div>
+              <div
+                v-if="geneInfoStore?.geneClinvar && seqvar?.genomeBuild"
+                id="gene-clinvar"
+                class="mt-3"
+              >
+                <GeneClinvarCard
+                  :clinvar-per-gene="geneInfoStore.geneClinvar"
+                  :transcripts="geneInfoStore.transcripts"
+                  :genome-build="seqvar.genomeBuild"
+                  :gene-info="geneInfoStore.geneInfo"
+                  :per-freq-counts="geneInfoStore?.geneClinvar?.perFreqCounts"
+                />
+              </div>
+              <div id="gene-literature" class="mt-3 mb-3">
+                <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
+              </div>
+            </template>
 
-    <template v-if="!seqvarInfoStore.seqvar">
-      <div class="text-h5 mt-6 mb-3 ml-1">No Variant Information</div>
-    </template>
-    <template v-else>
-      <div class="text-h5 mt-6 mb-3 ml-1">Variant Details</div>
-      <div id="seqvar-csq" class="mt-3">
-        <SeqvarConsequencesCard :consequences="seqvarInfoStore.txCsq" />
-      </div>
-      <div id="seqvar-clinvar" class="mt-3">
-        <SeqvarClinvarCard
-          :clinvar-record="seqvarInfoStore.varAnnos?.clinvar"
-        />
-      </div>
-      <div id="seqvar-scores" class="mt-3">
-        <SeqvarScoresCard :var-annos="seqvarInfoStore.varAnnos" />
-      </div>
-      <div id="seqvar-freqs" class="mt-3">
-        <SeqvarFreqsCard
-          :seqvar="seqvarInfoStore.seqvar"
-          :var-annos="seqvarInfoStore.varAnnos"
-        />
-      </div>
-      <div id="seqvar-tools" class="mt-3">
-        <SeqvarToolsCard
-          :seqvar="seqvarInfoStore.seqvar"
-          :var-annos="seqvarInfoStore.varAnnos"
-        />
-      </div>
-      <div id="flags" class="mt-3">
-        <FlagsCard
-          :flags-store="variantFlagsStore"
-          :variant="seqvarInfoStore.seqvar"
-        />
-      </div>
-      <div id="comments" class="mt-3">
-        <CommentsCard
-          :comments-store="variantCommentsStore"
-          :variant="seqvarInfoStore.seqvar"
-        />
-      </div>
-      <div id="acmg-rating" class="mt-3">
-        <AcmgRatingCard
-          :project-uuid="appContext.project?.sodar_uuid"
-          :case-uuid="variantResultSetStore.caseUuid ?? undefined"
-          :seqvar="seqvarInfoStore.seqvar"
-        />
-      </div>
-      <div id="seqvar-ga4ghbeacons" class="mt-3">
-        <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
-      </div>
-      <div id="seqvar-variantvalidator" class="mt-3">
-        <SeqvarVariantValidatorCard :seqvar="seqvarInfoStore.seqvar" />
-      </div>
-    </template>
+            <template v-if="!seqvarInfoStore.seqvar">
+              <div class="text-h5 mt-6 mb-3 ml-1">No Variant Information</div>
+            </template>
+            <template v-else>
+              <div class="text-h5 mt-6 mb-3 ml-1">Variant Details</div>
+              <div id="seqvar-csq" class="mt-3">
+                <SeqvarConsequencesCard :consequences="seqvarInfoStore.txCsq" />
+              </div>
+              <div id="seqvar-clinvar" class="mt-3">
+                <SeqvarClinvarCard
+                  :clinvar-record="seqvarInfoStore.varAnnos?.clinvar"
+                />
+              </div>
+              <div id="seqvar-scores" class="mt-3">
+                <SeqvarScoresCard :var-annos="seqvarInfoStore.varAnnos" />
+              </div>
+              <div id="seqvar-freqs" class="mt-3">
+                <SeqvarFreqsCard
+                  :seqvar="seqvarInfoStore.seqvar"
+                  :var-annos="seqvarInfoStore.varAnnos"
+                />
+              </div>
+              <div id="seqvar-tools" class="mt-3">
+                <SeqvarToolsCard
+                  :seqvar="seqvarInfoStore.seqvar"
+                  :var-annos="seqvarInfoStore.varAnnos"
+                />
+              </div>
+              <div id="seqvar-flags" class="mt-3">
+                <FlagsCard
+                  :flags-store="variantFlagsStore"
+                  :variant="seqvarInfoStore.seqvar"
+                />
+              </div>
+              <div id="comments" class="mt-3">
+                <CommentsCard
+                  :comments-store="variantCommentsStore"
+                  :variant="seqvarInfoStore.seqvar"
+                />
+              </div>
+              <div id="seqvar-acmg" class="mt-3">
+                <AcmgRatingCard
+                  :project-uuid="appContext.project?.sodar_uuid"
+                  :case-uuid="variantResultSetStore.caseUuid ?? undefined"
+                  :seqvar="seqvarInfoStore.seqvar"
+                />
+              </div>
+              <div id="seqvar-ga4ghbeacons" class="mt-3">
+                <SeqvarBeaconNetworkCard :seqvar="seqvarInfoStore.seqvar" />
+              </div>
+              <div id="seqvar-variantvalidator" class="mt-3">
+                <SeqvarVariantValidatorCard :seqvar="seqvarInfoStore.seqvar" />
+              </div>
+            </template>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
   </v-app>
 </template>

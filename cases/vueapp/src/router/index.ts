@@ -93,12 +93,12 @@ const routes: RouteRecordRaw[] = [
     }),
   },
   {
-    name: 'variant-details',
-    path: '/variants/details/:row/:selectedSection?',
+    name: 'seqvar-details',
+    path: '/seqvar/details/:row/:selectedSection?',
     component: SeqvarDetails,
     props: (route: RouteLocationNormalized) => ({
       resultRowUuid: route.params.row,
-      selectedSection: route.params.selectedSection || 'genes',
+      selectedSection: route.params.selectedSection || 'top',
     }),
   },
   {
@@ -135,7 +135,7 @@ export const router = createRouter({
     savedPosition: null | _ScrollPositionNormalized,
   ) {
     if (
-      ['variant-details', 'sv-details'].includes(String(to.name)) &&
+      ['seqvar-details', 'sv-details'].includes(String(to.name)) &&
       to.params.selectedSection
     ) {
       const res = { el: `#${to.params.selectedSection}` }

@@ -37,7 +37,7 @@ const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
   router.push({
-    name: 'variant-details',
+    name: 'seqvar-details',
     params: {
       row: event.smallvariantresultrow,
       selectedSection: event.selectedSection ?? null,

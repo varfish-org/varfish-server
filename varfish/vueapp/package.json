@@ -6,7 +6,7 @@
     "build": "vite build",
     "test:unit": "vitest run",
     "test:unit-coverage": "vitest run --coverage",
-    "lint": "eslint . --fix",
+    "lint": "eslint . --fix --max-warnings 0",
     "type-check": "vue-tsc --noEmit --composite false",
     "prettier-check": "npx prettier --check src/*/** tests/*/**",
     "prettier-write": "npx prettier --write src/*/** tests/*/**",

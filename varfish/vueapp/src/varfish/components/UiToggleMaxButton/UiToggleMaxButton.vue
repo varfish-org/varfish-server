@@ -11,6 +11,10 @@ const uiStore = useUiStore()
     href="#"
     @click.prevent="uiStore.toggleMaximised()"
   >
-    <v-icon :icon="uiStore.maximized ? 'mdi-arrow-collapse-all' : 'mdi-arrow-expand-all'" />
+    <v-icon
+      :icon="
+        uiStore.maximized ? 'mdi-arrow-collapse-all' : 'mdi-arrow-expand-all'
+      "
+    />
   </v-btn>
 </template>
