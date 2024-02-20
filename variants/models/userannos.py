@@ -651,3 +651,6 @@ class AcmgCriteriaRating(models.Model):
         if self.class_override:
             result += ", ACMG class. override: %s" % self.class_override
         return result
+
+    class Meta:
+        ordering = ["chromosome", "start", "reference", "alternative"]
