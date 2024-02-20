@@ -17,7 +17,7 @@ const props = defineProps({
   formVisible: Boolean,
 })
 
-const emit = defineEmits(['toggleForm'])
+const emit = defineEmits(['editQueryPresetsClick', 'toggleForm'])
 
 /** Whether the preset set is loading. */
 const presetSetLoading = ref(false)
