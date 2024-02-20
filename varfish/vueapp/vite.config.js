@@ -10,7 +10,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: '/static/vueapp/',
   build: {
-    // generate manifest.json in outDir
+    // generate .vite/manifest.json
     manifest: true,
     // overwrite default .html entry
     outDir: 'static/vueapp',
