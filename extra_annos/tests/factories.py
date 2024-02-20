@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``extra_annos``."""
+
 import binning
 import factory
 

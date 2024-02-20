@@ -669,9 +669,11 @@ class TestPedigreeRelatednessListApiView(TestProjectAPIPermissionBase):
                     "n_ibs2": 1,
                     "relatedness": -2.0,
                     "sample1": self.case.pedigree[0]["patient"],
-                    "sample2": self.case.pedigree[0]["patient"]
-                    if len(self.case.pedigree) == 1
-                    else self.case.pedigree[1]["patient"],
+                    "sample2": (
+                        self.case.pedigree[0]["patient"]
+                        if len(self.case.pedigree) == 1
+                        else self.case.pedigree[1]["patient"]
+                    ),
                 }
             ],
         )

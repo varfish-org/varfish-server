@@ -1,4 +1,5 @@
 """Models and related code for execution SV query jobs."""
+
 from datetime import datetime, timedelta
 from itertools import islice
 import json

@@ -1,4 +1,5 @@
 """Permission tests for the views in ``variants.views.api.queries``."""
+
 import json
 
 from django.urls import reverse

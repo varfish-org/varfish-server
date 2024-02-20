@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``frequencies``."""
+
 import binning
 import factory
 

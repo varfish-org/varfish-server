@@ -1,4 +1,5 @@
 """API views for ``variants`` app."""
+
 import contextlib
 from itertools import chain
 import re

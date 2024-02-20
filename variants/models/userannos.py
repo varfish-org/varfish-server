@@ -1,4 +1,5 @@
 """Code for user annotations of small variants."""
+
 import uuid as uuid_object
 
 import binning

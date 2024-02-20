@@ -1,4 +1,5 @@
 """Views for background jobs from the ``svs`` app"""
+
 import re
 
 from django.apps import apps
