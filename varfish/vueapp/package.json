@@ -61,6 +61,7 @@
     "@iconify-json/oi": "^1.1.8",
     "@pinia/testing": "0.1.3",
     "@popperjs/core": "^2.11.8",
+    "@rushstack/eslint-patch": "^1.7.2",
     "@storybook/addon-essentials": "^7.6.16",
     "@storybook/addon-interactions": "^7.6.16",
     "@storybook/addon-links": "^7.6.16",
