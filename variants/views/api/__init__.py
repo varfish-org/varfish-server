@@ -105,11 +105,11 @@ class CreatedAtCursorPagination(CursorPagination):
     We use cursor pagination to avoid inconsistencies when fetching while
     updating data.
     """
+
     page_size = 10
     page_size_query_param = "page_size"
     max_page_size = 1000
     ordering = "-date_created"
-
 
 
 class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):

@@ -536,7 +536,9 @@ class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
         """Make case and user writeable on creation."""
         validated_data["user"] = self.context["request"].user
         validated_data["case"] = self.context["case"]
-        validated_data["bin"] = binning.assign_bin(validated_data["start"] - 1, validated_data["end"])
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
         return super().create(validated_data)
 
     class Meta:
@@ -626,7 +628,9 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
                 validated_data[key] = int(self.context[key])
             else:
                 validated_data[key] = self.context[key]
-        validated_data["bin"] = binning.assign_bin(validated_data["start"] - 1, validated_data["end"])
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
         validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)
 
@@ -663,6 +667,7 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
             "bin",
         )
 
+
 #: Mapping from chromosome names to numbers
 CHROM_TO_NO = {
     **{f"{i}": i for i in range(1, 23)},
@@ -677,6 +682,7 @@ CHROM_TO_NO = {
     "chrMT": 25,
 }
 
+
 class SmallVariantFlagsSerializer(SODARModelSerializer):
     """Serializer for the ``SmallVariantFlags`` model."""
 
@@ -685,7 +691,9 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
     def create(self, validated_data):
         """Make case writeable on creation."""
         validated_data["case"] = self.context["case"]
-        validated_data["bin"] = binning.assign_bin(validated_data["start"] - 1, validated_data["end"])
+        validated_data["bin"] = binning.assign_bin(
+            validated_data["start"] - 1, validated_data["end"]
+        )
         validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)
 
