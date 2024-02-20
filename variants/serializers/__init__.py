@@ -3,9 +3,9 @@
 # TODO: rename pedigree entry field "patient" also internally to name and get rid of translation below
 import copy
 import typing
-import binning
 
 import attrs
+import binning
 
 # TODO pycharm marks the following as unused, but they are actually required.
 from django.db.models import Q

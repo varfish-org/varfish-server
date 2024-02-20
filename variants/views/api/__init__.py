@@ -33,7 +33,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.pagination import PageNumberPagination, CursorPagination
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
