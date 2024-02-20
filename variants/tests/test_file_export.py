@@ -3,6 +3,7 @@
 from datetime import timedelta
 import gzip
 import io
+import json
 import tempfile
 from unittest.mock import patch
 
@@ -74,15 +75,17 @@ class ExportTestBase(TestCase):
             project=self.bg_job.project,
             bg_job=self.bg_job,
             case=self.case,
-            query_args={"export_flags": True,
-                        "export_comments": True,
-                        "pedia_enabled": True,
-                        "gm_enabled": True,
-                        "patho_enabled": True,
-                        "patho_score": 'CADD',
-                        "prio_enabled": True,
-                        "prio_algorithm": 'CADA',
-                        "prio_hpo_terms": []},
+            query_args={
+                "export_flags": True,
+                "export_comments": True,
+                "pedia_enabled": True,
+                "gm_enabled": True,
+                "patho_enabled": True,
+                "patho_score": "CADD",
+                "prio_enabled": True,
+                "prio_algorithm": "CADA",
+                "prio_hpo_terms": [],
+            },
             file_type="xlsx",
         )
 
@@ -108,6 +111,26 @@ class ExportTestBase(TestCase):
                 ensembl_gene_id=small_var.ensembl_gene_id,
                 ensembl_transcript_id=small_var.ensembl_transcript_id,
             )
+
+    def _set_cada_mocker(self, mock_):
+        mock_.post(
+            django.conf.settings.VARFISH_CADA_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                [
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[0].refseq_gene_id,
+                        "geneSymbol": "ASPSCR1",
+                        "score": 0.1,
+                    },
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[1].refseq_gene_id,
+                        "geneSymbol": "NFKBIL1",
+                        "score": 0.2,
+                    },
+                ]
+            ),
+        )
 
     def _set_janno_mocker(self, database, mock_):
         if database == "refseq":
@@ -155,8 +178,17 @@ class CaseExporterTest(ExportTestBase):
 
     def _test_export_xlsx(self, database, mock_):
         self._set_janno_mocker(database, mock_)
+        self._set_cada_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
+        self.export_job.query_args["pedia_enabled"] = True
+        self.export_job.query_args["gm_enabled"] = True
+        self.export_job.query_args["patho_enabled"] = True
+        self.export_job.query_args["patho_score"] = "CADD"
+        self.export_job.query_args["prio_enabled"] = True
+        self.export_job.query_args["prio_algorithm"] = "CADA"
+        self.export_job.query_args["prio_hpo_terms"] = ["HP:0001234"]
+
         with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
             result = exporter.generate()
         with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
@@ -320,12 +352,20 @@ class CaseExporterTest(ExportTestBase):
     @patch("django.conf.settings.VARFISH_ENABLE_PEDIA", True)
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
+    @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx(self, mock):
         self._test_export_xlsx("refseq", mock)
 
     @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
     @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @patch("django.conf.settings.VARFISH_ENABLE_GESTALT_MATCHER", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_PEDIA", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
+    @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx_refseq(self, mock):
         self._test_export_xlsx("refseq", mock)
