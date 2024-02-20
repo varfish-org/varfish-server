@@ -282,29 +282,35 @@ const freqHomFieldName = computed(() => {
   return displayFrequency.value === DisplayFrequencies.Exac.value
     ? { frequency: 'exac_frequency', homozygous: 'exac_homozygous' }
     : displayFrequency.value === DisplayFrequencies.ThousandGenomes.value
-    ? {
-        frequency: 'thousand_genomes_frequency',
-        homozygous: 'thousand_genomes_homozygous',
-      }
-    : displayFrequency.value === DisplayFrequencies.GnomadExomes.value
-    ? {
-        frequency: 'gnomad_exomes_frequency',
-        homozygous: 'gnomad_exomes_homozygous',
-      }
-    : displayFrequency.value === DisplayFrequencies.GnomadGenomes.value
-    ? {
-        frequency: 'gnomad_genomes_frequency',
-        homozygous: 'gnomad_genomes_homozygous',
-      }
-    : displayFrequency.value === DisplayFrequencies.InhouseDb.value
-    ? { frequency: 'inhouse_carriers', homozygous: 'inhouse_hom_alt' }
-    : displayFrequency.value === DisplayFrequencies.MtDb.value
-    ? { frequency: 'mtdb_frequency', homozygous: 'mtdb_count' }
-    : displayFrequency.value === DisplayFrequencies.HelixMtDb.value
-    ? { frequency: 'helixmtdb_frequency', homozygous: 'helixmtdb_hom_count' }
-    : displayFrequency.value === DisplayFrequencies.Mitomap.value
-    ? { frequency: 'mitomap_frequency', homozygous: 'mitomap_count' }
-    : { frequency: null, homozygous: null }
+      ? {
+          frequency: 'thousand_genomes_frequency',
+          homozygous: 'thousand_genomes_homozygous',
+        }
+      : displayFrequency.value === DisplayFrequencies.GnomadExomes.value
+        ? {
+            frequency: 'gnomad_exomes_frequency',
+            homozygous: 'gnomad_exomes_homozygous',
+          }
+        : displayFrequency.value === DisplayFrequencies.GnomadGenomes.value
+          ? {
+              frequency: 'gnomad_genomes_frequency',
+              homozygous: 'gnomad_genomes_homozygous',
+            }
+          : displayFrequency.value === DisplayFrequencies.InhouseDb.value
+            ? { frequency: 'inhouse_carriers', homozygous: 'inhouse_hom_alt' }
+            : displayFrequency.value === DisplayFrequencies.MtDb.value
+              ? { frequency: 'mtdb_frequency', homozygous: 'mtdb_count' }
+              : displayFrequency.value === DisplayFrequencies.HelixMtDb.value
+                ? {
+                    frequency: 'helixmtdb_frequency',
+                    homozygous: 'helixmtdb_hom_count',
+                  }
+                : displayFrequency.value === DisplayFrequencies.Mitomap.value
+                  ? {
+                      frequency: 'mitomap_frequency',
+                      homozygous: 'mitomap_count',
+                    }
+                  : { frequency: null, homozygous: null }
 })
 
 const displayFrequencyContent = (item) => {
@@ -321,18 +327,18 @@ const constraintFieldName = computed(() => {
   return displayConstraint.value === DisplayConstraints.ExacPli.value
     ? 'exac_pLI'
     : displayConstraint.value === DisplayConstraints.ExacZMis.value
-    ? 'exac_mis_z'
-    : displayConstraint.value === DisplayConstraints.ExacZSyn.value
-    ? 'exac_syn_z'
-    : displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
-    ? 'gnomad_loeuf'
-    : displayConstraint.value === DisplayConstraints.GnomadPli.value
-    ? 'gnomad_pLI'
-    : displayConstraint.value === DisplayConstraints.GnomadZMis.value
-    ? 'gnomad_mis_z'
-    : displayConstraint.value === DisplayConstraints.GnomadZSyn.value
-    ? 'gnomad_syn_z'
-    : null
+      ? 'exac_mis_z'
+      : displayConstraint.value === DisplayConstraints.ExacZSyn.value
+        ? 'exac_syn_z'
+        : displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
+          ? 'gnomad_loeuf'
+          : displayConstraint.value === DisplayConstraints.GnomadPli.value
+            ? 'gnomad_pLI'
+            : displayConstraint.value === DisplayConstraints.GnomadZMis.value
+              ? 'gnomad_mis_z'
+              : displayConstraint.value === DisplayConstraints.GnomadZSyn.value
+                ? 'gnomad_syn_z'
+                : null
 })
 
 const displayConstraintsContent = (item) => {
@@ -460,19 +466,20 @@ const loadFromServer = async () => {
           tableServerOptions.value.sortBy === 'position'
             ? 'chromosome_no,start'
             : tableServerOptions.value.sortBy === 'gene'
-            ? 'symbol'
-            : tableServerOptions.value.sortBy === 'gene_icons'
-            ? 'acmg_symbol,disease_gene'
-            : tableServerOptions.value.sortBy === 'frequency'
-            ? freqHomFieldName.value.frequency
-            : tableServerOptions.value.sortBy === 'homozygous'
-            ? freqHomFieldName.value.homozygous
-            : tableServerOptions.value.sortBy === 'constraints'
-            ? constraintFieldName.value
-            : tableServerOptions.value.sortBy?.startsWith('genotype_')
-            ? caseDetailsStore.genotypeMapping[tableServerOptions.value.sortBy]
-                .sortByName
-            : tableServerOptions.value.sortBy,
+              ? 'symbol'
+              : tableServerOptions.value.sortBy === 'gene_icons'
+                ? 'acmg_symbol,disease_gene'
+                : tableServerOptions.value.sortBy === 'frequency'
+                  ? freqHomFieldName.value.frequency
+                  : tableServerOptions.value.sortBy === 'homozygous'
+                    ? freqHomFieldName.value.homozygous
+                    : tableServerOptions.value.sortBy === 'constraints'
+                      ? constraintFieldName.value
+                      : tableServerOptions.value.sortBy?.startsWith('genotype_')
+                        ? caseDetailsStore.genotypeMapping[
+                            tableServerOptions.value.sortBy
+                          ].sortByName
+                        : tableServerOptions.value.sortBy,
         orderDir: tableServerOptions.value.sortType,
       },
     )

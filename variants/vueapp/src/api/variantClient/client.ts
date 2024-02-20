@@ -290,9 +290,8 @@ export class VariantClient extends ClientBase {
         `&end=${end}&reference=${del}&alternative=${ins}`
     }
 
-    let nextUrl:
-      | string
-      | null = `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`
+    let nextUrl: string | null =
+      `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`
     const result: AcmgRating$Api[] = []
     while (nextUrl !== null) {
       const resultJson = (await this.fetchHelper(

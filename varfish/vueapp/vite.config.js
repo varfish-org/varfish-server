@@ -17,7 +17,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         clinvarexport: resolve(__dirname, './src/clinvarexport/main.js'),
-        cases: resolve(__dirname, './src/cases/main.js'),
+        cases: resolve(__dirname, './src/cases/main.ts'),
         cohorts: resolve(__dirname, './src/cohorts/main.js'),
       },
     },
