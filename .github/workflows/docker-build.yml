@@ -29,9 +29,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          submodules: 'recursive'
           lfs: true
 
       - name: Log in to the Container registry
