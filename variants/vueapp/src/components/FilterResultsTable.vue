@@ -225,7 +225,7 @@ const tableRows = ref([])
 const tableLoading = ref(false)
 
 /**
- * Configuration for the ag-grid row to color them based on flags.
+ * Configuration for the row to color them based on flags.
  */
 const tableRowClassName = (item, _rowNumber) => {
   if (!flagsStore.caseFlags) {
@@ -897,8 +897,6 @@ watch(
 }
 </style>
 
-<style src="ag-grid-community/styles/ag-grid.css"></style>
-<style src="ag-grid-community/styles/ag-theme-alpine.css"></style>
 <style>
 .record-count .btn {
   height: calc(1.5em + 0.5rem + 2px);

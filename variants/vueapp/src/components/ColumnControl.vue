@@ -8,9 +8,6 @@ import {
 } from '@variants/enums'
 import { computed } from 'vue'
 
-// We define two-way bound props here.  Internally, they are accessed through computed *Wrapper properties
-// that perform the appropriate ag-grid calls to apply the changes.
-
 const props = defineProps({
   // model props
   displayDetails: Number,
