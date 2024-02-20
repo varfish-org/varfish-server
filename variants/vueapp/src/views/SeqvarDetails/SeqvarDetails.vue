@@ -26,7 +26,6 @@ import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 import SeqvarDetailsHeader from '@variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
 import SeqvarDetailsNavi from '@variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
-import ScrollToTopButton from '@varfish/components/ScrollToTopButton/ScrollToTopButton.vue'
 import { watch } from 'vue'
 
 const GeneOverviewCard = defineAsyncComponent(
@@ -237,7 +236,6 @@ onMounted(() => {
             </div>
           </v-col>
           <v-col cols="10">
-            <ScrollToTopButton />
             <div id="top" class="mt-6 mb-3 ml-1">
               <SeqvarDetailsHeader
                 :seqvar="seqvarInfoStore.seqvar"
