@@ -5,13 +5,12 @@ const uiStore = useUiStore()
 </script>
 
 <template>
-  <a
-    class="btn btn-secondary"
+  <v-btn
     title="Toggle maximised UI"
+    rounded="xs"
     href="#"
     @click.prevent="uiStore.toggleMaximised()"
   >
-    <i-mdi-arrow-expand-all v-if="!uiStore.maximized" />
-    <i-mdi-arrow-collapse-all v-if="uiStore.maximized" />
-  </a>
+    <v-icon :icon="uiStore.maximized ? 'mdi-arrow-collapse-all' : 'mdi-arrow-expand-all'" />
+  </v-btn>
 </template>

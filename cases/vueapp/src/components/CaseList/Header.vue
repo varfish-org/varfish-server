@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCaseListStore } from '@cases/stores/caseList'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const caseListStore = useCaseListStore()
 </script>

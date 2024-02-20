@@ -7,7 +7,7 @@ import EasyDataTable from 'vue3-easy-data-table'
 import type { ClickRowArgument, Header, Item } from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
+// import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
 
 /** `GeneInfo` is a type alias for easier future interface definition. */
 type GeneInfo = any

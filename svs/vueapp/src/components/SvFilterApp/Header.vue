@@ -7,7 +7,7 @@ import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 // TODO: change to sv presets
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 

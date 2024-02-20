@@ -23,6 +23,7 @@ import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 
+import SeqvarDetailsHeader from '@variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
 import { watch } from 'vue'
 
@@ -135,20 +136,7 @@ const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
 
-/** Component state; control snackbar display. */
-const errSnackbarShow = ref<boolean>(false)
-/** Component state; error message for snack bar. */
-const errSnackbarMsg = ref<string>('')
-
-/**
- * Handler for `@display-error` event.
- */
-const handleDisplayError = async (msg: string) => {
-  errSnackbarMsg.value = msg
-  errSnackbarShow.value = true
-}
-
-/** Currently displayed seqvar. */
+/** Currently displayed Seqvar. */
 const seqvar = computed<Seqvar | undefined>(() => {
   if (!variantResultSetStore.resultRow) {
     return undefined
@@ -164,31 +152,7 @@ const seqvar = computed<Seqvar | undefined>(() => {
     )
   }
 })
-/** HGVS description of SeqVar from result row. */
-const seqvarHgvs = computed<string | undefined>(() => {
-  if (!variantResultSetStore.resultRow?.payload) {
-    return undefined
-  } else {
-    const arr = [variantResultSetStore.resultRow?.payload?.transcript_id]
-    if (variantResultSetStore.resultRow?.payload?.symbol?.length) {
-      arr.push(...['(', variantResultSetStore.resultRow?.payload?.symbol, ')'])
-    }
-    if (variantResultSetStore.resultRow?.payload?.hgvs_p?.length) {
-      arr.push(
-        ...[
-          ':',
-          variantResultSetStore.resultRow?.payload?.hgvs_p,
-          ' (',
-          variantResultSetStore.resultRow?.payload?.hgvs_c,
-          ')',
-        ],
-      )
-    } else {
-      arr.push(...[':', variantResultSetStore.resultRow?.payload?.hgvs_c])
-    }
-    return arr.join('')
-  }
-})
+
 
 /** Refresh the stores. */
 const refreshStores = async () => {
@@ -259,19 +223,8 @@ onMounted(() => {
 
 <template>
   <v-app>
-    <div class="text-h4 mt-6 mb-3 ml-1">
-      Variant Details
-      <template v-if="seqvarHgvs">
-        <small class="font-italic">
-          {{ seqvarHgvs }}
-          [{{ seqvar?.userRepr }}]
-        </small>
-      </template>
-      <template v-else>
-        <small class="font-italic">
-          {{ seqvar?.userRepr }}
-        </small>
-      </template>
+    <div class="mt-6 mb-3 ml-1">
+      <SeqvarDetailsHeader :seqvar="seqvarInfoStore.seqvar" :result-row-payload="variantResultSetStore?.resultRow?.payload"/>
     </div>
     <template v-if="!seqvarInfoStore?.geneInfo">
       <div class="text-h5 mt-6 mb-3 ml-1">No Gene</div>
@@ -288,7 +241,7 @@ onMounted(() => {
       </div>
       <div id="gene-pathogenicity" class="mt-3">
         <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo">
-          <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" />
+          <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
         </GenePathogenicityCard>
       </div>
       <div id="gene-conditions" class="mt-3">
@@ -327,12 +280,6 @@ onMounted(() => {
     </template>
     <template v-else>
       <div class="text-h5 mt-6 mb-3 ml-1">Variant Details</div>
-      <div id="seqvar-clinsig">
-        <SeqvarClinsigCard
-          :seqvar="seqvarInfoStore.seqvar"
-          @error-display="handleDisplayError"
-        />
-      </div>
       <div id="seqvar-csq" class="mt-3">
         <SeqvarConsequencesCard :consequences="seqvarInfoStore.txCsq" />
       </div>

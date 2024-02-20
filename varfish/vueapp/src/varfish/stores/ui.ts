@@ -10,7 +10,7 @@ export const useUiStore = defineStore('ui', () => {
   const maximized = ref<boolean>(false)
 
   /** The original margin */
-  const origMargin = ref<any>(null)
+  const origMargin = ref<string>('')
 
   const toggleMaximised = () => {
     maximized.value = !maximized.value

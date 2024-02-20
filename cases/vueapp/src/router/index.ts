@@ -4,7 +4,7 @@ import SvDetails from '@svs/components/SvDetails.vue'
 import SvFilterApp from '@svs/components/SvFilterApp.vue'
 import { useHistoryStore } from '@varfish/stores/history'
 import FilterApp from '@variants/components/FilterApp.vue'
-import VariantDetails from '@variants/components/VariantDetails.vue'
+import SeqvarDetails from '@variants/views/SeqvarDetails/SeqvarDetails.vue'
 import {
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
@@ -95,7 +95,7 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'variant-details',
     path: '/variants/details/:row/:selectedSection?',
-    component: VariantDetails,
+    component: SeqvarDetails,
     props: (route: RouteLocationNormalized) => ({
       resultRowUuid: route.params.row,
       selectedSection: route.params.selectedSection || 'genes',

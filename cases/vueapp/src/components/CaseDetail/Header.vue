@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 
 import { useCaseListStore } from '@cases/stores/caseList'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 /** Define props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
