@@ -32,7 +32,7 @@ conditional==1.5
 coverage==6.5.0
 coveralls==3.3.1
 crispy-bootstrap4==2022.1
-cryptography==42.0.2
+cryptography==42.0.4
 decorator==5.1.1
 defusedxml==0.7.1
 Django==3.2.24
