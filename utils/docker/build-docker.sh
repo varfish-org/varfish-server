@@ -14,7 +14,7 @@ git describe --tags >$DIR/../../VERSION
 IMAGE_TAG=${IMAGE_TAG:-adhoc}
 
 # Explicitely set organization and repository name for Docker image.
-ORG=bihealth
+ORG=varfish-org
 REPO=varfish-server
 
 # Set value for WORKER_GIT_TREEISH.

@@ -10,7 +10,7 @@
  * See `SvDetails` for a peer app for structural variants
  */
 
-import { computed, defineAsyncComponent, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
@@ -28,86 +28,20 @@ import SeqvarDetailsNavi from '@variants/components/SeqvarDetailsNavi/SeqvarDeta
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
 import { watch } from 'vue'
 
-const GeneOverviewCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
-    ),
-)
-const GenePathogenicityCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
-    ),
-)
-const GeneConditionsCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
-    ),
-)
-// const CadaRanking = defineAsyncComponent(() => import('@/components/CadaRanking/CadaRanking.vue'))
-const GeneExpressionCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
-    ),
-)
-const GeneClinvarCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
-    ),
-)
-const GeneLiteratureCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
-    ),
-)
+import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
+import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
+import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
+import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
+import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
+import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
 
-const SeqvarBeaconNetworkCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarBeaconNetworkCard/SeqvarBeaconNetworkCard.vue'
-    ),
-)
-const SeqvarClinvarCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarClinvarCard/SeqvarClinvarCard.vue'
-    ),
-)
-const SeqvarConsequencesCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarConsequencesCard/SeqvarConsequencesCard.vue'
-    ),
-)
-const SeqvarFreqsCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarFreqsCard/SeqvarFreqsCard.vue'
-    ),
-)
-const SeqvarToolsCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
-    ),
-)
-const SeqvarScoresCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
-    ),
-)
-const SeqvarVariantValidatorCard = defineAsyncComponent(
-  () =>
-    import(
-      '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
-    ),
-)
+import SeqvarBeaconNetworkCard from '@bihealth/reev-frontend-lib/components/SeqvarBeaconNetworkCard/SeqvarBeaconNetworkCard.vue'
+import SeqvarClinvarCard from '@bihealth/reev-frontend-lib/components/SeqvarClinvarCard/SeqvarClinvarCard.vue'
+import SeqvarConsequencesCard from '@bihealth/reev-frontend-lib/components/SeqvarConsequencesCard/SeqvarConsequencesCard.vue'
+import SeqvarFreqsCard from '@bihealth/reev-frontend-lib/components/SeqvarFreqsCard/SeqvarFreqsCard.vue'
+import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
+import SeqvarScoresCard from '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
+import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
 
 /** This component's props. */
 const props = defineProps<{
