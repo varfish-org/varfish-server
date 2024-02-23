@@ -1,19 +1,19 @@
-import VariantDetailsCallDetails from '@variants/components/VariantDetails/CallDetails.vue'
+import SeqvarGenotypeCallCard from '@variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
 import trioCaseData from '@variantsTest/data/case-trio.json'
 import trioVariantsData from '@variantsTest/data/variants-trio.json'
 
 export default {
   title: 'Variants / Small Variant Details Calls',
-  component: VariantDetailsCallDetails,
+  component: SeqvarGenotypeCallCard,
 }
 
 const Template = (args) => ({
-  components: { VariantDetailsCallDetails },
+  components: { SeqvarGenotypeCallCard },
   setup() {
     return { args }
   },
   template:
-    '<VariantDetailsCallDetails\n' +
+    '<SeqvarGenotypeCallCard\n' +
     '    :case-description="args.case"\n' +
     '    :small-variant="args.smallVariant"\n' +
     '/>',

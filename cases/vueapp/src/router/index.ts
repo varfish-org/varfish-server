@@ -1,6 +1,6 @@
 import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
 import CaseListApp from '@cases/components/CaseListApp.vue'
-import SvDetails from '@svs/components/SvDetails.vue'
+import StrucvarDetails from '@svs/views/StrucvarDetails/StrucvarDetails.vue'
 import SvFilterApp from '@svs/components/SvFilterApp.vue'
 import { useHistoryStore } from '@varfish/stores/history'
 import FilterApp from '@variants/components/FilterApp.vue'
@@ -110,12 +110,12 @@ const routes: RouteRecordRaw[] = [
     }),
   },
   {
-    name: 'sv-details',
-    path: '/svs/details/:row/:selectedSection?',
-    component: SvDetails,
+    name: 'strucvar-details',
+    path: '/strucvar/details/:row/:selectedSection?',
+    component: StrucvarDetails,
     props: (route: RouteLocationNormalized) => ({
       resultRowUuid: route.params.row,
-      selectedSection: route.params.selectedSection || 'genes',
+      selectedSection: route.params.selectedSection || 'top',
     }),
   },
 ]
@@ -135,7 +135,7 @@ export const router = createRouter({
     savedPosition: null | _ScrollPositionNormalized,
   ) {
     if (
-      ['seqvar-details', 'sv-details'].includes(String(to.name)) &&
+      ['seqvar-details', 'strucvar-details'].includes(String(to.name)) &&
       to.params.selectedSection
     ) {
       const res = { el: `#${to.params.selectedSection}` }

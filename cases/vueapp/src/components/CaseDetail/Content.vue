@@ -8,7 +8,6 @@ import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
 import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useCaseQcStore } from '@cases_qc/stores/caseQc'
-import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
 
 const router = useRouter()
 
@@ -38,7 +37,6 @@ const Tabs = Object.freeze({
   overview: 'overview',
   qc: 'qc',
   annotation: 'annotation',
-  browser: 'browser',
 })
 
 const caseDetailsStore = useCaseDetailsStore()
@@ -113,18 +111,6 @@ const updateCurrentTab = (newValue) => {
           </span>
         </a>
       </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: props.currentTab === Tabs.browser }"
-          role="button"
-          @click="updateCurrentTab(Tabs.browser)"
-        >
-          <i-mdi-safety-goggles />
-
-          Browser
-        </a>
-      </li>
     </ul>
     <div id="cases-content" class="tab-content flex-grow-1 d-flex flex-column">
       <div
@@ -165,17 +151,6 @@ const updateCurrentTab = (newValue) => {
           <PaneAnnotations :case-uuid="props.caseUuid" />
           <template #fallback> Loading ... </template>
         </Suspense>
-      </div>
-      <div
-        v-if="props.currentTab === Tabs.browser"
-        id="case-list"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
-        role="tabpanel"
-      >
-        <GenomeBrowser
-          :case-uuid="caseDetailsStore.caseObj?.sodar_uuid"
-          :genome="caseDetailsStore.caseObj?.release"
-        />
       </div>
     </div>
   </div>
