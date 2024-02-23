@@ -33,8 +33,7 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).matches(/<pane-case-stub/)
     expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
+    expect(wrapper.findAll('a.nav-link').length).toBe(3)
   })
 
   test('test with some data', async () => {
@@ -45,8 +44,7 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).matches(/<pane-case-stub/)
     expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
+    expect(wrapper.findAll('a.nav-link').length).toBe(3)
   })
 
   test('test click quality control', async () => {
@@ -57,9 +55,8 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).matches(/<pane-case-stub/)
     expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
 
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
+    expect(wrapper.findAll('a.nav-link').length).toBe(3)
     await wrapper.findAll('a.nav-link')[1].trigger('click')
 
     expect(router.push).toHaveBeenCalledTimes(1)
@@ -73,7 +70,6 @@ describe('CaseDetailContent.vue', () => {
     // expect(wrapper.html()).not.matches(/<pane-case-stub/)
     // expect(wrapper.html()).matches(/<pane-qc-stub/)
     // expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    // expect(wrapper.html()).not.matches(/<genome-browser-stub/)
   })
 
   test('test click quality control, then overview', async () => {
@@ -84,9 +80,8 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).matches(/<pane-case-stub/)
     expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
 
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
+    expect(wrapper.findAll('a.nav-link').length).toBe(3)
     await wrapper.findAll('a.nav-link')[1].trigger('click')
     await wrapper.findAll('a.nav-link')[0].trigger('click')
 
@@ -107,7 +102,6 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).matches(/<pane-case-stub/)
     expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
   })
 
   test('test click variant annotation', async () => {
@@ -120,7 +114,7 @@ describe('CaseDetailContent.vue', () => {
     expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
     expect(wrapper.html()).not.matches(/<genome-browser-stub/)
 
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
+    expect(wrapper.findAll('a.nav-link').length).toBe(3)
     await wrapper.findAll('a.nav-link')[2].trigger('click')
 
     expect(router.push).toHaveBeenCalledTimes(1)
@@ -134,33 +128,5 @@ describe('CaseDetailContent.vue', () => {
     // expect(wrapper.html()).not.matches(/<pane-case-stub/)
     // expect(wrapper.html()).not.matches(/<pane-qc-stub/)
     // expect(wrapper.html()).matches(/<pane-annotations-stub/)
-    // expect(wrapper.html()).not.matches(/<genome-browser-stub/)
-  })
-
-  test('test click genome browser', async () => {
-    const wrapper = makeWrapper(CaseDetailContent, {
-      caseDetails: caseDetailsStoreData,
-    })
-
-    expect(wrapper.html()).matches(/<pane-case-stub/)
-    expect(wrapper.html()).not.matches(/<pane-qc-stub/)
-    expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    expect(wrapper.html()).not.matches(/<genome-browser-stub/)
-
-    expect(wrapper.findAll('a.nav-link').length).toBe(4)
-    await wrapper.findAll('a.nav-link')[3].trigger('click')
-
-    expect(router.push).toHaveBeenCalledTimes(1)
-    expect(router.push).toHaveBeenCalledWith({
-      name: 'case-detail-browser',
-      params: {
-        case: caseDetailsStoreData.caseObj.sodar_uuid,
-      },
-    })
-
-    // expect(wrapper.html()).not.matches(/<pane-case-stub/)
-    // expect(wrapper.html()).not.matches(/<pane-qc-stub/)
-    // expect(wrapper.html()).not.matches(/<pane-annotations-stub/)
-    // expect(wrapper.html()).matches(/<genome-browser-stub/)
   })
 })

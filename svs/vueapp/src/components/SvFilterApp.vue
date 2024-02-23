@@ -35,7 +35,7 @@ const svResultSetStore = useSvResultSetStore()
 
 const showDetails = async (event) => {
   router.push({
-    name: 'sv-details',
+    name: 'strucvar-details',
     params: {
       row: event.svresultrow,
       selectedSection: event.selectedSection ?? null,

@@ -4,7 +4,7 @@ export function setupBackendUrls() {
   urlConfig.baseUrlAnnonars = '/proxy/varfish/annonars'
   urlConfig.baseUrlMehari = '/proxy/varfish/mehari'
   urlConfig.baseUrlViguno = '/proxy/varfish/viguno'
-  urlConfig.baseUrlNginx = '/proxy/varfish/nginx'
+  urlConfig.baseUrlNginx = '/proxy/varfish/nginx/'
   urlConfig.baseUrlPubtator = '/proxy/remote/pubtator3-api'
   urlConfig.baseUrlVariantValidator = '/proxy/variantvalidator'
 

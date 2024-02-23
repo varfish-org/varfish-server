@@ -18,7 +18,7 @@ const showSmallVariantDetails = async (event) => {
 
 const showStructuralVariantDetails = async (event) => {
   router.push({
-    name: 'sv-details',
+    name: 'strucvar-details',
     params: {
       row: event.svresultrow,
       selectedSection: event.selectedSection ?? null,

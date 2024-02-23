@@ -7,7 +7,7 @@
  *
  * Also used in the case details view for displyaing all user-annotated variants.
  *
- * See `SvDetails` for a peer app for structural variants
+ * See `StrucvarDetails` for a peer app for structural variants
  */
 
 import { computed, onMounted } from 'vue'
@@ -23,6 +23,7 @@ import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 
+import SeqvarGenotypeCallCard from '@variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
 import SeqvarDetailsHeader from '@variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
 import SeqvarDetailsNavi from '@variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
 import AcmgRatingCard from '@variants/components/AcmgRatingCard/AcmgRatingCard.vue'
@@ -190,9 +191,7 @@ onMounted(() => {
                 <GeneOverviewCard :gene-info="seqvarInfoStore?.geneInfo" />
               </div>
               <div id="gene-pathogenicity" class="mt-3">
-                <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo">
-                  <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
-                </GenePathogenicityCard>
+                <GenePathogenicityCard :gene-info="seqvarInfoStore?.geneInfo" />
               </div>
               <div id="gene-conditions" class="mt-3">
                 <GeneConditionsCard
@@ -232,6 +231,11 @@ onMounted(() => {
             </template>
             <template v-else>
               <div class="text-h5 mt-6 mb-3 ml-1">Variant Details</div>
+              <div id="seqvar-calldetails" class="mt-3">
+                <SeqvarGenotypeCallCard
+                  :result-row="variantResultSetStore.resultRow"
+                />
+              </div>
               <div id="seqvar-csq" class="mt-3">
                 <SeqvarConsequencesCard :consequences="seqvarInfoStore.txCsq" />
               </div>

@@ -1,7 +1,7 @@
-import { Section } from './types'
+import { NavItem } from './types'
 
 /** Sections in the navigation. */
-export const SECTIONS: { [key: string]: Section[] } = {
+export const SECTIONS: { [key: string]: NavItem[] } = {
   GENE: [
     { id: 'gene-overview', title: 'Overview' },
     { id: 'gene-pathogenicity', title: 'Pathogenicity' },
@@ -11,6 +11,7 @@ export const SECTIONS: { [key: string]: Section[] } = {
     { id: 'gene-literature', title: 'Literature' },
   ],
   SEQVAR: [
+    { id: 'seqvar-calldetails', title: 'Call Details' },
     { id: 'seqvar-csq', title: 'Consequences' },
     { id: 'seqvar-clinvar', title: 'ClinVar' },
     { id: 'seqvar-scores', title: 'Scores' },
