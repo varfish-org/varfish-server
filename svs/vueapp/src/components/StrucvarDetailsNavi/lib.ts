@@ -10,12 +10,16 @@ export const jumpToLocus = async (strucvar?: Strucvar) => {
   let url: string
   if (strucvar.svType === 'BND' || strucvar.svType === 'INS') {
     url =
-      `http://127.0.0.1:60151/goto?locus=chr${strucvar.chrom.replace('chr', '')}:` +
-      `${strucvar.start ?? 1}-${(strucvar.start ?? 1) + 1}`
+      `http://127.0.0.1:60151/goto?locus=chr${strucvar.chrom.replace(
+        'chr',
+        '',
+      )}:` + `${strucvar.start ?? 1}-${(strucvar.start ?? 1) + 1}`
   } else {
     url =
-      `http://127.0.0.1:60151/goto?locus=chr${strucvar.chrom.replace('chr', '')}:` +
-      `${strucvar.start ?? 1}-${strucvar.stop ?? strucvar.start ?? 1}`
+      `http://127.0.0.1:60151/goto?locus=chr${strucvar.chrom.replace(
+        'chr',
+        '',
+      )}:` + `${strucvar.start ?? 1}-${strucvar.stop ?? strucvar.start ?? 1}`
   }
   // NB: we allow the call to fetch here as it goes to local IGV.
   await fetch(url).catch((e) => {

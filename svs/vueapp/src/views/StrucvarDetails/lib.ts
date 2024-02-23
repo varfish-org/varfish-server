@@ -14,10 +14,14 @@ export const svLocus = (strucvar?: Strucvar): string | undefined => {
     case 'DEL':
     case 'DUP':
     case 'INV':
-      locus = `${strucvar.chrom}:${strucvar.start - 1000}-${strucvar.stop + 1000}`
+      locus = `${strucvar.chrom}:${strucvar.start - 1000}-${
+        strucvar.stop + 1000
+      }`
       break
     case 'BND':
-      locus = `${strucvar.chrom}:${strucvar.start - 1000}-${strucvar.start + 1000}`
+      locus = `${strucvar.chrom}:${strucvar.start - 1000}-${
+        strucvar.start + 1000
+      }`
       break
   }
   if (locus === '') {
