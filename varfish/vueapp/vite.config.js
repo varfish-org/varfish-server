@@ -12,6 +12,8 @@ export default defineConfig({
   build: {
     // generate .vite/manifest.json
     manifest: true,
+    // include sourcemaps
+    sourcemap: true,
     // overwrite default .html entry
     outDir: 'static/vueapp',
     rollupOptions: {
