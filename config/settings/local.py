@@ -88,4 +88,4 @@ TEST_RUNNER = "snapshottest.django.TestRunner"
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-VITE_DEV_SERVER = env.str("VITE_DEV_SERVER", "http://localhost:3000")
+VITE_DEV_SERVER = env.str("VITE_DEV_SERVER", "http://localhost:3000/static/vueapp")
