@@ -167,7 +167,7 @@ def create_queryresultset(case_uuid=None, project_uuid=None, all=False):
     elif project_uuid:
         for _case in Case.objects.filter(project__sodar_uuid=project_uuid):
             _handle_case(_case)
-    else:
+    elif all:
         for _case in Case.objects.all():
             _handle_case(_case)
 
