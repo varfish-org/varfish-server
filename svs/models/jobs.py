@@ -7,7 +7,7 @@ import os
 import subprocess
 from tempfile import TemporaryDirectory
 import traceback
-from typing import Dict, List
+from typing import Dict
 import uuid
 import uuid as uuid_object
 
@@ -188,7 +188,6 @@ def _write_header(outputf, case, callers):
         .split()[-1]
         .strip()
     )
-    print(worker_version)
 
     sample_lines = []
     for entry in case.pedigree:
@@ -274,7 +273,7 @@ def _write_header(outputf, case, callers):
     )
 
 
-def run_sv_query_bg_job(pk):
+def run_sv_query_bg_job(pk):  # noqa: C901
     """Execute a query for SVs."""
     filter_job = FilterSvBgJob.objects.select_related("case", "svquery").get(id=pk)
     filter_job.bg_job.status = "running"
@@ -359,23 +358,26 @@ def run_sv_query_bg_job(pk):
                     x for x in sorted(keys_in_row & set(format_db_to_vcf.keys())) if x != "gt"
                 ]
 
-                info = f"SVTYPE={record.sv_type};END={record.end};callers={record.caller.replace(';', ',')}"
-                if record.sv_type == "DEL":
+                sv_type = record.sv_type.split("_")[0]
+                info = (
+                    f"SVTYPE={sv_type};END={record.end};callers={record.caller.replace(';', ',')}"
+                )
+                if sv_type == "DEL":
                     info = f"{info};SVLEN={record.end - record.start};SVCLAIM=DJ"
                     alt = "<DEL>"
-                elif record.sv_type == "DUP":
+                elif sv_type == "DUP":
                     info = f"{info};SVLEN={record.end - record.start};SVCLAIM=DJ"
                     alt = "<DUP>"
-                elif record.sv_type == "INV":
+                elif sv_type == "INV":
                     info = f"{info};SVLEN={record.end - record.start};SVCLAIM=J"
                     alt = "<INV>"
-                elif record.sv_type == "INS":
+                elif sv_type == "INS":
                     info = f"{info};SVLEN={record.end - record.start};SVCLAIM=J"
                     alt = "<INS>"
-                elif record.sv_type == "CNV":
+                elif sv_type == "CNV":
                     info = f"{info};SVLEN={record.end - record.start};SVCLAIM=D"
                     alt = "<CNV>"
-                elif record.sv_type == "BND":
+                elif sv_type == "BND":
                     info = f"{info};chr2={record.chromosome2};SVCLAIM=J"
                     pe_orientation = record.pe_orientation or "NtoN"
                     if pe_orientation == "3to3":
@@ -389,7 +391,7 @@ def run_sv_query_bg_job(pk):
                     else:
                         raise ValueError(f"Unexpected PE orientation: {pe_orientation}")
                 else:
-                    raise ValueError(f"Unexpected SV type: {record.sv_type}")
+                    raise ValueError(f"Unexpected SV type: {sv_type}")
 
                 arr = [
                     record.chromosome,
@@ -406,11 +408,6 @@ def run_sv_query_bg_job(pk):
                     for sample in samples
                 ]
                 print("\t".join(map(str, arr)), file=outputf)
-        with open(os.path.join(tmpdir, "input.vcf"), "rt") as inputf:
-            data = inputf.read()
-            print(data)
-            with open("/tmp/x.vcf", "wt") as outputf:
-                outputf.write(data)
         filter_job.add_log_entry("... done dumping the SVs and query")
 
         #: Actually run the worker
@@ -418,7 +415,6 @@ def run_sv_query_bg_job(pk):
         start_time = timezone.now()
         cmd = [
             settings.WORKER_EXE_PATH,
-            "-vvv",
             "strucvars",
             "query",
             "--path-db",
