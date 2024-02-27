@@ -92,7 +92,7 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(e))
             sys.exit(1)
 
-    def _handle_case(self, case):
+    def _handle_case(self, case):  # noqa: C901
         try:
             case_result_set = case.smallvariantqueryresultset_set.get(smallvariantquery=None)
         except Exception:
