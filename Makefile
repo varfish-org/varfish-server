@@ -51,7 +51,8 @@ docs:
 
 .PHONY: celery
 celery:
-	celery -A config.celery_app worker -l info --concurrency=4 --beat
+	pipenv run watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- \
+		celery -A config.celery_app worker -l info --concurrency=4 --beat
 
 .PHONY: geticons
 geticons:

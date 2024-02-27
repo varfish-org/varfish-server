@@ -19,9 +19,9 @@ const dumpFrequencies = () => {
       key.startsWith('svdb_g1k_') ||
       key.startsWith('svdb_dgv_') ||
       key.startsWith('svdb_dgv_gs_') ||
-      key.startsWith('svdb_exac_') ||
+      key.startsWith('svdb_gnomad_exomes_') ||
       key.startsWith('svdb_dbvar_') ||
-      key.startsWith('svdb_gnomad_') ||
+      key.startsWith('svdb_gnomad_genomes_') ||
       key.startsWith('svdb_inhouse_')
     ) {
       result[key] = value
@@ -52,9 +52,9 @@ const rules = {
   ...makeRule('svdb_g1k'),
   ...makeRule('svdb_dgv'),
   ...makeRule('svdb_dgv_gs'),
-  ...makeRule('svdb_exac'),
+  ...makeRule('svdb_gnomad_exomes'),
   ...makeRule('svdb_dbvar'),
-  ...makeRule('svdb_gnomad'),
+  ...makeRule('svdb_gnomad_genomes'),
   ...makeRule('svdb_inhouse'),
 }
 
@@ -85,12 +85,12 @@ const formState = {
     'svdb_dgv_max_count',
     'svdb_dgv_gs_min_overlap',
     'svdb_dgv_gs_max_count',
-    'svdb_exac_min_overlap',
-    'svdb_exac_max_count',
+    'svdb_gnomad_exomes_min_overlap',
+    'svdb_gnomad_exomes_max_count',
     'svdb_dbvar_min_overlap',
     'svdb_dbvar_max_count',
-    'svdb_gnomad_min_overlap',
-    'svdb_gnomad_max_count',
+    'svdb_gnomad_genomes_min_overlap',
+    'svdb_gnomad_genomes_max_count',
     'svdb_inhouse_min_overlap',
     'svdb_inhouse_max_count',
   ]),
@@ -201,7 +201,7 @@ defineExpose({
       <tr v-show="props.case.release === 'GRCh37'">
         <td>
           <input
-            v-model="props.querySettings.svdb_exac_enabled"
+            v-model="props.querySettings.svdb_gnomad_exomes_enabled"
             type="checkbox"
           />
         </td>
@@ -210,16 +210,16 @@ defineExpose({
         </td>
         <td>
           <input
-            v-model.trim.lazy="v$.svdb_exac_min_overlap.$model"
+            v-model.trim.lazy="v$.svdb_gnomad_exomes_min_overlap.$model"
             type="text"
             placeholder="Min. SV Overlap with ExAC"
             class="form-control"
             :class="{
-              'is-invalid': v$.svdb_exac_min_overlap.$error,
+              'is-invalid': v$.svdb_gnomad_exomes_min_overlap.$error,
             }"
           />
           <div
-            v-for="error of v$.svdb_exac_min_overlap.$errors"
+            v-for="error of v$.svdb_gnomad_exomes_min_overlap.$errors"
             :key="error.$uid"
             class="invalid-feedback"
           >
@@ -228,16 +228,16 @@ defineExpose({
         </td>
         <td>
           <input
-            v-model.trim.lazy="v$.svdb_exac_max_count.$model"
+            v-model.trim.lazy="v$.svdb_gnomad_exomes_max_count.$model"
             type="text"
             placeholder="Maximal number of carriers in ExAC"
             class="form-control"
             :class="{
-              'is-invalid': v$.svdb_exac_max_count.$error,
+              'is-invalid': v$.svdb_gnomad_exomes_max_count.$error,
             }"
           />
           <div
-            v-for="error of v$.svdb_exac_max_count.$errors"
+            v-for="error of v$.svdb_gnomad_exomes_max_count.$errors"
             :key="error.$uid"
             class="invalid-feedback"
           >
@@ -248,7 +248,7 @@ defineExpose({
       <tr>
         <td>
           <input
-            v-model="props.querySettings.svdb_gnomad_enabled"
+            v-model="props.querySettings.svdb_gnomad_genomes_enabled"
             type="checkbox"
           />
         </td>
@@ -257,16 +257,16 @@ defineExpose({
         </td>
         <td>
           <input
-            v-model.trim.lazy="v$.svdb_gnomad_min_overlap.$model"
+            v-model.trim.lazy="v$.svdb_gnomad_genomes_min_overlap.$model"
             type="text"
             placeholder="Min. SV overlap with gnomAD-SV"
             class="form-control"
             :class="{
-              'is-invalid': v$.svdb_gnomad_min_overlap.$error,
+              'is-invalid': v$.svdb_gnomad_genomes_min_overlap.$error,
             }"
           />
           <div
-            v-for="error of v$.svdb_gnomad_min_overlap.$errors"
+            v-for="error of v$.svdb_gnomad_genomes_min_overlap.$errors"
             :key="error.$uid"
             class="invalid-feedback"
           >
@@ -275,16 +275,16 @@ defineExpose({
         </td>
         <td>
           <input
-            v-model.trim.lazy="v$.svdb_gnomad_max_count.$model"
+            v-model.trim.lazy="v$.svdb_gnomad_genomes_max_count.$model"
             type="text"
             placeholder="Maximal number of carriers in gnomAD-SV"
             class="form-control"
             :class="{
-              'is-invalid': v$.svdb_gnomad_max_count.$error,
+              'is-invalid': v$.svdb_gnomad_genomes_max_count.$error,
             }"
           />
           <div
-            v-for="error of v$.svdb_gnomad_max_count.$errors"
+            v-for="error of v$.svdb_gnomad_genomes_max_count.$errors"
             :key="error.$uid"
             class="invalid-feedback"
           >

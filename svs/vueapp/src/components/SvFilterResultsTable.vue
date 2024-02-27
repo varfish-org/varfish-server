@@ -49,8 +49,14 @@ const tableHeaders = computed(() => {
       sortable: true,
     },
     {
-      text: 'gnomAD frequency',
-      value: 'payload.overlap_counts.gnomad',
+      text: 'gnomAD exomes',
+      value: 'payload.overlap_counts.gnomad_exomes',
+      width: 50,
+      sortable: true,
+    },
+    {
+      text: 'gnomAD genomes',
+      value: 'payload.overlap_counts.gnomad_genomes',
       width: 50,
       sortable: true,
     },
@@ -500,7 +506,7 @@ watch(
             ovl_disease_gene,
             tad_disease_gene,
             tx_effects,
-            clinvar_ovl_vcvs,
+            clinvar_ovl_rcvs,
             known_pathogenic,
           },
         }"
@@ -634,14 +640,14 @@ watch(
         <span
           class="text-nowrap"
           :class="{
-            'text-danger': payload.clinvar_ovl_vcvs.length,
+            'text-danger': payload.clinvar_ovl_rcvs.length,
             // || payload.known_pathogenic.length
           }"
         >
           {{ sv_type }}
-          <template v-if="payload.clinvar_ovl_vcvs.length">
+          <template v-if="payload.clinvar_ovl_rcvs.length">
             <span
-              :title="`Overlapping ClinVar SVs: ${payload.clinvar_ovl_vcvs}`"
+              :title="`Overlapping ClinVar SVs: ${payload.clinvar_ovl_rcvs}`"
               class="text-danger"
             >
               <i-mdi-hospital-building />
@@ -681,9 +687,14 @@ watch(
           {{ formatLargeInt(payload.overlap_counts.g1k) }}
         </div>
       </template>
-      <template #item-payload.overlap_counts.gnomad="{ payload }">
+      <template #item-payload.overlap_counts.gnomad_exomes="{ payload }">
         <div class="text-right text-nowrap space">
-          {{ formatLargeInt(payload.overlap_counts.gnomad) }}
+          {{ formatLargeInt(payload.overlap_counts.gnomad_exomes) }}
+        </div>
+      </template>
+      <template #item-payload.overlap_counts.gnomad_genomes="{ payload }">
+        <div class="text-right text-nowrap space">
+          {{ formatLargeInt(payload.overlap_counts.gnomad_exomes) }}
         </div>
       </template>
       <template #item-payload.overlap_counts.dgv="{ payload }">

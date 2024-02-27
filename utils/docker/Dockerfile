@@ -137,17 +137,6 @@ RUN apt-get install -y libsqlite3-dev
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /usr/local/bin/wait
 RUN chmod +x /usr/local/bin/wait
 
-# Install conda environment with varfish-server-worker if configured to do so.
-RUN ["/bin/bash","-c", "cd /tmp && \
-        wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh && \
-        bash Mambaforge-Linux-x86_64.sh -b -p /opt/miniconda3 && \
-        source /opt/miniconda3/bin/activate && \
-        conda install -c conda-forge -y mamba && \
-        mamba create -c conda-forge -c bioconda -y \
-            -n varfish-server \
-            varfish-server-worker==0.10.2 && \
-        rm -f Mambaforge-Linux-x86_64.sh"]
-
 # Copy the worker from the dedicated worker build.
 COPY --from=ghcr.io/varfish-org/varfish-server-worker:main /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 

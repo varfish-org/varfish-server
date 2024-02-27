@@ -312,17 +312,17 @@ class CaseQuery:
     #: The maximal number of carriers for querying DGV gold standard.
     svdb_dgv_gs_max_count: typing.Optional[int] = None
     #: Whether to enable SVDB overlap queries with gnomAD.
-    svdb_gnomad_enabled: bool = True
+    svdb_gnomad_genomes_enabled: bool = True
     #: The minimal reciprocal overlap for querying gnomAD.
-    svdb_gnomad_min_overlap: typing.Optional[float] = 0.75
+    svdb_gnomad_genomes_min_overlap: typing.Optional[float] = 0.75
     #: The maximal number of carriers for querying gnomAD.
-    svdb_gnomad_max_count: typing.Optional[int] = 20
+    svdb_gnomad_genomes_max_count: typing.Optional[int] = 20
     #: Whether to enable SVDB overlap queries with ExAC.
-    svdb_exac_enabled: bool = True
+    svdb_gnomad_exomes_enabled: bool = True
     #: The minimal reciprocal overlap for querying ExAC.
-    svdb_exac_min_overlap: typing.Optional[float] = 0.75
+    svdb_gnomad_exomes_min_overlap: typing.Optional[float] = 0.75
     #: The maximal number of carriers for querying ExAC.
-    svdb_exac_max_count: typing.Optional[int] = 20
+    svdb_gnomad_exomes_max_count: typing.Optional[int] = 20
     #: Whether to enable SVDB overlap queries with dbVar.
     svdb_dbvar_enabled: bool = True
     #: The minimal reciprocal overlap for querying dbVar.
