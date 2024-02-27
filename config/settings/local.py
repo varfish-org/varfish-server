@@ -85,6 +85,11 @@ INSTALLED_APPS += ["django_extensions"]
 # ------------------------------------------------------------------------------
 TEST_RUNNER = "snapshottest.django.TestRunner"
 
+# VarFish Worker
+# ------------------------------------------------------------------------------
+
+WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", ".dev/volumes/varfish-static/data")
+
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 

@@ -79,6 +79,7 @@ tblib = "~=3.0.0"
 # packages for local development
 ipdb = "*"
 jedi = "==0.19.1"
+watchdog = "*"
 werkzeug = "~=3.0.0"
 
 [ldap-packages]
