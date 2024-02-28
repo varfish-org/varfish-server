@@ -881,7 +881,18 @@ watch(
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               role="button"
-              @click="flagsStore.flagAsArtifact(item)"
+              @click="
+                flagsStore.flagAsArtifact(
+                  new SeqvarImpl(
+                    item.release === 'GRCh37' ? 'grch37' : 'grch38',
+                    item.chromosome,
+                    item.start,
+                    item.reference,
+                    item.alternative,
+                  ),
+                  item.sodar_uuid,
+                )
+              "
             >
               <i-fa-solid-thumbs-down class="text-muted" />
             </div>

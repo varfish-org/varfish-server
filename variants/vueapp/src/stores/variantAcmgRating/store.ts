@@ -130,7 +130,11 @@ export const useVariantAcmgRatingStore = defineStore(
     /**
      * Create a new acmgRating entry.
      */
-    const createAcmgRating = async (seqvar: Seqvar, payload: AcmgRating) => {
+    const createAcmgRating = async (
+      seqvar: Seqvar,
+      payload: AcmgRating,
+      resultRowUuid: string,
+    ) => {
       if (!caseUuid.value) {
         throw new Error('No case UUID set')
       }
@@ -146,6 +150,7 @@ export const useVariantAcmgRatingStore = defineStore(
         result = await variantClient.createAcmgRating(caseUuid.value, seqvar, {
           ...seqvar,
           ...payload,
+          sodarUuid: resultRowUuid,
         })
 
         storeState.serverInteractions -= 1

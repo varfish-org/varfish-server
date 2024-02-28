@@ -159,6 +159,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const createComment = async (
     seqvar: Seqvar,
     text: string,
+    resultRowUuid: string,
   ): Promise<Seqvar> => {
     if (!caseUuid.value) {
       throw new Error('caseUuid not set')
@@ -180,6 +181,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
           end: seqvar.pos + seqvar.del.length - 1,
           reference: seqvar.del,
           alternative: seqvar.ins,
+          sodar_uuid: resultRowUuid,
         },
         text,
       })

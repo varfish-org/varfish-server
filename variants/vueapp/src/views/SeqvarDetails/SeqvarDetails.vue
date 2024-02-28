@@ -47,7 +47,7 @@ import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/S
 /** This component's props. */
 const props = defineProps<{
   /** UUID of the result row to display. */
-  resultRowUuid?: string
+  resultRowUuid: string
   /** Identifier of the selected section. */
   selectedSection?: string
 }>()
@@ -263,12 +263,14 @@ onMounted(() => {
                 <FlagsCard
                   :flags-store="variantFlagsStore"
                   :variant="seqvarInfoStore.seqvar"
+                  :result-row-uuid="props.resultRowUuid"
                 />
               </div>
               <div id="comments" class="mt-3">
                 <CommentsCard
                   :comments-store="variantCommentsStore"
                   :variant="seqvarInfoStore.seqvar"
+                  :result-row-uuid="props.resultRowUuid"
                 />
               </div>
               <div id="seqvar-acmg" class="mt-3">
@@ -276,6 +278,7 @@ onMounted(() => {
                   :project-uuid="appContext.project?.sodar_uuid"
                   :case-uuid="variantResultSetStore.caseUuid ?? undefined"
                   :seqvar="seqvarInfoStore.seqvar"
+                  :result-row-uuid="props.resultRowUuid"
                 />
               </div>
               <div id="seqvar-ga4ghbeacons" class="mt-3">

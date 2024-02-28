@@ -9,6 +9,7 @@ import { State } from '@varfish/storeUtils'
 const props = defineProps<{
   commentsStore: any
   variant: any
+  resultRowUuid: string
 }>()
 
 watch(
@@ -69,6 +70,7 @@ const onClickSubmitComment = async () => {
     await props.commentsStore.createComment(
       props.variant,
       commentToSubmit.value,
+      props.resultRowUuid,
     )
   }
   unsetEditComment()

@@ -24,6 +24,8 @@ const props = defineProps<{
   caseUuid?: string
   /** Sequence variant to assess. */
   seqvar?: Seqvar
+  /** UUID of the result row. */
+  resultRowUuid: string
 }>()
 
 /** Store for loading/storing Seqvar ACMG Ratings. */
@@ -156,6 +158,7 @@ const onSubmitAcmgRating = async () => {
     await acmgRatingStore.createAcmgRating(
       props.seqvar!,
       acmgRatingToSubmit.value,
+      props.resultRowUuid,
     )
   }
 }

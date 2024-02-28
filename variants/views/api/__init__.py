@@ -23,7 +23,7 @@ import numpy as np
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import (
     DestroyAPIView,
     ListAPIView,
@@ -1252,12 +1252,15 @@ class SmallVariantCommentListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
@@ -1335,12 +1338,15 @@ class SmallVariantFlagsListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
@@ -1613,12 +1619,15 @@ class AcmgCriteriaRatingListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
