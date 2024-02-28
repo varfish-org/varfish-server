@@ -186,6 +186,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const createFlags = async (
     seqvar: Seqvar,
     payload: SmallVariantFlags,
+    resultRowUuid: string,
   ): Promise<SmallVariantFlags> => {
     const variantClient = new VariantClient(
       csrfToken.value ?? 'undefined-csrf-token',
@@ -207,6 +208,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
             end: seqvar.pos + seqvar.del.length - 1,
             reference: seqvar.del,
             alternative: seqvar.ins,
+            sodar_uuid: resultRowUuid,
           },
           ...payload,
         },
@@ -316,7 +318,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     return null
   }
 
-  const flagAsArtifact = async (variant: Seqvar) => {
+  const flagAsArtifact = async (variant: Seqvar, resultRowUuid: string) => {
     await retrieveFlags(variant)
     if (flags.value) {
       // update existing flags
@@ -327,11 +329,15 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       })
     } else {
       // create new flags
-      await createFlags(variant, {
-        ...emptyFlagsTemplate,
-        flag_summary: 'negative',
-        flag_visual: 'negative',
-      })
+      await createFlags(
+        variant,
+        {
+          ...emptyFlagsTemplate,
+          flag_summary: 'negative',
+          flag_visual: 'negative',
+        },
+        resultRowUuid,
+      )
     }
   }
 

@@ -112,8 +112,9 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     seqvar: { control: { type: 'object' } },
-    projectUuid: { constrol: { type: 'string' } },
-    caseUuid: { constrol: { type: 'string' } },
+    projectUuid: { control: { type: 'string' } },
+    caseUuid: { control: { type: 'string' } },
+    resultRowUuid: { control: { type: 'string' } },
   },
   args: {
     projectUuid,
@@ -137,6 +138,7 @@ type Story = StoryObj<typeof meta>
 export const OnServerPathogenic: Story = {
   args: {
     seqvar: seqvarExamplePathogenic,
+    resultRowUuid: 'fake-result-row-uuid',
   },
   parameters: {
     mockData: [
@@ -169,6 +171,7 @@ export const OnServerPathogenic: Story = {
 export const OnServerBenign: Story = {
   args: {
     seqvar: seqvarExampleBenign,
+    resultRowUuid: 'fake-result-row-uuid',
   },
   parameters: {
     mockData: [
@@ -201,6 +204,7 @@ export const OnServerBenign: Story = {
 export const NotOnServer: Story = {
   args: {
     seqvar: seqvarExampleNotOnServer,
+    resultRowUuid: 'fake-result-row-uuid',
   },
   parameters: {
     mockData: [

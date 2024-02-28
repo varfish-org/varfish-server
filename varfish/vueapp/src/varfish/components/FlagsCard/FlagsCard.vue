@@ -11,6 +11,7 @@ import { BOOLEAN_FLAGS, COLOR_VALUES, COLOR_FLAGS } from './constants'
 const props = defineProps<{
   flagsStore: any
   variant: any
+  resultRowUuid: string
 }>()
 
 const flagsToSubmit = ref(copy({ ...props.flagsStore.initialFlagsTemplate }))
@@ -86,10 +87,14 @@ const onSubmitFlags = async () => {
     flagsToSubmit.value = copy(props.flagsStore.initialFlagsTemplate)
   } else if (props.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await props.flagsStore.updateFlags(flagsToSubmit.value)
+    await props.flagsStore.updateFlags(flagsToSubmit.value, props.resultRowUuid)
   } else if (!props.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the flags
-    await props.flagsStore.createFlags(props.variant, flagsToSubmit.value)
+    await props.flagsStore.createFlags(
+      props.variant,
+      flagsToSubmit.value,
+      props.resultRowUuid,
+    )
   }
 }
 
