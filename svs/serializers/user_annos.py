@@ -1,5 +1,6 @@
 """DRF Serializers for user annotations in the ``svs`` app."""
 
+import binning
 from rest_framework import serializers
 
 from svs.models import StructuralVariantComment, StructuralVariantFlags
@@ -18,6 +19,9 @@ class StructuralVariantCommentSerializer(serializers.ModelSerializer):
         keys = ("case", "release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
         for key in keys:
             validated_data[key] = self.context[key]
+        validated_data["bin"] = binning.assign_bin(
+            int(validated_data["start"]) - 1, int(validated_data["end"])
+        )
         return super().create(validated_data)
 
     def get_user_can_edit(self, instance):
@@ -34,10 +38,8 @@ class StructuralVariantCommentSerializer(serializers.ModelSerializer):
             "date_modified",
             "user",
             "case",
-            "bin",
             "release",
             "chromosome",
-            # "chromosome_no",
             "start",
             "end",
             "sv_type",
@@ -59,6 +61,9 @@ class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
         keys = ("case", "release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
         for key in keys:
             validated_data[key] = self.context[key]
+        validated_data["bin"] = binning.assign_bin(
+            int(validated_data["start"]) - 1, int(validated_data["end"])
+        )
         return super().create(validated_data)
 
     class Meta:
@@ -70,12 +75,10 @@ class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
             "case",
             "release",
             "chromosome",
-            # "chromosome_no",
             "start",
             "end",
             "sv_type",
             "sv_sub_type",
-            "bin",
             "flag_bookmarked",
             "flag_candidate",
             "flag_final_causative",

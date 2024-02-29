@@ -9,12 +9,12 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
-import { SvClient } from '@svs/api/svClient'
+import { SvClient } from '@svs/api/strucvarClient'
 import { reciprocalOverlap } from '@varfish/helpers'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import isEqual from 'fast-deep-equal'
 
-/** Alias definition of StructuralVariant type; to be defined later. */
-type StructuralVariant = any
 /** Alias definition of StructuralVariantComment type; to be defined later. */
 type StructuralVariantComment = any
 
@@ -38,7 +38,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   // other data (loaded via REST API or computed)
 
   /** The structural variant that comments are handled for. */
-  const sv = ref<StructuralVariant | null>(null)
+  const sv = ref<Strucvar | null>(null)
   /** The comments for the current structural variant as fetched from API. */
   const comments = ref<StructuralVariantComment | null>(null)
   /** The comments for all structural variants of the case with the given `caseUuid`. */
@@ -118,13 +118,13 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   /**
    * Retrieve comments for the given SV.
    */
-  const retrieveComments = async (sv$: StructuralVariant) => {
+  const retrieveComments = async (sv$: Strucvar, caseUuid$?: string) => {
     // Prevent re-retrieval of the comment.
-    if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
+    if (isEqual(sv.value, sv$)) {
       return
     }
     // Error if case UUID is unset.
-    if (!caseUuid.value) {
+    if (!caseUuid.value || !caseUuid$) {
       throw new Error('Case UUID is not set')
     }
 
@@ -135,7 +135,10 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     storeState.serverInteractions += 1
 
     try {
-      comments.value = await svClient.listComment(caseUuid.value, sv$)
+      comments.value = await svClient.listComment(
+        caseUuid.value ?? caseUuid$,
+        sv$,
+      )
 
       sv.value = sv$
 
@@ -153,9 +156,9 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    * Create a new comment.
    */
   const createComment = async (
-    sv: StructuralVariant,
+    strucvar: Strucvar,
     text: string,
-  ): Promise<StructuralVariant> => {
+  ): Promise<Strucvar> => {
     const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
     // Error if case UUID is unset.
     if (!caseUuid.value) {
@@ -165,10 +168,24 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
+    let end
+    if (strucvar.svType === 'INS' || strucvar.svType === 'BND') {
+      end = strucvar.start
+    } else {
+      end = strucvar.stop
+    }
+
     let result
     try {
-      result = await svClient.createComment(caseUuid.value, sv, {
-        ...sv,
+      result = await svClient.createComment(caseUuid.value, strucvar, {
+        ...{
+          release: strucvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+          chromosome: strucvar.chrom,
+          start: strucvar.start,
+          end,
+          sv_type: strucvar.svType,
+          sv_sub_type: strucvar.svType,
+        },
         text,
       })
 
@@ -193,7 +210,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const updateComment = async (
     commentUuid: string,
     text: string,
-  ): Promise<StructuralVariant> => {
+  ): Promise<Strucvar> => {
     const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     storeState.state = State.Fetching
@@ -257,12 +274,22 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   /**
    * Return whether there is a comment for the given variant.
    */
-  const hasComment = (sv: StructuralVariant): boolean => {
+  const hasComment = (strucvar$: Strucvar): boolean => {
     const minReciprocalOverlap = 0.8
     for (const comment of caseComments.value.values()) {
+      let end
+      if (strucvar$.svType === 'INS' || strucvar$.svType === 'BND') {
+        end = strucvar$.start
+      } else {
+        end = strucvar$.stop
+      }
       if (
-        comment.sv_type == sv.sv_type &&
-        reciprocalOverlap(comment, sv) >= minReciprocalOverlap
+        comment.sv_type === strucvar$.svType &&
+        reciprocalOverlap(comment, {
+          chromosome: strucvar$.chrom,
+          start: strucvar$.start,
+          end,
+        }) >= minReciprocalOverlap
       ) {
         return true
       }

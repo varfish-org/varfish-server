@@ -6,10 +6,10 @@ import { useRouter } from 'vue-router'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import { SvClient } from '@svs/api/svClient'
+import { SvClient } from '@svs/api/strucvarClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
-import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags'
+import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { formatLargeInt, displayName } from '@varfish/helpers'
 

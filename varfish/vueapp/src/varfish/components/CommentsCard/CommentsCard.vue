@@ -10,22 +10,24 @@ const props = defineProps<{
   commentsStore: any
   variant: any
   resultRowUuid: string
+  caseUuid?: string
 }>()
 
 watch(
-  () => props.variant,
+  () => [props.variant, props.caseUuid],
   () => {
     if (
       props.variant &&
-      props.commentsStore.storeState.state === State.Active
+      props.commentsStore.storeState.state === State.Active &&
+      props.caseUuid
     ) {
-      props.commentsStore.retrieveComments(props.variant)
+      props.commentsStore.retrieveComments(props.variant, props.caseUuid)
     }
   },
 )
 onMounted(() => {
-  if (props.variant) {
-    props.commentsStore.retrieveComments(props.variant)
+  if (props.variant && props.caseUuid) {
+    props.commentsStore.retrieveComments(props.variant, props.caseUuid)
   }
 })
 
