@@ -211,7 +211,7 @@ watch(
                 entry-column-width="260px"
               />
             </div>
-            <!--
+
             <template v-if="!selectedGeneInfo">
               <div class="text-h5 mt-2 mb-3 ml-1">No Gene</div>
             </template>
@@ -230,7 +230,9 @@ watch(
               </div>
               <div id="gene-conditions" class="mt-3">
                 <GeneConditionsCard :gene-info="selectedGeneInfo">
-                  <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" />
+                  <CadaRanking
+                    :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId"
+                  />
                 </GeneConditionsCard>
               </div>
               <div id="gene-expression" class="mt-3">
@@ -256,14 +258,14 @@ watch(
               <div id="gene-literature" class="mt-3">
                 <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
               </div>
-            </template> -->
+            </template>
 
             <div>
               <div class="text-h5 mt-3 mb-2 ml-1">
                 Structural Variant Details
               </div>
 
-              <!-- <div id="strucvar-calldetails" class="mt-3">
+              <div id="strucvar-calldetails" class="mt-3">
                 <StrucvarGenotypeCallCard
                   :result-row="svResultSetStore.resultRow ?? undefined"
                 />
@@ -276,7 +278,7 @@ watch(
               </div>
               <div id="strucvar-tools" class="mt-3">
                 <StrucvarToolsCard :strucvar="strucvarInfoStore.strucvar" />
-              </div> -->
+              </div>
               <div id="strucvar-flags" class="mt-3">
                 <FlagsCard
                   :flags-store="svFlagsStore"
@@ -293,12 +295,12 @@ watch(
                   :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                 />
               </div>
-              <!-- <div id="strucvar-genomebrowser">
+              <div id="strucvar-genomebrowser">
                 <GenomeBrowserCard
                   :genome-build="strucvarInfoStore.strucvar?.genomeBuild"
                   :locus="svLocus(strucvarInfoStore.strucvar) as string"
                 />
-              </div> -->
+              </div>
             </div>
           </v-col>
         </v-row>
