@@ -14,10 +14,13 @@ import { onMounted, watch, ref, computed } from 'vue'
 import { svLocus } from './lib'
 
 import { useSvDetailsStore } from '@svs/stores/svDetails'
-import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
+
+import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
 
 import StrucvarDetailsNavi from '@svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
 import StrucvarDetailsHeader from '@svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
@@ -39,6 +42,8 @@ import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiter
 import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
 import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
 import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
 
 const props = defineProps<{
   /** UUID of the result row to display. */
@@ -61,6 +66,7 @@ const strucvarInfoStore = useStrucvarInfoStore()
 /** Information about the genes. */
 const geneInfoStore = useGeneInfoStore()
 
+const caseDetailsStore = useCaseDetailsStore()
 /** Management of strucvar results ets. */
 const svResultSetStore = useSvResultSetStore()
 /** Management of strucvar details. */
@@ -101,6 +107,11 @@ const refreshStores = async () => {
     if (!svResultSetStore.caseUuid) {
       throw new Error('caseUuid not set')
     }
+    await caseDetailsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      svResultSetStore.caseUuid,
+    )
     let strucvar: Strucvar
     if (svResultSetStore.resultRow.sv_type === 'BND') {
       strucvar = new BreakendStrucvarImpl(
@@ -200,6 +211,7 @@ watch(
                 entry-column-width="260px"
               />
             </div>
+            <!--
             <template v-if="!selectedGeneInfo">
               <div class="text-h5 mt-2 mb-3 ml-1">No Gene</div>
             </template>
@@ -218,7 +230,7 @@ watch(
               </div>
               <div id="gene-conditions" class="mt-3">
                 <GeneConditionsCard :gene-info="selectedGeneInfo">
-                  <!-- <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" /> -->
+                  <CadaRanking :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId" />
                 </GeneConditionsCard>
               </div>
               <div id="gene-expression" class="mt-3">
@@ -244,14 +256,14 @@ watch(
               <div id="gene-literature" class="mt-3">
                 <GeneLiteratureCard :gene-info="geneInfoStore.geneInfo" />
               </div>
-            </template>
+            </template> -->
 
             <div>
               <div class="text-h5 mt-3 mb-2 ml-1">
                 Structural Variant Details
               </div>
 
-              <div id="strucvar-calldetails" class="mt-3">
+              <!-- <div id="strucvar-calldetails" class="mt-3">
                 <StrucvarGenotypeCallCard
                   :result-row="svResultSetStore.resultRow ?? undefined"
                 />
@@ -264,19 +276,29 @@ watch(
               </div>
               <div id="strucvar-tools" class="mt-3">
                 <StrucvarToolsCard :strucvar="strucvarInfoStore.strucvar" />
-              </div>
+              </div> -->
               <div id="strucvar-flags" class="mt-3">
-                <!-- <ClinsigCard :strucvar="strucvarInfoStore.strucvar" @error-display="handleDisplayError" /> -->
+                <FlagsCard
+                  :flags-store="svFlagsStore"
+                  :variant="strucvarInfoStore.strucvar"
+                  :result-row-uuid="props.resultRowUuid ?? ''"
+                  :case-uuid="caseDetailsStore.caseUuid ?? undefined"
+                />
               </div>
-              <div id="seqvar-comments" class="mt-3">
-                <!-- <ClinvarsubCard :strucvar="strucvarInfoStore.strucvar" /> -->
+              <div id="strucvar-comments" class="mt-3">
+                <CommentsCard
+                  :comments-store="svCommentsStore"
+                  :variant="strucvarInfoStore.strucvar"
+                  :result-row-uuid="props.resultRowUuid ?? ''"
+                  :case-uuid="caseDetailsStore.caseUuid ?? undefined"
+                />
               </div>
-              <div id="strucvar-genomebrowser">
+              <!-- <div id="strucvar-genomebrowser">
                 <GenomeBrowserCard
                   :genome-build="strucvarInfoStore.strucvar?.genomeBuild"
                   :locus="svLocus(strucvarInfoStore.strucvar) as string"
                 />
-              </div>
+              </div> -->
             </div>
           </v-col>
         </v-row>

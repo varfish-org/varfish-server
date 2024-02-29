@@ -43,6 +43,7 @@ import SeqvarFreqsCard from '@bihealth/reev-frontend-lib/components/SeqvarFreqsC
 import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
 import SeqvarScoresCard from '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
 import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 
 /** This component's props. */
 const props = defineProps<{
@@ -66,6 +67,7 @@ const seqvarInfoStore = useSeqvarInfoStore()
 /** Information about the affected gene, used to fetch information on load. */
 const geneInfoStore = useGeneInfoStore()
 
+const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 const variantDetailsStore = useVariantDetailsStore()
 const variantFlagsStore = useVariantFlagsStore()
@@ -97,6 +99,11 @@ const refreshStores = async () => {
     if (!variantResultSetStore.caseUuid) {
       throw new Error('No case UUID found')
     }
+    await caseDetailsStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      variantResultSetStore.caseUuid,
+    )
     await Promise.all([
       variantFlagsStore.initialize(
         appContext.csrf_token,
@@ -264,13 +271,15 @@ onMounted(() => {
                   :flags-store="variantFlagsStore"
                   :variant="seqvarInfoStore.seqvar"
                   :result-row-uuid="props.resultRowUuid"
+                  :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                 />
               </div>
-              <div id="comments" class="mt-3">
+              <div id="seqvar-comments" class="mt-3">
                 <CommentsCard
                   :comments-store="variantCommentsStore"
                   :variant="seqvarInfoStore.seqvar"
                   :result-row-uuid="props.resultRowUuid"
+                  :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                 />
               </div>
               <div id="seqvar-acmg" class="mt-3">

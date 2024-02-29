@@ -5,9 +5,11 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
-import { SvClient } from '@svs/api/svClient'
+import { SvClient } from '@svs/api/strucvarClient'
 import { bndInsOverlap, reciprocalOverlap } from '@varfish/helpers'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import isEqual from 'fast-deep-equal'
 
 /** Alias definition of StructuralVariant type; to be defined later. */
 type StructuralVariant = any
@@ -54,7 +56,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   // other data (loaded via REST API or computed)
 
   /** The structural that flags are handled for in detail view. */
-  const sv = ref<StructuralVariant | null>(null)
+  const sv = ref<Strucvar | null>(null)
   /** The flags for the structural variant `sv` as fetched from API for the detail view. */
   const flags = ref<StructuralVariantFlags | null>(null)
   /** The flags for all structural variants of the case with the given `caseUuid`. */
@@ -136,13 +138,15 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   /**
    * Retrieve flags for the given SV.
    */
-  const retrieveFlags = async (sv$: StructuralVariant) => {
+  const retrieveFlags = async (strucvar$: Strucvar, caseUuid$?: string) => {
+    console.log('retrieve flags')
     // Prevent re-retrieval of the flags.
-    if (sv.value?.sodar_uuid === sv$?.sodar_uuid) {
+    if (isEqual(sv.value, strucvar$)) {
       return
     }
+
     // Throw error if case UUID has not been set.
-    if (!caseUuid.value) {
+    if (!caseUuid.value || !caseUuid$) {
       throw new Error('Case UUID not set')
     }
 
@@ -153,14 +157,17 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     storeState.serverInteractions += 1
 
     try {
-      const res = await svClient.listFlags(caseUuid.value, sv$)
+      const res = await svClient.listFlags(
+        caseUuid.value ?? caseUuid$,
+        strucvar$,
+      )
       if (res.length) {
         flags.value = res[0]
       } else {
         flags.value = null
       }
 
-      sv.value = sv$
+      sv.value = strucvar$
       storeState.serverInteractions -= 1
       storeState.state = State.Active
     } catch (err) {
@@ -175,7 +182,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Create a new flags entry.
    */
   const createFlags = async (
-    sv: StructuralVariant,
+    strucvar: Strucvar,
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
     const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
@@ -187,10 +194,24 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
+    let end
+    if (strucvar.svType === 'INS' || strucvar.svType === 'BND') {
+      end = strucvar.start
+    } else {
+      end = strucvar.stop
+    }
+
     let result
     try {
-      result = await svClient.createFlags(caseUuid.value, sv, {
-        ...sv,
+      result = await svClient.createFlags(caseUuid.value, strucvar, {
+        ...{
+          release: strucvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+          chromosome: strucvar.chrom,
+          start: strucvar.start,
+          end,
+          sv_type: strucvar.svType,
+          sv_sub_type: strucvar.svType,
+        },
         ...payload,
       })
 

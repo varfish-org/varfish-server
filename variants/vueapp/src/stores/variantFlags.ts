@@ -143,7 +143,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /**
    * Retrieve flags for the given variant.
    */
-  const retrieveFlags = async (seqvar$: Seqvar) => {
+  const retrieveFlags = async (seqvar$: Seqvar, caseUuid$?: string) => {
     // Prevent re-retrieval of the flags.
     if (isEqual(seqvar.value, seqvar$)) {
       return
@@ -153,13 +153,18 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       csrfToken.value ?? 'undefined-csrf-token',
     )
 
+    // Throw error if case UUID has not been set.
+    if (!caseUuid.value || !caseUuid$) {
+      throw new Error('Case UUID not set')
+    }
+
     flags.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
       const res = await variantClient.listFlags(
-        caseUuid.value ?? 'undefined-csrf-token',
+        caseUuid.value ?? caseUuid$,
         seqvar$,
       )
       if (res.length) {

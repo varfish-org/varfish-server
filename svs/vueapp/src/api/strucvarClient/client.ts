@@ -1,36 +1,17 @@
 import { ClientBase } from '@varfish/apiUtils'
-
-type QuickPresets = any
-type InheritancePresets = any
-type CategoryPresets = any
-type QuerySettingsShortcuts = any
-type CaseSvQuery = any
-type SvQueryResultSet = any
-type SvQueryResultRow = any
-type SvComment = any
-type SvFlags = any
-
-/**
- * Encode the list arguments.
- */
-export interface ListArgs {
-  pageNo: number
-  pageSize: number
-  orderBy?: string
-  orderDir?: string
-  queryString?: string
-}
-
-export interface StructuralVariant {
-  release: string
-  chromosome: string
-  start: number
-  end: number
-  reference: string
-  alternative: string
-  sv_type: string
-  sv_sub_type: string
-}
+import {
+  QuickPresets,
+  InheritancePresets,
+  CategoryPresets,
+  QuerySettingsShortcuts,
+  CaseSvQuery,
+  SvQueryResultSet,
+  ListArgs,
+  SvQueryResultRow,
+  SvComment,
+  SvFlags,
+} from './types'
+import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /**
  * Class for accessing the SV REST API.
@@ -127,13 +108,20 @@ export class SvClient extends ClientBase {
   }
 
   /** List comments for the given case, optionally for the given `sv`. */
-  async listComment(caseUuid: string, sv?: StructuralVariant) {
+  async listComment(caseUuid: string, strucvar?: Strucvar) {
     let query = ''
-    if (sv) {
-      const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
       query =
-        `?release=${release}&chromosome=${chromosome}&start=${start}` +
-        `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
     }
 
     return await this.fetchHelper(
@@ -144,13 +132,21 @@ export class SvClient extends ClientBase {
 
   async createComment(
     caseUuid: string,
-    sv: StructuralVariant,
+    strucvar: Strucvar,
     payload: SvComment,
   ): Promise<SvComment> {
-    const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+    console.log(strucvar)
+    const { svType, genomeBuild, chrom, start } = strucvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    let stop
+    if (svType === 'INS' || svType === 'BND') {
+      stop = strucvar.start
+    } else {
+      stop = strucvar.stop
+    }
     const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+      `release=${release}&chromosome=${chrom}&start=${start}` +
+      `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
 
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-comment/list-create/${caseUuid}/?${query}`,
@@ -163,6 +159,7 @@ export class SvClient extends ClientBase {
     commentUuid: string,
     payload: SvComment,
   ): Promise<SvComment> {
+    console.log(payload)
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-comment/retrieve-update-destroy/${commentUuid}/`,
       'PATCH',
@@ -178,16 +175,20 @@ export class SvClient extends ClientBase {
   }
 
   /** List flags for the given case, optionally for the given `sv`. */
-  async listFlags(
-    caseUuid: string,
-    sv?: StructuralVariant,
-  ): Promise<SvFlags[]> {
+  async listFlags(caseUuid: string, strucvar?: Strucvar): Promise<SvFlags[]> {
     let query = ''
-    if (sv) {
-      const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
       query =
-        `?release=${release}&chromosome=${chromosome}&start=${start}` +
-        `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
     }
 
     return await this.fetchHelper(
@@ -198,13 +199,21 @@ export class SvClient extends ClientBase {
 
   async createFlags(
     caseUuid: string,
-    sv: StructuralVariant,
+    strucvar: Strucvar,
     payload: SvFlags,
   ): Promise<SvFlags> {
-    const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+    console.log(strucvar, payload)
+    const { svType, genomeBuild, chrom, start } = strucvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    let stop
+    if (svType === 'INS' || svType === 'BND') {
+      stop = strucvar.start
+    } else {
+      stop = strucvar.stop
+    }
     const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+      `release=${release}&chromosome=${chrom}&start=${start}` +
+      `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/?${query}`,
       'POST',
@@ -213,6 +222,7 @@ export class SvClient extends ClientBase {
   }
 
   async updateFlags(flagsUuid: string, payload: SvFlags): Promise<SvFlags> {
+    console.log(payload)
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-flags/retrieve-update-destroy/${flagsUuid}/`,
       'PATCH',

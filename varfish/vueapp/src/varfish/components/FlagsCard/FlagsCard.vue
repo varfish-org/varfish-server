@@ -12,6 +12,7 @@ const props = defineProps<{
   flagsStore: any
   variant: any
   resultRowUuid: string
+  caseUuid?: string
 }>()
 
 const flagsToSubmit = ref(copy({ ...props.flagsStore.initialFlagsTemplate }))
@@ -99,18 +100,18 @@ const onSubmitFlags = async () => {
 }
 
 watch(
-  () => props.variant,
+  () => [props.variant, props.caseUuid],
   async () => {
-    if (props.variant && props.flagsStore.storeState.state === State.Active) {
-      await props.flagsStore.retrieveFlags(props.variant)
+    if (props.variant && props.caseUuid) {
+      await props.flagsStore.retrieveFlags(props.variant, props.caseUuid)
       resetFlags()
     }
   },
 )
 
 onMounted(async () => {
-  if (props.variant) {
-    await props.flagsStore.retrieveFlags(props.variant)
+  if (props.variant && props.caseUuid) {
+    await props.flagsStore.retrieveFlags(props.variant, props.caseUuid)
     resetFlags()
   }
 })
