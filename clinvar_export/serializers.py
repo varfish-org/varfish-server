@@ -1,3 +1,4 @@
+from typing import Dict, List, Literal, Optional
 from django.shortcuts import get_object_or_404
 from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers
@@ -28,7 +29,7 @@ from .models import (
 )
 
 
-def resolve_term_id(term_id):
+def resolve_term_id(term_id: str) -> Dict[Literal["term_id", "term_name"], str]:
     """Resolve phenotype/disease term ID ``term_id``."""
     term_name = term_id
     if term_id.startswith("HP"):
@@ -107,7 +108,7 @@ class IndividualSerializer(SODARProjectModelSerializer):
     family = serializers.ReadOnlyField(source="family.sodar_uuid")
     phenotype_terms = serializers.SerializerMethodField()
 
-    def get_phenotype_terms(self, obj):
+    def get_phenotype_terms(self, obj) -> Optional[List[str]]:
         """Return related phenotypes."""
 
         # TODO: speedup

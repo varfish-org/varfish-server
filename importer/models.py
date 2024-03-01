@@ -134,6 +134,9 @@ class CaseImportInfo(CoreCase):
         return self.project
 
 
+GENOME_BUILD_CHOICES_VERBATIM = (("GRCh37", "GRCh37"), ("GRCh38", "GRCh38"))
+
+
 class VariantSetImportInfo(models.Model):
     """Information for importing a variant set for a case."""
 
@@ -146,7 +149,7 @@ class VariantSetImportInfo(models.Model):
 
     genomebuild = models.CharField(
         max_length=32,
-        choices=(("GRCh37", "GRCh37"), ("GRCh38", "GRCh38")),
+        choices=GENOME_BUILD_CHOICES_VERBATIM,
         default="GRCh37",
         help_text="Genome build used in the variant set.",
     )

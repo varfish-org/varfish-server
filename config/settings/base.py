@@ -675,23 +675,30 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SPECTACULAR_SETTINGS = {
     # Basic Settings
-    'TITLE': 'VarFish',
-    'DESCRIPTION': 'VarFish API',
-    'VERSION': varfish_version,
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "VarFish",
+    "DESCRIPTION": "VarFish API",
+    "VERSION": varfish_version,
+    "SERVE_INCLUDE_SCHEMA": False,
     # Skip schema generation for some paths.
-    'PREPROCESSING_HOOKS': [
-        'varfish.utils.spectacular_preprocess_hook',
+    "PREPROCESSING_HOOKS": [
+        "varfish.utils.spectacular_preprocess_hook",
     ],
+    # We add some explicit choices naming to work around warning.
+    "ENUM_NAME_OVERRIDES": {
+        "VariantRatingEnum": "variants.models.userannos.VARIANT_RATING_CHOICES",
+        "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
+        "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
+        "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
+    },
     # Sidecar Settings
-    'SWAGGER_UI_DIST': 'SIDECAR',
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 # Logging

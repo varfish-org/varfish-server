@@ -34,7 +34,6 @@ from cases_qc.models.dragen import (
 )
 from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics, NgsbitsMappingqcRecord
 from cases_qc.models.samtools import (
-    SamtoolsStatsSnRecord,
     SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
     SamtoolsIdxstatsMetrics,
@@ -49,6 +48,7 @@ from cases_qc.models.samtools import (
     SamtoolsStatsIdRecord,
     SamtoolsStatsIsRecord,
     SamtoolsStatsMainMetrics,
+    SamtoolsStatsSnRecord,
     SamtoolsStatsSupplementaryMetrics,
 )
 from cases_qc.models.varfish import (

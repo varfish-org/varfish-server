@@ -10,15 +10,17 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
 
 def handler500(request, *args, **argv):
     if request.user and "User" in str(type(request.user)):
         return render(request, "500.html", {"sentry_event_id": last_event_id()}, status=500)
     else:
         return HttpResponse(status=500)
+
 
 # URL Patterns for SAML / Logins
 # ------------------------------------------------------------------------------
@@ -95,10 +97,14 @@ urlpatterns += [
 
 urlpatterns += [
     # Schema
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # UI
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
 
 # URL Patterns for Proxies

@@ -24,7 +24,7 @@ class StructuralVariantCommentSerializer(serializers.ModelSerializer):
         )
         return super().create(validated_data)
 
-    def get_user_can_edit(self, instance):
+    def get_user_can_edit(self, instance) -> bool:
         return (
             self.context["request"].user.is_superuser
             or self.context["request"].user == instance.user

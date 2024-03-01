@@ -20,7 +20,7 @@ from variants.serializers import CoreCaseSerializerMixin, SmallVariantQueryResul
 _app_settings = AppSettingAPI()
 
 
-class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
+class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model.
 
     In contrast to the old (legacy) ``CaseSerializer`` from ``variants.serializers.case``, this class does not
@@ -59,24 +59,24 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             result["presetset"] = presetsets[0]
         return result
 
-    def get_sex_errors(self, obj):
+    def get_sex_errors(self, obj) -> dict[str, list[str]]:
         if self.disable_pedigree_sex_check is None:
             self.disable_pedigree_sex_check = _app_settings.get(
                 "variants", "disable_pedigree_sex_check", project=obj.project
             )
         return obj.sex_errors(disable_pedigree_sex_check=self.disable_pedigree_sex_check)
 
-    def get_smallvariantqueryresultset(self, obj):
+    def get_smallvariantqueryresultset(self, obj) -> dict[str, int | float | str | None]:
         return SmallVariantQueryResultSetSerializer(
             obj.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
         ).data
 
-    def get_svqueryresultset(self, obj):
+    def get_svqueryresultset(self, obj) -> dict[str, int | float | str | None]:
         return SvQueryResultSetSerializer(
             obj.svqueryresultset_set.filter(svquery=None).first()
         ).data
 
-    def get_caseqc(self, obj):
+    def get_caseqc(self, obj) -> dict[str, int | float | str | None] | None:
         """Obtain the latest CaseQC for this in active state and serialize it.
 
         If there is no such record then return ``None``.
@@ -185,8 +185,6 @@ class SampleVariantStatisticsSerializer(serializers.ModelSerializer):
 
     #: Serialize ``case`` as its ``sodar_uuid``.
     case = serializers.ReadOnlyField(source="stats.variant_set.case.sodar_uuid")
-    # #: Serialize ``ontarget_ts_tv_ratio`` from method call.
-    # ontarget_ts_tv_ratio = serializers.SerializerMethodField("ontarget_ts_tv_ratio")
 
     class Meta:
         model = SampleVariantStatistics
@@ -214,8 +212,6 @@ class PedigreeRelatednessSerializer(serializers.ModelSerializer):
 
     #: Serialize ``case`` as its ``sodar_uuid``.
     case = serializers.ReadOnlyField(source="stats.variant_set.case.sodar_uuid")
-    # #: Serialize ``ontarget_ts_tv_ratio`` from method call.
-    # relatedness = serializers.SerializerMethodField("relatedness")
 
     class Meta:
         model = PedigreeRelatedness

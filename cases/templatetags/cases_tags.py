@@ -27,7 +27,7 @@ def only_source_name(full_name):
 
 
 @register.filter
-def sex_errors(item, disable_pedigree_sex_check):
+def sex_errors(item, disable_pedigree_sex_check) -> dict[str, list[str]]:
     """Whether there are any sex errors in the case."""
     return item.sex_errors(disable_pedigree_sex_check=disable_pedigree_sex_check)
 

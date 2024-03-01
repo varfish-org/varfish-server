@@ -18,7 +18,7 @@ from cases.serializers import (
     CaseAlignmentStatsSerializer,
     CaseCommentSerializer,
     CaseGeneAnnotationSerializer,
-    CaseSerializer,
+    CaseSerializerNg,
     PedigreeRelatednessSerializer,
     SampleVariantStatisticsSerializer,
 )
@@ -65,7 +65,7 @@ class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
 
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
-    serializer_class = CaseSerializer
+    serializer_class = CaseSerializerNg
 
     pagination_class = CasePagination
 
@@ -124,7 +124,7 @@ class CaseRetrieveUpdateDestroyApiView(CaseApiBaseMixin, RetrieveUpdateDestroyAP
     **Returns:** Updated case details.
     """
 
-    serializer_class = CaseSerializer
+    serializer_class = CaseSerializerNg
 
     def get_queryset(self):
         return Case.objects.all()

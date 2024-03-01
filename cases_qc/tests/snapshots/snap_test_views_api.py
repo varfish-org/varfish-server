@@ -4,868 +4,310 @@ from __future__ import unicode_literals
 
 from snapshottest import Snapshot
 
-
 snapshots = Snapshot()
 
-snapshots['CaseQcRetrieveApiViewTest::test_retrieve_existing 1'] = {
-    'bcftools_statsmetrics': [
-    ],
-    'case': '23b8c1e9-3924-46de-beb1-3b9046685257',
-    'cramino_metrics': [
-    ],
-    'date_created': '2012-01-14T12:00:01Z',
-    'date_modified': '2012-01-14T12:00:01Z',
-    'dragen_cnvmetrics': [
-    ],
-    'dragen_fragmentlengthhistograms': [
-    ],
-    'dragen_mappingmetrics': [
-    ],
-    'dragen_ploidyestimationmetrics': [
-    ],
-    'dragen_regioncoveragemetrics': [
-    ],
-    'dragen_regionfinehist': [
-    ],
-    'dragen_regionhist': [
-    ],
-    'dragen_regionoverallmeancov': [
-    ],
-    'dragen_rohmetrics': [
-    ],
-    'dragen_svmetrics': [
-    ],
-    'dragen_timemetrics': [
-    ],
-    'dragen_trimmermetrics': [
-    ],
-    'dragen_vchethomratiometrics': [
-    ],
-    'dragen_vcmetrics': [
-    ],
-    'dragen_wgscontigmeancovmetrics': [
-    ],
-    'dragen_wgscoveragemetrics': [
-    ],
-    'dragen_wgsfinehist': [
-    ],
-    'dragen_wgshist': [
-    ],
-    'dragen_wgsoverallmeancov': [
+snapshots["CaseQcRetrieveApiViewTest::test_retrieve_existing 1"] = {
+    "bcftools_statsmetrics": [],
+    "case": "23b8c1e9-3924-46de-beb1-3b9046685257",
+    "cramino_metrics": [],
+    "date_created": "2012-01-14T12:00:01Z",
+    "date_modified": "2012-01-14T12:00:01Z",
+    "dragen_cnvmetrics": [],
+    "dragen_fragmentlengthhistograms": [],
+    "dragen_mappingmetrics": [],
+    "dragen_ploidyestimationmetrics": [],
+    "dragen_regioncoveragemetrics": [],
+    "dragen_regionfinehist": [],
+    "dragen_regionhist": [],
+    "dragen_regionoverallmeancov": [],
+    "dragen_rohmetrics": [],
+    "dragen_svmetrics": [],
+    "dragen_timemetrics": [],
+    "dragen_trimmermetrics": [],
+    "dragen_vchethomratiometrics": [],
+    "dragen_vcmetrics": [],
+    "dragen_wgscontigmeancovmetrics": [],
+    "dragen_wgscoveragemetrics": [],
+    "dragen_wgsfinehist": [],
+    "dragen_wgshist": [],
+    "dragen_wgsoverallmeancov": [
         {
-            'caseqc': 'bdd640fb-0667-4ad1-9c80-317fa3b1799d',
-            'date_created': '2012-01-14T12:00:01Z',
-            'date_modified': '2012-01-14T12:00:01Z',
-            'metrics': [
+            "caseqc": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
+            "date_created": "2012-01-14T12:00:01Z",
+            "date_modified": "2012-01-14T12:00:01Z",
+            "metrics": [
                 {
-                    'entry': 'offer',
-                    'name': 'begin',
-                    'section': 'wait',
-                    'value': 42,
-                    'value_float': 3.14
+                    "entry": "offer",
+                    "name": "begin",
+                    "section": "wait",
+                    "value": 42,
+                    "value_float": 3.14,
                 }
             ],
-            'sample': 'index_000-N1-DNA1-WES1',
-            'sodar_uuid': 'bd9c66b3-ad3c-4d6d-9a3d-1fa7bc8960a9'
+            "sample": "index_000-N1-DNA1-WES1",
+            "sodar_uuid": "bd9c66b3-ad3c-4d6d-9a3d-1fa7bc8960a9",
         }
     ],
-    'ngsbits_mappingqcmetrics': [
-    ],
-    'samtools_flagstatmetrics': [
-    ],
-    'samtools_idxstatsmetrics': [
-    ],
-    'samtools_statsmainmetrics': [
-    ],
-    'samtools_statssupplementarymetrics': [
-    ],
-    'sodar_uuid': 'bdd640fb-0667-4ad1-9c80-317fa3b1799d',
-    'state': 'ACTIVE'
+    "ngsbits_mappingqcmetrics": [],
+    "samtools_flagstatmetrics": [],
+    "samtools_idxstatsmetrics": [],
+    "samtools_statsmainmetrics": [],
+    "samtools_statssupplementarymetrics": [],
+    "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
+    "state": "ACTIVE",
 }
 
-snapshots['TestVarfishStatsRetrieveApiView::test_retrieve 1'] = {
-    'alignmentstats': [
+snapshots["TestVarfishStatsRetrieveApiView::test_retrieve 1"] = {
+    "alignmentstats": [
         {
-            'detailed_counts': {
-                'duplicates': 128799765,
-                'mapped': 1054444667,
-                'mapq': [
-                ],
-                'mismatch_rate': 0.004299885139275618,
-                'primary': 1051286345,
-                'properly_paired': 1026267880,
-                'secondary': 0,
-                'singletons': 3920837,
-                'supplementary': 3158322,
-                'with_itself_and_mate_mapped': 1047365508,
-                'with_mate_mapped_to_different_chr': 16540332,
-                'with_mate_mapped_to_different_chr_mapq': 8161227
+            "detailed_counts": {
+                "duplicates": 128799765,
+                "mapped": 1054444667,
+                "mapq": [],
+                "mismatch_rate": 0.004299885139275618,
+                "primary": 1051286345,
+                "properly_paired": 1026267880,
+                "secondary": 0,
+                "singletons": 3920837,
+                "supplementary": 3158322,
+                "with_itself_and_mate_mapped": 1047365508,
+                "with_mate_mapped_to_different_chr": 16540332,
+                "with_mate_mapped_to_different_chr_mapq": 8161227,
             },
-            'insert_size_stats': {
-                'insert_size_histogram': [
-                    [
-                        30,
-                        4
-                    ],
-                    [
-                        40,
-                        3
-                    ],
-                    [
-                        50,
-                        3
-                    ],
-                    [
-                        60,
-                        10
-                    ],
-                    [
-                        70,
-                        9
-                    ],
-                    [
-                        80,
-                        7
-                    ],
-                    [
-                        90,
-                        14
-                    ],
-                    [
-                        100,
-                        29
-                    ],
-                    [
-                        110,
-                        31
-                    ],
-                    [
-                        120,
-                        40
-                    ],
-                    [
-                        130,
-                        46
-                    ],
-                    [
-                        140,
-                        70
-                    ],
-                    [
-                        150,
-                        80
-                    ],
-                    [
-                        160,
-                        78
-                    ],
-                    [
-                        170,
-                        111
-                    ],
-                    [
-                        180,
-                        114
-                    ],
-                    [
-                        190,
-                        138
-                    ],
-                    [
-                        200,
-                        173
-                    ],
-                    [
-                        210,
-                        248
-                    ],
-                    [
-                        220,
-                        244
-                    ],
-                    [
-                        230,
-                        326
-                    ],
-                    [
-                        240,
-                        430
-                    ],
-                    [
-                        250,
-                        516
-                    ],
-                    [
-                        260,
-                        596
-                    ],
-                    [
-                        270,
-                        749
-                    ],
-                    [
-                        280,
-                        927
-                    ],
-                    [
-                        290,
-                        1164
-                    ],
-                    [
-                        300,
-                        1350
-                    ],
-                    [
-                        310,
-                        1660
-                    ],
-                    [
-                        320,
-                        1980
-                    ],
-                    [
-                        330,
-                        2406
-                    ],
-                    [
-                        340,
-                        2822
-                    ],
-                    [
-                        350,
-                        3264
-                    ],
-                    [
-                        360,
-                        3797
-                    ],
-                    [
-                        370,
-                        4218
-                    ],
-                    [
-                        380,
-                        4849
-                    ],
-                    [
-                        390,
-                        5154
-                    ],
-                    [
-                        400,
-                        5608
-                    ],
-                    [
-                        410,
-                        5842
-                    ],
-                    [
-                        420,
-                        6315
-                    ],
-                    [
-                        430,
-                        6413
-                    ],
-                    [
-                        440,
-                        6436
-                    ],
-                    [
-                        450,
-                        6390
-                    ],
-                    [
-                        460,
-                        6417
-                    ],
-                    [
-                        470,
-                        6363
-                    ],
-                    [
-                        480,
-                        6130
-                    ],
-                    [
-                        490,
-                        6084
-                    ],
-                    [
-                        500,
-                        5812
-                    ],
-                    [
-                        510,
-                        5681
-                    ],
-                    [
-                        520,
-                        5271
-                    ],
-                    [
-                        530,
-                        5225
-                    ],
-                    [
-                        540,
-                        4876
-                    ],
-                    [
-                        550,
-                        4493
-                    ],
-                    [
-                        560,
-                        4182
-                    ],
-                    [
-                        570,
-                        3987
-                    ],
-                    [
-                        580,
-                        3731
-                    ],
-                    [
-                        590,
-                        3666
-                    ],
-                    [
-                        600,
-                        3184
-                    ],
-                    [
-                        610,
-                        2939
-                    ],
-                    [
-                        620,
-                        2753
-                    ],
-                    [
-                        630,
-                        2446
-                    ],
-                    [
-                        640,
-                        2197
-                    ],
-                    [
-                        650,
-                        2028
-                    ],
-                    [
-                        660,
-                        1890
-                    ],
-                    [
-                        670,
-                        1732
-                    ],
-                    [
-                        680,
-                        1562
-                    ],
-                    [
-                        690,
-                        1401
-                    ],
-                    [
-                        700,
-                        1350
-                    ],
-                    [
-                        710,
-                        1193
-                    ],
-                    [
-                        720,
-                        1007
-                    ],
-                    [
-                        730,
-                        955
-                    ],
-                    [
-                        740,
-                        791
-                    ],
-                    [
-                        750,
-                        710
-                    ],
-                    [
-                        760,
-                        686
-                    ],
-                    [
-                        770,
-                        543
-                    ],
-                    [
-                        780,
-                        519
-                    ],
-                    [
-                        790,
-                        497
-                    ],
-                    [
-                        800,
-                        392
-                    ],
-                    [
-                        810,
-                        328
-                    ],
-                    [
-                        820,
-                        288
-                    ],
-                    [
-                        830,
-                        278
-                    ],
-                    [
-                        840,
-                        214
-                    ],
-                    [
-                        850,
-                        193
-                    ],
-                    [
-                        860,
-                        163
-                    ],
-                    [
-                        870,
-                        140
-                    ],
-                    [
-                        880,
-                        131
-                    ],
-                    [
-                        890,
-                        112
-                    ],
-                    [
-                        900,
-                        81
-                    ],
-                    [
-                        910,
-                        92
-                    ],
-                    [
-                        920,
-                        81
-                    ],
-                    [
-                        930,
-                        51
-                    ],
-                    [
-                        940,
-                        51
-                    ],
-                    [
-                        950,
-                        34
-                    ],
-                    [
-                        960,
-                        39
-                    ],
-                    [
-                        970,
-                        33
-                    ],
-                    [
-                        980,
-                        30
-                    ],
-                    [
-                        990,
-                        14
-                    ],
-                    [
-                        1000,
-                        17
-                    ],
-                    [
-                        1010,
-                        17
-                    ],
-                    [
-                        1020,
-                        7
-                    ],
-                    [
-                        1030,
-                        9
-                    ],
-                    [
-                        1040,
-                        8
-                    ],
-                    [
-                        1050,
-                        9
-                    ],
-                    [
-                        1060,
-                        9
-                    ],
-                    [
-                        1070,
-                        6
-                    ],
-                    [
-                        1080,
-                        1
-                    ],
-                    [
-                        1090,
-                        2
-                    ],
-                    [
-                        1100,
-                        4
-                    ],
-                    [
-                        1110,
-                        1
-                    ],
-                    [
-                        1120,
-                        5
-                    ],
-                    [
-                        1130,
-                        2
-                    ],
-                    [
-                        1140,
-                        4
-                    ],
-                    [
-                        1150,
-                        3
-                    ],
-                    [
-                        1180,
-                        2
-                    ],
-                    [
-                        1210,
-                        1
-                    ],
-                    [
-                        1220,
-                        1
-                    ],
-                    [
-                        1240,
-                        2
-                    ],
-                    [
-                        1250,
-                        1
-                    ],
-                    [
-                        1260,
-                        4
-                    ],
-                    [
-                        1270,
-                        1
-                    ],
-                    [
-                        1280,
-                        3
-                    ],
-                    [
-                        1290,
-                        3
-                    ],
-                    [
-                        1300,
-                        1
-                    ],
-                    [
-                        1310,
-                        1
-                    ],
-                    [
-                        1350,
-                        3
-                    ],
-                    [
-                        1360,
-                        2
-                    ],
-                    [
-                        1370,
-                        1
-                    ],
-                    [
-                        1400,
-                        1
-                    ],
-                    [
-                        1420,
-                        1
-                    ],
-                    [
-                        1430,
-                        1
-                    ],
-                    [
-                        1460,
-                        1
-                    ],
-                    [
-                        1520,
-                        2
-                    ],
-                    [
-                        1540,
-                        2
-                    ],
-                    [
-                        1580,
-                        1
-                    ],
-                    [
-                        1600,
-                        1
-                    ],
-                    [
-                        1620,
-                        1
-                    ],
-                    [
-                        1630,
-                        2
-                    ],
-                    [
-                        1640,
-                        2
-                    ],
-                    [
-                        1650,
-                        1
-                    ],
-                    [
-                        1670,
-                        1
-                    ],
-                    [
-                        1680,
-                        2
-                    ],
-                    [
-                        1710,
-                        1
-                    ],
-                    [
-                        1740,
-                        1
-                    ],
-                    [
-                        1760,
-                        1
-                    ],
-                    [
-                        1780,
-                        1
-                    ],
-                    [
-                        1790,
-                        2
-                    ],
-                    [
-                        1800,
-                        2
-                    ],
-                    [
-                        1850,
-                        1
-                    ],
-                    [
-                        1860,
-                        3
-                    ],
-                    [
-                        1890,
-                        2
-                    ],
-                    [
-                        1900,
-                        1
-                    ],
-                    [
-                        1910,
-                        1
-                    ],
-                    [
-                        1920,
-                        2
-                    ],
-                    [
-                        1940,
-                        1
-                    ],
-                    [
-                        1950,
-                        1
-                    ],
-                    [
-                        1960,
-                        1
-                    ],
-                    [
-                        1980,
-                        1
-                    ],
-                    [
-                        2000,
-                        354
-                    ]
+            "insert_size_stats": {
+                "insert_size_histogram": [
+                    [30, 4],
+                    [40, 3],
+                    [50, 3],
+                    [60, 10],
+                    [70, 9],
+                    [80, 7],
+                    [90, 14],
+                    [100, 29],
+                    [110, 31],
+                    [120, 40],
+                    [130, 46],
+                    [140, 70],
+                    [150, 80],
+                    [160, 78],
+                    [170, 111],
+                    [180, 114],
+                    [190, 138],
+                    [200, 173],
+                    [210, 248],
+                    [220, 244],
+                    [230, 326],
+                    [240, 430],
+                    [250, 516],
+                    [260, 596],
+                    [270, 749],
+                    [280, 927],
+                    [290, 1164],
+                    [300, 1350],
+                    [310, 1660],
+                    [320, 1980],
+                    [330, 2406],
+                    [340, 2822],
+                    [350, 3264],
+                    [360, 3797],
+                    [370, 4218],
+                    [380, 4849],
+                    [390, 5154],
+                    [400, 5608],
+                    [410, 5842],
+                    [420, 6315],
+                    [430, 6413],
+                    [440, 6436],
+                    [450, 6390],
+                    [460, 6417],
+                    [470, 6363],
+                    [480, 6130],
+                    [490, 6084],
+                    [500, 5812],
+                    [510, 5681],
+                    [520, 5271],
+                    [530, 5225],
+                    [540, 4876],
+                    [550, 4493],
+                    [560, 4182],
+                    [570, 3987],
+                    [580, 3731],
+                    [590, 3666],
+                    [600, 3184],
+                    [610, 2939],
+                    [620, 2753],
+                    [630, 2446],
+                    [640, 2197],
+                    [650, 2028],
+                    [660, 1890],
+                    [670, 1732],
+                    [680, 1562],
+                    [690, 1401],
+                    [700, 1350],
+                    [710, 1193],
+                    [720, 1007],
+                    [730, 955],
+                    [740, 791],
+                    [750, 710],
+                    [760, 686],
+                    [770, 543],
+                    [780, 519],
+                    [790, 497],
+                    [800, 392],
+                    [810, 328],
+                    [820, 288],
+                    [830, 278],
+                    [840, 214],
+                    [850, 193],
+                    [860, 163],
+                    [870, 140],
+                    [880, 131],
+                    [890, 112],
+                    [900, 81],
+                    [910, 92],
+                    [920, 81],
+                    [930, 51],
+                    [940, 51],
+                    [950, 34],
+                    [960, 39],
+                    [970, 33],
+                    [980, 30],
+                    [990, 14],
+                    [1000, 17],
+                    [1010, 17],
+                    [1020, 7],
+                    [1030, 9],
+                    [1040, 8],
+                    [1050, 9],
+                    [1060, 9],
+                    [1070, 6],
+                    [1080, 1],
+                    [1090, 2],
+                    [1100, 4],
+                    [1110, 1],
+                    [1120, 5],
+                    [1130, 2],
+                    [1140, 4],
+                    [1150, 3],
+                    [1180, 2],
+                    [1210, 1],
+                    [1220, 1],
+                    [1240, 2],
+                    [1250, 1],
+                    [1260, 4],
+                    [1270, 1],
+                    [1280, 3],
+                    [1290, 3],
+                    [1300, 1],
+                    [1310, 1],
+                    [1350, 3],
+                    [1360, 2],
+                    [1370, 1],
+                    [1400, 1],
+                    [1420, 1],
+                    [1430, 1],
+                    [1460, 1],
+                    [1520, 2],
+                    [1540, 2],
+                    [1580, 1],
+                    [1600, 1],
+                    [1620, 1],
+                    [1630, 2],
+                    [1640, 2],
+                    [1650, 1],
+                    [1670, 1],
+                    [1680, 2],
+                    [1710, 1],
+                    [1740, 1],
+                    [1760, 1],
+                    [1780, 1],
+                    [1790, 2],
+                    [1800, 2],
+                    [1850, 1],
+                    [1860, 3],
+                    [1890, 2],
+                    [1900, 1],
+                    [1910, 1],
+                    [1920, 2],
+                    [1940, 1],
+                    [1950, 1],
+                    [1960, 1],
+                    [1980, 1],
+                    [2000, 354],
                 ],
-                'insert_size_mean': 493.5,
-                'insert_size_median': 484.0,
-                'insert_size_stddev': 118.57
+                "insert_size_mean": 493.0,
+                "insert_size_median": 484.0,
+                "insert_size_stddev": 118.0,
             },
-            'per_chromosome_counts': [
-            ],
-            'region_coverage_stats': [
+            "per_chromosome_counts": [],
+            "region_coverage_stats": [
                 {
-                    'mean_rd': 44.22,
-                    'min_rd_fraction': [
-                        [
-                            0,
-                            100.0
-                        ],
-                        [
-                            1,
-                            97.63
-                        ],
-                        [
-                            3,
-                            97.16
-                        ],
-                        [
-                            10,
-                            96.52
-                        ],
-                        [
-                            15,
-                            96.19
-                        ],
-                        [
-                            20,
-                            95.82
-                        ],
-                        [
-                            50,
-                            27.04
-                        ],
-                        [
-                            100,
-                            0.21
-                        ]
+                    "mean_rd": 44.0,
+                    "min_rd_fraction": [
+                        [0, 100],
+                        [1, 97],
+                        [3, 97],
+                        [10, 96],
+                        [15, 96],
+                        [20, 95],
+                        [50, 27],
+                        [100, 0],
                     ],
-                    'region_name': 'WGS'
+                    "region_name": "WGS",
                 },
                 {
-                    'mean_rd': 44.22,
-                    'min_rd_fraction': [
-                        [
-                            0,
-                            100.0
-                        ],
-                        [
-                            1,
-                            97.63
-                        ],
-                        [
-                            3,
-                            97.16
-                        ],
-                        [
-                            10,
-                            96.52
-                        ],
-                        [
-                            15,
-                            96.19
-                        ],
-                        [
-                            20,
-                            95.82
-                        ],
-                        [
-                            50,
-                            27.04
-                        ],
-                        [
-                            100,
-                            0.21
-                        ]
+                    "mean_rd": 44.0,
+                    "min_rd_fraction": [
+                        [0, 100],
+                        [1, 97],
+                        [3, 97],
+                        [10, 96],
+                        [15, 96],
+                        [20, 95],
+                        [50, 27],
+                        [100, 0],
                     ],
-                    'region_name': 'region-3'
-                }
+                    "region_name": "region-3",
+                },
             ],
-            'sample': 'index'
+            "sample": "index",
         }
     ],
-    'readstats': [
+    "readstats": [
         {
-            'fragment_first': None,
-            'fragment_last': None,
-            'read_length_histogram': [
-                [
-                    150,
-                    1055691016
-                ]
-            ],
-            'read_length_n50': 150,
-            'sample': 'index',
-            'total_reads': 1055691016,
-            'total_yield': 158785040736
+            "fragment_first": None,
+            "fragment_last": None,
+            "read_length_histogram": [[150, 1055691016]],
+            "read_length_n50": 150,
+            "sample": "index",
+            "total_reads": 1055691016,
+            "total_yield": 158785040736,
         }
     ],
-    'samples': [
-        'index'
-    ],
-    'seqvarstats': [
+    "samples": ["index"],
+    "seqvarstats": [
         {
-            'genome_wide': {
-                'indel_count': 25502,
-                'multiallelic_count': 94743,
-                'region_name': 'WGS',
-                'snv_count': 4037291,
-                'transition_count': 3729445,
-                'transversion_count': 1902548,
-                'tstv_ratio': 1.96
+            "genome_wide": {
+                "indel_count": 25502,
+                "multiallelic_count": 94743,
+                "region_name": "WGS",
+                "snv_count": 4037291,
+                "transition_count": 3729445,
+                "transversion_count": 1902548,
+                "tstv_ratio": 1.0,
             },
-            'per_region': [
-            ],
-            'sample': 'index'
+            "per_region": [],
+            "sample": "index",
         }
     ],
-    'strucvarstats': [
+    "strucvarstats": [
         {
-            'breakend_count': 1386,
-            'deletion_count': 5538,
-            'duplication_count': 52,
-            'insertion_count': 7198,
-            'inversion_count': 0,
-            'sample': 'index'
+            "breakend_count": 1386,
+            "deletion_count": 5538,
+            "duplication_count": 52,
+            "insertion_count": 7198,
+            "inversion_count": 0,
+            "sample": "index",
         }
-    ]
+    ],
 }

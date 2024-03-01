@@ -142,20 +142,6 @@ snapshots["ImportCreateWithStrucvarsVcfTest::test_run external files"] = [
         "available": None,
         "designation": "variant_calls",
         "file_attributes": {
-            "checksum": "sha256:4042c2afa59f24a327b3852bfcd0d8d991499d9c4eb81e7a7efe8d081e66af82",
-            "designation": "variant_calls",
-            "genomebuild": "grch37",
-            "mimetype": "text/plain+x-bgzip+x-variant-call-format",
-            "variant_type": "strucvars",
-        },
-        "identifier_map": {"index": "NA12878-PCRF450-1"},
-        "mimetype": "text/plain+x-bgzip+x-variant-call-format",
-        "path": "file://cases_import/tests/data/sample-brca1.vcf.gz",
-    },
-    {
-        "available": None,
-        "designation": "variant_calls",
-        "file_attributes": {
             "checksum": "sha256:6b137335b7803623c3389424e7b64d704fb1c9f3f55792db2916d312e2da27ef",
             "designation": "variant_calls",
             "genomebuild": "grch37",
@@ -165,6 +151,20 @@ snapshots["ImportCreateWithStrucvarsVcfTest::test_run external files"] = [
         "identifier_map": {"index": "NA12878-PCRF450-1"},
         "mimetype": "application/octet-stream+x-tabix-tbi-index",
         "path": "file://cases_import/tests/data/sample-brca1.vcf.gz.tbi",
+    },
+    {
+        "available": None,
+        "designation": "variant_calls",
+        "file_attributes": {
+            "checksum": "sha256:4042c2afa59f24a327b3852bfcd0d8d991499d9c4eb81e7a7efe8d081e66af82",
+            "designation": "variant_calls",
+            "genomebuild": "grch37",
+            "mimetype": "text/plain+x-bgzip+x-variant-call-format",
+            "variant_type": "strucvars",
+        },
+        "identifier_map": {"index": "NA12878-PCRF450-1"},
+        "mimetype": "text/plain+x-bgzip+x-variant-call-format",
+        "path": "file://cases_import/tests/data/sample-brca1.vcf.gz",
     },
 ]
 

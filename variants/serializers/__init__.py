@@ -347,7 +347,7 @@ class SmallVariantQueryWithLogsSerializer(SmallVariantQuerySerializer):
     #: Log messages
     logs = serializers.SerializerMethodField()
 
-    def get_logs(self, obj):
+    def get_logs(self, obj) -> typing.List[str]:
         jobs = obj.filterbgjob_set.all()
         if not jobs:
             return []
@@ -521,7 +521,7 @@ class ExtraAnnoSerializer(serializers.ModelSerializer):
         self.extra_anno_fields = ExtraAnnoField.objects.all()
         self.fields["annotations"] = serializers.SerializerMethodField()
 
-    def get_annotations(self, obj):
+    def get_annotations(self, obj) -> typing.Dict[str, typing.Any]:
         """Given a variant, return the corresponding variant frequencies."""
         return {
             field.label: value for field, value in zip(list(self.extra_anno_fields), obj.anno_data)
@@ -634,7 +634,7 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
         validated_data["chromosome_no"] = CHROM_TO_NO[validated_data["chromosome"]]
         return super().create(validated_data)
 
-    def get_user_can_edit(self, instance):
+    def get_user_can_edit(self, instance) -> bool:
         return (
             self.context["request"].user.is_superuser
             or self.context["request"].user == instance.user

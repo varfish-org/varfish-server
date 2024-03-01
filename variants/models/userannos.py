@@ -1,5 +1,6 @@
 """Code for user annotations of small variants."""
 
+from typing import Optional
 import uuid as uuid_object
 
 import binning
@@ -593,7 +594,7 @@ class AcmgCriteriaRating(models.Model):
     )
 
     @property
-    def acmg_class(self):
+    def acmg_class(self) -> Optional[int]:
         return self.class_override or self.class_auto
 
     get_gene_symbols = SmallVariantComment.get_gene_symbols

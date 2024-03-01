@@ -5,7 +5,7 @@ from cases.serializers import (
     CaseAlignmentStatsSerializer,
     CaseCommentSerializer,
     CaseGeneAnnotationSerializer,
-    CaseSerializer,
+    CaseSerializerNg,
     PedigreeRelatednessSerializer,
     SampleVariantStatisticsSerializer,
 )
@@ -66,7 +66,7 @@ class TestCaseSerializer(TestCase):
         self.maxDiff = None
 
     def testSerializeExisting(self):
-        serializer = CaseSerializer(self.case)
+        serializer = CaseSerializerNg(self.case)
         expected = model_to_dict(
             self.case,
             fields=(

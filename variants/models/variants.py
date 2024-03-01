@@ -1,6 +1,7 @@
 """Code for storing the small variants themselves"""
 
 from datetime import datetime, timedelta
+import uuid as uuid_object
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -203,6 +204,10 @@ class SmallVariantSet(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+    #: Small variant flags UUID
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+    )
 
     #: The case that the variants are for.
     case = models.ForeignKey(
@@ -241,6 +246,11 @@ def cleanup_variant_sets(min_age_hours=12):
 
 class AnnotationReleaseInfo(models.Model):
     """Model to track the database releases used during annotation of a case."""
+
+    #: Small variant flags UUID
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+    )
 
     #: Release of genomebuild
     genomebuild = models.CharField(max_length=32, default="GRCh37")

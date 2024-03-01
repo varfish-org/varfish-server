@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 from django.db.models import Q
 from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers
@@ -168,14 +169,14 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     smallvariantqueryresultset = serializers.SerializerMethodField()
     svqueryresultset = serializers.SerializerMethodField()
 
-    def get_smallvariantqueryresultset(self, obj):
+    def get_smallvariantqueryresultset(self, obj) -> Dict[str, Any]:
         from variants.serializers import SmallVariantQueryResultSetSerializer
 
         return SmallVariantQueryResultSetSerializer(
             obj.smallvariantqueryresultset_set.filter(smallvariantquery=None).first()
         ).data
 
-    def get_svqueryresultset(self, obj):
+    def get_svqueryresultset(self, obj) -> Dict[str, Any]:
         from svs.serializers import SvQueryResultSetSerializer
 
         return SvQueryResultSetSerializer(
@@ -202,7 +203,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             result["presetset"] = presetsets[0]
         return result
 
-    def get_casealignmentstats(self, obj):
+    def get_casealignmentstats(self, obj) -> Dict[str, Any]:
         variant_set = obj.latest_variant_set
         if variant_set:
             try:
@@ -212,7 +213,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
         else:
             return None
 
-    def get_casevariantstats(self, obj):
+    def get_casevariantstats(self, obj) -> Dict[str, Any]:
         keys = [
             "ontarget_transitions",
             "ontarget_transversions",
@@ -236,7 +237,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
                 pass
         return result
 
-    def get_relatedness(self, obj):
+    def get_relatedness(self, obj) -> Dict[str, Any]:
         keys = [
             "sample1",
             "sample2",
@@ -257,7 +258,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
                 pass
         return result
 
-    def get_sex_errors(self, obj):
+    def get_sex_errors(self, obj) -> Dict[str, List[str]]:
         return obj.sex_errors()
 
     class Meta:

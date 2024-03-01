@@ -8,6 +8,7 @@ the REST API endpoints.
 """
 
 from typing import Annotated
+
 from annotated_types import Len
 import pydantic
 
