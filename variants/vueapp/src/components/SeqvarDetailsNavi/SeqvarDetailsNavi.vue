@@ -52,7 +52,7 @@ const navigateBack = () => {
 const initStores = async () => {
   if (props.seqvar && props.hgncId) {
     await Promise.all([
-      seqvarInfoStore.initialize(props.seqvar),
+      seqvarInfoStore.initialize(props.seqvar, props.hgncId),
       geneInfoStore.initialize(props.hgncId, props.seqvar.genomeBuild),
     ])
   }

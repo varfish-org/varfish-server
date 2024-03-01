@@ -134,8 +134,9 @@ const refreshStores = async () => {
       throw new Error('No seqvar found')
     }
     if (variantResultSetStore.resultRow !== undefined) {
+      console.log('xxxx', seqvar.value, variantResultSetStore.resultRow.payload!.hgnc_id)
       await Promise.all([
-        seqvarInfoStore.initialize(seqvar.value),
+        seqvarInfoStore.initialize(seqvar.value, variantResultSetStore.resultRow.payload!.hgnc_id),
         geneInfoStore.initialize(
           variantResultSetStore.resultRow.payload!.hgnc_id,
           seqvar.value.genomeBuild,
