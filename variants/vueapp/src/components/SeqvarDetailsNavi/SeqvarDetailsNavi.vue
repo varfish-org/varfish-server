@@ -86,7 +86,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
           rounded="xs"
           variant="outlined"
           prepend-icon="mdi-launch"
-          @click.prevent="jumpToLocus()"
+          @click.prevent="jumpToLocus(props.seqvar)"
         >
           Jump in Local IGV
         </v-btn>
