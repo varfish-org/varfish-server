@@ -91,6 +91,9 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
+    # DRF spectacular with sidecar so it does not depend on internet access
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -580,14 +583,6 @@ VARFISH_ENABLE_BEACON_SITE = env.bool("VARFISH_ENABLE_BEACON_SITE", default=Fals
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-        "knox.auth.TokenAuthentication",
-    ),
-}
-
 if KIOSK_MODE:
     SITE_TITLE = "VarFish (Kiosk)"
 else:
@@ -670,6 +665,34 @@ else:
     PROJECTROLES_CUSTOM_JS_INCLUDES = []
     PROJECTROLES_CUSTOM_CSS_INCLUDES = []
 
+
+# Django Rest Framework and Related Settings
+# ------------------------------------------------------------------------------
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "knox.auth.TokenAuthentication",
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    # Basic Settings
+    'TITLE': 'VarFish',
+    'DESCRIPTION': 'VarFish API',
+    'VERSION': varfish_version,
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Skip schema generation for some paths.
+    'PREPROCESSING_HOOKS': [
+        'varfish.utils.spectacular_preprocess_hook',
+    ],
+    # Sidecar Settings
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
 
 # Logging
 # ------------------------------------------------------------------------------

@@ -251,7 +251,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     """Helper class for parsing ``samtools stats`` output."""
 
     def __init__(self):
-        self.sn: list[models_samtools.BcftoolsStatsSnRecord] = []
+        self.sn: list[models_samtools.SamtoolsStatsSnRecord] = []
         self.chk: list[models_samtools.SamtoolsStatsChkRecord] = []
         self.ffq: list[models_samtools.SamtoolsStatsFqRecord] = []
         self.lfq: list[models_samtools.SamtoolsStatsFqRecord] = []
@@ -285,7 +285,7 @@ class SamtoolsStatsParser(ParserRunMixin):
     def _handle_sn(self, record: list[str]):
         """Handle parsing of ``SN`` lines."""
         self.sn.append(
-            models_samtools.BcftoolsStatsSnRecord(
+            models_samtools.SamtoolsStatsSnRecord(
                 key=record[1],
                 value=try_cast(record[2], (int, float, str, None)),
             )

@@ -34,7 +34,7 @@ from cases_qc.models.dragen import (
 )
 from cases_qc.models.ngsbits import NgsbitsMappingqcMetrics, NgsbitsMappingqcRecord
 from cases_qc.models.samtools import (
-    BcftoolsStatsSnRecord,
+    SamtoolsStatsSnRecord,
     SamtoolsFlagstatMetrics,
     SamtoolsFlagstatRecord,
     SamtoolsIdxstatsMetrics,
@@ -291,7 +291,7 @@ class SamtoolsStatsChkRecordFactory(factory.Factory):
 
 class SamtoolsStatsSnRecordFactory(factory.Factory):
     class Meta:
-        model = BcftoolsStatsSnRecord
+        model = SamtoolsStatsSnRecord
 
     key = factory.Faker("word")
     value = factory.Faker("pyint")

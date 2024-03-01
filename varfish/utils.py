@@ -1,6 +1,7 @@
 """Shared utility code."""
 
 import json
+from typing import Callable, List, Tuple
 
 import django.db.models.fields.json
 
@@ -75,3 +76,27 @@ class VarFishKioskUserMiddleware:
         request.user = User.get_kiosk_user()
         response = self.get_response(request)
         return response
+
+
+def spectacular_preprocess_hook(endpoints: List[Tuple[str, str, str, Callable]]) -> List[Tuple[str, str, str, Callable]]:
+    """Ignore some endpoints."""
+    # URL prefixes to ignore from django-sodar-core
+    ignore_prefixes = [
+        # knox
+        "/api/auth/",
+        # django-sodar-core
+        "/admin_alerts/ajax/",
+        "/app_alerts/ajax/",
+        "/timeline/ajax/",
+        "/project/ajax/",
+        # local, but skipped for now
+        "/beaconsite/",
+    ]
+
+    result = []
+    for (path, path_regex, method, callback) in endpoints:
+        if not any(path.startswith(prefix) for prefix in ignore_prefixes):
+            result.append((
+                path, path_regex, method, callback
+            ))
+    return result

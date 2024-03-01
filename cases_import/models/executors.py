@@ -41,11 +41,11 @@ from variants.models import Case, SmallVariantQueryResultSet
 
 class FileSystemOptions(pydantic.BaseModel):
     protocol: str
-    host: str | None
-    path: str | None
-    port: str | None
-    user: str | None
-    password: str | None
+    host: str | None = None
+    path: str | None = None
+    port: int | None = None
+    user: str | None = None
+    password: str | None = None
     use_https: bool = False
 
 

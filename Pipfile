@@ -50,11 +50,12 @@ vcfpy = "~=0.13.6"
 wrapt = "~=1.16"
 xlsxwriter = "~=3.1"
 django-pydantic-field = "*"
-pydantic = "~=1.0"
+pydantic = "~=2.0"
 universal-pathlib = "*"
 s3fs = "*"
 toml = "*"
 black = "*"
+drf-spectacular = {extras = ["sidecar"], version = "*"}
 
 [dev-packages]
 # packages for testing
