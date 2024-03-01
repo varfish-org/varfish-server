@@ -27,6 +27,16 @@ GENOMEBUILD_CHOICES_LOWER = (
 class AbstractFile(models.Model):
     """Abstract model for file reference."""
 
+    GENOMEBUILD_OTHER = "other"
+    GENOMEBUILD_GRCH37 = "grch37"
+    GENOMEBUILD_GRCH38 = "grch38"
+
+    GENOMEBUILD_CHOICES_LOWER = (
+        (GENOMEBUILD_OTHER, GENOMEBUILD_OTHER),
+        (GENOMEBUILD_GRCH37, GENOMEBUILD_GRCH37),
+        (GENOMEBUILD_GRCH38, GENOMEBUILD_GRCH38),
+    )
+
     #: Record UUID.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
     #: DateTime of creation.
