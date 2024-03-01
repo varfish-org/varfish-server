@@ -3,8 +3,7 @@ from drf_spectacular.extensions import (
     OpenApiAuthenticationExtension,
     OpenApiSerializerFieldExtension,
 )
-from drf_spectacular.plumbing import ResolvedComponent, build_bearer_security_scheme_object
-from pydantic.schema import model_schema
+from drf_spectacular.plumbing import build_bearer_security_scheme_object
 
 
 class VariantsConfig(AppConfig):
