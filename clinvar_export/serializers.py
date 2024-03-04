@@ -1,4 +1,5 @@
 from typing import Dict, List, Literal, Optional
+
 from django.shortcuts import get_object_or_404
 from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers

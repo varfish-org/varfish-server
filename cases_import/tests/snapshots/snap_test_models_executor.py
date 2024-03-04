@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from snapshottest import Snapshot
 
-
 snapshots = Snapshot()
 
 snapshots["BuildLegacyModelTest::test_build_legacy_pedigree legacy pedigree for family.yaml"] = [

@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+
 from django.db.models import Q
 from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers

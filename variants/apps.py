@@ -1,4 +1,5 @@
 import json
+
 from django.apps import AppConfig
 from drf_spectacular.extensions import (
     OpenApiAuthenticationExtension,
