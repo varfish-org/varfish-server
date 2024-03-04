@@ -6,7 +6,7 @@ from projectroles.serializers import (
 )
 from rest_framework import serializers
 
-from cases.serializers import CaseSerializer
+from cases.serializers import CaseSerializerNg
 from cohorts.models import Cohort, CohortCase
 from variants.models import Case
 
@@ -56,9 +56,9 @@ class CohortSerializer(SODARProjectModelSerializer):
         user = self.context["request"].user
 
         if user.is_superuser:
-            return CaseSerializer(obj.cases, many=True).data
+            return CaseSerializerNg(obj.cases, many=True).data
 
-        return CaseSerializer(
+        return CaseSerializerNg(
             [c for c in obj.cases.all() if c.project.has_role(user)], many=True
         ).data
 
@@ -93,4 +93,6 @@ class ProjectCasesSerializer(ProjectSerializer):
         The purpose is to filter the cases by active smallvariantset and serialize them as
         the default serializer would just fetch all cases which is not what we want.
         """
-        return CaseSerializer(obj.case_set.filter(smallvariantset__state="active"), many=True).data
+        return CaseSerializerNg(
+            obj.case_set.filter(smallvariantset__state="active"), many=True
+        ).data

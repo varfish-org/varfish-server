@@ -5,10 +5,12 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
 
@@ -19,6 +21,9 @@ def handler500(request, *args, **argv):
     else:
         return HttpResponse(status=500)
 
+
+# URL Patterns for SAML / Logins
+# ------------------------------------------------------------------------------
 
 urlpatterns = [
     # These are the SAML2 related URLs. You can change "^saml2_auth/" regex to
@@ -38,8 +43,14 @@ urlpatterns = [
     url(r"^sso/admin/logout/$", django_saml2_auth.views.signout),
 ]
 
+# URL Patterns for SODAR Core
+# ------------------------------------------------------------------------------
+
 urlpatterns += [url(r"^$", ProjectRolesHomeView.as_view(), name="home")]
 HomeView = ProjectRolesHomeView
+
+# URL Patterns for VarFish
+# ------------------------------------------------------------------------------
 
 urlpatterns += [
     url(r"^icons/", include("dj_iconify.urls")),
@@ -79,8 +90,25 @@ urlpatterns += [
     url(r"^seqmeta/", include("seqmeta.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
+# URL Patterns for DRF Spectacular
+# ------------------------------------------------------------------------------
+
+urlpatterns += [
+    # Schema
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # UI
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+]
+
+# URL Patterns for Proxies
+# ------------------------------------------------------------------------------
 
 urlpatterns += [
     # Augment url patterns with proxy for genomics england panelapp.
@@ -137,6 +165,14 @@ urlpatterns += [
         ),
     ),
 ]
+
+# URL Patterns for Django Static Files
+# ------------------------------------------------------------------------------
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# URL Patterns for Development
+# ------------------------------------------------------------------------------
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

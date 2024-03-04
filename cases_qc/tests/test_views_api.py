@@ -61,7 +61,7 @@ class CaseQcRetrieveApiViewTest(
 
 
 @freeze_time("2012-01-14 12:00:01")
-class VarfishStatsRetrieveApiView(
+class TestVarfishStatsRetrieveApiView(
     helpers.FixRandomSeedMixin,
     helpers.ResetFactoryCountersMixin,
     ApiViewTestBase,

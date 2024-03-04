@@ -23,9 +23,6 @@ class CraminoSummaryRecord(pydantic.BaseModel):
     #: value
     value: int | float | str
 
-    class Config:
-        smart_union = True  # prevent "int | float" from float to int conversion
-
 
 class CraminoMetrics(CaseQcForSampleBaseModel):
     """Metrics obtained from cramino."""
