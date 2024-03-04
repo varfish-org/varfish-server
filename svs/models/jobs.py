@@ -431,14 +431,15 @@ def run_sv_query_bg_job(pk):  # noqa: C901
 
         if settings.IS_TESTING:
             print("In testing mode, command would be: {}".format(" ".join(cmd)))
-            _svqueryresultset = SvQueryResultSet.objects.create(
+            svqueryresultset = SvQueryResultSet.objects.create(
                 case=query_model.case,
                 svquery=query_model,
-                result_row_count=result_row_count,
+                result_row_count=0,
                 start_time=start_time,
-                end_time=end_time,
-                elapsed_seconds=(end_time - start_time).total_seconds(),
+                end_time=timezone.now(),
+                elapsed_seconds=(timezone.now() - start_time).total_seconds(),
             )
+            _ = svqueryresultset
             filter_job.bg_job.status = "done"
             filter_job.bg_job.save()
             query_model.query_state = SvQuery.QueryState.DONE
