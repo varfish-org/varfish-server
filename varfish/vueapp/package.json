@@ -45,7 +45,7 @@
     "yarn": "^1.22.21"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.9",
+    "@babel/core": "^7.24.0",
     "@babel/eslint-parser": "^7.23.10",
     "@babel/preset-env": "^7.23.9",
     "@iconify-json/bi": "^1.1.23",
