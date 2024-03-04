@@ -207,6 +207,7 @@ jobs:
       - name: Check for OpenAPI schema changes.
         run: |
           pipenv run python manage.py spectacular \
+          | sed -e 's/^  version:.*/  version: VERSION/g' \
           > /tmp/varfish_api_schema.yaml
 
           diff \

@@ -1,9 +1,7 @@
-Loading : /home/holtgrem_c/Development/varfish-server/.env
-The .env file has been loaded. See base.py for more information
 openapi: 3.0.3
 info:
   title: VarFish
-  version: 1.2.0-411-g87a81501
+  version: VERSION
   description: VarFish API
 paths:
   /cases-import/api/case-import-action/list-create/{project}/:
