@@ -1,3 +1,4 @@
+import json
 from django.apps import AppConfig
 from drf_spectacular.extensions import (
     OpenApiAuthenticationExtension,
@@ -40,4 +41,4 @@ class PydanticFieldFix(OpenApiSerializerFieldExtension):
 
     def map_serializer_field(self, auto_schema, direction):
         _, _ = auto_schema, direction
-        return self.target.schema.schema_json()
+        return json.loads(self.target.schema.schema_json())

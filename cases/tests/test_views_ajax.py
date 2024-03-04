@@ -577,6 +577,7 @@ class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
         super().setUp()
         self.casealignmentstats = CaseAlignmentStatsFactory(case__project=self.project)
         self.case = self.casealignmentstats.case
+        self.maxDiff = None
 
     def test_get(self):
         url = reverse(
@@ -587,14 +588,15 @@ class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
-        self.assertEqual(
-            res_json,
-            [
-                {
-                    "case": str(self.case.sodar_uuid),
-                    "bam_stats": {self.case.pedigree[0]["patient"]: BAM_STATS_SAMPLE},
-                }
-            ],
+        self.assertTrue(isinstance(res_json, list))
+        self.assertEqual(len(res_json), 1)
+        self.assertDictEqual(
+            res_json[0],
+            {
+                "case": str(self.case.sodar_uuid),
+                "bam_stats": {self.case.pedigree[0]["patient"]: BAM_STATS_SAMPLE},
+                "variantset": str(self.casealignmentstats.variant_set.sodar_uuid),
+            },
         )
 
 

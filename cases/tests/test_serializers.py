@@ -135,6 +135,7 @@ class TestCaseAlignmentStatsSerializer(TestCase):
             ),
         )
         expected["case"] = self.casealignmentstats.case.sodar_uuid
+        expected["variantset"] = self.casealignmentstats.variant_set.sodar_uuid
         self.assertDictEqual(serializer.data, expected)
 
 
