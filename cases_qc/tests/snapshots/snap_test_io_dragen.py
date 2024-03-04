@@ -25,7 +25,7 @@ snapshots["DragenLoadCnvMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Bases in reference genome', value=3706503810, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Average alignment coverage over genome', value=40, value_float=None)"
+            "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Average alignment coverage over genome', value=40.08, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Number of alignment records', value=1058849338, value_float=None)"
@@ -43,7 +43,7 @@ snapshots["DragenLoadCnvMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Number of filtered records (unmapped)', value=4404671, value_float=0.42)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Coverage uniformity', value=0, value_float=None)"
+            "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Coverage uniformity', value=0.3, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='CNV SUMMARY', entry=None, name='Number of target intervals', value=2430057, value_float=None)"
@@ -2903,7 +2903,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Homozygous', value=157375, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='1 Het/Hom ratio', value=1.454, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Heterozygous', value=236805, value_float=None)"
@@ -2912,7 +2912,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Homozygous', value=153411, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='2 Het/Hom ratio', value=1.544, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Heterozygous', value=199385, value_float=None)"
@@ -2921,7 +2921,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Homozygous', value=122439, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='3 Het/Hom ratio', value=1.628, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Heterozygous', value=204966, value_float=None)"
@@ -2930,7 +2930,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Homozygous', value=140667, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='4 Het/Hom ratio', value=1.457, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Heterozygous', value=188674, value_float=None)"
@@ -2939,7 +2939,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Homozygous', value=107450, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='5 Het/Hom ratio', value=1.756, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Heterozygous', value=201342, value_float=None)"
@@ -2948,7 +2948,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Homozygous', value=105967, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='6 Het/Hom ratio', value=1.9, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Heterozygous', value=168471, value_float=None)"
@@ -2957,7 +2957,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Homozygous', value=106179, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='7 Het/Hom ratio', value=1.587, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Heterozygous', value=154376, value_float=None)"
@@ -2966,7 +2966,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Homozygous', value=94437, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='8 Het/Hom ratio', value=1.635, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Heterozygous', value=134909, value_float=None)"
@@ -2975,7 +2975,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Homozygous', value=83867, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='9 Het/Hom ratio', value=1.609, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Heterozygous', value=154378, value_float=None)"
@@ -2984,7 +2984,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Homozygous', value=91752, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='10 Het/Hom ratio', value=1.683, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Heterozygous', value=142733, value_float=None)"
@@ -2993,7 +2993,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Homozygous', value=99861, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='11 Het/Hom ratio', value=1.429, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Heterozygous', value=139774, value_float=None)"
@@ -3002,7 +3002,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Homozygous', value=88526, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='12 Het/Hom ratio', value=1.579, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Heterozygous', value=108815, value_float=None)"
@@ -3011,7 +3011,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Homozygous', value=80475, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='13 Het/Hom ratio', value=1.352, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Heterozygous', value=93920, value_float=None)"
@@ -3020,7 +3020,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Homozygous', value=57391, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='14 Het/Hom ratio', value=1.636, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Heterozygous', value=83908, value_float=None)"
@@ -3029,7 +3029,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Homozygous', value=59308, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='15 Het/Hom ratio', value=1.415, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Heterozygous', value=94315, value_float=None)"
@@ -3038,7 +3038,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Homozygous', value=53043, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='16 Het/Hom ratio', value=1.778, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Heterozygous', value=83550, value_float=None)"
@@ -3047,7 +3047,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Homozygous', value=53958, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='17 Het/Hom ratio', value=1.548, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Heterozygous', value=85202, value_float=None)"
@@ -3056,7 +3056,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Homozygous', value=57020, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='18 Het/Hom ratio', value=1.494, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Heterozygous', value=75858, value_float=None)"
@@ -3065,7 +3065,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Homozygous', value=39478, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='19 Het/Hom ratio', value=1.922, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Heterozygous', value=79586, value_float=None)"
@@ -3074,7 +3074,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Homozygous', value=40026, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='20 Het/Hom ratio', value=1.988, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Heterozygous', value=49707, value_float=None)"
@@ -3083,7 +3083,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Homozygous', value=31712, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='21 Het/Hom ratio', value=1.567, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Heterozygous', value=52560, value_float=None)"
@@ -3092,7 +3092,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Homozygous', value=26187, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Het/Hom ratio', value=2, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='22 Het/Hom ratio', value=2.007, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Heterozygous', value=101110, value_float=None)"
@@ -3101,7 +3101,7 @@ snapshots["DragenLoadVcHethomRatioMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Homozygous', value=63892, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='X Het/Hom ratio', value=1.583, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Y Heterozygous', value=0, value_float=None)"
@@ -3270,7 +3270,7 @@ snapshots["DragenMappingMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Supplementary (chimeric) alignments', value=3158322, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Estimated read length', value=150, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Estimated read length', value=150.41, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Bases in reference genome', value=3706503810, value_float=None)"
@@ -3279,25 +3279,25 @@ snapshots["DragenMappingMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Bases in target bed [% of genome]', value=None, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Average sequenced coverage over genome', value=42, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Average sequenced coverage over genome', value=42.84, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: mean', value=493, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: mean', value=493.5, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: median', value=484, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: median', value=484.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: standard deviation', value=118, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Insert length: standard deviation', value=118.57, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Provided sex chromosome ploidy', value=None, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Estimated sample contamination', value=0, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='Estimated sample contamination', value=0.001, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='DRAGEN mapping rate [mil. reads/second]', value=1, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING SUMMARY', entry=None, name='DRAGEN mapping rate [mil. reads/second]', value=1.36, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Total reads in RG', value=533474782, value_float=100.0)"
@@ -3441,19 +3441,19 @@ snapshots["DragenMappingMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Supplementary (chimeric) alignments', value=1599763, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Estimated read length', value=150, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Estimated read length', value=150.41, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Average sequenced coverage over genome', value=21, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Average sequenced coverage over genome', value=21.65, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: mean', value=499, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: mean', value=499.96, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: median', value=489, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: median', value=489.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: standard deviation', value=121, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L1', name='Insert length: standard deviation', value=121.79, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Total reads in RG', value=522216234, value_float=100.0)"
@@ -3597,19 +3597,19 @@ snapshots["DragenMappingMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Supplementary (chimeric) alignments', value=1558559, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Estimated read length', value=150, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Estimated read length', value=150.41, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Average sequenced coverage over genome', value=21, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Average sequenced coverage over genome', value=21.19, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: mean', value=488, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: mean', value=488.03, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: median', value=479, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: median', value=479.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: standard deviation', value=115, value_float=None)"
+            "DragenStyleMetric(section='MAPPING/ALIGNING PER RG', entry='NA12878-PCRF450-1_L2', name='Insert length: standard deviation', value=115.27, value_float=None)"
         ),
     ],
     "sample": "index",
@@ -3629,85 +3629,85 @@ snapshots["DragenPloidyEstimationMetricsTest::test_load 1"] = [
 snapshots["DragenPloidyEstimationMetricsTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Autosomal median coverage', value=51, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Autosomal median coverage', value=51.44, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='X median coverage', value=49, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='X median coverage', value=49.06, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Y median coverage', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Y median coverage', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='1 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='1 median / Autosomal median', value=1.01, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='2 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='2 median / Autosomal median', value=1.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='3 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='3 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='4 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='4 median / Autosomal median', value=0.97, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='5 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='5 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='6 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='6 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='7 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='7 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='8 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='8 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='9 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='9 median / Autosomal median', value=1.01, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='10 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='10 median / Autosomal median', value=1.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='11 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='11 median / Autosomal median', value=1.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='12 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='12 median / Autosomal median', value=1.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='13 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='13 median / Autosomal median', value=0.98, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='14 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='14 median / Autosomal median', value=1.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='15 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='15 median / Autosomal median', value=1.01, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='16 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='16 median / Autosomal median', value=1.02, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='17 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='17 median / Autosomal median', value=1.03, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='18 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='18 median / Autosomal median', value=0.98, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='19 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='19 median / Autosomal median', value=1.03, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='20 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='20 median / Autosomal median', value=1.03, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='21 median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='21 median / Autosomal median', value=0.99, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='22 median / Autosomal median', value=1, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='22 median / Autosomal median', value=1.06, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='X median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='X median / Autosomal median', value=0.95, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Y median / Autosomal median', value=0, value_float=None)"
+            "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Y median / Autosomal median', value=0.0, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='PLOIDY ESTIMATION', entry=None, name='Ploidy estimation', value='XX', value_float=None)"
@@ -3737,94 +3737,94 @@ snapshots["DragenRegionCoverageMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Aligned bases in QC coverage region', value=2160105737, value_float=2.4)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average alignment coverage over QC coverage region', value=31, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average alignment coverage over QC coverage region', value=31.03, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.2*mean) over QC coverage region', value=97, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.2*mean) over QC coverage region', value=97.42, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.4*mean) over QC coverage region', value=96, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.4*mean) over QC coverage region', value=96.68, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1500x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1500x: inf)', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1000x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1000x: inf)', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 500x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 500x: inf)', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 100x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 100x: inf)', value=0.04, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  50x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  50x: inf)', value=0.92, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  20x: inf)', value=94, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  20x: inf)', value=94.01, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  15x: inf)', value=96, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  15x: inf)', value=96.33, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  10x: inf)', value=97, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  10x: inf)', value=97.08, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   3x: inf)', value=97, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   3x: inf)', value=97.92, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   1x: inf)', value=98, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   1x: inf)', value=98.29, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   0x: inf)', value=100, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   0x: inf)', value=100.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1000x:1500x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [1000x:1500x)', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 500x:1000x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 500x:1000x)', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 100x: 500x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [ 100x: 500x)', value=0.04, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  50x: 100x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  50x: 100x)', value=0.88, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  20x:  50x)', value=93, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  20x:  50x)', value=93.09, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  15x:  20x)', value=2, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  15x:  20x)', value=2.31, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  10x:  15x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [  10x:  15x)', value=0.75, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   3x:  10x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   3x:  10x)', value=0.84, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   1x:   3x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   1x:   3x)', value=0.37, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   0x:   1x)', value=1, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of QC coverage region with coverage [   0x:   1x)', value=1.71, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr X coverage over QC coverage region', value=28, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr X coverage over QC coverage region', value=28.8, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr Y coverage over QC coverage region', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr Y coverage over QC coverage region', value=0.1, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average mitochondrial coverage over QC coverage region', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average mitochondrial coverage over QC coverage region', value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average autosomal coverage over QC coverage region', value=31, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average autosomal coverage over QC coverage region', value=31.2, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Median autosomal coverage over QC coverage region', value=32, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Median autosomal coverage over QC coverage region', value=32.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Mean/Median autosomal coverage ratio over QC coverage region', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Mean/Median autosomal coverage ratio over QC coverage region', value=0.97, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Aligned reads', value=602212812, value_float=None)"
@@ -3867,37 +3867,37 @@ snapshots["DragenRegionHistTest::test_load 1"] = [
 snapshots["DragenRegionHistTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1500x:inf)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1500x:inf)', name=None, value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1000x:1500x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1000x:1500x)', name=None, value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [500x:1000x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [500x:1000x)', name=None, value=0.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [100x:500x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [100x:500x)', name=None, value=0.04, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [50x:100x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [50x:100x)', name=None, value=0.88, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [20x:50x)', name=None, value=93, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [20x:50x)', name=None, value=93.09, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [15x:20x)', name=None, value=2, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [15x:20x)', name=None, value=2.31, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [10x:15x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [10x:15x)', name=None, value=0.75, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [3x:10x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [3x:10x)', name=None, value=0.84, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1x:3x)', name=None, value=0, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [1x:3x)', name=None, value=0.37, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [0x:1x)', name=None, value=1, value_float=None)"
+            "DragenStyleMetric(section=None, entry='PCT of bases in /staging/human/bed/Padded_Exomev8.bed with coverage [0x:1x)', name=None, value=1.71, value_float=None)"
         ),
     ],
     "region_name": "region-3",
@@ -3940,7 +3940,7 @@ snapshots["DragenRohMetricsTest::test_load 1"] = [
 snapshots["DragenRohMetricsTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER', entry=None, name='Percent SNVs in large ROH ( >= 3000000)', value=0, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER', entry=None, name='Percent SNVs in large ROH ( >= 3000000)', value=0.133, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER', entry=None, name='Number of large ROH ( >= 3000000)', value=1, value_float=None)"
@@ -4197,7 +4197,7 @@ snapshots["DragenVcMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='SNP Transversions', value=1902548, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Ti/Tv ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Ti/Tv ratio', value=1.96, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Heterozygous', value=3095085, value_float=None)"
@@ -4206,7 +4206,7 @@ snapshots["DragenVcMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Homozygous', value=1926796, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Het/Hom ratio', value=1, value_float=None)"
+            "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='Het/Hom ratio', value=1.61, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='VARIANT CALLER POSTFILTER', entry='index', name='In dbSNP', value=0, value_float=0.0)"
@@ -13325,73 +13325,73 @@ snapshots["DragenWgsCoverageMetricsTest::test_load 2"] = {
             "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Aligned bases in genome', value=130084804041, value_float=100.0)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average alignment coverage over genome', value=44, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average alignment coverage over genome', value=44.22, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.2*mean) over genome', value=96, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Uniformity of coverage (PCT > 0.2*mean) over genome', value=96.58, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [100x: inf)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [100x: inf)', value=0.21, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 50x: inf)', value=27, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 50x: inf)', value=27.04, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 20x: inf)', value=95, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 20x: inf)', value=95.82, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 15x: inf)', value=96, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 15x: inf)', value=96.19, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 10x: inf)', value=96, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 10x: inf)', value=96.52, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  3x: inf)', value=97, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  3x: inf)', value=97.16, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  1x: inf)', value=97, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  1x: inf)', value=97.63, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  0x: inf)', value=100, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  0x: inf)', value=100.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 50x:100x)', value=26, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 50x:100x)', value=26.83, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 20x: 50x)', value=68, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 20x: 50x)', value=68.77, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 15x: 20x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 15x: 20x)', value=0.37, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 10x: 15x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [ 10x: 15x)', value=0.33, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  3x: 10x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  3x: 10x)', value=0.65, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  1x:  3x)', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  1x:  3x)', value=0.46, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  0x:  1x)', value=2, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='PCT of genome with coverage [  0x:  1x)', value=2.37, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr X coverage over genome', value=41, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr X coverage over genome', value=41.21, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr Y coverage over genome', value=1, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average chr Y coverage over genome', value=1.68, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average mitochondrial coverage over genome', value=16917, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average mitochondrial coverage over genome', value=16917.26, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average autosomal coverage over genome', value=44, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Average autosomal coverage over genome', value=44.38, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Median autosomal coverage over genome', value=45, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Median autosomal coverage over genome', value=45.0, value_float=None)"
         ),
         GenericRepr(
-            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Mean/Median autosomal coverage ratio over genome', value=0, value_float=None)"
+            "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Mean/Median autosomal coverage ratio over genome', value=0.99, value_float=None)"
         ),
         GenericRepr(
             "DragenStyleMetric(section='COVERAGE SUMMARY', entry=None, name='Aligned reads', value=870136825, value_float=None)"
@@ -17466,7 +17466,7 @@ snapshots["DragenWgsOverallMeanCovTest::test_load 1"] = [
 snapshots["DragenWgsOverallMeanCovTest::test_load 2"] = {
     "metrics": [
         GenericRepr(
-            "DragenStyleMetric(section=None, entry='Average alignment coverage over wgs', name=None, value=44, value_float=None)"
+            "DragenStyleMetric(section=None, entry='Average alignment coverage over wgs', name=None, value=44.22, value_float=None)"
         )
     ],
     "sample": "index",

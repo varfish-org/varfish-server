@@ -428,10 +428,24 @@ def run_sv_query_bg_job(pk):  # noqa: C901
             "--genome-release",
             filter_job.case.release.lower(),
         ]
+
         if settings.IS_TESTING:
-            print("In testing mode, command is: {}".format(" ".join(cmd)))
-        else:
-            subprocess.check_call(cmd)
+            print("In testing mode, command would be: {}".format(" ".join(cmd)))
+            _svqueryresultset = SvQueryResultSet.objects.create(
+                case=query_model.case,
+                svquery=query_model,
+                result_row_count=result_row_count,
+                start_time=start_time,
+                end_time=end_time,
+                elapsed_seconds=(end_time - start_time).total_seconds(),
+            )
+            filter_job.bg_job.status = "done"
+            filter_job.bg_job.save()
+            query_model.query_state = SvQuery.QueryState.DONE
+            query_model.save()
+            return
+
+        subprocess.check_call(cmd)
         worker_results = os.path.join(tmpdir, "output.tsv")
         with open(worker_results, "rt") as inputf:
             result_row_count = sum(1 for _line in inputf) - 1

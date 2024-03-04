@@ -401,7 +401,7 @@ snapshots["SerializerTest::test_load_24 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"key": "wait", "value": 0}],
+    "records": [{"key": "wait", "value": 0.634036506}],
     "region_name": "WGS",
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -430,9 +430,9 @@ snapshots["SerializerTest::test_load_25 1"] = {
                 "insert_size_median": 42.0,
                 "insert_size_stddev": 42.0,
             },
-            "per_chromosome_counts": [["chr1", "10"], ["chr2", "20"]],
+            "per_chromosome_counts": [["chr1", 10], ["chr2", 20]],
             "region_coverage_stats": [
-                {"mean_rd": 42.0, "min_rd_fraction": [[1, 0], [10, 0]], "region_name": "ago"}
+                {"mean_rd": 42.0, "min_rd_fraction": [[1, 0.01], [10, 0.1]], "region_name": "ago"}
             ],
             "sample": "brother",
         }
