@@ -149,7 +149,7 @@ regex==2023.10.3
 requests==2.31.0
 requests-http-signature==0.2.0
 requests-mock==1.11.0
-rpds-py==0.13.1
+rpds-py==0.18.0
 rules==3.3
 s3fs==2023.10.0
 selenium==4.14.0
