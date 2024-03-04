@@ -204,6 +204,14 @@ jobs:
         run: |
           pipenv run flake8
 
+      - name: Check for OpenAPI schema changes.
+        run: |
+          python manage.py spectacular > /tmp/varfish_api_schema.yaml
+          diff \
+            varfish/tests/drf_spectacular/varfish_api_schema.yaml \
+            /tmp/varfish_api_schema.yaml
+        shell: bash -euo pipefail
+
   Node-Lint:
     runs-on: ubuntu-latest
     steps:
