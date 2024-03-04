@@ -42,4 +42,4 @@ class PydanticFieldFix(OpenApiSerializerFieldExtension):
 
     def map_serializer_field(self, auto_schema, direction):
         _, _ = auto_schema, direction
-        return json.loads(self.target.schema.schema_json())
+        return self.target.adapter.json_schema()

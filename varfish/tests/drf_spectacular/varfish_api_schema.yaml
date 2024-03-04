@@ -3,7 +3,7 @@ The .env file has been loaded. See base.py for more information
 openapi: 3.0.3
 info:
   title: VarFish
-  version: 1.2.0-405-g86c9178a
+  version: 1.2.0-411-g87a81501
   description: VarFish API
 paths:
   /cases-import/api/case-import-action/list-create/{project}/:
@@ -15448,17 +15448,11 @@ components:
         * `SMALL` - variants
         * `STRUCTURAL` - svs
     af:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsAfRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/BcftoolsStatsAfRecord'
-      definitions:
+      $defs:
         BcftoolsStatsAfRecord:
-          title: BcftoolsStatsAfRecord
           description: |-
             A Record from the ``AF`` (non-reference allele frequency) lines in ``bcftools stats``
             output.
-          type: object
           properties:
             af:
               title: Af
@@ -15493,16 +15487,15 @@ components:
           - repeat_consistent
           - repeat_inconsistent
           - na
-    alignmentstats:
-      title: FieldSchema[list[cases_qc.models.varfish.SampleAlignmentStats]]
-      type: array
-      items:
-        $ref: '#/definitions/SampleAlignmentStats'
-      definitions:
-        DetailedAlignmentCounts:
-          title: DetailedAlignmentCounts
-          description: Detailed alignment counts
+          title: BcftoolsStatsAfRecord
           type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsAfRecord'
+      type: array
+    alignmentstats:
+      $defs:
+        DetailedAlignmentCounts:
+          description: Detailed alignment counts
           properties:
             primary:
               title: Primary
@@ -15538,12 +15531,13 @@ components:
               title: Mismatch Rate
               type: number
             mapq:
-              title: Mapq
-              type: array
               items:
-                type: array
                 items:
                   type: integer
+                minItems: 2
+                type: array
+              title: Mapq
+              type: array
           required:
           - primary
           - secondary
@@ -15557,35 +15551,39 @@ components:
           - with_mate_mapped_to_different_chr_mapq
           - mismatch_rate
           - mapq
-        InsertSizeStats:
-          title: InsertSizeStats
-          description: Per-sample QC stats for insert sizes.
+          title: DetailedAlignmentCounts
           type: object
+        InsertSizeStats:
+          description: Per-sample QC stats for insert sizes.
           properties:
             insert_size_mean:
               title: Insert Size Mean
               type: number
             insert_size_median:
+              anyOf:
+              - type: number
+              - type: 'null'
               title: Insert Size Median
-              type: number
             insert_size_stddev:
               title: Insert Size Stddev
               type: number
             insert_size_histogram:
-              title: Insert Size Histogram
-              type: array
               items:
-                type: array
                 items:
                   type: integer
+                minItems: 2
+                type: array
+              title: Insert Size Histogram
+              type: array
           required:
           - insert_size_mean
+          - insert_size_median
           - insert_size_stddev
           - insert_size_histogram
-        RegionCoverageStats:
-          title: RegionCoverageStats
-          description: Per-region QC stats for alignment.
+          title: InsertSizeStats
           type: object
+        RegionCoverageStats:
+          description: Per-region QC stats for alignment.
           properties:
             region_name:
               title: Region Name
@@ -15594,60 +15592,61 @@ components:
               title: Mean Rd
               type: number
             min_rd_fraction:
-              title: Min Rd Fraction
-              type: array
               items:
-                type: array
                 items:
                   anyOf:
                   - type: integer
                   - type: number
+                minItems: 2
+                type: array
+              title: Min Rd Fraction
+              type: array
           required:
           - region_name
           - mean_rd
           - min_rd_fraction
-        SampleAlignmentStats:
-          title: SampleAlignmentStats
-          description: Per-sample QC stats for alignment.
+          title: RegionCoverageStats
           type: object
+        SampleAlignmentStats:
+          description: Per-sample QC stats for alignment.
           properties:
             sample:
               title: Sample
               type: string
             detailed_counts:
-              $ref: '#/definitions/DetailedAlignmentCounts'
+              $ref: '#/$defs/DetailedAlignmentCounts'
             per_chromosome_counts:
-              title: Per Chromosome Counts
-              type: array
               items:
-                type: array
                 items:
                   anyOf:
                   - type: string
                   - type: integer
+                minItems: 2
+                type: array
+              title: Per Chromosome Counts
+              type: array
             insert_size_stats:
-              $ref: '#/definitions/InsertSizeStats'
+              $ref: '#/$defs/InsertSizeStats'
             region_coverage_stats:
+              items:
+                $ref: '#/$defs/RegionCoverageStats'
               title: Region Coverage Stats
               type: array
-              items:
-                $ref: '#/definitions/RegionCoverageStats'
           required:
           - sample
           - detailed_counts
           - per_chromosome_counts
           - insert_size_stats
           - region_coverage_stats
-    chk:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsChkRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsChkRecord'
-      definitions:
-        SamtoolsStatsChkRecord:
-          title: SamtoolsStatsChkRecord
-          description: A Record from the ``CHK`` lines in ``samtools stats`` output.
+          title: SampleAlignmentStats
           type: object
+      items:
+        $ref: '#/$defs/SampleAlignmentStats'
+      type: array
+    chk:
+      $defs:
+        SamtoolsStatsChkRecord:
+          description: A Record from the ``CHK`` lines in ``samtools stats`` output.
           properties:
             read_names_crc32:
               title: Read Names Crc32
@@ -15662,17 +15661,16 @@ components:
           - read_names_crc32
           - sequences_crc32
           - qualities_crc32
-    chrom_counts:
-      title: FieldSchema[list[cases_qc.models.cramino.CraminoChromNormalizedCountsRecord]]
-      type: array
+          title: SamtoolsStatsChkRecord
+          type: object
       items:
-        $ref: '#/definitions/CraminoChromNormalizedCountsRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsChkRecord'
+      type: array
+    chrom_counts:
+      $defs:
         CraminoChromNormalizedCountsRecord:
-          title: CraminoChromNormalizedCountsRecord
           description: Store one chrom/normalized read counts record from Cramino
             output.
-          type: object
           properties:
             chrom_name:
               title: Chrom Name
@@ -15683,19 +15681,18 @@ components:
           required:
           - chrom_name
           - normalized_counts
-    cov:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsHistoRecord]]
-      type: array
+          title: CraminoChromNormalizedCountsRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsHistoRecord'
-      definitions:
+        $ref: '#/$defs/CraminoChromNormalizedCountsRecord'
+      type: array
+    cov:
+      $defs:
         SamtoolsStatsHistoRecord:
-          title: SamtoolsStatsHistoRecord
           description: |-
             A record for a value/count pair.
 
             Used for ``MAPQ``, ``ID``, ``COV``
-          type: object
           properties:
             value:
               title: Value
@@ -15706,16 +15703,15 @@ components:
           required:
           - value
           - count
-    dp:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsDpRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/BcftoolsStatsDpRecord'
-      definitions:
-        BcftoolsStatsDpRecord:
-          title: BcftoolsStatsDpRecord
-          description: A Record from the ``DP`` (AF) lines in ``bcftools stats`` output.
+          title: SamtoolsStatsHistoRecord
           type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsHistoRecord'
+      type: array
+    dp:
+      $defs:
+        BcftoolsStatsDpRecord:
+          description: A Record from the ``DP`` (AF) lines in ``bcftools stats`` output.
           properties:
             bin:
               title: Bin
@@ -15738,66 +15734,63 @@ components:
           - gts_frac
           - sites
           - sites_frac
-    fbc:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord]]
-      type: array
+          title: BcftoolsStatsDpRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsBasePercentagesRecord'
-      definitions:
+        $ref: '#/$defs/BcftoolsStatsDpRecord'
+      type: array
+    fbc:
+      $defs:
         SamtoolsStatsBasePercentagesRecord:
-          title: SamtoolsStatsBasePercentagesRecord
           description: |-
             A Record from the ``GCC``, ``GCT``, ``FBC``, and ``LBC`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             percentages:
-              title: Percentages
-              type: array
               items:
                 type: number
+              title: Percentages
+              type: array
           required:
           - cycle
           - percentages
-    ffq:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsFqRecord]]
-      type: array
+          title: SamtoolsStatsBasePercentagesRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsFqRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsBasePercentagesRecord'
+      type: array
+    ffq:
+      $defs:
         SamtoolsStatsFqRecord:
-          title: SamtoolsStatsFqRecord
           description: A Record from the ``FFQ`` and ``LFQ`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             counts:
-              title: Counts
-              type: array
               items:
                 type: integer
+              title: Counts
+              type: array
           required:
           - cycle
           - counts
-    frl:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsHistoRecord]]
-      type: array
+          title: SamtoolsStatsFqRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsHistoRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsFqRecord'
+      type: array
+    frl:
+      $defs:
         SamtoolsStatsHistoRecord:
-          title: SamtoolsStatsHistoRecord
           description: |-
             A record for a value/count pair.
 
             Used for ``MAPQ``, ``ID``, ``COV``
-          type: object
           properties:
             value:
               title: Value
@@ -15808,40 +15801,38 @@ components:
           required:
           - value
           - count
-    gcc:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord]]
-      type: array
+          title: SamtoolsStatsHistoRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsBasePercentagesRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsHistoRecord'
+      type: array
+    gcc:
+      $defs:
         SamtoolsStatsBasePercentagesRecord:
-          title: SamtoolsStatsBasePercentagesRecord
           description: |-
             A Record from the ``GCC``, ``GCT``, ``FBC``, and ``LBC`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             percentages:
-              title: Percentages
-              type: array
               items:
                 type: number
+              title: Percentages
+              type: array
           required:
           - cycle
           - percentages
-    gcd:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsGcdRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsGcdRecord'
-      definitions:
-        SamtoolsStatsGcdRecord:
-          title: SamtoolsStatsGcdRecord
-          description: A record for the ``GCD`` lines in ``samtools stats`` output.
+          title: SamtoolsStatsBasePercentagesRecord
           type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsBasePercentagesRecord'
+      type: array
+    gcd:
+      $defs:
+        SamtoolsStatsGcdRecord:
+          description: A record for the ``GCD`` lines in ``samtools stats`` output.
           properties:
             gc_content:
               title: Gc Content
@@ -15872,17 +15863,16 @@ components:
           - dp_percentile_50
           - dp_percentile_75
           - dp_percentile_90
+          title: SamtoolsStatsGcdRecord
+          type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsGcdRecord'
+      type: array
     gcf:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsGcRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsGcRecord'
-      definitions:
+      $defs:
         SamtoolsStatsGcRecord:
-          title: SamtoolsStatsGcRecord
           description: A Record from the ``GCF`` and ``GCL`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             gc_content:
               title: Gc Content
@@ -15893,17 +15883,16 @@ components:
           required:
           - gc_content
           - count
+          title: SamtoolsStatsGcRecord
+          type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsGcRecord'
+      type: array
     gcl:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsGcRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsGcRecord'
-      definitions:
+      $defs:
         SamtoolsStatsGcRecord:
-          title: SamtoolsStatsGcRecord
           description: A Record from the ``GCF`` and ``GCL`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             gc_content:
               title: Gc Content
@@ -15914,40 +15903,38 @@ components:
           required:
           - gc_content
           - count
-    gct:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord]]
-      type: array
+          title: SamtoolsStatsGcRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsBasePercentagesRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsGcRecord'
+      type: array
+    gct:
+      $defs:
         SamtoolsStatsBasePercentagesRecord:
-          title: SamtoolsStatsBasePercentagesRecord
           description: |-
             A Record from the ``GCC``, ``GCT``, ``FBC``, and ``LBC`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             percentages:
-              title: Percentages
-              type: array
               items:
                 type: number
+              title: Percentages
+              type: array
           required:
           - cycle
           - percentages
-    ic:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsIcRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsIcRecord'
-      definitions:
-        SamtoolsStatsIcRecord:
-          title: SamtoolsStatsIcRecord
-          description: A record for the ``IC`` lines in ``samtools stats`` output.
+          title: SamtoolsStatsBasePercentagesRecord
           type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsBasePercentagesRecord'
+      type: array
+    ic:
+      $defs:
+        SamtoolsStatsIcRecord:
+          description: A record for the ``IC`` lines in ``samtools stats`` output.
           properties:
             cycle:
               title: Cycle
@@ -15970,17 +15957,16 @@ components:
           - dels_fwd
           - ins_rev
           - dels_rev
-    idd:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsIddRecord]]
-      type: array
+          title: SamtoolsStatsIcRecord
+          type: object
       items:
-        $ref: '#/definitions/BcftoolsStatsIddRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsIcRecord'
+      type: array
+    idd:
+      $defs:
         BcftoolsStatsIddRecord:
-          title: BcftoolsStatsIddRecord
           description: A Record from the ``IDD`` (indel distribution) lines in ``bcftools
             stats`` output.
-          type: object
           properties:
             length:
               title: Length
@@ -15992,22 +15978,24 @@ components:
               title: Gts
               type: integer
             mean_vaf:
+              anyOf:
+              - type: number
+              - type: 'null'
               title: Mean Vaf
-              type: number
           required:
           - length
           - sites
           - gts
-    isize:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsIsRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsIsRecord'
-      definitions:
-        SamtoolsStatsIsRecord:
-          title: SamtoolsStatsIsRecord
-          description: Records for the ``IS`` records.
+          - mean_vaf
+          title: BcftoolsStatsIddRecord
           type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsIddRecord'
+      type: array
+    isize:
+      $defs:
+        SamtoolsStatsIsRecord:
+          description: Records for the ``IS`` records.
           properties:
             insert_size:
               title: Insert Size
@@ -16030,66 +16018,63 @@ components:
           - pairs_inward
           - pairs_outward
           - pairs_other
-    lbc:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsBasePercentagesRecord]]
-      type: array
+          title: SamtoolsStatsIsRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsBasePercentagesRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsIsRecord'
+      type: array
+    lbc:
+      $defs:
         SamtoolsStatsBasePercentagesRecord:
-          title: SamtoolsStatsBasePercentagesRecord
           description: |-
             A Record from the ``GCC``, ``GCT``, ``FBC``, and ``LBC`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             percentages:
-              title: Percentages
-              type: array
               items:
                 type: number
+              title: Percentages
+              type: array
           required:
           - cycle
           - percentages
-    lfq:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsFqRecord]]
-      type: array
+          title: SamtoolsStatsBasePercentagesRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsFqRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsStatsBasePercentagesRecord'
+      type: array
+    lfq:
+      $defs:
         SamtoolsStatsFqRecord:
-          title: SamtoolsStatsFqRecord
           description: A Record from the ``FFQ`` and ``LFQ`` lines in ``samtools stats``
             output.
-          type: object
           properties:
             cycle:
               title: Cycle
               type: integer
             counts:
-              title: Counts
-              type: array
               items:
                 type: integer
+              title: Counts
+              type: array
           required:
           - cycle
           - counts
+          title: SamtoolsStatsFqRecord
+          type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsFqRecord'
+      type: array
     lrl:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsHistoRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsHistoRecord'
-      definitions:
+      $defs:
         SamtoolsStatsHistoRecord:
-          title: SamtoolsStatsHistoRecord
           description: |-
             A record for a value/count pair.
 
             Used for ``MAPQ``, ``ID``, ``COV``
-          type: object
           properties:
             value:
               title: Value
@@ -16100,19 +16085,18 @@ components:
           required:
           - value
           - count
+          title: SamtoolsStatsHistoRecord
+          type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsHistoRecord'
+      type: array
     mapq:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsHistoRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsStatsHistoRecord'
-      definitions:
+      $defs:
         SamtoolsStatsHistoRecord:
-          title: SamtoolsStatsHistoRecord
           description: |-
             A record for a value/count pair.
 
             Used for ``MAPQ``, ``ID``, ``COV``
-          type: object
           properties:
             value:
               title: Value
@@ -16123,196 +16107,203 @@ components:
           required:
           - value
           - count
-    metrics:
-      title: FieldSchema[list[cases_qc.models.dragen.DragenStyleMetric]]
-      type: array
-      items:
-        $ref: '#/definitions/DragenStyleMetric'
-      definitions:
-        DragenStyleMetric:
-          title: DragenStyleMetric
-          description: Pydantic model for Dragen-style quality control metric entries
+          title: SamtoolsStatsHistoRecord
           type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsHistoRecord'
+      type: array
+    metrics:
+      $defs:
+        DragenStyleMetric:
+          description: Pydantic model for Dragen-style quality control metric entries
           properties:
             section:
+              anyOf:
+              - type: string
+              - type: 'null'
               title: Section
-              type: string
             entry:
+              anyOf:
+              - type: string
+              - type: 'null'
               title: Entry
-              type: string
             name:
+              anyOf:
+              - type: string
+              - type: 'null'
               title: Name
-              type: string
             value:
-              title: Value
               anyOf:
               - type: integer
               - type: number
               - type: string
+              - type: 'null'
+              title: Value
             value_float:
+              anyOf:
+              - type: number
+              - type: 'null'
+              default: null
               title: Value Float
-              type: number
-    qc_fail:
-      title: FieldSchema[SamtoolsFlagstatRecord]
-      $ref: '#/definitions/SamtoolsFlagstatRecord'
-      definitions:
-        SamtoolsFlagstatRecord:
-          title: SamtoolsFlagstatRecord
-          description: A record for the ``flagstat`` lines in ``samtools stats`` output.
+          required:
+          - section
+          - entry
+          - name
+          - value
+          title: DragenStyleMetric
           type: object
-          properties:
-            total:
-              title: Total
-              default: 0
-              type: integer
-            primary:
-              title: Primary
-              default: 0
-              type: integer
-            secondary:
-              title: Secondary
-              default: 0
-              type: integer
-            supplementary:
-              title: Supplementary
-              default: 0
-              type: integer
-            duplicates:
-              title: Duplicates
-              default: 0
-              type: integer
-            duplicates_primary:
-              title: Duplicates Primary
-              default: 0
-              type: integer
-            mapped:
-              title: Mapped
-              default: 0
-              type: integer
-            mapped_primary:
-              title: Mapped Primary
-              default: 0
-              type: integer
-            paired:
-              title: Paired
-              default: 0
-              type: integer
-            fragment_first:
-              title: Fragment First
-              default: 0
-              type: integer
-            fragment_last:
-              title: Fragment Last
-              default: 0
-              type: integer
-            properly_paired:
-              title: Properly Paired
-              default: 0
-              type: integer
-            with_itself_and_mate_mapped:
-              title: With Itself And Mate Mapped
-              default: 0
-              type: integer
-            singletons:
-              title: Singletons
-              default: 0
-              type: integer
-            with_mate_mapped_to_different_chr:
-              title: With Mate Mapped To Different Chr
-              default: 0
-              type: integer
-            with_mate_mapped_to_different_chr_mapq5:
-              title: With Mate Mapped To Different Chr Mapq5
-              default: 0
-              type: integer
-    qc_pass:
-      title: FieldSchema[SamtoolsFlagstatRecord]
-      $ref: '#/definitions/SamtoolsFlagstatRecord'
-      definitions:
-        SamtoolsFlagstatRecord:
-          title: SamtoolsFlagstatRecord
-          description: A record for the ``flagstat`` lines in ``samtools stats`` output.
-          type: object
-          properties:
-            total:
-              title: Total
-              default: 0
-              type: integer
-            primary:
-              title: Primary
-              default: 0
-              type: integer
-            secondary:
-              title: Secondary
-              default: 0
-              type: integer
-            supplementary:
-              title: Supplementary
-              default: 0
-              type: integer
-            duplicates:
-              title: Duplicates
-              default: 0
-              type: integer
-            duplicates_primary:
-              title: Duplicates Primary
-              default: 0
-              type: integer
-            mapped:
-              title: Mapped
-              default: 0
-              type: integer
-            mapped_primary:
-              title: Mapped Primary
-              default: 0
-              type: integer
-            paired:
-              title: Paired
-              default: 0
-              type: integer
-            fragment_first:
-              title: Fragment First
-              default: 0
-              type: integer
-            fragment_last:
-              title: Fragment Last
-              default: 0
-              type: integer
-            properly_paired:
-              title: Properly Paired
-              default: 0
-              type: integer
-            with_itself_and_mate_mapped:
-              title: With Itself And Mate Mapped
-              default: 0
-              type: integer
-            singletons:
-              title: Singletons
-              default: 0
-              type: integer
-            with_mate_mapped_to_different_chr:
-              title: With Mate Mapped To Different Chr
-              default: 0
-              type: integer
-            with_mate_mapped_to_different_chr_mapq5:
-              title: With Mate Mapped To Different Chr Mapq5
-              default: 0
-              type: integer
-    qual:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsQualRecord]]
-      type: array
       items:
-        $ref: '#/definitions/BcftoolsStatsQualRecord'
-      definitions:
+        $ref: '#/$defs/DragenStyleMetric'
+      type: array
+    qc_fail:
+      description: A record for the ``flagstat`` lines in ``samtools stats`` output.
+      properties:
+        total:
+          default: 0
+          title: Total
+          type: integer
+        primary:
+          default: 0
+          title: Primary
+          type: integer
+        secondary:
+          default: 0
+          title: Secondary
+          type: integer
+        supplementary:
+          default: 0
+          title: Supplementary
+          type: integer
+        duplicates:
+          default: 0
+          title: Duplicates
+          type: integer
+        duplicates_primary:
+          default: 0
+          title: Duplicates Primary
+          type: integer
+        mapped:
+          default: 0
+          title: Mapped
+          type: integer
+        mapped_primary:
+          default: 0
+          title: Mapped Primary
+          type: integer
+        paired:
+          default: 0
+          title: Paired
+          type: integer
+        fragment_first:
+          default: 0
+          title: Fragment First
+          type: integer
+        fragment_last:
+          default: 0
+          title: Fragment Last
+          type: integer
+        properly_paired:
+          default: 0
+          title: Properly Paired
+          type: integer
+        with_itself_and_mate_mapped:
+          default: 0
+          title: With Itself And Mate Mapped
+          type: integer
+        singletons:
+          default: 0
+          title: Singletons
+          type: integer
+        with_mate_mapped_to_different_chr:
+          default: 0
+          title: With Mate Mapped To Different Chr
+          type: integer
+        with_mate_mapped_to_different_chr_mapq5:
+          default: 0
+          title: With Mate Mapped To Different Chr Mapq5
+          type: integer
+      title: SamtoolsFlagstatRecord
+      type: object
+    qc_pass:
+      description: A record for the ``flagstat`` lines in ``samtools stats`` output.
+      properties:
+        total:
+          default: 0
+          title: Total
+          type: integer
+        primary:
+          default: 0
+          title: Primary
+          type: integer
+        secondary:
+          default: 0
+          title: Secondary
+          type: integer
+        supplementary:
+          default: 0
+          title: Supplementary
+          type: integer
+        duplicates:
+          default: 0
+          title: Duplicates
+          type: integer
+        duplicates_primary:
+          default: 0
+          title: Duplicates Primary
+          type: integer
+        mapped:
+          default: 0
+          title: Mapped
+          type: integer
+        mapped_primary:
+          default: 0
+          title: Mapped Primary
+          type: integer
+        paired:
+          default: 0
+          title: Paired
+          type: integer
+        fragment_first:
+          default: 0
+          title: Fragment First
+          type: integer
+        fragment_last:
+          default: 0
+          title: Fragment Last
+          type: integer
+        properly_paired:
+          default: 0
+          title: Properly Paired
+          type: integer
+        with_itself_and_mate_mapped:
+          default: 0
+          title: With Itself And Mate Mapped
+          type: integer
+        singletons:
+          default: 0
+          title: Singletons
+          type: integer
+        with_mate_mapped_to_different_chr:
+          default: 0
+          title: With Mate Mapped To Different Chr
+          type: integer
+        with_mate_mapped_to_different_chr_mapq5:
+          default: 0
+          title: With Mate Mapped To Different Chr Mapq5
+          type: integer
+      title: SamtoolsFlagstatRecord
+      type: object
+    qual:
+      $defs:
         BcftoolsStatsQualRecord:
-          title: BcftoolsStatsQualRecord
           description: A Record from the ``QUAL`` (quality) lines in ``bcftools stats``
             output.
-          type: object
           properties:
             qual:
+              anyOf:
+              - type: number
+              - type: 'null'
               title: Qual
-              type: number
             snps:
               title: Snps
               type: integer
@@ -16326,20 +16317,20 @@ components:
               title: Indels
               type: integer
           required:
+          - qual
           - snps
           - ts
           - tv
           - indels
-    readstats:
-      title: FieldSchema[list[cases_qc.models.varfish.SampleReadStats]]
-      type: array
-      items:
-        $ref: '#/definitions/SampleReadStats'
-      definitions:
-        SampleReadStats:
-          title: SampleReadStats
-          description: Per-sample QC stats for reads.
+          title: BcftoolsStatsQualRecord
           type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsQualRecord'
+      type: array
+    readstats:
+      $defs:
+        SampleReadStats:
+          description: Per-sample QC stats for reads.
           properties:
             sample:
               title: Sample
@@ -16348,12 +16339,13 @@ components:
               title: Read Length N50
               type: integer
             read_length_histogram:
-              title: Read Length Histogram
-              type: array
               items:
-                type: array
                 items:
                   type: integer
+                minItems: 2
+                type: array
+              title: Read Length Histogram
+              type: array
             total_reads:
               title: Total Reads
               type: integer
@@ -16361,27 +16353,32 @@ components:
               title: Total Yield
               type: integer
             fragment_first:
+              anyOf:
+              - type: integer
+              - type: 'null'
               title: Fragment First
-              type: integer
             fragment_last:
+              anyOf:
+              - type: integer
+              - type: 'null'
               title: Fragment Last
-              type: integer
           required:
           - sample
           - read_length_n50
           - read_length_histogram
           - total_reads
           - total_yield
-    records:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsIdxstatsRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/SamtoolsIdxstatsRecord'
-      definitions:
-        SamtoolsIdxstatsRecord:
-          title: SamtoolsIdxstatsRecord
-          description: A record for the lines in ``samtools idxstats`` output.
+          - fragment_first
+          - fragment_last
+          title: SampleReadStats
           type: object
+      items:
+        $ref: '#/$defs/SampleReadStats'
+      type: array
+    records:
+      $defs:
+        SamtoolsIdxstatsRecord:
+          description: A record for the lines in ``samtools idxstats`` output.
           properties:
             contig_name:
               title: Contig Name
@@ -16400,19 +16397,18 @@ components:
           - contig_len
           - mapped
           - unmapped
-    rl:
-      title: FieldSchema[list[cases_qc.models.samtools.SamtoolsStatsHistoRecord]]
-      type: array
+          title: SamtoolsIdxstatsRecord
+          type: object
       items:
-        $ref: '#/definitions/SamtoolsStatsHistoRecord'
-      definitions:
+        $ref: '#/$defs/SamtoolsIdxstatsRecord'
+      type: array
+    rl:
+      $defs:
         SamtoolsStatsHistoRecord:
-          title: SamtoolsStatsHistoRecord
           description: |-
             A record for a value/count pair.
 
             Used for ``MAPQ``, ``ID``, ``COV``
-          type: object
           properties:
             value:
               title: Value
@@ -16423,21 +16419,19 @@ components:
           required:
           - value
           - count
-    samples:
-      title: FieldSchema[list[str]]
+          title: SamtoolsStatsHistoRecord
+          type: object
+      items:
+        $ref: '#/$defs/SamtoolsStatsHistoRecord'
       type: array
+    samples:
       items:
         type: string
-    seqvarstats:
-      title: FieldSchema[list[cases_qc.models.varfish.SampleSeqvarStats]]
       type: array
-      items:
-        $ref: '#/definitions/SampleSeqvarStats'
-      definitions:
+    seqvarstats:
+      $defs:
         RegionVariantStats:
-          title: RegionVariantStats
           description: Per-region sequence variant statistics.
-          type: object
           properties:
             region_name:
               title: Region Name
@@ -16468,36 +16462,35 @@ components:
           - transition_count
           - transversion_count
           - tstv_ratio
-        SampleSeqvarStats:
-          title: SampleSeqvarStats
-          description: Per-sample QC stats for sequence variants.
+          title: RegionVariantStats
           type: object
+        SampleSeqvarStats:
+          description: Per-sample QC stats for sequence variants.
           properties:
             sample:
               title: Sample
               type: string
             genome_wide:
-              $ref: '#/definitions/RegionVariantStats'
+              $ref: '#/$defs/RegionVariantStats'
             per_region:
+              items:
+                $ref: '#/$defs/RegionVariantStats'
               title: Per Region
               type: array
-              items:
-                $ref: '#/definitions/RegionVariantStats'
           required:
           - sample
           - genome_wide
           - per_region
-    sis:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsSisRecord]]
-      type: array
+          title: SampleSeqvarStats
+          type: object
       items:
-        $ref: '#/definitions/BcftoolsStatsSisRecord'
-      definitions:
+        $ref: '#/$defs/SampleSeqvarStats'
+      type: array
+    sis:
+      $defs:
         BcftoolsStatsSisRecord:
-          title: BcftoolsStatsSisRecord
           description: A Record from the ``SiS`` (singleton stats) lines in ``bcftools
             stats`` output.
-          type: object
           properties:
             total:
               title: Total
@@ -16528,39 +16521,39 @@ components:
           - indels
           - repeat_consistent
           - repeat_inconsistent
-    sn:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsSnRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/BcftoolsStatsSnRecord'
-      definitions:
-        BcftoolsStatsSnRecord:
-          title: BcftoolsStatsSnRecord
-          description: A Record from the ``SN`` lines in ``bcftools stats`` output.
+          title: BcftoolsStatsSisRecord
           type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsSisRecord'
+      type: array
+    sn:
+      $defs:
+        BcftoolsStatsSnRecord:
+          description: A Record from the ``SN`` lines in ``bcftools stats`` output.
           properties:
             key:
               title: Key
               type: string
             value:
-              title: Value
               anyOf:
               - type: integer
               - type: number
               - type: string
+              - type: 'null'
+              title: Value
           required:
           - key
-    st:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsStRecord]]
-      type: array
+          - value
+          title: BcftoolsStatsSnRecord
+          type: object
       items:
-        $ref: '#/definitions/BcftoolsStatsStRecord'
-      definitions:
+        $ref: '#/$defs/BcftoolsStatsSnRecord'
+      type: array
+    st:
+      $defs:
         BcftoolsStatsStRecord:
-          title: BcftoolsStatsStRecord
           description: A Record from the ``ST`` (substitution types) lines in ``bcftools
             stats`` output.
-          type: object
           properties:
             type:
               title: Type
@@ -16571,16 +16564,15 @@ components:
           required:
           - type
           - count
-    strucvarstats:
-      title: FieldSchema[list[cases_qc.models.varfish.SampleStrucvarStats]]
-      type: array
-      items:
-        $ref: '#/definitions/SampleStrucvarStats'
-      definitions:
-        SampleStrucvarStats:
-          title: SampleStrucvarStats
-          description: Per-sample QC stats for structural variants.
+          title: BcftoolsStatsStRecord
           type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsStRecord'
+      type: array
+    strucvarstats:
+      $defs:
+        SampleStrucvarStats:
+          description: Per-sample QC stats for structural variants.
           properties:
             sample:
               title: Sample
@@ -16607,39 +16599,37 @@ components:
           - insertion_count
           - inversion_count
           - breakend_count
-    summary:
-      title: FieldSchema[list[cases_qc.models.cramino.CraminoSummaryRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/CraminoSummaryRecord'
-      definitions:
-        CraminoSummaryRecord:
-          title: CraminoSummaryRecord
-          description: Store a summary record from the cramino output file.
+          title: SampleStrucvarStats
           type: object
+      items:
+        $ref: '#/$defs/SampleStrucvarStats'
+      type: array
+    summary:
+      $defs:
+        CraminoSummaryRecord:
+          description: Store a summary record from the cramino output file.
           properties:
             key:
               title: Key
               type: string
             value:
-              title: Value
               anyOf:
               - type: integer
               - type: number
               - type: string
+              title: Value
           required:
           - key
           - value
-    tstv:
-      title: FieldSchema[list[cases_qc.models.samtools.BcftoolsStatsTstvRecord]]
-      type: array
-      items:
-        $ref: '#/definitions/BcftoolsStatsTstvRecord'
-      definitions:
-        BcftoolsStatsTstvRecord:
-          title: BcftoolsStatsTstvRecord
-          description: A Record from the ``TSTV`` lines in ``bcftools stats`` output.
+          title: CraminoSummaryRecord
           type: object
+      items:
+        $ref: '#/$defs/CraminoSummaryRecord'
+      type: array
+    tstv:
+      $defs:
+        BcftoolsStatsTstvRecord:
+          description: A Record from the ``TSTV`` lines in ``bcftools stats`` output.
           properties:
             ts:
               title: Ts
@@ -16666,6 +16656,11 @@ components:
           - ts_1st_alt
           - tv_1st_alt
           - tstv_1st_alt
+          title: BcftoolsStatsTstvRecord
+          type: object
+      items:
+        $ref: '#/$defs/BcftoolsStatsTstvRecord'
+      type: array
   securitySchemes:
     basicAuth:
       type: http
