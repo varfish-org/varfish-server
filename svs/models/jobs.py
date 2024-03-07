@@ -417,6 +417,7 @@ def run_sv_query_bg_job(pk):  # noqa: C901
             settings.WORKER_EXE_PATH,
             "strucvars",
             "query",
+            "-vv",
             "--path-db",
             settings.WORKER_DB_PATH,
             "--path-query-json",
