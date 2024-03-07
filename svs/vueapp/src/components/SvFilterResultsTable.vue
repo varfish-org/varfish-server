@@ -694,7 +694,7 @@ watch(
       </template>
       <template #item-payload.overlap_counts.gnomad_genomes="{ payload }">
         <div class="text-right text-nowrap space">
-          {{ formatLargeInt(payload.overlap_counts.gnomad_exomes) }}
+          {{ formatLargeInt(payload.overlap_counts.gnomad_genomes) }}
         </div>
       </template>
       <template #item-payload.overlap_counts.dgv="{ payload }">
