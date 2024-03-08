@@ -1,4 +1,5 @@
 """Insert a few records into the ``clinvar_export`` tables"""
+
 from __future__ import unicode_literals
 
 from django.db import migrations

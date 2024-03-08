@@ -1,4 +1,5 @@
 """Code for supporting variant import."""
+
 import json
 import tempfile
 import uuid as uuid_object

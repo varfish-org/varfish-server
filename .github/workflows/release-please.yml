@@ -24,11 +24,15 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
+        with:
+          fetch-depth: '1'
+          submodules: 'recursive'
+          lfs: true
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3.0.0
         if: ${{ steps.release.outputs.release_created }}
         with:
           registry: ghcr.io

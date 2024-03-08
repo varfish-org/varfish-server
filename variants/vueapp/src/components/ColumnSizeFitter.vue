@@ -25,11 +25,11 @@ const autoSizeAll = () => {
       Resize Cols
     </label>
     <br />
-    <div class="btn-group" id="columnSizeFitter">
-      <button @click="sizeToFit" class="btn btn-sm btn-outline-secondary">
+    <div id="columnSizeFitter" class="btn-group">
+      <button class="btn btn-sm btn-outline-secondary" @click="sizeToFit">
         <i-mdi-table-column-width />
       </button>
-      <button @click="autoSizeAll" class="btn btn-sm btn-outline-secondary">
+      <button class="btn btn-sm btn-outline-secondary" @click="autoSizeAll">
         <i-mdi-table-merge-cells />
       </button>
     </div>

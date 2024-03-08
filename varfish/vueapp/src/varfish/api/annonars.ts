@@ -30,7 +30,7 @@ export class AnnonarsApiClient {
     const promises = hgncIdChunks.map((chunk) => {
       const url = `${this.baseUrl}/genes/info?hgnc_id=${chunk.join(',')}`
 
-      const headers = {
+      const headers: { [key in string]: string } = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       }
@@ -50,7 +50,7 @@ export class AnnonarsApiClient {
       responses.map((response) => response.json()),
     )
 
-    const result = []
+    const result: any[] = []
     results.forEach((chunk) => {
       for (const value of Object.values(chunk.genes)) {
         result.push(value)
@@ -75,7 +75,7 @@ export class AnnonarsApiClient {
     const promises = hgncIdChunks.map((chunk) => {
       const url = `${this.baseUrl}/genes/clinvar?hgnc_id=${chunk.join(',')}`
 
-      const headers = {
+      const headers: { [key in string]: string } = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       }
@@ -95,7 +95,7 @@ export class AnnonarsApiClient {
       responses.map((response) => response.json()),
     )
 
-    const result = []
+    const result: any[] = []
     results.forEach((chunk) => {
       for (const value of Object.values(chunk.genes)) {
         result.push(value)
@@ -119,7 +119,7 @@ export class AnnonarsApiClient {
       `chromosome=${chromosome}&pos=${pos}&reference=${reference}&` +
       `alternative=${alternative}`
 
-    const headers = {
+    const headers: { [key in string]: string } = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     }

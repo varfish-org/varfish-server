@@ -91,6 +91,9 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
+    # DRF spectacular with sidecar so it does not depend on internet access
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -485,7 +488,7 @@ QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
 SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
 
 # Path to database for the worker (base database with sub entries for mehari etc.).
-WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "")
+WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "/data/varfish-static/data")
 
 # Path to executable for worker.
 WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
@@ -590,14 +593,6 @@ VARFISH_ENABLE_BEACON_SITE = env.bool("VARFISH_ENABLE_BEACON_SITE", default=Fals
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-        "knox.auth.TokenAuthentication",
-    ),
-}
-
 if KIOSK_MODE:
     SITE_TITLE = "VarFish (Kiosk)"
 else:
@@ -680,6 +675,41 @@ else:
     PROJECTROLES_CUSTOM_JS_INCLUDES = []
     PROJECTROLES_CUSTOM_CSS_INCLUDES = []
 
+
+# Django Rest Framework and Related Settings
+# ------------------------------------------------------------------------------
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "knox.auth.TokenAuthentication",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    # Basic Settings
+    "TITLE": "VarFish",
+    "DESCRIPTION": "VarFish API",
+    "VERSION": varfish_version,
+    "SERVE_INCLUDE_SCHEMA": False,
+    # Skip schema generation for some paths.
+    "PREPROCESSING_HOOKS": [
+        "varfish.utils.spectacular_preprocess_hook",
+    ],
+    # We add some explicit choices naming to work around warning.
+    "ENUM_NAME_OVERRIDES": {
+        "VariantRatingEnum": "variants.models.userannos.VARIANT_RATING_CHOICES",
+        "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
+        "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
+        "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
+    },
+    # Sidecar Settings
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+}
 
 # Logging
 # ------------------------------------------------------------------------------

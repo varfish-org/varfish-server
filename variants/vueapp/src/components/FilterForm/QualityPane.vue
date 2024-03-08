@@ -90,9 +90,6 @@ defineExpose({ v$ })
     <tbody>
       <FilterFormQualityPaneRow
         v-for="(member, index) in membersWithGtEntries"
-        :case-name="caseObj.name"
-        :index="index + 1"
-        :member="member"
         ref="childRefs"
         v-model:qual-min-dp-het="querySettings.quality[member.name].dp_het"
         v-model:qual-min-dp-hom="querySettings.quality[member.name].dp_hom"
@@ -101,6 +98,9 @@ defineExpose({ v$ })
         v-model:qual-min-ad="querySettings.quality[member.name].ad"
         v-model:qual-max-ad="querySettings.quality[member.name].ad_max"
         v-model:qual-fail="querySettings.quality[member.name].fail"
+        :case-name="caseObj.name"
+        :index="index + 1"
+        :member="member"
       />
     </tbody>
   </table>

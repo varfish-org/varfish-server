@@ -236,10 +236,10 @@ defineExpose({
           <div class="input-group input-group-sm ml-2 mr-4">
             <input
               id="minSvSize"
+              v-model.trim.lazy="v$.sv_size_min.$model"
               type="text"
               class="form-control"
               placeholder="min. SV size"
-              v-model.trim.lazy="v$.sv_size_min.$model"
               :class="{
                 'is-invalid': v$.sv_size_min.$error,
               }"
@@ -260,10 +260,10 @@ defineExpose({
           <div class="input-group input-group-sm ml-2">
             <input
               id="maxSvSize"
+              v-model.trim.lazy="v$.sv_size_max.$model"
               type="text"
               class="form-control"
               placeholder="max. SV size"
-              v-model.trim.lazy="v$.sv_size_max.$model"
               :class="{
                 'is-invalid': v$.sv_size_max.$error,
               }"
@@ -301,10 +301,10 @@ defineExpose({
         >
           <input
             :id="`sv-type-${field.id}`"
+            v-model="svTypeGroupWrappers[field.id].value"
             type="checkbox"
             class="custom-control-input"
             :indeterminate.prop="svTypeGroupIndeterminates[field.id].value"
-            v-model="svTypeGroupWrappers[field.id].value"
           />
           <label class="custom-control-label" :for="`sv-type-${field.id}`">
             {{ field.label }}
@@ -318,7 +318,7 @@ defineExpose({
       <div class="col mt-2 mb-2">
         <h5>SV Sub Types</h5>
         <div class="row">
-          <div class="pl-0 col" v-for="group in svSubTypeGroups">
+          <div v-for="group in svSubTypeGroups" class="pl-0 col">
             <strong>{{ group.title }}</strong>
             <br />
             <div
@@ -328,9 +328,9 @@ defineExpose({
             >
               <input
                 :id="`sv-sub-type-${field.id}`"
+                v-model="svSubTypeWrappers[field.id].value"
                 type="checkbox"
                 class="custom-control-input"
-                v-model="svSubTypeWrappers[field.id].value"
               />
               <label
                 class="custom-control-label"
@@ -346,8 +346,8 @@ defineExpose({
 
     <!-- Row 4: Transcript Effects -->
     <div
-      class="row border-top mt-2"
       v-if="['advanced', 'developer'].includes(props.filtrationComplexityMode)"
+      class="row border-top mt-2"
     >
       <div class="col mt-2 mb-2">
         <h5>Transcript Effects</h5>
@@ -365,9 +365,9 @@ defineExpose({
         >
           <input
             :id="`tx-effect-${field.id}`"
+            v-model="txEffectWrappers[field.id].value"
             type="checkbox"
             class="custom-control-input"
-            v-model="txEffectWrappers[field.id].value"
           />
           <label class="custom-control-label" :for="`tx-effect-${field.id}`">
             {{ field.label }}

@@ -6,11 +6,13 @@ import { ref } from 'vue'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   title: String,
   noHeader: {
     type: Boolean,
     default: false,
   },
+  // eslint-disable-next-line vue/require-default-prop
   modalClass: String,
 })
 

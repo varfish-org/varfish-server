@@ -7,6 +7,9 @@ We only use Pydantic models here; we construct them on the fly from the raw stat
 the REST API endpoints.
 """
 
+from typing import Annotated
+
+from annotated_types import Len
 import pydantic
 
 
@@ -20,7 +23,7 @@ class SampleReadStats(pydantic.BaseModel):
     read_length_n50: int
     #: read length histogram as ``[bin_start, value]`` pairs, equidistant bins, can be
     #: estimated from first two bins
-    read_length_histogram: list[list[int, int]]
+    read_length_histogram: list[Annotated[list[int], Len(2)]]
 
     #: total number of reads
     total_reads: int
@@ -40,7 +43,7 @@ class RegionCoverageStats(pydantic.BaseModel):
     #: overall mean read depth
     mean_rd: float
     #: read depth for coverage as ``[>={cov}x, count]`` pairs
-    min_rd_fraction: list[list[int, float]]
+    min_rd_fraction: list[Annotated[list[int | float], Len(2)]]
 
 
 class InsertSizeStats(pydantic.BaseModel):
@@ -54,7 +57,7 @@ class InsertSizeStats(pydantic.BaseModel):
     insert_size_stddev: float
     #: insert size histogram as ``[bin_start, value]`` pairs, equidistant bins, can be
     #: estimated from first two bins
-    insert_size_histogram: list[list[int, int]]
+    insert_size_histogram: list[Annotated[list[int], Len(2)]]
 
 
 class DetailedAlignmentCounts(pydantic.BaseModel):
@@ -86,7 +89,7 @@ class DetailedAlignmentCounts(pydantic.BaseModel):
     mismatch_rate: float
 
     #: statistics of reads with mapq in bins of 10, -1 => unmapped
-    mapq: list[tuple[int, int]]
+    mapq: list[Annotated[list[int], Len(2)]]
 
 
 class SampleAlignmentStats(pydantic.BaseModel):
@@ -98,7 +101,7 @@ class SampleAlignmentStats(pydantic.BaseModel):
     #: aligned reads/pairs count
     detailed_counts: DetailedAlignmentCounts
     #: per-chromosome counts
-    per_chromosome_counts: list[tuple[str, int]]
+    per_chromosome_counts: list[Annotated[list[str | int], Len(2)]]
     #: statistics on insert size
     insert_size_stats: InsertSizeStats
     #: per-region coverage stats

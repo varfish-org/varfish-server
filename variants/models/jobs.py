@@ -1,4 +1,5 @@
 """Models and related code for execution SmallVariant query jobs."""
+
 from datetime import datetime, timedelta
 from decimal import Decimal
 from itertools import islice

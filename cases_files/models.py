@@ -13,6 +13,17 @@ class MimeTypes(enum.Enum):
     BAM = "application/x-bam"
 
 
+GENOMEBUILD_OTHER = "other"
+GENOMEBUILD_GRCH37 = "grch37"
+GENOMEBUILD_GRCH38 = "grch38"
+
+GENOMEBUILD_CHOICES_LOWER = (
+    (GENOMEBUILD_OTHER, GENOMEBUILD_OTHER),
+    (GENOMEBUILD_GRCH37, GENOMEBUILD_GRCH37),
+    (GENOMEBUILD_GRCH38, GENOMEBUILD_GRCH38),
+)
+
+
 class AbstractFile(models.Model):
     """Abstract model for file reference."""
 
@@ -20,7 +31,7 @@ class AbstractFile(models.Model):
     GENOMEBUILD_GRCH37 = "grch37"
     GENOMEBUILD_GRCH38 = "grch38"
 
-    GENOMEBUILD_CHOICES = (
+    GENOMEBUILD_CHOICES_LOWER = (
         (GENOMEBUILD_OTHER, GENOMEBUILD_OTHER),
         (GENOMEBUILD_GRCH37, GENOMEBUILD_GRCH37),
         (GENOMEBUILD_GRCH38, GENOMEBUILD_GRCH38),
@@ -45,7 +56,7 @@ class AbstractFile(models.Model):
     path = models.CharField(max_length=1024, null=False, blank=False)
 
     #: The genome assembly, if any.
-    genomebuild = models.CharField(max_length=128, null=True, choices=GENOMEBUILD_CHOICES)
+    genomebuild = models.CharField(max_length=128, null=True, choices=GENOMEBUILD_CHOICES_LOWER)
     #: The file format as MIME type.
     mimetype = models.CharField(max_length=256)
 

@@ -57,7 +57,7 @@ snapshots["CaseQcRetrieveApiViewTest::test_retrieve_existing 1"] = {
     "state": "ACTIVE",
 }
 
-snapshots["VarfishStatsRetrieveApiView::test_retrieve 1"] = {
+snapshots["TestVarfishStatsRetrieveApiView::test_retrieve 1"] = {
     "alignmentstats": [
         {
             "detailed_counts": {
@@ -244,28 +244,28 @@ snapshots["VarfishStatsRetrieveApiView::test_retrieve 1"] = {
                 {
                     "mean_rd": 44.22,
                     "min_rd_fraction": [
-                        [0, 100],
-                        [1, 97],
-                        [3, 97],
-                        [10, 96],
-                        [15, 96],
-                        [20, 95],
-                        [50, 27],
-                        [100, 0],
+                        [0, 100.0],
+                        [1, 97.63],
+                        [3, 97.16],
+                        [10, 96.52],
+                        [15, 96.19],
+                        [20, 95.82],
+                        [50, 27.04],
+                        [100, 0.21],
                     ],
                     "region_name": "WGS",
                 },
                 {
                     "mean_rd": 44.22,
                     "min_rd_fraction": [
-                        [0, 100],
-                        [1, 97],
-                        [3, 97],
-                        [10, 96],
-                        [15, 96],
-                        [20, 95],
-                        [50, 27],
-                        [100, 0],
+                        [0, 100.0],
+                        [1, 97.63],
+                        [3, 97.16],
+                        [10, 96.52],
+                        [15, 96.19],
+                        [20, 95.82],
+                        [50, 27.04],
+                        [100, 0.21],
                     ],
                     "region_name": "region-3",
                 },

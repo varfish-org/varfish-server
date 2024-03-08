@@ -11,9 +11,9 @@ import { ref, reactive } from 'vue'
 import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import isEqual from 'fast-deep-equal'
 
-/** Alias definition of SmallVariant type; to be defined later. */
-type SmallVariant = any
 /** Alias definition of SmallVariantFlags type; to be defined later. */
 type SmallVariantFlags = any
 
@@ -37,7 +37,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   // other data (loaded via REST API or computed)
 
   /** The small variant that flags are handled for. */
-  const smallVariant = ref<SmallVariant | null>(null)
+  const seqvar = ref<Seqvar | null>(null)
   /** For current variant: mapping from SmallVariantFlags UUID to SmallVariantFlags */
   const flags = ref<SmallVariantFlags | null>(null)
   /** For whole case: flags for all variants of the case with the given `caseUuid`. */
@@ -66,7 +66,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   })
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -116,7 +116,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     initializeRes.value = variantClient
       .listFlags(caseUuid.value)
@@ -141,27 +143,37 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /**
    * Retrieve flags for the given variant.
    */
-  const retrieveFlags = async (smallVariant$: SmallVariant) => {
+  const retrieveFlags = async (seqvar$: Seqvar, caseUuid$?: string) => {
     // Prevent re-retrieval of the flags.
-    if (smallVariant.value?.sodar_uuid === smallVariant$?.sodar_uuid) {
+    if (isEqual(seqvar.value, seqvar$)) {
       return
     }
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
+
+    // Throw error if case UUID has not been set.
+    if (!caseUuid.value || !caseUuid$) {
+      throw new Error('Case UUID not set')
+    }
 
     flags.value = null
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     try {
-      const res = await variantClient.listFlags(caseUuid.value, smallVariant$)
+      const res = await variantClient.listFlags(
+        caseUuid.value ?? caseUuid$,
+        seqvar$,
+      )
       if (res.length) {
         flags.value = res[0]
       } else {
         flags.value = null
       }
 
-      smallVariant.value = smallVariant$
+      seqvar.value = seqvar$
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -177,20 +189,35 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    * Create a new flags entry.
    */
   const createFlags = async (
-    smallVariant: SmallVariant,
+    seqvar: Seqvar,
     payload: SmallVariantFlags,
+    resultRowUuid: string,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
     let result
     try {
-      result = await variantClient.createFlags(caseUuid.value, smallVariant, {
-        ...smallVariant,
-        ...payload,
-      })
+      result = await variantClient.createFlags(
+        caseUuid.value ?? 'undefined-csrf-token',
+        seqvar,
+        {
+          ...{
+            release: seqvar.genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38',
+            chromosome: seqvar.chrom,
+            start: seqvar.pos,
+            end: seqvar.pos + seqvar.del.length - 1,
+            reference: seqvar.del,
+            alternative: seqvar.ins,
+            sodar_uuid: resultRowUuid,
+          },
+          ...payload,
+        },
+      )
 
       storeState.serverInteractions -= 1
       storeState.state = State.Active
@@ -213,7 +240,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const updateFlags = async (
     payload: SmallVariantFlags,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     if (!flags.value) {
       console.warn('Trying to update flags with flags.value being falsy')
@@ -225,7 +254,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     let result
     try {
       result = await variantClient.updateFlags(flags.value.sodar_uuid, {
-        ...smallVariant,
+        ...seqvar,
         ...payload,
       })
 
@@ -248,7 +277,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    * Delete current flags.
    */
   const deleteFlags = async () => {
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     if (!flags.value) {
       console.warn('Trying to delete flags with flags.value being falsy')
@@ -277,15 +308,14 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /**
    * Return flags for a given variant from the store.
    */
-  const getFlags = (variant: SmallVariant): SmallVariantFlags | null => {
+  const getFlags = (variant: Seqvar): SmallVariantFlags | null => {
     for (const flag of caseFlags.value.values()) {
       if (
-        flag.release === variant.release &&
-        flag.chromosome === variant.chromosome &&
-        flag.start === variant.start &&
-        flag.end === variant.end &&
-        flag.reference === variant.reference &&
-        flag.alternative === variant.alternative
+        flag.release.toLowerCase() === variant.genomeBuild &&
+        flag.chromosome === variant.chrom &&
+        flag.start === variant.pos &&
+        flag.reference === variant.del &&
+        flag.alternative === variant.ins
       ) {
         return flag
       }
@@ -293,7 +323,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     return null
   }
 
-  const flagAsArtifact = async (variant) => {
+  const flagAsArtifact = async (variant: Seqvar, resultRowUuid: string) => {
     await retrieveFlags(variant)
     if (flags.value) {
       // update existing flags
@@ -304,11 +334,15 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       })
     } else {
       // create new flags
-      await createFlags(variant, {
-        ...emptyFlagsTemplate,
-        flag_summary: 'negative',
-        flag_visual: 'negative',
-      })
+      await createFlags(
+        variant,
+        {
+          ...emptyFlagsTemplate,
+          flag_summary: 'negative',
+          flag_visual: 'negative',
+        },
+        resultRowUuid,
+      )
     }
   }
 
@@ -318,7 +352,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     storeState,
     caseUuid,
     projectUuid,
-    smallVariant,
+    seqvar,
     flags,
     caseFlags,
     emptyFlagsTemplate,

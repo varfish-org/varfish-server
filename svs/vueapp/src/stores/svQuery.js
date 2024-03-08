@@ -3,7 +3,7 @@
  */
 
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { SvClient } from '@svs/api/svClient'
+import { SvClient } from '@svs/api/strucvarClient'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { State, StoreState } from '@varfish/storeUtils'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
@@ -168,7 +168,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (svQueryUuid, failuresSeen = 0) => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -221,7 +221,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     const convert = (key, value) => {
       if (
@@ -316,7 +316,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value)
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and

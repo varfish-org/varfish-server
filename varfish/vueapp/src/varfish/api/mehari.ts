@@ -20,13 +20,13 @@ export class MehariApiClient {
     alternative: string,
     hgncId?: string,
   ): Promise<any> {
-    const hgncSuffix = hgncId ? `&hgnc-id=${hgncId}` : ''
+    const hgncSuffix = hgncId ? `&hgnc_id=${hgncId}` : ''
     const url =
       `${this.baseUrl}/seqvars/csq?genome_release=${genomeRelease}&` +
       `chromosome=${chromosome}&position=${pos}&reference=${reference}&` +
       `alternative=${alternative}${hgncSuffix}`
 
-    const headers = {
+    const headers: { [key in string]: string } = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     }

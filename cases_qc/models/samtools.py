@@ -12,9 +12,6 @@ class BcftoolsStatsSnRecord(pydantic.BaseModel):
     #: Value of the summarized metric
     value: int | float | str | None
 
-    class Config:
-        smart_union = True  # prevent "int | float" from float to int conversion
-
 
 class BcftoolsStatsTstvRecord(pydantic.BaseModel):
     """A Record from the ``TSTV`` lines in ``bcftools stats`` output."""
@@ -164,7 +161,7 @@ class SamtoolsStatsSnRecord(pydantic.BaseModel):
     #: name of the summarized metric
     key: str
     #: value of the summarized metric
-    value: int
+    value: int | float | str | None
 
 
 class SamtoolsStatsFqRecord(pydantic.BaseModel):

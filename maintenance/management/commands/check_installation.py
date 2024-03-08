@@ -1,4 +1,5 @@
 """Django command for checking installation."""
+
 from enum import Enum
 
 from django.core.management.base import BaseCommand

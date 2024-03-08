@@ -1,4 +1,5 @@
 """Create pg/plsql functions for creating list of overlapping UCSC bins."""
+
 from __future__ import unicode_literals
 
 from django.db import migrations

@@ -152,10 +152,10 @@ onMounted(async () => {
                 </span>
               </div>
               <input
+                v-model="searchTerm"
                 type="text"
                 class="form-control"
                 placeholder="search text"
-                v-model="searchTerm"
               />
             </div>
           </div>

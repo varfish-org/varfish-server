@@ -10,12 +10,12 @@ ajax_urlpatterns = []
 
 api_urlpatterns = [
     path(
-        route="api/caseqc/retrieve/<case>/",
+        route="api/caseqc/retrieve/<uuid:case>/",
         view=views_api.CaseQcRetrieveApiView.as_view(),
         name="api-caseqc-retrieve",
     ),
     path(
-        route="api/varfishstats/retrieve/<case>/",
+        route="api/varfishstats/retrieve/<uuid:case>/",
         view=views_api.VarfishStatsRetrieveApiView.as_view(),
         name="api-varfishstats-retrieve",
     ),

@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``conservation``."""
+
 import binning
 import factory
 

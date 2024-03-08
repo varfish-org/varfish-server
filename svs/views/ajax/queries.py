@@ -196,7 +196,7 @@ class SvQueryResultRowListAjaxView(ListAPIView):
     serializer_class = SvQueryResultRowSerializer
 
     def get_queryset(self):
-        bgdbs = ("dbvar", "dgv", "dgv_gs", "exac", "g1k", "gnomad", "inhouse")
+        bgdbs = ("dbvar", "dgv", "dgv_gs", "g1k", "gnomad_exomes", "gnomad_genomes", "inhouse")
 
         order_by_str = self.request.query_params.get("order_by", "chromosome_no,start")
         order_dir = self.request.query_params.get("order_dir", "asc")

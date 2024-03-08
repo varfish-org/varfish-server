@@ -109,8 +109,9 @@ jobs:
               libldap2-dev libsasl2-dev
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install Python
@@ -172,8 +173,9 @@ jobs:
           python-version: "3.10"
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install Python
@@ -202,12 +204,24 @@ jobs:
         run: |
           pipenv run flake8
 
+      - name: Check for OpenAPI schema changes.
+        run: |
+          pipenv run python manage.py spectacular \
+          | sed -e 's/^  version:.*/  version: VERSION/g' \
+          > /tmp/varfish_api_schema.yaml
+
+          diff \
+            varfish/tests/drf_spectacular/varfish_api_schema.yaml \
+            /tmp/varfish_api_schema.yaml
+        shell: bash -euo pipefail {0}
+
   Node-Lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install javascript dependencies
@@ -223,8 +237,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install javascript dependencies

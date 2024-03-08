@@ -41,11 +41,11 @@ from variants.models import Case, SmallVariantQueryResultSet
 
 class FileSystemOptions(pydantic.BaseModel):
     protocol: str
-    host: str | None
-    path: str | None
-    port: str | None
-    user: str | None
-    password: str | None
+    host: str | None = None
+    path: str | None = None
+    port: int | None = None
+    user: str | None = None
+    password: str | None = None
     use_https: bool = False
 
 
@@ -1120,9 +1120,7 @@ class CaseImportBackgroundJobExecutor:
         self._create_pedigree(case, family)
         return case
 
-    def _family_helper(
-        self, family: Family
-    ) -> typing.Tuple[
+    def _family_helper(self, family: Family) -> typing.Tuple[
         typing.Dict[str, str],
         typing.Dict[str, str],
         typing.Dict[str, str],

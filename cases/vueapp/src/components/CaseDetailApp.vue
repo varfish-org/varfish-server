@@ -9,7 +9,7 @@ import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
-import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { overlayShow, overlayMessage } from '@cases/common'
 import { useRouter } from 'vue-router'
@@ -28,8 +28,10 @@ import ModalTermsEditor from '@cases/components/ModalTermsEditor.vue'
 
 const props = defineProps({
   /** The case UUID. */
+  // eslint-disable-next-line vue/require-default-prop
   caseUuid: String,
   /** The current tab. */
+  // eslint-disable-next-line vue/require-default-prop
   currentTab: String,
 })
 

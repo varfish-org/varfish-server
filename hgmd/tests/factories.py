@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``hgmd``."""
+
 import binning
 import factory
 

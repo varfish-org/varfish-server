@@ -58,6 +58,7 @@ const props = defineProps({
     type: String,
     default: 'input',
   },
+  // eslint-disable-next-line vue/require-default-prop
   modalClass: String,
 })
 
@@ -86,7 +87,7 @@ const formState = reactive({
 })
 
 /** Computed value for the rules, so we can react to props/propsCopy changes. */
-const rules = computed(() => {
+const vueRules = computed(() => {
   return propsCopy.value?.rules || []
 })
 
@@ -139,7 +140,7 @@ const onCancel = () => {
 }
 
 /** Create vuelidate object. */
-const v$ = useVuelidate({ inputValue: rules }, formState)
+const v$ = useVuelidate({ inputValue: vueRules }, formState)
 
 /** Initialize form value and vuelidate. */
 onMounted(() => {
@@ -167,9 +168,9 @@ defineExpose({ show, hide })
                 {{ propsCopy.label }}
               </label>
               <textarea
-                class="form-control"
-                v-model.lazy="v$.inputValue.$model"
                 :id="'modal-textarea-' + idSuffix"
+                v-model.lazy="v$.inputValue.$model"
+                class="form-control"
                 :placeholder="placeholderValue"
                 rows="5"
                 required
@@ -180,14 +181,14 @@ defineExpose({ show, hide })
                 {{ propsCopy.label }}
               </label>
               <input
+                :id="'modal-input-' + idSuffix"
+                v-model.trim.lazy="v$.inputValue.$model"
                 type="text"
                 class="form-control"
-                v-model.trim.lazy="v$.inputValue.$model"
                 :class="{
                   'form-control is-valid': !v$.inputValue.$error,
                   'form-control is-invalid': v$.inputValue.$error,
                 }"
-                :id="'modal-input-' + idSuffix"
                 :placeholder="placeholderValue"
                 required
               />

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import PaneCase from '@cases/components/CaseDetail/PaneCase.vue'
 import PaneQc from '@cases_qc/components/PaneQc.vue'
@@ -8,12 +8,12 @@ import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
 import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useCaseQcStore } from '@cases_qc/stores/caseQc'
-import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
 
 const router = useRouter()
 
 const props = defineProps({
   /** The case UUID. */
+  // eslint-disable-next-line vue/require-default-prop
   caseUuid: String,
   currentTab: {
     type: String,
@@ -37,7 +37,6 @@ const Tabs = Object.freeze({
   overview: 'overview',
   qc: 'qc',
   annotation: 'annotation',
-  browser: 'browser',
 })
 
 const caseDetailsStore = useCaseDetailsStore()
@@ -47,7 +46,7 @@ const annosLoading = computed(
   () => caseDetailsStore.varAnnos === null || caseDetailsStore.svAnnos === null,
 )
 const annoCount = computed(() => {
-  if (annosLoading) {
+  if (annosLoading.value) {
     return null
   } else {
     return (
@@ -71,7 +70,7 @@ const updateCurrentTab = (newValue) => {
       'flex-grow-1 d-flex flex-column': props.currentTab === Tabs.annotation,
     }"
   >
-    <ul class="nav nav-tabs" id="case-tab" role="tablist">
+    <ul id="case-tab" class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a
           class="nav-link"
@@ -112,24 +111,12 @@ const updateCurrentTab = (newValue) => {
           </span>
         </a>
       </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: props.currentTab === Tabs.browser }"
-          role="button"
-          @click="updateCurrentTab(Tabs.browser)"
-        >
-          <i-mdi-safety-goggles />
-
-          Browser
-        </a>
-      </li>
     </ul>
-    <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
+    <div id="cases-content" class="tab-content flex-grow-1 d-flex flex-column">
       <div
         v-if="props.currentTab === Tabs.overview"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
+        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         role="tabpanel"
       >
         <PaneCase
@@ -147,34 +134,23 @@ const updateCurrentTab = (newValue) => {
       </div>
       <div
         v-if="props.currentTab === Tabs.qc && caseDetailsStore.caseObj"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
+        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         role="tabpanel"
       >
         <LegacyPaneQc v-if="caseDetailsStore.caseObj?.case_version !== 2" />
-        <PaneQc :stats="caseQcStore.varfishStats" v-else />
+        <PaneQc v-else :stats="caseQcStore.varfishStats" />
       </div>
       <div
         v-if="props.currentTab === Tabs.annotation"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
+        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         role="tabpanel"
       >
         <Suspense>
           <PaneAnnotations :case-uuid="props.caseUuid" />
           <template #fallback> Loading ... </template>
         </Suspense>
-      </div>
-      <div
-        v-if="props.currentTab === Tabs.browser"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
-        id="case-list"
-        role="tabpanel"
-      >
-        <GenomeBrowser
-          :case-uuid="caseDetailsStore.caseObj?.sodar_uuid"
-          :genome="caseDetailsStore.caseObj?.release"
-        />
       </div>
     </div>
   </div>

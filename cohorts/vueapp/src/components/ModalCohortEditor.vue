@@ -32,10 +32,10 @@ const props = defineProps({
   },
   modelValue: {
     type: Object,
-    default: {
+    default: () => ({
       name: '',
-      cases: [],
-    },
+      cases: {},
+    }),
   },
   modalClass: {
     type: String,
@@ -43,7 +43,7 @@ const props = defineProps({
   },
   projectsCases: {
     type: Array,
-    default: [],
+    default: () => [],
   },
 })
 
@@ -259,9 +259,9 @@ defineExpose({ show, hide })
               </span>
             </div>
             <input
+              v-model="propsCopy.modelValue.name"
               type="text"
               class="form-control"
-              v-model="propsCopy.modelValue.name"
             />
           </div>
         </div>
@@ -306,22 +306,26 @@ defineExpose({ show, hide })
           </div>
         </div>
       </div>
-      <div class="row mt-3" v-for="project in propsCopy.projectsCases">
+      <div
+        v-for="project in propsCopy.projectsCases"
+        :key="`project-${project.sodar_uuid}`"
+        class="row mt-3"
+      >
         <div class="col">
           <div id="accordion" class="accordion">
             <div class="card mb-0">
               <div
-                class="card-header form-inline"
                 :id="'heading-project-' + project.sodar_uuid"
+                class="card-header form-inline"
               >
                 <div class="input-group input-group-sm">
                   <div class="input-group-prepend">
                     <div class="input-group-text">
                       <input
-                        type="checkbox"
                         v-model="
                           projectsCasesSelected[project.sodar_uuid].checked
                         "
+                        type="checkbox"
                         :indeterminate="
                           projectsCasesSelected[project.sodar_uuid]
                             .indeterminate
@@ -394,14 +398,15 @@ defineExpose({ show, hide })
               >
                 <div class="card-body pb-2">
                   <div
-                    class="form-check form-check-inline"
                     v-for="kase in project.case_set"
+                    :key="`case-set-${kase.sodar_uuid}`"
+                    class="form-check form-check-inline"
                   >
                     <input
+                      :id="'case-' + kase.sodar_uuid"
+                      v-model="propsCopy.modelValue.cases"
                       type="checkbox"
                       class="form-check-input"
-                      v-model="propsCopy.modelValue.cases"
-                      :id="'case-' + kase.sodar_uuid"
                       :value="kase.sodar_uuid"
                     />
                     <label

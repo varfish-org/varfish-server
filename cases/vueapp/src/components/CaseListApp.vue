@@ -14,8 +14,9 @@ const props = defineProps<{
 }>()
 
 const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
+  document
+    .getElementById('sodar-ss-app-context')
+    ?.getAttribute('app-context') ?? '{}',
 )
 
 const caseListStore = useCaseListStore()
@@ -50,7 +51,7 @@ watch(
     }
     const elem = $('#vueapp-filtration-complexity-mode')
     if (elem && elem.val(newValue)) {
-      elem.val(newValue).change()
+      elem.val(newValue).trigger('change')
     }
   },
 )
@@ -62,12 +63,14 @@ onMounted(() => {
     caseListStore.showInlineHelp = $('#vueapp-filtration-inline-help').prop(
       'checked',
     )
-    caseListStore.complexityMode = $('#vueapp-filtration-complexity-mode').val()
+    caseListStore.complexityMode = String(
+      $('#vueapp-filtration-complexity-mode').val(),
+    )
   }
   nextTick(() => {
     handleUpdate()
-    $('#vueapp-filtration-inline-help').change(handleUpdate)
-    $('#vueapp-filtration-complexity-mode').change(handleUpdate)
+    $('#vueapp-filtration-inline-help').on('change', handleUpdate)
+    $('#vueapp-filtration-complexity-mode').on('change', handleUpdate)
   })
 })
 </script>

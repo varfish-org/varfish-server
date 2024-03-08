@@ -3,7 +3,9 @@ import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import { ref } from 'vue'
 
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   appContext: Object,
+  // eslint-disable-next-line vue/require-default-prop
   submissionSet: Object,
 })
 

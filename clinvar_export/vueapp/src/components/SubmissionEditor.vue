@@ -20,6 +20,7 @@ import {
 import SubmissionCaseList from '@clinvarexport/components/SubmissionCaseList.vue'
 import { ref, computed, onMounted } from 'vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = { Multiselect, SubmissionCaseList }
 
 // Define Pinia store and shorcut for currentSubmissionSet
@@ -811,6 +812,7 @@ defineExpose({
           <div
             v-for="(entry, key) in store.currentSubmission
               .clinvar_submitter_report"
+            :key="`clinvar-submitter-report-${key}`"
             class="row"
           >
             <div class="col-3">
@@ -830,6 +832,7 @@ defineExpose({
         <template v-if="store.currentSubmission.clinvar_error_report">
           <div
             v-for="(entry, key) in store.currentSubmission.clinvar_error_report"
+            :key="`clinvar-error-report-${key}`"
             class="row"
           >
             <div class="col-3">

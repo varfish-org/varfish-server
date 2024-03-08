@@ -706,15 +706,17 @@ class CohortExporterTest(TestCohortBase):
                     "GT:GQ:AD:DP",
                 )
             ] = [
-                "%s:%s:%s:%s"
-                % (
-                    i.genotype[m]["gt"],
-                    i.genotype[m]["gq"],
-                    i.genotype[m]["ad"],
-                    i.genotype[m]["dp"],
+                (
+                    "%s:%s:%s:%s"
+                    % (
+                        i.genotype[m]["gt"],
+                        i.genotype[m]["gq"],
+                        i.genotype[m]["ad"],
+                        i.genotype[m]["dp"],
+                    )
+                    if m in i.genotype
+                    else "./.:.:.:."
                 )
-                if m in i.genotype
-                else "./.:.:.:."
                 for m in members
             ]
         for i, var in enumerate(sorted(vcf_vars, key=lambda x: (x[0], int(x[2])))):

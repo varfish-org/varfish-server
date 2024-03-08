@@ -75,7 +75,7 @@ class SampleVariantStatistics(models.Model):
     #: Hom/het ratio on chrX in PAR1 and PAR2, for sex checking.
     chrx_het_hom = models.FloatField(null=False)
 
-    def ontarget_ts_tv_ratio(self):
+    def ontarget_ts_tv_ratio(self) -> float:
         """Compute Ts/Tv ratio."""
         if not self.ontarget_transversions:
             return 0.0
@@ -110,7 +110,7 @@ class BaseRelatedness(models.Model):
     #: The N_IBS2 statistic
     n_ibs2 = models.IntegerField(null=False)
 
-    def relatedness(self):
+    def relatedness(self) -> float:
         """Return relatedness following Pedersen and Quinlan (2017)."""
         if self.het_1 * self.het_2:
             return (self.het_1_2 - 2 * self.n_ibs0) * 2 / math.sqrt(self.het_1 * self.het_2)

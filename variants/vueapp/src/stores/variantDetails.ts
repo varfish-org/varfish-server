@@ -43,7 +43,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
   const txCsq = ref<TxCsq[] | null>(null)
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -104,8 +104,12 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     txCsq.value = null
 
     // Fetch new details
-    const annonarsClient = new AnnonarsApiClient(csrfToken.value)
-    const mehariClient = new MehariApiClient(csrfToken.value)
+    const annonarsClient = new AnnonarsApiClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
+    const mehariClient = new MehariApiClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     const hgncId = smallVariant$.payload.hgnc_id
 
     await Promise.all([

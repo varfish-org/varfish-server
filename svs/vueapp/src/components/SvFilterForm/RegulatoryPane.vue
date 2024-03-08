@@ -86,10 +86,10 @@ defineExpose({
         <div class="input-group input-group-sm ml-2 mr-4">
           <input
             id="regulatoryGeneralPaddingInput"
+            v-model.trim.lazy="v$.regulatory_general_padding.$model"
             type="text"
             class="form-control"
             placeholder="allowed distance"
-            v-model.trim.lazy="v$.regulatory_general_padding.$model"
             :class="{
               'is-invalid': v$.regulatory_general_padding.$error,
             }"

@@ -82,11 +82,11 @@ const onSubmitCancelButtonClicked = () => {
 <template>
   <form class="position-relative">
     <div
-      class="card"
       v-if="
         svQueryStore.querySettings !== null &&
         svQueryStore.querySettingsPreset !== null
       "
+      class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
       <div class="card-header">
@@ -102,9 +102,9 @@ const onSubmitCancelButtonClicked = () => {
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a
+              id="criteria-matches-tab"
               class="nav-link active"
               :class="{ 'border-danger text-danger': criteriaMatchesHasError }"
-              id="criteria-matches-tab"
               data-toggle="tab"
               href="#panel-criteria-matches"
               role="tab"
@@ -116,9 +116,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="criteria-defs-tab"
               class="nav-link"
               :class="{ 'border-danger text-danger': criteriaDefsHasError }"
-              id="criteria-defs-tab"
               data-toggle="tab"
               href="#panel-criteria-defs"
               role="tab"
@@ -130,9 +130,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="frequency-tab"
               class="nav-link"
               :class="{ 'border-danger text-danger': frequencyHasError }"
-              id="frequency-tab"
               data-toggle="tab"
               href="#panel-frequency"
               role="tab"
@@ -144,9 +144,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="blocklist-tab"
               class="nav-link"
               :class="{ 'border-danger text-danger': geneHasError }"
-              id="blocklist-tab"
               data-toggle="tab"
               href="#panel-blocklist"
               role="tab"
@@ -158,9 +158,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="effect-tab"
               class="nav-link"
               :class="{ 'text-danger': effectHasError }"
-              id="effect-tab"
               data-toggle="tab"
               href="#panel-effect"
               role="tab"
@@ -172,9 +172,9 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="regulatory-tab"
               class="nav-link"
               :class="{ 'text-danger': tadsHasError }"
-              id="regulatory-tab"
               data-toggle="tab"
               href="#panel-regulatory"
               role="tab"
@@ -185,10 +185,10 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="tads-tab"
               ref="tadsPaneRef"
               class="nav-link"
               :class="{ 'text-danger': tadsHasError }"
-              id="tads-tab"
               data-toggle="tab"
               href="#panel-tads"
               role="tab"
@@ -201,10 +201,10 @@ const onSubmitCancelButtonClicked = () => {
           </li>
           <li class="nav-item">
             <a
+              id="tads-tab"
               ref="pathoPaneRef"
               class="nav-link"
               :class="{ 'text-danger': pathoHasError }"
-              id="tads-tab"
               data-toggle="tab"
               href="#panel-patho"
               role="tab"
@@ -216,13 +216,13 @@ const onSubmitCancelButtonClicked = () => {
             </a>
           </li>
           <li
-            class="nav-item"
             v-if="svQueryStore.filtrationComplexityMode === 'dev'"
+            class="nav-item"
           >
             <a
+              id="tads-tab"
               ref="devPaneRef"
               class="nav-link"
-              id="tads-tab"
               data-toggle="tab"
               href="#panel-dev"
               role="tab"
@@ -238,13 +238,14 @@ const onSubmitCancelButtonClicked = () => {
       <div class="card-body p-0">
         <div class="tab-content">
           <div
+            id="panel-criteria-matches"
             ref="criteriaMatchesPaneRef"
             class="tab-pane fade show active"
-            id="panel-criteria-matches"
             role="tabpanel"
             aria-labelledby="criteria-matches-tab"
           >
             <SvFilterFormGenotypePane
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
@@ -252,30 +253,29 @@ const onSubmitCancelButtonClicked = () => {
                 svQueryStore.filtrationComplexityMode
               "
               :case-obj="caseDetailsStore.caseObj"
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
+            id="panel-criteria-defs"
             ref="criteriaDefsPaneRef"
             class="tab-pane fade"
-            id="panel-criteria-defs"
             role="tabpanel"
             aria-labelledby="criteria-defs-tab"
           >
             <SvFilterFormCriteriaDefinitionPane
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
+            id="panel-frequency"
             ref="frequencyPaneRef"
             class="tab-pane fade"
-            id="panel-frequency"
             role="tabpanel"
             aria-labelledby="frequency-tab"
           >
@@ -291,91 +291,91 @@ const onSubmitCancelButtonClicked = () => {
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-effect"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="effect-tab"
           >
             <SvFilterFormImpactPane
               ref="effectPaneRef"
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-blocklist"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="blocklist-tab"
           >
             <SvFilterFormGenesRegionsPane
               ref="genePaneRef"
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-regulatory"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="regulatory-tab"
           >
             <SvFilterFormRegulatoryPane
               ref="regulatoryPaneRef"
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-tads"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="tads-tab"
           >
             <SvFilterFormTadsPane
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-patho"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="tads-tab"
           >
             <SvFilterFormPatho
+              v-model:query-settings="svQueryStore.querySettings"
               :show-filtration-inline-help="
                 svQueryStore.showFiltrationInlineHelp
               "
               :filtration-complexity-mode="
                 svQueryStore.filtrationComplexityMode
               "
-              v-model:query-settings="svQueryStore.querySettings"
             />
           </div>
           <div
-            class="tab-pane fade"
             id="panel-dev"
+            class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="dev-tab"
           >
@@ -385,10 +385,10 @@ const onSubmitCancelButtonClicked = () => {
           </div>
         </div>
         <SvFilterFormFooter
+          v-model:database="svQueryStore.querySettings.database"
           :query-state="svQueryStore.queryState"
           :any-has-error="anyHasError"
           :filtration-complexity-mode="svQueryStore.filtrationComplexityMode"
-          v-model:database="svQueryStore.querySettings.database"
           @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>

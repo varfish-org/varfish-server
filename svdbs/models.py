@@ -1,5 +1,6 @@
 """Models for ``svdb``, storage of structural variant databases.
 """
+
 from postgres_copy import CopyManager
 
 __author__ = "Manuel Holtgrewe <manuel.holtgrewe@bihealth.de>"

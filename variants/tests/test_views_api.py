@@ -814,7 +814,7 @@ class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
 
             expected = []
             for comment in comments:
-                expected.append(model_to_dict(comment, exclude=["id"]))
+                expected.append(model_to_dict(comment, exclude=["id", "bin", "chromosome_no"]))
                 expected[-1]["user"] = comment.user.username
                 expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
                 expected[-1]["case"] = str(comment.case.sodar_uuid)
@@ -875,7 +875,7 @@ class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
 
             expected = []
             for flag in flags:
-                expected.append(model_to_dict(flag, exclude=["id"]))
+                expected.append(model_to_dict(flag, exclude=["id", "bin", "chromosome_no"]))
                 expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
                 expected[-1]["case"] = str(flag.case.sodar_uuid)
 
@@ -912,9 +912,10 @@ class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
         )
         response = self.request_knox(url)
 
-        expected = []
+        expected = {"next": None, "previous": None, "results": []}
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, expected)
+        self.maxDiff = None
 
     def _test_get_acmg_criteria_rating_as_user(self, user):
         with self.login(user):
@@ -936,19 +937,34 @@ class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
 
             expected = []
             for rating in ratings:
-                expected.append(model_to_dict(rating, exclude=["id"]))
+                expected.append(model_to_dict(rating, exclude=["id", "bin", "chromosome_no"]))
                 expected[-1]["user"] = rating.user.username
                 expected[-1]["sodar_uuid"] = str(rating.sodar_uuid)
                 expected[-1]["case"] = str(rating.case.sodar_uuid)
 
+            def get_key(record):
+                return (
+                    record["chromosome"],
+                    record["start"],
+                    record["reference"],
+                    record["alternative"],
+                )
+
             response_json = response.json()
-            for rating in response_json:
+            response_results = response_json["results"]
+            for rating in response_results:
                 del rating["date_created"]
                 del rating["date_modified"]
                 del rating["acmg_class"]
 
+            expected.sort(key=get_key)
+            response_results.sort(key=get_key)
+
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response_json, expected)
+            self.assertEqual(len(response_results), 2)
+            self.assertEqual(len(expected), 2)
+            self.assertEqual(response_results[0], expected[0])
+            self.assertEqual(response_results[1], expected[1])
 
     def test_get_acmg_criteria_rating_superuser(self):
         self._test_get_acmg_criteria_rating_as_user(self.superuser)

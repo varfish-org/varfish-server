@@ -1,6 +1,5 @@
 """Tests for the ``svs.models.jobs`` module."""
 
-
 from unittest.mock import patch
 
 from bgjobs.models import BackgroundJob

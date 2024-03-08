@@ -78,7 +78,7 @@ class CaseAwareProject(Project):
         else:
             return case.chrx_het_hom_ratio(sample)
 
-    def sex_errors(self):
+    def sex_errors(self) -> dict[str, list[str]]:
         """Concatenate all contained case's sex errors dicts"""
         result = {}
         disable_sex_check = _app_settings.get(

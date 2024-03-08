@@ -1,8 +1,10 @@
 import typing
 
+from annotated_types import Len
 from django.http import Http404
 from projectroles.views_api import SODARAPIBaseProjectMixin
 from rest_framework.generics import RetrieveAPIView
+from typing_extensions import Annotated
 
 from cases.views_api import CasesApiPermission
 from cases_qc.models import CaseQc
@@ -267,7 +269,9 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
                 for key, value in zip(histogram.keys, histogram.values):
                     bin = min(int(key / bin_width) * bin_width, max_bin)
                     histo[bin] = histo.get(bin, 0) + value
-                alignmentstats.insert_size_stats.insert_size_histogram = list(histo.items())
+                alignmentstats.insert_size_stats.insert_size_histogram = list(
+                    map(list, histo.items())
+                )
 
             # finally, add the region coverage stats
             if dmm.sample in cov_wgs:
@@ -289,7 +293,7 @@ class VarfishStatsRetrieveApiView(CaseQcRetrieveApiView):
         cov: DragenWgsCoverageMetrics | DragenRegionCoverageMetrics,
     ):
         mean_rd: None | float = None
-        min_rd_fraction: list[list[int, float]] = []
+        min_rd_fraction: list[Annotated[list[int | float], Len(2)]] = []
         for metric in cov.metrics:
             if metric.section != "COVERAGE SUMMARY" or metric.entry is not None:
                 continue

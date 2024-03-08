@@ -181,9 +181,9 @@ defineExpose({
         >
           <input
             :id="`effect-vartypes-${field.id}`"
+            v-model="props.querySettings[field.id]"
             type="checkbox"
             class="custom-control-input"
-            v-model="props.querySettings[field.id]"
           />
           <label
             class="custom-control-label"
@@ -221,9 +221,9 @@ defineExpose({
         >
           <input
             :id="`effect-transcripts-${field.id}`"
+            v-model="props.querySettings[field.id]"
             type="checkbox"
             class="custom-control-input"
-            v-model="props.querySettings[field.id]"
           />
           <label
             class="custom-control-label"
@@ -259,11 +259,11 @@ defineExpose({
         </div>
         <div class="input-group input-group-sm">
           <input
+            id="max-exon-dist"
+            v-model.number.lazy="v$.maxExonDist.$model"
             type="number"
             class="form-control"
             placeholder="max. distance to next exon"
-            id="max-exon-dist"
-            v-model.number.lazy="v$.maxExonDist.$model"
             :class="{
               // 'is-valid': !v$.maxExonDist.$error,
               'is-invalid': v$.maxExonDist.$error,
@@ -310,10 +310,10 @@ defineExpose({
         >
           <input
             :id="`effect-group-${field.id}`"
+            v-model="groupWrappers[field.id].value"
             type="checkbox"
             class="custom-control-input"
             :indeterminate.prop="groupIndeterminates[field.id].value"
-            v-model="groupWrappers[field.id].value"
           />
           <label class="custom-control-label" :for="`effect-group-${field.id}`">
             {{ field.label }}
@@ -323,8 +323,8 @@ defineExpose({
     </div>
     <!-- Row 3: Detailed Effects -->
     <div
-      class="row border-top mt-2"
       v-if="props.filtrationComplexityMode === 'advanced'"
+      class="row border-top mt-2"
     >
       <div class="col-12 spt-2 mb-2 mt-2">
         <h5 class="mb-0">Detailed Effects</h5>
@@ -348,8 +348,8 @@ defineExpose({
         </div>
         <div class="row">
           <div
-            class="col-xl-3 col-lg-4 pl-0 pr-0 mt-3"
             v-for="group in detailedEffectGroups"
+            class="col-xl-3 col-lg-4 pl-0 pr-0 mt-3"
           >
             <strong>{{ group.title }}</strong>
             <br />
@@ -360,9 +360,9 @@ defineExpose({
             >
               <input
                 :id="`detailed-effect-${field.id}`"
+                v-model="effectWrappers[field.id].value"
                 type="checkbox"
                 class="custom-control-input"
-                v-model="effectWrappers[field.id].value"
               />
               <label
                 class="custom-control-label"

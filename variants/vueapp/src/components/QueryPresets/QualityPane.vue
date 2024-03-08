@@ -1,4 +1,5 @@
 <script setup>
+// eslint-disable
 /** Editor component for quality.
  */
 
@@ -12,18 +13,20 @@ const props = defineProps({
     default: randomString(),
   },
 })
+// eslint-enable
 </script>
 
 <template>
+  <!-- eslint-disable -->
   <div class="mr-2 mt-2">
     <div class="form-group">
       <label :for="'dp_het' + idSuffix"> Heterozygous Coverage </label>
       <input
+        :id="'dp_het' + idSuffix"
+        v-model="querySettings.dp_het"
         type="text"
         class="form-control"
         placeholder="Minimal het. coverage"
-        :id="'dp_het' + idSuffix"
-        v-model="querySettings.dp_het"
       />
       <small class="form-text text-muted">
         The minimal coverage at heterozygous sites.
@@ -33,11 +36,11 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'dp_hom' + idSuffix"> Homozygous Coverage </label>
       <input
+        :id="'dp_hom' + idSuffix"
+        v-model="querySettings.dp_hom"
         type="text"
         class="form-control"
         placeholder="Minimal het. coverage"
-        :id="'dp_hom' + idSuffix"
-        v-model="querySettings.dp_hom"
       />
       <small class="form-text text-muted">
         The minimal coverage at homozygous sites.
@@ -47,11 +50,11 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'ab' + idSuffix"> Allelic Balance </label>
       <input
+        :id="'ab' + idSuffix"
+        v-model="querySettings.ab"
         type="text"
         class="form-control"
         placeholder="Minimal allelic balance"
-        :id="'ab' + idSuffix"
-        v-model="querySettings.ab"
       />
       <small class="form-text text-muted">
         The minimal allelic balance (alternative allele coverage divided by
@@ -63,11 +66,11 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'gq' + idSuffix"> Genotype Quality </label>
       <input
+        :id="'gq' + idSuffix"
+        v-model="querySettings.gq"
         type="text"
         class="form-control"
         placeholder="Minimal genotype coverage"
-        :id="'gq' + idSuffix"
-        v-model="querySettings.gq"
       />
       <small class="form-text text-muted">
         The minimal phred-scaled genotype quality.
@@ -77,11 +80,11 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'ad' + idSuffix"> Allele Support (min.) </label>
       <input
+        :id="'ad' + idSuffix"
+        v-model="querySettings.ad"
         type="text"
         class="form-control"
         placeholder="Minimal allele support"
-        :id="'ad' + idSuffix"
-        v-model="querySettings.ad"
       />
       <small class="form-text text-muted">
         The minimal number of reads to support an allele.
@@ -91,11 +94,11 @@ const props = defineProps({
     <div class="form-group">
       <label :for="'ad_max' + idSuffix"> Allele Support (max.) </label>
       <input
+        :id="'ad_max' + idSuffix"
+        v-model="querySettings.ad_max"
         type="text"
         class="form-control"
         placeholder="Max. allele support"
-        :id="'ad_max' + idSuffix"
-        v-model="querySettings.ad_max"
       />
       <small class="form-text text-muted">
         The maximal number of reads to support an allele.
@@ -104,7 +107,7 @@ const props = defineProps({
 
     <div class="form-group">
       <label :for="'fail' + idSuffix"> QC Failure Effect </label>
-      <select class="custom-select" v-model="querySettings.fail">
+      <select v-model="querySettings.fail" class="custom-select">
         <option value="drop-variant">drop variant</option>
         <option value="ignore">ignore</option>
         <option value="no-call">no-call</option>
@@ -115,4 +118,5 @@ const props = defineProps({
       </small>
     </div>
   </div>
+  <!-- eslint-enable -->
 </template>

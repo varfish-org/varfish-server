@@ -1,46 +1,47 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-export interface Props {
-  rangeLower: number
-  rangeUpper: number
-  value: number
-  width?: number
-  height?: number
-  marginX?: number
-  marginY?: number
-  jitter?: number
-  fontSize?: string
-  dispTransOffset?: number
-  dispTransMult?: number
-  benignVeryStrongUpper?: number
-  benignStrongUpper?: number
-  benignModerateUpper?: number
-  benignSupportingUpper?: number
-  pathogenicSupportingLower?: number
-  pathogenicModerateLower?: number
-  pathogenicStrongLower?: number
-  pathogenicVeryStrongLower?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  width: 100,
-  height: 20,
-  marginX: 20,
-  marginY: 12,
-  jitter: 1,
-  fontSize: '12px',
-  dispTransOffset: 0,
-  dispTransMult: 1,
-  benignVeryStrongUpper: null,
-  benignStrongUpper: null,
-  benignModerateUpper: null,
-  benignSupportingUpper: null,
-  pathogenicSupportingLower: null,
-  pathogenicModerateLower: null,
-  pathogenicStrongLower: null,
-  pathogenicVeryStrongLower: null,
-})
+const props = withDefaults(
+  defineProps<{
+    rangeLower: number
+    rangeUpper: number
+    value: number
+    width?: number
+    height?: number
+    marginX?: number
+    marginY?: number
+    jitter?: number
+    fontSize?: string
+    dispTransOffset?: number
+    dispTransMult?: number
+    benignVeryStrongUpper?: number
+    benignStrongUpper?: number
+    benignModerateUpper?: number
+    benignSupportingUpper?: number
+    pathogenicSupportingLower?: number
+    pathogenicModerateLower?: number
+    pathogenicStrongLower?: number
+    pathogenicVeryStrongLower?: number
+  }>(),
+  {
+    width: 100,
+    height: 20,
+    marginX: 20,
+    marginY: 12,
+    jitter: 1,
+    fontSize: '12px',
+    dispTransOffset: 0,
+    dispTransMult: 1,
+    // benignVeryStrongUpper: undefined,
+    // benignStrongUpper: undefined,
+    // benignModerateUpper: undefined,
+    // benignSupportingUpper: undefined,
+    // pathogenicSupportingLower: undefined,
+    // pathogenicModerateLower: undefined,
+    // pathogenicStrongLower: undefined,
+    // pathogenicVeryStrongLower: undefined,
+  },
+)
 
 const LINE_STROKE = '#303030'
 const LINE_STROKE_WIDTH = 2
@@ -57,7 +58,7 @@ const xlBenignVeryStrongLower = computed(() => {
 })
 
 const xuBenignVeryStrongUpper = computed(() => {
-  if (props.benignVeryStrongUpper === null) {
+  if (props.benignVeryStrongUpper === undefined) {
     return 0
   } else {
     return (
@@ -70,7 +71,7 @@ const xuBenignVeryStrongUpper = computed(() => {
 })
 
 const xuBenignStrongUpper = computed(() => {
-  if (props.benignStrongUpper === null) {
+  if (props.benignStrongUpper === undefined) {
     return 0
   } else {
     return (
@@ -83,7 +84,7 @@ const xuBenignStrongUpper = computed(() => {
 })
 
 const xuBenignModerateUpper = computed(() => {
-  if (props.benignModerateUpper === null) {
+  if (props.benignModerateUpper === undefined) {
     return 0
   } else {
     return (
@@ -96,7 +97,7 @@ const xuBenignModerateUpper = computed(() => {
 })
 
 const xuBenignSupportingUpper = computed(() => {
-  if (props.benignSupportingUpper === null) {
+  if (props.benignSupportingUpper === undefined) {
     return 0
   } else {
     return (
@@ -109,7 +110,7 @@ const xuBenignSupportingUpper = computed(() => {
 })
 
 const xuPathoSupportingLower = computed(() => {
-  if (props.pathogenicSupportingLower === null) {
+  if (props.pathogenicSupportingLower === undefined) {
     return props.width
   } else {
     return (
@@ -122,7 +123,7 @@ const xuPathoSupportingLower = computed(() => {
 })
 
 const xuPathoModerateLower = computed(() => {
-  if (props.pathogenicModerateLower === null) {
+  if (props.pathogenicModerateLower === undefined) {
     return props.width
   } else {
     return (
@@ -135,7 +136,7 @@ const xuPathoModerateLower = computed(() => {
 })
 
 const xuPathoStrongLower = computed(() => {
-  if (props.pathogenicStrongLower === null) {
+  if (props.pathogenicStrongLower === undefined) {
     return props.width
   } else {
     return (
@@ -148,7 +149,7 @@ const xuPathoStrongLower = computed(() => {
 })
 
 const xuPathoVeryStrongLower = computed(() => {
-  if (props.pathogenicVeryStrongLower === null) {
+  if (props.pathogenicVeryStrongLower === undefined) {
     return props.width
   } else {
     return (
@@ -189,47 +190,49 @@ const getColorByName = (name: string): string => {
       return getColorByValue(0.88)
     case 'pathogenicVeryStrong':
       return getColorByValue(1)
+    default:
+      throw new Error(`Unknown color name: ${name}`)
   }
 }
 
 const circleFill = computed((): string => {
   if (
-    props.benignVeryStrongUpper !== null &&
+    props.benignVeryStrongUpper !== undefined &&
     props.value < props.benignVeryStrongUpper
   ) {
     return getColorByName('benignVeryStrong')
   } else if (
-    props.benignStrongUpper !== null &&
+    props.benignStrongUpper !== undefined &&
     props.value < props.benignStrongUpper
   ) {
     return getColorByName('benignStrong')
   } else if (
-    props.benignModerateUpper !== null &&
+    props.benignModerateUpper !== undefined &&
     props.value < props.benignModerateUpper
   ) {
     return getColorByName('benignModerate')
   } else if (
-    props.benignSupportingUpper !== null &&
+    props.benignSupportingUpper !== undefined &&
     props.value < props.benignSupportingUpper
   ) {
     return getColorByName('benignSupporting')
   } else if (
-    props.pathogenicVeryStrongLower !== null &&
+    props.pathogenicVeryStrongLower !== undefined &&
     props.value > props.pathogenicVeryStrongLower
   ) {
     return getColorByName('pathogenicVeryStrong')
   } else if (
-    props.pathogenicStrongLower !== null &&
+    props.pathogenicStrongLower !== undefined &&
     props.value > props.pathogenicStrongLower
   ) {
     return getColorByName('pathogenicStrong')
   } else if (
-    props.pathogenicModerateLower !== null &&
+    props.pathogenicModerateLower !== undefined &&
     props.value > props.pathogenicModerateLower
   ) {
     return getColorByName('pathogenicModerate')
   } else if (
-    props.pathogenicSupportingLower !== null &&
+    props.pathogenicSupportingLower !== undefined &&
     props.value > props.pathogenicSupportingLower
   ) {
     return getColorByName('pathogenicSupporting')

@@ -6,10 +6,10 @@ import { useRouter } from 'vue-router'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import { SvClient } from '@svs/api/svClient'
+import { SvClient } from '@svs/api/strucvarClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
-import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags'
+import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { formatLargeInt, displayName } from '@varfish/helpers'
 
@@ -49,8 +49,14 @@ const tableHeaders = computed(() => {
       sortable: true,
     },
     {
-      text: 'gnomAD frequency',
-      value: 'payload.overlap_counts.gnomad',
+      text: 'gnomAD exomes',
+      value: 'payload.overlap_counts.gnomad_exomes',
+      width: 50,
+      sortable: true,
+    },
+    {
+      text: 'gnomAD genomes',
+      value: 'payload.overlap_counts.gnomad_genomes',
       width: 50,
       sortable: true,
     },
@@ -377,10 +383,10 @@ watch(
           >
             <div class="custom-control custom-checkbox">
               <input
-                type="checkbox"
-                class="custom-control-input"
                 id="tad-gene-checkbox"
                 v-model="showTadGenesEnabled"
+                type="checkbox"
+                class="custom-control-input"
               />
               <label for="tad-gene-checkbox" class="custom-control-label"
                 >show</label
@@ -427,22 +433,22 @@ watch(
         <div class="text-nowrap">
           <i-fa-solid-search
             class="text-muted"
-            @click.prevent="showVariantDetails(sodar_uuid, 'genes')"
             role="button"
+            @click.prevent="showVariantDetails(sodar_uuid, 'genes')"
           />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted icon-inactive"
             title="flags & bookmarks"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'flags')"
           />
           <!-- comments -->
           <i-fa-solid-comment
@@ -450,14 +456,14 @@ watch(
               svCommentsStore.hasComment({ chromosome, start, end, sv_type })
             "
             class="text-muted ml-1"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted icon-inactive ml-1"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
             role="button"
+            @click="showVariantDetails(sodar_uuid, 'comments')"
           />
           <!-- tool -->
           <span :title="payload.caller">
@@ -477,8 +483,8 @@ watch(
         }"
       >
         <div
-          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
           role="button"
+          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
         >
           chr{{ chromosome }}:{{ formatLargeInt(start) }}
           <span
@@ -500,14 +506,14 @@ watch(
             ovl_disease_gene,
             tad_disease_gene,
             tx_effects,
-            clinvar_ovl_vcvs,
+            clinvar_ovl_rcvs,
             known_pathogenic,
           },
         }"
       >
         <div
-          @click="showVariantDetails(sodar_uuid, 'call-details')"
           role="button"
+          @click="showVariantDetails(sodar_uuid, 'call-details')"
         >
           <template v-if="tx_effects.length || showTadGenes(tad_genes)">
             <template v-for="(item, index) in tx_effects.slice(0, MAX_GENES)">
@@ -597,7 +603,7 @@ watch(
             </span>
             <template v-if="showTadGenes(tad_genes)">
               <template v-for="(item, index) in withSymbol(tad_genes)">
-                <span class="text-muted" v-if="index > 0">, </span>
+                <span v-if="index > 0" class="text-muted">, </span>
                 <span
                   class="font-italic text-nowrap"
                   :class="geneClass(item, 'text-info', 'text-muted')"
@@ -634,14 +640,14 @@ watch(
         <span
           class="text-nowrap"
           :class="{
-            'text-danger': payload.clinvar_ovl_vcvs.length,
+            'text-danger': payload.clinvar_ovl_rcvs.length,
             // || payload.known_pathogenic.length
           }"
         >
           {{ sv_type }}
-          <template v-if="payload.clinvar_ovl_vcvs.length">
+          <template v-if="payload.clinvar_ovl_rcvs.length">
             <span
-              :title="`Overlapping ClinVar SVs: ${payload.clinvar_ovl_vcvs}`"
+              :title="`Overlapping ClinVar SVs: ${payload.clinvar_ovl_rcvs}`"
               class="text-danger"
             >
               <i-mdi-hospital-building />
@@ -663,8 +669,8 @@ watch(
       <template #item-payload.sv_length="{ sodar_uuid, payload }">
         <div
           class="text-right text-nowrap space"
-          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
           role="button"
+          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
         >
           {{ formatLargeInt(payload.sv_length) }}
           <span class="text-muted">bp</span>
@@ -681,9 +687,14 @@ watch(
           {{ formatLargeInt(payload.overlap_counts.g1k) }}
         </div>
       </template>
-      <template #item-payload.overlap_counts.gnomad="{ payload }">
+      <template #item-payload.overlap_counts.gnomad_exomes="{ payload }">
         <div class="text-right text-nowrap space">
-          {{ formatLargeInt(payload.overlap_counts.gnomad) }}
+          {{ formatLargeInt(payload.overlap_counts.gnomad_exomes) }}
+        </div>
+      </template>
+      <template #item-payload.overlap_counts.gnomad_genomes="{ payload }">
+        <div class="text-right text-nowrap space">
+          {{ formatLargeInt(payload.overlap_counts.gnomad_genomes) }}
         </div>
       </template>
       <template #item-payload.overlap_counts.dgv="{ payload }">
@@ -705,10 +716,10 @@ watch(
       <template #item-actions="svRecord">
         <div class="btn-group sodar-list-btn-group">
           <button
-            @click.prevent="goToLocus(svRecord)"
             type="button"
             title="Go to locus in IGV"
             class="btn sodar-list-btn btn-primary"
+            @click.prevent="goToLocus(svRecord)"
           >
             IGV
           </button>
@@ -749,6 +760,7 @@ watch(
               Locus @EnsEMBL
             </a>
             <a
+              v-if="svRecord.release === 'GRCh37'"
               class="dropdown-item"
               :href="
                 dgvUrl(
@@ -759,15 +771,15 @@ watch(
                 )
               "
               target="_blank"
-              v-if="svRecord.release === 'GRCh37'"
             >
               Locus @DGV
             </a>
-            <a class="dropdown-item disabled" href="#" v-else>
+            <a v-else class="dropdown-item disabled" href="#">
               <!-- not for GRCh38 yet -->
               Locus @DGV
             </a>
             <a
+              v-if="svRecord.release === 'GRCh37'"
               class="dropdown-item"
               :href="
                 gnomadUrl(
@@ -778,19 +790,18 @@ watch(
                 )
               "
               target="_blank"
-              v-if="svRecord.release === 'GRCh37'"
             >
               Locus @gnomAD
             </a>
-            <a class="dropdown-item disabled" href="#" v-else>
+            <a v-else class="dropdown-item disabled" href="#">
               <!-- not for GRCh38 yet -->
               Locus @gnomAD
             </a>
             <div class="dropdown-divider"></div>
             <a
               class="dropdown-item"
-              @click.prevent="flagAsArtifact(svRecord)"
               href="#"
+              @click.prevent="flagAsArtifact(svRecord)"
             >
               <i-mdi-eye-minus />
               Flag as Artifact

@@ -20,9 +20,6 @@ class DragenStyleMetric(pydantic.BaseModel):
     #: The count as percentage / seconds
     value_float: float | None = None
 
-    class Config:
-        smart_union = True  # prevent "int | float" from float to int conversion
-
 
 class DragenStyleCoverage(pydantic.BaseModel):
     """Pydantic model for Dragen-style coverage metric entries"""

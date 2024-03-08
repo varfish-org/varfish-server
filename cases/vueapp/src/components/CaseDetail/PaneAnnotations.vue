@@ -1,28 +1,14 @@
 <script setup>
-import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { VariantClient } from '@variants/api/variantClient'
-import {
-  DisplayColumns,
-  DisplayConstraints,
-  DisplayDetails,
-  DisplayFrequencies,
-} from '@variants/enums'
 
 import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
 
 const router = useRouter()
 
-const props = defineProps({
-  /** The case UUID. */
-  caseUuid: String,
-})
-
 const showSmallVariantDetails = async (event) => {
   router.push({
-    name: 'variant-details',
+    name: 'seqvar-details',
     params: {
       row: event.smallvariantresultrow,
       selectedSection: event.selectedSection ?? null,
@@ -32,7 +18,7 @@ const showSmallVariantDetails = async (event) => {
 
 const showStructuralVariantDetails = async (event) => {
   router.push({
-    name: 'sv-details',
+    name: 'strucvar-details',
     params: {
       row: event.svresultrow,
       selectedSection: event.selectedSection ?? null,
