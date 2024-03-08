@@ -395,6 +395,7 @@ class CaseExporterTest(ExportTestBase):
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
     @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx(self, mock):
