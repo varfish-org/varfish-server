@@ -17,6 +17,7 @@ const props = defineProps({
     type: String,
     default: '/variants/ajax/hpo-terms/',
   },
+  // eslint-disable-next-line vue/require-default-prop
   csrfToken: String,
 })
 
@@ -119,10 +120,11 @@ const userHasPerms = (perm) =>
         <i-fa-solid-circle-notch class="spin" />
       </div>
     </div>
-    <ul class="list-group list-group-flush list" id="case-term-list">
+    <ul id="case-term-list" class="list-group list-group-flush list">
       <template v-if="caseDetailsStore.caseObj">
         <li
           v-for="member in caseDetailsStore.caseObj.pedigree"
+          :key="`member-${member.name}`"
           class="list-group-item list-item row"
         >
           <strong>{{ displayName(member.name) }}</strong>
@@ -144,6 +146,7 @@ const userHasPerms = (perm) =>
           <template v-if="termsMap[member.name]?.terms?.length">
             <div
               v-for="term in termsMap[member.name].terms"
+              :key="`term-${term.term}`"
               @change="fetchTermLabels()"
             >
               {{ term.label || term.term }}

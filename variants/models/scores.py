@@ -1,4 +1,5 @@
 """Code supporting scoring of variants by pathogenicity or phenotype."""
+
 import json
 import re
 import time

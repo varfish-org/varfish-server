@@ -40,7 +40,7 @@ const props = defineProps({
   },
   defaultValue: {
     type: Array,
-    default: [],
+    default: () => [],
   },
   modalClass: {
     type: String,

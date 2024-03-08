@@ -115,8 +115,8 @@ defineExpose({
         <div class="input-group input-group-sm ml-2 mr-4">
           <select
             id="clinvarMinPathogenicity"
-            class="custom-select custom-select-sm"
             v-model="v$.clinvar_sv_min_pathogenicity.$model"
+            class="custom-select custom-select-sm"
           >
             <option value="benign">Benign</option>
             <option value="likely-benign">Likely benign</option>

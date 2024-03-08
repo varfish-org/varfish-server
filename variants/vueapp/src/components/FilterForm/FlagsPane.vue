@@ -38,8 +38,8 @@ const props = defineProps({
           class="custom-control custom-checkbox custom-control-inline"
         >
           <input
-            v-model="props.querySettings[flag.id]"
             :id="`effect-flags-${flag.id}`"
+            v-model="props.querySettings[flag.id]"
             type="checkbox"
             class="custom-control-input"
           />
@@ -73,8 +73,8 @@ const props = defineProps({
           class="custom-control custom-checkbox custom-control-inline"
         >
           <input
-            v-model="props.querySettings[`${flagName.id}_${flagValue.id}`]"
             :id="`effect-flags-${flagName.id}-${flagValue.id}`"
+            v-model="props.querySettings[`${flagName.id}_${flagValue.id}`]"
             type="checkbox"
             class="custom-control-input"
           />

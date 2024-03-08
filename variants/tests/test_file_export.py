@@ -132,6 +132,51 @@ class ExportTestBase(TestCase):
             ),
         )
 
+    def _set_pedia_mocker(self, mock_):
+        mock_.post(
+            django.conf.settings.VARFISH_PEDIA_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                [
+                    {
+                        "gene_id": self.small_vars[0].refseq_gene_id,
+                        "gene_name": "ASPSCR1",
+                        "pedia_score": 0.4,
+                    },
+                    {
+                        "gene_id": self.small_vars[1].refseq_gene_id,
+                        "gene_name": "NFKBIL1",
+                        "pedia_score": -0.2,
+                    },
+                ]
+            ),
+        )
+
+    def _set_cadd_mocker(self, mock_):
+        def _key_gen(s):
+            return "%s-%d-%s-%s" % (s.chromosome, s.start, s.reference, s.alternative)
+
+        mock_.post(
+            django.conf.settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+            status_code=200,
+            text=json.dumps({"uuid": "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"}),
+        )
+        mock_.post(
+            django.conf.settings.VARFISH_CADD_REST_API_URL + "/result/",
+            status_code=200,
+            text=json.dumps(
+                {
+                    "status": "finished",
+                    "info": {"cadd_rest_api_version": 0.1},
+                    "scores": {
+                        _key_gen(self.small_vars[0]): [0.345146, 7.773],
+                        _key_gen(self.small_vars[1]): [0.345179, 7.773],
+                        _key_gen(self.small_vars[2]): [0.345212, 7.774],
+                    },
+                }
+            ),
+        )
+
     def _set_janno_mocker(self, database, mock_):
         if database == "refseq":
             transcript_prefix = "NM"
@@ -179,16 +224,10 @@ class CaseExporterTest(ExportTestBase):
     def _test_export_xlsx(self, database, mock_):
         self._set_janno_mocker(database, mock_)
         self._set_cada_mocker(mock_)
+        self._set_pedia_mocker(mock_)
+        self._set_cadd_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
-        self.export_job.query_args["pedia_enabled"] = True
-        self.export_job.query_args["gm_enabled"] = True
-        self.export_job.query_args["patho_enabled"] = True
-        self.export_job.query_args["patho_score"] = "CADD"
-        self.export_job.query_args["prio_enabled"] = True
-        self.export_job.query_args["prio_algorithm"] = "CADA"
-        self.export_job.query_args["prio_hpo_terms"] = ["HP:0001234"]
-
         with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
             result = exporter.generate()
         with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
@@ -230,7 +269,10 @@ class CaseExporterTest(ExportTestBase):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
         if not janno_enable:
-            self.assertEquals(len(arrs[0]), 57)
+            if has_trailing:
+                self.assertEquals(len(arrs[0]), 57)
+            else:
+                self.assertEquals(len(arrs[0]), 63)
         else:
             self.assertEquals(len(arrs[0]), 58)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
@@ -356,16 +398,18 @@ class CaseExporterTest(ExportTestBase):
     @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx(self, mock):
+
+        self.export_job.query_args["pedia_enabled"] = True
+        self.export_job.query_args["gm_enabled"] = True
+        # self.export_job.query_args["patho_enabled"] = True
+        # self.export_job.query_args["patho_score"] = "CADD"
+        self.export_job.query_args["prio_enabled"] = True
+        self.export_job.query_args["prio_algorithm"] = "CADA"
+        self.export_job.query_args["prio_hpo_terms"] = ["HP:0001234"]
         self._test_export_xlsx("refseq", mock)
 
     @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
     @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
-    @patch("django.conf.settings.VARFISH_ENABLE_GESTALT_MATCHER", True)
-    @patch("django.conf.settings.VARFISH_ENABLE_PEDIA", True)
-    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
-    @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
-    @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
-    @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx_refseq(self, mock):
         self._test_export_xlsx("refseq", mock)
@@ -706,15 +750,17 @@ class CohortExporterTest(TestCohortBase):
                     "GT:GQ:AD:DP",
                 )
             ] = [
-                "%s:%s:%s:%s"
-                % (
-                    i.genotype[m]["gt"],
-                    i.genotype[m]["gq"],
-                    i.genotype[m]["ad"],
-                    i.genotype[m]["dp"],
+                (
+                    "%s:%s:%s:%s"
+                    % (
+                        i.genotype[m]["gt"],
+                        i.genotype[m]["gq"],
+                        i.genotype[m]["ad"],
+                        i.genotype[m]["dp"],
+                    )
+                    if m in i.genotype
+                    else "./.:.:.:."
                 )
-                if m in i.genotype
-                else "./.:.:.:."
                 for m in members
             ]
         for i, var in enumerate(sorted(vcf_vars, key=lambda x: (x[0], int(x[2])))):

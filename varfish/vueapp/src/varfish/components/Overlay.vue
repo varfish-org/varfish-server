@@ -4,7 +4,7 @@
  * Note that you should wrap the outer component and the Overlay into a <div class="position-relative" /> so
  * only the component and not the whole screen is overlayed.
  */
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   message: String,
 })

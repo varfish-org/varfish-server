@@ -413,7 +413,7 @@ snapshots["SerializerTest::test_load_25 1"] = {
             "detailed_counts": {
                 "duplicates": 2,
                 "mapped": 32,
-                "mapq": [(-1, 10), (0, 10), (10, 20)],
+                "mapq": [[-1, 10], [0, 10], [10, 20]],
                 "mismatch_rate": 0.01,
                 "primary": 42,
                 "properly_paired": 16,
@@ -430,9 +430,9 @@ snapshots["SerializerTest::test_load_25 1"] = {
                 "insert_size_median": 42.0,
                 "insert_size_stddev": 42.0,
             },
-            "per_chromosome_counts": [("chr1", 10), ("chr2", 20)],
+            "per_chromosome_counts": [["chr1", 10], ["chr2", 20]],
             "region_coverage_stats": [
-                {"mean_rd": 42.0, "min_rd_fraction": [[1, 0], [10, 0]], "region_name": "ago"}
+                {"mean_rd": 42.0, "min_rd_fraction": [[1, 0.01], [10, 0.1]], "region_name": "ago"}
             ],
             "sample": "brother",
         }

@@ -26,7 +26,7 @@ const dumpSettings = () => {
 
 /** Pre-computed mapping of member name to role in trio analysis.  Used for informative purpose only. */
 const roleMap = computed(() => {
-  let roles = {}
+  const roles = {}
   if (props.caseObj && props.caseObj.pedigree) {
     const index = props.caseObj.index
     const pedigree = props.caseObj.pedigree
@@ -190,8 +190,8 @@ defineExpose({ v$ })
         </td>
         <td class="text-right text-muted">
           <select
-            class="custom-select custom-select-sm"
             v-model="genotypeWrappers[item.name]"
+            class="custom-select custom-select-sm"
           >
             <option value="any">any</option>
             <optgroup label="simple">

@@ -1,4 +1,5 @@
 """API views for ``variants`` app."""
+
 import contextlib
 from itertools import chain
 import re
@@ -22,7 +23,7 @@ import numpy as np
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import (
     DestroyAPIView,
     ListAPIView,
@@ -32,7 +33,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -97,6 +98,19 @@ from variants.serializers import (
     SmallVariantQueryWithLogsSerializer,
 )
 from variants.tasks import export_file_task, single_case_filter_task
+
+
+class CreatedAtCursorPagination(CursorPagination):
+    """Common pagination settings
+
+    We use cursor pagination to avoid inconsistencies when fetching while
+    updating data.
+    """
+
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+    ordering = "-date_created"
 
 
 class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):
@@ -1238,12 +1252,15 @@ class SmallVariantCommentListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
@@ -1321,12 +1338,15 @@ class SmallVariantFlagsListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )
@@ -1537,6 +1557,7 @@ class AcmgCriteriaRatingApiMixin(VariantsApiBaseMixin):
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
+    pagination_class = CreatedAtCursorPagination
     serializer_class = AcmgCriteriaRatingSerializer
 
     def get_queryset(self):
@@ -1598,12 +1619,15 @@ class AcmgCriteriaRatingListCreateApiView(
         return result
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SmallVariantQueryResultRow required. Aborting flag creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
-
         result_row = SmallVariantQueryResultRow.objects.get(
             sodar_uuid=self.request.data.get("sodar_uuid")
         )

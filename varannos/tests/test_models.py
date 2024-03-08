@@ -1,4 +1,5 @@
 """Test models and factories"""
+
 from datetime import datetime, timedelta
 
 from freezegun import freeze_time

@@ -10,6 +10,7 @@ import {
   useClinvarExportStore,
 } from '@clinvarexport/stores/clinvar-export'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = { Multiselect }
 
 // Define Pinia store and shortcut for currentSubmissionSet
@@ -21,7 +22,7 @@ const submitterUuids = computed(() =>
   Array.from(Object.values(store.submitters), (o) => o.sodar_uuid),
 )
 const orgOptions = computed(() => {
-  let result = Object.fromEntries(
+  const result = Object.fromEntries(
     Object.values(store.organisations).map((o) => [o.sodar_uuid, o.name]),
   )
   return result

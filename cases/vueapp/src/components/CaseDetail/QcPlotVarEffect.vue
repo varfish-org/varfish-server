@@ -6,7 +6,9 @@ import { displayName } from '@varfish/helpers'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   variantStats: Object,
+  // eslint-disable-next-line vue/require-default-prop
   renderer: String,
 })
 

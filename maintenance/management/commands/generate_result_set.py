@@ -1,4 +1,5 @@
 """Django command for generating query result sets."""
+
 import json
 import sys
 
@@ -155,8 +156,11 @@ class Command(BaseCommand):
             except ValidationError as e:
                 self.stderr.write(self.style.ERROR(" ".join(e)))
                 sys.exit(0)
-        else:
+        elif options["all"]:
             msg = "Creating query set for all cases."
+        else:
+            self.stderr.write(self.style.ERROR("Please specify exactly one of the options."))
+            sys.exit(0)
 
         self.stdout.write(self.style.NOTICE(msg))
 

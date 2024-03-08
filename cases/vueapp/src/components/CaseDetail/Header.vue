@@ -1,12 +1,13 @@
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useCaseListStore } from '@cases/stores/caseList'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 /** Define props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   caseObj: Object,
 })
 
@@ -27,29 +28,6 @@ const caseListStore = useCaseListStore()
 
 const userHasPerms = (perm) =>
   caseListStore.userPerms && caseListStore.userPerms.includes(perm)
-
-const buildLink = (where) => {
-  if (!props.caseObj) {
-    return ''
-  }
-  const caseUuid = props.caseObj.sodar_uuid
-  const projectUuid = props.caseObj.project
-
-  switch (where) {
-    case 'filter':
-      return `/variants/${projectUuid}/case/filter/${caseUuid}`
-    case 'filter-beta':
-      return `/variants/vueapp/${caseUuid}`
-    case 'filter-svs':
-      return `/svs/vueapp/${caseUuid}/`
-    default:
-      console.warn(`Invalid link target ${where}`)
-  }
-}
-
-const linkFilter = computed(() => buildLink('filter'))
-const linkFilterBeta = computed(() => buildLink('filter-beta'))
-const linkFilterSvs = computed(() => buildLink('filter-svs'))
 </script>
 
 <template>
@@ -63,9 +41,9 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
         <small v-else>NO CASE</small>
 
         <a
+          id="sodar-pr-btn-copy-uuid"
           role="submit"
           class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-          id="sodar-pr-btn-copy-uuid"
           :data-clipboard-text="caseObj ? caseObj.sodar_uuid : ''"
           title="Copy UUID to clipboard"
           data-toggle="tooltip"

@@ -54,11 +54,11 @@ const devStoreState = () => {
             for="id_database_selector_refseq"
           >
             <input
+              id="id_database_selector_refseq"
               v-model="databaseWrapper"
               name="databaseSelect"
               type="radio"
               value="refseq"
-              id="id_database_selector_refseq"
               required
             />
             RefSeq
@@ -69,11 +69,11 @@ const devStoreState = () => {
             for="id_database_selector_ensembl"
           >
             <input
+              id="id_database_selector_ensembl"
               v-model="databaseWrapper"
               name="databaseSelect"
               type="radio"
               value="ensembl"
-              id="id_database_selector_ensembl"
               required
             />
             EnsEMBL
@@ -89,14 +89,14 @@ const devStoreState = () => {
         </small>
         <div class="btn-group">
           <button
-            type="button"
             id="submitFilter"
+            type="button"
             name="submit"
             :disabled="anyHasError"
             class="btn"
             :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
-            @click="emit('submitCancelButtonClick')"
             title="Filter variants with current settings"
+            @click="emit('submitCancelButtonClick')"
           >
             <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
             Filter &amp; Display

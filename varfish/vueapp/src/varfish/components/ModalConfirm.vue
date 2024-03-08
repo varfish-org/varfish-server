@@ -133,10 +133,10 @@ defineExpose({ show, hide })
       <div v-if="propsCopy.isDanger" class="{'pt-3': propsCopy.text}">
         <div class="custom-control custom-switch">
           <input
-            type="checkbox"
-            class="custom-control-input"
             :id="'checkbox-' + props.idSuffix"
             v-model="confirmEnabled"
+            type="checkbox"
+            class="custom-control-input"
           />
           <label
             class="custom-control-label"

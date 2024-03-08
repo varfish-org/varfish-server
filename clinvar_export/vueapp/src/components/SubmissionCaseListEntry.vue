@@ -12,9 +12,11 @@ import {
   SAMPLE_SOURCE_OPTIONS,
 } from '@clinvarexport/stores/clinvar-export'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const components = { Multiselect }
 
 // Define props and emits and related writeable computed propery
+// eslint-disable-next-line vue/require-prop-types
 const props = defineProps(['modelValue'])
 const emit = defineEmits(['update:modelValue'])
 const value = computed({
@@ -156,10 +158,6 @@ const rules = {
 
 // Define vuelidate object
 const v$ = useVuelidate(rules, formState)
-
-const mounted = () => {
-  v$.$touch()
-}
 
 /**
  * @param up whether to consider up movement (false is down)

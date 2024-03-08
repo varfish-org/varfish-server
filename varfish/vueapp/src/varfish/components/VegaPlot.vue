@@ -32,7 +32,9 @@ const props = defineProps({
   },
   mark: {
     type: [Boolean, Object],
-    default: { type: 'bar' },
+    default: () => {
+      type: 'bar'
+    },
   },
   renderer: {
     type: String,

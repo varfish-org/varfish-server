@@ -1,4 +1,5 @@
 """Tests for ``variants.utils``."""
+
 import json
 
 from django.forms import model_to_dict

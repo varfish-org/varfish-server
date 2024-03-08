@@ -5,7 +5,9 @@ import VegaPlot from '@varfish/components/VegaPlot.vue'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   renderer: String,
+  // eslint-disable-next-line vue/require-default-prop
   relData: Object,
 })
 

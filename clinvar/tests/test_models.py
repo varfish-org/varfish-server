@@ -1,4 +1,5 @@
 """Tests for Modle queries to the ``clinvar`` models."""
+
 import binning
 
 from variants.tests.helpers import QueryTestBase

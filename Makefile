@@ -1,10 +1,6 @@
 SHELL = /bin/bash
 MANAGE = time python manage.py
 
-.PHONY: black
-black:
-	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' $(arg) .
-
 .PHONY: npm-install
 npm-install:
 	cd varfish/vueapp && npm ci
@@ -51,7 +47,8 @@ docs:
 
 .PHONY: celery
 celery:
-	celery -A config.celery_app worker -l info --concurrency=4 --beat
+	pipenv run watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- \
+		celery -A config.celery_app worker -l info --concurrency=4 --beat
 
 .PHONY: geticons
 geticons:
@@ -82,23 +79,40 @@ vue_test-coverage:
 .PHONY: vue_lint
 vue_lint:
 	npm run --prefix varfish/vueapp lint $(arg)
+	npm run --prefix varfish/vueapp type-check $(arg)
 	npm run --prefix varfish/vueapp prettier-check $(arg)
 
 .PHONY: prettier
 prettier:
 	npm run --prefix varfish/vueapp prettier-write $(arg)
 
-.PHONY: lint
-lint: flake8
-
-.PHONY: isort
-isort:
-	isort --force-sort-within-sections --profile=black .
-
-.PHONY: flake8
-flake8:
-	flake8
-
 coverage:
 	coverage report
 	coverage html
+
+
+.PHONY: lint
+lint: lint-flake8 lint-isort
+
+.PHONY: lint-flake8
+lint-flake8:
+	flake8
+
+.PHONY: lint-isort
+lint-isort:
+	isort --force-sort-within-sections --profile=black --check .
+
+.PHONY: lint-black
+lint-black:
+	black --line-length 100 --check --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
+
+.PHONY: format
+format: format-isort format-black
+
+.PHONY: format-isort
+format-isort:
+	isort --force-sort-within-sections --profile=black .
+
+.PHONY: format-black
+format-black:
+	black --line-length 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .

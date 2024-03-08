@@ -71,7 +71,11 @@ const numberFormatter = Intl.NumberFormat('en', {
         <thead>
           <tr>
             <th>Metric</th>
-            <th v-for="name in sampleNames" class="text-left">
+            <th
+              v-for="name in sampleNames"
+              :key="`metric-${name}`"
+              class="text-left"
+            >
               {{ name }}
             </th>
           </tr>
@@ -79,31 +83,51 @@ const numberFormatter = Intl.NumberFormat('en', {
         <tbody>
           <tr>
             <td class="text-nowrap">read length N50 [bp]</td>
-            <td v-for="value in sampleStats.readLengthN50" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.readLengthN50"
+              :key="`n50-${idx}`"
+              class="text-right"
+            >
               {{ value }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">total reads</td>
-            <td v-for="value in sampleStats.totalReads" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.totalReads"
+              :key="`total-reads-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr>
             <td class="text-nowrap">total yield [bp]</td>
-            <td v-for="value in sampleStats.totalYield" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.totalYield"
+              :key="`yield-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr v-if="sampleStats.fragmentFirst !== null">
             <td class="text-nowrap">read1</td>
-            <td v-for="value in sampleStats.fragmentFirst" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.fragmentFirst"
+              :key="`read1-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>
           <tr v-if="sampleStats.fragmentLast !== null">
             <td class="text-nowrap">read2</td>
-            <td v-for="value in sampleStats.fragmentLast" class="text-right">
+            <td
+              v-for="(value, idx) in sampleStats.fragmentLast"
+              :key="`read2-${idx}`"
+              class="text-right"
+            >
               {{ numberFormatter.format(value) }}
             </td>
           </tr>

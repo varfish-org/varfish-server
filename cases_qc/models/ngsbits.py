@@ -15,9 +15,6 @@ class NgsbitsMappingqcRecord(pydantic.BaseModel):
     #: value
     value: int | float | str | None
 
-    class Config:
-        smart_union = True  # prevent "int | float" from float to int conversion
-
 
 class NgsbitsMappingqcMetrics(CaseQcForSampleBaseModel):
     """Metrics obtained from ngs-bits' MappingQC."""

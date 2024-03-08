@@ -1,6 +1,7 @@
 """Add variant counts to the ``Case`` class.
 
 Update all existing case"""
+
 from __future__ import unicode_literals
 
 from django.db import migrations, models

@@ -2,22 +2,22 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton.vue'
+import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   formVisible: Boolean,
 })
 
-const emit = defineEmits(['toggleForm'])
+const emit = defineEmits(['editQueryPresetsClick', 'toggleForm'])
 
 /** Whether the preset set is loading. */
 const presetSetLoading = ref(false)
@@ -55,9 +55,9 @@ watch(
       </small>
 
       <a
+        id="sodar-pr-btn-copy-uuid"
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-        id="sodar-pr-btn-copy-uuid"
         data-clipboard-text="{{ caseDetailsStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"

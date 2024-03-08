@@ -12,7 +12,7 @@ import { QueryStates, QueryStateToText } from '@variants/enums'
 import SvFilterAppHeader from '@svs/components/SvFilterApp/Header.vue'
 import SvFilterForm from '@svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
-import { useSvFlagsStore } from '@svs/stores/svFlags'
+import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 
 const props = defineProps({
@@ -35,7 +35,7 @@ const svResultSetStore = useSvResultSetStore()
 
 const showDetails = async (event) => {
   router.push({
-    name: 'sv-details',
+    name: 'strucvar-details',
     params: {
       row: event.svresultrow,
       selectedSection: event.selectedSection ?? null,

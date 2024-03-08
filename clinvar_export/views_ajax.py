@@ -3,6 +3,7 @@
 The UI for this app is completely Vue-based so this is where the real logic is implemented.  Eventually, when we
 add an API and ``views_api``, we might move the common parts there and have the AJAX views re-use the logic.
 """
+
 import hashlib
 import logging
 import pathlib

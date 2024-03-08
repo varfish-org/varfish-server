@@ -1,4 +1,5 @@
 """Tests for ``variants.models``."""
+
 from datetime import datetime, timedelta
 from unittest.mock import patch
 import uuid

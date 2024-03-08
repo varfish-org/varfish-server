@@ -62,7 +62,7 @@ class TestStructuralVariantCommentListCreateApiView(TestStructuralVariantQueryBa
 
             expected = []
             for comment in comments:
-                expected.append(model_to_dict(comment, exclude=["id"]))
+                expected.append(model_to_dict(comment, exclude=["id", "bin"]))
                 expected[-1]["user"] = comment.user.username
                 expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
                 expected[-1]["case"] = str(comment.case.sodar_uuid)
@@ -123,7 +123,7 @@ class TestStructuralVariantFlagsListCreateApiView(TestStructuralVariantQueryBase
 
             expected = []
             for flag in flags:
-                expected.append(model_to_dict(flag, exclude=["id"]))
+                expected.append(model_to_dict(flag, exclude=["id", "bin"]))
                 expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
                 expected[-1]["case"] = str(flag.case.sodar_uuid)
 

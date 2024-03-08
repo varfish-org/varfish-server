@@ -3,6 +3,7 @@ import { displayName, formatLargeInt } from '@varfish/helpers'
 import { tsTvRatio } from '@cases/common'
 
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   varStats: Object,
 })
 </script>
@@ -23,7 +24,10 @@ const props = defineProps({
     </thead>
     <tbody>
       <template v-if="props.varStats">
-        <tr v-for="entry in props.varStats">
+        <tr
+          v-for="entry in props.varStats"
+          :key="`sample-${entry.sample_name}`"
+        >
           <td>{{ displayName(entry.sample_name) }}</td>
           <td class="text-right">
             {{ formatLargeInt(entry.ontarget_transitions) }}

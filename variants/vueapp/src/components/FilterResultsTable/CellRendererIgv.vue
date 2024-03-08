@@ -9,7 +9,7 @@ const goToLocus = async () => {
     : `chr${props.params.data.chromosome}`
   await fetch(
     `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.params.data.start}-${props.params.data.end}`,
-  ).catch((e) => {
+  ).catch(() => {
     console.error('IGV not available')
   })
 }
@@ -31,11 +31,11 @@ const mtLink =
       MT
     </a>
     <button
-      @click="goToLocus()"
       type="button"
       title="Go to locus in IGV"
       style="font-size: 80%"
       class="btn btn-sm btn-secondary"
+      @click="goToLocus()"
     >
       IGV
     </button>

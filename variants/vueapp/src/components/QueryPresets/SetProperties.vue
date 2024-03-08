@@ -7,6 +7,7 @@ import { randomString } from '@varfish/common'
 
 /** Define props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   label: String,
   idSuffix: {
     type: String,
@@ -33,11 +34,11 @@ const labelModel = computed({
     <div class="form-group">
       <label :for="'label' + idSuffix"> Label </label>
       <input
+        :id="'label' + props.idSuffix"
+        v-model="labelModel"
         type="text"
         class="form-control"
-        :id="'label' + props.idSuffix"
         placeholder="PresetSet label"
-        v-model="labelModel"
       />
       <small id="emailHelp" class="form-text text-muted">
         The label to use for display

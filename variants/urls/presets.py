@@ -1,4 +1,5 @@
 """Presets-related urls."""
+
 from itertools import chain
 
 from django.conf.urls import url

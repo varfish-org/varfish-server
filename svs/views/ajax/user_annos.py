@@ -1,4 +1,5 @@
 """AJAX views for dealing with user annotations (flags and comments)."""
+
 import uuid
 
 from iterable_orm import QuerySet
@@ -176,7 +177,6 @@ class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
                 start=instance.start,
                 end=instance.end,
                 sv_type=instance.sv_type,
-                sv_sub_type=instance.sv_sub_type,
             )
             comments = StructuralVariantComment.objects.filter(
                 release=instance.release,
@@ -184,7 +184,6 @@ class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
                 start=instance.start,
                 end=instance.end,
                 sv_type=instance.sv_type,
-                sv_sub_type=instance.sv_sub_type,
             )
             if result_row_set.exists() and not comments.exists():
                 result_row_set.first().delete()
@@ -262,11 +261,11 @@ class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
 ):
     lookup_url_kwarg = "structuralvariantcomment"
 
-    serializer_class = StructuralVariantFlagsSerializer
+    serializer_class = StructuralVariantCommentSerializer
     permission_classes = [SvUserAnnotationRetrieveUpdateDestroyPermission]
 
     def get_queryset(self):
-        return StructuralVariantFlags.objects.all()
+        return StructuralVariantComment.objects.all()
 
     def get_permission_required(self):
         return "variants.update_data"

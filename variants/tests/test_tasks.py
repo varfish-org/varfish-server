@@ -3,6 +3,7 @@
 We do glass-box-tests here and mock out the called functions only.  The functionality itself must then be tested
 separately but that's fine.
 """
+
 from unittest import mock
 from unittest.mock import Mock, call, patch
 

@@ -117,15 +117,17 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     ]
     displayColumns.value = [DisplayColumns.Effect.value]
     extraAnnoFields.value
-      .filter((value) => maybeAdd.includes(value.label))
-      .forEach((value) => {
+      .filter((value: any) => maybeAdd.includes(value.label))
+      .forEach((value: any) => {
         displayColumns.value.push(`extra_anno${value.field}`)
       })
   }
 
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     const responseResultSetList =
       await variantClient.listQueryResultSet(queryUuid$)
     if (!responseResultSetList.length) {
@@ -140,7 +142,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
     const case$ = await variantClient.retrieveCase(caseUuid$)
     if (case$.smallvariantqueryresultset) {
       resultSet.value = case$.smallvariantqueryresultset
@@ -160,7 +164,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
       return
     }
 
-    const variantClient = new VariantClient(csrfToken.value)
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1

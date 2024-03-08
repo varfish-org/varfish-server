@@ -318,7 +318,7 @@ class Case(CoreCase):
                     result["mother"] = member["mother"]
         return result
 
-    def sex_errors_pedigree(self):
+    def sex_errors_pedigree(self) -> dict[str, list[str]]:
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from the
         pedigree information.
 
@@ -369,7 +369,7 @@ class Case(CoreCase):
     def sex_errors_to_fix(self):
         return self.sex_errors_variant_stats(lambda x: x)
 
-    def sex_errors(self, disable_pedigree_sex_check=None):
+    def sex_errors(self, disable_pedigree_sex_check=None) -> dict[str, list[str]]:
         """Returns dict mapping sample to error messages from both pedigree and variant statistics."""
 
         result = {}

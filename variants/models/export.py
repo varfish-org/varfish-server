@@ -1,4 +1,5 @@
 """Code for export of query results."""
+
 import uuid as uuid_object
 
 from bgjobs.models import BackgroundJob, JobModelMessageMixin

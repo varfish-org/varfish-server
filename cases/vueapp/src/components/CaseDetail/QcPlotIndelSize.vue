@@ -6,7 +6,9 @@ import { displayName } from '@varfish/helpers'
 
 /** Define the props. */
 const props = defineProps({
+  // eslint-disable-next-line vue/require-default-prop
   variantStats: Object,
+  // eslint-disable-next-line vue/require-default-prop
   renderer: String,
 })
 
@@ -108,13 +110,14 @@ const vegaData = computed(() => {
     for (const [sampleName, stats] of Object.entries(props.variantStats)) {
       const indelSizes = stats.ontarget_indel_sizes
       const counters = {}
-      for (let [indelSize, count] of Object.entries(indelSizes)) {
+      for (const [indelSize, count] of Object.entries(indelSizes)) {
+        let indelSize$
         if (indelSize <= -10) {
-          indelSize = -10
+          indelSize$ = -10
         } else if (indelSize >= 10) {
-          indelSize = 10
+          indelSize$ = 10
         }
-        const indelSizeLabel = indelSizeToLabel[String(indelSize)]
+        const indelSizeLabel = indelSizeToLabel[String(indelSize$)]
         counters[indelSizeLabel] = (counters[indelSizeLabel] ?? 0) + count
       }
 

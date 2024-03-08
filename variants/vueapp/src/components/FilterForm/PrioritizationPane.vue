@@ -105,10 +105,10 @@ function selectOption() {
 
       <div class="custom-control custom-checkbox mt-2">
         <input
+          id="prio-enabled"
           v-model="prioEnabledWrapper"
           class="custom-control-input"
           type="checkbox"
-          id="prio-enabled"
         />
         <label class="custom-control-label" for="prio-enabled">
           Enable phenotype-based prioritization
@@ -121,9 +121,9 @@ function selectOption() {
       <div class="form-group pt-2">
         <label for="prio-algorithm"> Phenotype Similarity Algorithm </label>
         <select
+          id="prio-algorithm"
           v-model="prioAlgorithmWrapper"
           class="custom-select"
-          id="prio-algorithm"
         >
           <option value="phenix">Phenix</option>
           <option value="phive">Phive</option>

@@ -10,6 +10,7 @@ const wizardState = computed(() => store.wizardState)
 
 <template>
   <div class="btn-group float-right">
+    <!-- eslint-disable vue/require-explicit-emits -->
     <button
       ref="buttonCancel"
       type="button"
@@ -49,5 +50,6 @@ const wizardState = computed(() => store.wizardState)
       <i-mdi-arrow-left-circle />
       Submission
     </button>
+    <!-- eslint-enable -->
   </div>
 </template>

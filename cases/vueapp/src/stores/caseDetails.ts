@@ -17,35 +17,37 @@ import { useCaseListStore } from '@cases/stores/caseList'
 import { displayName } from '@varfish/helpers'
 
 /** Alias definition of Case type; to be defined later. */
-type Case = any
+export type Case = any
 /** Alias definition of CaseComment type; to be defined later. */
-type CaseComment = any
+export type CaseComment = any
 /** Alias definition of GeneAnnotation type; to be defined later. */
-type GeneAnnotation = any
+export type GeneAnnotation = any
 /** Alias definiton of VarAnno type; to be defined later. */
-type VarAnno = any
+export type VarAnno = any
 /** Alias definiton of VarComment type; to be defined later. */
-type VarComment = any
+export type VarComment = any
 /** Alias definition fo AcmgRating type; to be defind later. */
-type AcmgRating = any
+export type AcmgRating = any
 /** Alias definition of SvAnno type; to be defined later. */
-type SvAnno = any
+export type SvAnno = any
 /** Alias definition of SvComment type; to be defined later. */
-type SvComment = any
+export type SvComment = any
 /** Alias definition of CaseAlignmentStats type; to be defined later. */
-type CaseAlignmnentStats = any
+export type CaseAlignmnentStats = any
 /** Alias definition of CaseVariantStats type; to be defined later. */
-type CaseVariantStats = any
+export type CaseVariantStats = any
+/** Alias definition of CaseVariantStatsEntry type; to be defined later. */
+export type CaseVariantStatsEntry = any
 /** Alias definition of CaseRelatedness type; to be defined later. */
-type CaseRelatedness = any
+export type CaseRelatedness = any
 /** Alias definition of CasePhenotypeTerms type; to be defined later. */
-type CasePhenotypeTerms = any
+export type CasePhenotypeTerms = any
 /** Alias definition of CaseAnnotationReleaseInfos type; to be defined later. */
-type CaseAnnotationReleaseInfos = any
+export type CaseAnnotationReleaseInfos = any
 /** Alias definition of CaseSvAnnotationReleaseInfos type; to be defined later. */
-type CaseSvAnnotationReleaseInfos = any
+export type CaseSvAnnotationReleaseInfos = any
 /** Alias definition of GenotypeMapping type; to be defined later. */
-type GenotypeMapping = any
+export type GenotypeMapping = any
 
 export const useCaseDetailsStore = defineStore('caseDetails', () => {
   // store dependencies
@@ -70,9 +72,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
   const caseObj = ref<Case>(null)
 
   /** The comments on the case. */
-  const caseComments = ref<CaseComment[]>(null)
+  const caseComments = ref<CaseComment[] | null>(null)
   /** The per-gene annotation of the case. */
-  const geneAnnotations = ref<GeneAnnotation[]>(null)
+  const geneAnnotations = ref<GeneAnnotation[] | null>(null)
 
   /** Object with mapping of variant identifier to variant annotations. */
   const varAnnos = ref<Map<string, VarAnno>>(new Map())
@@ -129,7 +131,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
   const genotypeMapping = ref<GenotypeMapping | null>({})
 
   /** Promise for initialization of the store. */
-  const initializeRes = ref<Promise<any>>(null)
+  const initializeRes = ref<Promise<any> | null>(null)
 
   // functions
 
@@ -174,12 +176,12 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'undefined-csrf-token')
 
     initializeRes.value = Promise.all([
       caseClient.retrieveCase(caseUuid.value).then((res) => {
         caseObj.value = res
-        caseObj.value.pedigree.map(({ name }) => {
+        caseObj.value.pedigree.map(({ name }: { name: any }) => {
           genotypeMapping.value[`genotype_${displayName(name)}`] = {
             displayName: displayName(name),
             sortByName: `genotype_${name}`,
@@ -200,7 +202,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
       }),
       caseClient.fetchCaseVariantStats(caseUuid.value).then((res) => {
         caseVariantStats.value = Object.fromEntries(
-          res.map((line) => [line.sample_name, line]),
+          res.map((line: any) => [line.sample_name, line]),
         )
       }),
       caseClient.fetchCaseRelatedness(caseUuid.value).then((res) => {
@@ -238,7 +240,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Update the case with the given data. */
   const updateCase = async (payload: Case) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -257,7 +259,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Destroy the case with the given data. */
   const destroyCase = async () => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -273,7 +275,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Get case comment by UUID. */
   const getCaseComment = (caseCommentUuid: string): CaseComment | null => {
-    for (const obj of caseComments.value) {
+    for (const obj of caseComments.value ?? []) {
       if (obj.sodar_uuid === caseCommentUuid) {
         return obj
       }
@@ -283,7 +285,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Create a new case comment for the current case. */
   const createCaseComment = async (payload: CaseComment) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -294,6 +296,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
         caseObj.value.sodar_uuid,
         payload,
       )
+      if (caseComments.value === null) {
+        caseComments.value = []
+      }
       caseComments.value.push(apiCaseComment)
     } finally {
       storeState.serverInteractions -= 1
@@ -306,7 +311,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseCommentUuid: string,
     payload: CaseComment,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -317,6 +322,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
         caseCommentUuid,
         payload,
       )
+      if (caseComments.value === null) {
+        caseComments.value = []
+      }
       for (let i = 0; i < caseComments.value.length; ++i) {
         if (caseComments.value[i].sodar_uuid === apiCaseComment.sodar_uuid) {
           caseComments.value[i] = apiCaseComment
@@ -331,7 +339,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Destroy a case comment for the current case. */
   const destroyCaseComment = async (caseCommentUuid: string) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -339,6 +347,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
     try {
       await caseClient.destroyCaseComment(caseCommentUuid)
+      if (caseComments.value === null) {
+        caseComments.value = []
+      }
       for (let i = 0; i < caseComments.value.length; ++i) {
         if (caseComments.value[i].sodar_uuid === caseCommentUuid) {
           caseComments.value.splice(i, 1)
@@ -352,7 +363,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
   }
 
   /** Get case phenotypes from store. */
-  const getCasePhenotypeTerms = (casePhenotypeTermsUuid) => {
+  const getCasePhenotypeTerms = (casePhenotypeTermsUuid: any) => {
     for (const phenotypeTerms of casePhenotypeTerms.value) {
       if (phenotypeTerms.sodar_uuid === casePhenotypeTermsUuid) {
         return phenotypeTerms
@@ -365,7 +376,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     casePhenotypeTermsUuid: string,
     payload: CasePhenotypeTerms,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -393,7 +404,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseUuid: string,
     payload: CasePhenotypeTerms,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value)
+    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
 
     storeState.serverInteractions += 1
     const oldState = storeState.state

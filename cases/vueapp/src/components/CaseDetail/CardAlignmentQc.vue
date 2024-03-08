@@ -69,6 +69,7 @@ const getMinCovTarget = (memberName: string, coverage: number): string => {
           <th style="width: 15%" class="text-center">Coverage</th>
           <th
             v-for="coverage of coverages"
+            :key="`coverage-thead-${coverage}`"
             style="width: 0"
             class="text-nowrap text-center"
           >
@@ -80,7 +81,10 @@ const getMinCovTarget = (memberName: string, coverage: number): string => {
         <template
           v-if="caseDetailsStore.storeState.state === State.Active && bamStats"
         >
-          <tr v-for="member of caseDetailsStore.caseObj.pedigree">
+          <tr
+            v-for="member of caseDetailsStore.caseObj.pedigree"
+            :key="`member-${member.name}`"
+          >
             <template v-if="member.name in bamStats">
               <th>{{ displayName(member.name) }}</th>
               <td class="text-right">
@@ -108,7 +112,10 @@ const getMinCovTarget = (memberName: string, coverage: number): string => {
                 </template>
                 <template v-else> - </template>
               </td>
-              <td v-for="coverage in coverages">
+              <td
+                v-for="coverage in coverages"
+                :key="`coverage-tbody-${coverage}`"
+              >
                 {{ getMinCovTarget(member.name, coverage) }}
               </td>
             </template>

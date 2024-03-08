@@ -27,6 +27,7 @@ const caseDetailsStore = useCaseDetailsStore()
         >
           <tr
             v-for="geneAnnotation in caseDetailsStore.geneAnnotations"
+            :key="`gene-annotation-${geneAnnotation.gene_symbol}`"
             class="{ 'text-danger': geneAnnotation.level === 'error', 'text-warning': geneAnnotation.level === 'warning', 'text-success': geneAnnotation.level === 'success', }"
           >
             <td>{{ geneAnnotation.gene_symbol }}</td>
