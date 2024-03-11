@@ -197,4 +197,4 @@ wrapt==1.16.0
 wsproto==1.2.0
 XlsxWriter==3.1.9
 xmlschema==2.5.0
-yarl==1.9.3
+yarl==1.9.4
