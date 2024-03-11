@@ -175,7 +175,7 @@ SQLAlchemy==1.4.50
 sqlparse==0.4.4
 stack-data==0.6.3
 tblib==2.0.0
-termcolor==2.3.0
+termcolor==2.4.0
 toml==0.10.2
 tomli==2.0.1
 tqdm==4.66.1
