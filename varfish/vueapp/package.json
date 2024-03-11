@@ -34,7 +34,7 @@
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
     "title-case": "^4.3.1",
-    "vega": "^5.27.0",
+    "vega": "^5.28.0",
     "vega-embed": "^6.24.0",
     "vega-lite": "^5.16.3",
     "vue": "^3.4.19",
