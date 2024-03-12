@@ -272,7 +272,7 @@ class CaseExporterTest(ExportTestBase):
             if has_trailing:
                 self.assertEquals(len(arrs[0]), 57)
             else:
-                self.assertEquals(len(arrs[0]), 63)
+                self.assertEquals(len(arrs[0]), 67)
         else:
             self.assertEquals(len(arrs[0]), 58)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
@@ -395,14 +395,14 @@ class CaseExporterTest(ExportTestBase):
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
     @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @Mocker()
     def test_export_xlsx(self, mock):
-
         self.export_job.query_args["pedia_enabled"] = True
         self.export_job.query_args["gm_enabled"] = True
-        # self.export_job.query_args["patho_enabled"] = True
-        # self.export_job.query_args["patho_score"] = "CADD"
+        self.export_job.query_args["patho_enabled"] = True
+        self.export_job.query_args["patho_score"] = "cadd"
         self.export_job.query_args["prio_enabled"] = True
         self.export_job.query_args["prio_algorithm"] = "CADA"
         self.export_job.query_args["prio_hpo_terms"] = ["HP:0001234"]
