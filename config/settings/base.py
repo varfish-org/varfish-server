@@ -131,6 +131,7 @@ LOCAL_APPS = [
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
     "varannos.apps.VarannosConfig",
+    "ext_gestaltmatcher.apps.ExtGestaltmatcherConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -528,6 +529,15 @@ VARFISH_CADA_REST_API_URL = env.str(
     "VARFISH_CADA_REST_API_URL", "https://cada.gene-talk.de/api/process"
 )
 
+# Enable PEDIA prioritization.
+VARFISH_ENABLE_PEDIA = env.bool("VARFISH_ENABLE_PEDIA", default=False)
+VARFISH_PEDIA_REST_API_URL = env.str("VARFISH_PEDIA_REST_API_URL", "http://127.0.0.1:9000/pedia")
+
+# Enable Gestalt-based prioritization.
+VARFISH_ENABLE_GESTALT_MATCHER = env.bool("VARFISH_ENABLE_GESTALT_MATCHER", default=False)
+# Configure URL to GestaltMatcher REST API
+VARFISH_GM_SENDER_URL = env.str("VARFISH_GM_SENDER_URL", "http://127.0.0.1:7000/")
+
 # Enable submission of variants to CADD server.
 VARFISH_ENABLE_CADD_SUBMISSION = env.bool("VARFISH_ENABLE_CADD_SUBMISSION", default=False)
 # CADD version to use for for submission
@@ -785,21 +795,16 @@ if ENABLE_LDAP:
     AUTH_LDAP_SERVER_URI = env.str("AUTH_LDAP_SERVER_URI", None)
     AUTH_LDAP_BIND_DN = env.str("AUTH_LDAP_BIND_DN", None)
     AUTH_LDAP_BIND_PASSWORD = env.str("AUTH_LDAP_BIND_PASSWORD", None)
-    AUTH_LDAP_START_TLS = env.str("AUTH_LDAP_START_TLS", False)
-    AUTH_LDAP_CA_CERT_FILE = env.str("AUTH_LDAP_CA_CERT_FILE", None)
-    AUTH_LDAP_CONNECTION_OPTIONS = {**LDAP_DEFAULT_CONN_OPTIONS}
-    if AUTH_LDAP_CA_CERT_FILE:
-        AUTH_LDAP_CONNECTION_OPTIONS[ldap.OPT_X_TLS_CACERTFILE] = AUTH_LDAP_CA_CERT_FILE
-        AUTH_LDAP_CONNECTION_OPTIONS[ldap.OPT_X_TLS_NEWCTX] = 0
-    AUTH_LDAP_USER_FILTER = env.str("AUTH_LDAP_USER_FILTER", "(sAMAccountName=%(user)s)")
+    AUTH_LDAP_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
-    AUTH_LDAP_USER_SEARCH_BASE = env.str("AUTH_LDAP_USER_SEARCH_BASE", None)
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        AUTH_LDAP_USER_SEARCH_BASE, ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR
+        env.str("AUTH_LDAP_USER_SEARCH_BASE", None),
+        ldap.SCOPE_SUBTREE,
+        LDAP_DEFAULT_FILTERSTR,
     )
     AUTH_LDAP_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
     AUTH_LDAP_USERNAME_DOMAIN = env.str("AUTH_LDAP_USERNAME_DOMAIN", None)
-    AUTH_LDAP_DOMAIN_PRINTABLE = env.str("AUTH_LDAP_DOMAIN_PRINTABLE", AUTH_LDAP_USERNAME_DOMAIN)
+    AUTH_LDAP_DOMAIN_PRINTABLE = env.str("AUTH_LDAP_DOMAIN_PRINTABLE", None)
 
     AUTHENTICATION_BACKENDS = tuple(
         itertools.chain(("projectroles.auth_backends.PrimaryLDAPBackend",), AUTHENTICATION_BACKENDS)

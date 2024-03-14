@@ -53,11 +53,16 @@ const Template = (args) => ({
     '    :show-filtration-inline-help="args.showFiltrationInlineHelp"\n' +
     '    :exomiser-enabled="args.exomiserEnabled"\n' +
     '    :cadd-enabled="args.caddEnabled"\n' +
+    '    :cada-enabled="args.cadaEnabled"\n' +
     '    v-model:prio-enabled="args.prioEnabled"\n' +
     '    v-model:prio-algorithm="args.prioAlgorithm"\n' +
     '    v-model:prio-hpo-terms="args.prioHpoTerms"\n' +
     '    v-model:patho-enabled="args.pathoEnabled"\n' +
+    '    v-model:gm-enabled="args.gmEnabled"\n' +
+    '    v-model:pedia-enabled="args.pediaEnabled"\n' +
     '    v-model:patho-score="args.pathoScore"\n' +
+    '    v-model:prio-gm="args.prioGm"\n' +
+    '    v-model:photo-file="args.photoFile"\n' +
     '/>',
 })
 
@@ -67,10 +72,15 @@ Prefilled.args = {
   showFiltrationInlineHelp: false,
   exomiserEnabled: true,
   caddEnabled: true,
+  cadaEnabled: true,
   prioEnabled: true,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
+  prioGm: '',
+  photoFile: '',
   pathoEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -80,10 +90,15 @@ PrefilledWithHelp.args = {
   showFiltrationInlineHelp: true,
   exomiserEnabled: true,
   caddEnabled: true,
+  cadaEnabled: true,
   prioEnabled: true,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
+  prioGm: '',
+  photoFile: '',
   pathoEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -93,10 +108,15 @@ PrefilledWithWarning.args = {
   showFiltrationInlineHelp: false,
   exomiserEnabled: true,
   caddEnabled: true,
+  cadaEnabled: true,
   prioEnabled: false,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: ['HP:0000245'],
+  prioGm: '',
+  photoFile: '',
   pathoEnabled: true,
+  gmEnabled: true,
+  pediaEnabled: true,
   pathoScore: 'cadd',
 }
 
@@ -106,9 +126,14 @@ Empty.args = {
   showFiltrationInlineHelp: false,
   exomiserEnabled: false,
   caddEnabled: false,
+  cadaEnabled: false,
   prioEnabled: false,
   prioAlgorith: 'hiphive-human',
   prioHpoTerms: [],
+  prioGm: '',
+  photoFile: '',
   pathoEnabled: false,
+  gmEnabled: false,
+  pediaEnabled: false,
   pathoScore: 'mutationtaster',
 }
