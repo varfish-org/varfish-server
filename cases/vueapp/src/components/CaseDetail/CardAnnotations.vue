@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@variants/stores/variantComments'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
 import { computed } from 'vue'
 
 import CaseDetailsFlagIcon from '@cases/components/CaseDetail/FlagIcon.vue'
 
 // Store-related.
 
-const caseDetailsStore = useCaseDetailsStore()
+const variantFlagsStore = useVariantFlagsStore()
+const variantCommentsStore = useVariantCommentsStore()
+const acmgRatingStore = useVariantAcmgRatingStore()
+const svFlagsStore = useSvFlagsStore()
+const svCommentsStore = useVariantCommentsStore()
 
 // Constants.
 
@@ -20,20 +27,18 @@ const flagIds = [
   'flag_doesnt_segregate',
 ] as const
 type FlagIds = (typeof flagIds)[number]
-type Level = 1 | 2 | 3 | 4 | 5
 
 // Component state.
-
-const acmgCountByLevel = computed<{ [level in Level]: number }>(() => {
-  const result = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-  for (const acmgRating of caseDetailsStore.acmgRatingList) {
-    const level: Level = acmgRating.class_override ?? acmgRating.class_auto ?? 3
+const acmgCountByLevel = computed<{ [key: number]: number }>(() => {
+  const result: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  for (const [_, acmgRating] of acmgRatingStore.caseAcmgRatings) {
+    const level: number = acmgRating.classOverride ?? acmgRating.classAuto ?? 3
     result[level] += 1
   }
   return result
 })
 
-const buildComputedAnnoCountByFlag = (theList: any[]) => {
+const buildComputedAnnoCountByFlag = (theList: Map<string, any>) => {
   return computed<{ [flagId in FlagIds]: number }>(() => {
     const result = {
       flag_bookmarked: 0,
@@ -44,7 +49,7 @@ const buildComputedAnnoCountByFlag = (theList: any[]) => {
       flag_segregates: 0,
       flag_doesnt_segregate: 0,
     }
-    for (const varAnno of theList) {
+    for (const [_, varAnno] of theList) {
       for (const flagId of flagIds) {
         if (varAnno[flagId]) {
           result[flagId] += 1
@@ -56,11 +61,9 @@ const buildComputedAnnoCountByFlag = (theList: any[]) => {
 }
 
 const varAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.varAnnoList,
+  variantFlagsStore.caseFlags,
 )
-const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
-  caseDetailsStore.svAnnoList,
-)
+const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
 </script>
 
 <template>
@@ -76,7 +79,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
             <strong> ACMG-Classified Variants </strong>
           </div>
           <div class="col-1 text-right">
-            {{ caseDetailsStore.acmgRatingList.length }}
+            {{ acmgRatingStore.caseAcmgRatings.size }}
           </div>
           <div class="col-8">
             V:{{ acmgCountByLevel[5] }} &nbsp; IV:{{
@@ -94,7 +97,9 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
           <div class="col-3 text-nowrap">
             <strong> Flagged Variants </strong>
           </div>
-          <div class="col-1 text-right">6</div>
+          <div class="col-1 text-right">
+            {{ variantFlagsStore.caseFlags.size }}
+          </div>
           <div class="col-8">
             <span
               v-for="flagId in flagIds"
@@ -114,7 +119,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
             <strong> Commented Variants </strong>
           </div>
           <div class="col-1 text-right">
-            {{ caseDetailsStore.varCommentList.length }}
+            {{ variantCommentsStore.caseComments.size }}
           </div>
         </div>
       </li>
@@ -143,7 +148,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(
             <strong> Commented SVs </strong>
           </div>
           <div class="col-1 text-right">
-            {{ caseDetailsStore.svCommentList.length }}
+            {{ svCommentsStore.caseComments.size }}
           </div>
         </div>
       </li>

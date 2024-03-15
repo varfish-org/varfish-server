@@ -8,6 +8,8 @@ import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
 import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useCaseQcStore } from '@cases_qc/stores/caseQc'
+import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
+import { useSvResultSetStore } from '@svs/stores/svResultSet'
 
 const router = useRouter()
 
@@ -41,16 +43,21 @@ const Tabs = Object.freeze({
 
 const caseDetailsStore = useCaseDetailsStore()
 const caseQcStore = useCaseQcStore()
+const variantResultSetStore = useVariantResultSetStore()
+const svResultSetStore = useSvResultSetStore()
 
 const annosLoading = computed(
-  () => caseDetailsStore.varAnnos === null || caseDetailsStore.svAnnos === null,
+  () =>
+    variantResultSetStore.resultSet === null ||
+    svResultSetStore.resultSet === null,
 )
 const annoCount = computed(() => {
   if (annosLoading.value) {
     return null
   } else {
     return (
-      caseDetailsStore.varAnnoList.length + caseDetailsStore.svAnnoList.length
+      (variantResultSetStore.resultSet.result_row_count ?? 0) +
+      (svResultSetStore.resultSet.result_row_count ?? 0)
     )
   }
 })
