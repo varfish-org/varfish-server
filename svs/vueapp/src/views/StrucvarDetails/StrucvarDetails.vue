@@ -148,7 +148,7 @@ const refreshStores = async () => {
         svResultSetStore.caseUuid,
       ),
     ])
-    svDetailsStore.fetchSvDetails(svResultSetStore.resultRow)
+    await svDetailsStore.fetchSvDetails(svResultSetStore.resultRow)
   }
 
   document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
