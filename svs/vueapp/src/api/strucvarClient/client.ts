@@ -135,7 +135,6 @@ export class SvClient extends ClientBase {
     strucvar: Strucvar,
     payload: SvComment,
   ): Promise<SvComment> {
-    console.log(strucvar)
     const { svType, genomeBuild, chrom, start } = strucvar
     const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
     let stop
@@ -159,7 +158,6 @@ export class SvClient extends ClientBase {
     commentUuid: string,
     payload: SvComment,
   ): Promise<SvComment> {
-    console.log(payload)
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-comment/retrieve-update-destroy/${commentUuid}/`,
       'PATCH',
@@ -202,7 +200,6 @@ export class SvClient extends ClientBase {
     strucvar: Strucvar,
     payload: SvFlags,
   ): Promise<SvFlags> {
-    console.log(strucvar, payload)
     const { svType, genomeBuild, chrom, start } = strucvar
     const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
     let stop
@@ -222,7 +219,6 @@ export class SvClient extends ClientBase {
   }
 
   async updateFlags(flagsUuid: string, payload: SvFlags): Promise<SvFlags> {
-    console.log(payload)
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-flags/retrieve-update-destroy/${flagsUuid}/`,
       'PATCH',

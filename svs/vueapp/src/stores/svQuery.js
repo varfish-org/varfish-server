@@ -254,8 +254,9 @@ export const useSvQueryStore = defineStore('svQuery', () => {
       payload,
     )
     queryState.value = QueryStates.Initial.value
+    queryUuid.value = previousQueryDetails.value.sodar_uuid
     await nextTick()
-    runFetchLoop(previousQueryDetails.value.sodar_uuid)
+    await runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }
 
   /**
@@ -380,6 +381,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     storeState.state = State.Initial
     storeState.serverInteractions = 0
     storeState.message = null
+
     showFiltrationInlineHelp.value = false
     filtrationComplexityMode.value = null
     csrfToken.value = null

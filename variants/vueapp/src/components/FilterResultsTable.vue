@@ -450,12 +450,12 @@ const displayGenotypeInconsitencyWarning = () => {
     Object.entries(tableRows.value).forEach(([row_no, row]) => {
       if (!(item.name in row.payload.genotype)) {
         displayAmbiguousFrequencyWarningBool.value = true
-        console.log(
+        console.warning(
           `Genotype inconsistency: ${item.name} missing in row ${row_no}`,
         )
       } else if (!('gt' in row.payload.genotype[item.name])) {
         displayAmbiguousFrequencyWarningBool.value = true
-        console.log(
+        console.warning(
           `Genotype inconsistency: ${item.name} genotype has no \`gt\` field in row ${row_no}`,
         )
       }

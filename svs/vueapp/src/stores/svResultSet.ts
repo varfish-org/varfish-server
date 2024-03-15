@@ -49,8 +49,10 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     storeState.serverInteractions = 0
     storeState.message = null
 
+    resultRow.value = null
     resultSetUuid.value = null
     resultSet.value = null
+    query.value = null
 
     tablePageNo.value = null
     tablePageSize.value = null

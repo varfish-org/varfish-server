@@ -139,7 +139,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Retrieve flags for the given SV.
    */
   const retrieveFlags = async (strucvar$: Strucvar, caseUuid$?: string) => {
-    console.log('retrieve flags')
     // Prevent re-retrieval of the flags.
     if (isEqual(sv.value, strucvar$)) {
       return
