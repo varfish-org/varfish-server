@@ -98,7 +98,7 @@ jsonmatch==0.4
 jsonpointer==2.4
 jsonschema==4.21.1
 jsonschema-specifications==2023.11.1
-kombu==5.3.4
+kombu==5.3.5
 lxml==4.9.3
 Markdown==3.4.1
 MarkupSafe==2.1.3
