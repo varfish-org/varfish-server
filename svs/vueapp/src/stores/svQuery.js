@@ -127,7 +127,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
   /** Whether to show the filtration inline help in UI. */
   const showFiltrationInlineHelp = ref(false)
   /** The filtration complexity mode to use for UI. */
-  const filtrationComplexityMode = ref(null)
+  const filtrationComplexityMode = ref('simple')
 
   // loaded via API
   /** Query settings presets. */
@@ -383,7 +383,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     storeState.message = null
 
     showFiltrationInlineHelp.value = false
-    filtrationComplexityMode.value = null
+    filtrationComplexityMode.value = 'simple'
     csrfToken.value = null
     caseUuid.value = null
     querySettingsPresets.value = null

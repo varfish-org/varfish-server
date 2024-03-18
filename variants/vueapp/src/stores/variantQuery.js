@@ -200,7 +200,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   /** Whether to show the filtration inline help in UI. */
   const showFiltrationInlineHelp = ref(false)
   /** The filtration complexity mode to use for UI. */
-  const filtrationComplexityMode = ref(null)
+  const filtrationComplexityMode = ref('simple')
 
   // more properties from application context
   /** UMD Predictor API token (from app context). */
@@ -610,7 +610,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     storeState.message = null
 
     showFiltrationInlineHelp.value = false
-    filtrationComplexityMode.value = null
+    filtrationComplexityMode.value = 'simple'
     csrfToken.value = null
     caseUuid.value = null
     umdPredictorApiToken.value = null
