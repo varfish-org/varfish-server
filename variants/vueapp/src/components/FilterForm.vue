@@ -8,6 +8,7 @@ import FilterFormEffectPane from '@variants/components/FilterForm//EffectPane.vu
 import FilterFormClinvarPane from '@variants/components/FilterForm//ClinvarPane.vue'
 import FilterFormGenesRegionsPane from '@variants/components/FilterForm//GenesRegionsPane.vue'
 import FilterFormFlagsPane from '@variants/components/FilterForm//FlagsPane.vue'
+import FilterFormExportPane from '@variants/components/FilterForm//ExportPane.vue'
 import FilterFormQualityPane from '@variants/components/FilterForm//QualityPane.vue'
 import FilterFormQuickPresets from '@variants/components/FilterForm//QuickPresets.vue'
 import { QueryStates } from '@variants/enums'
@@ -206,6 +207,23 @@ const onSubmitCancelButtonClicked = () => {
               Flags &amp; Comments
             </a>
           </li>
+          <li
+            v-if="variantQueryStore.filtrationComplexityMode === 'dev'"
+            class="nav-item"
+          >
+            <a
+              id="export-tab"
+              class="nav-link"
+              :class="{ 'text-danger': exportHasError }"
+              data-toggle="tab"
+              href="#panel-export"
+              role="tab"
+              title="Export settings"
+            >
+              Export Settings
+              <i-mdi-alert-circle-outline v-if="exportHasError" />
+            </a>
+          </li>
         </ul>
       </div>
 
@@ -358,6 +376,17 @@ const onSubmitCancelButtonClicked = () => {
               :filtration-complexity-mode="
                 variantQueryStore.filtrationComplexityMode
               "
+            />
+          </div>
+          <div
+            v-if="variantQueryStore.filtrationComplexityMode === 'dev'"
+            id="panel-export"
+            class="tab-pane fade"
+            role="tabpanel"
+            aria-labelledby="export-tab"
+          >
+            <FilterFormExportPane
+              v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
         </div>
