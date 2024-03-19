@@ -11,6 +11,7 @@ import SvFilterFormTadsPane from '@svs/components/SvFilterForm/TadsPane.vue'
 import SvFilterFormPatho from '@svs/components/SvFilterForm/Patho.vue'
 import SvFilterFormDev from '@svs/components/SvFilterForm/Dev.vue'
 import SvFilterFormFooter from '@svs/components/SvFilterForm/Footer.vue'
+import SvFilterFormDevPane from '@varfish/components/FilterForm//DevPane.vue'
 import { QueryStates } from '@variants/enums'
 import { computed, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
@@ -28,6 +29,7 @@ const regulatoryPaneRef = ref(null)
 const tadsPaneRef = ref(null)
 const genePaneRef = ref(null)
 const pathoPaneRef = ref(null)
+const exportPaneRef = ref(null)
 const devPaneRef = ref(null)
 
 const makePaneHasError = (pane) =>
@@ -42,6 +44,7 @@ const effectHasError = makePaneHasError(effectPaneRef)
 const regulatoryHasError = makePaneHasError(regulatoryPaneRef)
 const tadsHasError = makePaneHasError(tadsPaneRef)
 const pathoHasError = makePaneHasError(pathoPaneRef)
+const exportHasError = makePaneHasError(exportPaneRef)
 const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
@@ -223,6 +226,7 @@ const onSubmitCancelButtonClicked = () => {
               id="tads-tab"
               ref="devPaneRef"
               class="nav-link"
+              :class="{ 'text-danger': exportHasError }"
               data-toggle="tab"
               href="#panel-dev"
               role="tab"
@@ -230,6 +234,7 @@ const onSubmitCancelButtonClicked = () => {
               data-placement="left"
             >
               Developer Settings
+              <i-mdi-alert-circle-outline v-if="exportHasError" />
             </a>
           </li>
         </ul>
@@ -374,12 +379,13 @@ const onSubmitCancelButtonClicked = () => {
             />
           </div>
           <div
+            v-if="svQueryStore.filtrationComplexityMode === 'dev'"
             id="panel-dev"
             class="tab-pane fade"
             role="tabpanel"
             aria-labelledby="dev-tab"
           >
-            <SvFilterFormDev
+            <SvFilterFormDevPane
               v-model:query-settings="svQueryStore.querySettings"
             />
           </div>

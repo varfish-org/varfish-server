@@ -8,7 +8,7 @@ import FilterFormEffectPane from '@variants/components/FilterForm//EffectPane.vu
 import FilterFormClinvarPane from '@variants/components/FilterForm//ClinvarPane.vue'
 import FilterFormGenesRegionsPane from '@variants/components/FilterForm//GenesRegionsPane.vue'
 import FilterFormFlagsPane from '@variants/components/FilterForm//FlagsPane.vue'
-import FilterFormExportPane from '@variants/components/FilterForm//ExportPane.vue'
+import FilterFormDevPane from '@varfish/components/FilterForm//DevPane.vue'
 import FilterFormQualityPane from '@variants/components/FilterForm//QualityPane.vue'
 import FilterFormQuickPresets from '@variants/components/FilterForm//QuickPresets.vue'
 import { QueryStates } from '@variants/enums'
@@ -25,7 +25,6 @@ const frequencyPaneRef = ref(null)
 const prioritizationPaneRef = ref(null)
 const effectPaneRef = ref(null)
 const qualityPaneRef = ref(null)
-const exportPaneRef = ref(null)
 const genePaneRef = ref(null)
 
 const makePaneHasError = (pane) =>
@@ -38,7 +37,6 @@ const frequencyHasError = makePaneHasError(frequencyPaneRef)
 const prioritizationHasError = makePaneHasError(prioritizationPaneRef)
 const effectHasError = makePaneHasError(effectPaneRef)
 const qualityHasError = makePaneHasError(qualityPaneRef)
-const exportHasError = makePaneHasError(exportPaneRef)
 const geneHasError = computed(() => {
   return genePaneRef.value && !genePaneRef.value.isValid()
 })
@@ -50,8 +48,7 @@ const anyHasError = computed(() => {
     prioritizationHasError.value ||
     effectHasError.value ||
     qualityHasError.value ||
-    geneHasError.value ||
-    exportHasError.value
+    geneHasError.value
   )
 })
 
@@ -212,16 +209,14 @@ const onSubmitCancelButtonClicked = () => {
             class="nav-item"
           >
             <a
-              id="export-tab"
+              id="dev-tab"
               class="nav-link"
-              :class="{ 'text-danger': exportHasError }"
               data-toggle="tab"
-              href="#panel-export"
+              href="#panel-dev"
               role="tab"
-              title="Export settings"
+              title="Developer settings"
             >
-              Export Settings
-              <i-mdi-alert-circle-outline v-if="exportHasError" />
+              Developer Settings
             </a>
           </li>
         </ul>
@@ -380,12 +375,12 @@ const onSubmitCancelButtonClicked = () => {
           </div>
           <div
             v-if="variantQueryStore.filtrationComplexityMode === 'dev'"
-            id="panel-export"
+            id="panel-dev"
             class="tab-pane fade"
             role="tabpanel"
-            aria-labelledby="export-tab"
+            aria-labelledby="dev-tab"
           >
-            <FilterFormExportPane
+            <FilterFormDevPane
               v-model:query-settings="variantQueryStore.querySettings"
             />
           </div>
