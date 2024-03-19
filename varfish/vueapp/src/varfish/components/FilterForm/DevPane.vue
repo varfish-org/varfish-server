@@ -5,8 +5,14 @@ import { computed, ref } from 'vue'
 const props = defineProps({
   querySettings: Object,
 })
+
 const emit = defineEmits(['update:querySettings'])
+
 const { toClipboard } = useClipboard()
+
+const rawFilterCriteriaRef = ref(null)
+const editSettingsRef = ref(false)
+
 const copyToClipboard = async () => {
   try {
     await toClipboard(JSON.stringify(props.querySettings, null, 2))
@@ -14,6 +20,7 @@ const copyToClipboard = async () => {
     console.error(e)
   }
 }
+
 const downloadJson = () => {
   const data = JSON.stringify(props.querySettings, null, 2)
   const blob = new Blob([data], { type: 'application/json' })
@@ -24,19 +31,27 @@ const downloadJson = () => {
   a.click()
   window.URL.revokeObjectURL(url)
 }
+
 const settingsValue = computed({
   get: () => {
     return JSON.stringify(props.querySettings, null, 2)
   },
-  set: (value) => {
-    try {
-      emit('update:querySettings', JSON.parse(value))
-    } catch (e) {
-      console.warn(e)
-    }
-  },
 })
-const editSettings = ref(false)
+
+const applySettings = () => {
+  try {
+    emit('update:querySettings', JSON.parse(rawFilterCriteriaRef.value.value))
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+const toggleEditMode = () => {
+  editSettingsRef.value = !editSettingsRef.value
+  if (!editSettingsRef.value) {
+    applySettings()
+  }
+}
 </script>
 
 <template>
@@ -51,17 +66,18 @@ const editSettings = ref(false)
     <div>
       <textarea
         class="form-control"
-        rows="5"
+        rows="20"
+        ref="rawFilterCriteriaRef"
         v-model="settingsValue"
-        :readonly="!editSettings"
+        :readonly="!editSettingsRef"
       />
       <div class="form-inline">
         <div class="btn-group">
-          <button class="btn btn-primary" @click="copyToClipboard">
+          <button class="btn btn-primary" @click.prevent="copyToClipboard">
             <i-mdi-content-copy />
             Copy to Clipboard
           </button>
-          <button class="btn btn-secondary" @click="downloadJson">
+          <button class="btn btn-secondary" @click.prevent="downloadJson">
             <i-mdi-download />
             Export as JSON
           </button>
@@ -71,11 +87,12 @@ const editSettings = ref(false)
             type="checkbox"
             class="custom-control-input"
             id="customSwitch1"
-            @click="editSettings = !editSettings"
+            @click="toggleEditMode"
           />
-          <label class="custom-control-label" for="customSwitch1"
-            >Enable Edit Mode</label
-          >
+          <label class="custom-control-label" for="customSwitch1">
+            Toggle Edit Mode &mdash; <u class="ml-1 mr-1">enable</u> to modify
+            settings &mdash; <u class="ml-1 mr-1">disable</u> to apply settings
+          </label>
         </div>
       </div>
     </div>
