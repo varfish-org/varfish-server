@@ -68,10 +68,10 @@ const fetchPresets = async (
           const categories = [
             'frequency',
             'impact',
-            'sv_type',
             'quality',
             'chromosomes',
             'flagsetc',
+            'quick',
           ]
           for (const category of categories) {
             const category2 =
@@ -91,7 +91,6 @@ const fetchPresets = async (
         }),
     ])
   }
-
   if (caseObj.presetset) {
     await fetchUserPresets(csrfToken.value, caseObj.presetset)
   } else {
