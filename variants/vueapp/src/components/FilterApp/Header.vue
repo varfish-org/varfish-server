@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useCaseListStore } from '@cases/stores/caseList'
@@ -24,24 +24,36 @@ const presetSetLoading = ref(false)
 /** The current preset set (if caseDetailsStore.caseObj.presetset !== null / factory presets). */
 const presetSetLabel = ref(null)
 /** Watch change of current case's preset set and load label if necessary. */
+const updatePresetSetLoading = async () => {
+  if (!caseDetailsStore?.caseObj?.presetset) {
+    return // short circuit in case of factory defaults
+  }
+  const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+  presetSetLoading.value = true
+  await queryPresetsClient
+    .retrievePresetSet(caseDetailsStore.caseObj.presetset)
+    .then((presetSet) => {
+      presetSetLabel.value = presetSet.label
+    })
+    .catch((err) => {
+      console.error('Problem retrieving preset set', err)
+    })
+    .finally(() => {
+      presetSetLoading.value = false
+    })
+}
 watch(
   () => caseDetailsStore?.caseObj?.presetset,
   async (newValue, _oldValue) => {
     if (!newValue) {
       return // short circuit in case of factory defaults
     }
-    const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
-    presetSetLoading.value = true
-    try {
-      const presetSet = queryPresetsClient.retrievePresetSet(newValue)
-      presetSetLabel.value = presetSet.label
-    } catch (err) {
-      console.error('Problem retrieving preset set', err)
-    } finally {
-      presetSetLoading.value = false
-    }
+    await updatePresetSetLoading()
   },
 )
+onMounted(() => {
+  updatePresetSetLoading()
+})
 </script>
 
 <template>
