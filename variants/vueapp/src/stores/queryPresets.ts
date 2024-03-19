@@ -511,22 +511,22 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     try {
       switch (category) {
         case 'quickpresets':
-          await queryPresetsClient.destroyQuickPresets(presetSetUuid)
+          await queryPresetsClient.destroyQuickPresets(presetsUuid)
           break
         case 'frequencypresets':
-          await queryPresetsClient.destroyFrequencyPresets(presetSetUuid)
+          await queryPresetsClient.destroyFrequencyPresets(presetsUuid)
           break
         case 'impactpresets':
-          await queryPresetsClient.destroyImpactPresets(presetSetUuid)
+          await queryPresetsClient.destroyImpactPresets(presetsUuid)
           break
         case 'chromosomepresets':
-          await queryPresetsClient.destroyChromosomePresets(presetSetUuid)
+          await queryPresetsClient.destroyChromosomePresets(presetsUuid)
           break
         case 'qualitypresets':
-          await queryPresetsClient.destroyQualityPresets(presetSetUuid)
+          await queryPresetsClient.destroyQualityPresets(presetsUuid)
           break
         case 'flagsetcpresets':
-          await queryPresetsClient.destroyFlagsEtcPresets(presetSetUuid)
+          await queryPresetsClient.destroyFlagsEtcPresets(presetsUuid)
           break
         default:
           console.error(`Invalid category: ${category}`)
