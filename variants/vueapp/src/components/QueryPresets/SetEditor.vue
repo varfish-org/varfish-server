@@ -239,7 +239,7 @@ const handleAddClicked = async (category) => {
 
   try {
     let payload = { label }
-    if (category === 'frequencypresets') {
+    if (category === 'frequencypresets' || category === 'quickpresets') {
       payload = {
         label,
         frequency: null,
