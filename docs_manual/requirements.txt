@@ -17,7 +17,7 @@ Babel==2.13.1
 backcall==0.2.0
 beautifulsoup4==4.12.2
 billiard==3.6.4.0
-black==23.9.1
+black==24.3.0
 botocore==1.34.54
 cattrs==23.2.2
 celery==5.3.6
