@@ -33,9 +33,9 @@ const listType = computed({
   },
   set(value) {
     if (value === 'gene_allowlist') {
-      props.querySettings.genomic_region = ''
+      props.querySettings.genomic_region = []
     } else if (value === 'genomic_region') {
-      props.querySettings.gene_allowlist = ''
+      props.querySettings.gene_allowlist = []
     }
     listTypeRef.value = value
   },
@@ -263,7 +263,7 @@ defineExpose({
         genomic regions.
       </div>
 
-      <div class="form-inline pl-0 pr-0 pb-3 mt-3">
+      <div class="form-inline pl-0 pr-0 pb-1 mt-3">
         <label class="mr-2" for="gene-regions-list-type">List Type</label>
         <select
           id="gene-regions-list-type"
@@ -282,6 +282,8 @@ defineExpose({
           There is a problem with: {{ invalidTextareas().join(', ') }}.
         </div>
       </div>
+
+      <hr />
 
       <div
         v-show="listType === 'genomic_region'"
@@ -305,63 +307,66 @@ defineExpose({
         id="gene-allowlist-section"
         class="form-group"
       >
-        <div class="form-inline">
-          <label class="form-group">
-            <Multiselect
-              :options="genomicsEnglandPanels"
-              placeholder="Add from GE PanelApp"
-              :searchable="true"
-              @select="insertGenomicsEnglandPanel"
-            />
-            Confidence
-            <select v-model="genomicsEnglandConfidence" class="form-control">
-              <option value="3">green</option>
-              <option value="2">amber</option>
-              <option value="1">red</option>
-            </select>
-            and above
-          </label>
-
-          <div class="dropdown">
-            <button
-              v-if="loadingGenePanelCategories"
-              class="btn btn-sm btn-outline-secondary"
-              disabled
-            >
-              <i-fa-solid-circle-notch class="spin" />
-              <em>Loading Local Panels</em>
-            </button>
-            <button
-              v-else
-              id="presets-menu-button"
-              class="btn btn-sm btn-outline-secondary dropdown-toggle"
-              type="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <span class="d-none d-sm-inline"> Add Local Panel </span>
-            </button>
-            <div
-              v-if="
-                !loadingGenePanelCategories && genePanelCategories.length > 0
-              "
-              class="dropdown-menu"
-              aria-labelledby="presets-menu-button"
-            >
-              <template v-for="category in genePanelCategories">
-                <h6 class="dropdown-header">{{ category.title }}</h6>
-                <a
-                  v-for="genepanel in category.genepanel_set"
-                  class="dropdown-item"
-                  @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
-                >
-                  {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
-                    genepanel.version_minor
-                  }})
-                </a>
-              </template>
-            </div>
+        <div class="form-inline" style="width: 800px">
+          <label for="genomicsEnglandPanelApp">GE PanelApp</label>
+          <Multiselect
+            id="genomicsEnglandPanelApp"
+            :options="genomicsEnglandPanels"
+            placeholder="Add from GE PanelApp"
+            :searchable="true"
+            @select="insertGenomicsEnglandPanel"
+            style="width: 400px"
+          />
+          <label for="genomicsEnglandConfidence">with confidence</label>
+          <select
+            v-model="genomicsEnglandConfidence"
+            class="form-control ml-2 mr-2"
+            id="genomicsEnglandConfidence"
+          >
+            <option value="3">green</option>
+            <option value="2">amber</option>
+            <option value="1">red</option>
+          </select>
+          <label for="genomicsEnglandConfidence">and above</label>
+        </div>
+        <div class="dropdown mt-3 mb-3">
+          <label for="presets-menu-button" class="mr-3">Local Panels</label>
+          <button
+            v-if="loadingGenePanelCategories"
+            class="btn btn-sm btn-outline-secondary"
+            disabled
+          >
+            <i-fa-solid-circle-notch class="spin" />
+            <em>Loading Local Panels</em>
+          </button>
+          <button
+            v-else
+            id="presets-menu-button"
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span class="d-none d-sm-inline"> Add Local Panel </span>
+          </button>
+          <div
+            v-if="!loadingGenePanelCategories && genePanelCategories.length > 0"
+            class="dropdown-menu"
+            aria-labelledby="presets-menu-button"
+          >
+            <template v-for="category in genePanelCategories">
+              <h6 class="dropdown-header">{{ category.title }}</h6>
+              <a
+                v-for="genepanel in category.genepanel_set"
+                class="dropdown-item"
+                @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
+              >
+                {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
+                  genepanel.version_minor
+                }})
+              </a>
+            </template>
           </div>
         </div>
 
