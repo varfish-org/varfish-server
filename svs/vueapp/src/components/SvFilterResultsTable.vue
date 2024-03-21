@@ -11,6 +11,7 @@ import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
+import { useSvQueryStore } from '@svs/stores/svQuery'
 import { formatLargeInt, displayName } from '@varfish/helpers'
 
 const MAX_GENES = 20
@@ -27,11 +28,19 @@ const showVariantDetails = (sodarUuid, section) => {
   })
 }
 
+const scrollToLastPosition = () => {
+  if (svQueryStore.lastPosition) {
+    document.querySelector('div#sodar-app-container').scrollTop =
+      svQueryStore.lastPosition
+  }
+}
+
 // Initialize stores
 const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
+const svQueryStore = useSvQueryStore()
 
 // Headers for the table.
 const _popWidth = 75
@@ -310,6 +319,7 @@ const appContext = JSON.parse(
 onBeforeMount(async () => {
   if (svResultSetStore.resultSetUuid) {
     await loadFromServer()
+    scrollToLastPosition()
   }
 })
 
@@ -331,9 +341,10 @@ watch(
 
 watch(
   () => svResultSetStore.resultSetUuid,
-  (_newValue, _oldValue) => {
+  async (_newValue, _oldValue) => {
     if (_newValue) {
-      loadFromServer()
+      await loadFromServer()
+      scrollToLastPosition()
     }
   },
   { deep: true },
