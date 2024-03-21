@@ -18,6 +18,7 @@ import { useVariantFlagsStore } from '@variants/stores/variantFlags'
 import { useVariantCommentsStore } from '@variants/stores/variantComments'
 import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { copy } from '@variants/helpers'
 import {
   DisplayConstraints,
@@ -54,6 +55,7 @@ const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
 const acmgRatingStore = useVariantAcmgRatingStore()
 const variantResultSetStore = useVariantResultSetStore()
+const variantQueryStore = useVariantQueryStore()
 
 /** The details columns to show. */
 const displayDetails = computed({
@@ -521,6 +523,13 @@ const extraAnnoFields = computed(
   () => variantResultSetStore.extraAnnoFields ?? [],
 )
 
+const scrollToLastPosition = () => {
+  if (variantQueryStore.lastPosition) {
+    document.querySelector('div#sodar-app-container').scrollTop =
+      variantQueryStore.lastPosition
+  }
+}
+
 /** Update display when pagination or sorting changed. */
 watch(
   [
@@ -541,14 +550,16 @@ watch(
 onBeforeMount(async () => {
   if (variantResultSetStore.resultSetUuid) {
     await loadFromServer()
+    scrollToLastPosition()
   }
 })
 
 watch(
   () => variantResultSetStore.resultSetUuid,
-  (_newValue, _oldValue) => {
+  async (_newValue, _oldValue) => {
     if (_newValue) {
-      loadFromServer()
+      await loadFromServer()
+      scrollToLastPosition()
     }
   },
   { deep: true },

@@ -249,6 +249,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   /** Query logs as fetched from API. */
   const queryLogs = ref(null)
 
+  /** Last position on filter page */
+  const lastPosition = ref(null)
+
   /** Quick presets as loaded from API. */
   const quickPresets = ref(null)
   /** Per-category presets. */
@@ -630,6 +633,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     exportJobUuidXlsx.value = null
     extraAnnoFields.value = null
     hpoNames.value = []
+    lastPosition.value = null
     queryState.value = QueryStates.Initial.value
     queryStateMsg.value = null
     queryLogs.value = null
@@ -670,6 +674,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     categoryPresets,
     extraAnnoFields,
     hpoNames,
+    lastPosition,
     initializeRes,
     // functions
     initialize,

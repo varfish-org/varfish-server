@@ -146,6 +146,9 @@ export const useSvQueryStore = defineStore('svQuery', () => {
   /** Query logs as fetched from API. */
   const queryLogs = ref(null)
 
+  /** Last position on filter page */
+  const lastPosition = ref(null)
+
   /** Quick presets as loaded from API. */
   const quickPresets = ref(null)
   /** Per-category presets. */
@@ -393,6 +396,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     queryState.value = QueryStates.None.value
     queryStateMsg.value = null
     queryLogs.value = null
+    lastPosition.value = null
     quickPresets.value = null
     categoryPresets.value = {
       inheritance: null,
@@ -423,6 +427,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     queryState,
     queryStateMsg,
     queryLogs,
+    lastPosition,
     quickPresets,
     categoryPresets,
     initializeRes,

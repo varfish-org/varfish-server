@@ -36,6 +36,10 @@ const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
+  variantQueryStore.lastPosition = document.querySelector(
+    'div#sodar-app-container',
+  ).scrollTop
+  // TODO store y position in store
   router.push({
     name: 'seqvar-details',
     params: {

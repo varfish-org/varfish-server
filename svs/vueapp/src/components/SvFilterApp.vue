@@ -34,6 +34,9 @@ const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 
 const showDetails = async (event) => {
+  svQueryStore.lastPosition = document.querySelector(
+    'div#sodar-app-container',
+  ).scrollTop
   router.push({
     name: 'strucvar-details',
     params: {
