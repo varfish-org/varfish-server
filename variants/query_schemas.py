@@ -200,6 +200,7 @@ class CaseQueryV1:
 
     flag_simple_empty: bool = True
     flag_bookmarked: bool = True
+    flag_incidental: bool = True
     flag_candidate: bool = True
     flag_doesnt_segregate: bool = True
     flag_final_causative: bool = True
@@ -343,6 +344,7 @@ class QueryJsonToFormConverter:
             "clinvar_include_pathogenic": query.clinvar_include_pathogenic,
             "flag_simple_empty": query.flag_simple_empty,
             "flag_bookmarked": query.flag_bookmarked,
+            "flag_incidental": query.flag_incidental,
             "flag_candidate": query.flag_candidate,
             "flag_doesnt_segregate": query.flag_doesnt_segregate,
             "flag_final_causative": query.flag_final_causative,

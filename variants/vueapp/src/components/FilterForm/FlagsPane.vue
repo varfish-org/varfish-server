@@ -57,6 +57,7 @@ const props = defineProps({
             <i-fa-solid-thumbs-down
               v-if="flag.id === 'flag_doesnt_segregate'"
             />
+            <i-mdi-dice-5 v-if="flag.id === 'flag_incidental'" />
             {{ flag.label }}
           </label>
         </div>

@@ -116,6 +116,8 @@ class StructuralVariantFlags(HumanReadableMixin, _UserAnnotation):
     flag_segregates = models.BooleanField(default=False, null=False)
     #: Variant does not segregate
     flag_doesnt_segregate = models.BooleanField(default=False, null=False)
+    #: Variant is an incidental finding
+    flag_incidental = models.BooleanField(default=False, null=False)
 
     # Choice fields for gradual rating
 
@@ -155,6 +157,7 @@ class StructuralVariantFlags(HumanReadableMixin, _UserAnnotation):
                 self.flag_no_disease_association,
                 self.flag_segregates,
                 self.flag_doesnt_segregate,
+                self.flag_incidental,
                 self.flag_molecular != "empty",
                 self.flag_visual != "empty",
                 self.flag_validation != "empty",

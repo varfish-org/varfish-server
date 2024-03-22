@@ -415,6 +415,7 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
                 "flag_molecular",
                 "flag_validation",
                 "flag_phenotype_match",
+                "flag_incidental",
                 "flag_summary",
             ]
         )

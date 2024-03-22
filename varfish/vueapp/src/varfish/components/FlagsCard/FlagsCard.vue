@@ -28,6 +28,8 @@ const flagsSubmitted = computed(() => {
   return (
     flagsToSubmit.value.flag_bookmarked ===
       props.flagsStore.flags.flag_bookmarked &&
+    flagsToSubmit.value.flag_incidental ===
+      props.flagsStore.flags.flag_incidental &&
     flagsToSubmit.value.flag_for_validation ===
       props.flagsStore.flags.flag_for_validation &&
     flagsToSubmit.value.flag_candidate ===
@@ -54,6 +56,7 @@ const flagsSubmitted = computed(() => {
 const resetFlags = async () => {
   if (props.flagsStore.flags) {
     flagsToSubmit.value.flag_bookmarked = props.flagsStore.flags.flag_bookmarked
+    flagsToSubmit.value.flag_incidental = props.flagsStore.flags.flag_incidental
     flagsToSubmit.value.flag_for_validation =
       props.flagsStore.flags.flag_for_validation
     flagsToSubmit.value.flag_candidate = props.flagsStore.flags.flag_candidate

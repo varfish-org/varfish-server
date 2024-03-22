@@ -19,6 +19,7 @@ const svCommentsStore = useVariantCommentsStore()
 
 const flagIds = [
   'flag_bookmarked',
+  'flag_incidental',
   'flag_candidate',
   'flag_final_causative',
   'flag_for_validation',
@@ -42,6 +43,7 @@ const buildComputedAnnoCountByFlag = (theList: Map<string, any>) => {
   return computed<{ [flagId in FlagIds]: number }>(() => {
     const result = {
       flag_bookmarked: 0,
+      flag_incidental: 0,
       flag_candidate: 0,
       flag_final_causative: 0,
       flag_for_validation: 0,

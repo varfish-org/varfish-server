@@ -193,6 +193,7 @@ class FormDataFactory(FormDataFactoryBase):
     genomic_region: str = ""
     gene_allowlist: str = ""
     flag_bookmarked: bool = True
+    flag_incidental: bool = True
     flag_candidate: bool = True
     flag_final_causative: bool = True
     flag_for_validation: bool = True
@@ -253,6 +254,7 @@ class ChromosomalPositionFormDataFactoryBase:
 @attr.s(auto_attribs=True)
 class FlagsFormDataFactoryBase:
     flag_bookmarked: bool = True
+    flag_incidental: bool = True
     flag_candidate: bool = False
     flag_final_causative: bool = False
     flag_for_validation: bool = False
@@ -943,6 +945,7 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
     case = factory.SubFactory(CaseFactory)
     flag_bookmarked = True
     flag_candidate = False
+    flag_incidental = False
     flag_final_causative = False
     flag_for_validation = False
     flag_no_disease_association = False

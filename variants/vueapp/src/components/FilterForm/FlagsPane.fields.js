@@ -4,6 +4,10 @@ export const simpleFlags = Object.freeze([
     label: 'bookmarked',
   },
   {
+    id: 'flag_incidental',
+    label: 'incidental finding',
+  },
+  {
     id: 'flag_candidate',
     label: 'candidate',
   },

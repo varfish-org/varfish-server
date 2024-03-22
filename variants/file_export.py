@@ -145,6 +145,7 @@ HEADER_FLAGS = (
     ("flag_no_disease_association", "Flag: selected for no known disease association", str),
     ("flag_segregates", "Flag: selected as segregating variant", str),
     ("flag_doesnt_segregate", "Flag: selected as not segregating variant", str),
+    ("flag_incidental", "Flag: selected as incidental finding", str),
     ("flag_molecular", "Rating: variant is molecular", str),
     ("flag_visual", "Rating: visual inspection of alignment", str),
     ("flag_validation", "Rating: validation result", str),

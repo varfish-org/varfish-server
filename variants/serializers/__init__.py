@@ -283,6 +283,7 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     # Joined fields (ExtendQueryPartsFlagsJoinAndFilter)
     flag_count = serializers.IntegerField()
     flag_bookmarked = serializers.BooleanField()
+    flag_incidental = serializers.BooleanField()
     flag_candidate = serializers.BooleanField()
     flag_segregates = serializers.BooleanField()
     flag_doesnt_segregate = serializers.BooleanField()
@@ -711,6 +712,7 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
             "reference",
             "alternative",
             "flag_bookmarked",
+            "flag_incidental",
             "flag_candidate",
             "flag_final_causative",
             "flag_for_validation",
