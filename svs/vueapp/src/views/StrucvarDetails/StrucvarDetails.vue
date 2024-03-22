@@ -43,7 +43,9 @@ import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/Strucvar
 import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
 import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
+import { State } from '@varfish/storeUtils'
+import { StoreState } from '@bihealth/reev-frontend-lib/stores'
+import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
 
 const props = defineProps<{
   /** UUID of the result row to display. */
@@ -75,6 +77,8 @@ const svDetailsStore = useSvDetailsStore()
 const svFlagsStore = useSvFlagsStore()
 /** Management of strucvar comments. */
 const svCommentsStore = useSvCommentsStore()
+/** Management of PubTator store. */
+const pubtatorStore = usePubtatorStore()
 
 /** Component state; HGNC identifier of selected gene. */
 const selectedGeneHgncId = ref<string | undefined>(undefined)
@@ -157,16 +161,40 @@ const refreshStores = async () => {
 /** Watch change in properties to reload data. */
 watch(
   () => [props.resultRowUuid, props.selectedSection],
+  async () => {
+    await refreshStores()
+  },
+)
+
+watch(
+  () => [
+    svResultSetStore.storeState.state,
+    pubtatorStore.storeState,
+    geneInfoStore.storeState,
+    strucvarInfoStore.storeState,
+    svCommentsStore.storeState,
+    svDetailsStore.storeState,
+  ],
   () => {
-    refreshStores()
+    if (
+      svResultSetStore.storeState.state === State.Active &&
+      pubtatorStore.storeState === StoreState.Active &&
+      geneInfoStore.storeState === StoreState.Active &&
+      strucvarInfoStore.storeState === StoreState.Active &&
+      svCommentsStore.storeState.state === State.Active &&
+      svDetailsStore.storeState.state === State.Active
+    ) {
+      setTimeout(() => {
+        document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+      }, 500)
+    }
   },
 )
 
 /** When mounted, scroll to the selected element if any.
  */
-onMounted(() => {
-  refreshStores()
-  document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+onMounted(async () => {
+  await refreshStores()
 })
 
 // Watch changes of selected HGNC ID and load gene.
