@@ -420,7 +420,7 @@ const getClinvarSignificanceBadge = (patho) => {
 const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
-    selectedSection: section ?? 'gene',
+    selectedSection: section ?? 'gene-overview',
   })
 }
 
@@ -634,34 +634,34 @@ watch(
               class="text-muted ml-1"
               title="flags & bookmarks"
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'flags')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-flags')"
             />
             <i-fa-regular-bookmark
               v-else
               class="text-muted ml-1"
               title="flags & bookmarks"
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'flags')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-flags')"
             />
 
             <i-fa-solid-comment
               v-if="hasComments(payload)"
               class="text-muted ml-1"
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'comments')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-comments')"
             />
             <i-fa-regular-comment
               v-else
               class="text-muted ml-1"
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'comments')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-comments')"
             />
 
             <span
               title="ACMG rating"
               :class="getAcmgBadgeClasses(getAcmgRating(payload))"
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'acmg-rating')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-acmg')"
               >{{ getAcmgRating(payload) || '-' }}</span
             >
 
@@ -679,7 +679,7 @@ watch(
 
             <span
               role="button"
-              @click="showVariantDetails(sodar_uuid, 'clinvar')"
+              @click="showVariantDetails(sodar_uuid, 'seqvar-clinvar')"
             >
               <i-fa-regular-hospital
                 v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
@@ -710,7 +710,7 @@ watch(
         <template #item-position="{ sodar_uuid, position }">
           <div
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-tools')"
           >
             {{ position }}
           </div>
@@ -718,7 +718,7 @@ watch(
         <template #item-reference="{ sodar_uuid, reference }">
           <div
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-tools')"
           >
             <span :title="reference">{{ truncateText(reference, 5) }}</span>
           </div>
@@ -726,7 +726,7 @@ watch(
         <template #item-alternative="{ sodar_uuid, alternative }">
           <div
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'variant-tools')"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-tools')"
           >
             <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
           </div>
@@ -758,7 +758,10 @@ watch(
           <span v-else class="badge badge-light">-</span>
         </template>
         <template #item-frequency="{ sodar_uuid, payload }">
-          <div role="button" @click="showVariantDetails(sodar_uuid, 'freqs')">
+          <div
+            role="button"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
+          >
             <abbr
               v-if="displayAmbiguousFrequencyWarning(payload)?.length"
               :title="displayAmbiguousFrequencyWarningMsg(payload)"
@@ -772,14 +775,17 @@ watch(
           </div>
         </template>
         <template #item-homozygous="{ sodar_uuid, payload }">
-          <div role="button" @click="showVariantDetails(sodar_uuid, 'freqs')">
+          <div
+            role="button"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
+          >
             {{ displayHomozygousContent(payload) }}
           </div>
         </template>
         <template #item-constraints="{ payload }">
           <div
             role="button"
-            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene-overview')"
           >
             {{ displayConstraintsContent(payload) }}
           </div>
@@ -789,7 +795,7 @@ watch(
             class="user-select-none"
             href="#"
             role="button"
-            @click.prevent="showVariantDetails(sodar_uuid, 'gene')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'gene-overview')"
           >
             {{ getSymbol(payload) }}
           </span>
@@ -827,7 +833,7 @@ watch(
           <span
             :title="`${effectSummary(payload)} [${payload.effect.join(', ')}]`"
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'tx-csq')"
+            @click="showVariantDetails(sodar_uuid, 'seqvar-csq')"
           >
             {{ truncateText(effectSummary(payload), 12) }}
           </span>

@@ -144,6 +144,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
         }),
     ])
 
+    storeState.state = State.Active
     smallVariant.value = smallVariant$
   }
 

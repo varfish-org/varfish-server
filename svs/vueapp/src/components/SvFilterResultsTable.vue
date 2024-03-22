@@ -24,7 +24,7 @@ const router = useRouter()
 const showVariantDetails = (sodarUuid, section) => {
   emit('variantSelected', {
     svresultrow: sodarUuid,
-    selectedSection: section ?? 'genes',
+    selectedSection: section ?? 'gene-overview',
   })
 }
 
@@ -445,21 +445,21 @@ watch(
           <i-fa-solid-search
             class="text-muted"
             role="button"
-            @click.prevent="showVariantDetails(sodar_uuid, 'genes')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'strucvar-genes')"
           />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
+            @click="showVariantDetails(sodar_uuid, 'strucvar-flags')"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted icon-inactive"
             title="flags & bookmarks"
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'flags')"
+            @click="showVariantDetails(sodar_uuid, 'strucvar-flags')"
           />
           <!-- comments -->
           <i-fa-solid-comment
@@ -468,13 +468,13 @@ watch(
             "
             class="text-muted ml-1"
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
+            @click="showVariantDetails(sodar_uuid, 'strucvar-comments')"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted icon-inactive ml-1"
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'comments')"
+            @click="showVariantDetails(sodar_uuid, 'strucvar-comments')"
           />
           <!-- tool -->
           <span :title="payload.caller">
@@ -495,7 +495,7 @@ watch(
       >
         <div
           role="button"
-          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
+          @click="showVariantDetails(sodar_uuid, 'strucvar-genomebrowser')"
         >
           chr{{ chromosome }}:{{ formatLargeInt(start) }}
           <span
@@ -524,7 +524,7 @@ watch(
       >
         <div
           role="button"
-          @click="showVariantDetails(sodar_uuid, 'call-details')"
+          @click="showVariantDetails(sodar_uuid, 'strucvar-calldetails')"
         >
           <template v-if="tx_effects.length || showTadGenes(tad_genes)">
             <template v-for="(item, index) in tx_effects.slice(0, MAX_GENES)">
@@ -681,7 +681,7 @@ watch(
         <div
           class="text-right text-nowrap space"
           role="button"
-          @click="showVariantDetails(sodar_uuid, 'genome-browser')"
+          @click="showVariantDetails(sodar_uuid, 'strucvar-genomebrowser')"
         >
           {{ formatLargeInt(payload.sv_length) }}
           <span class="text-muted">bp</span>

@@ -134,16 +134,7 @@ export const router = createRouter({
     _from: RouteLocationNormalizedLoaded,
     savedPosition: null | _ScrollPositionNormalized,
   ) {
-    if (
-      ['seqvar-details', 'strucvar-details'].includes(String(to.name)) &&
-      to.params.selectedSection
-    ) {
-      const res = { el: `#${to.params.selectedSection}` }
-      document.querySelector(res.el)?.scrollIntoView()
-      return res
-    } else {
-      return savedPosition || { left: 0, top: 0 }
-    }
+    return savedPosition || { left: 0, top: 0 }
   },
 })
 

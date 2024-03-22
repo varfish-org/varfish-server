@@ -44,6 +44,9 @@ import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsC
 import SeqvarScoresCard from '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
 import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { State } from '@varfish/storeUtils'
+import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
+import { StoreState } from '@bihealth/reev-frontend-lib/stores'
 
 /** This component's props. */
 const props = defineProps<{
@@ -73,6 +76,7 @@ const variantDetailsStore = useVariantDetailsStore()
 const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
+const pubtatorStore = usePubtatorStore()
 
 /** Currently displayed Seqvar. */
 const seqvar = computed<Seqvar | undefined>(() => {
@@ -146,23 +150,47 @@ const refreshStores = async () => {
       ])
     }
   }
-
-  document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
 }
 
 /** Watch change in properties to reload data. */
 watch(
   () => [props.resultRowUuid, props.selectedSection],
+  async () => {
+    await refreshStores()
+  },
+)
+
+watch(
+  () => [
+    variantResultSetStore.storeState.state,
+    pubtatorStore.storeState,
+    geneInfoStore.storeState,
+    seqvarInfoStore.storeState,
+    variantAcmgRatingStore.storeState,
+    variantCommentsStore.storeState,
+    variantDetailsStore.storeState,
+  ],
   () => {
-    refreshStores()
+    if (
+      variantResultSetStore.storeState.state === State.Active &&
+      pubtatorStore.storeState === StoreState.Active &&
+      geneInfoStore.storeState === StoreState.Active &&
+      seqvarInfoStore.storeState === StoreState.Active &&
+      variantAcmgRatingStore.storeState.state === State.Active &&
+      variantCommentsStore.storeState.state === State.Active &&
+      variantDetailsStore.storeState.state === State.Active
+    ) {
+      setTimeout(() => {
+        document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+      }, 500)
+    }
   },
 )
 
 /** When mounted, scroll to the selected element if any.
  */
-onMounted(() => {
-  refreshStores()
-  document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+onMounted(async () => {
+  await refreshStores()
 })
 </script>
 
