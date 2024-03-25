@@ -32,7 +32,7 @@ const props = defineProps({
    * other - tokenize based on whitespace
    */
   // eslint-disable-next-line vue/require-default-prop
-  tokenize: Function,
+  tokenize: RegExp,
   /**
    * Definition on token validation
    *
