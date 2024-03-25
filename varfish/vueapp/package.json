@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@protobuf-ts/runtime": "^2.9.3",
+    "@protobuf-ts/runtime": "^2.9.4",
     "@reactgular/chunks": "^1.0.1",
     "@types/luxon": "^3.4.2",
     "@vueform/multiselect": "^2.6.6",
