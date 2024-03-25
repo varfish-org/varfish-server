@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e608c14f613a5f2077c1affea45ba1be302e5df8483e4aeebdd250858140a997"
+            "sha256": "d411773c6227af5b2ee70d0b730e70066d4ea41502599c3a94c8dcd938d89564"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -957,6 +957,21 @@
             ],
             "markers": "python_version >= '3' and platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))",
             "version": "==3.0.3"
+        },
+        "http-message-signatures": {
+            "hashes": [
+                "sha256:5a59de19b90dce0eaf62021ee776d6562e5a166c96e4107db36f9c01f25552a3",
+                "sha256:719933cba48943b5e148fe7bbbf520927573f72c6ca00855cb2c79fdecee2cb2"
+            ],
+            "version": "==0.5.0"
+        },
+        "http-sfv": {
+            "hashes": [
+                "sha256:5feed51c90e9a1dc797701662d044d936923cf0027255c75452b8240e33d6c82",
+                "sha256:e132dc9bef990832bc01824f5fa9d4efc7d0f4271e4b227db35c8ef38540c739"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==0.9.9"
         },
         "httpsig": {
             "hashes": [
@@ -2102,11 +2117,11 @@
         },
         "requests-http-signature": {
             "hashes": [
-                "sha256:850672f64b1481ffd406a7a30572fa2f3336e5ee8ff2ff53a6c1544bee66c479",
-                "sha256:b121d66a0e7d8d3ea5679b39405b9dcf79fd2e099f8cbf33a10abe9e89c2c50b"
+                "sha256:5770fa5c6cd9dd700bc2aa92d3d1dd8e26b9a7c083585d2db0c8bf9ec482c906",
+                "sha256:ebc5b2fbb95d4519385afd385b31a34e9bdff20fd0b3f36e8ce42945b8340997"
             ],
             "index": "pypi",
-            "version": "==0.2.0"
+            "version": "==0.7.1"
         },
         "rpds-py": {
             "hashes": [
