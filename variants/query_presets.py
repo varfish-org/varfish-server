@@ -914,6 +914,7 @@ class _FlagsEtcPresets:
         "clinvar_include_pathogenic": True,
         "clinvar_include_uncertain_significance": False,
         "flag_bookmarked": True,
+        "flag_incidental": True,
         "flag_candidate": True,
         "flag_doesnt_segregate": True,
         "flag_final_causative": True,
@@ -949,6 +950,7 @@ class _FlagsEtcPresets:
     #: Presets for the "Clinvar only" flags etc. settings
     clinvar_only: typing.Dict[str, typing.Any] = {
         "flag_bookmarked": True,
+        "flag_incidental": True,
         "flag_candidate": True,
         "flag_doesnt_segregate": True,
         "flag_final_causative": True,
@@ -989,6 +991,7 @@ class _FlagsEtcPresets:
         "clinvar_include_pathogenic": True,
         "clinvar_include_uncertain_significance": False,
         "flag_bookmarked": True,
+        "flag_incidental": True,
         "flag_candidate": True,
         "flag_doesnt_segregate": True,
         "flag_final_causative": True,

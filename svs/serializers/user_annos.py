@@ -90,6 +90,7 @@ class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
             "flag_molecular",
             "flag_validation",
             "flag_phenotype_match",
+            "flag_incidental",
             "flag_summary",
         )
         read_only_fields = ("sodar_uuid", "date_created", "date_modified", "case")

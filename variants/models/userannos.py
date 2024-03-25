@@ -211,6 +211,8 @@ class SmallVariantFlags(GetGeneSymbolsMixin, HumanReadableMixin, models.Model):
 
     #: Bookmarked: saved for later
     flag_bookmarked = models.BooleanField(default=False, null=False)
+    #: Incidental finding
+    flag_incidental = models.BooleanField(default=False, null=False)
     #: Candidate variant
     flag_candidate = models.BooleanField(default=False, null=False)
     #: Finally selected causative variant
@@ -261,6 +263,7 @@ class SmallVariantFlags(GetGeneSymbolsMixin, HumanReadableMixin, models.Model):
         return not any(
             (
                 self.flag_bookmarked,
+                self.flag_incidental,
                 self.flag_candidate,
                 self.flag_final_causative,
                 self.flag_for_validation,

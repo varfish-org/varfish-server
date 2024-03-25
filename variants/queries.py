@@ -1210,6 +1210,7 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                 [
                     func.count(SmallVariantFlags.sa.id).label("flag_count"),
                     func.bool_or(SmallVariantFlags.sa.flag_bookmarked).label("flag_bookmarked"),
+                    func.bool_or(SmallVariantFlags.sa.flag_incidental).label("flag_incidental"),
                     func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_candidate"),
                     func.bool_or(SmallVariantFlags.sa.flag_segregates).label("flag_segregates"),
                     func.bool_or(SmallVariantFlags.sa.flag_doesnt_segregate).label(
@@ -1256,6 +1257,7 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
         return [
             self.subquery.c.flag_count,
             self.subquery.c.flag_bookmarked,
+            self.subquery.c.flag_incidental,
             self.subquery.c.flag_candidate,
             self.subquery.c.flag_segregates,
             self.subquery.c.flag_doesnt_segregate,

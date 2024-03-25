@@ -185,6 +185,7 @@ class Command(BaseCommand):
                     "flag_bookmarked",
                     "flag_segregates",
                     "flag_validation",
+                    "flag_incidental",
                     "flag_for_validation",
                     "flag_final_causative",
                     "flag_phenotype_match",

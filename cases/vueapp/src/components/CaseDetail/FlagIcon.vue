@@ -9,6 +9,7 @@ const props = defineProps<{
 <template>
   <span>
     <i-fa-solid-star v-if="flag === 'flag_bookmarked'" />
+    <i-mdi-dice-5 v-else-if="flag === 'flag_incidental'" />
     <i-fa-solid-flask v-else-if="flag === 'flag_for_validation'" />
     <i-fa-solid-heart v-else-if="flag === 'flag_candidate'" />
     <i-fa-solid-flag-checkered v-else-if="flag === 'flag_final_causative'" />

@@ -18,6 +18,7 @@ type StructuralVariantFlags = any
 
 export const emptyFlagsTemplate = Object.freeze({
   flag_bookmarked: false,
+  flag_incidental: false,
   flag_for_validation: false,
   flag_candidate: false,
   flag_final_causative: false,

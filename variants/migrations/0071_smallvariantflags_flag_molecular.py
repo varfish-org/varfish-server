@@ -4,16 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from variants.models import SmallVariantComment, SmallVariantFlags
-
-
-# Was in migration 0062 before. Didn't work anymore, because of the new field in SmallVariantFlags
-def update_chromosome_no_in_existing_flags_and_comments(apps, schema_editor):
-    if not schema_editor.connection.alias == "default":
-        return
-    for o in list(SmallVariantFlags.objects.all()) + list(SmallVariantComment.objects.all()):
-        o.save()
-
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -35,6 +25,4 @@ class Migration(migrations.Migration):
                 max_length=32,
             ),
         ),
-        # Was in migration 0062 before. Didn't work anymore, because of the new field in SmallVariantFlags
-        migrations.RunPython(update_chromosome_no_in_existing_flags_and_comments),
     ]

@@ -37,6 +37,7 @@
   "exac_heterozygous": 60,
   "exac_homozygous": 0,
   "flag_bookmarked": true,
+  "flag_incidental": true,
   "flag_candidate": true,
   "flag_doesnt_segregate": true,
   "flag_final_causative": true,

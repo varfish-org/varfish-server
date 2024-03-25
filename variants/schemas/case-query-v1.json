@@ -743,6 +743,17 @@
         false
       ]
     },
+    "flag_incidental": {
+      "$id": "#/properties/flag_incidental",
+      "type": "boolean",
+      "title": "Include variants marked with \"incidental\" flag",
+      "description": "When set (default) then variants that have the \"incidental\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
     "flag_candidate": {
       "$id": "#/properties/flag_candidate",
       "type": "boolean",

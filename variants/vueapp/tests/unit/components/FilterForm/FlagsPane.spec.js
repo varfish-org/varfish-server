@@ -24,10 +24,13 @@ describe('FilterFormFlagsPane.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('input').length).toBe(28)
+    expect(wrapper.findAll('input').length).toBe(29)
 
     const effectFlagsFlagBookmarked = wrapper.get(
       '#effect-flags-flag_bookmarked',
+    )
+    const effectFlagsFlagIncidentasl = wrapper.get(
+      '#effect-flags-flag_incidental',
     )
     const effectFlagsFlagCandidate = wrapper.get('#effect-flags-flag_candidate')
     const effectFlagsFlagFinalCausative = wrapper.get(
@@ -115,6 +118,7 @@ describe('FilterFormFlagsPane.vue', () => {
     )
 
     await effectFlagsFlagBookmarked.setValue()
+    await effectFlagsFlagIncidentasl.setValue(false)
     await effectFlagsFlagCandidate.setValue(false)
     await effectFlagsFlagFinalCausative.setValue()
     await effectFlagsFlagForValidation.setValue(false)
@@ -149,6 +153,7 @@ describe('FilterFormFlagsPane.vue', () => {
     await effectFlagsFlagSummaryEmpty.setValue(false)
 
     expect(effectFlagsFlagBookmarked.element.checked).toBeTruthy()
+    expect(effectFlagsFlagIncidentasl.element.checked).toBeFalsy()
     expect(effectFlagsFlagCandidate.element.checked).toBeFalsy()
     expect(effectFlagsFlagFinalCausative.element.checked).toBeTruthy()
     expect(effectFlagsFlagForValidation.element.checked).toBeFalsy()

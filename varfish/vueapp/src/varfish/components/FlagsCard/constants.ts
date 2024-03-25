@@ -4,6 +4,7 @@ export interface BooleanFlagSpec {
   icon: string
   key:
     | 'flag_bookmarked'
+    | 'flag_incidental'
     | 'flag_for_validation'
     | 'flag_candidate'
     | 'flag_final_causative'
@@ -23,6 +24,11 @@ export const BOOLEAN_FLAGS: BooleanFlagSpec[] = [
     label: 'for validation',
     icon: 'mdi-flask-empty',
     key: 'flag_for_validation',
+  },
+  {
+    label: 'incidental finding',
+    icon: 'mdi-dice-5',
+    key: 'flag_incidental',
   },
   {
     label: 'candidate',

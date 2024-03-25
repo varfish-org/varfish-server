@@ -31,6 +31,7 @@
   "var_type_mnv": true,
   "flag_simple_empty": true,
   "flag_bookmarked": true,
+  "flag_incidental": true,
   "flag_candidate": true,
   "flag_doesnt_segregate": true,
   "flag_final_causative": true,

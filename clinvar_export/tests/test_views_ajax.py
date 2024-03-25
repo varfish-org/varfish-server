@@ -992,6 +992,7 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
                         "flag_doesnt_segregate": False,
                         "flag_final_causative": False,
                         "flag_for_validation": False,
+                        "flag_incidental": False,
                         "flag_molecular": "",
                         "flag_no_disease_association": False,
                         "flag_phenotype_match": "",

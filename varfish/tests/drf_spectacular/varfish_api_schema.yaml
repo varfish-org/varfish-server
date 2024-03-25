@@ -10872,6 +10872,8 @@ components:
           type: boolean
         flag_bookmarked:
           type: boolean
+        flag_incidental:
+          type: boolean
         flag_candidate:
           type: boolean
         flag_doesnt_segregate:
@@ -12711,6 +12713,8 @@ components:
           type: boolean
         flag_bookmarked:
           type: boolean
+        flag_incidental:
+          type: boolean
         flag_candidate:
           type: boolean
         flag_doesnt_segregate:
@@ -13287,6 +13291,8 @@ components:
           maxLength: 512
         flag_bookmarked:
           type: boolean
+        flag_incidental:
+          type: boolean
         flag_candidate:
           type: boolean
         flag_final_causative:
@@ -13476,6 +13482,8 @@ components:
           $ref: '#/components/schemas/VariantRatingEnum'
         flag_phenotype_match:
           $ref: '#/components/schemas/VariantRatingEnum'
+        flag_incidental:
+          type: boolean
         flag_summary:
           $ref: '#/components/schemas/VariantRatingEnum'
     PatchedTargetBedFile:
@@ -14361,6 +14369,8 @@ components:
           maxLength: 512
         flag_bookmarked:
           type: boolean
+        flag_incidental:
+          type: boolean
         flag_candidate:
           type: boolean
         flag_final_causative:
@@ -14940,6 +14950,8 @@ components:
           $ref: '#/components/schemas/VariantRatingEnum'
         flag_phenotype_match:
           $ref: '#/components/schemas/VariantRatingEnum'
+        flag_incidental:
+          type: boolean
         flag_summary:
           $ref: '#/components/schemas/VariantRatingEnum'
       required:
