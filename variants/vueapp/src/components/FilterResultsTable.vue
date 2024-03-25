@@ -1,7 +1,7 @@
 <script setup>
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import {
   displayName,
@@ -547,11 +547,14 @@ watch(
 )
 
 /** Load data when mounted. */
-onBeforeMount(async () => {
+onMounted(async () => {
   if (variantResultSetStore.resultSetUuid) {
     await loadFromServer()
     scrollToLastPosition()
   }
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
 })
 
 watch(
@@ -895,6 +898,9 @@ watch(
         <template #item-igv="item">
           <div class="btn-group btn-group-sm">
             <div
+              title="Flags the variant as an artifact by setting visually negative and summary negative flags."
+              data-toggle="tooltip"
+              data-placement="left"
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               role="button"
