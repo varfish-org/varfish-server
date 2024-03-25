@@ -374,14 +374,15 @@ defineExpose({
           ref="geneAllowListRegionTextareaRef"
           v-model="props.querySettings.gene_allowlist"
           :validate="validateGeneBatch"
+          :tokenize="/([^\s;,]+)/g"
         />
         <small class="form-text">
           Enter a list of genes to restrict your query to, separated with
-          spaces. You can use gene symbols, HGNC ids, ENSEMBL gene IDs, or
-          Entrez Gene IDs. For example, all of the following code for TGDS
-          (TDP-glucose 4,6-dehydratase): <code>TGDS</code>,
-          <code>HGNC:20324</code>, <code>ENSG00000088451</code>,
-          <code>23483</code>.
+          spaces, tabs, <code>;</code> or <code>,</code>. You can use gene
+          symbols, HGNC ids, ENSEMBL gene IDs, or Entrez Gene IDs. For example,
+          all of the following code for TGDS (TDP-glucose 4,6-dehydratase):
+          <code>TGDS</code>, <code>HGNC:20324</code>,
+          <code>ENSG00000088451</code>, <code>23483</code>.
         </small>
       </div>
     </div>

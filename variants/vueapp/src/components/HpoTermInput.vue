@@ -82,13 +82,14 @@ const refreshTextValue = async (termsArray) => {
 
 /** Refresh model value from text value. */
 const refreshModelValue = () => {
-  const regex = /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;]+)?(;|$)/g
+  const regex =
+    /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;,]+)?(;|,|$)/g
   const cleanTextValue = (textValue.value || '')
-    .replace(/^\s*;?\s*|\s*;?\s*$/g, '') // replace any cruft in beginning or end of the string
+    .replace(/^\s*[;,]?\s*|\s*[;,]?\s*$/g, '') // replace any cruft in beginning or end of the string
     .replace(/\s{2,}/g, ' ') // replace double (or more) spaces with one space
-    .replace(/[;\s]{2,}/g, '; ') // replace any sequence of multiple ; and spaces with `; `
-    .replace(/;([^\s$])/g, '; $1') // add missing space after semicolon
-    .replace(/([^;])\s(HP|OMIM|DECIPHER|ORPHA):/g, '$1; $2:') // set missing semicolons in front of HPO id
+    .replace(/[;,\s]{2,}/g, '; ') // replace any sequence of multiple ; and spaces with `; `
+    .replace(/[;,]([^\s$])/g, '; $1') // add missing space after semicolon
+    .replace(/([^;,])\s(HP|OMIM|DECIPHER|ORPHA):/g, '$1; $2:') // set missing semicolons in front of HPO id
   const hpoSelected = []
   let result
   while ((result = regex.exec(cleanTextValue))) {
