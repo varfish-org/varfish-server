@@ -30,6 +30,9 @@ ENDPOINT_SM_LISTCREATE_QUERY = "/variants/api/query/list-create/{case_uuid}"
 #: Endpoint to smallvariant retrieve query
 ENDPOINT_SM_RETRIEVE_QUERY = "/variants/api/query/retrieve-update-destroy/{query_uuid}/"
 #: Endpoint to structuralvariant query settings
+
+# TODO - The endpoints for structural variants are not yet used. They are placeholders for future development.
+
 ENDPOINT_SV_SETTINGS = "/svs/ajax/query-case/query-settings-shortcut/{case_uuid}/?quick_preset=whole_genome&genotype_criteria=default&inheritance=any&frequency=any&impact=any&sv_type=any"
 #: Endpoint to structuralvariant list-create query
 ENDPOINT_SV_LISTCREATE_QUERY = "/svs/ajax/sv-query/list-create/{case_uuid}/"
@@ -37,16 +40,9 @@ ENDPOINT_SV_LISTCREATE_QUERY = "/svs/ajax/sv-query/list-create/{case_uuid}/"
 ENDPOINT_SV_RETRIEVE_QUERY = "/svs/ajax/sv-query/retrieve-update-destroy/{query_uuid}/"
 
 #: Sleep time between starting queries
-SLEEP_RUN = 2
+SLEEP_RUN_DEFAULT = 5
 #: Sleep time between polling queries
 SLEEP_POLL = 5
-
-#: SQL database name for structural variants
-SQL_SV_DB = "svs_structuralvariant"
-#: SQL database name for small variants
-SQL_SM_DB = "variants_smallvariant"
-#: SQL query template to retrieve variants
-SQL_QUERY_TEMPLATE = "select * from {db} left outer join variants_case on variants_case.id={db}.case_id where variants_case.sodar_uuid='{case_uuid}' and {db}.release='GRCh37' and chromosome='{chromosome}' and start={start};\n"
 
 
 console = Console()
@@ -88,13 +84,15 @@ def run_query(
     settings_endpoint,
     query_endpoint,
     case_uuid,
+    case_name,
     gene,
     region,
     quick_preset,
     inheritance,
     frequency,
     impact,
-    verbose,
+    run_wait_secs,
+    write_query_settings,
 ):
     url = settings_endpoint.format(case_uuid=case_uuid)
     url += f"?quick_preset={quick_preset}"
@@ -104,8 +102,6 @@ def run_query(
         url += f"&frequency={frequency}"
     if impact:
         url += f"&impact={impact}"
-    if verbose:
-        console.log(url)
     response = connect_endpoint(config, url)
     if not response:
         return ""
@@ -114,15 +110,18 @@ def run_query(
         response_json["query_settings"]["gene_allowlist"] = [gene]
     elif region:
         response_json["query_settings"]["genomic_region"] = region
+    if write_query_settings:
+        with open(f"{case_name}.json", "w") as fh:
+            json.dump(response_json, fh, indent=1)
     url = query_endpoint.format(case_uuid=case_uuid)
     response = connect_endpoint(config, url, data=response_json)
     if not response:
         return ""
     response_json = response.json()
     if not response_json.get("sodar_uuid"):
-        console.log(f"[bold red]Error: got no query uuid for case {case_uuid}[/bold red]")
+        console.log(f"[bold red]Error: got no query uuid for case {case_name}[/bold red]")
         return ""
-    time.sleep(SLEEP_RUN)
+    time.sleep(run_wait_secs)
     return response_json["sodar_uuid"]
 
 
@@ -201,13 +200,27 @@ def download_serve(config, sodar_uuid, name):
 )
 @click.option("--gene", default=None, help="Gene to filter on")
 @click.option("--region", default=None, help="Region to filter on")
-@click.option("--quick-preset", default="default", help="Quick preset to use")
+@click.option("--quick-preset", default="defaults", help="Quick preset to use")
 @click.option("--inheritance", default=None, help="Inheritance preset to use")
 @click.option("--frequency", default=None, help="Frequency preset to use")
 @click.option("--impact", default=None, help="Impact preset to use")
-@click.option("--verbose", is_flag=False, help="Verbose output")
+@click.option("--run-wait-secs", default=SLEEP_RUN_DEFAULT, help="Seconds to wait between runs")
+@click.option("--write-query-logs", is_flag=True, help="Write query logs to file")
+@click.option(
+    "--write-query-settings", is_flag=True, help="Write query settings for each case to file"
+)
 def main(
-    project_uuid, export_format, gene, region, quick_preset, inheritance, frequency, impact, verbose
+    project_uuid,
+    export_format,
+    gene,
+    region,
+    quick_preset,
+    inheritance,
+    frequency,
+    impact,
+    run_wait_secs,
+    write_query_logs,
+    write_query_settings,
 ):
     config = read_toml()
     query_results = {}
@@ -215,10 +228,11 @@ def main(
 
     with console.status("[bold green]Starting ..."):
         case_query = get_case_list(config, project_uuid)
-        console.log("Getting cases from project [bold green]done[/bold green]")
+        console.log(f"Getting {len(case_query)} cases from project [bold green]done[/bold green]")
 
     tasks = [
-        f"Starting query for [bold]{case_query[n]['name']}[/bold] ({n})" for n in case_query.keys()
+        f"{i+1}/{len(case_query)} Starting query for [bold]{case_query[n]['name']}[/bold] ({n})"
+        for i, n in enumerate(case_query.keys())
     ]
     with console.status("[bold green]Starting queries ..."):
         for case_uuid in case_query.keys():
@@ -228,13 +242,15 @@ def main(
                 ENDPOINT_SM_SETTINGS,
                 ENDPOINT_SM_LISTCREATE_QUERY,
                 case_uuid,
+                case_query[case_uuid]["name"],
                 gene,
                 region,
                 quick_preset,
                 inheritance,
                 frequency,
                 impact,
-                verbose,
+                run_wait_secs,
+                write_query_settings,
             )
             if not query_uuid:
                 console.log(f"{rich_query_start} [bold red]failed[/bold red]")
@@ -255,14 +271,14 @@ def main(
                 break
             time.sleep(SLEEP_POLL)
 
-        if verbose:
+        if write_query_logs:
             with open("query_logs.json", "w") as fh:
                 json.dump(query_results, fh, indent=1)
 
     download_uuids = {}
     tasks = [
-        f"Starting generation of export file for [bold]{case_query[query_results[n]['case_uuid']]['name']}[/bold] ({n})"
-        for n in query_results.keys()
+        f"{i+1}/{len(query_results)} Starting generation of export file for [bold]{case_query[query_results[n]['case_uuid']]['name']}[/bold] ({n})"
+        for i, n in enumerate(query_results.keys())
     ]
     with console.status("[bold green]Starting generation of export files ..."):
         for query_uuid, data in query_results.items():
@@ -277,7 +293,10 @@ def main(
                 console.log(f"{tasks.pop(0)} [bold red]failed[/bold red]")
 
     downloads_running = [True] * len(download_uuids)
-    tasks = [f"Downloading file for [bold]{n}[/bold]" for n in download_uuids.values()]
+    tasks = [
+        f"{i+1}/{len(download_uuids)} Downloading file for [bold]{n}[/bold]"
+        for i, n in enumerate(download_uuids.values())
+    ]
     with console.status("[bold green]Waiting for downloads to finish ..."):
         while any(downloads_running):
             for i, download_uuid in enumerate(download_uuids):

@@ -5,8 +5,8 @@ import { DateTime } from 'luxon'
 import { State } from '@varfish/storeUtils'
 // import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
 
-/** This component's props. */
-const props = defineProps<{
+/** This component's props. Can't use props as variable name as it is a reserved keyword in vuetify. */
+const props_ = defineProps<{
   commentsStore: any
   variant: any
   resultRowUuid: string
@@ -14,20 +14,25 @@ const props = defineProps<{
 }>()
 
 watch(
-  () => [props.variant, props.caseUuid],
+  () => [props_.variant, props_.caseUuid, props_.commentsStore.storeState],
   () => {
     if (
-      props.variant &&
-      props.commentsStore.storeState.state === State.Active &&
-      props.caseUuid
+      props_.variant &&
+      props_.commentsStore.storeState.state === State.Active
     ) {
-      props.commentsStore.retrieveComments(props.variant, props.caseUuid)
+      props_.commentsStore.retrieveComments(props_.variant)
+      props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
     }
   },
 )
+
 onMounted(() => {
-  if (props.variant && props.caseUuid) {
-    props.commentsStore.retrieveComments(props.variant, props.caseUuid)
+  if (
+    props_.variant &&
+    props_.commentsStore.storeState.state === State.Active
+  ) {
+    props_.commentsStore.retrieveComments(props_.variant)
+    props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
   }
 })
 
@@ -64,15 +69,15 @@ const unsetEditComment = () => {
 
 const onClickSubmitComment = async () => {
   if (editCommentMode.value === EditCommentModes.Edit) {
-    await props.commentsStore.updateComment(
+    await props_.commentsStore.updateComment(
       editCommentUuid.value,
       commentToSubmit.value,
     )
   } else {
-    await props.commentsStore.createComment(
-      props.variant,
+    await props_.commentsStore.createComment(
+      props_.variant,
       commentToSubmit.value,
-      props.resultRowUuid,
+      props_.resultRowUuid,
     )
   }
   unsetEditComment()
@@ -80,7 +85,7 @@ const onClickSubmitComment = async () => {
 
 const onClickDeleteComment = async () => {
   if (editCommentUuid.value) {
-    await props.commentsStore.deleteComment(editCommentUuid.value)
+    await props_.commentsStore.deleteComment(editCommentUuid.value)
   }
   commentToSubmit.value = ''
   editCommentMode.value = EditCommentModes.Off
@@ -89,7 +94,7 @@ const onClickDeleteComment = async () => {
 
 // Reset comment editor state when the small variant changes.
 watch(
-  () => props.variant,
+  () => props_.variant,
   (_newValue, _oldValue) => {
     commentToSubmit.value = ''
     editCommentMode.value = EditCommentModes.Off
@@ -116,6 +121,44 @@ watch(
       <v-card-subtitle class="text-overline">
         View, create, or update comments
       </v-card-subtitle>
+      <v-card-text>
+        <template v-if="commentsStore.projectWideVariantComments?.length">
+          <v-hover v-slot="{ isHovering, props }">
+            <v-sheet
+              v-for="(
+                comment, index
+              ) in commentsStore.projectWideVariantComments"
+              :key="`projectComment-${index}`"
+              class="bg-blue-grey-lighten-3 p-3"
+              :class="{ 'mt-2': index > 0 }"
+              v-bind="props"
+            >
+              <div>
+                <span class="font-weight-bold">{{ comment.case }}</span
+                >&nbsp;
+                <span class="font-weight-medium">{{ comment.user }}</span>
+                <span class="font-italic"
+                  >@{{
+                    DateTime.fromISO(comment.date_created).toFormat(
+                      'yyyy/MM/dd hh:mm',
+                    )
+                  }}</span
+                >
+                <span v-if="isHovering" class="text-blue-grey-darken-1">
+                  &mdash;&nbsp;This comment is from another case in the project
+                  for the same variant.
+                </span>
+              </div>
+              <div>
+                {{ comment.text }}
+              </div>
+            </v-sheet>
+          </v-hover>
+        </template>
+        <div v-else>
+          <p class="text-muted text-center font-italic">No comments yet.</p>
+        </div>
+      </v-card-text>
       <v-card-text>
         <template v-if="commentsStore.comments?.length">
           <v-sheet

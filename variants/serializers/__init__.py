@@ -669,6 +669,10 @@ class SmallVariantCommentSerializer(SODARModelSerializer):
         )
 
 
+class SmallVariantCommentProjectSerializer(SmallVariantCommentSerializer):
+    case = serializers.ReadOnlyField(source="case.name")
+
+
 #: Mapping from chromosome names to numbers
 CHROM_TO_NO = {
     **{f"{i}": i for i in range(1, 23)},

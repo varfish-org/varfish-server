@@ -6668,6 +6668,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/SmallVariantComment'
           description: ''
+  /variants/ajax/small-variant-comment/list-project/{project}/:
+    get:
+      operationId: variants_ajax_small_variant_comment_list_project_list
+      description: |-
+        A view that allows to list existing comments for a project and variant.
+
+        **URL:** ``/variants/ajax/small-variant-comment/list-project/{project.sodar_uuid}``
+
+        **Methods:** See base API class.
+
+        **Parameters:** See base API class.
+
+        **Returns:** See base API class.
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - variants
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmallVariantCommentProject'
+          description: ''
   /variants/ajax/small-variant-comment/update/{smallvariantcomment}/:
     put:
       operationId: variants_ajax_small_variant_comment_update_update
@@ -8091,6 +8124,49 @@ paths:
             application/vnd.bihealth.varfish+json:
               schema:
                 $ref: '#/components/schemas/SmallVariantComment'
+          description: ''
+  /variants/api/small-variant-comment/list-project/{project}/:
+    get:
+      operationId: variants_api_small_variant_comment_list_project_list
+      description: |-
+        A view that allows to list existing comments for a project and variant.
+
+        **URL:** ``/variants/api/small-variant-comment/list-project/{project.sodar_uuid}/``
+
+        **Query Arguments:**
+
+        - release
+        - chromosome
+        - start
+        - end
+        - reference
+        - alternative
+        - exclude_case_uuid
+
+        **Methods:** ``GET``
+
+        **Returns:**
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - variants
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmallVariantCommentProject'
           description: ''
   /variants/api/small-variant-comment/update/{smallvariantcomment}/:
     put:
@@ -14249,6 +14325,70 @@ components:
           type: string
           format: uuid
           description: Case SODAR UUID
+          readOnly: true
+        user:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        reference:
+          type: string
+          maxLength: 512
+        alternative:
+          type: string
+          maxLength: 512
+        text:
+          type: string
+        user_can_edit:
+          type: boolean
+          readOnly: true
+      required:
+      - alternative
+      - case
+      - chromosome
+      - date_created
+      - date_modified
+      - end
+      - reference
+      - release
+      - sodar_uuid
+      - start
+      - text
+      - user
+      - user_can_edit
+    SmallVariantCommentProject:
+      type: object
+      description: Serializer for the ``SmallVariantComment`` model.
+      properties:
+        sodar_uuid:
+          type: string
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        case:
+          type: string
           readOnly: true
         user:
           type: string

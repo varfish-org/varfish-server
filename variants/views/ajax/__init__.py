@@ -10,6 +10,7 @@ from variants.views.api import (
     HpoTermsApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
+    SmallVariantCommentListProjectApiView,
     SmallVariantCommentUpdateApiView,
     SmallVariantDetailsApiView,
     SmallVariantFlagsDeleteApiView,
@@ -246,6 +247,21 @@ class SmallVariantCommentListCreateAjaxView(SmallVariantCommentListCreateApiView
     """Create small variant comment
 
     **URL:** ``/variants/ajax/small-variant-comment/list-create/{case.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantCommentListProjectAjaxView(SmallVariantCommentListProjectApiView):
+    """A view that allows to list existing comments for a project and variant.
+
+    **URL:** ``/variants/ajax/small-variant-comment/list-project/{project.sodar_uuid}``
 
     **Methods:** See base API class.
 
