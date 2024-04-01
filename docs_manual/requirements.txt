@@ -29,7 +29,7 @@ click-didyoumean==0.3.0
 click-plugins==1.1.1
 click-repl==0.3.0
 conditional==1.5
-coverage==6.5.0
+coverage==7.4.4
 coveralls==3.3.1
 crispy-bootstrap4==2023.1
 cryptography==42.0.4
