@@ -43,7 +43,7 @@
     "vue-router": "^4.3.0",
     "vue3-easy-data-table": "^1.5.47",
     "vuetify": "^3.5.11",
-    "yarn": "^1.22.21"
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
