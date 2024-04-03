@@ -845,10 +845,16 @@ class SmallVariantQueryDownloadGenerateApiView(VariantsApiBaseMixin, APIView):
         if self.request.get_full_path() == reverse(
             "variants:ajax-query-case-download-generate-tsv",
             kwargs={"smallvariantquery": query.sodar_uuid},
+        ) or self.request.get_full_path() == reverse(
+            "variants:api-query-case-download-generate-tsv",
+            kwargs={"smallvariantquery": query.sodar_uuid},
         ):
             file_type = "tsv"
         elif self.request.get_full_path() == reverse(
             "variants:ajax-query-case-download-generate-vcf",
+            kwargs={"smallvariantquery": query.sodar_uuid},
+        ) or self.request.get_full_path() == reverse(
+            "variants:api-query-case-download-generate-vcf",
             kwargs={"smallvariantquery": query.sodar_uuid},
         ):
             file_type = "vcf"

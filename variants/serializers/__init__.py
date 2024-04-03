@@ -81,7 +81,7 @@ def query_settings_validator(value):
     # Validate HPO term list.
     if "prio_hpo_terms" in query_settings:
         missing = []
-        for term in query_settings["prio_hpo_terms"]:
+        for term in query_settings["prio_hpo_terms"] or []:
             if term.startswith("HP"):
                 if not HpoName.objects.filter(hpo_id=term).exists():
                     missing.append(term)
