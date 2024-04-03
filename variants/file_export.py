@@ -653,8 +653,6 @@ class CaseExporterXlsx(CaseExporterBase):
                 row = [
                     comment.chromosome,
                     comment.start,
-                    comment.end,
-                    comment.bin,
                     comment.reference,
                     comment.alternative,
                     comment.date_created,
@@ -663,7 +661,7 @@ class CaseExporterXlsx(CaseExporterBase):
                 ]
                 if self.project_or_cohort:
                     row.insert(0, case.name)
-                self.variant_sheet.write_row(offset, 0, row)
+                self.comment_sheet.write_row(offset, 0, row)
                 offset += 1
 
     def _write_metadata_sheet(self):

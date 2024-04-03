@@ -285,17 +285,15 @@ def fill_sm_queryresultset(result_set):
                 for result_row in result_rows:
                     duplicates.append(
                         {
-                            {
-                                "case_uuid": str(case.sodar_uuid),
-                                "case_name": case.name,
-                                "project": case.project.full_title,
-                                "chromosome": result_row.chromosome,
-                                "start": result_row.start,
-                                "end": result_row.end,
-                                "json": json.dumps(
-                                    model_to_dict(result_row, exclude=("id",)), cls=UUIDEncoder
-                                ),
-                            }
+                            "case_uuid": str(case.sodar_uuid),
+                            "case_name": case.name,
+                            "project": case.project.full_title,
+                            "chromosome": result_row.chromosome,
+                            "start": result_row.start,
+                            "end": result_row.end,
+                            "json": json.dumps(
+                                model_to_dict(result_row, exclude=("id",)), cls=UUIDEncoder
+                            ),
                         }
                     )
 
