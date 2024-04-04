@@ -108,6 +108,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       return initializeRes.value
     }
 
+    $reset()
+
     // Set simple properties.
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
@@ -345,6 +347,20 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
         resultRowUuid,
       )
     }
+  }
+
+  const $reset = () => {
+    storeState.state = State.Initial
+    storeState.serverInteractions = 0
+    storeState.message = null
+
+    csrfToken.value = null
+    caseUuid.value = null
+    projectUuid.value = null
+    seqvar.value = null
+    flags.value = null
+    caseFlags.value = new Map()
+    initializeRes.value = null
   }
 
   return {

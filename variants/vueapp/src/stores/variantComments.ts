@@ -12,7 +12,6 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { VariantClient } from '@variants/api/variantClient'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import isEqual from 'fast-deep-equal'
 
 /** Alias definition of SmallVariantComments type; to be defined later. */
 type SmallVariantComment = any
@@ -42,6 +41,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const comments = ref<SmallVariantComment | null>(null)
   /** The comments for all variants of the case with the given `caseUuid`. */
   const caseComments = ref<Map<string, SmallVariantComment>>(new Map())
+  /** The project-wide variant comments. */
+  const projectWideVariantComments = ref<Array<SmallVariantComment>>([])
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -85,6 +86,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       return initializeRes.value
     }
 
+    $reset()
+
     // Set simple properties.
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
@@ -100,9 +103,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     initializeRes.value = variantClient
       .listComment(caseUuid.value)
-      .then((comments) => {
+      .then((result) => {
         caseComments.value.clear()
-        for (const comment of comments) {
+        for (const comment of result) {
           caseComments.value.set(comment.sodar_uuid, comment)
         }
 
@@ -125,10 +128,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     if (!caseUuid.value) {
       throw new Error('caseUuid not set')
     }
-    // Prevent re-retrieval of the comments.
-    if (isEqual(seqvar.value, seqvar$)) {
-      return
-    }
 
     const variantClient = new VariantClient(
       csrfToken.value ?? 'undefined-csrf-token',
@@ -140,7 +139,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
     try {
       comments.value = await variantClient.listComment(caseUuid.value, seqvar$)
-
       seqvar.value = seqvar$
 
       storeState.serverInteractions -= 1
@@ -303,6 +301,57 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     return false
   }
 
+  /**
+   * Retrieve project-wide variant comments.
+   */
+  const retrieveProjectWideVariantComments = async (seqvar$: Seqvar) => {
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
+
+    if (!projectUuid.value) {
+      throw new Error('projectUuid not set')
+    }
+
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
+
+    projectWideVariantComments.value = []
+    storeState.state = State.Fetching
+    storeState.serverInteractions += 1
+
+    try {
+      projectWideVariantComments.value = await variantClient.listProjectComment(
+        projectUuid.value,
+        caseUuid.value,
+        seqvar$,
+      )
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
+    } catch (err) {
+      console.error('Problem loading comments for variant', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+      throw err // re-throw
+    }
+  }
+
+  const $reset = () => {
+    storeState.state = State.Initial
+    storeState.serverInteractions = 0
+    storeState.message = null
+
+    csrfToken.value = null
+    caseUuid.value = null
+    projectUuid.value = null
+    seqvar.value = null
+    comments.value = null
+    caseComments.value = new Map()
+    initializeRes.value = null
+  }
+
   return {
     // data / state
     csrfToken,
@@ -312,10 +361,12 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     seqvar,
     comments,
     caseComments,
+    projectWideVariantComments,
     initializeRes,
     // functions
     initialize,
     retrieveComments,
+    retrieveProjectWideVariantComments,
     createComment,
     updateComment,
     deleteComment,

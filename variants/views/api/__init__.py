@@ -87,6 +87,7 @@ from variants.serializers import (
     HpoTermSerializer,
     SettingsShortcuts,
     SettingsShortcutsSerializer,
+    SmallVariantCommentProjectSerializer,
     SmallVariantCommentSerializer,
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
@@ -1287,6 +1288,55 @@ class SmallVariantCommentListCreateApiView(
             result_row.save()
             result_row.smallvariantqueryresultset.result_row_count += 1
             result_row.smallvariantqueryresultset.save()
+
+
+class SmallVariantCommentProjectApiMixin(SmallVariantCommentApiMixin):
+    lookup_url_kwarg = "project"
+    serializer_class = SmallVariantCommentProjectSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        query_set = SmallVariantComment.objects.select_related("user", "case__project").filter(
+            case__project__sodar_uuid=self.kwargs["project"]
+        )
+
+        case_uuid = self.request.GET.get("exclude_case_uuid")
+
+        if case_uuid:
+            query_set = query_set.exclude(case__sodar_uuid=case_uuid)
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+
+        return query_set.order_by("date_created")
+
+
+class SmallVariantCommentListProjectApiView(
+    SmallVariantCommentProjectApiMixin,
+    ListAPIView,
+):
+    """A view that allows to list existing comments for a project and variant.
+
+    **URL:** ``/variants/api/small-variant-comment/list-project/{project.sodar_uuid}/``
+
+    **Query Arguments:**
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
+    - exclude_case_uuid
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
 
 
 class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):

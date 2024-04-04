@@ -187,6 +187,31 @@ export class VariantClient extends ClientBase {
     )
   }
 
+  async listProjectComment(
+    projectUuid: string,
+    caseUuid?: string,
+    seqvar?: Seqvar,
+  ): Promise<VariantComment[]> {
+    let query = ''
+    if (seqvar) {
+      const { genomeBuild, chrom, pos, del, ins } = seqvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      const end = pos + del.length - 1
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${pos}` +
+        `&end=${end}&reference=${del}&alternative=${ins}`
+    }
+    if (caseUuid) {
+      query += query
+        ? `&exclude_case_uuid=${caseUuid}`
+        : `?exclude_case_uuid=${caseUuid}`
+    }
+    return await this.fetchHelper(
+      `/variants/ajax/small-variant-comment/list-project/${projectUuid}/${query}`,
+      'GET',
+    )
+  }
+
   async createComment(
     caseUuid: string,
     seqvar: Seqvar,

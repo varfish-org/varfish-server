@@ -66,6 +66,8 @@ export const useVariantAcmgRatingStore = defineStore(
         return initializeRes.value
       }
 
+      $reset()
+
       // Set simple properties.
       csrfToken.value = csrfToken$
       projectUuid.value = projectUuid$
@@ -259,6 +261,20 @@ export const useVariantAcmgRatingStore = defineStore(
         }
       }
       return undefined
+    }
+
+    const $reset = () => {
+      storeState.state = State.Initial
+      storeState.serverInteractions = 0
+      storeState.message = null
+
+      csrfToken.value = undefined
+      caseUuid.value = undefined
+      projectUuid.value = undefined
+      seqvar.value = undefined
+      acmgRating.value = undefined
+      caseAcmgRatings.value = new Map()
+      initializeRes.value = Promise.resolve(undefined)
     }
 
     return {

@@ -845,6 +845,209 @@ class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
         self._test_get_comments_as_user(self.user_guest)
 
 
+class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-comment-list-project",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_comments_as_user(self, user):
+        with self.login(user):
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            comments2 = SmallVariantCommentFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            url = reverse(
+                "variants:api-small-variant-comment-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for comment in comments + comments2:
+                expected.append(model_to_dict(comment, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["user"] = comment.user.username
+                expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
+                expected[-1]["case"] = str(comment.case.name)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_comments_superuser(self):
+        self._test_get_comments_as_user(self.superuser)
+
+    def test_get_comments_owner(self):
+        self._test_get_comments_as_user(self.user_owner)
+
+    def test_get_comments_delegate(self):
+        self._test_get_comments_as_user(self.user_delegate)
+
+    def test_get_comments_contributor(self):
+        self._test_get_comments_as_user(self.user_contributor)
+
+    def test_get_comments_guest(self):
+        self._test_get_comments_as_user(self.user_guest)
+
+    def test_get_comments_for_variant(self):
+        with self.login(self.superuser):
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            comments2 = [
+                SmallVariantCommentFactory(
+                    case=self.case,
+                    user=self.user_contributor,
+                    release=comments[0].release,
+                    chromosome=comments[0].chromosome,
+                    start=comments[0].start,
+                    end=comments[0].end,
+                    reference=comments[0].reference,
+                    alternative=comments[0].alternative,
+                ),
+                SmallVariantCommentFactory(
+                    case=self.case,
+                    user=self.user_contributor,
+                ),
+            ]
+
+            query_str = (
+                f"?release={comments[0].release}"
+                f"&chromosome={comments[0].chromosome}"
+                f"&start={comments[0].start}"
+                f"&end={comments[0].end}"
+                f"&reference={comments[0].reference}"
+                f"&alternative={comments[0].alternative}"
+            )
+            url = reverse(
+                "variants:api-small-variant-comment-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = []
+            for comment in (comments[0], comments2[0]):
+                expected.append(model_to_dict(comment, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["user"] = comment.user.username
+                expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
+                expected[-1]["case"] = str(comment.case.name)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_comments_for_variant_exclude_case(self):
+        with self.login(self.superuser):
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            SmallVariantCommentFactory(
+                case=self.case,
+                user=self.user_contributor,
+                release=comments[0].release,
+                chromosome=comments[0].chromosome,
+                start=comments[0].start,
+                end=comments[0].end,
+                reference=comments[0].reference,
+                alternative=comments[0].alternative,
+            )
+            SmallVariantCommentFactory(
+                case=self.case,
+                user=self.user_contributor,
+            )
+            query_str = (
+                f"?release={comments[0].release}"
+                f"&chromosome={comments[0].chromosome}"
+                f"&start={comments[0].start}"
+                f"&end={comments[0].end}"
+                f"&reference={comments[0].reference}"
+                f"&alternative={comments[0].alternative}"
+                f"&exclude_case_uuid={self.case.sodar_uuid}"
+            )
+            url = reverse(
+                "variants:api-small-variant-comment-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = [model_to_dict(comments[0], exclude=["id", "bin", "chromosome_no"])]
+            expected[0]["user"] = comments[0].user.username
+            expected[0]["sodar_uuid"] = str(comments[0].sodar_uuid)
+            expected[0]["case"] = str(comments[0].case.name)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_comments_exclude_case(self):
+        with self.login(self.superuser):
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            SmallVariantCommentFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            query_str = f"?exclude_case_uuid={self.case.sodar_uuid}"
+            url = reverse(
+                "variants:api-small-variant-comment-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = []
+            for comment in comments:
+                expected.append(model_to_dict(comment, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["user"] = comment.user.username
+                expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
+                expected[-1]["case"] = str(comment.case.name)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+
 class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 
