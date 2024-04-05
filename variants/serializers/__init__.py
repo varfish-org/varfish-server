@@ -15,7 +15,6 @@ from rest_framework import serializers
 from clinvar.models import Clinvar
 from extra_annos.models import ExtraAnno, ExtraAnnoField
 from geneinfo.models import Hgnc, Hpo, HpoName
-from geneinfo.serializers import GeneSerializer
 from genepanels.models import expand_panels_in_gene_list
 from variants.models import (
     AcmgCriteriaRating,
@@ -598,21 +597,6 @@ class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):
         )
 
 
-@attrs.define
-class SmallVariantDetails:
-    clinvar: typing.Dict[str, typing.Any] = None
-    knowngeneaa: typing.List[typing.Dict[str, typing.Any]] = None
-    effect_details: typing.Dict[str, typing.Any] = None
-    extra_annos: typing.Dict[str, typing.Any] = None
-    pop_freqs: typing.Dict[str, typing.Any] = None
-    populations: typing.List[str] = None
-    inhouse_freq: typing.Dict[str, typing.Any] = None
-    mitochondrial_freqs: typing.Dict[str, typing.Any] = None
-    gene: typing.Dict[str, typing.Any] = None
-    flags: typing.Dict[str, typing.Any] = None
-    acmg_rating: typing.Dict[str, typing.Any] = None
-
-
 class SmallVariantCommentSerializer(SODARModelSerializer):
     """Serializer for the ``SmallVariantComment`` model."""
 
@@ -737,21 +721,6 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
             "chromosome_no",
             "bin",
         )
-
-
-class SmallVariantDetailsSerializer(serializers.Serializer):
-    """Serializer for the small variant details. Not based on a model"""
-
-    clinvar = ClinvarSerializer(many=True)
-    knowngeneaa = serializers.JSONField()
-    effect_details = serializers.JSONField()
-    extra_annos = ExtraAnnoSerializer()
-    pop_freqs = serializers.JSONField()
-    populations = serializers.JSONField()
-    inhouse_freq = serializers.JSONField()
-    mitochondrial_freqs = serializers.JSONField()
-    gene = GeneSerializer()
-    acmg_rating = AcmgCriteriaRatingSerializer()
 
 
 class QuickPresetSerializer(serializers.BaseSerializer):

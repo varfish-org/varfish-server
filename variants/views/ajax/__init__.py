@@ -12,7 +12,6 @@ from variants.views.api import (
     SmallVariantCommentListCreateApiView,
     SmallVariantCommentListProjectApiView,
     SmallVariantCommentUpdateApiView,
-    SmallVariantDetailsApiView,
     SmallVariantFlagsDeleteApiView,
     SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsUpdateApiView,
@@ -217,21 +216,6 @@ class SmallVariantQueryDownloadStatusAjaxView(SmallVariantQueryDownloadStatusApi
     """Get status of generating results for download of a small variant query.
 
     **URL:** ``/variants/ajax/query-case/download/status/{exportfilebgjob.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantDetailsAjaxView(SmallVariantDetailsApiView):
-    """Fetch HPO terms of a small variant query.
-
-    **URL:** ``/variants/ajax/small-variant-details/{case.sodar_uuid}/{case.release}-{small_var.chromosome}-{small_var.start}-{small_var.end}-{small_var.reference}-{small_var.alternative}/{query.database}/{small_var.gene_id}/
 
     **Methods:** See base API class.
 

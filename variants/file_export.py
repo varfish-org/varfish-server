@@ -241,11 +241,6 @@ class RowWithJoinProxy(wrapt.ObjectProxy):
         return self.__wrapped__.__getitem__(key)
 
 
-def _is_jannovar_enabled():
-    """Return if jannover is enabled for exporting transcripts."""
-    return settings.VARFISH_ENABLE_JANNOVAR
-
-
 class CaseExporterBase:
     """Base class for export of (filtered) case data from single case or all cases of a project."""
 
@@ -353,7 +348,7 @@ class CaseExporterBase:
             header += HEADERS_PHENO_SCORES
         if self._is_pathogenicity_enabled():
             header += HEADERS_PATHO_SCORES
-        if _is_jannovar_enabled():
+        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
             header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
@@ -377,9 +372,7 @@ class CaseExporterBase:
         self.job.add_log_entry("Executing database query...")
         with contextlib.closing(self.query.run(self.query_args)) as result:
             self.job.add_log_entry("Executing phenotype score query...")
-            _result = list(result)
-            if _is_jannovar_enabled():
-                _result = annotate_with_transcripts(_result, self.query_args["database_select"])
+            _result = annotate_with_transcripts(list(result), self.query_args["database_select"])
             if self._is_prioritization_enabled():
                 gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in _result])
                 _result = annotate_with_phenotype_scores(_result, gene_scores)

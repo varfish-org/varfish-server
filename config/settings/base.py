@@ -495,6 +495,10 @@ WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
 # URL prefix to look at for worker.
 WORKER_REST_BASE_URL = env.str("VARFISH_WORKER_REST_BASE_URL", "http://127.0.0.1:8081")
 
+# Domain for url generation that don't have access to request object.
+VARFISH_DOMAIN = env.str("VARFISH_DOMAIN", "http://127.0.0.1:8000")
+
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
@@ -548,14 +552,6 @@ VARFISH_ENABLE_SPANR_SUBMISSION = env.bool("VARFISH_ENABLE_SPANR_SUBMISSION", Fa
 VARFISH_UMD_REST_API_URL = env.str(
     "VARFISH_UMD_REST_API_URL", "http://umd-predictor.eu/webservice.php"
 )
-
-# Varfish: Jannovar
-# ------------------------------------------------------------------------------
-
-# Enable Jannovar configuration, default is disabled.
-VARFISH_ENABLE_JANNOVAR = env.bool("VARFISH_ENABLE_JANNOVAR", default=False)
-# Configure URL to Jannovar REST API
-VARFISH_JANNOVAR_REST_API_URL = env.str("VARFISH_JANNOVAR_REST_API_URL", "")
 
 # Varfish: SVs
 # ------------------------------------------------------------------------------

@@ -90,7 +90,6 @@ LOGGING = set_logging(LOGGING_LEVEL)
 # Disable all REST services for testing.
 
 VARFISH_ENABLE_CADD = False
-VARFISH_ENABLE_JANNOVAR = False
 
 # VarFish: Import
 # ------------------------------------------------------------------------------
