@@ -130,7 +130,7 @@ psycopg2-binary==2.9.9
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycodestyle==2.11.1
-pycparser==2.21
+pycparser==2.22
 pycryptodome==3.19.1
 pydantic==2.6.4
 pyflakes==3.1.0
