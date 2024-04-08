@@ -191,7 +191,7 @@ vcfpy==0.13.6
 vine==5.1.0
 wasmer==1.1.0
 wasmer_compiler_cranelift==1.1.0
-wcwidth==0.2.12
+wcwidth==0.2.13
 Werkzeug==3.0.1
 wrapt==1.16.0
 wsproto==1.2.0
