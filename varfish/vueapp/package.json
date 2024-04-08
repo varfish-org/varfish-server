@@ -68,7 +68,7 @@
     "@storybook/addon-links": "^8.0.6",
     "@storybook/testing-library": "0.2.2",
     "@storybook/vue3": "^7.6.17",
-    "@storybook/vue3-vite": "^8.0.4",
+    "@storybook/vue3-vite": "^8.0.6",
     "@testing-library/vue": "^8.0.2",
     "@types/jquery": "^3.5.29",
     "@vitejs/plugin-vue": "^5.0.4",
