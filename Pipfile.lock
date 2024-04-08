@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0ba2c1456b9116c276a3fd7d6b349d7879c3020feba7eb241aeb0840ab798d1b"
+            "sha256": "37477ee3cc442a880d153083606dc73643332b353954af86837041679bc755cb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -3191,6 +3191,7 @@
                 "sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6"
             ],
             "index": "pypi",
+            "markers": "python_full_version >= '3.8.0'",
             "version": "==5.13.2"
         },
         "jedi": {
