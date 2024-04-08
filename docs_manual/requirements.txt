@@ -171,7 +171,7 @@ sphinxcontrib-jquery==4.1
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.6
 sphinxcontrib-serializinghtml==1.1.9
-SQLAlchemy==1.4.50
+SQLAlchemy==1.4.52
 sqlparse==0.4.4
 stack-data==0.6.3
 tblib==2.0.0
