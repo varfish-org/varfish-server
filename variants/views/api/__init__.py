@@ -1,6 +1,5 @@
 """API views for ``variants`` app."""
 
-import contextlib
 from itertools import chain
 import re
 import typing
@@ -9,7 +8,6 @@ import uuid
 import attrs
 from bgjobs.models import BackgroundJob
 import cattr
-from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -37,37 +35,26 @@ from rest_framework.pagination import CursorPagination, PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from clinvar.models import Clinvar
 from extra_annos.models import ExtraAnnoField
-from extra_annos.views import ExtraAnnosMixin
-from frequencies.models import MT_DB_INFO
-from frequencies.views import FrequencyMixin
 from geneinfo.models import Hpo, HpoName
-from geneinfo.serializers import Gene
-from geneinfo.views import get_gene_infos
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 # # TOOD: timeline update
 from variants import query_presets
-from variants.helpers import get_engine
 from variants.models import (
     AcmgCriteriaRating,
     Case,
     CaseAwareProject,
     ExportFileBgJob,
     FilterBgJob,
-    SmallVariant,
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
     SmallVariantQueryResultRow,
     SmallVariantQueryResultSet,
     SmallVariantSet,
-    SmallVariantSummary,
-    load_molecular_impact,
     only_source_name,
 )
-from variants.queries import KnownGeneAAQuery
 from variants.query_presets import (
     CHROMOSOME_PRESETS,
     FLAGSETC_PRESETS,
@@ -89,8 +76,6 @@ from variants.serializers import (
     SettingsShortcutsSerializer,
     SmallVariantCommentProjectSerializer,
     SmallVariantCommentSerializer,
-    SmallVariantDetails,
-    SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
     SmallVariantQueryHpoTermSerializer,
     SmallVariantQueryResultRowSerializer,
@@ -942,262 +927,6 @@ class SmallVariantQueryDownloadServeApiView(VariantsApiBaseMixin, APIView):
 
         except ObjectDoesNotExist as e:
             raise Http404("File has not been generated (yet)!") from e
-
-
-class SmallVariantDetailsApiView(CaseApiMixin, FrequencyMixin, ExtraAnnosMixin, RetrieveAPIView):
-    """Fetch details for a small variant.
-
-    **URL:** ``/variants/api/small-variant-details/{case.sodar_uuid}/{case.release}-{small_var.chromosome}-{small_var.start}-{small_var.end}-{small_var.reference}-{small_var.alternative}/{query.database}/{small_var.gene_id}/
-
-    **Methods:** ``GET``
-
-    **Returns:**
-
-    """
-
-    serializer_class = SmallVariantDetailsSerializer
-
-    def _load_knowngene_aa(self):
-        """Load the UCSC knownGeneAA conservation alignment information."""
-        query = KnownGeneAAQuery(get_engine())
-        result = []
-        with contextlib.closing(query.run(self.kwargs)) as _result:
-            for entry in _result:
-                result.append(
-                    {
-                        "chromosome": entry.chromosome,
-                        "start": entry.start,
-                        "end": entry.end,
-                        "alignment": entry.alignment,
-                    }
-                )
-        return result
-
-    def _load_clinvar(self):
-        """Load clinvar information"""
-        filter_args = {
-            "release": self.kwargs["release"],
-            "chromosome": self.kwargs["chromosome"],
-            "start": int(self.kwargs["start"]),
-            "end": int(self.kwargs["end"]),
-            "reference": self.kwargs["reference"],
-            "alternative": self.kwargs["alternative"],
-        }
-        records = Clinvar.objects.filter(**filter_args)
-        if records:
-            return records
-        return None
-
-    def _get_population_freqs(self):
-        if self.kwargs.get("chromosome") == "MT":
-            return {}
-        result = {
-            "populations": ("AFR", "AMR", "ASJ", "EAS", "FIN", "NFE", "OTH", "SAS", "Total"),
-            "pop_freqs": {},
-        }
-        db_infos = {
-            "gnomadexomes": "gnomAD Exomes",
-            "gnomadgenomes": "gnomAD Genomes",
-            "exac": "ExAC",
-            "thousandgenomes": "1000GP",
-        }
-        frequencies = self.get_frequencies(self.kwargs)
-        for key, label in db_infos.items():
-            pop_freqs = {}
-            for pop in result["populations"]:
-                pop_freqs.setdefault(pop, {})["hom"] = getattr(
-                    frequencies[key],
-                    "hom%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                    0,
-                )
-                pop_freqs.setdefault(pop, {})["het"] = getattr(
-                    frequencies[key],
-                    "het%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                    0,
-                )
-                pop_freqs.setdefault(pop, {})["hemi"] = getattr(
-                    frequencies[key],
-                    "hemi%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                    0,
-                )
-                pop_freqs.setdefault(pop, {})["af"] = getattr(
-                    frequencies[key],
-                    "af%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                    0.0,
-                )
-                if key.startswith("gnomad"):
-                    pop_freqs.setdefault(pop, {})["controls_het"] = getattr(
-                        frequencies[key],
-                        "controls_het%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                        0,
-                    )
-                    pop_freqs.setdefault(pop, {})["controls_hom"] = getattr(
-                        frequencies[key],
-                        "controls_hom%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                        0,
-                    )
-                    pop_freqs.setdefault(pop, {})["controls_hemi"] = getattr(
-                        frequencies[key],
-                        "controls_hemi%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                        0,
-                    )
-                    pop_freqs.setdefault(pop, {})["controls_af"] = getattr(
-                        frequencies[key],
-                        "controls_af%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
-                        0.0,
-                    )
-            result["pop_freqs"][label] = pop_freqs
-        inhouse = SmallVariantSummary.objects.filter(
-            release=self.kwargs["release"],
-            chromosome=self.kwargs["chromosome"],
-            start=int(self.kwargs["start"]),
-            end=int(self.kwargs["end"]),
-            reference=self.kwargs["reference"],
-            alternative=self.kwargs["alternative"],
-        )
-        result["inhouse_freq"] = {}
-        if inhouse and not settings.KIOSK_MODE:
-            hom = getattr(inhouse[0], "count_hom_alt", 0)
-            het = getattr(inhouse[0], "count_het", 0)
-            hemi = getattr(inhouse[0], "count_hemi_alt", 0)
-            result["inhouse_freq"] = {
-                "hom": hom,
-                "het": het,
-                "hemi": hemi,
-                "carriers": hom + het + hemi,
-            }
-        return result
-
-    def _get_mitochondrial_freqs(self):
-        if not self.kwargs.get("chromosome") == "MT":
-            return {}
-        result = {
-            "vars": {db: dict() for db in MT_DB_INFO},
-            "an": {db: 0 for db in MT_DB_INFO},
-            "is_triallelic": False,
-            "dloop": False,
-        }
-        for dbname, db in MT_DB_INFO.items():
-            singles = {
-                "A": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
-                "C": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
-                "G": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
-                "T": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
-            }
-            an = 0
-            multis = (
-                {self.kwargs.get("reference"): {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0}}
-                if len(self.kwargs.get("reference")) > 1
-                else {}
-            )
-            alts = db.objects.filter(
-                release=self.kwargs["release"],
-                chromosome=self.kwargs["chromosome"],
-                start=int(self.kwargs["start"]),
-                end=int(self.kwargs["end"]),
-                reference=self.kwargs["reference"],
-            )
-            if alts:
-                an = alts[0].an
-                ref_count = an
-                for alt in alts:
-                    if dbname == "HelixMTdb" and self.kwargs["alternative"] == alt.alternative:
-                        result["is_triallelic"] = alt.is_triallelic
-                    if dbname == "mtDB" and self.kwargs["alternative"] == alt.alternative:
-                        result["dloop"] = alt.location == "D-loop"
-                    assert an == alt.an
-                    ref_count -= (alt.ac_hom + alt.ac_het) if dbname == "HelixMTdb" else alt.ac
-                    if len(alt.alternative) == 1:
-                        if dbname == "HelixMTdb":
-                            singles[alt.alternative]["ac_hom"] = alt.ac_hom
-                            singles[alt.alternative]["ac_het"] = alt.ac_het
-                        else:
-                            singles[alt.alternative]["ac"] = alt.ac
-                        singles[alt.alternative]["af"] = alt.af
-                    else:
-                        if dbname == "HelixMTdb":
-                            multis[alt.alternative] = {
-                                "af": alt.af,
-                                "ac_het": alt.ac_het,
-                                "ac_hom": alt.ac_hom,
-                            }
-                        else:
-                            multis[alt.alternative] = {
-                                "ac": alt.ac,
-                                "af": alt.af,
-                            }
-                        # Add allele to other databases if it does not exist there yet
-                        for other_db in set(MT_DB_INFO).difference({dbname}):
-                            result["vars"][other_db].setdefault(
-                                alt.alternative, {"ac": 0, "af": 0.0, "ac_hom": 0, "ac_het": 0}
-                            )
-                assert singles[self.kwargs.get("reference")]["ac"] == 0
-                assert singles[self.kwargs.get("reference")]["ac_het"] == 0
-                assert singles[self.kwargs.get("reference")]["ac_hom"] == 0
-                assert singles[self.kwargs.get("reference")]["af"] == 0.0
-                if len(self.kwargs.get("reference")) == 1:
-                    if dbname == "HelixMTdb":
-                        singles[self.kwargs.get("reference")]["ac_hom"] = ref_count
-                        singles[self.kwargs.get("reference")]["ac_het"] = 0
-                    else:
-                        singles[self.kwargs.get("reference")]["ac"] = ref_count
-                    singles[self.kwargs.get("reference")]["af"] = ref_count / an
-                else:
-                    if dbname == "HelixMTdb":
-                        multis[self.kwargs.get("reference")]["ac_hom"] = ref_count
-                        multis[self.kwargs.get("reference")]["ac_het"] = 0
-                    else:
-                        multis[self.kwargs.get("reference")]["ac"] = ref_count
-                    multis[self.kwargs.get("reference")]["af"] = ref_count / an
-            result["vars"][dbname].update(singles)
-            result["vars"][dbname].update(multis)
-            result["an"][dbname] = an
-        # Make sure indels are sorted
-        for dbname, data in result["vars"].items():
-            result["vars"][dbname] = sorted(
-                data.items(), key=lambda x: (("0" if len(x[0]) == 1 else "1") + x[0], x[1])
-            )
-        return result
-
-    def _load_acmg_rating(self):
-        return AcmgCriteriaRating.objects.filter(
-            case=super().get_object(),
-            release=self.kwargs["release"],
-            chromosome=self.kwargs["chromosome"],
-            start=int(self.kwargs["start"]),
-            end=int(self.kwargs["end"]),
-            reference=self.kwargs["reference"],
-            alternative=self.kwargs["alternative"],
-        ).first()
-
-    def get_object(self):
-        case = super().get_object()
-        small_var = SmallVariant.objects.filter(
-            case_id=case.pk,
-            release=self.kwargs["release"],
-            chromosome=self.kwargs["chromosome"],
-            start=self.kwargs["start"],
-            end=self.kwargs["end"],
-            reference=self.kwargs["reference"],
-            alternative=self.kwargs["alternative"],
-        ).first()
-        frequencies = self._get_population_freqs()
-        return SmallVariantDetails(
-            clinvar=self._load_clinvar(),
-            knowngeneaa=self._load_knowngene_aa(),
-            effect_details=load_molecular_impact(self.kwargs),
-            extra_annos=self.get_extra_annos_api(self.kwargs),
-            populations=frequencies.get("populations"),
-            pop_freqs=frequencies.get("pop_freqs"),
-            inhouse_freq=frequencies.get("inhouse_freq"),
-            mitochondrial_freqs=self._get_mitochondrial_freqs(),
-            gene=Gene(
-                **get_gene_infos(
-                    self.kwargs["database"], self.kwargs["gene_id"], small_var.ensembl_transcript_id
-                )
-            ),
-            acmg_rating=self._load_acmg_rating(),
-        )
 
 
 class SmallVariantCommentApiMixin(VariantsApiBaseMixin):

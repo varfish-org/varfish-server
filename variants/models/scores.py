@@ -11,6 +11,7 @@ from django.forms import model_to_dict
 from django.utils.html import strip_tags
 from projectroles.app_settings import AppSettingAPI
 import requests
+from sqlalchemy.exc import NoSuchColumnError
 import wrapt
 
 from varfish.utils import JSONField
@@ -19,24 +20,27 @@ _app_settings = AppSettingAPI()
 
 
 def load_molecular_impact(kwargs):
-    """Load molecular impact from Jannovar REST API if configured."""
-    if not settings.VARFISH_ENABLE_JANNOVAR:
+    """Load molecular impact from mehari REST API."""
+    if not settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
         return []
-
+    base_url = settings.VARFISH_DOMAIN + settings.VARFISH_BACKEND_URL_PREFIX_MEHARI
     url_tpl = (
-        "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
-        "%(alternative)s"
+        "{base_url}/seqvars/csq?genome_release={genome_release}"
+        "&chromosome={chromosome}&position={position}&reference={reference}"
+        "&alternative={alternative}"
     )
-    genome = {"GRCh37": "hg19", "GRCh38": "hg38"}.get(kwargs["release"], "hg19")
-    url = url_tpl % {
-        "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
-        "database": kwargs["database"],
-        "genome": genome,
-        "chromosome": kwargs["chromosome"],
-        "position": kwargs["start"],
-        "reference": kwargs["reference"],
-        "alternative": kwargs["alternative"],
-    }
+    url = url_tpl.format(
+        base_url=base_url,
+        genome_release=kwargs["release"].lower(),
+        chromosome=kwargs["chromosome"],
+        position=kwargs["start"],
+        reference=kwargs["reference"],
+        alternative=kwargs["alternative"],
+    )
+    try:
+        url_tpl += "&hgnc_id={hgnc}".format(hgnc=kwargs.hgnc_id)
+    except NoSuchColumnError:
+        pass
     try:
         res = requests.request(method="get", url=url)
         if not res.status_code == 200:
@@ -46,11 +50,9 @@ def load_molecular_impact(kwargs):
                 )
             )
         else:
-            return res.json()
+            return res.json().get("result", []) or []
     except requests.ConnectionError as e:
-        raise ConnectionError(
-            "ERROR: Server at {} not responding.".format(settings.VARFISH_JANNOVAR_REST_API_URL)
-        ) from e
+        raise ConnectionError("ERROR: mehari not responding.") from e
 
 
 class SmallVariantQueryGeneScores(models.Model):
@@ -335,13 +337,12 @@ def annotate_with_transcripts(rows, database):
         transcripts = load_molecular_impact(row)
         row.transcripts = "\n".join(
             [
-                t["transcriptId"]
-                + ";"
-                + ",".join(t["variantEffects"])
-                + ";"
-                + t["hgvsProtein"]
-                + ";"
-                + t["hgvsNucleotides"]
+                "{};{};{};{}".format(
+                    t.get("feature_id", "") or "",
+                    ",".join(t.get("consequences", []) or []),
+                    t.get("hgvs_p", "") or "",
+                    t.get("hgvs_t", "") or "",
+                )
                 for t in transcripts
             ]
         )

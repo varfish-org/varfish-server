@@ -234,15 +234,6 @@ ajax_urlpatterns = [
         name="ajax-query-case-download-status",
     ),
     url(
-        regex=(
-            r"^ajax/small-variant-details/(?P<case>[0-9a-f-]+)/"
-            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/?$"
-        ),
-        view=views_ajax.SmallVariantDetailsApiView.as_view(),
-        name="ajax-small-variant-details",
-    ),
-    url(
         r"^ajax/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
         view=views_ajax.SmallVariantCommentListCreateAjaxView.as_view(),
         name="ajax-small-variant-comment-list-create",
@@ -399,15 +390,6 @@ api_urlpatterns = [
         regex=r"^api/query-case/download/status/(?P<exportfilebgjob>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantQueryDownloadStatusApiView.as_view(),
         name="api-query-case-download-status",
-    ),
-    url(
-        regex=(
-            r"^api/small-variant-details/(?P<case>[0-9a-f-]+)/"
-            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/?$"
-        ),
-        view=views_api.SmallVariantDetailsApiView.as_view(),
-        name="api-small-variant-details",
     ),
     url(
         r"^api/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",

@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from bgjobs.models import BackgroundJob
 import django
+from django.conf import settings
 from django.utils import timezone
 import openpyxl
 from projectroles.models import Project
@@ -28,6 +29,49 @@ from variants.tests.factories import (
 
 from .. import file_export
 from ..models import Case, CaseAwareProject, ExportFileBgJob, ExportProjectCasesFileBgJob
+
+
+class MehariMockerMixin:
+    def _set_mehari_mocker(self, mock_):
+        for small_var in self.small_vars:
+            mock_.get(
+                (
+                    "http://127.0.0.1:8000/proxy/varfish/mehari/seqvars/csq?genome_release={genome_release}"
+                    "&chromosome={chromosome}&position={position}&reference={reference}"
+                    "&alternative={alternative}"
+                ).format(
+                    genome_release=small_var.release,
+                    chromosome=small_var.chromosome,
+                    position=small_var.start,
+                    reference=small_var.reference,
+                    alternative=small_var.alternative,
+                ),
+                status_code=200,
+                json={
+                    "version": {"tx_db": "0.25.1", "mehari": "0.25.4"},
+                    "query": {
+                        "genome_release": small_var.release,
+                        "chromosome": small_var.chromosome,
+                        "position": small_var.start,
+                        "reference": small_var.reference,
+                        "alternative": small_var.alternative,
+                    },
+                    "result": [
+                        {
+                            "feature_id": "NM_058167.2",
+                            "consequences": ["three_prime_utr_exon_variant"],
+                            "hgvs_p": "p.(=)",
+                            "hgvs_t": "c.*60G>A",
+                        },
+                        {
+                            "feature_id": "NM_194315.1",
+                            "consequences": ["three_prime_utr_exon_variant"],
+                            "hgvs_p": "p.(=)",
+                            "hgvs_t": "c.*60G>A",
+                        },
+                    ],
+                },
+            )
 
 
 class ExportTestBase(TestCase):
@@ -101,43 +145,8 @@ class ExportTestBase(TestCase):
                 ensembl_transcript_id=small_var.ensembl_transcript_id,
             )
 
-    def _set_janno_mocker(self, database, mock_):
-        if database == "refseq":
-            transcript_prefix = "NM"
-        else:
-            transcript_prefix = "ENST"
 
-        for small_var in self.small_vars:
-            mock_.get(
-                "https://jannovar.example.com/annotate-var/%s/hg19/%s/%s/%s/%s"
-                % (
-                    database,
-                    small_var.chromosome,
-                    small_var.start,
-                    small_var.reference,
-                    small_var.alternative,
-                ),
-                status_code=200,
-                json=[
-                    {
-                        "transcriptId": transcript_prefix + "_058167.2",
-                        "variantEffects": ["three_prime_utr_exon_variant"],
-                        "isCoding": True,
-                        "hgvsProtein": "p.(=)",
-                        "hgvsNucleotides": "c.*60G>A",
-                    },
-                    {
-                        "transcriptId": transcript_prefix + "_194315.1",
-                        "variantEffects": ["three_prime_utr_exon_variant"],
-                        "isCoding": True,
-                        "hgvsProtein": "p.(=)",
-                        "hgvsNucleotides": "c.*60G>A",
-                    },
-                ],
-            )
-
-
-class CaseExporterTest(ExportTestBase):
+class CaseExporterTest(MehariMockerMixin, ExportTestBase):
     def setUp(self):
         super().setUp()
         # Here, the query arguments actually matter
@@ -146,7 +155,7 @@ class CaseExporterTest(ExportTestBase):
         )
 
     def _test_export_xlsx(self, database, mock_):
-        self._set_janno_mocker(database, mock_)
+        self._set_mehari_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
@@ -159,37 +168,37 @@ class CaseExporterTest(ExportTestBase):
             self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
-            self._test_tabular(arrs, False, django.conf.settings.VARFISH_ENABLE_JANNOVAR, database)
+            self._test_tabular(arrs, False, settings.VARFISH_BACKEND_URL_PREFIX_MEHARI, database)
 
     def _test_export_tsv(self, database, mock_):
-        self._set_janno_mocker(database, mock_)
+        self._set_mehari_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
-        self._test_tabular(arrs, True, django.conf.settings.VARFISH_ENABLE_JANNOVAR, database)
+        self._test_tabular(arrs, True, settings.VARFISH_BACKEND_URL_PREFIX_MEHARI, database)
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
     @Mocker()
     def test_export_tsv(self, mock_):
         self._test_export_tsv("refseq", mock_)
 
-    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
-    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
     @Mocker()
     def test_export_tsv_refseq(self, mock_):
         self._test_export_tsv("refseq", mock_)
 
-    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
-    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
-    @Mocker()
-    def test_export_tsv_ensembl(self, mock_):
-        self._test_export_tsv("ensembl", mock_)
+    # TODO mehari does not provide ensembl transcripts ATM, only refseq
+    # @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    # @Mocker()
+    # def test_export_tsv_ensembl(self, mock_):
+    #     self._test_export_tsv("ensembl", mock_)
 
-    def _test_tabular(self, arrs, has_trailing, janno_enable, database):
+    def _test_tabular(self, arrs, has_trailing, mehari_enable, database):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
-        if not janno_enable:
+        if not mehari_enable:
             self.assertEquals(len(arrs[0]), 58)
         else:
             self.assertEquals(len(arrs[0]), 59)
@@ -245,7 +254,7 @@ class CaseExporterTest(ExportTestBase):
                     str((1 / 0.75) ** (i % 12))[0:6],
                 ],
             )
-            if janno_enable:
+            if mehari_enable:
                 if database == "refseq":
                     self.assertEquals(
                         arrs[i + 1][38].replace("\n", "|"),
@@ -268,7 +277,10 @@ class CaseExporterTest(ExportTestBase):
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
-    def test_export_vcf(self):
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @Mocker()
+    def test_export_vcf(self, mock_):
+        self._set_mehari_mocker(mock_)
         with file_export.CaseExporterVcf(self.export_job, self.export_job.case) as exporter:
             result = exporter.generate()
         unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
@@ -308,21 +320,21 @@ class CaseExporterTest(ExportTestBase):
             )
         self.assertEquals(content[3], "")
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
     @Mocker()
     def test_export_xlsx(self, mock):
         self._test_export_xlsx("refseq", mock)
 
-    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
-    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
     @Mocker()
     def test_export_xlsx_refseq(self, mock):
         self._test_export_xlsx("refseq", mock)
 
-    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
-    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
-    @Mocker()
-    def test_export_xlsx_ensembl(self, mock):
-        self._test_export_xlsx("ensembl", mock)
+    # TODO mehari does not provide ensembl transcripts ATM, only refseq
+    # @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    # @Mocker()
+    # def test_export_xlsx_ensembl(self, mock):
+    #     self._test_export_xlsx("ensembl", mock)
 
 
 class ProjectExportTest(TestCase):
@@ -367,6 +379,7 @@ class ProjectExportTest(TestCase):
             file_type="xlsx",
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_tsv(self):
         with file_export.CaseExporterTsv(self.export_job, self.project) as exporter:
             result = str(exporter.generate(), "utf-8")
@@ -376,7 +389,10 @@ class ProjectExportTest(TestCase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 5 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 58)
+        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+            self.assertEquals(len(arrs[0]), 59)
+        else:
+            self.assertEquals(len(arrs[0]), 58)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         members = sorted(self.project.get_members())
@@ -413,6 +429,7 @@ class ProjectExportTest(TestCase):
         if has_trailing:
             self.assertSequenceEqual(arrs[5], [""])
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_vcf(self):
         with file_export.CaseExporterVcf(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -503,6 +520,7 @@ class ProjectExportTest(TestCase):
         )
         self.assertEquals(content[3], "")
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_xlsx(self):
         with file_export.CaseExporterXlsx(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -528,6 +546,7 @@ class CohortExporterTest(TestCohortBase):
             file_type="xlsx",
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_tsv_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -546,6 +565,7 @@ class CohortExporterTest(TestCohortBase):
             + self.project2_case2_smallvars,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_tsv_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -561,6 +581,7 @@ class CohortExporterTest(TestCohortBase):
             self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_tsv_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -576,6 +597,7 @@ class CohortExporterTest(TestCohortBase):
             self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_tsv_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -594,7 +616,10 @@ class CohortExporterTest(TestCohortBase):
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 58)
+        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+            self.assertEquals(len(arrs[0]), 59)
+        else:
+            self.assertEquals(len(arrs[0]), 58)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):
@@ -671,6 +696,7 @@ class CohortExporterTest(TestCohortBase):
             self.assertEqual(content[i].split("\t"), list(var[1:]) + vcf_vars[var])
         self.assertEquals(content[ref - 1], "")
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_vcf_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -689,6 +715,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_vcf_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -704,6 +731,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_vcf_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -719,6 +747,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_vcf_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -734,6 +763,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_xlsx_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -759,6 +789,7 @@ class CohortExporterTest(TestCohortBase):
                 + self.project2_case2_smallvars,
             )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_xlsx_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -781,6 +812,7 @@ class CohortExporterTest(TestCohortBase):
                 self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_xlsx_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -803,6 +835,7 @@ class CohortExporterTest(TestCohortBase):
                 self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
     def test_export_xlsx_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2

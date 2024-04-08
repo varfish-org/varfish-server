@@ -24,17 +24,6 @@ export interface ListArgs {
   queryString?: string
 }
 
-export interface RetrieveVariantDetailsArgs {
-  case_uuid: string
-  release: string
-  chromosome: string
-  start: number
-  end: number
-  reference: string
-  alternative: string
-  gene_id: string
-}
-
 /**
  * Class for accessing the variants REST API.
  */
@@ -143,27 +132,6 @@ export class VariantClient extends ClientBase {
   async listCaseVariantsUserAnnotated(caseUuid: string): Promise<any> {
     return await this.fetchHelper(
       `/variants/ajax/smallvariant/user-annotated-case/${caseUuid}/`,
-      'GET',
-    )
-  }
-
-  async retrieveVariantDetails(
-    database: string,
-    args: RetrieveVariantDetailsArgs,
-  ) {
-    const {
-      case_uuid,
-      release,
-      chromosome,
-      start,
-      end,
-      reference,
-      alternative,
-      gene_id,
-    } = args
-    const varDesc = `${release}-${chromosome}-${start}-${end}-${reference}-${alternative}`
-    return await this.fetchHelper(
-      `/variants/ajax/small-variant-details/${case_uuid}/${varDesc}/${database}/${gene_id}/`,
       'GET',
     )
   }
