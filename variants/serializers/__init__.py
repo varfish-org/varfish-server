@@ -723,6 +723,10 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
         )
 
 
+class SmallVariantFlagsProjectSerializer(SmallVariantFlagsSerializer):
+    case = serializers.ReadOnlyField(source="case.name")
+
+
 class QuickPresetSerializer(serializers.BaseSerializer):
     inheritance = serializers.CharField()
     frequency = serializers.CharField()

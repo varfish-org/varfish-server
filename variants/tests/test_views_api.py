@@ -1084,9 +1084,9 @@ class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
                 expected[-1]["case"] = str(flag.case.sodar_uuid)
 
             response_json = response.json()
-            for comment in response_json:
-                del comment["date_created"]
-                del comment["date_modified"]
+            for flag in response_json:
+                del flag["date_created"]
+                del flag["date_modified"]
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
@@ -1105,6 +1105,190 @@ class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
 
     def test_get_flags_guest(self):
         self._test_get_flags_as_user(self.user_guest)
+
+
+class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-flags-list-project",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_flags_as_user(self, user):
+        with self.login(user):
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            flags2 = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=self.case,
+            )
+            url = reverse(
+                "variants:api-small-variant-flags-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for flag in flags + flags2:
+                expected.append(model_to_dict(flag, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
+                expected[-1]["case"] = str(flag.case.name)
+
+            response_json = response.json()
+            for flag in response_json:
+                del flag["date_created"]
+                del flag["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_flags_superuser(self):
+        self._test_get_flags_as_user(self.superuser)
+
+    def test_get_flags_owner(self):
+        self._test_get_flags_as_user(self.user_owner)
+
+    def test_get_flags_delegate(self):
+        self._test_get_flags_as_user(self.user_delegate)
+
+    def test_get_flags_contributor(self):
+        self._test_get_flags_as_user(self.user_contributor)
+
+    def test_get_flags_guest(self):
+        self._test_get_flags_as_user(self.user_guest)
+
+    def test_get_flags_for_variant(self):
+        with self.login(self.superuser):
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            flags2 = [
+                SmallVariantFlagsFactory.create(
+                    case=self.case,
+                    release=flags[0].release,
+                    chromosome=flags[0].chromosome,
+                    start=flags[0].start,
+                    end=flags[0].end,
+                    reference=flags[0].reference,
+                    alternative=flags[0].alternative,
+                ),
+                SmallVariantFlagsFactory.create(
+                    case=self.case,
+                ),
+            ]
+            query_str = (
+                f"?release={flags[0].release}"
+                f"&chromosome={flags[0].chromosome}"
+                f"&start={flags[0].start}"
+                f"&end={flags[0].end}"
+                f"&reference={flags[0].reference}"
+                f"&alternative={flags[0].alternative}"
+            )
+            url = reverse(
+                "variants:api-small-variant-flags-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = []
+            for flag in (flags[0], flags2[0]):
+                expected.append(model_to_dict(flag, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
+                expected[-1]["case"] = str(flag.case.name)
+
+            response_json = response.json()
+            for flag in response_json:
+                del flag["date_created"]
+                del flag["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_flags_for_variant_exclude_case(self):
+        with self.login(self.superuser):
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            SmallVariantFlagsFactory(
+                case=self.case,
+                release=flags[0].release,
+                chromosome=flags[0].chromosome,
+                start=flags[0].start,
+                end=flags[0].end,
+                reference=flags[0].reference,
+                alternative=flags[0].alternative,
+            )
+            SmallVariantFlagsFactory(
+                case=self.case,
+            )
+            query_str = (
+                f"?release={flags[0].release}"
+                f"&chromosome={flags[0].chromosome}"
+                f"&start={flags[0].start}"
+                f"&end={flags[0].end}"
+                f"&reference={flags[0].reference}"
+                f"&alternative={flags[0].alternative}"
+                f"&exclude_case_uuid={self.case.sodar_uuid}"
+            )
+            url = reverse(
+                "variants:api-small-variant-flags-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = [model_to_dict(flags[0], exclude=["id", "bin", "chromosome_no"])]
+            expected[0]["sodar_uuid"] = str(flags[0].sodar_uuid)
+            expected[0]["case"] = str(flags[0].case.name)
+
+            response_json = response.json()
+            for flag in response_json:
+                del flag["date_created"]
+                del flag["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_flags_exclude_case(self):
+        with self.login(self.superuser):
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            SmallVariantFlagsFactory.create_batch(
+                2,
+                case=self.case,
+            )
+            query_str = f"?exclude_case_uuid={self.case.sodar_uuid}"
+            url = reverse(
+                "variants:api-small-variant-flags-list-project",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            response = self.request_knox(url + query_str)
+
+            expected = []
+            for flag in flags:
+                expected.append(model_to_dict(flag, exclude=["id", "bin", "chromosome_no"]))
+                expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
+                expected[-1]["case"] = str(flag.case.name)
+
+            response_json = response.json()
+            for flag in response_json:
+                del flag["date_created"]
+                del flag["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
 
 
 class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):

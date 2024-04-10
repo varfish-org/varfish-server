@@ -155,9 +155,6 @@ watch(
             </v-sheet>
           </v-hover>
         </template>
-        <div v-else>
-          <p class="text-muted text-center font-italic">No comments yet.</p>
-        </div>
       </v-card-text>
       <v-card-text>
         <template v-if="commentsStore.comments?.length">
