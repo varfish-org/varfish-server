@@ -14,6 +14,7 @@ from variants.views.api import (
     SmallVariantCommentUpdateApiView,
     SmallVariantFlagsDeleteApiView,
     SmallVariantFlagsListCreateApiView,
+    SmallVariantFlagsListProjectApiView,
     SmallVariantFlagsUpdateApiView,
     SmallVariantQueryDownloadGenerateApiView,
     SmallVariantQueryDownloadServeApiView,
@@ -261,6 +262,21 @@ class SmallVariantFlagsListCreateAjaxView(SmallVariantFlagsListCreateApiView):
     """Create small variant flags
 
     **URL:** ``/variants/ajax/small-variant-flags/list-create/{case.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantFlagsListProjectAjaxView(SmallVariantFlagsListProjectApiView):
+    """A view that allows to list existing flags for a project and variant.
+
+    **URL:** ``/variants/ajax/small-variant-flags/list-project/{project.sodar_uuid}``
 
     **Methods:** See base API class.
 

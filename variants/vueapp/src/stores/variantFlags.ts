@@ -43,6 +43,9 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /** For whole case: flags for all variants of the case with the given `caseUuid`. */
   const caseFlags = ref<Map<string, SmallVariantFlags>>(new Map())
 
+  /** For whole project: flags for all variants of the project with the given `projectUuid`. */
+  const projectWideVariantFlags = ref<Array<SmallVariantFlags>>([])
+
   /** Template object to use for for empty flags. */
   const emptyFlagsTemplate = Object.freeze({
     flag_bookmarked: false,
@@ -182,6 +185,43 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       storeState.state = State.Active
     } catch (err) {
       console.error('Problem loading flags for variant', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+      throw err // re-throw
+    }
+  }
+
+  /**
+   * Retrieve project-wide variant flags.
+   */
+  const retrieveProjectWideVariantFlags = async (seqvar$: Seqvar) => {
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
+
+    if (!projectUuid.value) {
+      throw new Error('projectUuid not set')
+    }
+
+    const variantClient = new VariantClient(
+      csrfToken.value ?? 'undefined-csrf-token',
+    )
+
+    projectWideVariantFlags.value = []
+    storeState.state = State.Fetching
+    storeState.serverInteractions += 1
+
+    try {
+      projectWideVariantFlags.value = await variantClient.listProjectFlags(
+        projectUuid.value,
+        caseUuid.value,
+        seqvar$,
+      )
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
+    } catch (err) {
+      console.error('Problem loading comments for variant', err)
       storeState.serverInteractions -= 1
       storeState.state = State.Error
       throw err // re-throw
@@ -374,6 +414,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     caseFlags,
     emptyFlagsTemplate,
     initialFlagsTemplate,
+    projectWideVariantFlags,
     initializeRes,
     // functions
     initialize,
@@ -383,5 +424,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     deleteFlags,
     getFlags,
     flagAsArtifact,
+    retrieveProjectWideVariantFlags,
   }
 })

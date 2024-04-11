@@ -259,6 +259,11 @@ ajax_urlpatterns = [
         name="ajax-small-variant-flags-list-create",
     ),
     url(
+        r"^ajax/small-variant-flags/list-project/(?P<project>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantFlagsListProjectAjaxView.as_view(),
+        name="ajax-small-variant-flags-list-project",
+    ),
+    url(
         r"^ajax/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/?$",
         view=views_ajax.SmallVariantFlagsUpdateAjaxView.as_view(),
         name="ajax-small-variant-flags-update",
@@ -415,6 +420,11 @@ api_urlpatterns = [
         r"^api/small-variant-flags/list-create/(?P<case>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantFlagsListCreateApiView.as_view(),
         name="api-small-variant-flags-list-create",
+    ),
+    url(
+        r"^api/small-variant-flags/list-project/(?P<project>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantFlagsListProjectApiView.as_view(),
+        name="api-small-variant-flags-list-project",
     ),
     url(
         r"^api/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/?$",

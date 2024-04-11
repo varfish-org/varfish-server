@@ -8,113 +8,130 @@ import { copy } from '@varfish/helpers'
 import { BOOLEAN_FLAGS, COLOR_VALUES, COLOR_FLAGS } from './constants'
 
 /** This component's props. */
-const props = defineProps<{
+const props_ = defineProps<{
   flagsStore: any
   variant: any
   resultRowUuid: string
   caseUuid?: string
 }>()
 
-const flagsToSubmit = ref(copy({ ...props.flagsStore.initialFlagsTemplate }))
+const flagsToSubmit = ref(copy({ ...props_.flagsStore.initialFlagsTemplate }))
 
 const unsetFlags = async () => {
-  flagsToSubmit.value = copy(props.flagsStore.emptyFlagsTemplate)
+  flagsToSubmit.value = copy(props_.flagsStore.emptyFlagsTemplate)
 }
 
 const flagsSubmitted = computed(() => {
-  if (!props.flagsStore.flags) {
+  if (!props_.flagsStore.flags) {
     return false
   }
   return (
     flagsToSubmit.value.flag_bookmarked ===
-      props.flagsStore.flags.flag_bookmarked &&
+      props_.flagsStore.flags.flag_bookmarked &&
     flagsToSubmit.value.flag_incidental ===
-      props.flagsStore.flags.flag_incidental &&
+      props_.flagsStore.flags.flag_incidental &&
     flagsToSubmit.value.flag_for_validation ===
-      props.flagsStore.flags.flag_for_validation &&
+      props_.flagsStore.flags.flag_for_validation &&
     flagsToSubmit.value.flag_candidate ===
-      props.flagsStore.flags.flag_candidate &&
+      props_.flagsStore.flags.flag_candidate &&
     flagsToSubmit.value.flag_final_causative ===
-      props.flagsStore.flags.flag_final_causative &&
+      props_.flagsStore.flags.flag_final_causative &&
     flagsToSubmit.value.flag_no_disease_association ===
-      props.flagsStore.flags.flag_no_disease_association &&
+      props_.flagsStore.flags.flag_no_disease_association &&
     flagsToSubmit.value.flag_segregates ===
-      props.flagsStore.flags.flag_segregates &&
+      props_.flagsStore.flags.flag_segregates &&
     flagsToSubmit.value.flag_doesnt_segregate ===
-      props.flagsStore.flags.flag_doesnt_segregate &&
-    flagsToSubmit.value.flag_visual === props.flagsStore.flags.flag_visual &&
+      props_.flagsStore.flags.flag_doesnt_segregate &&
+    flagsToSubmit.value.flag_visual === props_.flagsStore.flags.flag_visual &&
     flagsToSubmit.value.flag_molecular ===
-      props.flagsStore.flags.flag_molecular &&
+      props_.flagsStore.flags.flag_molecular &&
     flagsToSubmit.value.flag_validation ===
-      props.flagsStore.flags.flag_validation &&
+      props_.flagsStore.flags.flag_validation &&
     flagsToSubmit.value.flag_phenotype_match ===
-      props.flagsStore.flags.flag_phenotype_match &&
-    flagsToSubmit.value.flag_summary === props.flagsStore.flags.flag_summary
+      props_.flagsStore.flags.flag_phenotype_match &&
+    flagsToSubmit.value.flag_summary === props_.flagsStore.flags.flag_summary
   )
 })
 
 const resetFlags = async () => {
-  if (props.flagsStore.flags) {
-    flagsToSubmit.value.flag_bookmarked = props.flagsStore.flags.flag_bookmarked
-    flagsToSubmit.value.flag_incidental = props.flagsStore.flags.flag_incidental
+  if (props_.flagsStore.flags) {
+    flagsToSubmit.value.flag_bookmarked =
+      props_.flagsStore.flags.flag_bookmarked
+    flagsToSubmit.value.flag_incidental =
+      props_.flagsStore.flags.flag_incidental
     flagsToSubmit.value.flag_for_validation =
-      props.flagsStore.flags.flag_for_validation
-    flagsToSubmit.value.flag_candidate = props.flagsStore.flags.flag_candidate
+      props_.flagsStore.flags.flag_for_validation
+    flagsToSubmit.value.flag_candidate = props_.flagsStore.flags.flag_candidate
     flagsToSubmit.value.flag_final_causative =
-      props.flagsStore.flags.flag_final_causative
+      props_.flagsStore.flags.flag_final_causative
     flagsToSubmit.value.flag_no_disease_association =
-      props.flagsStore.flags.flag_no_disease_association
-    flagsToSubmit.value.flag_segregates = props.flagsStore.flags.flag_segregates
+      props_.flagsStore.flags.flag_no_disease_association
+    flagsToSubmit.value.flag_segregates =
+      props_.flagsStore.flags.flag_segregates
     flagsToSubmit.value.flag_doesnt_segregate =
-      props.flagsStore.flags.flag_doesnt_segregate
-    flagsToSubmit.value.flag_visual = props.flagsStore.flags.flag_visual
-    flagsToSubmit.value.flag_molecular = props.flagsStore.flags.flag_molecular
-    flagsToSubmit.value.flag_validation = props.flagsStore.flags.flag_validation
+      props_.flagsStore.flags.flag_doesnt_segregate
+    flagsToSubmit.value.flag_visual = props_.flagsStore.flags.flag_visual
+    flagsToSubmit.value.flag_molecular = props_.flagsStore.flags.flag_molecular
+    flagsToSubmit.value.flag_validation =
+      props_.flagsStore.flags.flag_validation
     flagsToSubmit.value.flag_phenotype_match =
-      props.flagsStore.flags.flag_phenotype_match
-    flagsToSubmit.value.flag_summary = props.flagsStore.flags.flag_summary
+      props_.flagsStore.flags.flag_phenotype_match
+    flagsToSubmit.value.flag_summary = props_.flagsStore.flags.flag_summary
   } else {
-    flagsToSubmit.value = { ...props.flagsStore.initialFlagsTemplate }
+    flagsToSubmit.value = { ...props_.flagsStore.initialFlagsTemplate }
   }
 }
 
 const onSubmitFlags = async () => {
   const flagsToSubmitEmpty = isEqual(
     flagsToSubmit.value,
-    props.flagsStore.emptyFlagsTemplate,
+    props_.flagsStore.emptyFlagsTemplate,
   )
-  if (props.flagsStore.flags && flagsToSubmitEmpty) {
+  if (props_.flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags
-    await props.flagsStore.deleteFlags()
-  } else if (!props.flagsStore.flags && flagsToSubmitEmpty) {
+    await props_.flagsStore.deleteFlags()
+  } else if (!props_.flagsStore.flags && flagsToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
-    flagsToSubmit.value = copy(props.flagsStore.initialFlagsTemplate)
-  } else if (props.flagsStore.flags && !flagsToSubmitEmpty) {
+    flagsToSubmit.value = copy(props_.flagsStore.initialFlagsTemplate)
+  } else if (props_.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await props.flagsStore.updateFlags(flagsToSubmit.value, props.resultRowUuid)
-  } else if (!props.flagsStore.flags && !flagsToSubmitEmpty) {
-    // IS empty but SHOULD not be empty, so create the flags
-    await props.flagsStore.createFlags(
-      props.variant,
+    await props_.flagsStore.updateFlags(
       flagsToSubmit.value,
-      props.resultRowUuid,
+      props_.resultRowUuid,
+    )
+  } else if (!props_.flagsStore.flags && !flagsToSubmitEmpty) {
+    // IS empty but SHOULD not be empty, so create the flags
+    await props_.flagsStore.createFlags(
+      props_.variant,
+      flagsToSubmit.value,
+      props_.resultRowUuid,
     )
   }
 }
 
 watch(
-  () => [props.variant, props.caseUuid],
+  () => [props_.variant, props_.caseUuid],
   async () => {
-    if (props.variant && props.caseUuid) {
-      await props.flagsStore.retrieveFlags(props.variant, props.caseUuid)
+    if (
+      props_.variant &&
+      props_.caseUuid &&
+      props_.flagsStore.storeState.state === State.Active
+    ) {
+      await props_.flagsStore.retrieveFlags(props_.variant, props_.caseUuid)
+      await props_.flagsStore.retrieveProjectWideVariantFlags(props_.variant)
       resetFlags()
     }
   },
 )
 
 onMounted(async () => {
-  if (props.variant && props.caseUuid) {
-    await props.flagsStore.retrieveFlags(props.variant, props.caseUuid)
+  if (
+    props_.variant &&
+    props_.caseUuid &&
+    props_.flagsStore.storeState.state === State.Active
+  ) {
+    await props_.flagsStore.retrieveFlags(props_.variant, props_.caseUuid)
+    await props_.flagsStore.retrieveProjectWideVariantFlags(props_.variant)
     resetFlags()
   }
 })
@@ -138,6 +155,69 @@ onMounted(async () => {
       <v-card-subtitle class="text-overline">
         View, create, or update flags
       </v-card-subtitle>
+      <v-card-text>
+        <template v-if="flagsStore.projectWideVariantFlags?.length">
+          <v-hover v-slot="{ isHovering, props }">
+            <v-sheet
+              v-for="(flags, index) in flagsStore.projectWideVariantFlags"
+              :key="`projectFlags-${index}`"
+              class="bg-blue-grey-lighten-3 p-3"
+              :class="{ 'mt-2': index > 0 }"
+              v-bind="props"
+            >
+              <div>
+                <span class="font-weight-bold">
+                  {{ flags.case }}
+                </span>
+                <span v-if="isHovering" class="text-blue-grey-darken-1">
+                  &mdash;&nbsp;This flag is from another case in the project for
+                  the same variant.
+                </span>
+              </div>
+              <v-row no-gutters>
+                <v-col cols="4">
+                  <v-layout row wrap>
+                    <template
+                      v-for="flag in BOOLEAN_FLAGS"
+                      :key="`projectFlags-${index}-boolean-flag-${flag.key}`"
+                    >
+                      <template v-if="flags[flag.key]">
+                        <v-icon>{{ flag.icon }}</v-icon>
+                      </template>
+                    </template>
+                  </v-layout>
+                </v-col>
+                <v-col cols="4">
+                  <v-row no-gutters>
+                    <template
+                      v-for="colorFlag in COLOR_FLAGS"
+                      :key="`projectFlags-${index}-color-flag-${colorFlag}`"
+                    >
+                      <template
+                        v-for="colorValue in COLOR_VALUES"
+                        :key="`projectFlags-${index}-color-value-${colorFlag}-${colorValue}`"
+                      >
+                        <template
+                          v-if="colorValue.value === flags[colorFlag.key]"
+                        >
+                          <v-col cols="3">
+                            <span class="text-nowrap">
+                              {{ colorFlag.label }}:
+                            </span>
+                            <v-icon :color="colorValue.color">
+                              {{ colorValue.icon }}
+                            </v-icon>
+                          </v-col>
+                        </template>
+                      </template>
+                    </template>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </v-sheet>
+          </v-hover>
+        </template>
+      </v-card-text>
       <v-card-text>
         <v-row no-gutters>
           <v-col cols="4">

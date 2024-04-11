@@ -76,6 +76,7 @@ from variants.serializers import (
     SettingsShortcutsSerializer,
     SmallVariantCommentProjectSerializer,
     SmallVariantCommentSerializer,
+    SmallVariantFlagsProjectSerializer,
     SmallVariantFlagsSerializer,
     SmallVariantQueryHpoTermSerializer,
     SmallVariantQueryResultRowSerializer,
@@ -1152,6 +1153,77 @@ class SmallVariantFlagsListCreateApiView(
             result_row.save()
             result_row.smallvariantqueryresultset.result_row_count += 1
             result_row.smallvariantqueryresultset.save()
+
+
+class SmallVariantFlagsProjectApiMixin(SmallVariantFlagsApiMixin):
+    lookup_url_kwarg = "project"
+    serializer_class = SmallVariantFlagsProjectSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        query_set = SmallVariantFlags.objects.select_related("case__project").filter(
+            case__project__sodar_uuid=self.kwargs["project"]
+        )
+
+        case_uuid = self.request.GET.get("exclude_case_uuid")
+
+        if case_uuid:
+            query_set = query_set.exclude(case__sodar_uuid=case_uuid)
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+
+        return query_set.order_by("date_created")
+
+
+class SmallVariantFlagsListProjectApiView(
+    SmallVariantFlagsProjectApiMixin,
+    ListAPIView,
+):
+    """A view that allows to list existing comments for a project and variant.
+
+    **URL:** ``/variants/api/small-variant-flags/list-project/{project.sodar_uuid}/``
+
+    **Query Arguments:**
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
+    - exclude_case_uuid
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
+
+
+class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = SmallVariantFlagsSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        query_set = SmallVariantFlags.objects.select_related("case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+        return query_set
+
+    def get_permission_required(self):
+        return "variants.view_data"
 
 
 class SmallVariantFlagsUpdateApiView(

@@ -233,6 +233,31 @@ export class VariantClient extends ClientBase {
     )
   }
 
+  async listProjectFlags(
+    projectUuid: string,
+    caseUuid?: string,
+    seqvar?: Seqvar,
+  ): Promise<VariantFlags[]> {
+    let query = ''
+    if (seqvar) {
+      const { genomeBuild, chrom, pos, del, ins } = seqvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      const end = pos + del.length - 1
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${pos}` +
+        `&end=${end}&reference=${del}&alternative=${ins}`
+    }
+    if (caseUuid) {
+      query += query
+        ? `&exclude_case_uuid=${caseUuid}`
+        : `?exclude_case_uuid=${caseUuid}`
+    }
+    return await this.fetchHelper(
+      `/variants/ajax/small-variant-flags/list-project/${projectUuid}/${query}`,
+      'GET',
+    )
+  }
+
   async createFlags(caseUuid: string, seqvar: Seqvar, payload: VariantFlags) {
     const { genomeBuild, chrom, pos, del, ins } = seqvar
     const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
