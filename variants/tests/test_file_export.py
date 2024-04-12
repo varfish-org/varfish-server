@@ -36,7 +36,7 @@ class MehariMockerMixin:
         for small_var in self.small_vars:
             mock_.get(
                 (
-                    "http://127.0.0.1:8000/proxy/varfish/mehari/seqvars/csq?genome_release={genome_release}"
+                    "https://mehari.com/seqvars/csq?genome_release={genome_release}"
                     "&chromosome={chromosome}&position={position}&reference={reference}"
                     "&alternative={alternative}"
                 ).format(
@@ -168,7 +168,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
             self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
-            self._test_tabular(arrs, False, settings.VARFISH_BACKEND_URL_PREFIX_MEHARI, database)
+            self._test_tabular(arrs, False, settings.VARFISH_BACKEND_URL_MEHARI, database)
 
     def _test_export_tsv(self, database, mock_):
         self._set_mehari_mocker(mock_)
@@ -177,20 +177,20 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
-        self._test_tabular(arrs, True, settings.VARFISH_BACKEND_URL_PREFIX_MEHARI, database)
+        self._test_tabular(arrs, True, settings.VARFISH_BACKEND_URL_MEHARI, database)
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     @Mocker()
     def test_export_tsv(self, mock_):
         self._test_export_tsv("refseq", mock_)
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     @Mocker()
     def test_export_tsv_refseq(self, mock_):
         self._test_export_tsv("refseq", mock_)
 
     # TODO mehari does not provide ensembl transcripts ATM, only refseq
-    # @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    # @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     # @Mocker()
     # def test_export_tsv_ensembl(self, mock_):
     #     self._test_export_tsv("ensembl", mock_)
@@ -277,7 +277,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     @Mocker()
     def test_export_vcf(self, mock_):
         self._set_mehari_mocker(mock_)
@@ -320,18 +320,18 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
             )
         self.assertEquals(content[3], "")
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     @Mocker()
     def test_export_xlsx(self, mock):
         self._test_export_xlsx("refseq", mock)
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     @Mocker()
     def test_export_xlsx_refseq(self, mock):
         self._test_export_xlsx("refseq", mock)
 
     # TODO mehari does not provide ensembl transcripts ATM, only refseq
-    # @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "/proxy/varfish/mehari")
+    # @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
     # @Mocker()
     # def test_export_xlsx_ensembl(self, mock):
     #     self._test_export_xlsx("ensembl", mock)
@@ -379,7 +379,7 @@ class ProjectExportTest(TestCase):
             file_type="xlsx",
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_tsv(self):
         with file_export.CaseExporterTsv(self.export_job, self.project) as exporter:
             result = str(exporter.generate(), "utf-8")
@@ -389,7 +389,7 @@ class ProjectExportTest(TestCase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 5 + int(has_trailing))
         # TODO: also test without flags and comments
-        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+        if settings.VARFISH_BACKEND_URL_MEHARI:
             self.assertEquals(len(arrs[0]), 59)
         else:
             self.assertEquals(len(arrs[0]), 58)
@@ -429,7 +429,7 @@ class ProjectExportTest(TestCase):
         if has_trailing:
             self.assertSequenceEqual(arrs[5], [""])
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_vcf(self):
         with file_export.CaseExporterVcf(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -520,7 +520,7 @@ class ProjectExportTest(TestCase):
         )
         self.assertEquals(content[3], "")
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_xlsx(self):
         with file_export.CaseExporterXlsx(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -546,7 +546,7 @@ class CohortExporterTest(TestCohortBase):
             file_type="xlsx",
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_tsv_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -565,7 +565,7 @@ class CohortExporterTest(TestCohortBase):
             + self.project2_case2_smallvars,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_tsv_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -581,7 +581,7 @@ class CohortExporterTest(TestCohortBase):
             self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_tsv_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -597,7 +597,7 @@ class CohortExporterTest(TestCohortBase):
             self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_tsv_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -613,10 +613,11 @@ class CohortExporterTest(TestCohortBase):
             self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
-        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+        if settings.VARFISH_BACKEND_URL_MEHARI:
             self.assertEquals(len(arrs[0]), 59)
         else:
             self.assertEquals(len(arrs[0]), 58)
@@ -696,7 +697,7 @@ class CohortExporterTest(TestCohortBase):
             self.assertEqual(content[i].split("\t"), list(var[1:]) + vcf_vars[var])
         self.assertEquals(content[ref - 1], "")
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_vcf_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -715,7 +716,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_vcf_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -731,7 +732,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_vcf_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -747,7 +748,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_vcf_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -763,7 +764,7 @@ class CohortExporterTest(TestCohortBase):
             user,
         )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_xlsx_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -789,7 +790,7 @@ class CohortExporterTest(TestCohortBase):
                 + self.project2_case2_smallvars,
             )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_xlsx_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -812,7 +813,7 @@ class CohortExporterTest(TestCohortBase):
                 self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_xlsx_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -835,7 +836,7 @@ class CohortExporterTest(TestCohortBase):
                 self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_PREFIX_MEHARI", "")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     def test_export_xlsx_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
