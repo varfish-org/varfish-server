@@ -8,13 +8,14 @@ import attrs
 import binning
 
 # TODO pycharm marks the following as unused, but they are actually required.
-from django.db.models import Q
+from django.conf import settings
 from projectroles.serializers import SODARModelSerializer
+import requests
 from rest_framework import serializers
 
 from clinvar.models import Clinvar
 from extra_annos.models import ExtraAnno, ExtraAnnoField
-from geneinfo.models import Hgnc, Hpo, HpoName
+from geneinfo.models import Hpo, HpoName
 from genepanels.models import expand_panels_in_gene_list
 from variants.models import (
     AcmgCriteriaRating,
@@ -56,17 +57,25 @@ def query_settings_validator(value):
             return
         # Extend gene list with those from genepanels app.
         proc_gene_list = expand_panels_in_gene_list(gene_list)
-        records = Hgnc.objects.filter(
-            Q(ensembl_gene_id__in=proc_gene_list)
-            | Q(hgnc_id__in=proc_gene_list)
-            | Q(entrez_id__in=proc_gene_list)
-            | Q(symbol__in=proc_gene_list)
-        )
-        result = []
-        for record in records:
-            result += [record.ensembl_gene_id, record.hgnc_id, record.entrez_id, record.symbol]
+        base_url = settings.VARFISH_BACKEND_URL_ANNONARS
+        if not base_url:
+            return
+        url_tpl = "{base_url}/genes/lookup?q={gene_list_joined}"
+        url = url_tpl.format(base_url=base_url, gene_list_joined=",".join(proc_gene_list))
+        try:
+            res = requests.request(method="get", url=url)
+            if not res.status_code == 200:
+                raise ConnectionError(
+                    "ERROR: Server responded with status {} and message {}".format(
+                        res.status_code, res.text
+                    )
+                )
+            else:
+                records = res.json()
+        except requests.ConnectionError as e:
+            raise ConnectionError("ERROR: annonars nor responding.") from e
         given_set = set(proc_gene_list)
-        found_set = set(result)
+        found_set = {record for record in records["genes"].keys()}
         not_found = given_set - found_set
         if not_found:
             raise serializers.ValidationError(f"Could not find gene(s) in {label}: {not_found}")

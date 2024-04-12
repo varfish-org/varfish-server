@@ -495,9 +495,6 @@ WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
 # URL prefix to look at for worker.
 WORKER_REST_BASE_URL = env.str("VARFISH_WORKER_REST_BASE_URL", "http://127.0.0.1:8081")
 
-# Domain for url generation that don't have access to request object.
-VARFISH_DOMAIN = env.str("VARFISH_DOMAIN", "http://127.0.0.1:8000")
-
 
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
