@@ -21,9 +21,9 @@ _app_settings = AppSettingAPI()
 
 def load_molecular_impact(kwargs):
     """Load molecular impact from mehari REST API."""
-    if not settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+    base_url = settings.VARFISH_BACKEND_URL_MEHARI
+    if not base_url:
         return []
-    base_url = settings.VARFISH_DOMAIN + settings.VARFISH_BACKEND_URL_PREFIX_MEHARI
     url_tpl = (
         "{base_url}/seqvars/csq?genome_release={genome_release}"
         "&chromosome={chromosome}&position={position}&reference={reference}"

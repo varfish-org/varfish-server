@@ -348,7 +348,7 @@ class CaseExporterBase:
             header += HEADERS_PHENO_SCORES
         if self._is_pathogenicity_enabled():
             header += HEADERS_PATHO_SCORES
-        if settings.VARFISH_BACKEND_URL_PREFIX_MEHARI:
+        if settings.VARFISH_BACKEND_URL_MEHARI:
             header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
