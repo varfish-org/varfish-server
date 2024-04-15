@@ -195,6 +195,6 @@ wcwidth==0.2.13
 Werkzeug==3.0.1
 wrapt==1.16.0
 wsproto==1.2.0
-XlsxWriter==3.1.9
+XlsxWriter==3.2.0
 xmlschema==2.5.0
 yarl==1.9.4
