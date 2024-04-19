@@ -40,6 +40,8 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   const tableSortBy = ref<any | null>(null)
   /** Table server option sort asc or desc. */
   const tableSortType = ref<string | null>(null)
+  /** Uuid of last visisted row */
+  const lastVisited = ref<string | null>(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -58,6 +60,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     tablePageSize.value = null
     tableSortBy.value = null
     tableSortType.value = null
+    lastVisited.value = null
   }
 
   /**
@@ -172,6 +175,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
     tablePageSize,
     tableSortBy,
     tableSortType,
+    lastVisited,
     // functions
     initialize,
     fetchResultSetViaRow,

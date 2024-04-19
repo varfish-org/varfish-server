@@ -1,7 +1,6 @@
 <script setup>
 import { sortBy } from 'sort-by-typescript'
 import { computed, onBeforeMount, reactive, watch, ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
@@ -19,9 +18,8 @@ const MAX_GENES = 20
 /** Define emits. */
 const emit = defineEmits(['variantSelected'])
 
-const router = useRouter()
-
 const showVariantDetails = (sodarUuid, section) => {
+  svResultSetStore.lastVisited = sodarUuid
   emit('variantSelected', {
     svresultrow: sodarUuid,
     selectedSection: section ?? 'gene-overview',
@@ -285,6 +283,9 @@ const effectiveGenotype = (callInfo) => {
 
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
+  if (item.sodar_uuid === svResultSetStore.lastVisited) {
+    return 'last-visited-row'
+  }
   if (!svFlagsStore.caseFlags) {
     return ''
   }
@@ -874,5 +875,8 @@ watch(
 
 .bookmarked-row {
   --easy-table-body-row-background-color: #cccccc;
+}
+.last-visited-row {
+  --easy-table-body-row-background-color: #85c1e9;
 }
 </style>

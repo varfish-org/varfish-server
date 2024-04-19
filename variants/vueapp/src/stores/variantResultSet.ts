@@ -50,6 +50,8 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   const displayConstraint = ref<number | null>(null)
   /** The additional columns to display; Integers from {@code DisplayColumns}. */
   const displayColumns = ref<any | null>(null)
+  /** Uuid of last visisted row */
+  const lastVisited = ref<string | null>(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -72,6 +74,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     displayFrequency.value = null
     displayConstraint.value = null
     displayColumns.value = null
+    lastVisited.value = null
   }
 
   /**
@@ -228,6 +231,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     displayFrequency,
     displayConstraint,
     displayColumns,
+    lastVisited,
     // functions
     initialize,
     fetchResultSetViaRow,

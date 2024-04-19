@@ -266,6 +266,9 @@ const hasComments = (payload) => {
  * Configuration for the row to color them based on flags.
  */
 const tableRowClassName = (item, _rowNumber) => {
+  if (item.sodar_uuid === variantResultSetStore.lastVisited) {
+    return 'last-visited-row'
+  }
   if (!flagsStore.caseFlags) {
     return ''
   }
@@ -419,6 +422,7 @@ const getClinvarSignificanceBadge = (patho) => {
 }
 
 const showVariantDetails = (sodarUuid, section) => {
+  variantResultSetStore.lastVisited = sodarUuid
   emit('variantSelected', {
     smallvariantresultrow: sodarUuid,
     selectedSection: section ?? 'gene-overview',
@@ -996,6 +1000,9 @@ watch(
 
 .bookmarked-row {
   --easy-table-body-row-background-color: #cccccc;
+}
+.last-visited-row {
+  --easy-table-body-row-background-color: #85c1e9;
 }
 </style>
 <style scoped>
