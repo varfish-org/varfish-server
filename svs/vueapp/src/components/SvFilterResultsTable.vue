@@ -204,10 +204,7 @@ const loadFromServer = async () => {
 }
 
 const goToLocus = async ({ chromosome, start, end }) => {
-  let chrom = chromosome
-  if (chrom?.startsWith('chr')) {
-    chrom = chrom.slice(3)
-  }
+  const chrom = chromosome == 'chrMT' ? 'chrM' : chromosome
   await fetch(`http://127.0.0.1:60151/goto?locus=${chrom}:${start}-${end}`)
 }
 

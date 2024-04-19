@@ -5,10 +5,7 @@ import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
  */
 export const jumpToLocus = async (seqvar?: Seqvar) => {
   // NB: we allow the call to fetch here as it goes to local IGV.
-  let chrom = seqvar?.chrom
-  if (chrom?.startsWith('chr')) {
-    chrom = chrom.slice(3)
-  }
+  const chrom = seqvar?.chrom == 'chrMT' ? 'chrM' : seqvar?.chrom
   await fetch(
     `http://127.0.0.1:60151/goto?locus=${chrom}:${seqvar?.pos}-${
       (seqvar?.pos ?? 0) + (seqvar?.del?.length ?? 0)
