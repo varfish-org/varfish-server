@@ -385,11 +385,12 @@ const effectSummary = (item) => {
   return [null, 'p.?', 'p.='].includes(item.hgvs_p) ? item.hgvs_c : item.hgvs_p
 }
 const goToLocus = async (item) => {
-  const chrPrefixed = item.chromosome.startsWith('chr')
-    ? item.chromosome
-    : `chr${item.chromosome}`
+  let chrom = item.chromosome
+  if (chrom.startsWith('chr')) {
+    chrom = chrom.slice(3)
+  }
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${item.start}-${item.end}`,
+    `http://127.0.0.1:60151/goto?locus=${chrom}:${item.start}-${item.end}`,
   ).catch(() => {
     const msg =
       "Couldn't connect to IGV. Please make sure IGV is running and try again."
