@@ -43,6 +43,8 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const comments = ref<StructuralVariantComment | null>(null)
   /** The comments for all structural variants of the case with the given `caseUuid`. */
   const caseComments = ref<Map<string, StructuralVariantComment>>(new Map())
+  /** The project-wide variant comments. */
+  const projectWideVariantComments = ref<Array<StructuralVariantComment>>([])
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -297,6 +299,41 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     return false
   }
 
+  /**
+   * Retrieve project-wide variant comments.
+   */
+  const retrieveProjectWideVariantComments = async (strucvar$: Strucvar) => {
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
+
+    if (!projectUuid.value) {
+      throw new Error('projectUuid not set')
+    }
+
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+
+    projectWideVariantComments.value = []
+    storeState.state = State.Fetching
+    storeState.serverInteractions += 1
+
+    try {
+      projectWideVariantComments.value = await svClient.listProjectComment(
+        projectUuid.value,
+        caseUuid.value,
+        strucvar$,
+      )
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
+    } catch (err) {
+      console.error('Problem loading comments for variant', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+      throw err // re-throw
+    }
+  }
+
   return {
     // data / state
     csrfToken,
@@ -306,6 +343,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     sv,
     comments,
     caseComments,
+    projectWideVariantComments,
     initializeRes,
     // functions
     initialize,
@@ -314,5 +352,6 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     updateComment,
     deleteComment,
     hasComment,
+    retrieveProjectWideVariantComments,
   }
 })

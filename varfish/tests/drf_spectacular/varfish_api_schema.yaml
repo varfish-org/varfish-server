@@ -3199,6 +3199,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/StructuralVariantComment'
           description: ''
+  /svs/ajax/structural-variant-comment/list-project/{project}/:
+    get:
+      operationId: svs_ajax_structural_variant_comment_list_project_list
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StructuralVariantCommentProject'
+          description: ''
   /svs/ajax/structural-variant-comment/retrieve-update-destroy/{structuralvariantcomment}/:
     get:
       operationId: svs_ajax_structural_variant_comment_retrieve_update_destroy_retrieve
@@ -3371,6 +3397,32 @@ paths:
             application/vnd.bihealth.varfish+json:
               schema:
                 $ref: '#/components/schemas/StructuralVariantFlags'
+          description: ''
+  /svs/ajax/structural-variant-flags/list-project/{project}/:
+    get:
+      operationId: svs_ajax_structural_variant_flags_list_project_list
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StructuralVariantFlagsProject'
           description: ''
   /svs/ajax/structural-variant-flags/retrieve-update-destroy/{structuralvariantflags}/:
     get:
@@ -14060,6 +14112,73 @@ components:
       - text
       - user
       - user_can_edit
+    StructuralVariantCommentProject:
+      type: object
+      description: Serializer for the ``StructuralVariantComment` model.
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Annotation UUID
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        user:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+        case:
+          type: string
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        sv_type:
+          type: string
+          maxLength: 32
+        sv_sub_type:
+          type: string
+          maxLength: 32
+        text:
+          type: string
+          description: The comment text
+        user_can_edit:
+          type: boolean
+          readOnly: true
+      required:
+      - case
+      - chromosome
+      - date_created
+      - date_modified
+      - end
+      - release
+      - sodar_uuid
+      - start
+      - sv_sub_type
+      - sv_type
+      - text
+      - user
+      - user_can_edit
     StructuralVariantFlags:
       type: object
       description: Serializer for the ``StructuralVariantFlags` model.
@@ -14083,6 +14202,85 @@ components:
           type: string
           format: uuid
           description: Case SODAR UUID
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        sv_type:
+          type: string
+          maxLength: 32
+        sv_sub_type:
+          type: string
+          maxLength: 32
+        flag_bookmarked:
+          type: boolean
+        flag_candidate:
+          type: boolean
+        flag_final_causative:
+          type: boolean
+        flag_for_validation:
+          type: boolean
+        flag_no_disease_association:
+          type: boolean
+        flag_segregates:
+          type: boolean
+        flag_doesnt_segregate:
+          type: boolean
+        flag_visual:
+          $ref: '#/components/schemas/VariantRatingEnum'
+        flag_molecular:
+          $ref: '#/components/schemas/VariantRatingEnum'
+        flag_validation:
+          $ref: '#/components/schemas/VariantRatingEnum'
+        flag_phenotype_match:
+          $ref: '#/components/schemas/VariantRatingEnum'
+        flag_incidental:
+          type: boolean
+        flag_summary:
+          $ref: '#/components/schemas/VariantRatingEnum'
+      required:
+      - case
+      - chromosome
+      - date_created
+      - date_modified
+      - end
+      - release
+      - sodar_uuid
+      - start
+      - sv_sub_type
+      - sv_type
+    StructuralVariantFlagsProject:
+      type: object
+      description: Serializer for the ``StructuralVariantFlags` model.
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Annotation UUID
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        case:
+          type: string
           readOnly: true
         release:
           type: string

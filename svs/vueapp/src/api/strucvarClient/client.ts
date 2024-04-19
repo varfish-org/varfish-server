@@ -172,6 +172,36 @@ export class SvClient extends ClientBase {
     )
   }
 
+  async listProjectComment(
+    projectUuid: string,
+    caseUuid?: string,
+    strucvar?: Strucvar,
+  ): Promise<SvComment[]> {
+    let query = ''
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
+    }
+    if (caseUuid) {
+      query += query
+        ? `&exclude_case_uuid=${caseUuid}`
+        : `?exclude_case_uuid=${caseUuid}`
+    }
+    return await this.fetchHelper(
+      `/svs/ajax/structural-variant-comment/list-project/${projectUuid}/${query}`,
+      'GET',
+    )
+  }
+
   /** List flags for the given case, optionally for the given `sv`. */
   async listFlags(caseUuid: string, strucvar?: Strucvar): Promise<SvFlags[]> {
     let query = ''
@@ -191,6 +221,36 @@ export class SvClient extends ClientBase {
 
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/${query}`,
+      'GET',
+    )
+  }
+
+  async listProjectFlags(
+    projectUuid: string,
+    caseUuid?: string,
+    strucvar?: Strucvar,
+  ): Promise<SvFlags[]> {
+    let query = ''
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
+    }
+    if (caseUuid) {
+      query += query
+        ? `&exclude_case_uuid=${caseUuid}`
+        : `?exclude_case_uuid=${caseUuid}`
+    }
+    return await this.fetchHelper(
+      `/svs/ajax/structural-variant-flags/list-project/${projectUuid}/${query}`,
       'GET',
     )
   }

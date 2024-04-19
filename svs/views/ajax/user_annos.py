@@ -4,11 +4,13 @@ import uuid
 
 from iterable_orm import QuerySet
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from svs.models import StructuralVariantComment, StructuralVariantFlags, SvQueryResultRow
 from svs.serializers.user_annos import (
+    StructuralVariantCommentProjectSerializer,
     StructuralVariantCommentSerializer,
+    StructuralVariantFlagsProjectSerializer,
     StructuralVariantFlagsSerializer,
 )
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
@@ -154,6 +156,30 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
             result_row.svqueryresultset.save()
 
 
+class StructuralVariantFlagsListProjectAjaxView(StructuralVariantFlagsAjaxMixin, ListAPIView):
+    lookup_url_kwarg = "project"
+    serializer_class = StructuralVariantFlagsProjectSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        query_set = StructuralVariantFlags.objects.select_related("case__project").filter(
+            case__project__sodar_uuid=self.kwargs["project"]
+        )
+
+        case_uuid = self.request.GET.get("exclude_case_uuid")
+
+        if case_uuid:
+            query_set = query_set.exclude(case__sodar_uuid=case_uuid)
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+
+        return query_set.order_by("date_created")
+
+
 class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
     SvApiBaseMixin, RetrieveUpdateDestroyAPIView
 ):
@@ -254,6 +280,30 @@ class StructuralVariantCommentListCreateAjaxView(
             result_row.save()
             result_row.svqueryresultset.result_row_count += 1
             result_row.svqueryresultset.save()
+
+
+class StructuralVariantCommentListProjectAjaxView(StructuralVariantCommentAjaxMixin, ListAPIView):
+    lookup_url_kwarg = "project"
+    serializer_class = StructuralVariantCommentProjectSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        query_set = StructuralVariantComment.objects.select_related("user", "case__project").filter(
+            case__project__sodar_uuid=self.kwargs["project"]
+        )
+
+        case_uuid = self.request.GET.get("exclude_case_uuid")
+
+        if case_uuid:
+            query_set = query_set.exclude(case__sodar_uuid=case_uuid)
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+
+        return query_set.order_by("date_created")
 
 
 class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(

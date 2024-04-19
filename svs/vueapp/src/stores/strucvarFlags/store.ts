@@ -62,6 +62,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const flags = ref<StructuralVariantFlags | null>(null)
   /** The flags for all structural variants of the case with the given `caseUuid`. */
   const caseFlags = ref<Map<string, StructuralVariantFlags>>(new Map())
+  /** The project-wide variant flags. */
+  const projectWideVariantFlags = ref<Array<StructuralVariantFlags>>([])
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -324,6 +326,41 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     return null
   }
 
+  /**
+   * Retrieve project-wide variant comments.
+   */
+  const retrieveProjectWideVariantFlags = async (strucvar$: Strucvar) => {
+    if (!caseUuid.value) {
+      throw new Error('caseUuid not set')
+    }
+
+    if (!projectUuid.value) {
+      throw new Error('projectUuid not set')
+    }
+
+    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+
+    projectWideVariantFlags.value = []
+    storeState.state = State.Fetching
+    storeState.serverInteractions += 1
+
+    try {
+      projectWideVariantFlags.value = await svClient.listProjectFlags(
+        projectUuid.value,
+        caseUuid.value,
+        strucvar$,
+      )
+
+      storeState.serverInteractions -= 1
+      storeState.state = State.Active
+    } catch (err) {
+      console.error('Problem loading flags for variant', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+      throw err // re-throw
+    }
+  }
+
   return {
     // data / state
     csrfToken,
@@ -335,6 +372,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     caseFlags,
     emptyFlagsTemplate,
     initialFlagsTemplate,
+    projectWideVariantFlags,
     // functions
     initialize,
     retrieveFlags,
@@ -342,5 +380,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     updateFlags,
     deleteFlags,
     getFlags,
+    retrieveProjectWideVariantFlags,
   }
 })
