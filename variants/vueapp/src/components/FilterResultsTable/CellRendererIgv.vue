@@ -4,11 +4,12 @@ const props = defineProps({
 })
 
 const goToLocus = async () => {
-  const chrPrefixed = props.params.data.chromosome.startsWith('chr')
-    ? props.params.data.chromosome
-    : `chr${props.params.data.chromosome}`
+  let chrom = props.params.data.chromosome
+  if (chrom?.startsWith('chr')) {
+    chrom = chrom.slice(3)
+  }
   await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${props.params.data.start}-${props.params.data.end}`,
+    `http://127.0.0.1:60151/goto?locus=${chrom}:${props.params.data.start}-${props.params.data.end}`,
   ).catch(() => {
     console.error('IGV not available')
   })

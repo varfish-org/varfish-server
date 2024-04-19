@@ -206,12 +206,11 @@ const loadFromServer = async () => {
 }
 
 const goToLocus = async ({ chromosome, start, end }) => {
-  const chrPrefixed = chromosome.startsWith('chr')
-    ? chromosome
-    : `chr${chromosome}`
-  await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${start}-${end}`,
-  )
+  let chrom = chromosome
+  if (chrom?.startsWith('chr')) {
+    chrom = chrom.slice(3)
+  }
+  await fetch(`http://127.0.0.1:60151/goto?locus=${chrom}:${start}-${end}`)
 }
 
 const ucscUrl = (release, chromosome, start, end) => {
