@@ -50,6 +50,10 @@ class StructuralVariantCommentSerializer(serializers.ModelSerializer):
         read_only_fields = ("sodar_uuid", "date_created", "date_modified", "case", "user")
 
 
+class StructuralVariantCommentProjectSerializer(StructuralVariantCommentSerializer):
+    case = serializers.ReadOnlyField(source="case.name")
+
+
 class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
     """Serializer for the ``StructuralVariantFlags` model."""
 
@@ -94,3 +98,7 @@ class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
             "flag_summary",
         )
         read_only_fields = ("sodar_uuid", "date_created", "date_modified", "case")
+
+
+class StructuralVariantFlagsProjectSerializer(StructuralVariantFlagsSerializer):
+    case = serializers.ReadOnlyField(source="case.name")

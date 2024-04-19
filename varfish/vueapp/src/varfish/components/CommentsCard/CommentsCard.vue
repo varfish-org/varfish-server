@@ -20,7 +20,7 @@ watch(
       props_.variant &&
       props_.commentsStore.storeState.state === State.Active
     ) {
-      props_.commentsStore.retrieveComments(props_.variant)
+      props_.commentsStore.retrieveComments(props_.variant, props_.caseUuid)
       props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
     }
   },
@@ -31,7 +31,7 @@ onMounted(() => {
     props_.variant &&
     props_.commentsStore.storeState.state === State.Active
   ) {
-    props_.commentsStore.retrieveComments(props_.variant)
+    props_.commentsStore.retrieveComments(props_.variant, props_.caseUuid)
     props_.commentsStore.retrieveProjectWideVariantComments(props_.variant)
   }
 })

@@ -90,6 +90,11 @@ urlpatterns_ajax = [
         name="ajax-structuralvariantflags-listcreate",
     ),
     url(
+        regex=r"^ajax/structural-variant-flags/list-project/(?P<project>[0-9a-f-]+)/?$",
+        view=views.StructuralVariantFlagsListProjectAjaxView.as_view(),
+        name="ajax-structuralvariantflags-listproject",
+    ),
+    url(
         regex=r"^ajax/structural-variant-flags/retrieve-update-destroy/(?P<structuralvariantflags>[0-9a-f-]+)/?$",
         view=views.StructuralVariantFlagsRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantflags-retrieveupdatedestroy",
@@ -98,6 +103,11 @@ urlpatterns_ajax = [
         regex=r"^ajax/structural-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
         view=views.StructuralVariantCommentListCreateAjaxView.as_view(),
         name="ajax-structuralvariantcomment-listcreate",
+    ),
+    url(
+        regex=r"^ajax/structural-variant-comment/list-project/(?P<project>[0-9a-f-]+)/?$",
+        view=views.StructuralVariantCommentListProjectAjaxView.as_view(),
+        name="ajax-structuralvariantcomment-listproject",
     ),
     url(
         regex=r"^ajax/structural-variant-comment/retrieve-update-destroy/(?P<structuralvariantcomment>[0-9a-f-]+)/?$",
