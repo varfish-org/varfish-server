@@ -64,7 +64,7 @@
     "@popperjs/core": "^2.11.8",
     "@rushstack/eslint-patch": "^1.10.1",
     "@storybook/addon-essentials": "^8.0.6",
-    "@storybook/addon-interactions": "^8.0.5",
+    "@storybook/addon-interactions": "^8.0.8",
     "@storybook/addon-links": "^8.0.6",
     "@storybook/testing-library": "0.2.2",
     "@storybook/vue3": "^8.0.8",
