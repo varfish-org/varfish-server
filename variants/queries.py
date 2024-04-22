@@ -49,6 +49,7 @@ from variants.models import (
     SmallVariantSummary,
 )
 from variants.plugins import PLUGIN_TYPE_EXTEND_QUERY_INFO, get_active_plugins
+from variants.query_presets import IMPACT_PRESETS
 from variants.utils import class_from_string
 
 
@@ -1007,6 +1008,8 @@ class ExtendQueryPartsInHouseJoinAndFilter(ExtendQueryPartsInHouseJoin):
 
 class ExtendQueryPartsEffectsFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
+        if set(self.kwargs["effects"]) == set(IMPACT_PRESETS.any["effects"]):
+            return []
         return [
             OVERLAP(
                 getattr(SmallVariant.sa, "%s_effect" % self.transcript_db),

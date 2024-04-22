@@ -1903,6 +1903,11 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
             variant_set=variant_set,
         )
         SmallVariantFactory(
+            release=self.case.release,
+            refseq_effect=[],
+            variant_set=variant_set,
+        )
+        SmallVariantFactory(
             release=self.case.release, refseq_effect=["frameshift_variant"], variant_set=variant_set
         )
 
@@ -1952,6 +1957,50 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
             CaseExportVcfQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
+        )
+
+    def test_effects_include_missing_annotation(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "effects": [
+                    "3_prime_UTR_exon_variant",
+                    "3_prime_UTR_intron_variant",
+                    "5_prime_UTR_exon_variant",
+                    "5_prime_UTR_intron_variant",
+                    "coding_transcript_intron_variant",
+                    "complex_substitution",
+                    "direct_tandem_duplication",
+                    "disruptive_inframe_deletion",
+                    "disruptive_inframe_insertion",
+                    "downstream_gene_variant",
+                    "exon_loss_variant",
+                    "feature_truncation",
+                    "frameshift_elongation",
+                    "frameshift_truncation",
+                    "frameshift_variant",
+                    "inframe_deletion",
+                    "inframe_insertion",
+                    "intergenic_variant",
+                    "internal_feature_elongation",
+                    "missense_variant",
+                    "mnv",
+                    "non_coding_transcript_exon_variant",
+                    "non_coding_transcript_intron_variant",
+                    "splice_acceptor_variant",
+                    "splice_donor_variant",
+                    "splice_region_variant",
+                    "start_lost",
+                    "stop_gained",
+                    "stop_lost",
+                    "stop_retained_variant",
+                    "structural_variant",
+                    "synonymous_variant",
+                    "transcript_ablation",
+                    "upstream_gene_variant",
+                ],
+            },
+            4,
         )
 
 
