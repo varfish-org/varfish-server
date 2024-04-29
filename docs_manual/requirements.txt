@@ -65,7 +65,7 @@ djproxy==2.3.6
 docopt==0.6.2
 docutils==0.21.1
 drf-keyed-list-bihealth==0.1.1
-elementpath==4.1.5
+elementpath==4.4.0
 et-xmlfile==1.1.0
 exceptiongroup==1.2.0
 executing==2.0.0
