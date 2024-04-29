@@ -73,7 +73,7 @@
     "@types/jquery": "^3.5.29",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-istanbul": "^1.4.0",
-    "@vue/compiler-sfc": "^3.4.23",
+    "@vue/compiler-sfc": "^3.4.25",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.5",
