@@ -60,7 +60,7 @@ rich = "*"
 
 [dev-packages]
 # packages for testing
-black = "~=24.3.0"
+black = "~=24.4.2"
 click = "~=8.0"
 coveralls = "*"
 django-coverage-plugin = "~=3.1.0"
