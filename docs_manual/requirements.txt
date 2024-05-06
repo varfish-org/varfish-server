@@ -174,7 +174,7 @@ sphinxcontrib-serializinghtml==1.1.10
 SQLAlchemy==1.4.52
 sqlparse==0.5.0
 stack-data==0.6.3
-tblib==2.0.0
+tblib==3.0.0
 termcolor==2.4.0
 toml==0.10.2
 tomli==2.0.1
