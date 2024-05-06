@@ -63,7 +63,7 @@ djangorestframework==3.14.0
 djangorestframework-httpsignature==1.0.0
 djproxy==2.3.6
 docopt==0.6.2
-docutils==0.21.1
+docutils==0.21.2
 drf-keyed-list-bihealth==0.1.1
 elementpath==4.4.0
 et-xmlfile==1.1.0
