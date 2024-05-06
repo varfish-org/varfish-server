@@ -21,7 +21,7 @@ black==24.3.0
 botocore==1.34.54
 cattrs==23.2.2
 celery==5.3.6
-certifi==2023.11.17
+certifi==2024.2.2
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
