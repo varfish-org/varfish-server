@@ -100,7 +100,7 @@
     "react-dom": "^18.2.0",
     "sass": "^1.75.0",
     "storybook": "^8.0.10",
-    "storybook-addon-mock": "^4.3.0",
+    "storybook-addon-mock": "^5.0.0",
     "unplugin-fonts": "^1.1.1",
     "unplugin-icons": "^0.18.5",
     "unplugin-vue-components": "^0.26.0",
