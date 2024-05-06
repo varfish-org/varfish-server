@@ -192,7 +192,7 @@ vine==5.1.0
 wasmer==1.1.0
 wasmer_compiler_cranelift==1.1.0
 wcwidth==0.2.13
-Werkzeug==3.0.1
+Werkzeug==3.0.3
 wrapt==1.16.0
 wsproto==1.2.0
 XlsxWriter==3.2.0
