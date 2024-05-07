@@ -11,7 +11,10 @@ import { useSvResultSetStore } from '@svs/stores/svResultSet'
 import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
 import { useSvQueryStore } from '@svs/stores/svQuery'
+import { getAcmgBadge } from '@variants/helpers'
+import { useSvAcmgRatingStore } from '@svs/stores/svAcmgRating'
 import { formatLargeInt, displayName } from '@varfish/helpers'
+import { LinearStrucvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 const MAX_GENES = 20
 
@@ -38,6 +41,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
+const svAcmgRatingStore = useSvAcmgRatingStore()
 const svQueryStore = useSvQueryStore()
 
 // Headers for the table.
@@ -278,6 +282,27 @@ const effectiveGenotype = (callInfo) => {
   }
 }
 
+const getAcmgRating = (payload) => {
+  return svAcmgRatingStore.getAcmgRating(
+    new LinearStrucvarImpl(
+      payload.sv_type,
+      payload.release === 'GRCh37' ? 'grch37' : 'grch38',
+      payload.chromosome,
+      payload.start,
+      payload.end,
+      payload.sv_type,
+    ),
+  )
+}
+
+const getAcmgBadgeClasses = (acmgClass) => {
+  const acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
+  if (!acmgClass) {
+    acmgBadgeClasses.push('badge-outline')
+  }
+  return acmgBadgeClasses.join(' ')
+}
+
 /** Return class name for table row. */
 const tableRowClassName = (item, _rowNumber) => {
   if (item.sodar_uuid === svResultSetStore.lastVisited) {
@@ -436,7 +461,15 @@ watch(
       </template>
 
       <template
-        #item-icons="{ sodar_uuid, chromosome, start, end, sv_type, payload }"
+        #item-icons="{
+          sodar_uuid,
+          release,
+          chromosome,
+          start,
+          end,
+          sv_type,
+          payload,
+        }"
       >
         <div class="text-nowrap">
           <i-fa-solid-search
@@ -473,6 +506,19 @@ watch(
             role="button"
             @click="showVariantDetails(sodar_uuid, 'strucvar-comments')"
           />
+          <span
+            title="ACMG rating"
+            :class="
+              getAcmgBadgeClasses(
+                getAcmgRating({ release, chromosome, start, end, sv_type }),
+              )
+            "
+            role="button"
+            @click="showVariantDetails(sodar_uuid, 'strucvar-acmgrating')"
+            >{{
+              getAcmgRating({ release, chromosome, start, end, sv_type }) || '-'
+            }}</span
+          >
           <!-- tool -->
           <span :title="payload.caller">
             <i-fa-solid-car class="text-muted ml-1" />

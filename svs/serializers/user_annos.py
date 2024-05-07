@@ -4,6 +4,7 @@ import binning
 from rest_framework import serializers
 
 from svs.models import StructuralVariantComment, StructuralVariantFlags
+from svs.models.user_annos import StructuralVariantAcmgRating
 
 
 class StructuralVariantCommentSerializer(serializers.ModelSerializer):
@@ -101,4 +102,42 @@ class StructuralVariantFlagsSerializer(serializers.ModelSerializer):
 
 
 class StructuralVariantFlagsProjectSerializer(StructuralVariantFlagsSerializer):
+    case = serializers.ReadOnlyField(source="case.name")
+
+
+class StructuralVariantAcmgRatingSerializer(serializers.ModelSerializer):
+    """Serializer for the ``StructuralVariantAcmgRating` model."""
+
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+
+    def create(self, validated_data):
+        """Make case writeable on creation."""
+        validated_data["case"] = self.context["case"]
+        keys = ("case", "release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        for key in keys:
+            validated_data[key] = self.context[key]
+        validated_data["bin"] = binning.assign_bin(
+            int(validated_data["start"]) - 1, int(validated_data["end"])
+        )
+        return super().create(validated_data)
+
+    class Meta:
+        model = StructuralVariantAcmgRating
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case",
+            "release",
+            "chromosome",
+            "start",
+            "end",
+            "sv_type",
+            "sv_sub_type",
+            "class_override",
+        )
+        read_only_fields = ("sodar_uuid", "date_created", "date_modified", "case")
+
+
+class StructuralVariantAcmgRatingProjectSerializer(StructuralVariantAcmgRatingSerializer):
     case = serializers.ReadOnlyField(source="case.name")

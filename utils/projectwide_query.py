@@ -84,15 +84,13 @@ def run_query(
     settings_endpoint,
     query_endpoint,
     case_uuid,
-    case_name,
-    gene,
+    genes,
     region,
     quick_preset,
     inheritance,
     frequency,
+    quality,
     impact,
-    run_wait_secs,
-    write_query_settings,
 ):
     url = settings_endpoint.format(case_uuid=case_uuid)
     url += f"?quick_preset={quick_preset}"
@@ -102,27 +100,22 @@ def run_query(
         url += f"&frequency={frequency}"
     if impact:
         url += f"&impact={impact}"
+    if quality:
+        url += f"&quality={quality}"
     response = connect_endpoint(config, url)
     if not response:
         return ""
-    response_json = response.json()
-    if gene:
-        response_json["query_settings"]["gene_allowlist"] = [gene]
+    query_settings = response.json()
+    if genes:
+        query_settings["query_settings"]["gene_allowlist"] = genes.split(",")
     elif region:
-        response_json["query_settings"]["genomic_region"] = region
-    if write_query_settings:
-        with open(f"{case_name}.json", "w") as fh:
-            json.dump(response_json, fh, indent=1)
+        query_settings["query_settings"]["genomic_region"] = region
     url = query_endpoint.format(case_uuid=case_uuid)
-    response = connect_endpoint(config, url, data=response_json)
+    response = connect_endpoint(config, url, data=query_settings)
     if not response:
         return ""
     response_json = response.json()
-    if not response_json.get("sodar_uuid"):
-        console.log(f"[bold red]Error: got no query uuid for case {case_name}[/bold red]")
-        return ""
-    time.sleep(run_wait_secs)
-    return response_json["sodar_uuid"]
+    return response_json.get("sodar_uuid"), query_settings
 
 
 def poll_query(config, query_endpoint, query_uuid):
@@ -198,11 +191,12 @@ def download_serve(config, sodar_uuid, name):
     default="xlsx",
     type=click.Choice(["tsv", "vcf", "xlsx"], case_sensitive=False),
 )
-@click.option("--gene", default=None, help="Gene to filter on")
+@click.option("--genes", default=None, help="Genes to filter on, separated by ,")
 @click.option("--region", default=None, help="Region to filter on")
 @click.option("--quick-preset", default="defaults", help="Quick preset to use")
 @click.option("--inheritance", default=None, help="Inheritance preset to use")
 @click.option("--frequency", default=None, help="Frequency preset to use")
+@click.option("--quality", default=None, help="Quality preset to use")
 @click.option("--impact", default=None, help="Impact preset to use")
 @click.option("--run-wait-secs", default=SLEEP_RUN_DEFAULT, help="Seconds to wait between runs")
 @click.option("--write-query-logs", is_flag=True, help="Write query logs to file")
@@ -212,11 +206,12 @@ def download_serve(config, sodar_uuid, name):
 def main(
     project_uuid,
     export_format,
-    gene,
+    genes,
     region,
     quick_preset,
     inheritance,
     frequency,
+    quality,
     impact,
     run_wait_secs,
     write_query_logs,
@@ -225,10 +220,18 @@ def main(
     config = read_toml()
     query_results = {}
     case_query = {}
+    path = project_uuid
 
     with console.status("[bold green]Starting ..."):
         case_query = get_case_list(config, project_uuid)
         console.log(f"Getting {len(case_query)} cases from project [bold green]done[/bold green]")
+
+    if os.path.exists(path):
+        console.log(f"[bold red]path `{path}` already exists[/bold red]")
+        return
+
+    os.mkdir(path)
+    console.log(f"Created directory {path} [bold green]done[/bold green]")
 
     tasks = [
         f"{i+1}/{len(case_query)} Starting query for [bold]{case_query[n]['name']}[/bold] ({n})"
@@ -237,21 +240,23 @@ def main(
     with console.status("[bold green]Starting queries ..."):
         for case_uuid in case_query.keys():
             rich_query_start = tasks.pop(0)
-            query_uuid = run_query(
+            case_name = case_query[case_uuid]["name"]
+            query_uuid, query_settings = run_query(
                 config,
                 ENDPOINT_SM_SETTINGS,
                 ENDPOINT_SM_LISTCREATE_QUERY,
                 case_uuid,
-                case_query[case_uuid]["name"],
-                gene,
+                genes,
                 region,
                 quick_preset,
                 inheritance,
                 frequency,
+                quality,
                 impact,
-                run_wait_secs,
-                write_query_settings,
             )
+            if write_query_settings and query_settings:
+                with open(f"{path}/{case_name}.json", "w") as fh:
+                    json.dump(query_settings, fh, indent=1)
             if not query_uuid:
                 console.log(f"{rich_query_start} [bold red]failed[/bold red]")
                 continue
@@ -263,6 +268,7 @@ def main(
             }
             case_query[case_uuid]["query"] = query_uuid
             console.log(f"{rich_query_start} [bold green]done[/bold green]")
+            time.sleep(run_wait_secs)
 
     with console.status("[bold green]Waiting for queries to finish ..."):
         while True:
@@ -272,12 +278,13 @@ def main(
             time.sleep(SLEEP_POLL)
 
         if write_query_logs:
-            with open("query_logs.json", "w") as fh:
+            with open(f"{path}/query_logs.json", "w") as fh:
                 json.dump(query_results, fh, indent=1)
 
     download_uuids = {}
+    total_queries = len(query_results)
     tasks = [
-        f"{i+1}/{len(query_results)} Starting generation of export file for [bold]{case_query[query_results[n]['case_uuid']]['name']}[/bold] ({n})"
+        f"{i+1}/{total_queries} Starting generation of export file for [bold]{case_query[query_results[n]['case_uuid']]['name']}[/bold] ({n})"
         for i, n in enumerate(query_results.keys())
     ]
     with console.status("[bold green]Starting generation of export files ..."):
@@ -304,7 +311,7 @@ def main(
             time.sleep(SLEEP_POLL)
 
         for download_uuid, name in download_uuids.items():
-            download_serve(config, download_uuid, f"{name}.{export_format}")
+            download_serve(config, download_uuid, f"{path}/{name}.{export_format}")
             console.log(f"{tasks.pop(0)} [bold green]done[/bold green]")
     console.log(":heavy_check_mark: [bold green]All done[/bold green]")
 

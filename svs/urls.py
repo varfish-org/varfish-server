@@ -114,6 +114,21 @@ urlpatterns_ajax = [
         view=views.StructuralVariantCommentRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantcomment-retrieveupdatedestroy",
     ),
+    url(
+        regex=r"^ajax/structural-variant-acmg-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views.StructuralVariantAcmgRatingListCreateAjaxView.as_view(),
+        name="ajax-structuralvariantacmgrating-listcreate",
+    ),
+    url(
+        regex=r"^ajax/structural-variant-acmg-rating/list-project/(?P<project>[0-9a-f-]+)/?$",
+        view=views.StructuralVariantAcmgRatingListProjectAjaxView.as_view(),
+        name="ajax-structuralvariantacmgrating-listproject",
+    ),
+    url(
+        regex=r"^ajax/structural-variant-acmg-rating/retrieve-update-destroy/(?P<structuralvariantacmgrating>[0-9a-f-]+)/?$",
+        view=views.StructuralVariantAcmgRatingRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-structuralvariantacmgrating-retrieveupdatedestroy",
+    ),
     # Augment url patterns with proxy to worker.
     url(
         r"^worker/(?P<url>.*)$",
