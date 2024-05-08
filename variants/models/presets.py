@@ -495,3 +495,11 @@ class PresetSet(CloneMixin, models.Model):
     database = models.CharField(
         max_length=32, choices=Databases.choices, help_text="The database to use"
     )
+
+    #: Set as the default preset set
+    default_presetset = models.BooleanField(
+        default=False,
+        null=False,
+        blank=False,
+        help_text="Set as the default preset set",
+    )

@@ -159,4 +159,9 @@ presets_ajax_urlpatterns = [
         view=views_ajax.PresetSetCloneOtherAjaxView.as_view(),
         name="ajax-presetset-cloneother",
     ),
+    url(
+        regex=r"^ajax/project-default-presetset/retrieve/(?P<project>[a-zA-Z0-9\._-]+)/?$",
+        view=views_ajax.ProjectDefaultPresetSetRetrieveAjaxView.as_view(),
+        name="ajax-project-default-presetset-retrieve",
+    ),
 ]

@@ -695,6 +695,15 @@ export class QueryPresetsClient extends ClientBase {
     )
   }
 
+  async retrieveProjectDefaultPresetSet(
+    projectUuid: string,
+  ): Promise<PresetSet> {
+    return await this.fetchHelper(
+      `/variants/ajax/project-default-presetset/retrieve/${projectUuid}/`,
+      'GET',
+    )
+  }
+
   /**
    * Update PresetSet object.
    *

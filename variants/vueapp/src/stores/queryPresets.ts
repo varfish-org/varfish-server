@@ -121,6 +121,8 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
       return initializeRes.value
     }
 
+    $reset()
+
     // Set simple properties.
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
@@ -175,7 +177,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in cloneFactoryPresetSet:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error cloning factory preset set'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -210,7 +212,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in cloneOtherPresetSet:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error cloning other preset set'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -240,7 +242,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in revertPresetSet:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error reverting preset set'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -252,6 +254,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
   const updatePresetSet = async (
     presetSetUuid: string,
     label: string,
+    default_presetset: boolean,
   ): Promise<PresetSet> => {
     const queryPresetsClient = new QueryPresetsClient(
       csrfToken.value ?? 'undefined-csrf-token',
@@ -266,7 +269,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     try {
       updatedPresetSet = await queryPresetsClient.updatePresetSet(
         presetSetUuid,
-        { label },
+        { label, default_presetset },
       )
       presetSets.value[presetSetUuid] = updatedPresetSet
 
@@ -275,7 +278,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in updatePresetSet:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error updating preset set'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -302,7 +305,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in destroyPresetSet:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error deleting preset set'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -345,7 +348,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in createPresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error creating preset'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -389,7 +392,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in clonePresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error cloning preset'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -434,7 +437,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in revertPresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error reverting preset'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -482,7 +485,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in updatePresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error updating preset'
     } finally {
       storeState.value.serverInteractions -= 1
     }
@@ -543,10 +546,27 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     } catch (err) {
       console.error('Error in destroyPresets:', err)
       storeState.value.state = State.Error
-      storeState.value.message = 'Error cloing factory preset set'
+      storeState.value.message = 'Error destroying preset'
     } finally {
       storeState.value.serverInteractions -= 1
     }
+  }
+
+  const getDefaultPresetSetName = (): PresetSet | undefined => {
+    for (const presetSet of Object.values(presetSets.value)) {
+      if (presetSet.default_presetset) {
+        return presetSet.label
+      }
+    }
+    return undefined
+  }
+
+  const $reset = () => {
+    csrfToken.value = null
+    projectUuid.value = null
+    storeState.value.state = State.Initial
+    presetSets.value = {}
+    initializeRes.value = null
   }
 
   return {
@@ -568,5 +588,6 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     revertPresets,
     updatePresets,
     destroyPresets,
+    getDefaultPresetSetName,
   }
 })

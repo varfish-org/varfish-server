@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import CharField, ListField, ModelSerializer, ValidationError
 
@@ -206,10 +207,26 @@ class PresetSetSerializer(ModelSerializer):
     chromosomepresets_set = ChromosomePresetsSerializer(many=True, read_only=True)
     flagsetcpresets_set = FlagsEtcPresetsSerializer(many=True, read_only=True)
 
+    def _reset_default_presetset(self):
+        """Reset the default presetset for the project."""
+        for presetset in self.instance.project.presetset_set.filter(default_presetset=True):
+            presetset.default_presetset = False
+            presetset.save()
+
+    @transaction.atomic
     def create(self, validated_data):
         """Allow setting the project on creation only."""
         validated_data["project"] = self.context["project"]
+        if validated_data.get("default_presetset", False):
+            self._reset_default_presetset()
         return super().create(validated_data)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """Allow setting the project on update only."""
+        if validated_data.get("default_presetset", False):
+            self._reset_default_presetset()
+        return super().update(instance, validated_data)
 
     class Meta:
         model = PresetSet

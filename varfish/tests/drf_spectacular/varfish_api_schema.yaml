@@ -5622,6 +5622,35 @@ paths:
       responses:
         '204':
           description: No response body
+  /variants/ajax/project-default-presetset/retrieve/{project}/:
+    get:
+      operationId: variants_ajax_project_default_presetset_retrieve_retrieve
+      description: |-
+        List all presets for the given category.
+
+        **URL:** ``/variants/ajax/project-default-presetset/<uuid:project>/``
+
+        **Methods:** ``GET``
+
+        **Returns:** A dict mapping each of the category names to category preset values.
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[a-zA-Z0-9\._-]+$
+        required: true
+      tags:
+      - variants
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/PresetSet'
+          description: ''
   /variants/ajax/project/qc/{project}/:
     get:
       operationId: variants_ajax_project_qc_retrieve
@@ -12184,6 +12213,9 @@ components:
 
             * `refseq` - RefSeq
             * `ensembl` - ENSEMBL
+        default_presetset:
+          type: boolean
+          description: Set as the default preset set
     PatchedQualityPresets:
       type: object
       description: Serializer for ``QualityPresets``.
@@ -12916,6 +12948,9 @@ components:
 
             * `refseq` - RefSeq
             * `ensembl` - ENSEMBL
+        default_presetset:
+          type: boolean
+          description: Set as the default preset set
       required:
       - chromosomepresets_set
       - database
