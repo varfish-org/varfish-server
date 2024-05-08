@@ -9,6 +9,7 @@ from rest_framework.generics import (
     GenericAPIView,
     ListAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
@@ -901,3 +902,34 @@ class PresetSetCloneOtherAjaxView(
         serializer = self.get_serializer(instance)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ProjectDefaultPresetSetRetrieveAjaxView(
+    _RetrieveUpdateDestroyMixin, SODARAPIGenericProjectMixin, RetrieveAPIView
+):
+    """
+    List all presets for the given category.
+
+    **URL:** ``/variants/ajax/project-default-presetset/<uuid:project>/``
+
+    **Methods:** ``GET``
+
+    **Returns:** A dict mapping each of the category names to category preset values.
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "project"
+
+    serializer_class = PresetSetSerializer
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+    def get(self, *args, **kwargs):
+        presetset = PresetSet.objects.filter(
+            project__sodar_uuid=self.kwargs["project"], default_presetset=True
+        )
+        if presetset.exists():
+            serializer = self.get_serializer(presetset.first())
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({})

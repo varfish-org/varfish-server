@@ -70,6 +70,11 @@ const textValueRef = ref('')
  */
 const isValidationRunning = ref(false)
 
+/**
+ * List of invalid tokens
+ */
+const invalidTokens = ref([])
+
 /** Return current tokens. */
 const tokens = () => {
   if (!textValueRef.value) {
@@ -165,10 +170,13 @@ const highlightToken = (token) => {
 const _runUpdateBackdrop = () => {
   isValidationRunning.value = false
   isValueValid.value = true
-  Object.values(htmlTokens.value).forEach((value) => {
+  for (const [key, value] of Object.entries(htmlTokens.value)) {
     isValidationRunning.value = isValidationRunning.value || value === 'waiting'
     isValueValid.value = isValueValid.value && value !== 'bad'
-  })
+    if (isValueValid.value === false) {
+      invalidTokens.value.push(key)
+    }
+  }
   highlightsRef.value.innerHTML = textValueRef.value
     .replace(/\n$/g, '\n\n')
     .replace(tokenizeRegexp(), highlightToken)
@@ -274,6 +282,7 @@ watch(
 defineExpose({
   isValid,
   isValidating,
+  invalidTokens,
   tokens,
 })
 </script>
@@ -320,6 +329,9 @@ defineExpose({
     <div v-for="errorMessage in errorMessages" class="invalid-feedback">
       {{ errorMessage }}
     </div>
+    <span v-for="invalidToken in invalidTokens" class="invalid-feedback">
+      {{ invalidToken }}
+    </span>
   </div>
   <!-- eslint-enable -->
 </template>

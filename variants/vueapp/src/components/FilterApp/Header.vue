@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 
 import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useVariantQueryStore } from '@variants/stores/variantQuery'
 import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
@@ -11,6 +12,7 @@ const router = useRouter()
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
+const variantQueryStore = useVariantQueryStore()
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
@@ -23,15 +25,29 @@ const emit = defineEmits(['editQueryPresetsClick', 'toggleForm'])
 const presetSetLoading = ref(false)
 /** The current preset set (if caseDetailsStore.caseObj.presetset !== null / factory presets). */
 const presetSetLabel = ref(null)
+const presetSource = ref(null)
 /** Watch change of current case's preset set and load label if necessary. */
 const updatePresetSetLoading = async () => {
-  if (!caseDetailsStore?.caseObj?.presetset) {
+  let uuid
+  if (
+    !caseDetailsStore?.caseObj?.presetset &&
+    variantQueryStore?.defaultPresetSetUuid === undefined
+  ) {
+    presetSource.value = 'Factory Defaults'
     return // short circuit in case of factory defaults
+  } else {
+    if (caseDetailsStore?.caseObj?.presetset) {
+      uuid = caseDetailsStore.caseObj.presetset
+      presetSource.value = 'Individual Case Setting'
+    } else if (variantQueryStore?.defaultPresetSetUuid !== undefined) {
+      uuid = variantQueryStore.defaultPresetSetUuid
+      presetSource.value = 'Project Default Setting'
+    }
   }
   const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
   presetSetLoading.value = true
   await queryPresetsClient
-    .retrievePresetSet(caseDetailsStore.caseObj.presetset)
+    .retrievePresetSet(uuid)
     .then((presetSet) => {
       presetSetLabel.value = presetSet.label
     })
@@ -129,7 +145,12 @@ onMounted(() => {
           @click.prevent="emit('editQueryPresetsClick')"
         >
           Query Presets:
-          <template v-if="caseDetailsStore.caseObj?.presetset">
+          <template
+            v-if="
+              caseDetailsStore.caseObj?.presetset ||
+              variantQueryStore?.defaultPresetSetUuid
+            "
+          >
             <template v-if="presetSetLoading">
               <i-fa-solid-circle-notch v-if="presetSetLoading" class="spin" />
             </template>
