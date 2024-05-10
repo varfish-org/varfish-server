@@ -9,6 +9,8 @@ import { randomString } from '@varfish/common'
 const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   label: String,
+  defaultPresetSet: Boolean,
+  currentDefaultPresetSet: String,
   idSuffix: {
     type: String,
     default: randomString(),
@@ -16,7 +18,7 @@ const props = defineProps({
 })
 
 /** Define emits. */
-const emit = defineEmits(['update:label'])
+const emit = defineEmits(['update:label', 'update:defaultPresetSet'])
 
 /** Helper wrapper for the v-model:label. */
 const labelModel = computed({
@@ -25,6 +27,15 @@ const labelModel = computed({
   },
   set(newValue) {
     emit('update:label', newValue)
+  },
+})
+
+const defaultPresetSetModel = computed({
+  get() {
+    return props.defaultPresetSet
+  },
+  set(newValue) {
+    emit('update:defaultPresetSet', newValue)
   },
 })
 </script>
@@ -44,5 +55,26 @@ const labelModel = computed({
         The label to use for display
       </small>
     </div>
+  </div>
+  <div class="mr-2 mt-2">
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        :id="'defaultPresetSet' + props.idSuffix"
+        v-model="defaultPresetSetModel"
+      />
+      <label class="form-check-label" :for="'defaultPresetSet' + idSuffix">
+        Set as Default PresetSet for Project
+        <span v-if="currentDefaultPresetSet" class="text-success">
+          [{{ currentDefaultPresetSet }}]
+        </span>
+        <span v-else class="text-muted"> [None] </span>
+      </label>
+    </div>
+    <small id="emailHelp" class="form-text text-muted">
+      Make the preset set default for the project. Preset sets individually
+      applied to a case are not overridden.
+    </small>
   </div>
 </template>

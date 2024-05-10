@@ -49,6 +49,15 @@ export class VariantClient extends ClientBase {
     )
   }
 
+  async fetchProjectDefaultPresets(
+    projectUuid: string,
+  ): Promise<CategoryPresets> {
+    return await this.fetchHelper(
+      `/variants/api/query-case/project-default-presets/${projectUuid}/`,
+      'GET',
+    )
+  }
+
   async fetchQueryShortcuts(caseUuid: string): Promise<QueryShortcuts> {
     return await this.fetchHelper(
       `/variants/ajax/query-case/query-settings-shortcut/${caseUuid}/`,

@@ -16,6 +16,7 @@ const fetchPresets = async (
   caseObj,
   quickPresets,
   categoryPresets,
+  defaultPresetSetUuid,
 ) => {
   const variantClient = new VariantClient(csrfToken)
 
@@ -93,9 +94,18 @@ const fetchPresets = async (
   }
   if (caseObj.presetset) {
     await fetchUserPresets(csrfToken.value, caseObj.presetset)
+  } else if (defaultPresetSetUuid.value) {
+    await fetchUserPresets(csrfToken.value, defaultPresetSetUuid.value)
   } else {
     await fetchFactoryPresets()
   }
+}
+
+const fetchProjectDefaultPresetSet = async (csrfToken, projectUuid) => {
+  const queryPresetsClient = new QueryPresetsClient(csrfToken)
+  const result =
+    await queryPresetsClient.retrieveProjectDefaultPresetSet(projectUuid)
+  return result.sodar_uuid
 }
 
 /** Helper that gets the default settings and stores them in querySettingsPresets.value,
@@ -263,6 +273,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     chromosomes: null,
     flagsetc: null,
   })
+  /** Default preset set. */
+  const defaultPresetSetUuid = ref(null)
 
   /** Promise for initialization of the store. */
   const initializeRes = ref(null)
@@ -580,11 +592,17 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
           }
         }),
       // 3. fetch quick presets etc.
-      fetchPresets(
-        csrfToken.value,
-        caseDetailsStore.caseObj,
-        quickPresets,
-        categoryPresets,
+      fetchProjectDefaultPresetSet(csrfToken.value, projectUuid.value).then(
+        (presetUuid) => {
+          defaultPresetSetUuid.value = presetUuid
+          fetchPresets(
+            csrfToken.value,
+            caseDetailsStore.caseObj,
+            quickPresets,
+            categoryPresets,
+            defaultPresetSetUuid,
+          )
+        },
       ),
       // 4. fetch extra anno fields
       fetchExtraAnnoFields(csrfToken.value ?? 'undefined-csrf-token').then(
@@ -646,6 +664,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       chromosomes: null,
       flagsetc: null,
     }
+    defaultPresetSetUuid.value = null
     initializeRes.value = null
   }
 
@@ -671,6 +690,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     queryStateMsg,
     queryLogs,
     quickPresets,
+    defaultPresetSetUuid,
     categoryPresets,
     extraAnnoFields,
     hpoNames,

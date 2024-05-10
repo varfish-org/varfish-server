@@ -2,9 +2,12 @@
 import isEqual from 'fast-deep-equal'
 import { onMounted, watch, computed, reactive, ref } from 'vue'
 import { copy } from '@variants/helpers'
+import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { randomString } from '@varfish/common'
 
+const caseDetailsStore = useCaseDetailsStore()
 const variantQueryStore = useVariantQueryStore()
 
 /** The props for this component. */
@@ -20,8 +23,49 @@ const props = defineProps({
   },
 })
 
-/** Internal store of inheritance preset.  If set through here, then it is only applied in the control. */
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}',
+)
+
+/** Internal store of inheritance preset. If set through here, then it is only applied in the control. */
 const inheritanceRef = ref(null)
+const presetSource = ref(null)
+const presetSetLoading = ref(false)
+const presetSetLabel = ref(null)
+
+const updatePresetSetLoading = async () => {
+  let uuid
+  if (
+    !props.case?.presetset &&
+    variantQueryStore?.defaultPresetSetUuid === undefined
+  ) {
+    presetSetLabel.value = 'Factory Defaults'
+    presetSource.value = 'Factory Defaults'
+    return // short circuit in case of factory defaults
+  } else {
+    if (props.case?.presetset) {
+      uuid = caseDetailsStore.caseObj.presetset
+      presetSource.value = 'Individual Case Setting'
+    } else if (variantQueryStore?.defaultPresetSetUuid !== undefined) {
+      uuid = variantQueryStore.defaultPresetSetUuid
+      presetSource.value = 'Project Default Setting'
+    }
+  }
+  const queryPresetsClient = new QueryPresetsClient(caseDetailsStore.csrfToken)
+  presetSetLoading.value = true
+  await queryPresetsClient
+    .retrievePresetSet(uuid)
+    .then((presetSet) => {
+      presetSetLabel.value = presetSet.label
+    })
+    .catch((err) => {
+      console.error('Problem retrieving preset set', err)
+    })
+    .finally(() => {
+      presetSetLoading.value = false
+    })
+}
 
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshInheritanceRef = () => {
@@ -295,6 +339,7 @@ const refreshAllRefs = () => {
 /** React to store changes by adjusting the selection fields. */
 onMounted(() => {
   variantQueryStore.initializeRes.then(() => {
+    updatePresetSetLoading()
     refreshAllRefs()
     variantQueryStore.$subscribe((_mutation, _state) => {
       if (!blockRefresh.value) {
@@ -306,6 +351,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="row text-muted small">
+    <span class="mr-2 badge badge-secondary">{{ presetSetLabel }}</span>
+    <template v-if="variantQueryStore.filtrationComplexityMode === 'dev'">
+      &mdash;<span class="ml-2">{{ presetSource }}</span>
+    </template>
+  </div>
   <div class="row">
     <div class="col-1 pl-0 pr-0">
       <label

@@ -133,6 +133,11 @@ const toastRef = ref(null)
 
 /** Handle click on a presets category, will select first entry unless editing presets set properties. */
 const handleCategoryClicked = async (category) => {
+  queryPresetsStore.initialize(
+    caseListStore.csrfToken,
+    caseListStore.projectUuid,
+    true,
+  )
   if (presetSet.value) {
     selectedCategory.value = category
     if (
@@ -197,6 +202,7 @@ const handleSaveClicked = async (category, presetsUuid) => {
       await queryPresetsStore.updatePresetSet(
         props.presetSetUuid,
         presetSet.value.label,
+        presetSet.value.default_presetset,
       )
     } else {
       await queryPresetsStore.updatePresets(
@@ -595,6 +601,10 @@ watch(
           <div v-if="selectedCategory === 'presetset' && presetSet">
             <QueryPresetsSetProperties
               v-model:label="presetSet.label"
+              v-model:defaultPresetSet="presetSet.default_presetset"
+              :currentDefaultPresetSet="
+                queryPresetsStore.getDefaultPresetSetName()
+              "
               filtration-complexity-mode="advanced"
               :case="{ release: 'GRCh37' }"
             />
