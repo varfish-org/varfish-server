@@ -183,7 +183,7 @@ const validateGeneBatch = async (tokenBatch, typ) => {
 const indicateFailure = (key) => {
   const theRef = {
     genomic_region: genomicRegionTextareaRef,
-    gene_allowlist: geneAllowListRegionTextareaRef,
+    gene_allowlist: geneAllowListTextareaRef,
   }[key]
   if (theRef.value && !theRef.value.isValidating() && !theRef.value.isValid()) {
     return '*'
@@ -193,7 +193,7 @@ const indicateFailure = (key) => {
 }
 
 /** Reference to gene allow list TokenizingTextarea */
-const geneAllowListRegionTextareaRef = ref(null)
+const geneAllowListTextareaRef = ref(null)
 /** Reference to genomic regions TokenizingTextarea */
 const genomicRegionTextareaRef = ref(null)
 
@@ -201,8 +201,8 @@ const genomicRegionTextareaRef = ref(null)
 const invalidTextareas = () => {
   const result = []
   if (
-    geneAllowListRegionTextareaRef.value &&
-    !geneAllowListRegionTextareaRef.value.isValid()
+    geneAllowListTextareaRef.value &&
+    !geneAllowListTextareaRef.value.isValid()
   ) {
     result.push('gene allow list')
   }
@@ -225,8 +225,8 @@ const isValidating = () => {
   return (
     (genomicRegionTextareaRef.value &&
       genomicRegionTextareaRef.value.isValidating()) ||
-    (geneAllowListRegionTextareaRef.value &&
-      geneAllowListRegionTextareaRef.value.isValidating())
+    (geneAllowListTextareaRef.value &&
+      geneAllowListTextareaRef.value.isValidating())
   )
 }
 
@@ -375,7 +375,7 @@ defineExpose({
         </div>
 
         <TokenizingTextarea
-          ref="geneAllowListRegionTextareaRef"
+          ref="geneAllowListTextareaRef"
           v-model="props.querySettings.gene_allowlist"
           :validate="validateGeneBatch"
           :tokenize="/([^\s;,]+)/g"

@@ -1,12 +1,12 @@
 import json
 import re
+from unittest.mock import patch
 
-from django.core.exceptions import ValidationError
 from django.forms import model_to_dict
 import jsonmatch
+from requests_mock import Mocker
 from test_plus.test import TestCase
 
-from geneinfo.tests.factories import HgncFactory
 from genepanels.forms import GenePanelCategoryForm, GenePanelForm
 from genepanels.models import GenePanel, GenePanelCategory, GenePanelEntry, GenePanelState
 from genepanels.tests.factories import (
@@ -14,6 +14,7 @@ from genepanels.tests.factories import (
     GenePanelEntryFactory,
     GenePanelFactory,
 )
+from genepanels.tests.test_views import ANNONARS_GENE_RESPONSE, AnnonarsMockerMixin
 from variants.views import UUIDEncoder
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
@@ -72,7 +73,7 @@ class TestGenePanelCategoryForm(TestCase):
         expected0.assert_matches(my_model_to_dict(GenePanelCategory.objects.all()[0]))
 
 
-class TestGenePanelForm(TestCase):
+class TestGenePanelForm(AnnonarsMockerMixin, TestCase):
     def test_empty_form(self):
         # test initialization without instance
         form = GenePanelForm()
@@ -120,8 +121,10 @@ class TestGenePanelForm(TestCase):
         )
         expected0.assert_matches(my_model_to_dict(GenePanel.objects.all()[0]))
 
-    def test_create_with_entries(self):
-        hgncs = [HgncFactory(), HgncFactory(), HgncFactory(), HgncFactory(), HgncFactory()]
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_create_with_entries(self, mock):
+        self._set_annonars_mocker(mock)
         category = GenePanelCategoryFactory()
         form_data = {
             "identifier": "yada.yada.yada",
@@ -131,28 +134,18 @@ class TestGenePanelForm(TestCase):
             "category": str(category.sodar_uuid),
             "title": "This is the title",
             "description": "This is the description",
-            "genes": "\n".join(
-                map(
-                    str,
-                    [
-                        hgncs[0].entrez_id,
-                        hgncs[1].ensembl_gene_id,
-                        hgncs[2].hgnc_id,
-                        hgncs[3].symbol,
-                    ],
-                )
-            ),
+            "genes": "TTN\nGBA1",
         }
         self.assertEqual(GenePanel.objects.count(), 0)
         self.assertEqual(GenePanelEntry.objects.count(), 0)
         form = GenePanelForm(data=form_data)
         form.full_clean()
         form.save()
-        self.assertEqual(GenePanelEntry.objects.count(), 4)
+        self.assertEqual(GenePanelEntry.objects.count(), 2)
         self.assertEqual(GenePanel.objects.count(), 1)
         self.assertEqual(
-            list(sorted([hgncs[0].hgnc_id, hgncs[1].hgnc_id, hgncs[2].hgnc_id, hgncs[3].hgnc_id])),
-            list(sorted([e.hgnc_id for e in GenePanelEntry.objects.all()])),
+            ["GBA1", "TTN"],
+            list(sorted([e.symbol for e in GenePanelEntry.objects.all()])),
         )
 
     def test_update(self):
@@ -235,17 +228,19 @@ class TestGenePanelForm(TestCase):
         )
         expected0.assert_matches(my_model_to_dict(GenePanel.objects.get(id=panel.id)))
 
-    def test_update_with_entries(self):
-        hgncs = [HgncFactory(), HgncFactory(), HgncFactory(), HgncFactory(), HgncFactory()]
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_update_with_entries(self, mock):
+        self._set_annonars_mocker(mock)
         panel = GenePanelFactory(
             state=GenePanelState.DRAFT.value, signed_off_by=None, version_major=1, version_minor=1
         )
         panel_entry = GenePanelEntryFactory(
             panel=panel,
-            symbol=hgncs[-1].symbol,
-            hgnc_id=hgncs[-1].hgnc_id,
-            ensembl_id=hgncs[-1].ensembl_gene_id,
-            ncbi_id=hgncs[-1].entrez_id,
+            symbol=ANNONARS_GENE_RESPONSE["TTN"]["symbol"],
+            hgnc_id=ANNONARS_GENE_RESPONSE["TTN"]["hgnc_id"],
+            ensembl_id=ANNONARS_GENE_RESPONSE["TTN"]["ensembl_gene_id"],
+            ncbi_id=ANNONARS_GENE_RESPONSE["TTN"]["ncbi_gene_id"],
         )
         category = panel.category
         form_data = {
@@ -256,33 +251,25 @@ class TestGenePanelForm(TestCase):
             "category": str(category.sodar_uuid),
             "title": "This is the title",
             "description": "This is the description",
-            "genes": "\n".join(
-                map(
-                    str,
-                    [
-                        hgncs[0].entrez_id,
-                        hgncs[1].ensembl_gene_id,
-                        hgncs[2].hgnc_id,
-                        hgncs[3].symbol,
-                    ],
-                )
-            ),
+            "genes": "TTN\nGBA1",
         }
         self.assertEqual(GenePanel.objects.count(), 1)
         self.assertEqual(GenePanelEntry.objects.count(), 1)
         form = GenePanelForm(instance=panel, data=form_data)
         form.full_clean()
         form.save()
-        self.assertEqual(GenePanelEntry.objects.count(), 4)
+        self.assertEqual(GenePanelEntry.objects.count(), 2)
         self.assertEqual(GenePanel.objects.count(), 1)
         self.assertEqual(GenePanelEntry.objects.filter(pk=panel_entry.pk).count(), 0)
         self.assertEqual(
-            list(sorted([hgncs[0].hgnc_id, hgncs[1].hgnc_id, hgncs[2].hgnc_id, hgncs[3].hgnc_id])),
-            list(sorted([e.hgnc_id for e in GenePanelEntry.objects.all()])),
+            ["GBA1", "TTN"],
+            list(sorted([e.symbol for e in GenePanelEntry.objects.all()])),
         )
 
-    def test_update_with_invalid_hgnc(self):
-        _hgncs = [HgncFactory()]
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_update_with_invalid_hgnc(self, mock):
+        self._set_annonars_mocker_NONEXISTENT(mock)
         panel = GenePanelFactory(
             state=GenePanelState.DRAFT.value, signed_off_by=None, version_major=1, version_minor=1
         )
@@ -295,7 +282,7 @@ class TestGenePanelForm(TestCase):
             "category": str(category.sodar_uuid),
             "title": "This is the title",
             "description": "This is the description",
-            "genes": "invalid",
+            "genes": "TTN\nGBA1\nNONEXISTENT",
         }
         self.assertEqual(GenePanel.objects.count(), 1)
         form = GenePanelForm(instance=panel, data=form_data)
@@ -303,4 +290,4 @@ class TestGenePanelForm(TestCase):
         self.assertFalse(form.is_valid())
         with self.assertRaises(ValueError):
             form.save()
-        self.assertEquals(form.errors, {"genes": ["invalid"]})
+        self.assertEquals(form.errors, {"genes": ["NONEXISTENT"]})

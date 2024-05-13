@@ -1,5 +1,8 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 from parameterized import parameterized
+from requests_mock import Mocker
 from test_plus.test import TestCase
 
 from genepanels.models import GenePanel, GenePanelCategory, GenePanelEntry, GenePanelState
@@ -9,6 +12,47 @@ from genepanels.tests.factories import (
     GenePanelFactory,
 )
 from variants.tests.helpers import TestViewsBase
+
+ANNONARS_GENE_RESPONSE = {
+    "TTN": {
+        "hgnc_id": "HGNC:12403",
+        "symbol": "TTN",
+        "name": "titin",
+        "alias_symbol": ["CMPD4", "FLJ32040", "TMD", "CMH9", "LGMD2J", "MYLK5"],
+        "alias_name": [],
+        "ensembl_gene_id": "ENSG00000155657",
+        "ncbi_gene_id": "7273",
+    },
+    "GBA1": {
+        "hgnc_id": "HGNC:4177",
+        "symbol": "GBA1",
+        "name": "glucosylceramidase beta 1",
+        "alias_symbol": [],
+        "alias_name": ["glucocerebrosidase"],
+        "ensembl_gene_id": "ENSG00000177628",
+        "ncbi_gene_id": "2629",
+    },
+}
+
+
+class AnnonarsMockerMixin:
+    def _set_annonars_mocker_NONEXISTENT(self, mock_):
+        mock_.get(
+            "https://annonars.com/genes/lookup?q=TTN,GBA1,NONEXISTENT",
+            status_code=200,
+            json={
+                "genes": {**ANNONARS_GENE_RESPONSE, "NONEXISTENT": None},
+            },
+        )
+
+    def _set_annonars_mocker(self, mock_):
+        mock_.get(
+            "https://annonars.com/genes/lookup?q=TTN,GBA1",
+            status_code=200,
+            json={
+                "genes": {**ANNONARS_GENE_RESPONSE},
+            },
+        )
 
 
 class IndexViewTest(TestViewsBase):
@@ -154,7 +198,7 @@ class GenePanelCategoryDeleteView(TestViewsBase):
         self.assertEqual(GenePanelCategory.objects.all().count(), 0)
 
 
-class GenePanelCreateView(TestViewsBase):
+class GenePanelCreateView(AnnonarsMockerMixin, TestViewsBase):
     def setUp(self):
         super().setUp()
         self.category = GenePanelCategoryFactory()
@@ -199,8 +243,65 @@ class GenePanelCreateView(TestViewsBase):
 
         self.assertEqual(GenePanel.objects.count(), 1)
 
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_create_with_gene_list(self, mock):
+        self.assertEqual(GenePanel.objects.count(), 0)
+        self._set_annonars_mocker(mock)
 
-class GenePanelUpdateView(TestViewsBase):
+        post_data = {
+            "identifier": "xxx",
+            "title": "XXX",
+            "description": "ddd",
+            "version_major": 1,
+            "version_minor": 1,
+            "category": str(self.category.sodar_uuid),
+            "genes": "TTN\nGBA1",
+        }
+
+        with self.login(self.superuser):
+            response = self.client.post(reverse("genepanels:genepanel-create"), post_data)
+
+        self.assertEqual(GenePanel.objects.count(), 1)
+
+        self.assertEqual(response.status_code, 302)
+        latest_panel = GenePanel.objects.all()[0]
+        self.assertEqual(
+            response.url,
+            reverse("genepanels:genepanel-detail", kwargs={"panel": latest_panel.sodar_uuid}),
+        )
+
+        self.assertEqual(GenePanel.objects.count(), 1)
+
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_create_with_gene_list_including_nonexistent_gene(self, mock):
+        self.assertEqual(GenePanel.objects.count(), 0)
+        self._set_annonars_mocker_NONEXISTENT(mock)
+
+        post_data = {
+            "identifier": "xxx",
+            "title": "XXX",
+            "description": "ddd",
+            "version_major": 1,
+            "version_minor": 1,
+            "category": str(self.category.sodar_uuid),
+            "genes": "TTN\nGBA1\nNONEXISTENT",
+        }
+
+        with self.login(self.superuser):
+            response = self.client.post(reverse("genepanels:genepanel-create"), post_data)
+
+        self.assertEqual(GenePanel.objects.count(), 0)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRegex(
+            response.content.decode("utf-8"),
+            r'<p id="error_1_id_genes" class="text-danger help-block">NONEXISTENT</p>',
+        )
+
+
+class GenePanelUpdateView(AnnonarsMockerMixin, TestViewsBase):
     def setUp(self):
         super().setUp()
         self.panel = GenePanelFactory(state=GenePanelState.DRAFT.value)
@@ -217,8 +318,11 @@ class GenePanelUpdateView(TestViewsBase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.context["object"])
 
-    def test_update(self):
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
+    @Mocker()
+    def test_update(self, mock):
         self.assertEqual(GenePanel.objects.count(), 1)
+        self._set_annonars_mocker(mock)
 
         post_data = {
             "identifier": "xxx",
@@ -227,6 +331,7 @@ class GenePanelUpdateView(TestViewsBase):
             "version_major": 2,
             "version_minor": 2,
             "category": str(self.category.sodar_uuid),
+            "genes": "TTN\nGBA1",
         }
 
         with self.login(self.superuser):

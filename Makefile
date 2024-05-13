@@ -35,7 +35,7 @@ _migrate:
 	$(MANAGE) migrate
 
 .PHONY: migrate
-migrate: _migrate black isort
+migrate: _migrate format
 
 .PHONY: shell
 shell:

@@ -1,8 +1,8 @@
 from django import forms
+from django.conf import settings
 from django.db import transaction
-from django.db.models import Q
+import requests
 
-from geneinfo.models import Hgnc
 from genepanels.models import GenePanel, GenePanelCategory, GenePanelEntry, GenePanelState
 
 
@@ -24,15 +24,7 @@ class GenePanelForm(forms.ModelForm):
         self.fields["genes"] = self._build_genes_field()
 
     def _build_genes_field(self):
-        rows = []
-        for entry in self.instance.genepanelentry_set.all():
-            row = [
-                entry.symbol,
-                entry.hgnc_id,
-                entry.ensembl_id,
-                entry.ncbi_id,
-            ]
-            rows.append(" ".join(row))
+        rows = [entry.symbol for entry in self.instance.genepanelentry_set.all()]
         initial_value = "\n".join(rows)
         return forms.CharField(
             label="Genes",
@@ -47,25 +39,40 @@ class GenePanelForm(forms.ModelForm):
             initial=initial_value,
         )
 
+    def _get_geneinfos(self, gene_list):
+        if not gene_list:
+            return {}
+        base_url = settings.VARFISH_BACKEND_URL_ANNONARS
+        if not base_url:
+            return
+        url_tpl = "{base_url}/genes/lookup?q={gene_list_joined}"
+        url = url_tpl.format(base_url=base_url, gene_list_joined=",".join(gene_list))
+        try:
+            res = requests.request(method="get", url=url)
+            if not res.status_code == 200:
+                raise ConnectionError(
+                    "ERROR: Server responded with status {} and message {}".format(
+                        res.status_code, res.text
+                    )
+                )
+            else:
+                records = res.json()
+        except requests.ConnectionError as e:
+            raise ConnectionError("ERROR: annonars nor responding.") from e
+        return records["genes"]
+
     def clean(self):
         result = super().clean()
         # Validate the genes and store related entries
-        invalid_genes = []
-        for line in result["genes"].splitlines():
-            gene_id = line.split()[0]
-            try:
-                Hgnc.objects.get(
-                    Q(hgnc_id=gene_id)
-                    | Q(ensembl_gene_id=gene_id)
-                    | Q(entrez_id=gene_id)
-                    | Q(symbol=gene_id)
-                )
-            except Hgnc.DoesNotExist:
-                invalid_genes.append(gene_id)
-        if invalid_genes:
+        gene_list = [line.split()[0] for line in result["genes"].splitlines()]
+        records = self._get_geneinfos(gene_list)
+        given_set = set(gene_list)
+        found_set = {k for k, v in records.items() if v}
+        not_found = given_set - found_set
+        if not_found:
             self.add_error(
                 "genes",
-                "The following gene identifiers were invalid: {}".format(", ").join(invalid_genes),
+                "The following gene identifiers were invalid: {}".format(", ").join(not_found),
             )
         # Check that there our version is > any active/retired version and adjust if necessary.
         old_panels = (
@@ -96,20 +103,17 @@ class GenePanelForm(forms.ModelForm):
         # Remove old gene panel entries
         GenePanelEntry.objects.filter(panel=self.instance).delete()
         # Add new gene panel entries
-        for line in self.cleaned_data["genes"].splitlines():
-            gene_id = line.split()[0]
-            hgnc = Hgnc.objects.get(
-                Q(hgnc_id=gene_id)
-                | Q(ensembl_gene_id=gene_id)
-                | Q(entrez_id=gene_id)
-                | Q(symbol=gene_id)
-            )
+        gene_list = [line.split()[0] for line in self.cleaned_data["genes"].splitlines()]
+        records = self._get_geneinfos(gene_list)
+        for gene_info in records.values():
+            if not gene_info:
+                continue
             entry = GenePanelEntry(
                 panel=instance,
-                hgnc_id=hgnc.hgnc_id,
-                ensembl_id=hgnc.ensembl_gene_id,
-                ncbi_id=hgnc.entrez_id,
-                symbol=hgnc.symbol,
+                hgnc_id=gene_info.get("hgnc_id"),
+                ensembl_id=gene_info.get("ensembl_gene_id"),
+                ncbi_id=gene_info.get("ncbi_gene_id"),
+                symbol=gene_info["symbol"],
             )
             entry.save()
 
