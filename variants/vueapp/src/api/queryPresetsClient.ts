@@ -120,7 +120,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: FrequencyPresets,
   ): Promise<FrequencyPresets> {
     return await this.fetchHelper(
-      `/variants/ajax/frequencypresets/clone-other${entityUuid}/`,
+      `/variants/ajax/frequencypresets/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
@@ -228,7 +228,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: ImpactPresets,
   ): Promise<ImpactPresets> {
     return await this.fetchHelper(
-      `/variants/ajax/impactpresets/clone-other${entityUuid}/`,
+      `/variants/ajax/impactpresets/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
@@ -336,7 +336,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: QualityPresets,
   ): Promise<QualityPresets> {
     return await this.fetchHelper(
-      `/variants/ajax/qualitypresets/clone-other${entityUuid}/`,
+      `/variants/ajax/qualitypresets/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
@@ -448,7 +448,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: ChromosomePresets,
   ): Promise<ChromosomePresets> {
     return await this.fetchHelper(
-      `/variants/ajax/chromosomepresets/clone-other${entityUuid}/`,
+      `/variants/ajax/chromosomepresets/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
@@ -645,7 +645,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: QuickPresets,
   ): Promise<QuickPresets> {
     return await this.fetchHelper(
-      `/variants/ajax/quickpresets/clone-other${entityUuid}/`,
+      `/variants/ajax/quickpresets/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
@@ -757,7 +757,7 @@ export class QueryPresetsClient extends ClientBase {
     payload: PresetSet,
   ): Promise<PresetSet> {
     return await this.fetchHelper(
-      `/variants/ajax/presetset/clone-other${entityUuid}/`,
+      `/variants/ajax/presetset/clone-other/${entityUuid}/`,
       'POST',
       payload,
     )
