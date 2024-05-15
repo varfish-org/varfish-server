@@ -28,6 +28,7 @@ declare module 'vue' {
     IFaSolidDice: typeof import('~icons/fa-solid/dice')['default']
     IFaSolidDice5Outline: typeof import('~icons/fa-solid/dice5-outline')['default']
     IFaSolidDiceFive: typeof import('~icons/fa-solid/dice-five')['default']
+    IFaSolidEraser: typeof import('~icons/fa-solid/eraser')['default']
     IFaSolidExclamationCircle: typeof import('~icons/fa-solid/exclamation-circle')['default']
     IFaSolidFlagCheckered: typeof import('~icons/fa-solid/flag-checkered')['default']
     IFaSolidFlask: typeof import('~icons/fa-solid/flask')['default']

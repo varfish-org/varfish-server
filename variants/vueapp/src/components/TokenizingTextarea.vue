@@ -170,6 +170,7 @@ const highlightToken = (token) => {
 const _runUpdateBackdrop = () => {
   isValidationRunning.value = false
   isValueValid.value = true
+  invalidTokens.value = []
   for (const [key, value] of Object.entries(htmlTokens.value)) {
     isValidationRunning.value = isValidationRunning.value || value === 'waiting'
     isValueValid.value = isValueValid.value && value !== 'bad'
@@ -270,6 +271,11 @@ const isValid = () => isValueValid.value
  */
 const isValidating = () => isValidationRunning.value
 
+const resetTextarea = () => {
+  textValueRef.value = ''
+  handleInput()
+}
+
 /** Watch changes of props.modelValue. */
 watch(
   () => props.modelValue,
@@ -329,9 +335,16 @@ defineExpose({
     <div v-for="errorMessage in errorMessages" class="invalid-feedback">
       {{ errorMessage }}
     </div>
-    <span v-for="invalidToken in invalidTokens" class="invalid-feedback">
-      {{ invalidToken }}
-    </span>
+    <div v-if="invalidTokens" class="invalid-feedback">
+      <strong>Invalid input:</strong>
+      {{ invalidTokens.join(', ') }}
+    </div>
+    <div class="row mt-2">
+      <div class="btn btn-sm btn-outline-secondary" @click="resetTextarea()">
+        <i-fa-solid-eraser />
+        <span class="ml-2">Clear Gene List</span>
+      </div>
+    </div>
   </div>
   <!-- eslint-enable -->
 </template>
