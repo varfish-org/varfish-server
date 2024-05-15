@@ -371,5 +371,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     updateComment,
     deleteComment,
     hasComments,
+    $reset,
   }
 })

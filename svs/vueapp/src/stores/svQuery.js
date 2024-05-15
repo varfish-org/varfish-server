@@ -435,5 +435,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     initialize,
     submitQuery,
     cancelQuery,
+    $reset,
   }
 })

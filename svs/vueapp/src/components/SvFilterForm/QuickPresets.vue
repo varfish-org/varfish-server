@@ -22,6 +22,42 @@ const props = defineProps({
 
 /** Internal store of inheritance preset.  If set through here, then it is only applied in the control. */
 const inheritanceRef = ref(null)
+const presetSource = ref(null)
+const presetSetLoading = ref(false)
+const presetSetLabel = ref(null)
+
+const updatePresetSetLoading = async () => {
+  let uuid
+  if (
+    !props.case?.presetset &&
+    svQueryStore?.defaultPresetSetUuid === undefined
+  ) {
+    presetSetLabel.value = 'Factory Defaults'
+    presetSource.value = 'Factory Defaults'
+    return // short circuit in case of factory defaults
+  } else {
+    if (props.case?.presetset) {
+      uuid = caseDetailsStore.caseObj.presetset
+      presetSource.value = 'Individual Case Setting'
+    } else if (svQueryStore?.defaultPresetSetUuid !== undefined) {
+      uuid = svQueryStore.defaultPresetSetUuid
+      presetSource.value = 'Project Default Setting'
+    }
+  }
+  const queryPresetsClient = new QueryPresetsClient(caseDetailsStore.csrfToken)
+  presetSetLoading.value = true
+  await queryPresetsClient
+    .retrievePresetSet(uuid)
+    .then((presetSet) => {
+      presetSetLabel.value = presetSet.label
+    })
+    .catch((err) => {
+      console.error('Problem retrieving preset set', err)
+    })
+    .finally(() => {
+      presetSetLoading.value = false
+    })
+}
 
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshInheritanceRef = () => {
@@ -298,6 +334,7 @@ const refreshAllRefs = () => {
 /** React to store changes by adjusting the selection fields. */
 onMounted(() => {
   svQueryStore.initializeRes.then(() => {
+    updatePresetSetLoading()
     refreshAllRefs()
     svQueryStore.$subscribe((_mutation, _state) => {
       if (!blockRefresh.value) {
@@ -309,6 +346,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="row text-muted small">
+    <span class="mr-2 badge badge-secondary">{{ presetSetLabel }}</span>
+    <template v-if="svQueryStore.filtrationComplexityMode === 'dev'">
+      &mdash;<span class="ml-2">{{ presetSource }}</span>
+    </template>
+  </div>
   <div class="row">
     <div class="col-1 pl-0 pr-0">
       <label

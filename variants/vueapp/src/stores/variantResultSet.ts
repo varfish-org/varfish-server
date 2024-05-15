@@ -237,5 +237,6 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
     fetchResultSetViaRow,
     loadResultSetViaQuery,
     loadResultSetViaCase,
+    $reset,
   }
 })

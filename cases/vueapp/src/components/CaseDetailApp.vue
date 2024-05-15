@@ -146,20 +146,31 @@ const toastRef = ref(null)
 const handleEditQueryPresetsClicked = async () => {
   const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
   const allPresets = await queryPresetsClient.listPresetSetAll()
-  const options = [{ value: null, label: 'Factory Presets' }].concat(
+  const projectDefaultPresetSet =
+    await queryPresetsClient.retrieveProjectDefaultPresetSet(
+      appContext.project.sodar_uuid,
+    )
+  caseDetailsStore.projectDefaultPresetSet = projectDefaultPresetSet
+  const defaultLabel = projectDefaultPresetSet
+    ? 'Project Default'
+    : 'Factory Presets'
+  const options = [{ value: null, label: defaultLabel }].concat(
     allPresets.map((p) => ({
       value: p.sodar_uuid,
-      label: p.label,
+      label:
+        p.label +
+        (p.sodar_uuid === projectDefaultPresetSet?.sodar_uuid ? '*' : ''),
     })),
   )
 
   try {
     const presetSetUuid = await modalSelectRef.value.show({
       title: 'Select Query Presets',
-      label: `Query Presets`,
+      label: 'Query Presets',
       helpText:
-        'The selected presets will apply to future queries of this case by all users.',
-      defaultValue: caseDetailsStore.caseObj.presetset ?? null,
+        'The selected presets will apply to future queries of this case by all users. ' +
+        'A custom case preset will override the project default (*).',
+      defaultValue: caseDetailsStore?.caseObj?.presetset ?? null,
       options,
     })
 
