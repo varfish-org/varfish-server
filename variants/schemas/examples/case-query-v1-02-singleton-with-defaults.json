@@ -105,8 +105,6 @@
   "prio_hpo_terms": [
     "HP:0000001"
   ],
-  "remove_if_in_dbsnp": false,
-  "require_in_hgmd_public": false,
   "thousand_genomes_enabled": true,
   "thousand_genomes_frequency": 0.001,
   "thousand_genomes_hemizygous": 10,

@@ -108,7 +108,6 @@ LOCAL_APPS = [
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
     "frequencies.apps.FrequenciesConfig",
-    "hgmd.apps.HgmdConfig",
     "geneinfo.apps.GeneinfoConfig",
     "importer.apps.ImporterConfig",
     "genomicfeatures.apps.GenomicFeaturesConfig",
@@ -131,6 +130,8 @@ LOCAL_APPS = [
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
     "varannos.apps.VarannosConfig",
+    # Legacy apps - not used anymore!
+    "hgmd.apps.HgmdConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

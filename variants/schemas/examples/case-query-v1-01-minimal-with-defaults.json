@@ -60,7 +60,6 @@
   "flag_visual_uncertain": true,
   "gene_allowlist": [],
   "gene_blocklist": [],
-  "remove_if_in_dbsnp": false,
   "require_in_clinvar": false,
   "clinvar_include_benign": true,
   "clinvar_include_pathogenic": true,
@@ -70,6 +69,5 @@
   "clinvar_paranoid_mode": false,
   "genomic_region": [],
   "patho_enabled": false,
-  "prio_enabled": false,
-  "require_in_hgmd_public": false
+  "prio_enabled": false
 }

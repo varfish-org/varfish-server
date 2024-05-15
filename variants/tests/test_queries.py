@@ -24,9 +24,8 @@ from geneinfo.tests.factories import (
     RefseqToEnsemblFactory,
     RefseqToGeneSymbolFactory,
 )
-from hgmd.tests.factories import HgmdPublicLocusFactory
 from variants.helpers import get_engine
-from variants.models import Case, SmallVariantFlags, SmallVariantSet
+from variants.models import Case, SmallVariantSet
 from variants.queries import (
     CaseExportTableQuery,
     CaseExportVcfQuery,
@@ -343,15 +342,6 @@ class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):
             reference=small_vars[2].reference,
             alternative=small_vars[2].alternative,
         )
-
-    def test_base_query_not_in_dbsnp_filter(self):
-        self.run_query(CasePrefetchQuery, {"remove_if_in_dbsnp": True}, 1)
-
-    def test_base_query_not_in_dbsnp_export(self):
-        self.run_query(CaseExportTableQuery, {"remove_if_in_dbsnp": True}, 1)
-
-    def test_base_query_not_in_dbsnp_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"remove_if_in_dbsnp": True}, 1)
 
     def test_base_query_filter(self):
         self.run_query(CasePrefetchQuery, {}, 3)
@@ -4619,14 +4609,6 @@ class CaseThreeClinvarFilterTestMixin:
     def test_render_query_require_membership_include_none(self):
         self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
 
-    def test_render_query_remove_if_in_dbsnp_sanity(self):
-        self.run_query(self.query_class, {"remove_if_in_dbsnp": True}, 6)
-
-    def test_render_query_require_membership_ignore_remove_if_in_dbsnp(self):
-        self.run_query(
-            self.query_class, {"require_in_clinvar": True, "remove_if_in_dbsnp": True}, 6
-        )
-
     def test_render_query_require_membership_include_pathogenic(self):
         res = self.run_query(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 2
@@ -4724,54 +4706,6 @@ class ExportVcfFilterQueryTestCaseThreeClinvarFilter(
     """Test clinvar membership using ExportFileFilterQuery."""
 
     query_class = CaseExportVcfQuery
-
-
-# TODO exports are missing
-class TestHgmdMembershipQuery(SupportQueryTestBase):
-    """Tests for the HGMD membership query."""
-
-    def setUp(self):
-        """Create a case and two variants: one in HGMD, the other not."""
-        super().setUp()
-        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
-        self.small_vars = [
-            SmallVariantFactory(
-                variant_set=variant_set,
-                release=self.case.release,
-                chromosome=normalize_chrom("1", self.case.release),
-                start=100,
-                end=100,
-            ),
-            SmallVariantFactory(
-                variant_set=variant_set,
-                release=self.case.release,
-                chromosome=normalize_chrom("2", self.case.release),
-                start=200,
-                end=200,
-            ),
-        ]
-        self.hgmd = HgmdPublicLocusFactory(
-            release=self.small_vars[1].release,
-            chromosome=self.small_vars[1].chromosome,
-            start=self.small_vars[1].start - 1,
-            end=self.small_vars[1].start,
-        )
-
-    def test_display_hgmd_membership_query(self):
-        res = self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": False},
-            2,
-        )
-        self.assertEqual(res[1].hgmd_accession, self.hgmd.variation_name)
-
-    def test_require_in_hgmd_and_display_membership_query(self):
-        res = self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": True},
-            1,
-        )
-        self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
 
 
 class TestProjectCompHetQuery(SupportQueryTestBase):

@@ -1078,17 +1078,6 @@
         "pattern": "^([a-zA-Z0-9_-]+)$"
       }
     },
-    "remove_if_in_dbsnp": {
-      "$id": "#/properties/remove_if_in_dbsnp",
-      "type": "boolean",
-      "title": "Remove variant if it exists in local copy dbSNP",
-      "description": "Set to true to exclude variants that are present in dbSNP from the result set",
-      "default": false,
-      "examples": [
-        true,
-        false
-      ]
-    },
     "require_in_clinvar": {
       "$id": "#/properties/require_in_clinvar",
       "type": "boolean",
@@ -1270,16 +1259,6 @@
             "pattern": "(HP|OMIM|DECIPHER|ORPHA):\\d+"
           }
         }
-      ]
-    },
-    "require_in_hgmd_public": {
-      "$id": "#/properties/require_in_hgmd_public",
-      "type": "boolean",
-      "title": "The require_in_hgmd_public schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": false,
-      "examples": [
-        false
       ]
     },
     "recessive_mode": {

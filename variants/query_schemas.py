@@ -237,9 +237,6 @@ class CaseQueryV1:
     gene_blocklist: typing.Optional[typing.List[str]] = None
     genomic_region: typing.Optional[typing.List[GenomicRegionV1]] = None
 
-    remove_if_in_dbsnp: bool = False
-
-    require_in_hgmd_public: bool = False
     require_in_clinvar: bool = False
     clinvar_include_benign: bool = True
     clinvar_include_pathogenic: bool = True
@@ -334,8 +331,6 @@ class QueryJsonToFormConverter:
             "mitomap_count": query.mitomap_count,
             "transcripts_coding": query.transcripts_coding,
             "transcripts_noncoding": query.transcripts_noncoding,
-            "remove_if_in_dbsnp": query.remove_if_in_dbsnp,
-            "require_in_hgmd_public": query.require_in_hgmd_public,
             "require_in_clinvar": query.require_in_clinvar,
             "clinvar_include_benign": query.clinvar_include_benign,
             "clinvar_include_likely_benign": query.clinvar_include_likely_benign,

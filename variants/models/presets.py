@@ -212,11 +212,7 @@ class FlagsEtcPresetsManager(models.Manager):
         return self.create(
             label=preset_label,
             presetset=preset_presetset,
-            **{
-                key: value
-                for key, value in getattr(FLAGSETC_PRESETS, factory_preset_name).items()
-                if key not in ("remove_if_in_dbsnp", "require_in_hgmd_public")
-            },
+            **{key: value for key, value in getattr(FLAGSETC_PRESETS, factory_preset_name).items()},
         )
 
     def create_as_copy_of_other_preset(self, other, presetset, **kwargs):

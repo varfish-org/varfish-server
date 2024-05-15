@@ -49,7 +49,6 @@ from genomicfeatures.models import (
     TadSet,
     VistaEnhancer,
 )
-from hgmd.models import HgmdPublicLocus
 from pathways.models import EnsemblToKegg, KeggInfo, RefseqToKegg
 from svdbs.models import DbVarSv, DgvGoldStandardSvs, DgvSvs, ExacCnv, GnomAdSv, ThousandGenomesSv
 from variants.helpers import get_engine, get_meta
@@ -73,7 +72,6 @@ _TABLES_BOTH = {
     "gnomAD_exomes": (GnomadExomes,),
     "gnomAD_genomes": (GnomadGenomes,),
     "HelixMTdb": (HelixMtDb,),
-    "hgmd_public": (HgmdPublicLocus,),
     "hgnc": (Hgnc, RefseqToHgnc),
     "knowngeneaa": (KnowngeneAA,),
     "MITOMAP": (Mitomap,),

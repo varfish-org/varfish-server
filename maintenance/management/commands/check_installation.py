@@ -128,8 +128,6 @@ INDEXES_KNOWNGENEAA = (
     "conservatio_transcr_8aa7d7_idx",
 )
 
-INDEXES_HGMDPUBLICLOCUS = ("hgmd_hgmdpu_release_a5d0c3_idx",)
-
 INDEXES_STRUCTURALVARIANTGENEANNOTATION = (
     "svs_structu_sv_uuid_09c0c4_idx",
     "svs_structu_set_id_42f2ba_idx",
@@ -188,7 +186,6 @@ EXPECTED_INDEXES = {
     "genomicfeatures_tadboundaryinterval": INDEXES_TADBOUNDARYINTERVAL,
     "genomicfeatures_geneinterval": INDEXES_GENEINTERVAL,
     "conservation_knowngeneaa": INDEXES_KNOWNGENEAA,
-    "hgmd_hgmdpubliclocus": INDEXES_HGMDPUBLICLOCUS,
     "svs_structuralvariantgeneannotation": INDEXES_STRUCTURALVARIANTGENEANNOTATION,
     "svs_structuralvariantflags": INDEXES_STRUCTURALVARIANTFLAGS,
     "svs_structuralvariantcomment": INDEXES_STRUCTURALVARIANTCOMMENT,
