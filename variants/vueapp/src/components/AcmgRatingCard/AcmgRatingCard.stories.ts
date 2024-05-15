@@ -112,9 +112,9 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     seqvar: { control: { type: 'object' } },
-    projectUuid: { control: { type: 'string' } },
-    caseUuid: { control: { type: 'string' } },
-    resultRowUuid: { control: { type: 'string' } },
+    projectUuid: { control: { type: 'object' } },
+    caseUuid: { control: { type: 'object' } },
+    resultRowUuid: { control: { type: 'object' } },
   },
   args: {
     projectUuid,
