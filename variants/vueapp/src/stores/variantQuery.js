@@ -103,9 +103,7 @@ const fetchPresets = async (
 
 const fetchProjectDefaultPresetSet = async (csrfToken, projectUuid) => {
   const queryPresetsClient = new QueryPresetsClient(csrfToken)
-  const result =
-    await queryPresetsClient.retrieveProjectDefaultPresetSet(projectUuid)
-  return result.sodar_uuid
+  return await queryPresetsClient.retrieveProjectDefaultPresetSet(projectUuid)
 }
 
 /** Helper that gets the default settings and stores them in querySettingsPresets.value,
@@ -593,9 +591,11 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
         }),
       // 3. fetch quick presets etc.
       fetchProjectDefaultPresetSet(csrfToken.value, projectUuid.value).then(
-        (presetUuid) => {
-          defaultPresetSetUuid.value = presetUuid
-          fetchPresets(
+        async (result) => {
+          defaultPresetSetUuid.value = result.sodar_uuid
+            ? result.sodar_uuid
+            : null
+          await fetchPresets(
             csrfToken.value,
             caseDetailsStore.caseObj,
             quickPresets,

@@ -110,6 +110,13 @@ const refreshStores = async () => {
     return
   }
 
+  // Reset all stores to avoid artifacts.
+  variantQueryStore.$reset()
+  variantFlagsStore.$reset()
+  variantCommentsStore.$reset()
+  variantAcmgRatingStore.$reset()
+  variantResultSetStore.$reset()
+
   await caseDetailsStore.initialize(
     appContext.csrf_token,
     appContext.project?.sodar_uuid,
@@ -117,6 +124,12 @@ const refreshStores = async () => {
   )
 
   Promise.all([
+    variantQueryStore.initialize(
+      appContext.csrf_token,
+      appContext?.project?.sodar_uuid,
+      props.caseUuid,
+      appContext,
+    ),
     variantFlagsStore.initialize(
       appContext.csrf_token,
       appContext.project?.sodar_uuid,
@@ -131,12 +144,6 @@ const refreshStores = async () => {
       appContext.csrf_token,
       appContext.project?.sodar_uuid,
       caseDetailsStore.caseObj.sodar_uuid,
-    ),
-    variantQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
-      props.caseUuid,
-      appContext,
     ),
     variantResultSetStore.initialize(appContext.csrf_token),
   ]).then(async () => {

@@ -425,5 +425,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     getFlags,
     flagAsArtifact,
     retrieveProjectWideVariantFlags,
+    $reset,
   }
 })

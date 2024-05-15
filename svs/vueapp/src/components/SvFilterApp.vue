@@ -108,6 +108,9 @@ const refreshStores = async () => {
     return
   }
 
+  // Reset all stores to avoid artifacts.
+  svQueryStore.$reset()
+
   await caseDetailsStore.initialize(
     appContext.csrf_token,
     appContext.project?.sodar_uuid,

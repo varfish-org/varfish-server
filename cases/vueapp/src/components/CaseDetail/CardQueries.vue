@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { useCaseListStore } from '@cases/stores/caseList'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
@@ -16,25 +16,35 @@ const caseDetailsStore = useCaseDetailsStore()
 const presetSetLoading = ref(false)
 /** The current preset set (if caseDetailsStore.caseObj.presetset !== null / factory presets). */
 const presetSetLabel = ref(null)
+
+const loadCasePresetSetLabel = async (presetSetUuid) => {
+  if (!presetSetUuid) {
+    presetSetLabel.value = null
+    return
+  }
+  const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+  presetSetLoading.value = true
+  try {
+    const presetSet = await queryPresetsClient.retrievePresetSet(presetSetUuid)
+    presetSetLabel.value = presetSet.label
+  } catch (err) {
+    console.error('Problem retrieving preset set', err)
+  } finally {
+    presetSetLoading.value = false
+  }
+}
+
 /** Watch change of current case's preset set and load label if necessary. */
 watch(
   () => caseDetailsStore?.caseObj?.presetset,
-  async (newValue, _oldValue) => {
-    if (!newValue) {
-      return // short circuit in case of factory defaults
-    }
-    const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
-    presetSetLoading.value = true
-    try {
-      const presetSet = await queryPresetsClient.retrievePresetSet(newValue)
-      presetSetLabel.value = presetSet.label
-    } catch (err) {
-      console.error('Problem retrieving preset set', err)
-    } finally {
-      presetSetLoading.value = false
-    }
+  async (newPreset, _oldPreset) => {
+    await loadCasePresetSetLabel(newPreset)
   },
 )
+
+onMounted(async () => {
+  await loadCasePresetSetLabel(caseDetailsStore?.caseObj?.presetset)
+})
 </script>
 
 <template>
@@ -58,23 +68,29 @@ watch(
         </a>
       </div>
     </div>
-    <ul v-if="caseDetailsStore.caseObj" class="list-group list-group-flush">
+    <ul v-if="caseDetailsStore?.caseObj" class="list-group list-group-flush">
       <li class="list-group-item pl-0">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Query Presets
           </span>
-          <span v-if="caseDetailsStore.caseObj.presetset" class="col-3">
-            <template v-if="presetSetLoading">
-              <i-fa-solid-circle-notch v-if="presetSetLoading" class="spin" />
-            </template>
-            <template v-else>
+          <template v-if="presetSetLoading">
+            <i-fa-solid-circle-notch v-if="presetSetLoading" class="spin" />
+          </template>
+          <div v-else class="col-9">
+            <template v-if="presetSetLabel">
               {{ presetSetLabel }}
             </template>
-          </span>
-          <span v-else class="col-3 text-muted font-italic">
-            Factory Defaults
-          </span>
+            <template v-else-if="caseDetailsStore?.projectDefaultPresetSet">
+              Project Default
+              <span class="text-muted"
+                >({{ caseDetailsStore.projectDefaultPresetSet.label }})</span
+              >
+            </template>
+            <span v-else class="text-muted font-italic">
+              Factory Defaults
+            </span>
+          </div>
         </div>
       </li>
     </ul>

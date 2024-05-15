@@ -294,6 +294,7 @@ export const useVariantAcmgRatingStore = defineStore(
       updateAcmgRating,
       deleteAcmgRating,
       getAcmgRating,
+      $reset,
     }
   },
 )

@@ -15,6 +15,7 @@ import { StoreState, State } from '@varfish/storeUtils'
 import { CaseClient } from '@cases/api/caseClient'
 import { useCaseListStore } from '@cases/stores/caseList'
 import { displayName } from '@varfish/helpers'
+import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
 
 /** Alias definition of Case type; to be defined later. */
 export type Case = any
@@ -130,6 +131,8 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   const genotypeMapping = ref<GenotypeMapping | null>({})
 
+  const projectDefaultPresetSet = ref<any | null>(null)
+
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
 
@@ -177,6 +180,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     storeState.serverInteractions += 1
 
     const caseClient = new CaseClient(csrfToken.value ?? 'undefined-csrf-token')
+    const queryPresetsClient = new QueryPresetsClient(
+      csrfToken.value ?? 'csrf-undefined',
+    )
 
     initializeRes.value = Promise.all([
       caseClient.retrieveCase(caseUuid.value).then((res) => {
@@ -224,6 +230,11 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
           caseAlignmentStats.value = null
         }
       }),
+      queryPresetsClient
+        .retrieveProjectDefaultPresetSet(projectUuid.value)
+        .then((res) => {
+          projectDefaultPresetSet.value = res
+        }),
     ])
       .then(() => {
         storeState.serverInteractions -= 1
@@ -448,6 +459,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseAnnotationReleaseInfos,
     caseSvAnnotationReleaseInfos,
     genotypeMapping,
+    projectDefaultPresetSet,
     // functions
     initialize,
     updateCase,
