@@ -127,7 +127,7 @@ const handleCloneClicked = async () => {
     toastRef.value.show({
       title: 'Success!',
       level: 'success',
-      body: 'The preset set has been cloned successfully.',
+      text: 'The preset set has been cloned successfully.',
       autohide: true,
       delay: 10000,
     })
@@ -136,7 +136,7 @@ const handleCloneClicked = async () => {
     toastRef.value.show({
       level: 'error',
       title: 'Error!',
-      text: 'There was a problem deleting the preset set.',
+      text: 'There was a problem cloning the preset set.',
       autohide: true,
       delay: 10000,
     })
@@ -167,14 +167,14 @@ const handleEditClicked = async () => {
     toastRef.value.show({
       title: 'Success!',
       level: 'success',
-      body: 'The preset set has been updated successfully!',
+      text: 'The preset set has been updated successfully!',
     })
   } catch (error) {
     console.error(error)
     toastRef.value.show({
       title: 'Error!',
       level: 'error',
-      body: 'The preset set could not be updated!',
+      text: 'The preset set could not be updated!',
     })
   }
 }
