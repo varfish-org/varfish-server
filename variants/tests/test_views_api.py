@@ -733,9 +733,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "flag_visual_negative": True,
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
-                "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
-                "require_in_hgmd_public": False,
                 "clinvar_paranoid_mode": False,
             },
         }

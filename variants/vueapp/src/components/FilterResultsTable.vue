@@ -696,20 +696,6 @@ watch(
                 class="ml-1 text-muted icon-inactive"
               />
             </span>
-
-            <a
-              v-if="payload.hgmd_public_overlap"
-              target="_blank"
-              :href="
-                'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
-                getSymbol(payload) +
-                '&accession=' +
-                payload.hgmd_accession
-              "
-            >
-              <i-fa-solid-globe class="ml-1 text-muted" />
-            </a>
-            <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
           </span>
         </template>
         <template #item-position="{ sodar_uuid, position }">

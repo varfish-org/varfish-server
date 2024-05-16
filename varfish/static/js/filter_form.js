@@ -479,8 +479,6 @@ const presetsFlagsDefault = {
   "flag_summary_negative": true,
   "flag_summary_empty": true,
 
-  "require_in_hgmd_public": false,
-  "remove_if_in_dbsnp": false,
   "require_in_clinvar": false,
   "clinvar_include_benign": false,
   "clinvar_include_likely_benign": false,

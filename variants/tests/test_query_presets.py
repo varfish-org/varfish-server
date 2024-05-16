@@ -1513,9 +1513,7 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_visual_negative": True,
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
-                "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
-                "require_in_hgmd_public": False,
             },
         )
 
@@ -1552,9 +1550,7 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_visual_negative": True,
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
-                "remove_if_in_dbsnp": False,
                 "require_in_clinvar": True,
-                "require_in_hgmd_public": False,
                 "clinvar_paranoid_mode": False,
             },
         )
@@ -1597,9 +1593,7 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_visual_negative": True,
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
-                "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
-                "require_in_hgmd_public": False,
                 "clinvar_paranoid_mode": False,
             },
         )
@@ -1842,9 +1836,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "mtdb_frequency": 0.01,
                 "recessive_index": None,
                 "recessive_mode": None,
-                "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
-                "require_in_hgmd_public": False,
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.002,
                 "thousand_genomes_hemizygous": None,

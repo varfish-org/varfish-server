@@ -35,7 +35,6 @@ from geneinfo.models import (
     RefseqToHgnc,
 )
 from genepanels.models import expand_panels_in_gene_list
-from hgmd.models import HgmdPublicLocus
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE
 from variants.helpers import get_meta
@@ -197,14 +196,6 @@ class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
-
-
-class ExtendQueryPartsDbsnpJoinAndFilter(ExtendQueryPartsDbsnpJoin):
-    def extend_conditions(self, _query_parts):
-        # Do not enable option if clinvar filter is activated as all clinvar variants have a dbsnp entry.
-        if self.kwargs["remove_if_in_dbsnp"] and not self.kwargs["require_in_clinvar"]:
-            return [column("rsid") == None]  # noqa: E711
-        return []
 
 
 class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
@@ -460,51 +451,6 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             if self.kwargs.get("clinvar_include_%s" % patho_key):
                 terms.append(column.contains([patho_key.replace("_", " ")]))
         return or_(*terms)
-
-
-class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.subquery = (
-            select(
-                [
-                    func.count(HgmdPublicLocus.sa.variation_name).label("hgmd_public_overlap"),
-                    func.max(HgmdPublicLocus.sa.variation_name).label("hgmd_accession"),
-                ]
-            )
-            .select_from(HgmdPublicLocus.sa)
-            # This is a range query that caused an error already. So I'm writing a more elaborate comment.
-            # HGMD is 0-based, and our coordinate system is 1-based, that means the end positions match, but
-            # the start is one less in the HGMD compared to our system, i.e. our.start = hgmd.start + 1.
-            # We need to correct for that.
-            # The default interval query is:   (hgmd.start     <= our.end) and (hgmd.end >= our.start)
-            # The corrected interval query is: (hgmd.start + 1 <= our.end) and (hgmd.end >= our.start)
-            .where(
-                and_(
-                    HgmdPublicLocus.sa.release == SmallVariant.sa.release,
-                    HgmdPublicLocus.sa.chromosome == SmallVariant.sa.chromosome,
-                    (HgmdPublicLocus.sa.start + 1) <= SmallVariant.sa.end,
-                    HgmdPublicLocus.sa.end >= SmallVariant.sa.start,
-                )
-            )
-            .lateral("hgmd_subquery")
-        )
-
-    def extend_fields(self, _query_parts):
-        return [
-            func.coalesce(self.subquery.c.hgmd_public_overlap, 0).label("hgmd_public_overlap"),
-            func.coalesce(self.subquery.c.hgmd_accession, "").label("hgmd_accession"),
-        ]
-
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
-class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
-    def extend_conditions(self, _query_parts):
-        if self.kwargs.get("require_in_hgmd_public"):
-            return [column("hgmd_public_overlap") > 0]
-        return []
 
 
 class ExtendQueryPartsCaseJoinGeneric(ExtendQueryPartsBase):
@@ -1575,7 +1521,7 @@ class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
 #: QueryPartsBuilderExtender classes list for cases.
 extender_classes_base = [
     ExtendQueryPartsCaseJoinAndFilter,
-    ExtendQueryPartsDbsnpJoinAndFilter,
+    ExtendQueryPartsDbsnpJoin,
     ExtendQueryPartsVarTypeFilter,
     ExtendQueryPartsFrequenciesFilter,
     ExtendQueryPartsInHouseJoinAndFilter,
@@ -1585,7 +1531,6 @@ extender_classes_base = [
     ExtendQueryPartsGeneListsFilter,
     ExtendQueryPartsGenomicRegionFilter,
     ExtendQueryPartsClinvarJoinAndFilter,
-    ExtendQueryPartsHgmdJoinAndFilter,
     ExtendQueryPartsGenotypeGtQualityDefaultFilter,
     ExtendQueryPartsFlagsJoinAndFilter,
     ExtendQueryPartsCommentsJoin,
@@ -1689,7 +1634,6 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsGenomicRegionFilter,
             ExtendQueryPartsGnomadConstraintsJoin,
-            ExtendQueryPartsHgmdJoinAndFilter,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsInHouseJoin,
             ExtendQueryPartsMgiJoin,
@@ -1716,7 +1660,7 @@ class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
 
     # TODO What about DbSNP and HGNC that are used for filtering???
     # TODO Should we just take the stored results and join the required data?
-    # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
+    # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?)
     def get_qp_extender_classes(self):
         return extender_classes_base
 
@@ -1760,7 +1704,7 @@ class ProjectExportVcfQueryPartsBuilder(QueryPartsBuilder):
 
     # TODO What about DbSNP and HGNC that are used for filtering???
     # TODO Should we just take the stored results and join the required data?
-    # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
+    # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?)
     def get_qp_extender_classes(self):
         return extender_classes_base
 
