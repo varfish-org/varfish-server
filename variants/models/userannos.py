@@ -4,13 +4,13 @@ from typing import Optional
 import uuid as uuid_object
 
 import binning
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.timezone import localtime
+import requests
 
-from geneinfo.models import EnsemblToGeneSymbol, Hgnc
-from genomicfeatures.models import GeneInterval
 from variants.models.variants import SmallVariant
 
 User = get_user_model()
@@ -26,24 +26,36 @@ CHROMOSOME_NAMES = list(CHROMOSOME_STR_TO_CHROMOSOME_INT.keys())
 class GetGeneSymbolsMixin:
     def get_gene_symbols(self):
         """Query for overlapping genes."""
-        # TODO: could be made much nicer with join in DB via SQL Alchemy
-        bins = binning.containing_bins(self.start - 1, self.end)
-        gene_intervals = list(
-            GeneInterval.objects.filter(
-                database="ensembl",
-                release=self.release,
-                chromosome=self.chromosome,
-                bin__in=bins,
-                start__lte=self.end,
-                end__gte=self.start,
-            )
+        base_url = settings.VARFISH_BACKEND_URL_MEHARI
+        if not base_url:
+            return []
+        url_tpl = (
+            "{base_url}/seqvars/csq?genome_release={genome_release}"
+            "&chromosome={chromosome}&position={position}&reference={reference}"
+            "&alternative={alternative}"
         )
-        gene_ids = [itv.gene_id for itv in gene_intervals]
-        symbols1 = {
-            o.gene_symbol for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
-        }
-        symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
-        return sorted(symbols1 | symbols2)
+        url = url_tpl.format(
+            base_url=base_url,
+            genome_release=self.release.lower(),
+            chromosome=self.chromosome,
+            position=self.start,
+            reference=self.reference,
+            alternative=self.alternative,
+        )
+        try:
+            res = requests.request(method="get", url=url)
+            if not res.status_code == 200:
+                raise ConnectionError(
+                    "ERROR: Server responded with status {} and message {}".format(
+                        res.status_code, res.text
+                    )
+                )
+            else:
+                return sorted(
+                    {record["gene_symbol"] for record in res.json().get("result", []) or []}
+                )
+        except requests.ConnectionError as e:
+            raise ConnectionError("ERROR: mehari not responding.") from e
 
 
 class HumanReadableMixin:

@@ -130,15 +130,6 @@ class Hgnc(models.Model):
         ]
 
 
-def build_entrez_id_to_symbol(entrez_ids):
-    """Helper function that builds a map from Entrez ID to gene symbol for the given Entrez gene IDs."""
-    entrez_ids = list(sorted(set(filter(bool, entrez_ids))))
-    result = {x: x for x in entrez_ids}
-    for hgnc in Hgnc.objects.filter(entrez_id__in=entrez_ids).order_by("entrez_id"):
-        result[hgnc.entrez_id] = hgnc.symbol
-    return result
-
-
 class Mim2geneMedgen(models.Model):
     """Information to translate Entrez ID int OMIM ID."""
 
