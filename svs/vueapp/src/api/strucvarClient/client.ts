@@ -9,7 +9,11 @@ import {
   ListArgs,
   SvQueryResultRow,
   SvComment,
+  SvAcmgRating,
   SvFlags,
+  AcmgRating$Api,
+  AcmgRating,
+  AcmgRatingPage$Api,
 } from './types'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
@@ -290,6 +294,114 @@ export class SvClient extends ClientBase {
     return await this.fetchHelper(
       `/svs/ajax/structural-variant-flags/retrieve-update-destroy/${flagsUuid}/`,
       'DELETE',
+    )
+  }
+
+  /** List acmg ratings for the given case, optionally for the given `sv`. */
+  async listAcmgRating(
+    caseUuid: string,
+    strucvar?: Strucvar,
+  ): Promise<SvAcmgRating[]> {
+    let query = ''
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
+    }
+
+    let nextUrl: string | null =
+      `/svs/ajax/structural-variant-acmg-rating/list-create/${caseUuid}/${query}`
+    const result: AcmgRating$Api[] = []
+    while (nextUrl !== null) {
+      const resultJson = (await this.fetchHelper(
+        nextUrl,
+        'GET',
+      )) as AcmgRatingPage$Api
+      result.push(...resultJson.results)
+      nextUrl = resultJson.next
+    }
+    return result.map((item) => AcmgRating.fromJson(item))
+  }
+
+  async createAcmgRating(
+    caseUuid: string,
+    strucvar: Strucvar,
+    payload: SvAcmgRating,
+  ): Promise<SvAcmgRating> {
+    const { svType, genomeBuild, chrom, start } = strucvar
+    const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+    let stop
+    if (svType === 'INS' || svType === 'BND') {
+      stop = strucvar.start
+    } else {
+      stop = strucvar.stop
+    }
+    const query =
+      `release=${release}&chromosome=${chrom}&start=${start}` +
+      `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
+
+    const result = (await this.fetchHelper(
+      `/svs/ajax/structural-variant-acmg-rating/list-create/${caseUuid}/?${query}`,
+      'POST',
+      AcmgRating.toJson(payload),
+    )) as AcmgRating$Api
+    return AcmgRating.fromJson(result)
+  }
+
+  async updateAcmgRating(
+    acmgRatingUuid: string,
+    payload: SvAcmgRating,
+  ): Promise<SvAcmgRating> {
+    const result = (await this.fetchHelper(
+      `/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/${acmgRatingUuid}/`,
+      'PATCH',
+      AcmgRating.toJson(payload),
+    )) as AcmgRating$Api
+    return AcmgRating.fromJson(result)
+  }
+
+  async deleteAcmgRating(acmgRatingUuid: string) {
+    return await this.fetchHelper(
+      `/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/${acmgRatingUuid}/`,
+      'DELETE',
+    )
+  }
+
+  async listProjectAcmgRating(
+    projectUuid: string,
+    caseUuid?: string,
+    strucvar?: Strucvar,
+  ): Promise<SvAcmgRating[]> {
+    let query = ''
+    if (strucvar) {
+      const { svType, genomeBuild, chrom, start } = strucvar
+      const release = genomeBuild === 'grch37' ? 'GRCh37' : 'GRCh38'
+      let stop
+      if (svType === 'INS' || svType === 'BND') {
+        stop = strucvar.start
+      } else {
+        stop = strucvar.stop
+      }
+      query =
+        `?release=${release}&chromosome=${chrom}&start=${start}` +
+        `&end=${stop}&sv_type=${svType}&sv_sub_type=${svType}`
+    }
+    if (caseUuid) {
+      query += query
+        ? `&exclude_case_uuid=${caseUuid}`
+        : `?exclude_case_uuid=${caseUuid}`
+    }
+    return await this.fetchHelper(
+      `/svs/ajax/structural-variant-acmg-rating/list-project/${projectUuid}/${query}`,
+      'GET',
     )
   }
 }

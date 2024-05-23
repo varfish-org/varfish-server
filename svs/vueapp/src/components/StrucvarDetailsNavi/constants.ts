@@ -17,6 +17,7 @@ export const SECTIONS: { [key: string]: NavItem[] } = {
     { id: 'strucvar-tools', title: 'Tools' },
     { id: 'strucvar-flags', title: 'Flags' },
     { id: 'strucvar-comments', title: 'Comments' },
+    { id: 'strucvar-acmgrating', title: 'ACMG Rating' },
     { id: 'strucvar-genomebrowser', title: 'Genome Browser' },
   ],
 }

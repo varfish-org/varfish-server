@@ -14,6 +14,7 @@ import SvFilterForm from '@svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
 import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@svs/stores/svComments'
+import { useSvAcmgRatingStore } from '@svs/stores/svAcmgRating'
 
 const props = defineProps({
   /** The case UUID. */
@@ -30,6 +31,7 @@ const router = useRouter()
 const svQueryStore = useSvQueryStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
+const svAcmgRatingStore = useSvAcmgRatingStore()
 const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 
@@ -132,6 +134,11 @@ const refreshStores = async () => {
       appContext?.project?.sodar_uuid,
       props.caseUuid,
       appContext,
+    ),
+    svAcmgRatingStore.initialize(
+      appContext.csrf_token,
+      appContext.project?.sodar_uuid,
+      caseDetailsStore.caseObj.sodar_uuid,
     ),
     svResultSetStore.initialize(appContext.csrf_token),
   ]).then(async () => {

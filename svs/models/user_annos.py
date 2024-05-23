@@ -165,3 +165,25 @@ class StructuralVariantFlags(HumanReadableMixin, _UserAnnotation):
                 self.flag_summary != "empty",
             )
         )
+
+
+class StructuralVariantAcmgRating(_UserAnnotation):
+    """Model for storing ACMG ratings for structural variants"""
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name="structural_variant_acmg_ratings",
+        help_text="Case that this SV is rated in",
+    )
+
+    #: The ACMG rating
+    class_override = models.FloatField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name="Class Override",
+        help_text="Use this field to override the auto-computed class assignment",
+    )

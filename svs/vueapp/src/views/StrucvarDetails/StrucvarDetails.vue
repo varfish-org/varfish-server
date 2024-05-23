@@ -21,6 +21,7 @@ import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucva
 
 import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
+import AcmgRatingCard from '@svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
 
 import StrucvarDetailsNavi from '@svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
 import StrucvarDetailsHeader from '@svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
@@ -321,6 +322,15 @@ watch(
                   :variant="strucvarInfoStore.strucvar"
                   :result-row-uuid="props.resultRowUuid ?? ''"
                   :case-uuid="caseDetailsStore.caseUuid ?? undefined"
+                />
+              </div>
+              <div id="strucvar-acmgrating" class="mt-3">
+                <AcmgRatingCard
+                  :project-uuid="appContext.project?.sodar_uuid"
+                  :case-uuid="caseDetailsStore.caseUuid ?? undefined"
+                  :strucvar="strucvarInfoStore.strucvar"
+                  :result-row-uuid="props.resultRowUuid ?? ''"
+                  :csrf-token="appContext.csrf_token"
                 />
               </div>
               <div id="strucvar-genomebrowser">

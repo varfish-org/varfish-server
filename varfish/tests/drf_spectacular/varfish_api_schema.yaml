@@ -3138,6 +3138,225 @@ paths:
       responses:
         '204':
           description: No response body
+  /svs/ajax/structural-variant-acmg-rating/list-create/{case}/:
+    get:
+      operationId: svs_ajax_structural_variant_acmg_rating_list_create_list
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: case
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStructuralVariantAcmgRatingList'
+          description: ''
+    post:
+      operationId: svs_ajax_structural_variant_acmg_rating_list_create_create
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: case
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '201':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          description: ''
+  /svs/ajax/structural-variant-acmg-rating/list-project/{project}/:
+    get:
+      operationId: svs_ajax_structural_variant_acmg_rating_list_project_list
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStructuralVariantAcmgRatingProjectList'
+          description: ''
+  /svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/{structuralvariantacmgrating}/:
+    get:
+      operationId: svs_ajax_structural_variant_acmg_rating_retrieve_update_destroy_retrieve
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: structuralvariantacmgrating
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          description: ''
+    put:
+      operationId: svs_ajax_structural_variant_acmg_rating_retrieve_update_destroy_update
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: structuralvariantacmgrating
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StructuralVariantAcmgRating'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          description: ''
+    patch:
+      operationId: svs_ajax_structural_variant_acmg_rating_retrieve_update_destroy_partial_update
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: structuralvariantacmgrating
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStructuralVariantAcmgRating'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStructuralVariantAcmgRating'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStructuralVariantAcmgRating'
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/StructuralVariantAcmgRating'
+          description: ''
+    delete:
+      operationId: svs_ajax_structural_variant_acmg_rating_retrieve_update_destroy_destroy
+      description: Mixin to enforce project-based permissions.
+      parameters:
+      - in: path
+        name: structuralvariantacmgrating
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - svs
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '204':
+          description: No response body
   /svs/ajax/structural-variant-comment/list-create/{case}/:
     get:
       operationId: svs_ajax_structural_variant_comment_list_create_list
@@ -11196,6 +11415,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SmallVariantQueryResultSet'
+    PaginatedStructuralVariantAcmgRatingList:
+      type: object
+      properties:
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StructuralVariantAcmgRating'
+    PaginatedStructuralVariantAcmgRatingProjectList:
+      type: object
+      properties:
+        next:
+          type: string
+          nullable: true
+        previous:
+          type: string
+          nullable: true
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StructuralVariantAcmgRatingProject'
     PaginatedSvQueryResultRowList:
       type: object
       properties:
@@ -12511,6 +12756,55 @@ components:
           items:
             type: string
           readOnly: true
+    PatchedStructuralVariantAcmgRating:
+      type: object
+      description: Serializer for the ``StructuralVariantAcmgRating` model.
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Annotation UUID
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        case:
+          type: string
+          format: uuid
+          description: Case SODAR UUID
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        sv_type:
+          type: string
+          maxLength: 32
+        sv_sub_type:
+          type: string
+          maxLength: 32
+        class_override:
+          type: number
+          format: double
+          nullable: true
+          description: Use this field to override the auto-computed class assignment
     PatchedStructuralVariantComment:
       type: object
       description: Serializer for the ``StructuralVariantComment` model.
@@ -14078,6 +14372,124 @@ components:
       - query_state_msg
       - sodar_uuid
       - user
+    StructuralVariantAcmgRating:
+      type: object
+      description: Serializer for the ``StructuralVariantAcmgRating` model.
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Annotation UUID
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        case:
+          type: string
+          format: uuid
+          description: Case SODAR UUID
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        sv_type:
+          type: string
+          maxLength: 32
+        sv_sub_type:
+          type: string
+          maxLength: 32
+        class_override:
+          type: number
+          format: double
+          nullable: true
+          description: Use this field to override the auto-computed class assignment
+      required:
+      - case
+      - chromosome
+      - date_created
+      - date_modified
+      - end
+      - release
+      - sodar_uuid
+      - start
+      - sv_sub_type
+      - sv_type
+    StructuralVariantAcmgRatingProject:
+      type: object
+      description: Serializer for the ``StructuralVariantAcmgRating` model.
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Annotation UUID
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of creation
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: DateTime of last modification
+        case:
+          type: string
+          readOnly: true
+        release:
+          type: string
+          maxLength: 32
+        chromosome:
+          type: string
+          maxLength: 32
+        start:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        end:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        sv_type:
+          type: string
+          maxLength: 32
+        sv_sub_type:
+          type: string
+          maxLength: 32
+        class_override:
+          type: number
+          format: double
+          nullable: true
+          description: Use this field to override the auto-computed class assignment
+      required:
+      - case
+      - chromosome
+      - date_created
+      - date_modified
+      - end
+      - release
+      - sodar_uuid
+      - start
+      - sv_sub_type
+      - sv_type
     StructuralVariantComment:
       type: object
       description: Serializer for the ``StructuralVariantComment` model.
