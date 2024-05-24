@@ -217,4 +217,12 @@ export class CaseClient extends ClientBase {
       'DELETE',
     )
   }
+
+  /** Retrieve project settings. */
+  async retrieveProjectSettings(projectUuid: string) {
+    return await this.fetchHelper(
+      `/variants/ajax/project-settings/retrieve/${projectUuid}/`,
+      'GET',
+    )
+  }
 }

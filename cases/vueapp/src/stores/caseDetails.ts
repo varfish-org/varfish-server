@@ -133,6 +133,11 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   const projectDefaultPresetSet = ref<any | null>(null)
 
+  const projectSettings = ref<any>({
+    ts_tv_valid_lower: 2.0,
+    ts_tv_valid_upper: 2.9,
+  })
+
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
 
@@ -235,6 +240,9 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
         .then((res) => {
           projectDefaultPresetSet.value = res
         }),
+      caseClient.retrieveProjectSettings(projectUuid.value).then((res) => {
+        projectSettings.value = res
+      }),
     ])
       .then(() => {
         storeState.serverInteractions -= 1
@@ -460,6 +468,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseSvAnnotationReleaseInfos,
     genotypeMapping,
     projectDefaultPresetSet,
+    projectSettings,
     // functions
     initialize,
     updateCase,

@@ -139,6 +139,16 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "database (such as no variant of a case showing up because being in the in-house database many times)."
             ),
         },
+        "ts_tv_valid_range": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "STRING",
+            "default": "2.0-2.9",
+            "label": "Ts/Tv valid range",
+            "description": (
+                "Variants with a Ts/Tv ratio outside this range will be highlighted as a warning. "
+                "The recommended value is <code>2.0-2.9</code>"
+            ),
+        },
     }
 
     #: Additional columns to display for the projects.

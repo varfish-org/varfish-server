@@ -105,6 +105,7 @@ declare module 'vue' {
     IMdiPlusCircle: typeof import('~icons/mdi/plus-circle')['default']
     IMdiPodium: typeof import('~icons/mdi/podium')['default']
     IMdiRefresh: typeof import('~icons/mdi/refresh')['default']
+    IMdiSettings: typeof import('~icons/mdi/settings')['default']
     IMdiSquareEditOutline: typeof import('~icons/mdi/square-edit-outline')['default']
     IMdiStar: typeof import('~icons/mdi/star')['default']
     IMdiTableColumnWidth: typeof import('~icons/mdi/table-column-width')['default']

@@ -1,11 +1,14 @@
 <script setup>
 import { displayName, formatLargeInt } from '@varfish/helpers'
+import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { tsTvRatio } from '@cases/common'
 
 const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   varStats: Object,
 })
+
+const caseDetailsStore = useCaseDetailsStore()
 </script>
 
 <template>
@@ -37,11 +40,16 @@ const props = defineProps({
           </td>
           <td class="text-right">
             <span
-              v-if="tsTvRatio(entry) < 1.0 || tsTvRatio(entry) > 2.9"
+              v-if="
+                tsTvRatio(entry) <
+                  caseDetailsStore.projectSettings.ts_tv_valid_lower ||
+                tsTvRatio(entry) >
+                  caseDetailsStore.projectSettings.ts_tv_valid_upper
+              "
               class="text-danger"
             >
               <i-bi-exclamation-circle
-                :title="`On-target Ts/Tv ratio should be between 2.0 and 2.9 but was ${tsTvRatio(
+                :title="`On-target Ts/Tv ratio should be between ${caseDetailsStore.projectSettings.ts_tv_warning_lower} and ${caseDetailsStore.projectSettings.ts_tv_warning_upper} but was ${tsTvRatio(
                   entry,
                 )}.`"
               />

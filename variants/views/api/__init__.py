@@ -19,6 +19,7 @@ from django.urls import reverse
 from django.utils import timezone
 import numpy as np
 from projectroles.models import Project
+from projectroles.templatetags.projectroles_common_tags import get_app_setting
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
 from rest_framework.exceptions import NotFound, ValidationError
@@ -72,6 +73,8 @@ from variants.serializers import (
     ExtraAnnoFieldSerializer,
     HpoTerms,
     HpoTermSerializer,
+    ProjectSettings,
+    ProjectSettingsSerializer,
     SettingsShortcuts,
     SettingsShortcutsSerializer,
     SmallVariantCommentProjectSerializer,
@@ -1816,3 +1819,38 @@ class CaseListQcStatsApiView(RetrieveAPIView):
         }
 
         return result
+
+
+class ProjectSettingsRetrieveApiView(SODARAPIGenericProjectMixin, RetrieveAPIView):
+    """A view that returns project settings for the given project.
+
+    **URL:** ``/variants/api/project-settings/retrieve/{project.uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:** {
+        ts_tv_warning_upper,
+        ts_tv_warning_lower
+    }
+    """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = ProjectSettingsSerializer
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+    def get_object(self):
+        project = CaseAwareProject.objects.get(sodar_uuid=self.kwargs["project"])
+        setting = get_app_setting("variants", "ts_tv_valid_range", project=project)
+        try:
+            lower, upper = setting.split("-")
+            lower, upper = float(lower), float(upper)
+        except ValueError:
+            lower, upper = 2.0, 2.9
+        return ProjectSettings(
+            ts_tv_valid_lower=lower,
+            ts_tv_valid_upper=upper,
+        )

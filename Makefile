@@ -116,3 +116,7 @@ format-isort:
 .PHONY: format-black
 format-black:
 	black --line-length 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
+
+.PHONY: gen-api-schema
+gen-api-schema:
+	$(MANAGE) spectacular > ./varfish/tests/drf_spectacular/varfish_api_schema.yaml
