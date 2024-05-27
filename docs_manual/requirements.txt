@@ -187,7 +187,7 @@ tzdata==2023.3
 Unidecode==0.4.21
 universal-pathlib==0.1.4
 urllib3==2.2.1
-vcfpy==0.13.6
+vcfpy==0.13.8
 vine==5.1.0
 wasmer==1.1.0
 wasmer_compiler_cranelift==1.1.0
