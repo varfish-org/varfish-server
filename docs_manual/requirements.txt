@@ -76,7 +76,7 @@ flake8==6.1.0
 flake8-import-order==0.18.2
 Flake8-pyproject==1.2.3
 freezegun==1.2.2
-frozenlist==1.4.0
+frozenlist==1.4.1
 fsspec==2024.3.1
 future==0.18.3
 greenlet==3.0.3
