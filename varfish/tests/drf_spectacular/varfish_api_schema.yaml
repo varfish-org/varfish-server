@@ -5870,6 +5870,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/PresetSet'
           description: ''
+  /variants/ajax/project-settings/retrieve/{project}/:
+    get:
+      operationId: variants_ajax_project_settings_retrieve_retrieve
+      description: |-
+        A view that returns project settings for the given project.
+
+        **URL:** ``/variants/ajax/project-settings/retrieve/{project.uuid}``
+
+        **Methods:** ``GET``
+
+        **Returns:** {
+            ts_tv_warning_upper,
+            ts_tv_warning_lower
+        }
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - variants
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettings'
+          description: ''
   /variants/ajax/project/qc/{project}/:
     get:
       operationId: variants_ajax_project_qc_retrieve
@@ -7659,6 +7691,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HpoTerm'
+          description: ''
+  /variants/api/project-settings/retrieve/{project}/:
+    get:
+      operationId: variants_api_project_settings_retrieve_retrieve
+      description: |-
+        A view that returns project settings for the given project.
+
+        **URL:** ``/variants/api/project-settings/retrieve/{project.uuid}``
+
+        **Methods:** ``GET``
+
+        **Returns:** {
+            ts_tv_warning_upper,
+            ts_tv_warning_lower
+        }
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - variants
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettings'
           description: ''
   /variants/api/project/qc/{project}/:
     get:
@@ -13258,6 +13324,19 @@ components:
       - qualitypresets_set
       - quickpresets_set
       - sodar_uuid
+    ProjectSettings:
+      type: object
+      description: Serializer for project settings.
+      properties:
+        ts_tv_valid_upper:
+          type: number
+          format: double
+        ts_tv_valid_lower:
+          type: number
+          format: double
+      required:
+      - ts_tv_valid_lower
+      - ts_tv_valid_upper
     QualityPresets:
       type: object
       description: Serializer for ``QualityPresets``.

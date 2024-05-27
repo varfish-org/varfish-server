@@ -779,3 +779,18 @@ class CaseListQcStatsSerializer(serializers.Serializer):
     dpQuantiles = serializers.JSONField()
     hetRatioQuantiles = serializers.JSONField()
     dpHetData = serializers.JSONField()
+
+
+@attrs.define
+class ProjectSettings:
+    """Helper class that contains the results of the settings shortcuts"""
+
+    ts_tv_valid_upper: float
+    ts_tv_valid_lower: float
+
+
+class ProjectSettingsSerializer(serializers.Serializer):
+    """Serializer for project settings."""
+
+    ts_tv_valid_upper = serializers.FloatField()
+    ts_tv_valid_lower = serializers.FloatField()

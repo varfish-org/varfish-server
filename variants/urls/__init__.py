@@ -298,6 +298,11 @@ ajax_urlpatterns = [
         view=views_ajax.HpoTermsAjaxView.as_view(),
         name="ajax-hpo-terms",
     ),
+    url(
+        regex=r"^ajax/project-settings/retrieve/(?P<project>[0-9a-f-]+)/?$",
+        view=views_ajax.ProjectSettingsRetrieveAjaxView.as_view(),
+        name="ajax-project-settings-retrieve",
+    ),
 ]
 
 api_urlpatterns = [
@@ -457,6 +462,11 @@ api_urlpatterns = [
         name="api-extra-anno-fields",
     ),
     url(regex=r"^api/hpo-terms/?$", view=views_api.HpoTermsApiView.as_view(), name="api-hpo-terms"),
+    url(
+        regex=r"^api/project-settings/retrieve/(?P<project>[0-9a-f-]+)/?$",
+        view=views_api.ProjectSettingsRetrieveApiView.as_view(),
+        name="api-project-settings-retrieve",
+    ),
 ]
 
 

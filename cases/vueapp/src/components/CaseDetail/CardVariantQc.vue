@@ -65,19 +65,21 @@ const tsTv = (member) => {
                 }}
               </td>
               <td
-                v-if="tsTv(member) >= 2.0 && tsTv(member) <= 2.9"
-                class="text-right"
-              >
-                {{ tsTv(member) }}
-              </td>
-              <td
-                v-else
+                v-if="
+                  tsTv(member) <
+                    caseDetailsStore.projectSettings.ts_tv_valid_lower ||
+                  tsTv(member) >
+                    caseDetailsStore.projectSettings.ts_tv_valid_upper
+                "
                 class="text-right text-danger font-weight-bold"
-                :title="`Ts/Tv ratio should be within 2.0-2.9 but is ${tsTv(
+                :title="`Ts/Tv ratio should be within ${caseDetailsStore.projectSettings.ts_tv_warning_lower}-${caseDetailsStore.projectSettings.ts_tv_warning_upper} but is ${tsTv(
                   member,
                 )}`"
               >
                 <i-bi-exclamation-circle />
+                {{ tsTv(member) }}
+              </td>
+              <td v-else class="text-right">
                 {{ tsTv(member) }}
               </td>
               <td class="text-right">

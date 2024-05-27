@@ -8,6 +8,7 @@ from variants.views.api import (
     CaseRetrieveApiView,
     ExtraAnnoFieldsApiView,
     HpoTermsApiView,
+    ProjectSettingsRetrieveApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
     SmallVariantCommentListProjectApiView,
@@ -431,6 +432,22 @@ class CaseListQcStatsAjaxView(CaseListQcStatsApiView):
     **Methods:** ``GET``
 
     **Returns:** List of HPO terms that were found for that term, HPO id and name.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class ProjectSettingsRetrieveAjaxView(ProjectSettingsRetrieveApiView):
+    """A view that returns project settings for the given project.
+
+    **URL:** ``/variants/ajax/project-settings/retrieve/{project.uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:** {
+        ts_tv_warning_upper,
+        ts_tv_warning_lower
+    }
     """
 
     authentication_classes = [SessionAuthentication]
