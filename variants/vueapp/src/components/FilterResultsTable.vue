@@ -262,6 +262,30 @@ const hasComments = (payload) => {
   )
 }
 
+const hasProjectComments = (payload) => {
+  return commentsStore.hasProjectWideComments(
+    new SeqvarImpl(
+      payload.release === 'GRCh37' ? 'grch37' : 'grch38',
+      payload.chromosome,
+      payload.start,
+      payload.reference,
+      payload.alternative,
+    ),
+  )
+}
+
+const hasProjectFlags = (payload) => {
+  return flagsStore.hasProjectWideFlags(
+    new SeqvarImpl(
+      payload.release === 'GRCh37' ? 'grch37' : 'grch38',
+      payload.chromosome,
+      payload.start,
+      payload.reference,
+      payload.alternative,
+    ),
+  )
+}
+
 /**
  * Configuration for the row to color them based on flags.
  */
@@ -636,14 +660,14 @@ watch(
             />
             <i-fa-solid-bookmark
               v-if="getFlags(payload)"
-              class="text-muted ml-1"
+              :class="`${hasProjectFlags(payload) ? 'text-warning' : 'text-muted'} ml-1`"
               title="flags & bookmarks"
               role="button"
               @click="showVariantDetails(sodar_uuid, 'seqvar-flags')"
             />
             <i-fa-regular-bookmark
               v-else
-              class="text-muted ml-1"
+              :class="`${hasProjectFlags(payload) ? 'text-warning' : 'text-muted'} ml-1`"
               title="flags & bookmarks"
               role="button"
               @click="showVariantDetails(sodar_uuid, 'seqvar-flags')"
@@ -651,13 +675,13 @@ watch(
 
             <i-fa-solid-comment
               v-if="hasComments(payload)"
-              class="text-muted ml-1"
+              :class="`${hasProjectComments(payload) ? 'text-warning' : 'text-muted'} ml-1`"
               role="button"
               @click="showVariantDetails(sodar_uuid, 'seqvar-comments')"
             />
             <i-fa-regular-comment
               v-else
-              class="text-muted ml-1"
+              :class="`${hasProjectComments(payload) ? 'text-warning' : 'text-muted'} ml-1`"
               role="button"
               @click="showVariantDetails(sodar_uuid, 'seqvar-comments')"
             />

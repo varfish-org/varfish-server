@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
 import { StoreState, State } from '@varfish/storeUtils'
-import { SvClient } from '@svs/api/strucvarClient'
+import { SvClient, SvFlags } from '@svs/api/strucvarClient'
 import { bndInsOverlap, reciprocalOverlap } from '@varfish/helpers'
 import { useCaseDetailsStore } from '@cases/stores/caseDetails'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
@@ -64,6 +64,8 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const caseFlags = ref<Map<string, StructuralVariantFlags>>(new Map())
   /** The project-wide variant flags. */
   const projectWideVariantFlags = ref<Array<StructuralVariantFlags>>([])
+  /** The project-wide flags. */
+  const projectWideFlags = ref<Array<StructuralVariantFlags>>([])
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -118,22 +120,26 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
     const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
-    initializeRes.value = svClient
-      .listFlags(caseUuid.value)
-      .then((flags) => {
+    initializeRes.value = Promise.all([
+      svClient.listFlags(caseUuid.value).then((flags) => {
         caseFlags.value.clear()
         for (const flag of flags) {
           caseFlags.value.set(flag.sodar_uuid, flag)
         }
+      }),
+      svClient
+        .listProjectFlags(projectUuid.value, caseUuid.value)
+        .then((result) => {
+          projectWideFlags.value = result
+        }),
+    ]).catch((err) => {
+      console.error('Problem initializing variantFlags store', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+    })
 
-        storeState.serverInteractions -= 1
-        storeState.state = State.Active
-      })
-      .catch((err) => {
-        console.error('Problem initializing svFlags store', err)
-        storeState.serverInteractions -= 1
-        storeState.state = State.Error
-      })
+    storeState.serverInteractions -= 1
+    storeState.state = State.Active
 
     return initializeRes.value
   }
@@ -299,17 +305,13 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     flags.value = null
   }
 
-  /**
-   * Return first matching flag for the given `sv`.
-   */
-  const getFlags = (sv: StructuralVariant): StructuralVariantFlags | null => {
-    if (!caseFlags.value) {
-      return null
-    }
-
+  const _getFlags = (
+    sv: StructuralVariant,
+    flagList: Array<StructuralVariantFlags>,
+  ): StructuralVariantFlags | null => {
     const bndInsRadius = 50
     const minReciprocalOverlap = 0.8
-    for (const flag of caseFlags.value.values()) {
+    for (const flag of flagList) {
       if (
         ['BND', 'INS'].includes(flag.sv_type) &&
         flag.sv_type === sv.sv_type &&
@@ -323,7 +325,22 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
         return flag
       }
     }
-    return null
+    return false
+  }
+
+  /**
+   * Return first matching flag for the given `sv`.
+   */
+  const getFlags = (sv: StructuralVariant): StructuralVariantFlags | null => {
+    if (!caseFlags.value) {
+      return null
+    }
+    return _getFlags(sv, Array.from(caseFlags.value.values()))
+  }
+
+  const hasProjectWideFlags = (sv: Strucvar): boolean => {
+    const flag = _getFlags(sv, projectWideFlags.value)
+    return flag ? true : false
   }
 
   /**
@@ -373,6 +390,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     emptyFlagsTemplate,
     initialFlagsTemplate,
     projectWideVariantFlags,
+    projectWideFlags,
     // functions
     initialize,
     retrieveFlags,
@@ -381,5 +399,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     deleteFlags,
     getFlags,
     retrieveProjectWideVariantFlags,
+    hasProjectWideFlags,
   }
 })

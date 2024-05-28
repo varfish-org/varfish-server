@@ -45,6 +45,8 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const caseComments = ref<Map<string, StructuralVariantComment>>(new Map())
   /** The project-wide variant comments. */
   const projectWideVariantComments = ref<Array<StructuralVariantComment>>([])
+  /** The project-wide comments. */
+  const projectWideComments = ref<Array<StructuralVariantComment>>([])
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -97,22 +99,26 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
     const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
 
-    initializeRes.value = svClient
-      .listComment(caseUuid.value)
-      .then((comments) => {
+    initializeRes.value = Promise.all([
+      svClient.listComment(caseUuid.value).then((comments) => {
         caseComments.value.clear()
         for (const comment of comments) {
           caseComments.value.set(comment.sodar_uuid, comment)
         }
+      }),
+      svClient
+        .listProjectComment(projectUuid.value, caseUuid.value)
+        .then((result) => {
+          projectWideVariantComments.value = result
+        }),
+    ]).catch((err) => {
+      console.error('Problem initializing svComments store', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+    })
 
-        storeState.serverInteractions -= 1
-        storeState.state = State.Active
-      })
-      .catch((err) => {
-        console.error('Problem initializing svComments store', err)
-        storeState.serverInteractions -= 1
-        storeState.state = State.Error
-      })
+    storeState.serverInteractions -= 1
+    storeState.state = State.Active
 
     return initializeRes.value
   }
@@ -273,12 +279,12 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     )
   }
 
-  /**
-   * Return whether there is a comment for the given variant.
-   */
-  const hasComment = (strucvar$: Strucvar): boolean => {
+  const _hasComment = (
+    strucvar$: Strucvar,
+    comments: StructuralVariantComment,
+  ): boolean => {
     const minReciprocalOverlap = 0.8
-    for (const comment of caseComments.value.values()) {
+    for (const comment of comments) {
       let end
       if (strucvar$.svType === 'INS' || strucvar$.svType === 'BND') {
         end = strucvar$.start
@@ -297,6 +303,17 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       }
     }
     return false
+  }
+
+  /**
+   * Return whether there is a comment for the given variant.
+   */
+  const hasComment = (strucvar$: Strucvar): boolean => {
+    return _hasComment(strucvar$, caseComments.value.values())
+  }
+
+  const hasProjectWideComments = (strucvar$: Strucvar): boolean => {
+    return _hasComment(strucvar$, projectWideVariantComments.value)
   }
 
   /**
@@ -344,6 +361,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     comments,
     caseComments,
     projectWideVariantComments,
+    projectWideComments,
     initializeRes,
     // functions
     initialize,
@@ -352,6 +370,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     updateComment,
     deleteComment,
     hasComment,
+    hasProjectWideComments,
     retrieveProjectWideVariantComments,
   }
 })
