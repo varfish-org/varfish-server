@@ -43,6 +43,10 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   const caseComments = ref<Map<string, SmallVariantComment>>(new Map())
   /** The project-wide variant comments. */
   const projectWideVariantComments = ref<Array<SmallVariantComment>>([])
+  /** The project-wide comments. */
+  const projectWideComments = ref<Map<string, Array<SmallVariantComment>>>(
+    new Map(),
+  )
 
   /** Promise for initialization of the store. */
   const initializeRes = ref<Promise<any> | null>(null)
@@ -101,22 +105,39 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       csrfToken.value ?? 'undefined-csrf-token',
     )
 
-    initializeRes.value = variantClient
-      .listComment(caseUuid.value)
-      .then((result) => {
+    initializeRes.value = Promise.all([
+      variantClient.listComment(caseUuid.value).then((result) => {
         caseComments.value.clear()
         for (const comment of result) {
           caseComments.value.set(comment.sodar_uuid, comment)
         }
+      }),
+      variantClient
+        .listProjectComment(projectUuid.value, caseUuid.value)
+        .then((result) => {
+          for (const comment of result) {
+            const key = `${comment.chromosome}-${comment.start}-${comment.reference}-${comment.alternative}`
+            if (!projectWideComments.value.has(key)) {
+              projectWideComments.value.set(key, [comment])
+            } else {
+              let comments = projectWideComments.value.get(key)
+              if (comments) {
+                comments.push(comment)
+              } else {
+                comments = [comment]
+              }
+              projectWideComments.value.set(key, comments)
+            }
+          }
+        }),
+    ]).catch((err) => {
+      console.error('Problem initializing variantComments store', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+    })
 
-        storeState.serverInteractions -= 1
-        storeState.state = State.Active
-      })
-      .catch((err) => {
-        console.error('Problem initializing variantComments store', err)
-        storeState.serverInteractions -= 1
-        storeState.state = State.Error
-      })
+    storeState.serverInteractions -= 1
+    storeState.state = State.Active
 
     return initializeRes.value
   }
@@ -301,8 +322,18 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     return false
   }
 
+  const hasProjectWideComments = (seqvar: Seqvar): boolean => {
+    const val = projectWideComments.value.get(
+      `${seqvar.chrom}-${seqvar.pos}-${seqvar.del}-${seqvar.ins}`,
+    )
+    if (val) {
+      return val.length > 0
+    }
+    return false
+  }
+
   /**
-   * Retrieve project-wide variant comments.
+   * Retrieve project-wide comments.
    */
   const retrieveProjectWideVariantComments = async (seqvar$: Seqvar) => {
     if (!caseUuid.value) {
@@ -362,6 +393,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     comments,
     caseComments,
     projectWideVariantComments,
+    projectWideComments,
     initializeRes,
     // functions
     initialize,
@@ -371,6 +403,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     updateComment,
     deleteComment,
     hasComments,
+    hasProjectWideComments,
     $reset,
   }
 })

@@ -479,14 +479,14 @@ watch(
           />
           <i-fa-solid-bookmark
             v-if="svFlagsStore.getFlags({ chromosome, start, end, sv_type })"
-            class="text-muted"
+            :class="`${svFlagsStore.hasProjectWideFlags({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'}`"
             title="flags & bookmarks"
             role="button"
             @click="showVariantDetails(sodar_uuid, 'strucvar-flags')"
           />
           <i-fa-regular-bookmark
             v-else
-            class="text-muted icon-inactive"
+            :class="`${svFlagsStore.hasProjectWideFlags({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'} icon-inactive`"
             title="flags & bookmarks"
             role="button"
             @click="showVariantDetails(sodar_uuid, 'strucvar-flags')"
@@ -496,13 +496,13 @@ watch(
             v-if="
               svCommentsStore.hasComment({ chromosome, start, end, sv_type })
             "
-            class="text-muted ml-1"
+            :class="`${svCommentsStore.hasProjectWideComments({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'} ml-1`"
             role="button"
             @click="showVariantDetails(sodar_uuid, 'strucvar-comments')"
           />
           <i-fa-regular-comment
             v-else
-            class="text-muted icon-inactive ml-1"
+            :class="`${svCommentsStore.hasProjectWideComments({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'} icon-inactive ml-1`"
             role="button"
             @click="showVariantDetails(sodar_uuid, 'strucvar-comments')"
           />

@@ -45,6 +45,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
   /** For whole project: flags for all variants of the project with the given `projectUuid`. */
   const projectWideVariantFlags = ref<Array<SmallVariantFlags>>([])
+  /** The project-wide flags. */
+  const projectWideFlags = ref<Map<string, Array<SmallVariantFlags>>>(new Map())
 
   /** Template object to use for for empty flags. */
   const emptyFlagsTemplate = Object.freeze({
@@ -126,22 +128,39 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       csrfToken.value ?? 'undefined-csrf-token',
     )
 
-    initializeRes.value = variantClient
-      .listFlags(caseUuid.value)
-      .then((flags) => {
+    initializeRes.value = Promise.all([
+      variantClient.listFlags(caseUuid.value).then((flags) => {
         caseFlags.value.clear()
         for (const flag of flags) {
           caseFlags.value.set(flag.sodar_uuid, flag)
         }
+      }),
+      variantClient
+        .listProjectFlags(projectUuid.value, caseUuid.value)
+        .then((result) => {
+          for (const flags of result) {
+            const key = `${flags.chromosome}-${flags.start}-${flags.reference}-${flags.alternative}`
+            if (!projectWideFlags.value.has(key)) {
+              projectWideFlags.value.set(key, [flags])
+            } else {
+              let flags = projectWideFlags.value.get(key)
+              if (flags) {
+                flags.push(flags)
+              } else {
+                flags = [flags]
+              }
+              projectWideFlags.value.set(key, flags)
+            }
+          }
+        }),
+    ]).catch((err) => {
+      console.error('Problem initializing variantFlags store', err)
+      storeState.serverInteractions -= 1
+      storeState.state = State.Error
+    })
 
-        storeState.serverInteractions -= 1
-        storeState.state = State.Active
-      })
-      .catch((err) => {
-        console.error('Problem initializing variantFlags store', err)
-        storeState.serverInteractions -= 1
-        storeState.state = State.Error
-      })
+    storeState.serverInteractions -= 1
+    storeState.state = State.Active
 
     return initializeRes.value
   }
@@ -389,6 +408,16 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     }
   }
 
+  const hasProjectWideFlags = (seqvar: Seqvar): boolean => {
+    const val = projectWideFlags.value.get(
+      `${seqvar.chrom}-${seqvar.pos}-${seqvar.del}-${seqvar.ins}`,
+    )
+    if (val) {
+      return val.length > 0
+    }
+    return false
+  }
+
   const $reset = () => {
     storeState.state = State.Initial
     storeState.serverInteractions = 0
@@ -425,6 +454,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     getFlags,
     flagAsArtifact,
     retrieveProjectWideVariantFlags,
+    hasProjectWideFlags,
     $reset,
   }
 })
