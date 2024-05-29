@@ -7,7 +7,7 @@ from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 from cases_qc.tests.helpers import flatten_via_json
 from svs.tests.factories import SvQueryResultSetFactory
 
-from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
+from ..query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
 from .factories import (
     AcmgCriteriaRatingFactory,
     CaseFactory,
@@ -176,6 +176,8 @@ def small_variant_query_to_dict(query):
         "case": query.case.sodar_uuid,
         "public": query.public,
         "query_settings": query.query_settings,
+        "query_settings_version_major": query.query_settings_version_major,
+        "query_settings_version_minor": query.query_settings_version_minor,
         "user": None if not query.user else query.user.sodar_uuid,
     }
 
@@ -191,7 +193,7 @@ class TestSmallVariantQueryBase(ApiViewTestBase):
     def _construct_request_data(self, query_settings):
         """Helper to construct valid request data with defaults set based on ``query_settings``."""
         query_settings = copy.deepcopy(query_settings)
-        DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(query_settings)
+        DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(query_settings)
         request_data = {
             "name": "my test query",
             "public": True,

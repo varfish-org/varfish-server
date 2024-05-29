@@ -14,6 +14,7 @@ from jsonschema import Draft7Validator, validators
 
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS
 from variants.models import Case
+from variants.query_presets import Version
 
 
 def extend_with_default(validator_class):
@@ -47,7 +48,7 @@ def load_json(path):
 
 
 #: Query schema v1
-SCHEMA_QUERY_V1 = load_json("variants/schemas/case-query-v1.json")
+SCHEMA_QUERY = load_json("variants/schemas/case-query-v1.json")
 
 
 #: JSON draft 7 validator that uses default values.
@@ -55,7 +56,7 @@ DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 
 
 @unique
-class EffectsV1(Enum):
+class Effects(Enum):
     THREE_PRIME_UTR_EXON_VARIANT = "3_prime_UTR_exon_variant"
     THREE_PRIME_UTR_INTRON_VARIANT = "3_prime_UTR_intron_variant"
     FIVE_PRIME_UTR_EXON_VARIANT = "5_prime_UTR_exon_variant"
@@ -94,20 +95,20 @@ class EffectsV1(Enum):
 
 
 @unique
-class RecessiveModeV1(Enum):
+class RecessiveMode(Enum):
     RECESSIVE = "recessive"
     COMPOUND_RECESSIVE = "compound-recessive"
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class FailChoiceV1(Enum):
+class FailChoice(Enum):
     IGNORE = "ignore"
     DROP_VARIANT = "drop-variant"
     NO_CALL = "no-call"
 
 
 @unique
-class GenotypeChoiceV1(Enum):
+class GenotypeChoice(Enum):
     ANY = "any"
     REF = "ref"
     HET = "het"
@@ -122,7 +123,7 @@ class GenotypeChoiceV1(Enum):
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class QualitySettingsV1:
+class QualitySettings:
     """Data structure to hold the information for quality settings"""
 
     dp_het: typing.Optional[int] = None
@@ -132,11 +133,11 @@ class QualitySettingsV1:
     ab: typing.Optional[float] = None
     ad: typing.Optional[int] = None
     ad_max: typing.Optional[int] = None
-    fail: FailChoiceV1 = FailChoiceV1.IGNORE
+    fail: FailChoice = FailChoice.IGNORE
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class RangeV1:
+class Range:
     """Data structure to hold a range"""
 
     start: int
@@ -144,17 +145,17 @@ class RangeV1:
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class GenomicRegionV1:
+class GenomicRegion:
     """Data structure eto hold the information for genomic regions."""
 
     chromosome: str
-    range: typing.Optional[RangeV1] = None
+    range: typing.Optional[Range] = None
 
     def with_chr_stripped(self):
         chromosome = self.chromosome
         if chromosome.startswith("chr"):
             chromosome = chromosome[len("chr") :]
-        return GenomicRegionV1(chromosome, self.range)
+        return GenomicRegion(chromosome, self.range)
 
     def to_str(self):
         if not self.range:
@@ -162,7 +163,7 @@ class GenomicRegionV1:
         return "%s:%d-%d" % (self.chromosome, self.range.start, self.range.end)
 
 
-def convert_genomic_region_v1(region: GenomicRegionV1):
+def convert_genomic_region(region: GenomicRegion):
     if region.range:
         return (region.chromosome, region.range.start, region.range.end)
     else:
@@ -170,12 +171,12 @@ def convert_genomic_region_v1(region: GenomicRegionV1):
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class CaseQueryV1:
+class CaseQuery:
     """Data structure to hold the information for a single case query"""
 
     database: str
 
-    effects: typing.List[EffectsV1]
+    effects: typing.List[Effects]
 
     exac_enabled: bool
     gnomad_exomes_enabled: bool
@@ -186,8 +187,14 @@ class CaseQueryV1:
     helixmtdb_enabled: bool
     mitomap_enabled: bool
 
-    quality: typing.Dict[str, QualitySettingsV1]
-    genotype: typing.Dict[str, typing.Optional[GenotypeChoiceV1]]
+    quality: typing.Dict[str, QualitySettings]
+    genotype: typing.Dict[str, typing.Optional[GenotypeChoice]]
+
+    # Variables with default values
+    # -----------------------------
+
+    #: Version of the query schema.
+    VERSION: Version = Version(major=0, minor=0)  # noqa
 
     transcripts_coding: bool = True
     transcripts_noncoding: bool = False
@@ -235,7 +242,7 @@ class CaseQueryV1:
 
     gene_allowlist: typing.Optional[typing.List[str]] = None
     gene_blocklist: typing.Optional[typing.List[str]] = None
-    genomic_region: typing.Optional[typing.List[GenomicRegionV1]] = None
+    genomic_region: typing.Optional[typing.List[GenomicRegion]] = None
 
     require_in_clinvar: bool = False
     clinvar_include_benign: bool = True
@@ -251,7 +258,7 @@ class CaseQueryV1:
     prio_algorithm: typing.Optional[str] = None
     prio_hpo_terms: typing.Optional[typing.List[str]] = None
 
-    recessive_mode: typing.Optional[RecessiveModeV1] = None
+    recessive_mode: typing.Optional[RecessiveMode] = None
     recessive_index: typing.Optional[str] = None
 
     exac_frequency: typing.Optional[float] = None
@@ -293,7 +300,7 @@ class CaseQueryV1:
 class QueryJsonToFormConverter:
     """Helper class"""
 
-    def convert(self, case: Case, query: CaseQueryV1) -> typing.Dict[str, typing.Any]:
+    def convert(self, case: Case, query: CaseQuery) -> typing.Dict[str, typing.Any]:
         result = {
             "database_select": query.database,
             "var_type_snv": query.var_type_snv,
@@ -368,7 +375,7 @@ class QueryJsonToFormConverter:
             "flag_visual_uncertain": query.flag_visual_uncertain,
             "gene_blocklist": query.gene_blocklist,
             "gene_allowlist": query.gene_allowlist,
-            "genomic_region": list(map(convert_genomic_region_v1, query.genomic_region)),
+            "genomic_region": list(map(convert_genomic_region, query.genomic_region)),
             "prio_enabled": query.prio_enabled,
             "prio_algorithm": query.prio_algorithm,
             "prio_hpo_terms": query.prio_hpo_terms,
@@ -392,9 +399,9 @@ class QueryJsonToFormConverter:
         # add recessive information
         result["compound_recessive_indices"] = {}
         result["recessive_indices"] = {}
-        if query.recessive_mode == RecessiveModeV1.RECESSIVE and query.recessive_index:
+        if query.recessive_mode == RecessiveMode.RECESSIVE and query.recessive_index:
             result["recessive_indices"] = {case.name: query.recessive_index}
-        elif query.recessive_mode == RecessiveModeV1.COMPOUND_RECESSIVE and query.recessive_index:
+        elif query.recessive_mode == RecessiveMode.COMPOUND_RECESSIVE and query.recessive_index:
             result["compound_recessive_indices"] = {case.name: query.recessive_index}
 
         case_samples = {p["patient"] for p in case.pedigree}
@@ -416,12 +423,12 @@ class QueryJsonToFormConverter:
             elif sample in result["compound_recessive_indices"].values():
                 result["%s_gt" % sample] = "index"
             else:
-                gt = query.genotype.get(sample, GenotypeChoiceV1.ANY)
+                gt = query.genotype.get(sample, GenotypeChoice.ANY)
                 if gt:
                     result["%s_gt" % sample] = gt.value
         # add quality field for each sample
         for sample in case_samples:
-            value = query.quality.get(sample, QualitySettingsV1())
+            value = query.quality.get(sample, QualitySettings())
             if value and value.fail:
                 result["%s_fail" % sample] = value.fail.value
             else:
@@ -431,20 +438,20 @@ class QueryJsonToFormConverter:
                     None if not value else getattr(value, field, None)
                 )
 
-        return result
+        return result, query.VERSION
 
 
-def convert_query_json_to_small_variant_filter_form_v1(
+def convert_query_json_to_small_variant_filter_form(
     case: Case, query_json: typing.Dict[str, typing.Any]
 ):
     """Helper function that converts case query JSON to form data for ``small_variant_filter_form`` in version 1."""
     tmp = copy.deepcopy(query_json)
-    DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(tmp)
-    query = cattr.structure(tmp, CaseQueryV1)
+    DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(tmp)
+    query = cattr.structure(tmp, CaseQuery)
     if query.genomic_region:
         query = attrs.evolve(
             query,
-            genomic_region=list(map(GenomicRegionV1.with_chr_stripped, query.genomic_region)),
+            genomic_region=list(map(GenomicRegion.with_chr_stripped, query.genomic_region)),
         )
     return QueryJsonToFormConverter().convert(case, query)
 
@@ -453,15 +460,15 @@ def _structure_genomic_region(s, _):
     if not re.match("^[a-zA-Z0-9]+(:(\\d+(,\\d+)*)-(\\d+(,\\d+)*))?$", s):
         raise RuntimeError("Invalid genomic region string: %s" % repr(s))
     if ":" not in s:
-        return GenomicRegionV1(chromosome=s)
+        return GenomicRegion(chromosome=s)
     chrom, range_str = s.split(":")
     start, end = range_str.split("-")
-    return GenomicRegionV1(
-        chromosome=chrom, range=RangeV1(int(start.replace(",", "")), int(end.replace(",", "")))
+    return GenomicRegion(
+        chromosome=chrom, range=Range(int(start.replace(",", "")), int(end.replace(",", "")))
     )
 
 
-cattr.register_structure_hook(GenomicRegionV1, _structure_genomic_region)
+cattr.register_structure_hook(GenomicRegion, _structure_genomic_region)
 
 
-cattr.register_unstructure_hook(GenomicRegionV1, GenomicRegionV1.to_str)
+cattr.register_unstructure_hook(GenomicRegion, GenomicRegion.to_str)

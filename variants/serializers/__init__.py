@@ -27,9 +27,9 @@ from variants.models import (
     SmallVariantQueryResultSet,
 )
 from variants.query_schemas import (
-    SCHEMA_QUERY_V1,
+    SCHEMA_QUERY,
     DefaultValidatingDraft7Validator,
-    convert_query_json_to_small_variant_filter_form_v1,
+    convert_query_json_to_small_variant_filter_form,
 )
 from variants.serializers.case import *  # noqa: F401 F403
 from variants.serializers.presets import *  # noqa: F401 F403
@@ -82,7 +82,7 @@ def query_settings_validator(value):
 
     # Validate query settings.
     query_settings = copy.deepcopy(value)
-    DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(query_settings)
+    DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(query_settings)
     # Validate gene lists.
     _check_gene_list_found(query_settings["gene_allowlist"], "gene_allowlist")
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
@@ -119,9 +119,13 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
     def validate(self, attrs):
         # validation succeeded up to here, now convert to form data's "query_settings" if necessary.
         if "database_select" not in attrs.get("query_settings", {}) and "query_settings" in attrs:
-            attrs["query_settings"] = convert_query_json_to_small_variant_filter_form_v1(
+            query_settings, version = convert_query_json_to_small_variant_filter_form(
                 self.context["case"], attrs["query_settings"]
             )
+            attrs["query_settings"] = query_settings
+            attrs["query_settings_version_major"] = version.major
+            attrs["query_settings_version_minor"] = version.minor
+
         return attrs
 
     class Meta:
@@ -132,6 +136,8 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             "case",
             "user",
             "query_settings",
+            "query_settings_version_major",
+            "query_settings_version_minor",
             "name",
             "public",
         )
@@ -377,6 +383,8 @@ class SmallVariantQueryWithLogsSerializer(SmallVariantQuerySerializer):
             "query_state",
             "query_state_msg",
             "query_settings",
+            "query_settings_version_major",
+            "query_settings_version_minor",
             "logs",
         )
         read_only_fields = fields

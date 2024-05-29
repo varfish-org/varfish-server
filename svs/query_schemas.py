@@ -5,8 +5,8 @@ import typing
 
 import attrs
 
-from variants.query_presets import Database, GenotypeChoice
-from variants.query_schemas import GenomicRegionV1, RecessiveModeV1
+from variants.query_presets import Database, GenotypeChoice, Version
+from variants.query_schemas import GenomicRegion, RecessiveMode
 
 
 @unique
@@ -296,6 +296,12 @@ class GenotypeCriteria:
 class CaseQuery:
     """Data structure to hold query settings for ``svs`` queries."""
 
+    # Variables with default values
+    # -----------------------------
+
+    #: Version of the query schema.
+    VERSION: Version = Version(major=0, minor=0)  # noqa
+
     #: The transcript database to use.
     database: Database = Database.REFSEQ
 
@@ -362,7 +368,7 @@ class CaseQuery:
     #: List of genes to require.
     gene_allowlist: typing.Optional[typing.List[str]] = None
     #: Genomic region to limit consideration to.
-    genomic_region: typing.Optional[typing.List[GenomicRegionV1]] = None
+    genomic_region: typing.Optional[typing.List[GenomicRegion]] = None
 
     #: Regulatory region padding to use.
     regulatory_overlap: int = 100
@@ -383,6 +389,6 @@ class CaseQuery:
     genotype_criteria: typing.List[GenotypeCriteria] = attrs.field(factory=list)
 
     #: The mode for recessive inheritance.
-    recessive_mode: typing.Optional[RecessiveModeV1] = None
+    recessive_mode: typing.Optional[RecessiveMode] = None
     #: The index to use for recessive inheritance.
     recessive_index: typing.Optional[str] = None
