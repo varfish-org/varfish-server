@@ -61,6 +61,16 @@ class SvQuery(models.Model):
     #: The query settings as JSON.
     query_settings = JSONField(null=False, help_text="The query settings")
 
+    #: The query settings version.
+    query_settings_version_major = models.IntegerField(
+        default=0, help_text="The query settings version (major)"
+    )
+
+    #: The query settings version.
+    query_settings_version_minor = models.IntegerField(
+        default=0, help_text="The query settings version (minor)"
+    )
+
     def get_project(self):
         return self.case.project
 

@@ -549,6 +549,8 @@ class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
     query_settings = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
+    query_settings_version_major = 0
+    query_settings_version_minor = 0
     name = factory.Sequence(lambda n: "SmallVariantQuery%d" % n)
     public = False
 

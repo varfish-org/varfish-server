@@ -12817,6 +12817,14 @@ components:
           nullable: true
           description: Message related to the query state
         query_settings: {}
+        query_settings_version_major:
+          type: integer
+          readOnly: true
+          description: The query settings version (major)
+        query_settings_version_minor:
+          type: integer
+          readOnly: true
+          description: The query settings version (minor)
         logs:
           type: array
           items:
@@ -14256,6 +14264,16 @@ components:
           description: User SODAR UUID
           readOnly: true
         query_settings: {}
+        query_settings_version_major:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: The query settings version (major)
+        query_settings_version_minor:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: The query settings version (minor)
         name:
           type: string
           nullable: true
@@ -14437,6 +14455,14 @@ components:
           nullable: true
           description: Message related to the query state
         query_settings: {}
+        query_settings_version_major:
+          type: integer
+          readOnly: true
+          description: The query settings version (major)
+        query_settings_version_minor:
+          type: integer
+          readOnly: true
+          description: The query settings version (minor)
         logs:
           type: array
           items:
@@ -14447,6 +14473,8 @@ components:
       - date_created
       - logs
       - query_settings
+      - query_settings_version_major
+      - query_settings_version_minor
       - query_state
       - query_state_msg
       - sodar_uuid

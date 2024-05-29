@@ -4,7 +4,7 @@ from django.forms import model_to_dict
 from django.urls import reverse
 
 from svs.tests.factories import StructuralVariantCommentFactory, StructuralVariantFlagsFactory
-from variants.query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
+from variants.query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
 from variants.tests.factories import CaseFactory, CaseWithVariantSetFactory
 from variants.tests.helpers import ApiViewTestBase
 
@@ -20,7 +20,7 @@ class TestStructuralVariantQueryBase(ApiViewTestBase):
     def _construct_request_data(self, query_settings):
         """Helper to construct valid request data with defaults set based on ``query_settings``."""
         query_settings = copy.deepcopy(query_settings)
-        DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(query_settings)
+        DefaultValidatingDraft7Validator(SCHEMA_QUERY).validate(query_settings)
         request_data = {
             "name": "my test query",
             "public": True,

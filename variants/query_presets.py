@@ -1038,9 +1038,20 @@ class FlagsEtc(Enum):
         return getattr(FLAGSETC_PRESETS, self.value)
 
 
+@unique
 class Database(Enum):
     REFSEQ = "refseq"
     ENSEMBL = "ensembl"
+
+
+@attrs.frozen
+class Version:
+    """Type for the version of the query settings"""
+
+    #: major version of the query settings
+    major: int
+    #: minor version of the query settings
+    minor: int
 
 
 @attrs.frozen
