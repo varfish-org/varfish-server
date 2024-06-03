@@ -54,8 +54,6 @@ class EntrypointView(
                 "umd_predictor_api_token": setting_api.get(
                     "variants", "umd_predictor_api_token", user=self.request.user
                 ),
-                "hgmd_pro_enabled": settings.VARFISH_ENABLE_HGMD_PRO_LINKOUT,
-                "hgmd_pro_prefix": settings.VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX,
                 "ga4gh_beacon_network_widget_enabled": setting_api.get(
                     "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
                 ),
