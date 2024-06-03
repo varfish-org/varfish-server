@@ -145,7 +145,7 @@ pytz==2024.1
 PyYAML==6.0.1
 redis==5.0.3
 referencing==0.35.1
-regex==2023.12.25
+regex==2024.5.15
 requests==2.32.2
 requests-http-signature==0.2.0
 requests-mock==1.11.0
