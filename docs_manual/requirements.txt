@@ -122,7 +122,7 @@ pickleshare==0.7.5
 Pillow==10.3.0
 platformdirs==3.11.0
 prettytable==3.9.0
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.45
 protobuf==3.20.3
 psutil==5.9.8
 psycopg2==2.9.9
