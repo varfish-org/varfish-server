@@ -1,6 +1,6 @@
 from projectroles.plugins import ProjectAppPluginPoint
 
-from .urls import urlpatterns
+# APP DISCONTINUTED
 
 
 class ProjectAppPlugin(ProjectAppPluginPoint):
@@ -8,14 +8,16 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     name = "clinvar_export"
     title = "Clinvar Export"
-    urls = urlpatterns
     # ...
+
+    state = 2 # removed ... however this does not work, it stays active forever
 
     plugin_ordering = 100
 
     icon = "mdi:export-variant"
 
-    entry_point_url_id = "clinvar_export:entrypoint"
+    # change entry point
+    entry_point_url_id = "projectroles:detail"
 
     description = "Manage Clinvar Exports"
 

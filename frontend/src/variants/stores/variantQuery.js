@@ -214,10 +214,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   // more properties from application context
   /** UMD Predictor API token (from app context). */
   const umdPredictorApiToken = ref(null)
-  /** Whether HGMD Pro is enabled (from app contet). */
-  const hgmdProEnabled = ref(null)
-  /** The URL prefix for HGMD Pro (from app context). */
-  const hgmdProPrefix = ref(null)
   /** Whether the GA4GH beacon network widget is enabled (from app context). */
   const ga4ghBeaconNetworkWidgetEnabled = ref(null)
   /** Whether exomiser support is enabled (from app context). */
@@ -525,8 +521,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     caseUuid.value = caseUuid$
     // (copy appContext values)
     umdPredictorApiToken.value = appContext.umd_predictor_api_token
-    hgmdProEnabled.value = appContext.hgmd_pro_enabled
-    hgmdProPrefix.value = appContext.hgmd_pro_prefix
     ga4ghBeaconNetworkWidgetEnabled.value =
       appContext.ga4gh_beacon_network_widget_enabled
     exomiserEnabled.value = appContext.exomiser_enabled
@@ -630,8 +624,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     csrfToken.value = null
     caseUuid.value = null
     umdPredictorApiToken.value = null
-    hgmdProEnabled.value = null
-    hgmdProPrefix.value = null
     ga4ghBeaconNetworkWidgetEnabled.value = null
     exomiserEnabled.value = null
     caddEnabled.value = null
@@ -673,8 +665,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     showFiltrationInlineHelp,
     filtrationComplexityMode,
     umdPredictorApiToken,
-    hgmdProEnabled,
-    hgmdProPrefix,
     ga4ghBeaconNetworkWidgetEnabled,
     exomiserEnabled,
     caddEnabled,
