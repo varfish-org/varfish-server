@@ -51,6 +51,9 @@ export const vuetify = createVuetify({
     VSheet: {
       rounded: 'lg',
     },
+    VChip: {
+      rounded: 'xl',
+    },
   },
   theme: {
     defaultTheme: 'customLightTheme',

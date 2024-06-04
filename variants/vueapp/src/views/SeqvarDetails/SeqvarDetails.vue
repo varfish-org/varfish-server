@@ -279,7 +279,7 @@ onMounted(async () => {
               </div>
               <div id="seqvar-clinvar" class="mt-3">
                 <SeqvarClinvarCard
-                  :clinvar-record="seqvarInfoStore.varAnnos?.clinvar"
+                  :clinvar-records="seqvarInfoStore.varAnnos?.clinvar"
                 />
               </div>
               <div id="seqvar-scores" class="mt-3">
