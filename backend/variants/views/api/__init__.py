@@ -761,55 +761,6 @@ class SmallVariantInheritancePresetsApiView(
         )
 
 
-class SmallVariantQueryHpoTermsApiView(SmallVariantQueryApiMixin, RetrieveAPIView):
-    """Fetch HPO terms for small variant query.
-
-    **URL:** ``/variants/api/query-case/hpo-terms/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    **Returns:**
-
-    """
-
-    renderer_classes = [VarfishApiRenderer]
-    versioning_class = VarfishApiVersioning
-
-    serializer_class = SmallVariantQueryHpoTermSerializer
-
-    def _get_query(self):
-        if self.request.user.is_superuser:
-            qs = SmallVariantQuery.objects.all()
-        elif self.request.user.is_anonymous:
-            qs = SmallVariantQuery.objects.none()
-        else:
-            qs = SmallVariantQuery.objects.filter(Q(user=self.request.user) | Q(public=True))
-        return get_object_or_404(qs, sodar_uuid=self.kwargs["smallvariantquery"])
-
-    def get_object(self):
-        query = self._get_query()
-        # Get mapping from HPO term to HpoName object.
-        hpoterms = {}
-        for hpo in query.query_settings.get("prio_hpo_terms", []) or []:
-            if hpo.startswith("HP"):
-                matches = HpoName.objects.filter(hpo_id=hpo)
-                hpoterms[hpo] = matches.first().name if matches else "unknown HPO term"
-            else:
-                matches = (
-                    Hpo.objects.filter(database_id=hpo)
-                    .values("database_id")
-                    .annotate(names=ArrayAgg("name"))
-                )
-                if matches:
-                    hpoterms[hpo] = re.sub(r"^[#%]?\d+ ", "", matches.first()["names"][0]).split(
-                        ";;"
-                    )[0]
-                else:
-                    hpoterms[hpo] = "unknown term"
-
-        return HpoTerms(hpoterms=hpoterms)
-
-
 class SmallVariantQueryDownloadGenerateApiView(VariantsApiBaseMixin, APIView):
     """Start generating results for download of a small variant query.
 
@@ -1621,61 +1572,6 @@ class ExtraAnnoFieldsApiView(
 
     def get_permission_required(self):
         return "variants.view_data"
-
-
-class HpoTermsApiView(ListAPIView):
-    """A view that lists HPO terms based on a query string.
-    Also includes OMIM, ORPHAN and DECIPHER terms.
-
-    **URL:** ``/variants/api/hpo-terms/?query={string}/``
-
-    **Methods:** ``GET``
-
-    **Returns:** List of HPO terms that were found for that term, HPO id and name.
-    """
-
-    renderer_classes = [VarfishApiRenderer]
-    versioning_class = VarfishApiVersioning
-
-    serializer_class = HpoTermSerializer
-
-    def get_queryset(self):
-        query = self.request.GET.get("query")
-
-        if not query:
-            return []
-
-        hpo = HpoName.objects.filter(Q(hpo_id__icontains=query) | Q(name__icontains=query))[:10]
-        omim_decipher_orpha = (
-            Hpo.objects.filter(Q(database_id__icontains=query) | Q(name__icontains=query))
-            .values("database_id")
-            .distinct()[:10]
-        )
-        result = []
-
-        for h in hpo:
-            result.append({"id": h.hpo_id, "name": h.name})
-
-        for o in omim_decipher_orpha:
-            names = []
-
-            # Query database again to get all possible names for an OMIM/DECIPHER/ORPHA id
-            for name in (
-                Hpo.objects.filter(database_id=o["database_id"])
-                .values("database_id")
-                .annotate(names=ArrayAgg("name"))[0]["names"]
-            ):
-                if o["database_id"].startswith("OMIM"):
-                    for n in re.sub(r"^[#%]?\d{6} ", "", name).split(";;"):
-                        if n not in names:
-                            names.append(n)
-
-                else:
-                    if name not in names:
-                        names.append(name)
-            result.append({"id": o["database_id"], "name": ";;".join(names)})
-
-        return result
 
 
 def build_rel_data(pedigree, relatedness):

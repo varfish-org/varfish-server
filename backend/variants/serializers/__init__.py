@@ -88,14 +88,18 @@ def query_settings_validator(value):
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
     # Validate HPO term list.
     if "prio_hpo_terms" in query_settings:
+        url = settings.VARFISH_BACKEND_URL_VIGUNO + "/hpo/terms?term_id=%s"
         missing = []
         for term in query_settings["prio_hpo_terms"] or []:
-            if term.startswith("HP"):
-                if not HpoName.objects.filter(hpo_id=term).exists():
+            try:
+                response = requests.request(url=url % term, method="GET")
+                if not response.status_code == 200 or len(response.json().get("result") or []) == 0:
                     missing.append(term)
-            else:
-                if not Hpo.objects.filter(database_id=term).exists():
-                    missing.append(term)
+
+            except requests.exceptions.ConnectionError:
+                # Viguno closes the connection when the term not exists
+                missing.append(term)
+
         if missing:
             raise serializers.ValidationError(f"Used invalid ids: {','.join(missing)}")
 

@@ -55,7 +55,6 @@ HomeView = ProjectRolesHomeView
 urlpatterns += [
     url(r"^icons/", include("dj_iconify.urls")),
     #    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
-    url(r"^geneinfo/", include("geneinfo.urls")),
     url(r"^variants/", include("variants.urls")),
     url(r"^importer/", include("importer.urls")),
     url(r"^svs/", include("svs.urls")),

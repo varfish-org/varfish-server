@@ -2,11 +2,9 @@ from django import template
 from django.conf import settings
 from projectroles.app_settings import AppSettingAPI
 
-from geneinfo.models import GeneIdToInheritance, Hpo, HpoName
 from variants.models import Case
 from variants.models import only_source_name as _models_only_source_name
 
-modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
 
 
@@ -88,22 +86,6 @@ def get_user_setting(user, app_name, setting_name):
         return
     setting_api = AppSettingAPI()
     return setting_api.get(app_name, setting_name, user=user)
-
-
-@register.simple_tag
-def get_term_description(term):
-    """Return HPO, Orphanet, or OMIM description."""
-    if term.startswith("HP:"):
-        terms = HpoName.objects.filter(hpo_id=term)
-        if terms:
-            return terms.first().name
-        else:
-            return None
-    else:
-        for record in Hpo.objects.filter(database_id=term).order_by("-name"):
-            return record.name
-        else:
-            return None
 
 
 @register.simple_tag

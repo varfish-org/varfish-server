@@ -204,11 +204,6 @@ ajax_urlpatterns = [
         name="ajax-query-settings-shortcut",
     ),
     url(
-        r"^ajax/query-case/hpo-terms/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantQueryHpoTermsAjaxView.as_view(),
-        name="ajax-query-case-hpo-terms",
-    ),
-    url(
         r"^ajax/query-case/download/generate/tsv/(?P<smallvariantquery>[0-9a-f-]+)/?$",
         view=views_ajax.SmallVariantQueryDownloadGenerateAjaxView.as_view(),
         name="ajax-query-case-download-generate-tsv",
@@ -294,11 +289,6 @@ ajax_urlpatterns = [
         name="ajax-extra-anno-fields",
     ),
     url(
-        regex=r"^ajax/hpo-terms/?$",
-        view=views_ajax.HpoTermsAjaxView.as_view(),
-        name="ajax-hpo-terms",
-    ),
-    url(
         regex=r"^ajax/project-settings/retrieve/(?P<project>[0-9a-f-]+)/?$",
         view=views_ajax.ProjectSettingsRetrieveAjaxView.as_view(),
         name="ajax-project-settings-retrieve",
@@ -370,11 +360,6 @@ api_urlpatterns = [
         regex=r"^api/query-case/inheritance-presets/(?P<case>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantInheritancePresetsApiView.as_view(),
         name="api-inheritance-presets",
-    ),
-    url(
-        regex=r"^api/query-case/hpo-terms/(?P<smallvariantquery>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantQueryHpoTermsApiView.as_view(),
-        name="api-query-case-hpo-terms",
     ),
     url(
         regex=r"^api/query-case/download/generate/tsv/(?P<smallvariantquery>[0-9a-f-]+)/?$",
@@ -461,7 +446,6 @@ api_urlpatterns = [
         view=views_api.ExtraAnnoFieldsApiView.as_view(),
         name="api-extra-anno-fields",
     ),
-    url(regex=r"^api/hpo-terms/?$", view=views_api.HpoTermsApiView.as_view(), name="api-hpo-terms"),
     url(
         regex=r"^api/project-settings/retrieve/(?P<project>[0-9a-f-]+)/?$",
         view=views_api.ProjectSettingsRetrieveApiView.as_view(),

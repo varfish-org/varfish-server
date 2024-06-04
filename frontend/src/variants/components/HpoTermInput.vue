@@ -3,16 +3,15 @@ import Multiselect from '@vueform/multiselect'
 import { onMounted, ref, watch } from 'vue'
 
 import {
-  hpoInheritance,
   hpoAgeOfOnset,
+  hpoInheritance,
 } from '@/variants/components/HpoTermInput.values'
 import { declareWrapper } from '@/variants/helpers'
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
+
+const vigunoClient = new VigunoClient()
 
 const props = defineProps({
-  apiEndpoint: {
-    type: String,
-    default: '/variants/ajax/hpo-terms/',
-  },
   // eslint-disable-next-line vue/require-default-prop
   csrfToken: String,
   showFiltrationInlineHelp: Boolean,
@@ -36,19 +35,21 @@ const textValue = ref(null)
 /** Whether the Multiselect is loading from server. */
 const loading = ref(false)
 
-const fetchHpoTerms = async (query) => {
+const fetchHpoTerm = async (query) => {
   const queryArg = encodeURIComponent(query)
-  const response = await fetch(`${props.apiEndpoint}?query=${queryArg}`, {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-CSRFToken': props.csrfToken,
-  })
-  const results = await response.json()
-  const data = results.map(({ id, name }) => {
+  let results
+  if (query.startsWith('HP:')) {
+    results = await vigunoClient.resolveHpoTermById(queryArg)
+  } else if (query.startsWith('OMIM:')) {
+    results = await vigunoClient.resolveOmimTermById(queryArg)
+  } else {
+    results = await vigunoClient.queryHpoTermsByName(queryArg)
+  }
+  const data = results.result.map(({ termId, name }) => {
     return {
-      label: `${id} - ${name}`,
+      label: `${termId} - ${name}`,
       value: {
-        term_id: id,
+        term_id: termId,
         name,
       },
     }
@@ -59,7 +60,7 @@ const fetchHpoTerms = async (query) => {
 
 const fetchHpoTermsForMultiselect = async (query) => {
   loading.value = true
-  const result = await fetchHpoTerms(query)
+  const result = await fetchHpoTerm(query)
   loading.value = false
   return result
 }
@@ -68,7 +69,7 @@ const fetchHpoTermsForMultiselect = async (query) => {
 const refreshTextValue = async (termsArray) => {
   const withLabelUnfiltered = await Promise.all(
     termsArray.map(async (hpoTerm) => {
-      const fetched = await fetchHpoTerms(hpoTerm)
+      const fetched = await fetchHpoTerm(hpoTerm)
       if (fetched && fetched.length > 0) {
         return fetched[0].label
       } else {

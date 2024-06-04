@@ -404,11 +404,4 @@ export class VariantClient extends ClientBase {
   async fetchExtraAnnoFields() {
     return await this.fetchHelper(`/variants/ajax/extra-anno-fields/`, 'GET')
   }
-
-  async fetchHpoTerms(query: string) {
-    return await this.fetchHelper(
-      `/variants/ajax/hpo-terms/?query=${query}`,
-      'GET',
-    )
-  }
 }

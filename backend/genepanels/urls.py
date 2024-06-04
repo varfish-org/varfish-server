@@ -3,7 +3,7 @@
 
 from django.conf.urls import url
 
-from genepanels import views
+from genepanels import views, views_api
 
 app_name = "genepanels"
 
@@ -75,4 +75,17 @@ ui_urlpatterns = [
     ),
 ]
 
-urlpatterns = ui_urlpatterns
+api_patterns = [
+    url(
+        regex=r"^api/genepanel-category/list/$",
+        view=views_api.GenePanelCategoryListApiView.as_view(),
+        name="genepanel-category-list",
+    ),
+    url(
+        regex=r"^api/lookup-genepanel/$",
+        view=views_api.LookupGenePanelApiView.as_view(),
+        name="lookup-genepanel",
+    ),
+]
+
+urlpatterns = ui_urlpatterns + api_patterns

@@ -98,11 +98,6 @@ ajax_urlpatterns = [
         name="query-omim-term",
     ),
     url(
-        regex=r"^ajax/(?P<project>[0-9a-f-]+)/query-hpo/?$",
-        view=views_ajax.QueryHpoTermApiView.as_view(),
-        name="query-hpo-term",
-    ),
-    url(
         regex=r"^ajax/(?P<project>[0-9a-f-]+)/user-annotations/(?P<family>[0-9a-f-]+)/?$",
         view=views_ajax.AnnotatedSmallVariantsApiView.as_view(),
         name="user-annotations",

@@ -399,52 +399,7 @@ class QueryOmimTermApiView(LoginRequiredMixin, SODARBaseAjaxView):
     """Allow searching for OMIM terms."""
 
     def get(self, *_args, **_kwargs):
-        query = self.request.GET.get("query")
-        if not query:
-            return JsonResponse({"query": query, "result": []})
-
-        query_res = (
-            Hpo.objects.filter(
-                Q(database_id__startswith="OMIM:")
-                & (Q(database_id__icontains=query) | Q(name__icontains=query))
-            )
-            .values("database_id")
-            .distinct()[:10]
-        )
-
-        result = []
-        for o in query_res:
-            seen = {None, "", ".", ";", ";;"}
-            # Query database again to get all possible names for an OMIM/DECIPHER/ORPHA id
-            for name in (
-                Hpo.objects.filter(database_id=o["database_id"])
-                .values("database_id")
-                .annotate(names=ArrayAgg("name"))[0]["names"]
-            ):
-                if o["database_id"].startswith("OMIM"):
-                    for n in re.split(r"(;+)", re.sub(r"^[#%]?\d{6} ", "", name)):
-                        n = n.strip()
-                        if n and n not in seen:
-                            seen.add(n)
-                            result.append({"term_id": o["database_id"], "term_name": n})
-
-        result.sort(key=lambda o: o.get("term_name", ""))
-        return JsonResponse({"query": query, "result": result})
-
-
-class QueryHpoTermApiView(LoginRequiredMixin, SODARBaseAjaxView):
-    """Allow searching for HPO terms."""
-
-    def get(self, *_args, **_kwargs):
-        query = self.request.GET.get("query")
-        if not query:
-            return JsonResponse({"query": query, "result": []})
-
-        query_res = HpoName.objects.filter(Q(hpo_id__icontains=query) | Q(name__icontains=query))[
-            :10
-        ]
-        result = [{"term_id": rec.hpo_id, "term_name": rec.name} for rec in query_res]
-        return JsonResponse({"query": query, "result": result})
+        return JsonResponse({"query": "discontinued", "result": "discontinued"})
 
 
 class AnnotatedSmallVariantsApiView(
