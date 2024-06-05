@@ -7,8 +7,6 @@ import itertools
 import os
 from unittest import mock
 
-from django.conf import settings
-from freezegun import freeze_time
 from google.protobuf.json_format import ParseDict
 from phenopackets import Family
 from projectroles.app_settings import AppSettingAPI
@@ -106,7 +104,7 @@ class ImportCreateWithSeqvarsVcfTest(
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(PedigreeExternalFile.objects.count(), 2)
-        self.assertEqual(PedigreeInternalFile.objects.count(), 7)
+        self.assertEqual(PedigreeInternalFile.objects.count(), 3)
 
         call_list = mock_seqvarsimprotexecutor_run_worker.call_args_list
         self.assertEqual(len(call_list), 2)
