@@ -110,7 +110,7 @@ class ImportCreateWithSeqvarsVcfTest(
         self.assertEqual(len(call_list), 2)
         call_1_args = call_list[0].kwargs["args"]
         self.assertEqual(call_1_args[0:3], ["seqvars", "ingest", "--file-date"])
-        self.assertEqual(len(call_1_args), 16)
+        self.assertEqual(len(call_1_args), 18)
         call_2_args = call_list[1].kwargs["args"]
         self.assertEqual(call_2_args[0:3], ["seqvars", "prefilter", "--params"])
         self.assertEqual(len(call_2_args), 6)
