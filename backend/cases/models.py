@@ -2,10 +2,14 @@ import json
 import typing
 import uuid as uuid_object
 
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from seqmeta.models import EnrichmentKit
 from variants.models import Case
+
+#: User model.
+User = get_user_model()
 
 
 class Pedigree(models.Model):
@@ -176,13 +180,11 @@ def write_pedigree_as_plink(pedigree: Pedigree, outputf: typing.TextIO, family_n
 
 def write_id_mapping_json(
     identifier_map: typing.Dict[str, typing.Dict[str, str]],
-    pedigree: Pedigree,
     outputf: typing.TextIO,
 ):
     """Write a pedigree as a PLINK file.
 
     :param identifier_map: Mapping from file path to dict mapping name in PED to name in VCF.
-    :param pedigree: The pedigree to write.
     :param outputf: The output file.
     """
     mappings = []
@@ -204,3 +206,50 @@ def write_id_mapping_json(
         fp=outputf,
         indent=2,
     )
+
+
+class BaseModel(models.Model):
+    """Base model with sodar_uuid and creation/update time."""
+
+    #: UUID used in URLs.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True)
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class CaseAnalysis(BaseModel):
+    """Analysis of a case (at most once for now)."""
+
+    #: Title of the analysis.
+    name = models.CharField(max_length=128)
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+        unique=True,  # for now
+    )
+
+
+class CaseAnalysisSession(BaseModel):
+    """A user session for a ``CaseAnalysis`` (at most one per user for now)."""
+
+    #: The related ``CaseAnalysis``.
+    caseanalysis = models.ForeignKey(
+        CaseAnalysis,
+        on_delete=models.CASCADE,
+    )
+    #: The related ``User``.
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        # We constrain to one session per case analysis and user for now.
+        unique_together = [("caseanalysis", "user")]

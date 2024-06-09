@@ -1,5 +1,7 @@
 """AJAX views for detailing with SV variant queries."""
 
+import sys
+
 from django.db.models.expressions import RawSQL
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework.generics import (
@@ -62,6 +64,8 @@ class SvQueryListCreateAjaxView(ListCreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return result
 

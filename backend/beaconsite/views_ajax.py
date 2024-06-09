@@ -19,6 +19,7 @@ def strip_trailing_slashes(s: str) -> str:
 class BeaconInfoAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
     """AJAX endpoint to remote site info endpoint via GA4GH Beacon API."""
 
+    schema = None
     permission_required = "beaconsite.view_data"
 
     def get(self, request, *args, **kwargs):
@@ -41,6 +42,7 @@ class BeaconInfoAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
 class BeaconQueryAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
     """AJAX endpoint to remote site query endpoint via GA4GH Beacon API."""
 
+    schema = None
     permission_required = "beaconsite.view_data"
 
     def get(self, request, *args, **kwargs):

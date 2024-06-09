@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
 from cases import views, views_ajax, views_api
 
@@ -142,5 +144,16 @@ api_urlpatterns = [
     ),
 ]
 
+# Create a router and register our ViewSets with it.
+router = DefaultRouter()
+router.register(r"api/pedigree", views_api.PedigreeViewSet, basename="individual")
+router.register(
+    r"api/caseanalysis/(?P<case>[0-9a-f-]+)", views_api.CaseAnalysisViewSet, basename="caseanalysis"
+)
+router.register(
+    r"api/caseanalysissession/(?P<case>[0-9a-f-]+)",
+    views_api.CaseAnalysisSessionViewSet,
+    basename="caseanalysissession",
+)
 
-urlpatterns = ui_urlpatterns + ajax_urlpatterns + api_urlpatterns
+urlpatterns = ui_urlpatterns + ajax_urlpatterns + api_urlpatterns + [path("", include(router.urls))]

@@ -23,6 +23,7 @@ class CaseUserAnnotatedVariantsAjaxView(ListAPIView):
     permission_classes = [SODARAPIProjectPermission]
     queryset = Case.objects.all()
 
+    schema = None
     serializer_class = SmallVariantForResultSerializer
 
     def get_permission_required(self):
