@@ -13,21 +13,4 @@
     </p>
   </div>
 </div>
-
-<script
-  src="{% static 'js/vendor/sentry-6.2.4.min.js' %}"
-  integrity="sha384-b3mYy/x0ZxlqU5OjYvVD7RczftJVOXmpHSmrcqpL4c+kBSXWEnRL2Puv9eMjYmDq"
-  crossorigin="anonymous"
-></script>
-
-{% get_django_setting 'SENTRY_DSN' as sentry_dsn %}
-{% if sentry_event_id and sentry_dsn  %}
-  <script>
-    Sentry.init({ dsn: '{{  sentry_dsn }}' });
-    Sentry.showReportDialog({
-      eventId: '{{ sentry_event_id }}'
-      {% if not user.is_anonymous %}, user: {name: '{{ request.user.name }}', email: '{{ request.user.email }}'}{% endif %}
-    })
-  </script>
-{% endif %}
 {% endblock content %}
