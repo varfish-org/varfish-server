@@ -1,5 +1,7 @@
 """Views related to the presets."""
 
+import sys
+
 from projectroles.models import Project
 from projectroles.views import LoginRequiredMixin
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
@@ -66,6 +68,8 @@ class _RetrieveUpdateDestroyMixin(_BaseMixin):
 class _PresetSetMemberMixinBase:
     def get_serializer_context(self, *args, **kwargs):
         result = super().get_serializer_context(*args, **kwargs)
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["presetset"] = self.get_presetset()
         return result
 
@@ -100,6 +104,7 @@ class FrequencyPresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = FrequencyPresetsSerializer
 
     def get_queryset(self):
@@ -120,6 +125,7 @@ class FrequencyPresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "frequencypresets"
 
+    schema = None
     serializer_class = FrequencyPresetsSerializer
 
     def get_queryset(self):
@@ -138,6 +144,7 @@ class FrequencyPresetsCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/frequency/clone-factory-presets/{name}/``
     """
 
+    schema = None
     serializer_class = FrequencyPresetsSerializer
 
     permission_classes = [_PresetSetMemberCloneOtherPermission]
@@ -178,6 +185,7 @@ class FrequencyPresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "frequencypresets"
 
+    schema = None
     serializer_class = FrequencyPresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -219,6 +227,7 @@ class ImpactPresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = ImpactPresetsSerializer
 
     def get_queryset(self):
@@ -239,6 +248,7 @@ class ImpactPresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "impactpresets"
 
+    schema = None
     serializer_class = ImpactPresetsSerializer
 
     def get_queryset(self):
@@ -257,6 +267,7 @@ class ImpactPresetsCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/impact/clone-factory-presets/{name}/``
     """
 
+    schema = None
     serializer_class = ImpactPresetsSerializer
 
     permission_classes = [_PresetSetMemberCloneOtherPermission]
@@ -297,6 +308,7 @@ class ImpactPresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "impactpresets"
 
+    schema = None
     serializer_class = ImpactPresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -338,6 +350,7 @@ class QualityPresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = QualityPresetsSerializer
 
     def get_queryset(self):
@@ -358,6 +371,7 @@ class QualityPresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "qualitypresets"
 
+    schema = None
     serializer_class = QualityPresetsSerializer
 
     def get_queryset(self):
@@ -376,6 +390,7 @@ class QualityPresetsCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/quality/clone-factory-presets/{name}/``
     """
 
+    schema = None
     serializer_class = QualityPresetsSerializer
 
     permission_classes = [_PresetSetMemberCloneOtherPermission]
@@ -416,6 +431,7 @@ class QualityPresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "qualitypresets"
 
+    schema = None
     serializer_class = QualityPresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -457,6 +473,7 @@ class ChromosomePresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = ChromosomePresetsSerializer
 
     def get_queryset(self):
@@ -477,6 +494,7 @@ class ChromosomePresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "chromosomepresets"
 
+    schema = None
     serializer_class = ChromosomePresetsSerializer
 
     def get_queryset(self):
@@ -495,6 +513,7 @@ class ChromosomePresetsCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/chromosome/clone-factory-presets/{name}/``
     """
 
+    schema = None
     serializer_class = ChromosomePresetsSerializer
 
     permission_classes = [_PresetSetMemberCloneOtherPermission]
@@ -535,6 +554,7 @@ class ChromosomePresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "chromosomepresets"
 
+    schema = None
     serializer_class = ChromosomePresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -576,6 +596,7 @@ class FlagsEtcPresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = FlagsEtcPresetsSerializer
 
     def get_queryset(self):
@@ -596,6 +617,7 @@ class FlagsEtcPresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "flagsetcpresets"
 
+    schema = None
     serializer_class = FlagsEtcPresetsSerializer
 
     def get_queryset(self):
@@ -614,6 +636,7 @@ class FlagsEtcPresetsCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/flagsetc/clone-factory-presets/{name}/``
     """
 
+    schema = None
     serializer_class = FlagsEtcPresetsSerializer
 
     permission_classes = [_PresetSetMemberCloneOtherPermission]
@@ -654,6 +677,7 @@ class FlagsEtcPresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "flagsetcpresets"
 
+    schema = None
     serializer_class = FlagsEtcPresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -695,6 +719,7 @@ class QuickPresetsListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = QuickPresetsSerializer
 
     def get_queryset(self):
@@ -715,6 +740,7 @@ class QuickPresetsRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "quickpresets"
 
+    schema = None
     serializer_class = QuickPresetsSerializer
 
     def get_queryset(self):
@@ -740,6 +766,7 @@ class QuickPresetsCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "quickpresets"
 
+    schema = None
     serializer_class = QuickPresetsSerializer
 
     def post(self, request, *args, **kwargs):
@@ -768,6 +795,7 @@ class PresetSetListAllAjaxView(LoginRequiredMixin, ListAPIView):
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
+    schema = None
     serializer_class = PresetSetSerializer
 
     def get_queryset(self):
@@ -802,6 +830,7 @@ class PresetSetListCreateAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "project"
 
+    schema = None
     serializer_class = PresetSetSerializer
 
     def get_queryset(self):
@@ -827,6 +856,7 @@ class PresetSetRetrieveUpdateDestroyAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = PresetSetSerializer
 
 
@@ -847,6 +877,7 @@ class PresetSetCloneFactoryPresetsAjaxView(
     **URL:** ``/variants/ajax/presetset/clone-factory-presets/``
     """
 
+    schema = None
     serializer_class = PresetSetSerializer
 
     permission_classes = [PresetSetCloneFactoryDefaultsPermission]
@@ -886,6 +917,7 @@ class PresetSetCloneOtherAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "presetset"
 
+    schema = None
     serializer_class = PresetSetSerializer
 
     def post(self, request, *args, **kwargs):
@@ -920,6 +952,7 @@ class ProjectDefaultPresetSetRetrieveAjaxView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "project"
 
+    schema = None
     serializer_class = PresetSetSerializer
 
     def get_permission_required(self):

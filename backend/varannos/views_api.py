@@ -1,3 +1,5 @@
+import sys
+
 from projectroles.views_api import SODARAPIGenericProjectMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
@@ -18,6 +20,8 @@ class VarAnnoSetListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["project"] = self.get_project()
         return result
 
@@ -61,6 +65,8 @@ class VarAnnoSetEntryListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAP
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["varannoset"] = self.get_varannoset()
         return result
 

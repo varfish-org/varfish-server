@@ -774,7 +774,6 @@ class VariantImportExecutorBase(FileImportExecutorBase):
             bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
             write_id_mapping_json(
                 {f"{bucket}/{entry.path}": entry.identifier_map for entry in vcf_on_s3},
-                self.case.pedigree_obj,
                 tmpf_id_map,
             )
             tmpf_id_map.flush()

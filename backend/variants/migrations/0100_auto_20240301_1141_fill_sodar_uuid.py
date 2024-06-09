@@ -14,7 +14,6 @@ def gen_uuid(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0099_auto_20240301_1141_nullable_sodar_uuid"),
     ]

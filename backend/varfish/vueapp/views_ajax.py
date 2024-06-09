@@ -18,6 +18,8 @@ class UserSettingView(views.APIView):
     Eventually, sodar-core will implement this in projectroles and this can go away.
     """
 
+    schema = None
+
     def _check_setting(self, is_post=False):
         if self.kwargs.get("setting_name") not in ALLOWED_SETTING_NAMES:
             raise APIException(

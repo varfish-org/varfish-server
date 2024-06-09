@@ -131,6 +131,7 @@ class OrganisationReadView(
     NB: these are defined by ClinVar anyway, so they have to be first created through the ClinVar web UI.
     """
 
+    schema = None
     serializer_class = OrganisationSerializer
     queryset = Organisation.objects.all()
 
@@ -147,6 +148,7 @@ class SubmitterReadView(
     NB: these are defined by ClinVar anyway, so they have to be first created through the ClinVar web UI.
     """
 
+    schema = None
     serializer_class = SubmitterSerializer
 
     def get_queryset(self):
@@ -159,6 +161,7 @@ class AssertionMethodReadView(
 ):
     """List all assertion methods, must be entered via Admin GUI, no API access."""
 
+    schema = None
     serializer_class = AssertionMethodSerializer
     queryset = AssertionMethod.objects.all()
 
@@ -175,6 +178,7 @@ class IndividualReadView(
     These will be created as necessary automatically from the Case information in the variants app.
     """
 
+    schema = None
     serializer_class = IndividualSerializer
 
     def get(self, request, *args, **kwargs):
@@ -195,6 +199,7 @@ class FamilyReadView(
     These will be created as necessary automatically from the Case information of the variants app.
     """
 
+    schema = None
     serializer_class = FamilySerializer
 
     def get(self, request, *args, **kwargs):
@@ -212,6 +217,7 @@ class SubmissionSetListCreateView(
 ):
     """Base AJAX view for list/create of SubmissionSet objects."""
 
+    schema = None
     serializer_class = SubmissionSetSerializer
 
     def get_queryset(self):
@@ -227,6 +233,8 @@ class SubmissionSetRetrieveUpdateDestroyView(
     """Base AJAX view for retrieve/update/destroy of SubmissionSet objects."""
 
     lookup_field = "sodar_uuid"
+
+    schema = None
     lookup_url_kwarg = "submissionset"
     serializer_class = SubmissionSetSerializer
 
@@ -309,6 +317,7 @@ class SubmissionListCreateView(
 ):
     """Base AJAX view for list/create of Submission objects."""
 
+    schema = None
     serializer_class = SubmissionSerializer
 
     def get_queryset(self):
@@ -324,6 +333,8 @@ class SubmissionRetrieveUpdateDestroyView(
     """Base AJAX view for retrieve/update/destroy of Submission objects."""
 
     lookup_field = "sodar_uuid"
+
+    schema = None
     lookup_url_kwarg = "submission"
     serializer_class = SubmissionSerializer
 
@@ -336,6 +347,7 @@ class SubmissionIndividualListCreateView(
 ):
     """Base AJAX view for retrieve/update/destroy of Submission objects."""
 
+    schema = None
     serializer_class = SubmissionIndividualSerializer
 
     def get_queryset(self):
@@ -353,6 +365,8 @@ class SubmissionIndividualRetrieveUpdateDestroyView(
     """Base AJAX view for retrieve/update/destroy of Submission objects."""
 
     lookup_field = "sodar_uuid"
+
+    schema = None
     lookup_url_kwarg = "submissionindividual"
     serializer_class = SubmissionIndividualSerializer
 
@@ -370,6 +384,7 @@ class SubmittingOrgListCreateView(
 ):
     """Base AJAX view for retrieve/update/destroy of Submission objects."""
 
+    schema = None
     serializer_class = SubmittingOrgSerializer
 
     def get_queryset(self):
@@ -385,6 +400,8 @@ class SubmittingOrgRetrieveUpdateDestroyView(
     """Base AJAX view for retrieve/update/destroy of Submission objects."""
 
     lookup_field = "sodar_uuid"
+
+    schema = None
     lookup_url_kwarg = "submittingorg"
     serializer_class = SubmittingOrgSerializer
 
@@ -540,6 +557,7 @@ class ClinVarReportListView(
 
     permission_classes = [ClinVarReportApiPermission]
 
+    schema = None
     serializer_class = ClinVarReportSerializer
 
     def get_permission_required(self):

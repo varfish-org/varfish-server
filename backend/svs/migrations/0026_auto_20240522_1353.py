@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0104_remove_hgmd_dbsnp_filter_from_query_settings"),
         ("svs", "0025_structuralvariantflags_flag_incidental"),
