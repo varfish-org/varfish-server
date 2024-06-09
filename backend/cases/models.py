@@ -2,10 +2,14 @@ import json
 import typing
 import uuid as uuid_object
 
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from seqmeta.models import EnrichmentKit
 from variants.models import Case
+
+#: User model.
+User = get_user_model()
 
 
 class Pedigree(models.Model):
@@ -204,3 +208,50 @@ def write_id_mapping_json(
         fp=outputf,
         indent=2,
     )
+
+
+class CaseAnalysis:
+    """Analysis of a case (at most once for now)."""
+
+    #: UUID used in URLs.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True)
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True)
+
+    #: Title of the analysis.
+    name = models.CharField(max_length=128)
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+        unique=True,  # for now
+    )
+
+
+class CaseAnalysisSession:
+    """A user session for a ``CaseAnalysis`` (at most one per user for now)."""
+
+    #: UUID used in URLs.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True)
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True)
+
+    #: The related ``CaseAnalysis``.
+    caseanalysis = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+    )
+    #: The related ``User``.
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        # constraint to one session per case analysis and user
+        unique_together = [("case_analysis", "user")]

@@ -15,7 +15,6 @@ def update_chromosome_no_in_existing_flags_and_comments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0101_auto_20240301_1141_not_null_sodar_field"),
     ]
