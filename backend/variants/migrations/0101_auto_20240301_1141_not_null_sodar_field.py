@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0100_auto_20240301_1141_fill_sodar_uuid"),
     ]

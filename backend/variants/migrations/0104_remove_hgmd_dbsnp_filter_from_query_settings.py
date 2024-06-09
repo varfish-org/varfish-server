@@ -18,7 +18,6 @@ def clear_query_settings(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0103_presetset_default_presetset"),
     ]

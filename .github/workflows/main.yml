@@ -200,12 +200,13 @@ jobs:
 
       - name: Check for OpenAPI schema changes.
         run: |
-          pipenv run python manage.py spectacular \
-          | sed -e 's/^  version:.*/  version: VERSION/g' \
+          pipenv run python manage.py generateschema \
+          | grep -v ^Loading \
+          | grep -v '^The ' \
           > /tmp/varfish_api_schema.yaml
 
           diff \
-            varfish/tests/drf_spectacular/varfish_api_schema.yaml \
+            varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
             /tmp/varfish_api_schema.yaml
         shell: bash -euo pipefail {0}
         working-directory: backend
@@ -227,6 +228,18 @@ jobs:
       - name: Run linting
         run: |
           make lint
+        working-directory: frontend
+
+      - name: Check for OpenAPI schema changes.
+        run: |
+          npx openapi-typescript \
+            ../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+            -o /tmp/varfish.d.ts
+
+          diff \
+            src/varfish/api/varfish.d.ts \
+            /tmp/varfish.d.ts
+        shell: bash -euo pipefail {0}
         working-directory: frontend
 
 

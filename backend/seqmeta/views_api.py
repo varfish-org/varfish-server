@@ -1,3 +1,5 @@
+import sys
+
 from projectroles.views_api import SODARAPIBaseMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
@@ -53,6 +55,8 @@ class TargetBedFileListCreateApiView(SODARAPIBaseMixin, ListCreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["enrichmentkit"] = self.get_enrichmentkit()
         return result
 

@@ -10,7 +10,6 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
 
@@ -80,7 +79,6 @@ urlpatterns += [
     url(r"^manual/", include("docs.urls")),
     url(r"^su/", include("django_su.urls")),
     url(r"^cohorts/", include("cohorts.urls")),
-    url(r"^clinvar-export/", include("clinvar_export.urls")),
     url(r"^beaconsite/", include("beaconsite.urls")),
     url(r"^genepanels/", include("genepanels.urls")),
     url(r"^vueapp/", include("varfish.vueapp.urls")),
@@ -89,21 +87,6 @@ urlpatterns += [
     url(r"^seqmeta/", include("seqmeta.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
-]
-
-# URL Patterns for DRF Spectacular
-# ------------------------------------------------------------------------------
-
-urlpatterns += [
-    # Schema
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    # UI
-    path(
-        "api/schema/swagger-ui/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),
-    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
 
 # URL Patterns for Proxies

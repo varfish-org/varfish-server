@@ -40,6 +40,7 @@ class CaseRetrieveAjaxView(CaseRetrieveApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -55,6 +56,7 @@ class SmallVariantQueryListAjaxView(SmallVariantQueryListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -70,6 +72,7 @@ class SmallVariantQueryListCreateAjaxView(SmallVariantQueryListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -85,6 +88,7 @@ class SmallVariantQueryRetrieveUpdateDestroyAjaxView(SmallVariantQueryRetrieveUp
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -100,6 +104,7 @@ class SmallVariantQueryResultSetListAjaxView(SmallVariantQueryResultSetListApiVi
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -115,6 +120,7 @@ class SmallVariantQueryResultSetRetrieveAjaxView(SmallVariantQueryResultSetRetri
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -130,6 +136,7 @@ class SmallVariantQueryResultRowListAjaxView(SmallVariantQueryResultRowListApiVi
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -145,6 +152,7 @@ class SmallVariantQueryResultRowRetrieveAjaxView(SmallVariantQueryResultRowRetri
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -160,6 +168,7 @@ class SmallVariantQuerySettingsShortcutAjaxView(SmallVariantQuerySettingsShortcu
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -179,6 +188,7 @@ class SmallVariantQueryDownloadGenerateAjaxView(SmallVariantQueryDownloadGenerat
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -194,6 +204,7 @@ class SmallVariantQueryDownloadServeAjaxView(SmallVariantQueryDownloadServeApiVi
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -209,6 +220,7 @@ class SmallVariantQueryDownloadStatusAjaxView(SmallVariantQueryDownloadStatusApi
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -224,6 +236,7 @@ class SmallVariantCommentListCreateAjaxView(SmallVariantCommentListCreateApiView
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -239,6 +252,7 @@ class SmallVariantCommentListProjectAjaxView(SmallVariantCommentListProjectApiVi
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -254,6 +268,7 @@ class SmallVariantFlagsListCreateAjaxView(SmallVariantFlagsListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -269,6 +284,7 @@ class SmallVariantFlagsListProjectAjaxView(SmallVariantFlagsListProjectApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -284,6 +300,7 @@ class SmallVariantFlagsUpdateAjaxView(SmallVariantFlagsUpdateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -299,6 +316,7 @@ class SmallVariantFlagsDeleteAjaxView(SmallVariantFlagsDeleteApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -314,6 +332,7 @@ class SmallVariantCommentUpdateAjaxView(SmallVariantCommentUpdateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -329,6 +348,7 @@ class SmallVariantCommentDeleteAjaxView(SmallVariantCommentDeleteApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -344,6 +364,7 @@ class AcmgCriteriaRatingListCreateAjaxView(AcmgCriteriaRatingListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -359,6 +380,7 @@ class AcmgCriteriaRatingUpdateAjaxView(AcmgCriteriaRatingUpdateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -374,6 +396,7 @@ class AcmgCriteriaRatingDeleteAjaxView(AcmgCriteriaRatingDeleteApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -389,6 +412,7 @@ class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -403,6 +427,7 @@ class CaseListQcStatsAjaxView(CaseListQcStatsApiView):
     **Returns:** List of HPO terms that were found for that term, HPO id and name.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -419,4 +444,5 @@ class ProjectSettingsRetrieveAjaxView(ProjectSettingsRetrieveApiView):
     }
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]

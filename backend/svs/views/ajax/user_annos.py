@@ -1,5 +1,6 @@
 """AJAX views for dealing with user annotations (flags and comments)."""
 
+import sys
 import uuid
 
 from iterable_orm import QuerySet
@@ -99,6 +100,8 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
         for key in keys:
@@ -253,6 +256,8 @@ class StructuralVariantCommentListCreateAjaxView(
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
         for key in keys:
@@ -390,6 +395,8 @@ class StructuralVariantAcmgRatingListCreateAjaxView(
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
         for key in keys:
