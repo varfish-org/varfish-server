@@ -1,3 +1,4 @@
+import json
 import typing
 import uuid as uuid_object
 
@@ -171,3 +172,35 @@ def write_pedigree_as_plink(pedigree: Pedigree, outputf: typing.TextIO, family_n
             "\t".join(row),
             file=outputf,
         )
+
+
+def write_id_mapping_json(
+    identifier_map: typing.Dict[str, typing.Dict[str, str]],
+    pedigree: Pedigree,
+    outputf: typing.TextIO,
+):
+    """Write a pedigree as a PLINK file.
+
+    :param identifier_map: Mapping from file path to dict mapping name in PED to name in VCF.
+    :param pedigree: The pedigree to write.
+    :param outputf: The output file.
+    """
+    mappings = []
+    for path, ped_to_vcf in identifier_map.items():
+        mappings.append(
+            {
+                "path": path,
+                "entries": [
+                    {
+                        "src": vcf_name,
+                        "dst": ped_name,
+                    }
+                    for ped_name, vcf_name in ped_to_vcf.items()
+                ],
+            }
+        )
+    json.dump(
+        obj={"mappings": mappings},
+        fp=outputf,
+        indent=2,
+    )
