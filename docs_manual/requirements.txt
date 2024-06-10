@@ -70,7 +70,7 @@ et-xmlfile==1.1.0
 exceptiongroup==1.2.1
 executing==2.0.1
 factory-boy==3.3.0
-Faker==25.3.0
+Faker==25.8.0
 fastdiff==0.3.0
 flake8==6.1.0
 flake8-import-order==0.18.2
