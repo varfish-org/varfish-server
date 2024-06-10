@@ -34,11 +34,11 @@ format:	\
 
 .PHONY: format-isort
 format-isort:
-	pipenv run isort --profile=black $(DIRS_PYTHON)
+	pipenv run isort --force-sort-within-sections --profile=black .
 
 .PHONY: format-black
 format-black:
-	pipenv run black --line-length 100 $(DIRS_PYTHON)
+	pipenv run black --line-length 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
 
 .PHONY: lint
 lint: \
@@ -49,15 +49,15 @@ lint: \
 
 .PHONY: lint-isort
 lint-isort:
-	pipenv run isort --profile=black --check-only --diff $(DIRS_PYTHON)
+	pipenv run isort --force-sort-within-sections --profile=black --check-only --diff .
 
 .PHONY: lint-black
 lint-black:
-	pipenv run black --check --line-length 100 --diff $(DIRS_PYTHON)
+	pipenv run black --check --line-length 100 --diff --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
 
 .PHONY: lint-flake8
 flake8:
-	pipenv run flake8 --max-line-length 100 $(DIRS_PYTHON)
+	pipenv run flake8 --max-line-length 100 .
 
 # .PHONY: lint-mypy
 # lint-mypy:
