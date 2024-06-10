@@ -137,9 +137,9 @@ jobs:
 
       - name: Build Vue app as that can be tested via selenium.
         run: |
-          npm ci --prefix varfish/vueapp
-          npm run build --prefix varfish/vueapp
-          nohup npm run serve --prefix varfish/vueapp &
+          npm ci --prefix frontend
+          npm run build --prefix frontend
+          nohup npm run serve --prefix frontend &
 
       - name: Setup environment with worker
         uses: mamba-org/setup-micromamba@v1
@@ -226,7 +226,7 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          npm ci --prefix frontend
 
       - name: Run linting
         run: |
@@ -244,7 +244,7 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          npm ci --prefix frontend
 
       - name: Run Vue app tests
         run: |

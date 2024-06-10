@@ -26,7 +26,6 @@ exclude = [
     "wrapper.py",
     "docs_manual/src",
     "src",
-    "varfish/vueapp/node_modules",
 ]
 max-complexity = 18
 select = ["B","C","E","F","W","T4","B9"]

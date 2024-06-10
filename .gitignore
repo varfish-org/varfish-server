@@ -360,7 +360,7 @@ varfish/media/
 
 celerybeat-schedule
 
-varfish/vueapp/components.d.ts
+frontend/components.d.ts
 staticfiles.bak/
 
 varfish-server-worker-db/
