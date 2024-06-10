@@ -1,4 +1,4 @@
-// import TokenizingTextarea from '@variants/components/TokenizingTextarea.vue'
+// import TokenizingTextarea from '@/variants/components/TokenizingTextarea.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 // import { reactive } from 'vue'

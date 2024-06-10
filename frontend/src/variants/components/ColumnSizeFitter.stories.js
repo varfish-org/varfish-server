@@ -1,4 +1,4 @@
-import ColumnSizeFitter from '@variants/components/ColumnSizeFitter.vue'
+import ColumnSizeFitter from '@/variants/components/ColumnSizeFitter.vue'
 
 export default {
   title: 'Variants / Column Size Fitter',

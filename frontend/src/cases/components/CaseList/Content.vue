@@ -1,8 +1,8 @@
 <script setup>
-import CaseListPaneCases from '@cases/components/CaseList/PaneCases.vue'
-import CaseListPaneQc from '@cases/components/CaseList/PaneQc.vue'
+import CaseListPaneCases from '@/cases/components/CaseList/PaneCases.vue'
+import CaseListPaneQc from '@/cases/components/CaseList/PaneQc.vue'
 import { useRouter } from 'vue-router'
-import QueryPresets from '@variants/components/QueryPresets.vue'
+import QueryPresets from '@/variants/components/QueryPresets.vue'
 
 const props = defineProps({
   currentTab: {

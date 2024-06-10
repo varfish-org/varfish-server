@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import VegaPlot from '@varfish/components/VegaPlot.vue'
+import VegaPlot from '@/varfish/components/VegaPlot.vue'
 
 export interface Dataset {
   label: string

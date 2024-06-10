@@ -1,4 +1,4 @@
-import FilterFormQualityPaneRow from '@variants/components/FilterForm/QualityPaneRow.vue'
+import FilterFormQualityPaneRow from '@/variants/components/FilterForm/QualityPaneRow.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 import { reactive } from 'vue'

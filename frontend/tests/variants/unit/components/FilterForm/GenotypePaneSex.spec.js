@@ -1,4 +1,4 @@
-import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 

@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { CaseQcClient } from '@cases_qc/api/caseQcClient'
-import { StoreState, State } from '@varfish/storeUtils'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { type VarfishStats } from '@cases_qc/api/types'
+import { CaseQcClient } from '@/cases_qc/api/caseQcClient'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { type VarfishStats } from '@/cases_qc/api/types'
 
 export const useCaseQcStore = defineStore('caseQc', () => {
   // store dependencies

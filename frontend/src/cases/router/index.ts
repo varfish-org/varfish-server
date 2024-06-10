@@ -1,10 +1,10 @@
-import CaseDetailApp from '@cases/components/CaseDetailApp.vue'
-import CaseListApp from '@cases/components/CaseListApp.vue'
-import StrucvarDetails from '@svs/views/StrucvarDetails/StrucvarDetails.vue'
-import SvFilterApp from '@svs/components/SvFilterApp.vue'
-import { useHistoryStore } from '@varfish/stores/history'
-import FilterApp from '@variants/components/FilterApp.vue'
-import SeqvarDetails from '@variants/views/SeqvarDetails/SeqvarDetails.vue'
+import CaseDetailApp from '@/cases/components/CaseDetailApp.vue'
+import CaseListApp from '@/cases/components/CaseListApp.vue'
+import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
+import SvFilterApp from '@/svs/components/SvFilterApp.vue'
+import { useHistoryStore } from '@/varfish/stores/history'
+import FilterApp from '@/variants/components/FilterApp.vue'
+import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
 import {
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,

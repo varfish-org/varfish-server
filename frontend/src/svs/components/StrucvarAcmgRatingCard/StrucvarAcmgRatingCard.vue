@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { State } from '@varfish/storeUtils'
-import { useSvAcmgRatingStore } from '@svs/stores/svAcmgRating'
+import { State } from '@/varfish/storeUtils'
+import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
 import { computed, onMounted, ref, toRaw, watch } from 'vue'
 import {
   LinearStrucvar,
@@ -10,7 +10,7 @@ import {
   AcmgRating,
   strucvarAssign,
   acmgRatingEqual,
-} from '@svs/api/strucvarClient'
+} from '@/svs/api/strucvarClient'
 import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
 import { acmgColor, acmgLabel } from './lib'
 

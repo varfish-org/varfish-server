@@ -1,4 +1,4 @@
-// import VariantDetailsCallDetails from '@variants/components/VariantDetails/CallDetails.vue'
+// import VariantDetailsCallDetails from '@/variants/components/VariantDetails/CallDetails.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

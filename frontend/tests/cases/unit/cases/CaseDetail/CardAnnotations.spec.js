@@ -1,4 +1,4 @@
-import CaseDetailCardAnnotations from '@cases/components/CaseDetail/CardAnnotations.vue'
+import CaseDetailCardAnnotations from '@/cases/components/CaseDetail/CardAnnotations.vue'
 import { beforeAll, describe, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'

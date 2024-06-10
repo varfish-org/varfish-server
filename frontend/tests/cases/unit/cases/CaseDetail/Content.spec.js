@@ -1,7 +1,7 @@
 // Work around issue with igv.js accessing document.head.children when included.
 document.head.appendChild(document.createElement('title'))
 
-import CaseDetailContent from '@cases/components/CaseDetail/Content.vue'
+import CaseDetailContent from '@/cases/components/CaseDetail/Content.vue'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { createRouterMock, injectRouterMock } from 'vue-router-mock'
 

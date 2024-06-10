@@ -4,12 +4,12 @@ import EasyDataTable from 'vue3-easy-data-table'
 import { onMounted, ref, watch } from 'vue'
 import debounce from 'lodash.debounce'
 
-import { formatTimeAgo } from '@varfish/helpers'
-import ModalConfirm from '@varfish/components/ModalConfirm.vue'
-import Toast from '@varfish/components/Toast.vue'
+import { formatTimeAgo } from '@/varfish/helpers'
+import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
+import Toast from '@/varfish/components/Toast.vue'
 
-import ModalCohortEditor from '@cohorts/components/ModalCohortEditor.vue'
-import { useCohortsStore } from '@cohorts/stores/cohorts'
+import ModalCohortEditor from '@/cohorts/components/ModalCohortEditor.vue'
+import { useCohortsStore } from '@/cohorts/stores/cohorts'
 
 const cohortsStore = useCohortsStore()
 

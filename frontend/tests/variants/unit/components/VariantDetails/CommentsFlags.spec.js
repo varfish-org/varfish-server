@@ -1,10 +1,10 @@
 // import { createTestingPinia } from '@pinia/testing'
-// import VariantDetailsCommentsFlags from '@variants/components/VariantDetails/CommentsFlags.vue'
+// import VariantDetailsCommentsFlags from '@/variants/components/VariantDetails/CommentsFlags.vue'
 // import {
 //   emptyAcmgCriteriaRatingTemplate,
 //   initialFlagsTemplate,
 //   VariantValidatorStates,
-// } from '@variants/enums'
+// } from '@/variants/enums'
 // import { shallowMount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, test /*, vi*/ } from 'vitest'

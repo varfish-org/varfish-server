@@ -1,4 +1,4 @@
-import FilterFormPriotizationPane from '@variants/components/FilterForm/PrioritizationPane.vue'
+import FilterFormPriotizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 
 export default {
   title: 'Variants / Filter Form Prioritization',

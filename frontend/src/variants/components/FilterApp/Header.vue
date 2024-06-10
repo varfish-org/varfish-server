@@ -2,11 +2,11 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useCaseListStore } from '@cases/stores/caseList'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
-import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
+import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 

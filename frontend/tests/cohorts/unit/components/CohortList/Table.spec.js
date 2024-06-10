@@ -1,4 +1,4 @@
-import CohortListTable from '@cohorts/components/CohortList/Table.vue'
+import CohortListTable from '@/cohorts/components/CohortList/Table.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount, shallowMount } from '@vue/test-utils'
 import cloneDeep from 'lodash/cloneDeep'

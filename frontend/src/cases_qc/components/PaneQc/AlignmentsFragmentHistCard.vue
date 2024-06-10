@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /** Display summary read statistics for all samples in a table.
  */
-import { type SampleAlignmentStats } from '@cases_qc/api/types'
-import SimpleCard from '@varfish/components/SimpleCard.vue'
-import DistDensPlot from '@cases_qc/components/DistDensPlot.vue'
+import { type SampleAlignmentStats } from '@/cases_qc/api/types'
+import SimpleCard from '@/varfish/components/SimpleCard.vue'
+import DistDensPlot from '@/cases_qc/components/DistDensPlot.vue'
 import { computed } from 'vue'
 
 export interface Props {

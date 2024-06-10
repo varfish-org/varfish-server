@@ -1,4 +1,4 @@
-import ColumnSizeFitter from '@variants/components/ColumnSizeFitter.vue'
+import ColumnSizeFitter from '@/variants/components/ColumnSizeFitter.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
 

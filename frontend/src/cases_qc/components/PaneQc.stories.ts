@@ -1,4 +1,4 @@
-import PaneQc from '@cases_qc/components/PaneQc.vue'
+import PaneQc from '@/cases_qc/components/PaneQc.vue'
 
 import { storyData } from './PaneQc.stories.data'
 

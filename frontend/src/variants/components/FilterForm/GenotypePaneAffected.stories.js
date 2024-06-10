@@ -1,4 +1,4 @@
-import FilterFormGenotypePaneAffected from '@variants/components/FilterForm/GenotypePaneAffected.vue'
+import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
 
 export default {
   title: 'Variants / Filter Form Genotype Affected',

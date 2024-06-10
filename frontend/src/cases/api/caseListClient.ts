@@ -1,4 +1,4 @@
-import { ClientBase } from '@varfish/apiUtils'
+import { ClientBase } from '@/varfish/apiUtils'
 
 /**
  * Encode the list arguments.

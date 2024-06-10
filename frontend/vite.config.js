@@ -53,17 +53,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@varfish': resolve(__dirname, './src/varfish'),
-      '@variantsTest': resolve(__dirname, './tests/variants'),
-      '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
-      '@variants': resolve(__dirname, './src/variants'),
-      '@svs': resolve(__dirname, './src/svs'),
-      '@cases': resolve(__dirname, './src/cases'),
-      '@cases_qc': resolve(__dirname, './src/cases_qc'),
-      '@cohorts': resolve(__dirname, './src/cohorts'),
+      '@test': resolve(__dirname, './tests/'),
       '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
+      '@': resolve(__dirname, './src/'),
     },
-    preserveSymlinks: true,
   },
   server: {
     origin: "http://127.0.0.1:3000"

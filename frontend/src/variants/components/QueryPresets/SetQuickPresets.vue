@@ -2,7 +2,7 @@
 /** Editor component for quick presets.
  */
 
-import { randomString } from '@varfish/common'
+import { randomString } from '@/varfish/common'
 
 /** Define props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

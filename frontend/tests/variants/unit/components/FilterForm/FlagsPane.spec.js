@@ -1,4 +1,4 @@
-import FilterFormFlagsPane from '@variants/components/FilterForm/FlagsPane.vue'
+import FilterFormFlagsPane from '@/variants/components/FilterForm/FlagsPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 

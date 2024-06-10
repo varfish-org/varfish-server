@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUiStore } from '@varfish/stores/ui'
+import { useUiStore } from '@/varfish/stores/ui'
 
 const uiStore = useUiStore()
 </script>

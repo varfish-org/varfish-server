@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 
-import { useCohortsStore } from '@cohorts/stores/cohorts'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
+import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const cohortsStore = useCohortsStore()
 

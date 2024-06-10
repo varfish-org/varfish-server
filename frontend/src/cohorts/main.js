@@ -1,10 +1,10 @@
-import App from '@cohorts/App.vue'
+import App from '@/cohorts/App.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 const CohortList = () => import('./components/CohortList.vue')
 
-import { useCohortsStore } from '@cohorts/stores/cohorts'
+import { useCohortsStore } from '@/cohorts/stores/cohorts'
 
 const routes = [
   {

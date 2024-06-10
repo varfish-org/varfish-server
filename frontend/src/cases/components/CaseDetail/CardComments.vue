@@ -1,6 +1,6 @@
 <script setup>
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { formatTime } from '@varfish/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { formatTime } from '@/varfish/helpers'
 
 /** Obtain global application content (as for all entry level components) */
 const appContext = JSON.parse(

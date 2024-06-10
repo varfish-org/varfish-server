@@ -1,4 +1,4 @@
-import { ClientBase } from '@varfish/apiUtils'
+import { ClientBase } from '@/varfish/apiUtils'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { AcmgRating, AcmgRating$Api, AcmgRatingPage$Api } from './types'
 

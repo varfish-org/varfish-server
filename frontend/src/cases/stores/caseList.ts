@@ -6,8 +6,8 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { CaseListClient } from '@cases/api/caseListClient'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { CaseListClient } from '@/cases/api/caseListClient'
 
 /** Alias definition of Project type; to be defined later. */
 type Project = any

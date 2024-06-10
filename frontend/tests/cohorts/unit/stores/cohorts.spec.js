@@ -1,7 +1,7 @@
-import { uuidv4 } from '@clinvarexport/helpers'
-import cohortsApi from '@cohorts/api/cohorts'
-import { useCohortsStore } from '@cohorts/stores/cohorts'
-import { State, StoreState } from '@varfish/storeUtils'
+import { uuidv4 } from '@/cohorts/helpers'
+import cohortsApi from '@/cohorts/api/cohorts'
+import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
@@ -16,8 +16,8 @@ import updateCohortResponse from '../../data/updateCohortResponse.json'
 const fetchMock = createFetchMock(vi)
 fetchMock.enableMocks()
 
-vi.mock('@cohorts/api/cohorts.js')
-vi.mock('@clinvarexport/helpers.js')
+vi.mock('@/cohorts/api/cohorts.js')
+vi.mock('@/cohorts/helpers.js')
 
 describe('useCohortsStore', () => {
   const csrfToken = 'fake-token'

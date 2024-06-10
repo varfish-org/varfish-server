@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { displayName } from '@varfish/helpers'
+import { displayName } from '@/varfish/helpers'
 import { ResultRow } from './types'
 import { GET_FIELD_MAP as GT_FIELD_MAP, identity } from './constants'
 

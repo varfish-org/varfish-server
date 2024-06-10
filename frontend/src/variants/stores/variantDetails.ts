@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { AnnonarsApiClient } from '@varfish/api/annonars'
-import { MehariApiClient } from '@varfish/api/mehari'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { AnnonarsApiClient } from '@/varfish/api/annonars'
+import { MehariApiClient } from '@/varfish/api/mehari'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 
 type SmallVariant = any
 type GeneInfos = any

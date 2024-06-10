@@ -1,4 +1,4 @@
-// import VariantDetailsGene from '@variants/components/VariantDetails/Gene.vue'
+// import VariantDetailsGene from '@/variants/components/VariantDetails/Gene.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

@@ -1,15 +1,15 @@
 <script setup>
-import CaseDetailCardAlignmentQc from '@cases/components/CaseDetail/CardAlignmentQc.vue'
-import CaseDetailCardCaseAnnotations from '@cases/components/CaseDetail/CardAnnotations.vue'
-import CaseDetailCardCaseComments from '@cases/components/CaseDetail/CardComments.vue'
-import CaseDetailCardCase from '@cases/components/CaseDetail/CardCase.vue'
-import CaseDetailCardGeneAnnotations from '@cases/components/CaseDetail/CardGeneAnnotations.vue'
-import CaseDetailCardPedigree from '@cases/components/CaseDetail/CardPedigree.vue'
-import CaseDetailCardSvInfo from '@cases/components/CaseDetail/CardSvInfo.vue'
-import CaseDetailCardTerms from '@cases/components/CaseDetail/CardTerms.vue'
-import CaseDetailCardVariantQc from '@cases/components/CaseDetail/CardVariantQc.vue'
-import CaseDetailCardVariantsInfo from '@cases/components/CaseDetail/CardVariantInfo.vue'
-import CaseDetailCardQueries from '@cases/components/CaseDetail/CardQueries.vue'
+import CaseDetailCardAlignmentQc from '@/cases/components/CaseDetail/CardAlignmentQc.vue'
+import CaseDetailCardCaseAnnotations from '@/cases/components/CaseDetail/CardAnnotations.vue'
+import CaseDetailCardCaseComments from '@/cases/components/CaseDetail/CardComments.vue'
+import CaseDetailCardCase from '@/cases/components/CaseDetail/CardCase.vue'
+import CaseDetailCardGeneAnnotations from '@/cases/components/CaseDetail/CardGeneAnnotations.vue'
+import CaseDetailCardPedigree from '@/cases/components/CaseDetail/CardPedigree.vue'
+import CaseDetailCardSvInfo from '@/cases/components/CaseDetail/CardSvInfo.vue'
+import CaseDetailCardTerms from '@/cases/components/CaseDetail/CardTerms.vue'
+import CaseDetailCardVariantQc from '@/cases/components/CaseDetail/CardVariantQc.vue'
+import CaseDetailCardVariantsInfo from '@/cases/components/CaseDetail/CardVariantInfo.vue'
+import CaseDetailCardQueries from '@/cases/components/CaseDetail/CardQueries.vue'
 
 /** Define emits. */
 const emit = defineEmits([

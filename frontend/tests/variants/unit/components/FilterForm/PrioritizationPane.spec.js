@@ -1,4 +1,4 @@
-import FilterFormPrioritizationPane from '@variants/components/FilterForm/PrioritizationPane.vue'
+import FilterFormPrioritizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 

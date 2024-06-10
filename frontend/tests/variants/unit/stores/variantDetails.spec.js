@@ -1,5 +1,5 @@
 import { createTestingPinia } from '@pinia/testing'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useVariantDetailsStore } from '@/variants/stores/variantDetails'
 import { setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'

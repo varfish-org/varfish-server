@@ -1,4 +1,4 @@
-import { ClientBase } from '@varfish/apiUtils'
+import { ClientBase } from '@/varfish/apiUtils'
 
 type FrequencyPresets = any
 type ImpactPresets = any

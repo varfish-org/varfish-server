@@ -1,4 +1,4 @@
-import CaseListHeader from '@cases/components/CaseList/Header.vue'
+import CaseListHeader from '@/cases/components/CaseList/Header.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { beforeAll, describe, expect, test, vi } from 'vitest'

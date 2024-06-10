@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { AnnonarsApiClient } from '@varfish/api/annonars'
-import { StoreState, State } from '@varfish/storeUtils'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { AnnonarsApiClient } from '@/varfish/api/annonars'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 
 /** `SvRecord` is a type alias for easier future interface definition. */
 type SvRecord = any

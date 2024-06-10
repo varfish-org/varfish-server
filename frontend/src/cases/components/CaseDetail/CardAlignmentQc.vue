@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { State } from '@varfish/storeUtils'
-import { displayName, formatLargeInt } from '@varfish/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State } from '@/varfish/storeUtils'
+import { displayName, formatLargeInt } from '@/varfish/helpers'
 
 // Store-related.
 

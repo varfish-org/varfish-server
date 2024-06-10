@@ -5,9 +5,9 @@ import { useRouter } from 'vue-router'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import { CaseListClient } from '@cases/api/caseListClient'
-import { useCaseListStore } from '@cases/stores/caseList'
-import { displayName, formatLargeInt, formatTimeAgo } from '@varfish/helpers'
+import { CaseListClient } from '@/cases/api/caseListClient'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { displayName, formatLargeInt, formatTimeAgo } from '@/varfish/helpers'
 
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||

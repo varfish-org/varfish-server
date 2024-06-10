@@ -2,19 +2,19 @@
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { State } from '@varfish/storeUtils'
-import { useSvQueryStore } from '@svs/stores/svQuery'
-import { useSvResultSetStore } from '@svs/stores/svResultSet'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { updateUserSetting } from '@varfish/userSettings'
-import { QueryStates, QueryStateToText } from '@variants/enums'
+import { State } from '@/varfish/storeUtils'
+import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { updateUserSetting } from '@/varfish/userSettings'
+import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import SvFilterAppHeader from '@svs/components/SvFilterApp/Header.vue'
-import SvFilterForm from '@svs/components/SvFilterForm.vue'
-import SvFilterResultsTable from '@svs/components/SvFilterResultsTable.vue'
-import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
-import { useSvCommentsStore } from '@svs/stores/svComments'
-import { useSvAcmgRatingStore } from '@svs/stores/svAcmgRating'
+import SvFilterAppHeader from '@/svs/components/SvFilterApp/Header.vue'
+import SvFilterForm from '@/svs/components/SvFilterForm.vue'
+import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvCommentsStore } from '@/svs/stores/svComments'
+import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
 
 const props = defineProps({
   /** The case UUID. */

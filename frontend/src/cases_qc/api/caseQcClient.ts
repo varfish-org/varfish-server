@@ -1,5 +1,5 @@
-import { ClientBase } from '@varfish/apiUtils'
-import { VarfishStats } from '@cases_qc/api/types'
+import { ClientBase } from '@/varfish/apiUtils'
+import { VarfishStats } from '@/cases_qc/api/types'
 
 /**
  * Class for accessing the case REST API.

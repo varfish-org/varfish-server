@@ -1,4 +1,4 @@
-import CohortListHeader from '@cohorts/components/CohortList/Header.vue'
+import CohortListHeader from '@/cohorts/components/CohortList/Header.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { beforeAll, describe, expect, test, vi } from 'vitest'

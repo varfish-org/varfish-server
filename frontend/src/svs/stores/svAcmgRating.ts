@@ -4,8 +4,8 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { SvClient, AcmgRating, strucvarEqual } from '@svs/api/strucvarClient'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { SvClient, AcmgRating, strucvarEqual } from '@/svs/api/strucvarClient'
 import {
   LinearStrucvar,
   LinearStrucvarImpl,

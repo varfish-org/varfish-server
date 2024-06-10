@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { DateTime } from 'luxon'
 
-import { State } from '@varfish/storeUtils'
+import { State } from '@/varfish/storeUtils'
 // import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
 
 /** This component's props. Can't use props as variable name as it is a reserved keyword in vuetify. */

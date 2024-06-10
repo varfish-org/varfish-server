@@ -1,4 +1,4 @@
-// import VariantDetailsCallDetails from '@variants/components/VariantDetails/Clinvar.vue'
+// import VariantDetailsCallDetails from '@/variants/components/VariantDetails/Clinvar.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

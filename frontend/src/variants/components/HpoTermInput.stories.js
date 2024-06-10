@@ -1,4 +1,4 @@
-import HpoTermInput from '@variants/components/HpoTermInput.vue'
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
 
 export default {
   title: 'Variants / HPO Term Input',

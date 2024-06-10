@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { displayName } from '@varfish/helpers'
+import { displayName } from '@/varfish/helpers'
 import { roundIt } from '@bihealth/reev-frontend-lib/lib/utils'
 
 import { ResultRow } from './types'

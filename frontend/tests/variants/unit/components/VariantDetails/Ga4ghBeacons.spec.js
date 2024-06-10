@@ -1,4 +1,4 @@
-// import VariantDetailsGa4ghBeacons from '@variants/components/VariantDetails/Ga4ghBeacons.vue'
+// import VariantDetailsGa4ghBeacons from '@/variants/components/VariantDetails/Ga4ghBeacons.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

@@ -1,14 +1,14 @@
 <script setup>
 import { computed, reactive } from 'vue'
 
-import { CaseStates } from '@cases/stores/caseList'
+import { CaseStates } from '@/cases/stores/caseList'
 import {
   displayName,
   formatTime,
   formatTimeAgo,
   formatLargeInt,
-} from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+} from '@/varfish/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 
 const emit = defineEmits(['editCaseStatusClick', 'editCaseNotesClick'])
 

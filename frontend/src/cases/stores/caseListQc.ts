@@ -10,10 +10,10 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
+import { StoreState, State } from '@/varfish/storeUtils'
 
-import { CaseListClient } from '@cases/api/caseListClient'
-import { useCaseListStore } from '@cases/stores/caseList'
+import { CaseListClient } from '@/cases/api/caseListClient'
+import { useCaseListStore } from '@/cases/stores/caseList'
 
 /** Alias definition of CaseListQcValues type; to be defined later. */
 type CaseListQcValues = any

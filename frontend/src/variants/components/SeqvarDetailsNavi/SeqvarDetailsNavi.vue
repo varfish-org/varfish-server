@@ -10,7 +10,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { SECTIONS } from './constants'
-import { useHistoryStore } from '@varfish/stores/history'
+import { useHistoryStore } from '@/varfish/stores/history'
 
 /** The component's props. */
 const props = defineProps<{

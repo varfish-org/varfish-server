@@ -1,4 +1,4 @@
-import CaseListPaneQc from '@cases/components/CaseList/PaneQc.vue'
+import CaseListPaneQc from '@/cases/components/CaseList/PaneQc.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'

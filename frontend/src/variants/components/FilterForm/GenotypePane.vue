@@ -1,8 +1,8 @@
 <script setup>
-import { displayName } from '@varfish/helpers'
-import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
-import FilterFormGenotypePaneAffected from '@variants/components/FilterForm/GenotypePaneAffected.vue'
-import FilterFormGenotypePaneModal from '@variants/components/FilterForm/GenotypePaneModal.vue'
+import { displayName } from '@/varfish/helpers'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
+import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
+import FilterFormGenotypePaneModal from '@/variants/components/FilterForm/GenotypePaneModal.vue'
 import { computed, nextTick, reactive, getCurrentInstance } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 

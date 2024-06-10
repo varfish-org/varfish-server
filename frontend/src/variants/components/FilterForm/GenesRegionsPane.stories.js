@@ -1,4 +1,4 @@
-import FilterFormGenesRegionsPane from '@variants/components/FilterForm/GenesRegionsPane.vue'
+import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
 import { reactive } from 'vue'
 
 export default {

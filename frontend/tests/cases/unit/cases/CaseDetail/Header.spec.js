@@ -1,4 +1,4 @@
-import CaseDetailHeader from '@cases/components/CaseDetail/Header.vue'
+import CaseDetailHeader from '@/cases/components/CaseDetail/Header.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { createRouterMock, injectRouterMock } from 'vue-router-mock'
 

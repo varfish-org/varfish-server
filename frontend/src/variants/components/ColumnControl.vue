@@ -5,7 +5,7 @@ import {
   DisplayConstraints,
   DisplayColumns,
   DisplayDetails,
-} from '@variants/enums'
+} from '@/variants/enums'
 import { computed } from 'vue'
 
 const props = defineProps({

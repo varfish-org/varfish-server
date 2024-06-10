@@ -1,4 +1,4 @@
-import DistDensPlot from '@cases_qc/components/DistDensPlot.vue'
+import DistDensPlot from '@/cases_qc/components/DistDensPlot.vue'
 
 import { storyData } from './DistDens.stories.data'
 

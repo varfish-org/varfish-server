@@ -2,19 +2,19 @@
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { State } from '@varfish/storeUtils'
-import { useVariantFlagsStore } from '@variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@variants/stores/variantComments'
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
-import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { updateUserSetting } from '@varfish/userSettings'
-import { QueryStates, QueryStateToText } from '@variants/enums'
+import { State } from '@/varfish/storeUtils'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { updateUserSetting } from '@/varfish/userSettings'
+import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import Header from '@variants/components/FilterApp/Header.vue'
-import FilterForm from '@variants/components/FilterForm.vue'
-import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
+import Header from '@/variants/components/FilterApp/Header.vue'
+import FilterForm from '@/variants/components/FilterForm.vue'
+import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 
 const props = defineProps({
   /** The case UUID. */

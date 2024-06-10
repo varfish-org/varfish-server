@@ -1,4 +1,4 @@
-import ModalCohortEditor from '@cohorts/components/ModalCohortEditor.vue'
+import ModalCohortEditor from '@/cohorts/components/ModalCohortEditor.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { beforeAll, describe, expect, test, vi } from 'vitest'

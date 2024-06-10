@@ -5,9 +5,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { VariantClient } from '@variants/api/variantClient'
-import { DisplayColumns } from '@variants/enums'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { VariantClient } from '@/variants/api/variantClient'
+import { DisplayColumns } from '@/variants/enums'
 
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // no store dependencies

@@ -1,9 +1,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
-import { displayName } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { useCaseListStore } from '@cases/stores/caseList'
+import { displayName } from '@/varfish/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCaseListStore } from '@/cases/stores/caseList'
 
 const emit = defineEmits(['updateCasePhenotypeTermsClick'])
 

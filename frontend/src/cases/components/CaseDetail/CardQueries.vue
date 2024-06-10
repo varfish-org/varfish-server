@@ -1,10 +1,10 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 
-import { useCaseListStore } from '@cases/stores/caseList'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 
-import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Define emits. */
 const emit = defineEmits(['editQueryPresetsClick'])

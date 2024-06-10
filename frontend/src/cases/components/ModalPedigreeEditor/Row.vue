@@ -5,7 +5,7 @@
 import { useVuelidate } from '@vuelidate/core'
 import { helpers } from '@vuelidate/validators'
 import { onMounted, computed } from 'vue'
-import { displayName } from '@varfish/helpers'
+import { displayName } from '@/varfish/helpers'
 
 /** Define the props. */
 const props = defineProps({

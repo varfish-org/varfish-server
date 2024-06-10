@@ -2,8 +2,8 @@
 import isEqual from 'fast-deep-equal'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { State } from '@varfish/storeUtils'
-import { copy } from '@varfish/helpers'
+import { State } from '@/varfish/storeUtils'
+import { copy } from '@/varfish/helpers'
 // import DocsLink from '@bihealth/reev-frontend-lib/components/DocsLink/DocsLink.vue'
 import { BOOLEAN_FLAGS, COLOR_VALUES, COLOR_FLAGS } from './constants'
 

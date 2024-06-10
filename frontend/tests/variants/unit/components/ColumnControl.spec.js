@@ -1,4 +1,4 @@
-import ColumnControl from '@variants/components/ColumnControl.vue'
+import ColumnControl from '@/variants/components/ColumnControl.vue'
 import { shallowMount } from '@vue/test-utils'
 import Multiselect from '@vueform/multiselect'
 import { describe, test } from 'vitest'

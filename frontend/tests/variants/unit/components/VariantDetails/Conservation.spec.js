@@ -1,4 +1,4 @@
-// import VariantDetailsConservation from '@variants/components/VariantDetails/Conservation.vue'
+// import VariantDetailsConservation from '@/variants/components/VariantDetails/Conservation.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

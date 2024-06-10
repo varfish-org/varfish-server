@@ -2,12 +2,12 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useSvQueryStore } from '@svs/stores/svQuery'
-import { useCaseListStore } from '@cases/stores/caseList'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 // TODO: change to sv presets
-import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
-import UiToggleMaxButton from '@varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
+import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 

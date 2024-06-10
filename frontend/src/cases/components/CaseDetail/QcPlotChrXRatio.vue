@@ -2,8 +2,8 @@
 import * as vega from 'vega'
 import { computed, ref } from 'vue'
 
-import VegaPlot from '@varfish/components/VegaPlot.vue'
-import { displayName } from '@varfish/helpers'
+import VegaPlot from '@/varfish/components/VegaPlot.vue'
+import { displayName } from '@/varfish/helpers'
 
 /** Define the props. */
 const props = defineProps({

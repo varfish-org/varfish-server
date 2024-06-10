@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { watch, onMounted, nextTick } from 'vue'
 
-import { overlayShow, overlayMessage } from '@cases/common'
-import { useCaseListStore } from '@cases/stores/caseList'
-import CaseListHeader from '@cases/components/CaseList/Header.vue'
-import CaseListContent from '@cases/components/CaseList/Content.vue'
-import Overlay from '@varfish/components/Overlay.vue'
-import { updateUserSetting } from '@varfish/userSettings'
+import { overlayShow, overlayMessage } from '@/cases/common'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import CaseListHeader from '@/cases/components/CaseList/Header.vue'
+import CaseListContent from '@/cases/components/CaseList/Content.vue'
+import Overlay from '@/varfish/components/Overlay.vue'
+import { updateUserSetting } from '@/varfish/userSettings'
 
 const props = defineProps<{
   currentTab: string

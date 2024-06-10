@@ -1,4 +1,4 @@
-import ScoreDisplay from '@varfish/components/ScoreDisplay.vue'
+import ScoreDisplay from '@/varfish/components/ScoreDisplay.vue'
 
 export default {
   title: 'Plots / Score Display',

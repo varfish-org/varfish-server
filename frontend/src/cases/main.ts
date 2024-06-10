@@ -1,4 +1,4 @@
-import App from '@cases/App.vue'
+import App from '@/cases/App.vue'
 import { createApp, nextTick } from 'vue'
 import { registerPlugins } from './plugins'
 

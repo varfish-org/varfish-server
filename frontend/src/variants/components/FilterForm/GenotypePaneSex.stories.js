@@ -1,4 +1,4 @@
-import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 
 export default {
   title: 'Variants / Filter Form Genotype Sex',

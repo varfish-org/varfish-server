@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { State } from '@varfish/storeUtils'
-import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { State } from '@/varfish/storeUtils'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
 import { computed, onMounted, ref, toRaw, watch } from 'vue'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
@@ -14,7 +14,7 @@ import {
   AcmgRating,
   seqvarAssign,
   acmgRatingEqual,
-} from '@variants/api/variantClient'
+} from '@/variants/api/variantClient'
 
 /** This component's props. */
 const props = defineProps<{

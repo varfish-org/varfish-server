@@ -5,9 +5,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { SvClient } from '@svs/api/strucvarClient'
-import { VariantClient } from '@variants/api/variantClient'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { SvClient } from '@/svs/api/strucvarClient'
+import { VariantClient } from '@/variants/api/variantClient'
 
 export const useSvResultSetStore = defineStore('svResultSet', () => {
   // no store dependencies

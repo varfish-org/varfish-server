@@ -1,7 +1,7 @@
 <script setup>
-import { displayName, formatLargeInt } from '@varfish/helpers'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { tsTvRatio } from '@cases/common'
+import { displayName, formatLargeInt } from '@/varfish/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { tsTvRatio } from '@/cases/common'
 
 const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop

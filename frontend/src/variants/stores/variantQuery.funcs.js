@@ -1,4 +1,4 @@
-import { copy } from '@variants/helpers'
+import { copy } from '@/variants/helpers'
 
 // Glue code to convert old query settings (read from API) to new ones (written to API).
 //

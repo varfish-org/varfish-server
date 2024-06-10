@@ -1,4 +1,4 @@
-import { AcmgRating } from '@svs/api/strucvarClient'
+import { AcmgRating } from '@/svs/api/strucvarClient'
 
 /** Empty ACMG rating data. */
 /** Template for an empty ACMG rating. */

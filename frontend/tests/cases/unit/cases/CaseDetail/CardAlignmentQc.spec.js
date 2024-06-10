@@ -1,4 +1,4 @@
-import CaseDetailCardAlignmentQc from '@cases/components/CaseDetail/CardAlignmentQc.vue'
+import CaseDetailCardAlignmentQc from '@/cases/components/CaseDetail/CardAlignmentQc.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'

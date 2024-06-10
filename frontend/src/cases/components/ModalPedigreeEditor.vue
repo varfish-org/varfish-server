@@ -13,10 +13,10 @@ import { onMounted, reactive, ref } from 'vue'
 
 import { useVuelidate } from '@vuelidate/core'
 
-import ModalBase from '@varfish/components/ModalBase.vue'
-import Row from '@cases/components/ModalPedigreeEditor/Row.vue'
-import { randomString } from '@varfish/common'
-import { copy } from '@varfish/helpers'
+import ModalBase from '@/varfish/components/ModalBase.vue'
+import Row from '@/cases/components/ModalPedigreeEditor/Row.vue'
+import { randomString } from '@/varfish/common'
+import { copy } from '@/varfish/helpers'
 
 const props = defineProps({
   title: {

@@ -1,5 +1,5 @@
 <script setup>
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 
 const variantQueryStore = useVariantQueryStore()
 

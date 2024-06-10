@@ -3,7 +3,7 @@
 /** Editor component for quality.
  */
 
-import { randomString } from '@varfish/common'
+import { randomString } from '@/varfish/common'
 
 /** Define props. */
 const props = defineProps({

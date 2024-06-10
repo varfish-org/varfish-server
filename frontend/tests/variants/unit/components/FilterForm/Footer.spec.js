@@ -1,5 +1,5 @@
 import { createTestingPinia } from '@pinia/testing'
-import FilterFormFooter from '@variants/components/FilterForm/Footer.vue'
+import FilterFormFooter from '@/variants/components/FilterForm/Footer.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
 

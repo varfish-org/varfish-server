@@ -3,7 +3,7 @@
  */
 
 import { computed } from 'vue'
-import { randomString } from '@varfish/common'
+import { randomString } from '@/varfish/common'
 
 /** Define props. */
 const props = defineProps({

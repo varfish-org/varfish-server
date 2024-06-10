@@ -1,4 +1,4 @@
-import App from '@cohorts/App.vue'
+import App from '@/cohorts/App.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -37,7 +37,7 @@ const makeWrapper = (appContext) => {
 }
 
 // Mock out the cases API
-vi.mock('@cohorts/api/cohorts.js')
+vi.mock('@/cohorts/api/cohorts.js')
 
 describe('CohortList.vue', () => {
   beforeAll(() => {

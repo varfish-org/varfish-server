@@ -1,10 +1,10 @@
 <script setup>
-import VariantDetailsFlagsIndicator from '@varfish/components/VariantDetails/FlagsIndicator.vue'
+import VariantDetailsFlagsIndicator from '@/varfish/components/VariantDetails/FlagsIndicator.vue'
 import {
   simpleFlags,
   flagNames,
   flagValues,
-} from '@variants/components/FilterForm/FlagsPane.fields'
+} from '@/variants/components/FilterForm/FlagsPane.fields'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

@@ -11,9 +11,9 @@
 
 import { reactive, ref } from 'vue'
 
-import ModalBase from '@varfish/components/ModalBase.vue'
-import { randomString } from '@varfish/common'
-import { copy } from '@varfish/helpers'
+import ModalBase from '@/varfish/components/ModalBase.vue'
+import { randomString } from '@/varfish/common'
+import { copy } from '@/varfish/helpers'
 
 /** Define props, will be copied to propsCopy. */
 const props = defineProps({

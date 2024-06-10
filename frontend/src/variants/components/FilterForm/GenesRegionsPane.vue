@@ -6,7 +6,7 @@
 import { computed, onMounted, ref } from 'vue'
 import Multiselect from '@vueform/multiselect'
 
-import TokenizingTextarea from '@variants/components/TokenizingTextarea.vue'
+import TokenizingTextarea from '@/variants/components/TokenizingTextarea.vue'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

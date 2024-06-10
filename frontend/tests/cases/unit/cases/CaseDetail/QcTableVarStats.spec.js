@@ -1,4 +1,4 @@
-import QcTableVarStats from '@cases/components/CaseDetail/QcTableVarStats.vue'
+import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'

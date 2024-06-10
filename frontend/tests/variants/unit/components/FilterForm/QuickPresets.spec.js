@@ -1,4 +1,4 @@
-// import FilterFormQuickPresets from '@variants/components/FilterForm/QuickPresets.vue'
+// import FilterFormQuickPresets from '@/variants/components/FilterForm/QuickPresets.vue'
 // import { shallowMount } from '@vue/test-utils'
 import { describe, test } from 'vitest'
 

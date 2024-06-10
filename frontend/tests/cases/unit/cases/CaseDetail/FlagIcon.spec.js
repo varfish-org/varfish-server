@@ -1,4 +1,4 @@
-import CaseDetailFlagIcon from '@cases/components/CaseDetail/FlagIcon.vue'
+import CaseDetailFlagIcon from '@/cases/components/CaseDetail/FlagIcon.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { makeWrapper } from '../CaseDetailApp.common'

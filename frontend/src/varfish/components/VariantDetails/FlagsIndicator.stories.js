@@ -1,4 +1,4 @@
-import VariantDetailsFlagsIndicator from '@varfish/components/VariantDetails/FlagsIndicator.vue'
+import VariantDetailsFlagsIndicator from '@/varfish/components/VariantDetails/FlagsIndicator.vue'
 
 export default {
   title: 'Variants / Small Variant Details Comments Flags',

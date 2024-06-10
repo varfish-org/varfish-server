@@ -157,7 +157,7 @@ You can configure VarFish to send out emails, e.g., when permissions are granted
 ``PROJECTROLES_SEND_EMAIL=0``
     Enable sending of emails.
 ``EMAIL_SENDER=``
-    String to use for the sender, e.g., ``noreply@varfish.example.com``.
+    String to use for the sender, e.g., ``noreply@/varfish.example.com``.
 ``EMAIL_SUBJECT_PREFIX=``
     Prefix to use for email subjects, e.g., ``[VarFish]``.
 ``EMAIL_URL=``

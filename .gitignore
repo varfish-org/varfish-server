@@ -353,14 +353,4 @@ pip-selfcheck.json
 
 mailhog
 
-
-varfish/media/
-
-/src/
-
-celerybeat-schedule
-
-frontend/components.d.ts
-staticfiles.bak/
-
-varfish-server-worker-db/
+.DS_Store

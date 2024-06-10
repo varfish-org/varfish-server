@@ -1,4 +1,4 @@
-import CaseDetailCardCase from '@cases/components/CaseDetail/CardCase.vue'
+import CaseDetailCardCase from '@/cases/components/CaseDetail/CardCase.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'

@@ -1,4 +1,4 @@
-import HpoTermInput from '@variants/components/HpoTermInput.vue'
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 

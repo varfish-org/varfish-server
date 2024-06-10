@@ -8,25 +8,25 @@ import {
   formatLargeInt,
   formatFloat,
   truncateText,
-} from '@varfish/helpers'
-import { getAcmgBadge } from '@variants/helpers'
-import { VariantClient } from '@variants/api/variantClient'
-import ColumnControl from '@variants/components/ColumnControl.vue'
-import ExportResults from '@variants/components/ExportResults.vue'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { useVariantFlagsStore } from '@variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@variants/stores/variantComments'
-import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
-import { useVariantQueryStore } from '@variants/stores/variantQuery'
-import { copy } from '@variants/helpers'
+} from '@/varfish/helpers'
+import { getAcmgBadge } from '@/variants/helpers'
+import { VariantClient } from '@/variants/api/variantClient'
+import ColumnControl from '@/variants/components/ColumnControl.vue'
+import ExportResults from '@/variants/components/ExportResults.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { copy } from '@/variants/helpers'
 import {
   DisplayConstraints,
   DisplayFrequencies,
   DisplayColumnsToText,
   DisplayDetails,
   DisplayColumns,
-} from '@variants/enums'
+} from '@/variants/enums'
 import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /**

@@ -1,4 +1,4 @@
-// import FilterFormGenesRegionsPane from '@variants/components/FilterForm/GenesRegionsPane.vue'
+// import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
 // import { mount } from '@vue/test-utils'
 import debounce from 'lodash.debounce'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'

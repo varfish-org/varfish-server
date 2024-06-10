@@ -1,4 +1,4 @@
-import VegaPlot from '@varfish/components/VegaPlot.vue'
+import VegaPlot from '@/varfish/components/VegaPlot.vue'
 import { mount } from '@vue/test-utils'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 

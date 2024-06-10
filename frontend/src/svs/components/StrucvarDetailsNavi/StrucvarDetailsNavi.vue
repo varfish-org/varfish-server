@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { SECTIONS } from './constants'
-import { useHistoryStore } from '@varfish/stores/history'
+import { useHistoryStore } from '@/varfish/stores/history'
 import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
 
 /** The component's props. */

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /** Display per-region coverage card from alignment stats
  */
-import { type SampleAlignmentStats } from '@cases_qc/api/types'
-import SimpleCard from '@varfish/components/SimpleCard.vue'
+import { type SampleAlignmentStats } from '@/cases_qc/api/types'
+import SimpleCard from '@/varfish/components/SimpleCard.vue'
 import { computed, ref, watch } from 'vue'
 
 export interface Props {

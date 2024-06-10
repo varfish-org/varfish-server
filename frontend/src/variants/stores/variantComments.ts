@@ -8,9 +8,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
-import { VariantClient } from '@variants/api/variantClient'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
+import { StoreState, State } from '@/varfish/storeUtils'
+import { VariantClient } from '@/variants/api/variantClient'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /** Alias definition of SmallVariantComments type; to be defined later. */

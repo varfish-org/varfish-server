@@ -1,4 +1,4 @@
-import CaseDetailCardTerms from '@cases/components/CaseDetail/CardTerms.vue'
+import CaseDetailCardTerms from '@/cases/components/CaseDetail/CardTerms.vue'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
 

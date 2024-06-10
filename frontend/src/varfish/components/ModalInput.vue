@@ -11,10 +11,10 @@
 
 import { onMounted, computed, reactive, ref } from 'vue'
 
-import ModalBase from '@varfish/components/ModalBase.vue'
-import { randomString } from '@varfish/common'
+import ModalBase from '@/varfish/components/ModalBase.vue'
+import { randomString } from '@/varfish/common'
 import { useVuelidate } from '@vuelidate/core'
-import { copy } from '@varfish/helpers'
+import { copy } from '@/varfish/helpers'
 
 const props = defineProps({
   title: {

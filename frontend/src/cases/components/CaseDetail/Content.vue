@@ -1,15 +1,15 @@
 <script setup>
 import { computed } from 'vue'
 
-import PaneCase from '@cases/components/CaseDetail/PaneCase.vue'
-import PaneQc from '@cases_qc/components/PaneQc.vue'
-import LegacyPaneQc from '@cases/components/CaseDetail/PaneQc.vue'
-import PaneAnnotations from '@cases/components/CaseDetail/PaneAnnotations.vue'
+import PaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
+import PaneQc from '@/cases_qc/components/PaneQc.vue'
+import LegacyPaneQc from '@/cases/components/CaseDetail/PaneQc.vue'
+import PaneAnnotations from '@/cases/components/CaseDetail/PaneAnnotations.vue'
 import { useRouter } from 'vue-router'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { useCaseQcStore } from '@cases_qc/stores/caseQc'
-import { useVariantResultSetStore } from '@variants/stores/variantResultSet'
-import { useSvResultSetStore } from '@svs/stores/svResultSet'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCaseQcStore } from '@/cases_qc/stores/caseQc'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
 
 const router = useRouter()
 

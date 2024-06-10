@@ -1,4 +1,4 @@
-import FilterFormGenotypePane from '@variants/components/FilterForm/GenotypePane.vue'
+import FilterFormGenotypePane from '@/variants/components/FilterForm/GenotypePane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 import { reactive } from 'vue'

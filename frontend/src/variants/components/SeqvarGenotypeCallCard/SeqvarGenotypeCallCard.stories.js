@@ -1,6 +1,6 @@
-import SeqvarGenotypeCallCard from '@variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
-import trioCaseData from '@variantsTest/data/case-trio.json'
-import trioVariantsData from '@variantsTest/data/variants-trio.json'
+import SeqvarGenotypeCallCard from '@/variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
+import trioCaseData from '@/variantsTest/data/case-trio.json'
+import trioVariantsData from '@/variantsTest/data/variants-trio.json'
 
 export default {
   title: 'Variants / Small Variant Details Calls',

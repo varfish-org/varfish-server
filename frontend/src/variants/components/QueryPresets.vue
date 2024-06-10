@@ -8,15 +8,15 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { minLength, required } from '@vuelidate/validators'
 
-import { overlayShow, overlayMessage } from '@cases/common'
-import { useQueryPresetsStore } from '@variants/stores/queryPresets'
-import { useCaseListStore } from '@cases/stores/caseList'
+import { overlayShow, overlayMessage } from '@/cases/common'
+import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
+import { useCaseListStore } from '@/cases/stores/caseList'
 
-import QueryPresetsSetEditor from '@variants/components/QueryPresets/SetEditor.vue'
-import Overlay from '@varfish/components/Overlay.vue'
-import ModalInput from '@varfish/components/ModalInput.vue'
-import ModalConfirm from '@varfish/components/ModalConfirm.vue'
-import Toast from '@varfish/components/Toast.vue'
+import QueryPresetsSetEditor from '@/variants/components/QueryPresets/SetEditor.vue'
+import Overlay from '@/varfish/components/Overlay.vue'
+import ModalInput from '@/varfish/components/ModalInput.vue'
+import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
+import Toast from '@/varfish/components/Toast.vue'
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])

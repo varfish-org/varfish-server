@@ -1,4 +1,4 @@
-import CaseListContent from '@cases/components/CaseList/Content.vue'
+import CaseListContent from '@/cases/components/CaseList/Content.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'

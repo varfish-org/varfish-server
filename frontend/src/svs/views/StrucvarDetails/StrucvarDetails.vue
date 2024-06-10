@@ -13,19 +13,19 @@
 import { onMounted, watch, ref, computed } from 'vue'
 import { svLocus } from './lib'
 
-import { useSvDetailsStore } from '@svs/stores/svDetails'
-import { useSvFlagsStore } from '@svs/stores/strucvarFlags'
-import { useSvCommentsStore } from '@svs/stores/svComments'
-import { useSvResultSetStore } from '@svs/stores/svResultSet'
+import { useSvDetailsStore } from '@/svs/stores/svDetails'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvCommentsStore } from '@/svs/stores/svComments'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
 import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
 
-import CommentsCard from '@varfish/components/CommentsCard/CommentsCard.vue'
-import FlagsCard from '@varfish/components/FlagsCard/FlagsCard.vue'
-import AcmgRatingCard from '@svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
+import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
+import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
 
-import StrucvarDetailsNavi from '@svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
-import StrucvarDetailsHeader from '@svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
-import StrucvarGenotypeCallCard from '@svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
+import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
+import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
+import StrucvarGenotypeCallCard from '@/svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
 
 import {
   BreakendStrucvarImpl,
@@ -43,8 +43,8 @@ import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiter
 import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
 import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
 import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { State } from '@varfish/storeUtils'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State } from '@/varfish/storeUtils'
 import { StoreState } from '@bihealth/reev-frontend-lib/stores'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
 

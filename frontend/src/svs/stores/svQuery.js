@@ -2,12 +2,12 @@
  * NB: this is one of the few stores that don't have an initializeRes on purpose.
  */
 
-import { useCaseDetailsStore } from '@cases/stores/caseDetails'
-import { SvClient } from '@svs/api/strucvarClient'
-import { useSvResultSetStore } from '@svs/stores/svResultSet'
-import { State, StoreState } from '@varfish/storeUtils'
-import { apiQueryStateToQueryState, QueryStates } from '@variants/enums'
-import { copy } from '@variants/helpers'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { SvClient } from '@/svs/api/strucvarClient'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { apiQueryStateToQueryState, QueryStates } from '@/variants/enums'
+import { copy } from '@/variants/helpers'
 import camelCase from 'camelcase'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'

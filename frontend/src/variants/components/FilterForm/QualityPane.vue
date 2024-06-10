@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import FilterFormQualityPaneRow from '@variants/components/FilterForm/QualityPaneRow.vue'
-import { rules } from '@variants/components/FilterForm/QualityPane.values'
+import FilterFormQualityPaneRow from '@/variants/components/FilterForm/QualityPaneRow.vue'
+import { rules } from '@/variants/components/FilterForm/QualityPane.values'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

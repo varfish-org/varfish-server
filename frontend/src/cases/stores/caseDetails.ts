@@ -10,12 +10,12 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
-import { StoreState, State } from '@varfish/storeUtils'
+import { StoreState, State } from '@/varfish/storeUtils'
 
-import { CaseClient } from '@cases/api/caseClient'
-import { useCaseListStore } from '@cases/stores/caseList'
-import { displayName } from '@varfish/helpers'
-import { QueryPresetsClient } from '@variants/api/queryPresetsClient'
+import { CaseClient } from '@/cases/api/caseClient'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { displayName } from '@/varfish/helpers'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Alias definition of Case type; to be defined later. */
 export type Case = any

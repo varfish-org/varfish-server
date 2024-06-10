@@ -3,9 +3,9 @@ import { computed, reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
 
-import { displayName } from '@varfish/helpers'
-import FilterFormGenotypePaneSex from '@variants/components/FilterForm/GenotypePaneSex.vue'
-import FilterFormGenotypePaneAffected from '@variants/components/FilterForm/GenotypePaneAffected.vue'
+import { displayName } from '@/varfish/helpers'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
+import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
 
 /** Define component's props. */
 const props = defineProps({

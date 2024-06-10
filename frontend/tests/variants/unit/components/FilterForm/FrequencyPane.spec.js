@@ -1,4 +1,4 @@
-import FilterFormFrequencyPane from '@variants/components/FilterForm/FrequencyPane.vue'
+import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
