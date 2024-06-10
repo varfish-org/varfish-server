@@ -68,7 +68,7 @@ drf-keyed-list-bihealth==0.1.1
 elementpath==4.4.0
 et-xmlfile==1.1.0
 exceptiongroup==1.2.1
-executing==2.0.0
+executing==2.0.1
 factory-boy==3.3.0
 Faker==25.3.0
 fastdiff==0.3.0
