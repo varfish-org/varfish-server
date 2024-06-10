@@ -1,4 +1,4 @@
 /varfish/media/
 /src/
 
-celerybeat-schedule
+/celerybeat-schedule.*
