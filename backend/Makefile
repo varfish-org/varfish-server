@@ -91,7 +91,7 @@ ci: \
 
 .PHONY: docs
 docs:
-	pipenv run $(MAKE) -C docs_manual html
+	pipenv run $(MAKE) -C ../docs clean html
 
 .PHONY: _migrate
 _migrate:

@@ -19,29 +19,29 @@ help:
 
 .PHONY: deps
 deps:
-	make -C backend deps
-	make -C frontend deps
+	$(MAKE) -C backend deps
+	$(MAKE) -C frontend deps
 
 .PHONY: format
 format:
-	make -C backend format
-	make -C frontend format
+	$(MAKE) -C backend format
+	$(MAKE) -C frontend format
 
 .PHONY: lint
 lint:
-	make -C backend lint
-	make -C frontend lint
+	$(MAKE) -C backend lint
+	$(MAKE) -C frontend lint
 
 .PHONY: test
 test:
-	make -C backend test
-	make -C frontend test
+	$(MAKE) -C backend test
+	$(MAKE) -C frontend test
 
 .PHONY: ci
 ci:
-	make -C backend ci
-	make -C frontend ci
+	$(MAKE) -C backend ci
+	$(MAKE) -C frontend ci
 
 .PHONY: docs
 docs:
-	make -C backend docs
+	$(MAKE) -C backend docs
