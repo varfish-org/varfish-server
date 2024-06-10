@@ -18,7 +18,7 @@ backcall==0.2.0
 beautifulsoup4==4.12.2
 billiard==4.2.0
 black==24.3.0
-botocore==1.34.54
+botocore==1.34.122
 cattrs==23.2.2
 celery==5.3.6
 certifi==2024.2.2
