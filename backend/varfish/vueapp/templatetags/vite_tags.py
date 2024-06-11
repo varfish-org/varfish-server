@@ -23,7 +23,7 @@ if DEV:
 
 
 def vite_manifest(entries_names):
-    manifest_filepath = "varfish/vueapp/static/vueapp/.vite/manifest.json"
+    manifest_filepath = "frontend/static/vueapp/.vite/manifest.json"
 
     if DEV:
         scripts = [
