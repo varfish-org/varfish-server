@@ -168,6 +168,10 @@ MIGRATION_MODULES = {"sites": "varfish.contrib.sites.migrations"}
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
 
+# Development is a separate thing (running vite server on dev), but fallback
+# is whether DEV is active.
+DEV = env.bool("DEV", DEBUG)
+
 # GENERAL VARFISH SETTINGS
 # ------------------------------------------------------------------------------
 # Query timeout in seconds, "0" to disable.

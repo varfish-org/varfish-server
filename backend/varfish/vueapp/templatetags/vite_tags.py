@@ -16,7 +16,7 @@ def is_absolute_url(url):
     return re.match("^https?://", url)
 
 
-DEV = settings.DEBUG
+DEV = settings.DEV
 
 if DEV:
     DEV_SERVER_ROOT = getattr(settings, "VITE_DEV_SERVER", "http://localhost:3000")
