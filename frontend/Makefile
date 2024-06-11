@@ -24,13 +24,13 @@ deps:
 
 .PHONY: format
 format:
-	npm run format
+	npm run prettier-write
 
 .PHONY: lint
 lint:
+	npm run prettier-check
 	npm run lint
 	npm run type-check
-	npm run format:check
 
 .PHONY: test
 test:

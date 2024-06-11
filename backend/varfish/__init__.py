@@ -7,15 +7,19 @@ import subprocess
 
 
 def _get_version():
-    try:
-        x = subprocess.check_output(
-            ["git", "describe", "--tags", "--always"], encoding="utf-8"
-        ).strip()[1:]
-        return x
-    except subprocess.CalledProcessError:
-        dirname = os.path.dirname(__file__)
-        with open(f"{dirname}/../VERSION", "rt") as inputf:
-            return inputf.read().strip()
+    dirname = os.path.dirname(__file__)
+    with open(f"{dirname}/../VERSION", "rt") as inputf:
+        result = inputf.read().strip()
+    if os.path.exists(".git"):
+        try:
+            result = subprocess.check_output(
+                ["git", "describe", "--tags", "--always"], encoding="utf-8"
+            ).strip()[1:]
+            return result
+        except subprocess.CalledProcessError:
+            pass
+    else:
+        return result
 
 
 __version__ = _get_version()
