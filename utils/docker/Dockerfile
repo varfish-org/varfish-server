@@ -115,10 +115,12 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
 FROM python-docs-deps AS python-docs
 
 # Copy source code for building the manual.
-COPY backend/ ./
+COPY VERSION backend/
+COPY backend/ backend/
+COPY docs/ docs/
 
 # Build sphinx manual.
-RUN pipenv run make -C docs_manual clean html
+RUN pipenv run make -C docs clean html
 
 
 # ---------------------------------------------------------------------------
@@ -183,13 +185,14 @@ RUN mkdir -p local-static/local/css && \
         https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js
 
 # Copy in the built manual.
-COPY --from=python-docs /usr/src/app/docs_manual/_build/html ./docs_manual/_build/html
+COPY --from=python-docs /usr/src/app/docs/_build/html ./docs/_build/html
 
 # Copy in the built NodeJS files
 COPY --from=node-build /usr/src/app/frontend/static ./frontend/static
 
 # Copy in the source code, includes VERSION file.
-COPY . .
+COPY VERSION VERSION
+COPY backend/ .
 
 # Get icons
 RUN python manage.py geticons -c \
