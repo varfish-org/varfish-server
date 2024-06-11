@@ -65,11 +65,11 @@ flake8:
 
 .PHONY: geticons
 geticons:
-	$(MANAGE) geticons -c cil gridicons octicon icon-park-outline
+	pipenv run $(MANAGE) geticons -c mdi bi cil fa-regular fa-solid fluent gridicons octicon icon-park-outline
 
 .PHONY: collectstatic
 collectstatic: geticons
-	$(MANAGE) collectstatic --clear --no-input
+	pipenv run $(MANAGE) collectstatic --clear --no-input
 
 .PHONY: test
 test: collectstatic
@@ -95,23 +95,23 @@ docs:
 
 .PHONY: _migrate
 _migrate:
-	$(MANAGE) makemigrations
-	$(MANAGE) migrate
+	pipenv run $(MANAGE) makemigrations
+	pipenv run $(MANAGE) migrate
 
 .PHONY: migrate
 migrate: _migrate format
 
 .PHONY: shell
 shell:
-	$(MANAGE) shell
+	pipenv run $(MANAGE) shell
 
 .PHONY: serve
 serve:
-	$(MANAGE) runserver
+	pipenv run $(MANAGE) runserver
 
 .PHONY: serve-public
 serve_public:
-	$(MANAGE) runserver 0.0.0.0:8000
+	pipenv run $(MANAGE) runserver 0.0.0.0:8000
 
 .PHONY: celery
 celery:
@@ -120,4 +120,4 @@ celery:
 
 .PHONY: gen-api-schema
 gen-api-schema:
-	$(MANAGE) spectacular > ./varfish/tests/drf_spectacular/varfish_api_schema.yaml
+	pipenv run $(MANAGE) spectacular > ./varfish/tests/drf_spectacular/varfish_api_schema.yaml

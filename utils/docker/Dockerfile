@@ -11,16 +11,18 @@ ENV LC_ALL C.UTF-8
 
 WORKDIR /usr/src/app
 
+
 # ---------------------------------------------------------------------------
 # NodeJS Dependencies
 # ---------------------------------------------------------------------------
 
 FROM node-base AS node-deps
 
-COPY varfish/vueapp/package.json varfish/vueapp/package-lock.json \
-     varfish/vueapp/
+COPY frontend/package.json frontend/package-lock.json \
+     frontend/
 
-RUN npm ci --prefix varfish/vueapp
+RUN npm ci --prefix frontend/
+
 
 # ---------------------------------------------------------------------------
 # NodeJS Build
@@ -28,15 +30,10 @@ RUN npm ci --prefix varfish/vueapp
 
 FROM node-deps AS node-build
 
-COPY cases/vueapp ./cases/vueapp
-COPY cases_qc/vueapp ./cases_qc/vueapp
-COPY clinvar_export/vueapp ./clinvar_export/vueapp
-COPY cohorts/vueapp ./cohorts/vueapp
-COPY svs/vueapp ./svs/vueapp
-COPY varfish/vueapp ./varfish/vueapp
-COPY variants/vueapp ./variants/vueapp
+COPY frontend/ frontend/
 
-RUN npm run build --prefix varfish/vueapp
+RUN npm run build --prefix frontend/
+
 
 # ---------------------------------------------------------------------------
 # Python Base Image
@@ -90,7 +87,7 @@ RUN apt-get update && \
 RUN python -m pip install -U pip pipenv
 
 # Copy Pipfile and lock into the Docker image.
-COPY Pipfile Pipfile.lock ./
+COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
@@ -118,7 +115,7 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
 FROM python-docs-deps AS python-docs
 
 # Copy source code for building the manual.
-COPY . .
+COPY backend/ ./
 
 # Build sphinx manual.
 RUN pipenv run make -C docs_manual clean html
@@ -189,7 +186,7 @@ RUN mkdir -p local-static/local/css && \
 COPY --from=python-docs /usr/src/app/docs_manual/_build/html ./docs_manual/_build/html
 
 # Copy in the built NodeJS files
-COPY --from=node-build /usr/src/app/varfish/vueapp/static ./varfish/vueapp/static
+COPY --from=node-build /usr/src/app/frontend/static ./frontend/static
 
 # Copy in the source code, includes VERSION file.
 COPY . .

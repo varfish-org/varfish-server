@@ -141,7 +141,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ------------------------------------------------------------------------------
 
 # Note: for serving to work, the docs have to be built after deployment.
-DOCS_ROOT = ROOT_DIR.path("docs_manual/_build/html/")
+DOCS_ROOT = ROOT_DIR.path("../docs/_build/html/")
 # DOCS_ACCESS = 'public'  # default
 
 # Bump the default number of fields in forms.

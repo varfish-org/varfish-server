@@ -174,3 +174,10 @@ VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
 # STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
+
+# Django-docs Settings
+# ------------------------------------------------------------------------------
+
+# Note: for serving to work, the docs have to be built after deployment.
+DOCS_ROOT = ROOT_DIR.path("docs/_build/html/")
+# DOCS_ACCESS = 'public'  # default

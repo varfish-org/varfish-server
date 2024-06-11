@@ -24,7 +24,6 @@ exclude = [
     "tests",
     ".*.py",
     "wrapper.py",
-    "docs_manual/src",
     "src",
 ]
 max-complexity = 18
