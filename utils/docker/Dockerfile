@@ -199,7 +199,8 @@ RUN python manage.py geticons -c \
         mdi bi cil fa-regular fa-solid fluent gridicons octicon icon-park-outline
 
 # Prepare static files, including build NodeJS files.
-RUN python manage.py collectstatic --no-input
+RUN CUSTOM_STATIC_DIR=frontend/static \
+    python manage.py collectstatic --no-input
 
 # Clear the environment variables again.
 RUN unset DJANGO_SECRET_KEY; \
