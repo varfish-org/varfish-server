@@ -1,12 +1,6 @@
 {
     "search.exclude": {
-        "cases/vueapp/**": true,
-        "clinvar_export/vueapp/**": true,
-        "cohorts/vueapp/**": true,
-        "svs/vueapp/**": true,
-        "variants/vueapp/**": true,
-        "cases/vueapp/coverage/**": true,
-        "varfish/vueapp/coverage/**": true,
-        "varfish/vueapp/static/**": true
+        "frontend/coverage/**": true,
+        "frontend/static/**": true
     }
 }

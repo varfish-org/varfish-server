@@ -1,0 +1,16 @@
+{% extends 'projectroles/project_base.html' %}
+
+{% load vite_tags %}
+
+{% block title %}
+  ClinVar Export
+{% endblock title %}
+
+{% block projectroles_extend %}
+  <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
+  <div id="app"></div>
+
+  ClinVar Export App Disabled
+  {#% vite_scripts 'src/clinvarexport/main.js' %#}
+  {#% vite_styles 'src/clinvarexport/main.js' %#}
+{% endblock %}

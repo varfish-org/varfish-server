@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "allowJs": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"],
+      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"]
+    }
+  }
+}
