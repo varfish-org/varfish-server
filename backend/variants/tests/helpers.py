@@ -17,7 +17,7 @@ from .factories import ProcessedFormDataFactory, ProjectFactory
 #: A known invalid MIME type.
 VARFISH_INVALID_MIMETYPE = "application/vnd.bihealth.invalid+json"
 #: A known invalid version.
-VARFISH_INVALID_VERSION = "0.0.0"
+VARFISH_INVALID_VERSION = "0.0.x"
 
 
 class TestBase(TestCase):
