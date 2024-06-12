@@ -251,6 +251,7 @@ jobs:
       - name: Run Vue app tests
         run: |
           make test
+        working-directory: frontend
 
       - name: Upload nodejs coverage reports to Codecov
         uses: codecov/codecov-action@v4
