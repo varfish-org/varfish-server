@@ -50,7 +50,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONFAULTHANDLER 1
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV CUSTOM_STATIC_DIR /usr/src/app/local-static,frontend/static
+ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
 
 WORKDIR /usr/src/app
 
@@ -188,7 +188,7 @@ RUN mkdir -p local-static/local/css && \
 COPY --from=python-docs /usr/src/app/docs/_build/html ./docs/_build/html
 
 # Copy in the built NodeJS files
-COPY --from=node-build /usr/src/app/backend/varfish/static/vueapp/ ./frontend/static
+COPY --from=node-build /usr/src/app/backend/varfish/static/vueapp ./varfish/static/vueapp
 
 # Copy in the source code, includes VERSION file.
 COPY VERSION VERSION
