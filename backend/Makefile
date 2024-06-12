@@ -63,12 +63,16 @@ flake8:
 # lint-mypy:
 # 	MYPYPATH=$(PWD)/stubs pipenv run mypy $(DIRS_PYTHON_NO_ALEMBIC)
 
+.PHONY: frontend-vite
+frontend-vite:
+	cd ../frontend && make deps build
+
 .PHONY: geticons
 geticons:
 	pipenv run $(MANAGE) geticons -c mdi bi cil fa-regular fa-solid fluent gridicons octicon icon-park-outline
 
 .PHONY: collectstatic
-collectstatic: geticons
+collectstatic: geticons frontend-vite
 	pipenv run $(MANAGE) collectstatic --clear --no-input
 
 .PHONY: test

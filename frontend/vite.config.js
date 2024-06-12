@@ -15,7 +15,7 @@ export default defineConfig({
     // include sourcemaps
     sourcemap: true,
     // overwrite default .html entry
-    outDir: 'static/vueapp',
+    outDir: '../backend/varfish/static/vueapp',
     rollupOptions: {
       input: {
         cases: resolve(__dirname, './src/cases/main.ts'),

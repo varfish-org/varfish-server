@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "test:unit": "vitest run --coverage",
     "test:unit:nocov": "vitest run",
     "lint": "eslint . --fix --max-warnings 0",

@@ -56,6 +56,10 @@ ci: \
 	lint \
 	test
 
+.PHONY: build
+build:
+	MODE=development npm run build
+
 .PHONY: serve
 serve:
 	MODE=development npm run serve

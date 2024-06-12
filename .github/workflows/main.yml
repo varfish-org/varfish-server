@@ -131,12 +131,8 @@ jobs:
           pipenv install --verbose --categories=packages,dev-packages,ldap-packages
         working-directory: backend
 
-      - name: Download icons
-        run: pipenv run python manage.py geticons
-        working-directory: backend
-
-      - name: Run collectstatic
-        run: pipenv run python manage.py collectstatic --noinput
+      - name: Run collectstatic (will download icons and build frontend)
+        run: make collectstatic
         working-directory: backend
 
       - name: Build Vue app as that can be tested via selenium.
