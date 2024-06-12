@@ -141,9 +141,10 @@ jobs:
 
       - name: Build Vue app as that can be tested via selenium.
         run: |
-          npm ci --prefix frontend
-          npm run build --prefix frontend
-          nohup npm run serve --prefix frontend &
+          npm ci
+          npm run build
+          nohup npm run serve &
+        directory: frontend
 
       - name: Setup environment with worker
         uses: mamba-org/setup-micromamba@v1
@@ -155,9 +156,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
-          pipenv run coverage xml
-          pipenv run coverage report
+          make test
         # Important: use shell that was initialized by micromamba.
         shell: bash -el {0}
         working-directory: backend
@@ -166,6 +165,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           flags: python
+          directory: backend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -189,29 +189,17 @@ jobs:
           python-version: "3.10"
 
       - name: Install pip and Pipenv
-        run: |
-          pip install pip pipenv
+        run: pip install pip pipenv
         working-directory: backend
 
       - name: Install project dependencies with pipenv
-        run: |
-          pipenv install --categories=packages,dev-packages
+        run: make deps
         working-directory: backend
 
-      - name: Check import order with isort
+      - name: Run all lints
         run: |
           rm -rf src
-          pipenv run isort --force-sort-within-sections --profile=black --check .
-        working-directory: backend
-
-      - name: Check style with black
-        run: |
-          pipenv run black --check --line-length 100 .
-        working-directory: backend
-
-      - name: Run linting
-        run: |
-          pipenv run flake8
+          make lint
         working-directory: backend
 
       - name: Check for OpenAPI schema changes.
@@ -237,11 +225,13 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix frontend
+          make deps
+        working-directory: frontend
 
       - name: Run linting
         run: |
-          make vue_lint
+          make lint
+        working-directory: frontend
 
 
   Node-Test:
@@ -255,15 +245,17 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix frontend
+          make deps
+        working-directory: frontend
 
       - name: Run Vue app tests
         run: |
-          make vue_test-coverage
+          make test
 
       - name: Upload nodejs coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           flags: nodejs
+          directory: frontend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -74,7 +74,8 @@ collectstatic: geticons
 .PHONY: test
 test: collectstatic
 	VARFISH_KIOSK_MODE=0 pipenv run coverage run manage.py test -v2 --settings=config.settings.test
-	coverage report
+	pipenv run coverage xml
+	pipenv run coverage report
 
 .PHONY: test-ci
 test-ci: test
