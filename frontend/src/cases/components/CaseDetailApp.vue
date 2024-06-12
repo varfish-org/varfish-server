@@ -463,7 +463,11 @@ const handleDestroyCaseClicked = async () => {
 watch(
   () => caseListStore.showInlineHelp,
   (newValue, oldValue) => {
-    if (newValue !== oldValue && caseListStore.csrfToken) {
+    if (
+      newValue !== undefined &&
+      newValue !== oldValue &&
+      caseListStore.csrfToken
+    ) {
       updateUserSetting(
         caseListStore.csrfToken,
         'vueapp.filtration_inline_help',
@@ -479,7 +483,11 @@ watch(
 watch(
   () => caseListStore.complexityMode,
   (newValue, oldValue) => {
-    if (newValue !== oldValue && caseListStore.csrfToken) {
+    if (
+      newValue !== undefined &&
+      newValue !== oldValue &&
+      caseListStore.csrfToken
+    ) {
       updateUserSetting(
         caseListStore.csrfToken,
         'vueapp.filtration_complexity_mode',
