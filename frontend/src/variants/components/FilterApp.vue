@@ -62,7 +62,7 @@ const toggleForm = () => {
 watch(
   () => variantQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (newValue !== undefined && newValue !== null && newValue !== oldValue) {
       updateUserSetting(
         appContext.csrf_token,
         'vueapp.filtration_inline_help',
@@ -75,7 +75,7 @@ watch(
 watch(
   () => variantQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
-    if (newValue !== null && newValue !== oldValue) {
+    if (newValue !== null && newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
         appContext.csrf_token,
         'vueapp.filtration_complexity_mode',
