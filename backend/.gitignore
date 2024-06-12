@@ -2,3 +2,5 @@
 /src/
 
 /celerybeat-schedule.*
+
+/VERSION

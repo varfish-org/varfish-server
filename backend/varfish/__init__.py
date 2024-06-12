@@ -8,8 +8,11 @@ import subprocess
 
 def _get_version():
     dirname = os.path.dirname(__file__)
-    with open(f"{dirname}/../VERSION", "rt") as inputf:
-        result = inputf.read().strip()
+    if os.path.exists(f"{dirname}/../VERSION"):
+        with open(f"{dirname}/../VERSION", "rt") as inputf:
+            result = inputf.read().strip()[1:]
+    else:
+        result = "0.0.0"
     if os.path.exists(".git"):
         try:
             result = subprocess.check_output(
