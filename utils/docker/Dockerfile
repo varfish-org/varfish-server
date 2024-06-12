@@ -188,7 +188,7 @@ RUN mkdir -p local-static/local/css && \
 COPY --from=python-docs /usr/src/app/docs/_build/html ./docs/_build/html
 
 # Copy in the built NodeJS files
-COPY --from=node-build /usr/src/app/frontend/static ./frontend/static
+COPY --from=node-build /usr/src/app/backend/varfish/static/vueapp/ ./frontend/static
 
 # Copy in the source code, includes VERSION file.
 COPY VERSION VERSION
