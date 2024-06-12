@@ -144,7 +144,7 @@ jobs:
           npm ci
           npm run build
           nohup npm run serve &
-        directory: frontend
+        working-directory: frontend
 
       - name: Setup environment with worker
         uses: mamba-org/setup-micromamba@v1
