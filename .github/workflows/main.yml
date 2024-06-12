@@ -124,16 +124,20 @@ jobs:
       - name: Install pip and Pipenv
         run: |
           pip install -U pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
         run: |
           pipenv install --verbose --categories=packages,dev-packages,ldap-packages
+        working-directory: backend
 
       - name: Download icons
         run: pipenv run python manage.py geticons
+        working-directory: backend
 
       - name: Run collectstatic
         run: pipenv run python manage.py collectstatic --noinput
+        working-directory: backend
 
       - name: Build Vue app as that can be tested via selenium.
         run: |
@@ -156,6 +160,7 @@ jobs:
           pipenv run coverage report
         # Important: use shell that was initialized by micromamba.
         shell: bash -el {0}
+        working-directory: backend
 
       - name: Upload Python coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -185,24 +190,29 @@ jobs:
 
       - name: Install pip and Pipenv
         run: |
-            pip install pip pipenv
+          pip install pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
         run: |
           pipenv install --categories=packages,dev-packages
+        working-directory: backend
 
       - name: Check import order with isort
         run: |
           rm -rf src
           pipenv run isort --force-sort-within-sections --profile=black --check .
+        working-directory: backend
 
       - name: Check style with black
         run: |
           pipenv run black --check --line-length 100 .
+        working-directory: backend
 
       - name: Run linting
         run: |
           pipenv run flake8
+        working-directory: backend
 
       - name: Check for OpenAPI schema changes.
         run: |
@@ -214,6 +224,7 @@ jobs:
             varfish/tests/drf_spectacular/varfish_api_schema.yaml \
             /tmp/varfish_api_schema.yaml
         shell: bash -euo pipefail {0}
+        working-directory: backend
 
   Node-Lint:
     runs-on: ubuntu-latest
