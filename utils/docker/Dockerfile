@@ -50,7 +50,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONFAULTHANDLER 1
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
+ENV CUSTOM_STATIC_DIR /usr/src/app/local-static,frontend/static
 
 WORKDIR /usr/src/app
 
@@ -199,8 +199,7 @@ RUN python manage.py geticons -c \
         mdi bi cil fa-regular fa-solid fluent gridicons octicon icon-park-outline
 
 # Prepare static files, including build NodeJS files.
-RUN CUSTOM_STATIC_DIR=frontend/static \
-    python manage.py collectstatic --no-input
+RUN python manage.py collectstatic --no-input
 
 # Clear the environment variables again.
 RUN unset DJANGO_SECRET_KEY; \
