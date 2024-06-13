@@ -7,6 +7,9 @@ VarFish User Manual
 VarFish is a system for the filtration of variants.
 Currently, the main focus is on small/sequence variants called from high-througput sequencing data (in contrast to structural variants).
 
+This is the documentation aimed at VarFish end users and operators (administrators).
+The development documentation can be found at `varfish-dev-docs.readthedocs.io <https://varfish-dev-docs.readthedocs.io/>`__.
+
 .. figure:: figures/varfish_home.png
     :alt: The VarFish home screen.
     :width: 80%
@@ -137,26 +140,6 @@ Currently, the main focus is on small/sequence variants called from high-througp
     api_case
     api_json_schemas
     api_beacon
-
-.. raw:: latex
-
-    \part{Developer's Manual}
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Developer's Manual
-    :name: developers_manual
-    :hidden:
-    :titlesonly:
-
-    developer_installation
-    developer_database
-    developer_development
-    developer_kiosk
-    developer_templates
-    developer_checklists
-    developer_data_builds
-    developer_tf
 
 .. raw:: latex
 
