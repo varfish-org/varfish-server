@@ -18,11 +18,11 @@
     "default": {
         "aiobotocore": {
             "hashes": [
-                "sha256:86737685f4625e8f05c4e7a608a07cc97607263279f66cf6b02b640c4eafd324",
-                "sha256:e2a2929207bc5d62eb556106c2224c1fd106d5c65be2eb69f15cc8c34c44c236"
+                "sha256:4badf5cab6ad400216319d14278e2c99ad9b708e28a0f231605a412e632de401",
+                "sha256:f812afc678d71b0038fd1ce712ff111ab7f47bab81ce5b4c7d222d4b83bc0cb2"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2.12.3"
+            "version": "==2.13.0"
         },
         "aiohttp": {
             "hashes": [
@@ -218,6 +218,7 @@
                 "sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.7'",
             "version": "==23.2.0"
         },
         "awesome-slugify": {
@@ -279,11 +280,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:d1ab2bff3c2fd51719c2021d9fa2f30fbb9ed0a308f69e9a774ac92c8091380a",
-                "sha256:d3802d076d4d507bf506f9845a6970ce43adc3d819dd57c2791f5c19ed6e5950"
+                "sha256:4baf0e27c2dfc4f4d0dee7c217c716e0782f9b30e8e1fff983fce237d88f73ae",
+                "sha256:921fa5202f88c3e58fdcb4b3acffd56d65b24bca47092ee4b27aa988556c0be6"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==1.34.69"
+            "version": "==1.34.106"
         },
         "cattrs": {
             "hashes": [
@@ -877,11 +878,11 @@
         },
         "fsspec": {
             "hashes": [
-                "sha256:918d18d41bf73f0e2b261824baeb1b124bcf771767e3a26425cd7dec3332f512",
-                "sha256:f39780e282d7d117ffb42bb96992f8a90795e4d0fb0f661a70ca39fe9c43ded9"
+                "sha256:58d7122eb8a1a46f7f13453187bfea4972d66bf01618d37366521b1998034cee",
+                "sha256:f579960a56e6d8038a9efc8f9c77279ec12e6299aa86b0769a7e9c46b94527c2"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2024.3.1"
+            "version": "==2024.6.0"
         },
         "greenlet": {
             "hashes": [
@@ -2223,11 +2224,12 @@
         },
         "s3fs": {
             "hashes": [
-                "sha256:1b8bc8dbd65e7b60f5487378f6eeffe1de59aa72caa9efca6dad6ab877405487",
-                "sha256:f4566a5446c473740d272ec08e0b4aae8db1aa05f662c42ff0aa2c89bb5060ea"
+                "sha256:8d5f591956a61c7d64097eff4847598826f09d60b4ce9a16202565693569f6d4",
+                "sha256:a59020ededc61e9666f1e473ce4aa28764e5f7b3c97414beb15cd9be522a87b6"
             ],
             "index": "pypi",
-            "version": "==2024.3.1"
+            "markers": "python_version >= '3.8'",
+            "version": "==2024.6.0"
         },
         "sentry-sdk": {
             "hashes": [
@@ -2702,6 +2704,7 @@
                 "sha256:ffa565331890b90056c01db69c0fe634a776f8019c143a5ae265f9c6bc4bd6d4"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.6'",
             "version": "==1.16.0"
         },
         "xlsxwriter": {
