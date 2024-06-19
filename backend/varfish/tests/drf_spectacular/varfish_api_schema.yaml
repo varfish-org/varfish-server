@@ -1800,6 +1800,58 @@ paths:
                 items:
                   $ref: '#/components/schemas/SvAnnotationReleaseInfo'
           description: ''
+  /genepanels/api/genepanel-category/list/:
+    get:
+      operationId: genepanels_api_genepanel_category_list_list
+      description: |-
+        List all ``GenePanelCategory`` entries with ``GenePanel``.
+
+        **URL:** ``/genepanels/api/gene-panel-category``
+
+        **Methods:** GET
+
+        **Returns:**
+      tags:
+      - genepanels
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenePanelCategory'
+          description: ''
+  /genepanels/api/lookup-genepanel/:
+    get:
+      operationId: genepanels_api_lookup_genepanel_retrieve
+      description: |-
+        Retrieve information about a gene panel.
+
+        **URL:** ``/genepanels/api/lookup-genepanel/``
+
+        **Methods:** GET
+
+        **Returns:**
+      tags:
+      - genepanels
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/GenePanel'
+          description: ''
   /importer/api/bam-qc-file/{caseimportinfo}/:
     get:
       operationId: importer_api_bam_qc_file_list
@@ -5277,32 +5329,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /variants/ajax/hpo-terms/:
-    get:
-      operationId: variants_ajax_hpo_terms_list
-      description: |-
-        A view that lists HPO terms based on a query string.
-        Also includes OMIM, ORPHAN and DECIPHER terms.
-
-        **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
-
-        **Methods:** See base API class.
-
-        **Returns:** See base API class.
-      tags:
-      - variants
-      security:
-      - cookieAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HpoTerm'
-          description: ''
   /variants/ajax/impactpresets/clone-factory-presets/{name}/:
     post:
       operationId: variants_ajax_impactpresets_clone_factory_presets_create
@@ -6224,37 +6250,6 @@ paths:
             application/vnd.bihealth.varfish+json:
               schema:
                 $ref: '#/components/schemas/ExportFileBgJob'
-          description: ''
-  /variants/ajax/query-case/hpo-terms/{smallvariantquery}/:
-    get:
-      operationId: variants_ajax_query_case_hpo_terms_retrieve
-      description: |-
-        Fetch HPO terms of a small variant query.
-
-        **URL:** ``/variants/ajax/query-case/hpo-terms/{query.sodar_uuid}``
-
-        **Methods:** See base API class.
-
-        **Parameters:** See base API class.
-
-        **Returns:** See base API class.
-      parameters:
-      - in: path
-        name: smallvariantquery
-        schema:
-          type: string
-          pattern: ^[0-9a-f-]+$
-        required: true
-      tags:
-      - variants
-      security:
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                $ref: '#/components/schemas/SmallVariantQueryHpoTerm'
           description: ''
   /variants/ajax/query-case/list/{case}/:
     get:
@@ -7664,34 +7659,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/ExtraAnnoField'
           description: ''
-  /variants/api/hpo-terms/:
-    get:
-      operationId: variants_api_hpo_terms_list
-      description: |-
-        A view that lists HPO terms based on a query string.
-        Also includes OMIM, ORPHAN and DECIPHER terms.
-
-        **URL:** ``/variants/api/hpo-terms/?query={string}/``
-
-        **Methods:** ``GET``
-
-        **Returns:** List of HPO terms that were found for that term, HPO id and name.
-      tags:
-      - variants
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HpoTerm'
-          description: ''
   /variants/api/project-settings/retrieve/{project}/:
     get:
       operationId: variants_api_project_settings_retrieve_retrieve
@@ -7781,37 +7748,6 @@ paths:
             application/vnd.bihealth.varfish+json:
               schema:
                 $ref: '#/components/schemas/ExportFileBgJob'
-          description: ''
-  /variants/api/query-case/hpo-terms/{smallvariantquery}/:
-    get:
-      operationId: variants_api_query_case_hpo_terms_retrieve
-      description: |-
-        Fetch HPO terms for small variant query.
-
-        **URL:** ``/variants/api/query-case/hpo-terms/{query.sodar_uuid}``
-
-        **Methods:** ``GET``
-
-        **Returns:**
-      parameters:
-      - in: path
-        name: smallvariantquery
-        schema:
-          type: string
-          pattern: ^[0-9a-f-]+$
-        required: true
-      tags:
-      - variants
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                $ref: '#/components/schemas/SmallVariantQueryHpoTerm'
           description: ''
   /variants/api/query-case/list/{case}/:
     get:
@@ -11206,6 +11142,81 @@ components:
       - label
       - presetset
       - sodar_uuid
+    GenePanel:
+      type: object
+      description: Serializer that serializes ``GenePanel``.
+      properties:
+        identifier:
+          type: string
+          readOnly: true
+          description: Identifier of the gene panel, e.g., 'osteoporosis.basic' or
+            'osteoporosis.extended'
+        state:
+          allOf:
+          - $ref: '#/components/schemas/GenePanelStateEnum'
+          readOnly: true
+          description: |-
+            State of teh gene panel version
+
+            * `draft` - draft
+            * `active` - active
+            * `retired` - retired
+        version_major:
+          type: integer
+          readOnly: true
+          default: 1
+          description: Major version of the gene panel (by identifier)
+        version_minor:
+          type: integer
+          readOnly: true
+          default: 1
+          description: Minor version of the gene panel (by identifier)
+        title:
+          type: string
+          readOnly: true
+          description: Title of the gene panel, only used for informative purposes
+        description:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Description of the panel
+      required:
+      - description
+      - identifier
+      - state
+      - title
+      - version_major
+      - version_minor
+    GenePanelCategory:
+      type: object
+      description: Serializer that serializes ``GenePanelCategory``.
+      properties:
+        title:
+          type: string
+          readOnly: true
+          description: Title of the category
+        description:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Optional description of the category
+        genepanel_set:
+          type: string
+          readOnly: true
+      required:
+      - description
+      - genepanel_set
+      - title
+    GenePanelStateEnum:
+      enum:
+      - draft
+      - active
+      - retired
+      type: string
+      description: |-
+        * `draft` - draft
+        * `active` - active
+        * `retired` - retired
     GenomeBuildVerbatimEnum:
       enum:
       - GRCh37
@@ -11265,17 +11276,6 @@ components:
       - md5
       - name
       - variant_set_import_info
-    HpoTerm:
-      type: object
-      description: Serializer for HPO terms.
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
     ImpactPresets:
       type: object
       description: Serializer for ``ImpactPresets``.
@@ -14288,13 +14288,6 @@ components:
       - query_settings
       - sodar_uuid
       - user
-    SmallVariantQueryHpoTerm:
-      type: object
-      description: Serializer for fetching HPO terms of a query.
-      properties:
-        hpoterms: {}
-      required:
-      - hpoterms
     SmallVariantQueryResultRow:
       type: object
       description: |-

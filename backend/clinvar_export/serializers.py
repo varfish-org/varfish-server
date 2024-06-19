@@ -6,7 +6,6 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import Serializer
 
-from geneinfo.models import Hgnc, Hpo, HpoName
 from variants.models import (
     AcmgCriteriaRating,
     Case,
@@ -32,16 +31,8 @@ from .models import (
 
 def resolve_term_id(term_id: str) -> Dict[Literal["term_id", "term_name"], str]:
     """Resolve phenotype/disease term ID ``term_id``."""
-    term_name = term_id
-    if term_id.startswith("HP"):
-        hpo_name = HpoName.objects.filter(hpo_id=term_id).first()
-        if hpo_name:
-            term_name = hpo_name.name
-    else:
-        res = Hpo.objects.filter(database_id=term_id).values("name").order_by("name").first()
-        if res:
-            term_name = res["name"]
-    return {"term_id": term_id, "term_name": term_name}
+    # Functionality removed
+    return {"term_id": term_id, "term_name": term_id}
 
 
 class WriteOnceMixin:
@@ -343,23 +334,7 @@ GENOMIC_COORDINATES = [
 
 
 class SmallVariantSerializer(SODARModelSerializer):
-    refseq_gene_symbol = SerializerMethodField()
-    ensembl_gene_symbol = SerializerMethodField()
     case_name = SerializerMethodField()
-
-    def get_refseq_gene_symbol(self, obj):
-        hgnc = Hgnc.objects.filter(entrez_id=obj.refseq_gene_id).first()
-        if hgnc:
-            return hgnc.symbol
-        else:
-            return None
-
-    def get_ensembl_gene_symbol(self, obj):
-        hgnc = Hgnc.objects.filter(ensembl_gene_id=obj.ensembl_gene_id).first()
-        if hgnc:
-            return hgnc.symbol
-        else:
-            return None
 
     def get_case_name(self, instance):
         case = Case.objects.get(id=instance.case_id)
@@ -375,7 +350,6 @@ class SmallVariantSerializer(SODARModelSerializer):
             "chromosome_no",
             "genotype",
             "refseq_gene_id",
-            "refseq_gene_symbol",
             "refseq_transcript_id",
             "refseq_transcript_coding",
             "refseq_hgvs_c",
@@ -383,7 +357,6 @@ class SmallVariantSerializer(SODARModelSerializer):
             "refseq_effect",
             "refseq_exon_dist",
             "ensembl_gene_id",
-            "ensembl_gene_symbol",
             "ensembl_transcript_id",
             "ensembl_transcript_coding",
             "ensembl_hgvs_c",

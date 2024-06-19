@@ -1,6 +1,7 @@
 import CaseDetailCardTerms from '@/cases/components/CaseDetail/CardTerms.vue'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
+import { setupUrlConfigForTesting } from '@bihealth/reev-frontend-lib/lib/urlConfig'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
@@ -15,6 +16,7 @@ describe('CaseDetailCardTerms.vue', () => {
   })
 
   beforeEach(() => {
+    setupUrlConfigForTesting()
     fetch.resetMocks()
     fetchMock.doMock()
   })

@@ -74,9 +74,6 @@ class FilterBase:
         for term in self.variant_query.query_settings.get("prio_hpo_terms", []) or []:
             if term.startswith("HP"):
                 hpo_terms.append(term)
-            else:
-                for t in Hpo.objects.filter(database_id=term):
-                    hpo_terms.append(t.hpo_id)
 
         hpo_terms = tuple(sorted(hpo_terms))
         entrez_ids = tuple(

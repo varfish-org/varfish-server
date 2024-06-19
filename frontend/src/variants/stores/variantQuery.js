@@ -8,6 +8,7 @@ import { previousQueryDetailsToQuerySettings } from '@/variants/stores/variantQu
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */
@@ -157,22 +158,23 @@ const fetchExtraAnnoFields = async (csrfToken) => {
 
 /** Helper that fetches the HPO terms.
  */
-const fetchHpoTerms = async (csrfToken, hpoTerms) => {
-  const variantClient = new VariantClient(csrfToken)
+const fetchHpoTerm = async (hpoTerms) => {
+  const vigunoClient = new VigunoClient()
   const _hpoNames = []
   for (const hpoTerm of hpoTerms) {
-    await variantClient.fetchHpoTerms(hpoTerm).then((res) => {
-      if (res.length === 0) {
+    vigunoClient.resolveHpoTermById(hpoTerm).then((res) => {
+      const result = res.result
+      if (result.length === 0) {
         console.warn("No term for HPO ID '" + hpoTerm + "' found")
       } else {
-        if (res.length > 1) {
+        if (result.length > 1) {
           console.warn(
             "Multiple terms for HPO ID '" +
               hpoTerm +
               "' found. Taking first one.",
           )
         }
-        _hpoNames.push(res[0].name)
+        _hpoNames.push(result[0].name)
       }
     })
   }
@@ -349,10 +351,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     exportJobUuidTsv.value = null
     exportJobUuidVcf.value = null
     exportJobUuidXlsx.value = null
-    hpoNames.value = await fetchHpoTerms(
-      csrfToken.value,
-      querySettings.value.prio_hpo_terms,
-    )
+    hpoNames.value = await fetchHpoTerm(querySettings.value.prio_hpo_terms)
     queryUuid.value = previousQueryDetails.value.sodar_uuid
     await nextTick()
     await runFetchLoop(previousQueryDetails.value.sodar_uuid)
@@ -583,10 +582,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
         // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
         .then(() => {
           if (querySettings.value?.prio_hpo_terms?.length > 0) {
-            hpoNames.value = fetchHpoTerms(
-              csrfToken.value,
-              querySettings.value.prio_hpo_terms,
-            )
+            hpoNames.value = fetchHpoTerm(querySettings.value.prio_hpo_terms)
           }
         }),
       // 3. fetch quick presets etc.

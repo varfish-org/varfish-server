@@ -7,7 +7,6 @@ from variants.views.api import (
     CaseListQcStatsApiView,
     CaseRetrieveApiView,
     ExtraAnnoFieldsApiView,
-    HpoTermsApiView,
     ProjectSettingsRetrieveApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
@@ -20,7 +19,6 @@ from variants.views.api import (
     SmallVariantQueryDownloadGenerateApiView,
     SmallVariantQueryDownloadServeApiView,
     SmallVariantQueryDownloadStatusApiView,
-    SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
     SmallVariantQueryListCreateApiView,
     SmallVariantQueryResultRowListApiView,
@@ -154,21 +152,6 @@ class SmallVariantQuerySettingsShortcutAjaxView(SmallVariantQuerySettingsShortcu
     """Generate query settings for a given case by certain shortcuts.
 
     **URL:** ``/variants/ajax/query-case/query-settings-shortcut/{case.uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryHpoTermsAjaxView(SmallVariantQueryHpoTermsApiView):
-    """Fetch HPO terms of a small variant query.
-
-    **URL:** ``/variants/ajax/query-case/hpo-terms/{query.sodar_uuid}``
 
     **Methods:** See base API class.
 
@@ -402,20 +385,6 @@ class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
     **Methods:** See base API class.
 
     **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class HpoTermsAjaxView(HpoTermsApiView):
-    """A view that lists HPO terms based on a query string.
-    Also includes OMIM, ORPHAN and DECIPHER terms.
-
-    **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
-
-    **Methods:** See base API class.
 
     **Returns:** See base API class.
     """

@@ -4,22 +4,15 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { displayName } from '@/varfish/helpers'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 
 const emit = defineEmits(['updateCasePhenotypeTermsClick'])
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
+const vigunoClient = new VigunoClient()
 
 const termLabels = reactive({})
-
-const props = defineProps({
-  apiEndpoint: {
-    type: String,
-    default: '/variants/ajax/hpo-terms/',
-  },
-  // eslint-disable-next-line vue/require-default-prop
-  csrfToken: String,
-})
 
 const allTerms = computed(() => {
   let result = []
@@ -32,27 +25,6 @@ const allTerms = computed(() => {
   return result
 })
 
-const fetchHpoTerms = async (query) => {
-  const queryArg = encodeURIComponent(query)
-  const response = await fetch(`${props.apiEndpoint}?query=${queryArg}`, {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-CSRFToken': props.csrfToken,
-  })
-  const results = await response.json()
-  const data = results.map(({ id, name }) => {
-    return {
-      label: `${id} - ${name}`,
-      value: {
-        term_id: id,
-        name,
-      },
-    }
-  })
-
-  return data
-}
-
 const fetchingTerms = ref(false)
 
 const fetchTermLabels = async (terms) => {
@@ -62,9 +34,16 @@ const fetchTermLabels = async (terms) => {
   fetchingTerms.value = true
   for (const term of terms || allTerms.value) {
     if (!termLabels[term]) {
-      const result = await fetchHpoTerms(term)
-      if (result.length) {
-        termLabels[term] = result[0].label
+      let results
+      if (query.startsWith('HP:')) {
+        results = await vigunoClient.resolveHpoTermById(term)
+      } else if (query.startsWith('OMIM:')) {
+        results = await vigunoClient.resolveOmimTermById(term)
+      } else {
+        results = await vigunoClient.queryHpoTermsByName(term)
+      }
+      if (results.length) {
+        termLabels[term] = results[0].label
       }
     }
   }

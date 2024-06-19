@@ -22,7 +22,7 @@ const props = defineProps({
   },
   lookupGenePanelApiEndpoint: {
     type: String,
-    default: '/geneinfo/api/lookup-genepanel/',
+    default: '/genepanels/api/lookup-genepanel/',
   },
 })
 
@@ -232,7 +232,7 @@ const isValidating = () => {
 
 const loadGenePanelCategories = async () => {
   loadingGenePanelCategories.value = true
-  await fetch('/geneinfo/api/genepanel-category/list/').then(
+  await fetch('/genepanels/api/genepanel-category/list/').then(
     async (response) => {
       genePanelCategories.value = await response.json()
       loadingGenePanelCategories.value = false
