@@ -58,7 +58,7 @@ ci: \
 
 .PHONY: build
 build:
-	MODE=development npm run build
+	NODE_OPTIONS="--max-old-space-size=32768" MODE=development npm run build
 
 .PHONY: serve
 serve:
