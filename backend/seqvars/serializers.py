@@ -1,5 +1,5 @@
-from rest_framework import generics, serializers
 from django_pydantic_field.rest_framework import SchemaField
+from rest_framework import generics, serializers
 
 from seqvars.models import DataSourceInfos, SeqvarResultRow, SeqvarResultRowPayload, SeqvarResultSet
 
@@ -9,12 +9,12 @@ class SeqvarResultRowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeqvarResultRow
-        fields = '__all__'
+        fields = "__all__"
 
 
 class SeqvarResultSetSerializer(serializers.ModelSerializer):
-    datasoruce_infos = SchemaField(schema=DataSourceInfos)
+    datasource_infos = SchemaField(schema=DataSourceInfos)
 
     class Meta:
         model = SeqvarResultSet
-        fields = '__all__'
+        fields = "__all__"

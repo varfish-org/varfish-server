@@ -55,7 +55,6 @@ universal-pathlib = "*"
 s3fs = "*"
 toml = "*"
 black = "*"
-drf-spectacular = {extras = ["sidecar"], version = "*"}
 rich = "*"
 
 [dev-packages]

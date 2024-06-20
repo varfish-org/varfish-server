@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class SeqmetaConfig(AppConfig):
+class SeqvarsConfig(AppConfig):
     name = "seqvars"

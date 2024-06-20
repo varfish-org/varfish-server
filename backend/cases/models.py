@@ -210,7 +210,7 @@ def write_id_mapping_json(
     )
 
 
-class _BaseModel(models.Model):
+class BaseModel(models.Model):
     """Base model with sodar_uuid and creation/update time."""
 
     #: UUID used in URLs.
@@ -220,11 +220,11 @@ class _BaseModel(models.Model):
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True)
 
-    class SeqvarMeta:
+    class Meta:
         abstract = True
 
 
-class CaseAnalysis(_BaseModel):
+class CaseAnalysis(BaseModel):
     """Analysis of a case (at most once for now)."""
 
     #: Title of the analysis.
@@ -238,12 +238,12 @@ class CaseAnalysis(_BaseModel):
     )
 
 
-class CaseAnalysisSession(_BaseModel):
+class CaseAnalysisSession(BaseModel):
     """A user session for a ``CaseAnalysis`` (at most one per user for now)."""
 
     #: The related ``CaseAnalysis``.
     caseanalysis = models.ForeignKey(
-        Case,
+        CaseAnalysis,
         on_delete=models.CASCADE,
     )
     #: The related ``User``.
@@ -254,4 +254,4 @@ class CaseAnalysisSession(_BaseModel):
 
     class Meta:
         # We constrain to one session per case analysis and user for now.
-        unique_together = [("case_analysis", "user")]
+        unique_together = [("caseanalysis", "user")]

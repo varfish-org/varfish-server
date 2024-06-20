@@ -4,8 +4,8 @@ import uuid as uuid_object
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-import pydantic
 from django_pydantic_field import SchemaField
+import pydantic
 
 from cases.models import CaseAnalysisSession
 from seqmeta.models import EnrichmentKit
@@ -16,7 +16,7 @@ from variants.models.projectroles import Project
 User = get_user_model()
 
 
-class _BaseModel(models.Model):
+class BaseModel(models.Model):
     """Base model with sodar_uuid and creation/update time."""
 
     #: UUID used in URLs.
@@ -26,11 +26,11 @@ class _BaseModel(models.Model):
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True)
 
-    class SeqvarMeta:
+    class Meta:
         abstract = True
 
 
-class SeqvarQueryPresetsSet(_BaseModel):
+class SeqvarQueryPresetsSet(BaseModel):
     """Configured presets for a given project."""
 
     #: The project that this preset set is for.
@@ -44,7 +44,7 @@ class SeqvarQueryPresetsSet(_BaseModel):
     description = models.TextField(null=True)
 
 
-class SeqvarPresetsBase(_BaseModel):
+class SeqvarPresetsBase(BaseModel):
     """Base presets."""
 
     #: An integer rank for manual sorting in UI.
@@ -54,59 +54,59 @@ class SeqvarPresetsBase(_BaseModel):
     #: Description of the presets.
     description = models.TextField(null=True)
 
-    class SeqvarMeta:
+    class Meta:
         abstract = True
 
 
-class SeqvarFrequencyPresets(SeqvarPresetsBase):
+class SeqvarPresetsFrequency(SeqvarPresetsBase):
     """Presets for frequency settings within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarConsequencePresets(SeqvarPresetsBase):
+class SeqvarPresetsConsequence(SeqvarPresetsBase):
     """Presets for consequence-related settings within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarLocusPresets(SeqvarPresetsBase):
+class SeqvarPresetsLocus(SeqvarPresetsBase):
     """Presets for locus-related settings within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarPhenotypePrioPresets(SeqvarPresetsBase):
+class SeqvarPresetsPhenotypePrio(SeqvarPresetsBase):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarVariantPrioPresets(SeqvarPresetsBase):
+class SeqvarPresetsVariantPrio(SeqvarPresetsBase):
     """Presets for variant pathogenicity--related settings within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarColumnPresets(SeqvarPresetsBase):
+class SeqvarPresetsColumns(SeqvarPresetsBase):
     """Presets for columns presets within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarMiscPresets(SeqvarPresetsBase):
+class SeqvarPresetsMisc(SeqvarPresetsBase):
     """Presets for miscellaneous presets within a ``QueryPresetsSet``."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarQuerySettings(_BaseModel):
+class SeqvarQuerySettings(BaseModel):
     """The query settings for a given query."""
 
     # TODO: JSON field with pydantic model
 
 
-class SeqvarQuery(_BaseModel):
+class SeqvarQuery(BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
 
     #: An integer rank for manual sorting in UI.
@@ -120,7 +120,7 @@ class SeqvarQuery(_BaseModel):
     settings_buffer = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
 
 
-class SeqvarQueryExecution(_BaseModel):
+class SeqvarQueryExecution(BaseModel):
     """Hold the state, query settings, and results for running one seqvar query."""
 
     #: Initial status.
@@ -178,7 +178,7 @@ class DataSourceInfos(pydantic.BaseModel):
     infos: list[DataSourceInfo]
 
 
-class SeqvarResultSet(_BaseModel):
+class SeqvarResultSet(BaseModel):
     """Store result rows and version information about the query."""
 
     #: The owning query execution.
@@ -187,7 +187,7 @@ class SeqvarResultSet(_BaseModel):
     result_row_count = models.IntegerField(null=False, blank=False)
     #: Information about the data sources and versions used in the query, backed by
     #: pydantic model ``DataSourceInfos``.
-    datasource_infos = SchemaField(schema=DataSourceInfos)
+    datasource_infos = SchemaField(schema=typing.Optional[DataSourceInfos])
 
 
 class SeqvarResultRowPayload(pydantic.BaseModel):
@@ -197,7 +197,7 @@ class SeqvarResultRowPayload(pydantic.BaseModel):
     foo: int
 
 
-class SeqvarResultRow(_BaseModel):
+class SeqvarResultRow(models.Model):
     """One entry in the result set."""
 
     #: UUID used in URLs.
@@ -223,4 +223,4 @@ class SeqvarResultRow(_BaseModel):
 
     #: The payload of the result row, backed by pydantic model
     #: ``SeqvarResultRowPayload``.
-    payload = SchemaField(schema=SeqvarResultRowPayload)
+    payload = SchemaField(schema=typing.Optional[SeqvarResultRowPayload])

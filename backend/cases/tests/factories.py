@@ -4,9 +4,9 @@ import factory
 
 from cases.models import CaseAnalysis, CaseAnalysisSession, Individual, Pedigree
 from seqmeta.tests.factories import EnrichmentKitFactory
+from varfish.users.tests.factories import UserFactory
 from variants.models import CaseAlignmentStats, PedigreeRelatedness
 from variants.tests.factories import CaseFactory, CaseVariantStatsFactory, SmallVariantSetFactory
-from varfish.users.tests.factories import UserFactory
 
 BAM_STATS_SAMPLE = {
     "bamstats": {

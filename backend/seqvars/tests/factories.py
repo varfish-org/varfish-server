@@ -1,8 +1,18 @@
 import datetime
+
 import factory
 
-from seqvars.models import DataSourceInfo, DataSourceInfos, SeqvarQuerySettings, SeqvarResultRow, SeqvarResultRowPayload, SeqvarResultSet, SeqvarQueryExecution, SeqvarQuery
 from cases.tests.factories import CaseAnalysisSessionFactory
+from seqvars.models import (
+    DataSourceInfo,
+    DataSourceInfos,
+    SeqvarQuery,
+    SeqvarQueryExecution,
+    SeqvarQuerySettings,
+    SeqvarResultRow,
+    SeqvarResultRowPayload,
+    SeqvarResultSet,
+)
 
 
 class _BaseFactory(factory.django.DjangoModelFactory):
@@ -26,7 +36,7 @@ class SeqvarQueryFactory(_BaseFactory):
     title = factory.Sequence(lambda n: f"query-{n}")
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    settings_buffer = factory.SubFactory()
+    settings_buffer = factory.SubFactory(SeqvarQuerySettingsFactory)
 
     class Meta:
         model = SeqvarQuery
@@ -63,8 +73,8 @@ class SeqvarResultSetFactory(_BaseFactory):
         return DataSourceInfos(
             infos=[
                 DataSourceInfo(
-                    name='fake-name',
-                    version='0.0.1',
+                    name="fake-name",
+                    version="0.0.1",
                 )
             ]
         )
@@ -89,9 +99,7 @@ class SeqvarResultRowFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def payload(self):
-        return SeqvarResultRowPayload(
-            foo=42
-        )
+        return SeqvarResultRowPayload(foo=42)
 
     class Meta:
         model = SeqvarResultRow

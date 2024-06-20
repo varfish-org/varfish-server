@@ -1153,9 +1153,7 @@ class CaseImportBackgroundJobExecutor:
         self._create_pedigree(case, family)
         return case
 
-    def _family_helper(
-        self, family: Family
-    ) -> typing.Tuple[
+    def _family_helper(self, family: Family) -> typing.Tuple[
         typing.Dict[str, str],
         typing.Dict[str, str],
         typing.Dict[str, str],
