@@ -210,8 +210,8 @@ def write_id_mapping_json(
     )
 
 
-class CaseAnalysis:
-    """Analysis of a case (at most once for now)."""
+class _BaseModel(models.Model):
+    """Base model with sodar_uuid and creation/update time."""
 
     #: UUID used in URLs.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
@@ -219,6 +219,13 @@ class CaseAnalysis:
     date_created = models.DateTimeField(auto_now_add=True)
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True)
+
+    class SeqvarMeta:
+        abstract = True
+
+
+class CaseAnalysis(_BaseModel):
+    """Analysis of a case (at most once for now)."""
 
     #: Title of the analysis.
     name = models.CharField(max_length=128)
@@ -231,15 +238,8 @@ class CaseAnalysis:
     )
 
 
-class CaseAnalysisSession:
+class CaseAnalysisSession(_BaseModel):
     """A user session for a ``CaseAnalysis`` (at most one per user for now)."""
-
-    #: UUID used in URLs.
-    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
-    #: DateTime of creation
-    date_created = models.DateTimeField(auto_now_add=True)
-    #: DateTime of last modification
-    date_modified = models.DateTimeField(auto_now=True)
 
     #: The related ``CaseAnalysis``.
     caseanalysis = models.ForeignKey(
@@ -253,5 +253,5 @@ class CaseAnalysisSession:
     )
 
     class Meta:
-        # constraint to one session per case analysis and user
+        # We constrain to one session per case analysis and user for now.
         unique_together = [("case_analysis", "user")]

@@ -13,7 +13,7 @@ from seqvars.models import (
     SeqvarQueryPresetsSet,
     SeqvarQuerySettings,
     SeqvarResultSet,
-    SeqvarResultSetRow,
+    SeqvarResultRow,
     SeqvarVariantPrioPresets,
 )
 

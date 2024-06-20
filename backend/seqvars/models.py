@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 import pydantic
+from django_pydantic_field import SchemaField
 
 from cases.models import CaseAnalysisSession
 from seqmeta.models import EnrichmentKit
@@ -186,13 +187,14 @@ class SeqvarResultSet(_BaseModel):
     result_row_count = models.IntegerField(null=False, blank=False)
     #: Information about the data sources and versions used in the query, backed by
     #: pydantic model ``DataSourceInfos``.
-    datasource_infos = JSONField(null=False)
+    datasource_infos = SchemaField(schema=DataSourceInfos)
 
 
 class SeqvarResultRowPayload(pydantic.BaseModel):
     """Payload for one result row of a seqvar query."""
 
     # TODO: implement me / infer from protobuf schema
+    foo: int
 
 
 class SeqvarResultRow(_BaseModel):
@@ -213,7 +215,7 @@ class SeqvarResultRow(_BaseModel):
     #: Variant coordinates - start position
     start = models.IntegerField()
     #: Variant coordinates - end position
-    end = models.IntegerField()
+    stop = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -221,4 +223,4 @@ class SeqvarResultRow(_BaseModel):
 
     #: The payload of the result row, backed by pydantic model
     #: ``SeqvarResultRowPayload``.
-    payload = JSONField(null=False)
+    payload = SchemaField(schema=SeqvarResultRowPayload)
