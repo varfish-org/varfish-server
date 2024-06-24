@@ -1,9 +1,8 @@
 import sys
+
 from django.db import transaction
 from django_pydantic_field.rest_framework import AutoSchema
-from projectroles.views_api import (
-    SODARAPIProjectPermission,
-)
+from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import CursorPagination
