@@ -126,6 +126,7 @@ LOCAL_APPS = [
     "beaconsite.apps.BeaconsiteConfig",
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
+    "cases_analysis.apps.CasesAnalysisConfig",
     "varannos.apps.VarannosConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
@@ -451,6 +452,9 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 
 # Varfish: Base
 # ------------------------------------------------------------------------------
+
+# Enable v2 API.
+VARFISH_GEN2_ANALYSIS = env.bool("VARFISH_GEN2_ANALYSIS", False)
 
 # Limit on number of cases to allow project/cohort wide queries for.
 VARFISH_MAX_CASE_QUERY_COUNT = env.int("VARFISH_MAX_CASE_QUERY_COUNT", 100)

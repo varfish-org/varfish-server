@@ -87,6 +87,9 @@ LOGGING = set_logging(LOGGING_LEVEL)
 # Varfish: REST Services
 # ------------------------------------------------------------------------------
 
+# Eanble v2 analysis
+VARFISH_GEN2_ANALYSIS = True
+
 # Disable all REST services for testing.
 
 VARFISH_ENABLE_CADD = False
