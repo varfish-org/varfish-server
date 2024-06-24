@@ -90,6 +90,13 @@ urlpatterns += [
     url(r"^cases-qc/", include("cases_qc.urls")),
 ]
 
+# Explicitely require v2 analysis endpoints to be enabled.
+if settings.VARFISH_GEN2_ANALYSIS:
+    urlpatterns += [
+        url(r"^cases-analysis/", include("cases_analysis.urls")),
+    ]
+
+
 # URL Patterns for Proxies
 # ------------------------------------------------------------------------------
 
