@@ -94,6 +94,7 @@ urlpatterns += [
 if settings.VARFISH_GEN2_ANALYSIS:
     urlpatterns += [
         url(r"^cases-analysis/", include("cases_analysis.urls")),
+        url(r"^seqvars/", include("seqvars.urls")),
     ]
 
 

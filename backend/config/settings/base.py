@@ -127,6 +127,7 @@ LOCAL_APPS = [
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
     "cases_analysis.apps.CasesAnalysisConfig",
+    "seqvars.apps.SeqvarsConfig",
     "varannos.apps.VarannosConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
