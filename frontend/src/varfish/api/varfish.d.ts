@@ -2473,6 +2473,102 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/cases/api/pedigree/{sodar_uuid}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow retrieval only of ``Pedigree`` record for a given case. */
+    get: operations['retrievePedigree']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cases/api/caseanalysis/{case}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description List the ``CaseAnalysis`` objects for the given case.
+     *
+     *     Implement the "create single case analysis on listing" logic. */
+    get: operations['listCaseAnalysis']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cases/api/caseanalysis/{case}/{caseanalysis}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow listing and retrieval of ``CaseAnalysis`` records for a given case.
+     *
+     *     As we only allow for one ``CaseAnalysis`` per case, we implicitely create one
+     *     when listing. */
+    get: operations['retrieveCaseAnalysis']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cases/api/caseanalysissession/{case}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description List the ``CaseAnalysisSession`` objects for the given case and current user.
+     *
+     *     Implement the "create single case analysis session on listing" logic. */
+    get: operations['listCaseAnalysisSessions']
+    put?: never
+    /** @description Allow retrieval only of ``CaseAnalysisSession`` record for current user. */
+    post: operations['createCaseAnalysisSession']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cases/api/caseanalysissession/{case}/{caseanalysissession}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow retrieval only of ``CaseAnalysisSession`` record for current user. */
+    get: operations['retrieveCaseAnalysisSession']
+    /** @description Allow retrieval only of ``CaseAnalysisSession`` record for current user. */
+    put: operations['updateCaseAnalysisSession']
+    post?: never
+    /** @description Allow retrieval only of ``CaseAnalysisSession`` record for current user. */
+    delete: operations['destroyCaseAnalysisSession']
+    options?: never
+    head?: never
+    /** @description Allow retrieval only of ``CaseAnalysisSession`` record for current user. */
+    patch: operations['partialUpdateCaseAnalysisSession']
+    trace?: never
+  }
   '/varannos/api/varannoset/list-create/{project}/': {
     parameters: {
       query?: never
@@ -2655,6 +2751,466 @@ export interface paths {
     options?: never
     head?: never
     patch: operations['partialUpdateSeqvarResultSet']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsset/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarQueryPresetsSets']
+    put?: never
+    post: operations['createSeqvarQueryPresetsSet']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsset/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarQueryPresetsSet']
+    put: operations['updateSeqvarQueryPresetsSet']
+    post?: never
+    delete: operations['destroySeqvarQueryPresetsSet']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarQueryPresetsSet']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsfrequency/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsFrequencys']
+    put?: never
+    post: operations['createSeqvarPresetsFrequency']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsfrequency/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsFrequency']
+    put: operations['updateSeqvarPresetsFrequency']
+    post?: never
+    delete: operations['destroySeqvarPresetsFrequency']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsFrequency']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsconsequence/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsConsequences']
+    put?: never
+    post: operations['createSeqvarPresetsConsequence']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsconsequence/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsConsequence']
+    put: operations['updateSeqvarPresetsConsequence']
+    post?: never
+    delete: operations['destroySeqvarPresetsConsequence']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsConsequence']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetslocus/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsLocus']
+    put?: never
+    post: operations['createSeqvarPresetsLocus']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetslocus/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsLocus']
+    put: operations['updateSeqvarPresetsLocus']
+    post?: never
+    delete: operations['destroySeqvarPresetsLocus']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsLocus']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsphenotypeprio/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsPhenotypePrios']
+    put?: never
+    post: operations['createSeqvarPresetsPhenotypePrio']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsphenotypeprio/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsPhenotypePrio']
+    put: operations['updateSeqvarPresetsPhenotypePrio']
+    post?: never
+    delete: operations['destroySeqvarPresetsPhenotypePrio']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsPhenotypePrio']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsvariantprio/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsVariantPrios']
+    put?: never
+    post: operations['createSeqvarPresetsVariantPrio']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsvariantprio/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsVariantPrio']
+    put: operations['updateSeqvarPresetsVariantPrio']
+    post?: never
+    delete: operations['destroySeqvarPresetsVariantPrio']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsVariantPrio']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetscolumns/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsColumns']
+    put?: never
+    post: operations['createSeqvarPresetsColumns']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetscolumns/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsColumns']
+    put: operations['updateSeqvarPresetsColumns']
+    post?: never
+    delete: operations['destroySeqvarPresetsColumns']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsColumns']
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsmisc/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarPresetsMiscs']
+    put?: never
+    post: operations['createSeqvarPresetsMisc']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarpresetsmisc/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarPresetsMisc']
+    put: operations['updateSeqvarPresetsMisc']
+    post?: never
+    delete: operations['destroySeqvarPresetsMisc']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarPresetsMisc']
+    trace?: never
+  }
+  '/seqvars/api/seqvarquerysettings/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarQuerySettings']
+    put?: never
+    post: operations['createSeqvarQuerySettings']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarquerysettings/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarQuerySettings']
+    put: operations['updateSeqvarQuerySettings']
+    post?: never
+    delete: operations['destroySeqvarQuerySettings']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarQuerySettings']
+    trace?: never
+  }
+  '/seqvars/api/seqvarquery/{caseanalysissession}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow CRUD of the user's queries. */
+    get: operations['listSeqvarQuerys']
+    put?: never
+    /** @description Allow CRUD of the user's queries. */
+    post: operations['createSeqvarQuery']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarquery/{caseanalysissession}/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow CRUD of the user's queries. */
+    get: operations['retrieveSeqvarQuery']
+    /** @description Allow CRUD of the user's queries. */
+    put: operations['updateSeqvarQuery']
+    post?: never
+    /** @description Allow CRUD of the user's queries. */
+    delete: operations['destroySeqvarQuery']
+    options?: never
+    head?: never
+    /** @description Allow CRUD of the user's queries. */
+    patch: operations['partialUpdateSeqvarQuery']
+    trace?: never
+  }
+  '/seqvars/api/seqvarqueryexecution/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarQueryExecutions']
+    put?: never
+    post: operations['createSeqvarQueryExecution']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarqueryexecution/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarQueryExecution']
+    put: operations['updateSeqvarQueryExecution']
+    post?: never
+    delete: operations['destroySeqvarQueryExecution']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarQueryExecution']
+    trace?: never
+  }
+  '/seqvars/api/seqvarquery/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow CRUD of the user's queries. */
+    get: operations['listSeqvarQuerys']
+    put?: never
+    /** @description Allow CRUD of the user's queries. */
+    post: operations['createSeqvarQuery']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarquery/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Allow CRUD of the user's queries. */
+    get: operations['retrieveSeqvarQuery']
+    /** @description Allow CRUD of the user's queries. */
+    put: operations['updateSeqvarQuery']
+    post?: never
+    /** @description Allow CRUD of the user's queries. */
+    delete: operations['destroySeqvarQuery']
+    options?: never
+    head?: never
+    /** @description Allow CRUD of the user's queries. */
+    patch: operations['partialUpdateSeqvarQuery']
+    trace?: never
+  }
+  '/seqvars/api/seqvarresultset/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarResultSets']
+    put?: never
+    post: operations['createSeqvarResultSet']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarresultset/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarResultSet']
+    put: operations['updateSeqvarResultSet']
+    post?: never
+    delete: operations['destroySeqvarResultSet']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarResultSet']
+    trace?: never
+  }
+  '/seqvars/api/seqvarresultrow/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['listSeqvarResultRows']
+    put?: never
+    post: operations['createSeqvarResultRow']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/seqvars/api/seqvarresultrow/{id}/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['retrieveSeqvarResultRow']
+    put: operations['updateSeqvarResultRow']
+    post?: never
+    delete: operations['destroySeqvarResultRow']
+    options?: never
+    head?: never
+    patch: operations['partialUpdateSeqvarResultRow']
     trace?: never
   }
   '/cases-import/api/case-import-action/list-create/{project}/': {
@@ -4827,6 +5383,92 @@ export interface components {
       readonly timestamp?: string
       readonly release?: string
     }
+    Pedigree: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly case?: string
+      readonly individual_set?: {
+        /** Format: uuid */
+        readonly sodar_uuid?: string
+        /** Format: date-time */
+        readonly date_created?: string
+        /** Format: date-time */
+        readonly date_modified?: string
+        readonly pedigree?: string
+        readonly case?: string
+        readonly name?: string
+        readonly father?: string | null
+        readonly mother?: string | null
+        readonly affected?: boolean
+        /** @enum {string} */
+        readonly sex?: 'unknown' | 'male' | 'female' | 'other'
+        /** @enum {string} */
+        readonly karyotypic_sex?:
+          | 'unknown'
+          | 'XX'
+          | 'XY'
+          | 'XO'
+          | 'XXY'
+          | 'XXX'
+          | 'XXYY'
+          | 'XXXY'
+          | 'XXXX'
+          | 'XYY'
+          | 'other'
+        /** @enum {string|null} */
+        readonly assay?: 'panel_seq' | 'wes' | 'wgs' | null
+        readonly enrichmentkit?: string
+        readonly disease_set?: {
+          /** Format: uuid */
+          readonly sodar_uuid?: string
+          /** Format: date-time */
+          readonly date_created?: string
+          /** Format: date-time */
+          readonly date_modified?: string
+          readonly individual?: string
+          readonly term_id?: string
+          readonly term_label?: string
+          readonly excluded?: boolean
+        }[]
+        readonly phenotypicfeature_set?: {
+          /** Format: uuid */
+          readonly sodar_uuid?: string
+          /** Format: date-time */
+          readonly date_created?: string
+          /** Format: date-time */
+          readonly date_modified?: string
+          readonly individual?: string
+          readonly term_id?: string
+          readonly term_label?: string
+          readonly excluded?: boolean
+        }[]
+      }[]
+    }
+    CaseAnalysis: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly case?: string
+      readonly name?: string
+    }
+    CaseAnalysisSession: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly caseanalysis?: string
+      readonly case?: string
+      readonly user?: string
+    }
     VarAnnoSet: {
       readonly sodar_uuid?: string
       /**
@@ -4916,16 +5558,14 @@ export interface components {
       genome_release: 'grch37' | 'grch38'
     }
     SeqvarResultSet: {
-      readonly id?: number
-      datasource_infos: components['schemas']['DataSourceInfos']
       /** Format: uuid */
-      sodar_uuid?: string
+      readonly sodar_uuid?: string
       /** Format: date-time */
       readonly date_created?: string
       /** Format: date-time */
       readonly date_modified?: string
-      result_row_count: number
-      queryexecution: number
+      readonly queryexecution?: string
+      datasource_infos: components['schemas']['DataSourceInfos']
     }
     /**
      * DataSourceInfo
@@ -4944,6 +5584,161 @@ export interface components {
     DataSourceInfos: {
       /** Infos */
       infos: components['schemas']['DataSourceInfo'][]
+    }
+    SeqvarQueryPresetsSet: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+      readonly project?: string
+    }
+    SeqvarPresetsFrequency: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsConsequence: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsLocus: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsPhenotypePrio: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsVariantPrio: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsColumns: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarPresetsMisc: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      readonly rank?: number
+      readonly title?: string
+      readonly description?: string | null
+    }
+    SeqvarQuerySettings: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+    }
+    SeqvarQuery: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      /** @default 1 */
+      rank: number
+      title: string
+      readonly session?: string
+      readonly settings_buffer?: string
+    }
+    SeqvarQueryExecution: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      /** Format: date-time */
+      readonly date_created?: string
+      /** Format: date-time */
+      readonly date_modified?: string
+      /** @enum {string} */
+      readonly state?:
+        | 'initial'
+        | 'queued'
+        | 'running'
+        | 'failed'
+        | 'canceled'
+        | 'done'
+      readonly complete_percent?: number | null
+      /** Format: date-time */
+      readonly start_time?: string | null
+      /** Format: date-time */
+      readonly end_time?: string | null
+      readonly elapsed_seconds?: number | null
+      readonly query?: string
+      readonly querysettings?: string
+    }
+    SeqvarResultRow: {
+      /** Format: uuid */
+      readonly sodar_uuid?: string
+      readonly resultset?: string
+      readonly release?: string
+      readonly chromosome?: string
+      readonly chromosome_no?: number
+      readonly start?: number
+      readonly stop?: number
+      readonly reference?: string
+      readonly alternative?: string
+      payload: components['schemas']['SeqvarResultRowPayload']
+    }
+    /**
+     * SeqvarResultRowPayload
+     * @description Payload for one result row of a seqvar query.
+     */
+    SeqvarResultRowPayload: {
+      /** Foo */
+      foo: number
     }
     CaseImportAction: {
       readonly sodar_uuid?: string
@@ -8652,6 +9447,234 @@ export interface operations {
       }
     }
   }
+  retrievePedigree: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sodar_uuid: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listCaseAnalysis: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path: {
+        case: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveCaseAnalysis: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+        caseanalysis: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listCaseAnalysisSessions: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path: {
+        case: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createCaseAnalysisSession: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CaseAnalysisSession']
+        'application/x-www-form-urlencoded': components['schemas']['CaseAnalysisSession']
+        'multipart/form-data': components['schemas']['CaseAnalysisSession']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveCaseAnalysisSession: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateCaseAnalysisSession: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CaseAnalysisSession']
+        'application/x-www-form-urlencoded': components['schemas']['CaseAnalysisSession']
+        'multipart/form-data': components['schemas']['CaseAnalysisSession']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroyCaseAnalysisSession: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateCaseAnalysisSession: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        case: string
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CaseAnalysisSession']
+        'application/x-www-form-urlencoded': components['schemas']['CaseAnalysisSession']
+        'multipart/form-data': components['schemas']['CaseAnalysisSession']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
   retrieveVarAnnoSet: {
     parameters: {
       query?: never
@@ -9218,7 +10241,12 @@ export interface operations {
   }
   listSeqvarResultSets: {
     parameters: {
-      query?: never
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
       header?: never
       path?: never
       cookie?: never
@@ -9349,6 +10377,2134 @@ export interface operations {
         'application/json': components['schemas']['SeqvarResultSet']
         'application/x-www-form-urlencoded': components['schemas']['SeqvarResultSet']
         'multipart/form-data': components['schemas']['SeqvarResultSet']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarQueryPresetsSets: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarQueryPresetsSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryPresetsSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryPresetsSet']
+        'multipart/form-data': components['schemas']['SeqvarQueryPresetsSet']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarQueryPresetsSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query presets set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarQueryPresetsSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query presets set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryPresetsSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryPresetsSet']
+        'multipart/form-data': components['schemas']['SeqvarQueryPresetsSet']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarQueryPresetsSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query presets set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarQueryPresetsSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query presets set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryPresetsSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryPresetsSet']
+        'multipart/form-data': components['schemas']['SeqvarQueryPresetsSet']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsFrequencys: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsFrequency: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsFrequency']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsFrequency']
+        'multipart/form-data': components['schemas']['SeqvarPresetsFrequency']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsFrequency: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets frequency. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsFrequency: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets frequency. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsFrequency']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsFrequency']
+        'multipart/form-data': components['schemas']['SeqvarPresetsFrequency']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsFrequency: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets frequency. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsFrequency: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets frequency. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsFrequency']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsFrequency']
+        'multipart/form-data': components['schemas']['SeqvarPresetsFrequency']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsConsequences: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsConsequence: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsConsequence']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsConsequence']
+        'multipart/form-data': components['schemas']['SeqvarPresetsConsequence']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsConsequence: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets consequence. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsConsequence: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets consequence. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsConsequence']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsConsequence']
+        'multipart/form-data': components['schemas']['SeqvarPresetsConsequence']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsConsequence: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets consequence. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsConsequence: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets consequence. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsConsequence']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsConsequence']
+        'multipart/form-data': components['schemas']['SeqvarPresetsConsequence']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsLocus: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsLocus: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsLocus']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsLocus']
+        'multipart/form-data': components['schemas']['SeqvarPresetsLocus']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsLocus: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets locus. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsLocus: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets locus. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsLocus']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsLocus']
+        'multipart/form-data': components['schemas']['SeqvarPresetsLocus']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsLocus: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets locus. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsLocus: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets locus. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsLocus']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsLocus']
+        'multipart/form-data': components['schemas']['SeqvarPresetsLocus']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsPhenotypePrios: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsPhenotypePrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsPhenotypePrio']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsPhenotypePrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets phenotype prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsPhenotypePrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets phenotype prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsPhenotypePrio']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsPhenotypePrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets phenotype prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsPhenotypePrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets phenotype prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsPhenotypePrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsPhenotypePrio']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsVariantPrios: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsVariantPrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsVariantPrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsVariantPrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsVariantPrio']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsVariantPrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets variant prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsVariantPrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets variant prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsVariantPrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsVariantPrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsVariantPrio']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsVariantPrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets variant prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsVariantPrio: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets variant prio. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsVariantPrio']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsVariantPrio']
+        'multipart/form-data': components['schemas']['SeqvarPresetsVariantPrio']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsColumns: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsColumns: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsColumns']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsColumns']
+        'multipart/form-data': components['schemas']['SeqvarPresetsColumns']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsColumns: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets columns. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsColumns: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets columns. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsColumns']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsColumns']
+        'multipart/form-data': components['schemas']['SeqvarPresetsColumns']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsColumns: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets columns. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsColumns: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets columns. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsColumns']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsColumns']
+        'multipart/form-data': components['schemas']['SeqvarPresetsColumns']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarPresetsMiscs: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarPresetsMisc: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsMisc']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsMisc']
+        'multipart/form-data': components['schemas']['SeqvarPresetsMisc']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarPresetsMisc: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets misc. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarPresetsMisc: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets misc. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsMisc']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsMisc']
+        'multipart/form-data': components['schemas']['SeqvarPresetsMisc']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarPresetsMisc: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets misc. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarPresetsMisc: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar presets misc. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarPresetsMisc']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarPresetsMisc']
+        'multipart/form-data': components['schemas']['SeqvarPresetsMisc']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarQuerySettings: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarQuerySettings: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuerySettings']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuerySettings']
+        'multipart/form-data': components['schemas']['SeqvarQuerySettings']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarQuerySettings: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query settings. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarQuerySettings: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query settings. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuerySettings']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuerySettings']
+        'multipart/form-data': components['schemas']['SeqvarQuerySettings']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarQuerySettings: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query settings. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarQuerySettings: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query settings. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuerySettings']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuerySettings']
+        'multipart/form-data': components['schemas']['SeqvarQuerySettings']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarQuerys: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path: {
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        caseanalysissession: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        caseanalysissession: string
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        caseanalysissession: string
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        caseanalysissession: string
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        caseanalysissession: string
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarQueryExecutions: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarQueryExecution: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryExecution']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryExecution']
+        'multipart/form-data': components['schemas']['SeqvarQueryExecution']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarQueryExecution: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query execution. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarQueryExecution: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query execution. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryExecution']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryExecution']
+        'multipart/form-data': components['schemas']['SeqvarQueryExecution']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarQueryExecution: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query execution. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarQueryExecution: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar query execution. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQueryExecution']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQueryExecution']
+        'multipart/form-data': components['schemas']['SeqvarQueryExecution']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarQuerys: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarQuery: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarQuery']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarQuery']
+        'multipart/form-data': components['schemas']['SeqvarQuery']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarResultSets: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarResultSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultSet']
+        'multipart/form-data': components['schemas']['SeqvarResultSet']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarResultSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarResultSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultSet']
+        'multipart/form-data': components['schemas']['SeqvarResultSet']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarResultSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarResultSet: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result set. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultSet']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultSet']
+        'multipart/form-data': components['schemas']['SeqvarResultSet']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  listSeqvarResultRows: {
+    parameters: {
+      query?: {
+        /** @description The pagination cursor value. */
+        cursor?: string
+        /** @description Number of results to return per page. */
+        page_size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  createSeqvarResultRow: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultRow']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultRow']
+        'multipart/form-data': components['schemas']['SeqvarResultRow']
+      }
+    }
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  retrieveSeqvarResultRow: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result row. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  updateSeqvarResultRow: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result row. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultRow']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultRow']
+        'multipart/form-data': components['schemas']['SeqvarResultRow']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+          'text/html': unknown
+        }
+      }
+    }
+  }
+  destroySeqvarResultRow: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result row. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  partialUpdateSeqvarResultRow: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description A unique integer value identifying this seqvar result row. */
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['SeqvarResultRow']
+        'application/x-www-form-urlencoded': components['schemas']['SeqvarResultRow']
+        'multipart/form-data': components['schemas']['SeqvarResultRow']
       }
     }
     responses: {
