@@ -2,8 +2,9 @@ import datetime
 
 import factory
 
-from cases.models import Individual, Pedigree
+from cases.models import CaseAnalysis, CaseAnalysisSession, Individual, Pedigree
 from seqmeta.tests.factories import EnrichmentKitFactory
+from varfish.users.tests.factories import UserFactory
 from variants.models import CaseAlignmentStats, PedigreeRelatedness
 from variants.tests.factories import CaseFactory, CaseVariantStatsFactory, SmallVariantSetFactory
 
@@ -146,3 +147,27 @@ class IndividualFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Individual
+
+
+class CaseAnalysisFactory(factory.django.DjangoModelFactory):
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    name = factory.Sequence(lambda n: f"case-analysis-{n}")
+    case = factory.SubFactory(CaseFactory)
+
+    class Meta:
+        model = CaseAnalysis
+
+
+class CaseAnalysisSessionFactory(factory.django.DjangoModelFactory):
+    sodar_uuid = factory.Faker("uuid4")
+    date_created = factory.LazyFunction(datetime.datetime.now)
+    date_modified = factory.LazyFunction(datetime.datetime.now)
+
+    caseanalysis = factory.SubFactory(CaseAnalysisFactory)
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = CaseAnalysisSession

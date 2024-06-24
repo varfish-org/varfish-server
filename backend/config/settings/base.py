@@ -91,9 +91,6 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
-    # DRF spectacular with sidecar so it does not depend on internet access
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -102,34 +99,35 @@ LOCAL_APPS = [
     "varfish.users.apps.UsersConfig",
     "varfish.vueapp.apps.VueappConfig",
     # Your stuff: custom apps go here
+    "beaconsite.apps.BeaconsiteConfig",
+    "bgjobs.apps.BgjobsConfig",
+    "cases.apps.CasesConfig",
+    "cases_files.apps.CasesFilesConfig",
+    "cases_import.apps.CasesImportConfig",
+    "cases_qc.apps.CasesQcConfig",
     "clinvar.apps.ClinvarConfig",
     "clinvar_export.apps.ClinvarExportConfig",
     "cohorts.apps.CohortsConfig",
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
+    "extra_annos.apps.ExtraAnnosConfig",
     "frequencies.apps.FrequenciesConfig",
     "geneinfo.apps.GeneinfoConfig",
-    "importer.apps.ImporterConfig",
+    "genepanels.apps.GenepanelsConfig",
     "genomicfeatures.apps.GenomicFeaturesConfig",
+    "importer.apps.ImporterConfig",
+    "maintenance.apps.MaintenanceConfig",
     "pathways.apps.PathwaysConfig",
-    "variants.apps.VariantsConfig",
-    "bgjobs.apps.BgjobsConfig",
-    "var_stats_qc.apps.VarStatsQcConfig",
-    "templatetags.apps.TemplatetagsConfig",
+    "regmaps.apps.RegmapsConfig",
     "seqmeta.apps.SeqmetaConfig",
-    "cases_import.apps.CasesImportConfig",
-    "cases_files.apps.CasesFilesConfig",
-    "cases_qc.apps.CasesQcConfig",
+    "seqvars.apps.SeqvarsConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
-    "extra_annos.apps.ExtraAnnosConfig",
+    "templatetags.apps.TemplatetagsConfig",
     "tokens.apps.TokensConfig",
-    "maintenance.apps.MaintenanceConfig",
-    "regmaps.apps.RegmapsConfig",
-    "beaconsite.apps.BeaconsiteConfig",
-    "genepanels.apps.GenepanelsConfig",
-    "cases.apps.CasesConfig",
     "varannos.apps.VarannosConfig",
+    "variants.apps.VariantsConfig",
+    "var_stats_qc.apps.VarStatsQcConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
 ]
@@ -662,30 +660,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
-
-SPECTACULAR_SETTINGS = {
-    # Basic Settings
-    "TITLE": "VarFish",
-    "DESCRIPTION": "VarFish API",
-    "VERSION": varfish_version,
-    "SERVE_INCLUDE_SCHEMA": False,
-    # Skip schema generation for some paths.
-    "PREPROCESSING_HOOKS": [
-        "varfish.utils.spectacular_preprocess_hook",
-    ],
-    # We add some explicit choices naming to work around warning.
-    "ENUM_NAME_OVERRIDES": {
-        "VariantRatingEnum": "variants.models.userannos.VARIANT_RATING_CHOICES",
-        "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
-        "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
-        "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
-    },
-    # Sidecar Settings
-    "SWAGGER_UI_DIST": "SIDECAR",
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
-    "REDOC_DIST": "SIDECAR",
 }
 
 # Logging

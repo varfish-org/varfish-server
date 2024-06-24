@@ -3,6 +3,14 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from cases.models import (
+    CaseAnalysis,
+    CaseAnalysisSession,
+    Disease,
+    Individual,
+    Pedigree,
+    PhenotypicFeature,
+)
 from cases_qc.models import CaseQc
 from cases_qc.serializers import CaseQcSerializer
 from svs.serializers import SvQueryResultSetSerializer
@@ -227,4 +235,137 @@ class PedigreeRelatednessSerializer(serializers.ModelSerializer):
             "n_ibs2",
             "relatedness",
         )
+        read_only_fields = fields
+
+
+class BaseSerializer(serializers.ModelSerializer):
+    """Base serializer for models with sodar_uuid and creation/update time."""
+
+    class Meta:
+        fields = [
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+        ]
+
+
+class TermCoreSerializer(BaseSerializer):
+    """Serializer for ``TermCore``.
+
+    Not used directly but as a base class for ``DiseaseSerializer`` and ``PhenotypicFeatureSerializer``.
+    """
+
+    #: Serialize ``individual`` as its ``sodar_uuid``.
+    individual = serializers.ReadOnlyField(source="individual.sodar_uuid")
+
+    class Meta:
+        fields = BaseSerializer.Meta.fields + [
+            "individual",
+            "term_id",
+            "term_label",
+            "excluded",
+        ]
+        read_only_fields = fields
+
+
+class DiseaseSerializer(TermCoreSerializer):
+    """Serializer for ``Disease``."""
+
+    class Meta:
+        model = Disease
+        fields = TermCoreSerializer.Meta.fields
+        read_only_fields = TermCoreSerializer.Meta.read_only_fields
+
+
+class PhenotypicFeatureSerializer(TermCoreSerializer):
+    """Serializer for ``PhenotypicFeature``."""
+
+    class Meta:
+        model = PhenotypicFeature
+        fields = TermCoreSerializer.Meta.fields
+        read_only_fields = TermCoreSerializer.Meta.read_only_fields
+
+
+class IndividualSerializer(BaseSerializer):
+    """Serializer for ``Individual``."""
+
+    #: Serialize ``pedigree`` as its ``sodar_uuid``.
+    pedigree = serializers.ReadOnlyField(source="pedigree.sodar_uuid")
+    #: Serialize ``case`` as its ``sodar_uuid`` (via ``pedigree``).
+    case = serializers.ReadOnlyField(source="pedigree.case.sodar_uuid")
+    #: Serialize ``enrichmentkit`` as its ``sodar_uuid``.
+    enrichmentkit = serializers.ReadOnlyField(source="enrichmentkit.sodar_uuid")
+    #: Serialize diseases.
+    disease_set = DiseaseSerializer(many=True, read_only=True)
+    #: Serialize phenotypic features.
+    phenotypicfeature_set = PhenotypicFeatureSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Individual
+        fields = BaseSerializer.Meta.fields + [
+            "pedigree",
+            "case",
+            "name",
+            "father",
+            "mother",
+            "affected",
+            "sex",
+            "karyotypic_sex",
+            "assay",
+            "enrichmentkit",
+            "disease_set",
+            "phenotypicfeature_set",
+        ]
+        read_only_fields = fields
+
+
+class PedigreeSerializer(BaseSerializer):
+    """Serializer for ``Pedigree``."""
+
+    #: Serialize ``case`` as its ``sodar_uuid``.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+    #: Serialize the individuals from the pedigree.
+    individual_set = IndividualSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Pedigree
+        fields = BaseSerializer.Meta.fields + [
+            "case",
+            "individual_set",
+        ]
+        read_only_fields = fields
+
+
+class CaseAnalysisSerializer(BaseSerializer):
+    """Serializer for ``CaseAnalysis``."""
+
+    #: Serialize ``case`` as its ``sodar_uuid``.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+
+    class Meta:
+        model = CaseAnalysis
+        fields = BaseSerializer.Meta.fields + [
+            "case",
+            "name",
+        ]
+        read_only_fields = fields
+
+
+class CaseAnalysisSessionSerializer(BaseSerializer):
+    """Serializer for ``CaseAnalysisSession``."""
+
+    #: Serialize ``caseanalysis`` as its ``sodar_uuid``.
+    caseanalysis = serializers.ReadOnlyField(source="caseanalysis.sodar_uuid")
+    #: Serialize ``case`` as its ``sodar_uuid`` (via ``caseanalysis``)
+    case = serializers.ReadOnlyField(source="caseanalysis.case.sodar_uuid")
+    #: Serialize ``user`` as its ``sodar_uuid``.
+    user = serializers.ReadOnlyField(source="user.sodar_uuid")
+
+    class Meta:
+        model = CaseAnalysisSession
+        fields = BaseSerializer.Meta.fields + [
+            "caseanalysis",
+            "case",
+            "user",
+        ]
         read_only_fields = fields

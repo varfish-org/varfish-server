@@ -85,6 +85,7 @@ urlpatterns += [
     url(r"^cases/", include("cases.urls")),
     url(r"^varannos/", include("varannos.urls")),
     url(r"^seqmeta/", include("seqmeta.urls")),
+    url(r"^seqvars/", include("seqvars.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
 ]
