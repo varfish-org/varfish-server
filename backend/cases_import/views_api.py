@@ -1,3 +1,4 @@
+import sys
 import typing
 
 from django.db import transaction
@@ -29,6 +30,8 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["project"] = self.get_project(request=self.request)
         return result
 

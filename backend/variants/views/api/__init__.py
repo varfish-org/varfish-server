@@ -2,6 +2,7 @@
 
 from itertools import chain
 import re
+import sys
 import typing
 import uuid
 
@@ -255,6 +256,8 @@ class SmallVariantQueryListCreateApiView(ListCreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return result
 
@@ -935,6 +938,8 @@ class SmallVariantCommentListCreateApiView(
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
@@ -1070,6 +1075,8 @@ class SmallVariantFlagsListCreateApiView(
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
@@ -1422,6 +1429,8 @@ class AcmgCriteriaRatingListCreateApiView(
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:

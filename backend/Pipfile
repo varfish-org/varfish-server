@@ -55,7 +55,6 @@ universal-pathlib = "*"
 s3fs = "*"
 toml = "*"
 black = "*"
-drf-spectacular = {extras = ["sidecar"], version = "*"}
 rich = "*"
 
 [dev-packages]
@@ -83,6 +82,7 @@ ipdb = "*"
 jedi = "==0.19.1"
 watchdog = "*"
 werkzeug = "~=3.0.3"
+uritemplate = "*"
 
 [ldap-packages]
 # Dependencies for enabling LDAP support.  You will need the system library

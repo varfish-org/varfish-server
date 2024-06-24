@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("variants", "0104_remove_hgmd_dbsnp_filter_from_query_settings"),
     ]
