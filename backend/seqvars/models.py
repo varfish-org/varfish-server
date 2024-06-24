@@ -8,6 +8,7 @@ from django_pydantic_field import SchemaField
 import pydantic
 
 from cases_analysis.models import CaseAnalysisSession
+from variants.models.case import Case
 from variants.models.projectroles import Project
 
 #: User model.
@@ -23,6 +24,10 @@ class GenotypeChoice(str, Enum):
     HET = "het"
     #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
     HOM = "hom"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
 
 
 class SampleGenotypeChoice(pydantic.BaseModel):
@@ -115,6 +120,9 @@ class SeqvarQueryPresetsSet(LabeledSortableBase):
     #: The owning ``Project``.
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"SeqvarQueryPresetsSet '{self.sodar_uuid}'"
+
 
 class SeqvarPresetsBase(LabeledSortableBase):
     """Base presets."""
@@ -128,6 +136,9 @@ class SeqvarPresetsBase(LabeledSortableBase):
 
 class SeqvarPresetsFrequency(FrequencySettingsBase, SeqvarPresetsBase):
     """Presets for frequency settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"SeqvarPresetsFrequency '{self.sodar_uuid}'"
 
 
 # class SeqvarPresetsConsequence(SeqvarPresetsBase):
@@ -157,9 +168,12 @@ class SeqvarPresetsFrequency(FrequencySettingsBase, SeqvarPresetsBase):
 class SeqvarQuerySettings(BaseModel):
     """The query settings for a given query."""
 
+    def __str__(self):
+        return f"SeqvarQuerySettings '{self.sodar_uuid}'"
+
 
 class SeqvarQuerySettingsBase(BaseModel):
-    """Base class for concrete query settings."""
+    """Base class for concrete category query settings."""
 
     #: The owning ``SeqvarQuerySettings``.
     querysettings = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
@@ -168,8 +182,11 @@ class SeqvarQuerySettingsBase(BaseModel):
         abstract = True
 
 
-class SeqvarQuerySettingsFrequency(FrequencySettingsBase, BaseModel):
+class SeqvarQuerySettingsFrequency(FrequencySettingsBase, SeqvarQuerySettingsBase):
     """Query settings in the frequency category."""
+
+    def __str__(self):
+        return f"SeqvarQuerySettingsFrequency '{self.sodar_uuid}'"
 
 
 class SeqvarQuery(BaseModel):
@@ -184,6 +201,16 @@ class SeqvarQuery(BaseModel):
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Buffer with settings to be edited in the next query execution.
     settings_buffer = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
+
+    @property
+    def case(self) -> typing.Optional[Case]:
+        try:
+            return self.session.caseanalysis.case
+        except AttributeError:
+            return None
+
+    def __str__(self):
+        return f"SeqvarQuery '{self.sodar_uuid}'"
 
 
 class SeqvarQueryExecution(BaseModel):
@@ -227,6 +254,16 @@ class SeqvarQueryExecution(BaseModel):
     #: Effective query settings of execution.
     querysettings = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
 
+    @property
+    def case(self) -> typing.Optional[Case]:
+        try:
+            return self.query.session.caseanalysis.case
+        except AttributeError:
+            return None
+
+    def __str__(self):
+        return f"SeqvarQueryExecution '{self.sodar_uuid}'"
+
 
 class DataSourceInfo(pydantic.BaseModel):
     """Describes the version version of a given datasource."""
@@ -254,6 +291,19 @@ class SeqvarResultSet(BaseModel):
     #: Information about the data sources and versions used in the query, backed by
     #: pydantic model ``DataSourceInfos``.
     datasource_infos = SchemaField(schema=typing.Optional[DataSourceInfos])
+
+    @property
+    def case(self) -> typing.Optional[Case]:
+        try:
+            return self.queryexecution.case
+        except AttributeError:
+            return None
+
+    def get_absolute_url(self) -> str:
+        return f"/seqvars/api/seqvarresultset/{self.case.sodar_uuid}/{self.sodar_uuid}/"
+
+    def __str__(self):
+        return f"SeqvarResultSet '{self.sodar_uuid}'"
 
 
 class SeqvarResultRowPayload(pydantic.BaseModel):
@@ -290,3 +340,9 @@ class SeqvarResultRow(models.Model):
     #: The payload of the result row, backed by pydantic model
     #: ``SeqvarResultRowPayload``.
     payload = SchemaField(schema=typing.Optional[SeqvarResultRowPayload])
+
+    def __str__(self):
+        return (
+            f"SeqvarResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
+            f"{self.start}-{self.reference}-{self.alternative}'"
+        )

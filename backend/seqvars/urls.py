@@ -5,9 +5,6 @@ from seqvars import views_api
 
 # Create a router and register our ViewSets with it.
 router = DefaultRouter()
-# router.register(
-#     r"api/seqvarsresultset", views_api.SeqvarResultSetViewSet, basename="seqvarsresultset"
-# )
 router.register(
     r"api/seqvarpresetsset/(?P<project>[0-9a-f-]+)",
     views_api.SeqvarQueryPresetsSetViewSet,
@@ -63,12 +60,16 @@ router.register(
 #     views_api.SeqvarQueryExecutionViewSet,
 #     basename="seqvarqueryexecution",
 # )
-# router.register(
-#     r"api/seqvarresultset/(?P<project>[0-9a-f-]+)", views_api.SeqvarResultSetViewSet, basename="seqvarresultset"
-# )
-# router.register(
-#     r"api/seqvarresultrow/(?P<project>[0-9a-f-]+)", views_api.SeqvarResultRowViewSet, basename="seqvarresultrow"
-# )
+router.register(
+    r"api/seqvarresultset/(?P<case>[0-9a-f-]+)",
+    views_api.SeqvarResultSetViewSet,
+    basename="seqvarresultset",
+)
+router.register(
+    r"api/seqvarresultrow/(?P<seqvarresultset>[0-9a-f-]+)",
+    views_api.SeqvarResultRowViewSet,
+    basename="seqvarresultrow",
+)
 
 
 # Below is the usual URL pattern boilerplate.

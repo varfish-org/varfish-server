@@ -1,85 +1,43 @@
 from django_pydantic_field.rest_framework import SchemaField
-from rest_framework import generics, serializers
+from rest_framework import serializers
 
 from seqvars.models import (
     DataSourceInfos,
+    FrequencySettingsBase,
+    SampleGenotypeChoice,
     SeqvarPresetsFrequency,
     SeqvarQuery,
     SeqvarQueryExecution,
     SeqvarQueryPresetsSet,
     SeqvarQuerySettings,
+    SeqvarQuerySettingsBase,
+    SeqvarQuerySettingsFrequency,
     SeqvarResultRow,
     SeqvarResultRowPayload,
     SeqvarResultSet,
 )
 
 
-class BaseSerializer(serializers.ModelSerializer):
-    """Base serializer for models with sodar_uuid and creation/update time."""
+class SampleGenotypeSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``SampleGenotypeSettingsBase``.
 
-    class Meta:
-        fields = [
-            "sodar_uuid",
-            "date_created",
-            "date_modified",
-        ]
-
-
-class LabeledSortableBaseSerializer(serializers.ModelSerializer):
-    """Serializer for ``LabeledSortableBase``."""
-
-    #: Rank for sorting.
-    rank = serializers.IntegerField(default=1, initial=1)
-    #: A text label.
-    label = serializers.CharField(max_length=128)
-    #: An optional description.
-    description = serializers.CharField(allow_null=True)
-
-    #: Serialize ``project`` as its ``sodar_uuid``.
-    project = serializers.ReadOnlyField(source="project.sodar_uuid")
-
-    def validate(self, attrs):
-        """Augment the attributes by the project from context."""
-        if "project" in self.context:
-            attrs["project"] = self.context["project"]
-        return attrs
-
-    class Meta:
-        fields = BaseSerializer.Meta.fields + [
-            "rank",
-            "label",
-            "description",
-        ]
-        read_only_fields = fields
-
-
-class SeqvarPresetsBaseSerializer(serializers.ModelSerializer):
-    """Serializer for ``SeqvarPresetsBase``.
-
-    Not used directly but as a base class for ``SeqvarPreset*Serializer``.
+    Not used directly but uased as base class.
     """
 
-    #: Rank for sorting.
-    rank = serializers.IntegerField(default=1, initial=1)
-    #: A text label.
-    label = serializers.CharField(max_length=128)
-    #: An optional description.
-    description = serializers.CharField(allow_null=True)
-
-    #: Serialize ``presetsset`` as its ``sodar_uuid``.
-    presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
+    sample_genotypes = SchemaField(schema=list[SampleGenotypeChoice])
 
     class Meta:
-        fields = BaseSerializer.Meta.fields + [
-            "rank",
-            "label",
-            "description",
+        model = FrequencySettingsBase
+        fields = [
+            "sample_genotypes",
         ]
-        read_only_fields = fields
 
 
-class SeqvarPresetsFrequencySerializer(SeqvarPresetsBaseSerializer):
-    """Serializer for ``SeqvarPresetsFrequency``."""
+class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``FrequencySettingsBase``.
+
+    Not used directly but uased as base class.
+    """
 
     gnomad_exomes_enabled = serializers.BooleanField()
     gnomad_exomes_frequency = serializers.FloatField(allow_null=True)
@@ -105,8 +63,8 @@ class SeqvarPresetsFrequencySerializer(SeqvarPresetsBaseSerializer):
     inhouse_hemizygous = serializers.IntegerField(allow_null=True)
 
     class Meta:
-        model = SeqvarPresetsFrequency
-        fields = SeqvarPresetsBaseSerializer.Meta.fields + [
+        model = FrequencySettingsBase
+        fields = [
             "gnomad_exomes_enabled",
             "gnomad_exomes_frequency",
             "gnomad_exomes_homozygous",
@@ -127,24 +85,74 @@ class SeqvarPresetsFrequencySerializer(SeqvarPresetsBaseSerializer):
             "inhouse_heterozygous",
             "inhouse_hemizygous",
         ]
+
+
+class BaseModelSerializer(serializers.ModelSerializer):
+    """Base serializer for models with sodar_uuid and creation/update time.
+
+    Not used directly but used as a base class.
+    """
+
+    sodar_uuid = serializers.UUIDField(read_only=True)
+    date_created = serializers.DateTimeField(read_only=True)
+    date_modified = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        fields = [
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+        ]
+
+
+class LabeledSortableBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``LabeledSortableBase``.
+
+    Not used directly but used as a base class.
+    """
+
+    rank = serializers.IntegerField(default=1, initial=1)
+    label = serializers.CharField(max_length=128)
+    description = serializers.CharField(allow_null=True)
+
+    class Meta:
+        fields = BaseModelSerializer.Meta.fields + [
+            "rank",
+            "label",
+            "description",
+        ]
         read_only_fields = fields
 
 
-class SeqvarQuerySettingsSerializer(serializers.ModelSerializer):
-    """Serializer for ``SeqvarQuerySettings``."""
+class SeqvarPresetsBaseSerializer(LabeledSortableBaseSerializer):
+    """Serializer for ``SeqvarPresetsBase``.
+
+    Not used directly but as a base class.
+    """
+
+    #: Serialize ``presetsset`` as its ``sodar_uuid``.
+    presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
 
     class Meta:
-        model = SeqvarQuerySettings
-        fields = BaseSerializer.Meta.fields + []
+        fields = LabeledSortableBaseSerializer.Meta.fields + [
+            "presetsset",
+        ]
         read_only_fields = fields
 
 
-class SeqvarQuerySettingsFrequencySerializer(serializers.ModelSerializer):
-    """Serializer for ``SeqvarQuerySettings``."""
+class SeqvarPresetsFrequencySerializer(
+    FrequencySettingsBaseSerializer, SeqvarPresetsBaseSerializer
+):
+    """Serializer for ``SeqvarPresetsFrequency``.
+
+    Not used directly but uased as base class.
+    """
 
     class Meta:
-        model = SeqvarQuerySettings
-        fields = BaseSerializer.Meta.fields + []
+        model = SeqvarPresetsFrequency
+        fields = (
+            FrequencySettingsBaseSerializer.Meta.fields + SeqvarPresetsBaseSerializer.Meta.fields
+        )
         read_only_fields = fields
 
 
@@ -154,12 +162,15 @@ class SeqvarQueryPresetsSetSerializer(LabeledSortableBaseSerializer):
     #: Serialize ``project`` as its ``sodar_uuid``.
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
 
+    def validate(self, attrs):
+        """Augment the attributes by the project from context."""
+        if "project" in self.context:
+            attrs["project"] = self.context["project"]
+        return attrs
+
     class Meta:
         model = SeqvarQueryPresetsSet
         fields = LabeledSortableBaseSerializer.Meta.fields + [
-            "rank",
-            "label",
-            "description",
             "project",
         ]
         read_only_fields = fields
@@ -178,15 +189,47 @@ class SeqvarQueryPresetsSetRetrieveSerializer(SeqvarQueryPresetsSetSerializer):
     class Meta:
         model = SeqvarQueryPresetsSet
         fields = SeqvarQueryPresetsSetSerializer.Meta.fields + [
-            "rank",
-            "label",
-            "description",
-            "project",
+            "seqvarpresetsfrequency_set",
         ]
         read_only_fields = fields
 
 
-class SeqvarQuerySerializer(serializers.ModelSerializer):
+class SeqvarQuerySettingsSerializer(BaseModelSerializer):
+    """Serializer for ``SeqvarQuerySettings``."""
+
+    class Meta:
+        model = SeqvarQuerySettings
+        fields = BaseModelSerializer.Meta.fields + []
+        read_only_fields = fields
+
+
+class SeqvarQuerySettingsBaseSerializer(BaseModelSerializer):
+    """Serializer for ``SeqvarQuerySettings``."""
+
+    #: Serialize ``querysettings`` as its ``sodar_uuid``.
+    querysettings = serializers.ReadOnlyField(source="querysettings.sodar_uuid")
+
+    class Meta:
+        model = SeqvarQuerySettingsBase
+        fields = BaseModelSerializer.Meta.fields + ["querysettings"]
+        read_only_fields = fields
+
+
+class SeqvarQuerySettingsFrequencySerializer(
+    FrequencySettingsBaseSerializer, SeqvarQuerySettingsBaseSerializer
+):
+    """Serializer for ``SeqvarQuerySettings``."""
+
+    class Meta:
+        model = SeqvarQuerySettingsFrequency
+        fields = (
+            FrequencySettingsBaseSerializer.Meta.fields
+            + SeqvarQuerySettingsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class SeqvarQuerySerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQuery``."""
 
     rank = serializers.IntegerField(default=1, initial=1)
@@ -199,7 +242,7 @@ class SeqvarQuerySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeqvarQuery
-        fields = BaseSerializer.Meta.fields + [
+        fields = BaseModelSerializer.Meta.fields + [
             "rank",
             "label",
             "session",
@@ -208,7 +251,7 @@ class SeqvarQuerySerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class SeqvarQueryExecutionSerializer(serializers.ModelSerializer):
+class SeqvarQueryExecutionSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQueryExecution``."""
 
     #: Serialize ``query`` as its ``sodar_uuid``.
@@ -218,7 +261,7 @@ class SeqvarQueryExecutionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeqvarQueryExecution
-        fields = BaseSerializer.Meta.fields + [
+        fields = BaseModelSerializer.Meta.fields + [
             "state",
             "complete_percent",
             "start_time",
@@ -230,17 +273,17 @@ class SeqvarQueryExecutionSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class SeqvarResultSetSerializer(serializers.ModelSerializer):
+class SeqvarResultSetSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarResultSet``."""
 
-    #: Serialize ``queryexecution`` as its ``sodar_uuid``.
-    queryexecution = serializers.ReadOnlyField(source="queryexecution.sodar_uuid")
     #: Explicitely provide django-pydantic-field schema for ``datasource_infos``.
     datasource_infos = SchemaField(schema=DataSourceInfos)
+    #: Serialize ``queryexecution`` as its ``sodar_uuid``.
+    queryexecution = serializers.ReadOnlyField(source="queryexecution.sodar_uuid")
 
     class Meta:
         model = SeqvarResultSet
-        fields = BaseSerializer.Meta.fields + [
+        fields = BaseModelSerializer.Meta.fields + [
             "queryexecution",
             "datasource_infos",
         ]
