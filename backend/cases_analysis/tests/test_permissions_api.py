@@ -99,7 +99,10 @@ class TestCasenalysisSessionViewSet(TestProjectAPIPermissionBase):
 
             url = reverse(
                 "cases_analysis:api-caseanalysissession-detail",
-                kwargs={"case": self.case.sodar_uuid, "caseanalysissession": caseanalysissession.sodar_uuid},
+                kwargs={
+                    "case": self.case.sodar_uuid,
+                    "caseanalysissession": caseanalysissession.sodar_uuid,
+                },
             )
             if user in good_users:
                 self.assert_response(url, [user], 200, method="GET")

@@ -8,7 +8,7 @@ router = DefaultRouter()
 router.register(
     r"api/seqvarpresetsset/(?P<project>[0-9a-f-]+)",
     views_api.SeqvarQueryPresetsSetViewSet,
-    basename="api-seqvarpresetsset",
+    basename="api-seqvarquerypresetsset",
 )
 router.register(
     r"api/seqvarpresetsfrequency/(?P<seqvarquerypresetsset>[0-9a-f-]+)",

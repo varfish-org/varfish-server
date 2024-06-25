@@ -20,7 +20,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-list",
+                    "seqvars:api-seqvarquerypresetsset-list",
                     kwargs={"project": self.project.sodar_uuid},
                 )
             )
@@ -40,7 +40,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-detail",
+                    "seqvars:api-seqvarquerypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
                         "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
@@ -62,7 +62,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-detail",
+                    "seqvars:api-seqvarquerypresetsset-detail",
                     kwargs={
                         **{
                             "project": self.project.sodar_uuid,
@@ -85,7 +85,8 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-list", kwargs={"project": self.project.sodar_uuid}
+                    "seqvars:api-seqvarquerypresetsset-list",
+                    kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={**{"rank": 1, "label": "test"}, **data_override},
             )
@@ -106,7 +107,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-detail",
+                    "seqvars:api-seqvarquerypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
                         "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
@@ -127,7 +128,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "seqvars:api-seqvarpresetsset-detail",
+                    "seqvars:api-seqvarquerypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
                         "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,

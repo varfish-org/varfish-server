@@ -1,7 +1,9 @@
 import sys
 
+from django.shortcuts import get_object_or_404
 from django_pydantic_field.rest_framework import AutoSchema
 from projectroles.models import Project
+from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
 from rest_framework.pagination import CursorPagination
 
@@ -70,14 +72,41 @@ class ProjectContextBaseViewSet(BaseViewSet):
         return context
 
 
+class SeqvarQueryPresetsPermission(SODARAPIProjectPermission):
+    """Permission class that obtains the project from the ``case`` parameter in URL."""
+
+    def get_project(self, request=None, kwargs=None):
+        _ = request
+        if "project" in kwargs:  # list/create actions
+            project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
+        elif "seqvarquerypresetsset" in kwargs:  # other actions
+            seqvarquerypresetsset = get_object_or_404(
+                SeqvarQueryPresetsSet.objects.all, sodar_uuid=kwargs["seqvarquerypresetsset"]
+            )
+            project = seqvarquerypresetsset.project
+        else:
+            raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
+        return project
+
+
 class SeqvarQueryPresetsSetViewSet(ProjectContextBaseViewSet):
     """ViewSet for the ``SeqvarQueryPresetsSet`` model."""
 
+    #: Define lookup URL kwarg.
     lookup_url_kwarg = "seqvarquerypresetsset"
     #: The default serializer class to use.
     serializer_class = SeqvarQueryPresetsSetSerializer
     #: Override details serializer to render all presets.
     action_serializers = {"retrieve": SeqvarQueryPresetsSetRetrieveSerializer}
+    #: Use the custom permission class.
+    permission_classes = [SeqvarQueryPresetsPermission]
+
+    def get_permission_required(self):
+        """Return the permission required for the current action."""
+        if self.action in ("list", "retrieve"):
+            return "seqvars.view_data"
+        else:
+            return "seqvars.update_data"
 
 
 class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
