@@ -3,9 +3,9 @@
     "downlevelIteration": true,
     "allowJs": true,
     "paths": {
-      "@/*": ["./src/*"],
+      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
       "@tests/*": ["./tests/*"],
-      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"]
+      "@/*": ["./src/*"]
     }
   }
 }
