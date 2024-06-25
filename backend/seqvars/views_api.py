@@ -122,7 +122,7 @@ class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
         assert self.serializer_class.Meta.model
 
         result = self.serializer_class.Meta.model.objects.all()
-        result = result.filter(presetsset__sodar_uuid=self.kwargs["seqvarquerypresetsset"])
+        result = result.filter(presetsset__sodar_uuid=self.kwargs["presetsset"])
         return result
 
     def get_serializer_context(self):
@@ -130,10 +130,10 @@ class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["seqvarquerypresetsset"] = SeqvarQueryPresetsSet.objects.get(
-            sodar_uuid=self.kwargs["seqvarquerypresetsset"]
+        context["presetsset"] = SeqvarQueryPresetsSet.objects.get(
+            sodar_uuid=self.kwargs["presetsset"]
         )
-        context["project"] = context["seqvarquerypresetsset"].project
+        context["project"] = context["presetsset"].project
         return context
 
 

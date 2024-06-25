@@ -39,28 +39,28 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but uased as base class.
     """
 
-    gnomad_exomes_enabled = serializers.BooleanField()
-    gnomad_exomes_frequency = serializers.FloatField(allow_null=True)
-    gnomad_exomes_homozygous = serializers.IntegerField(allow_null=True)
-    gnomad_exomes_heterozygous = serializers.IntegerField(allow_null=True)
-    gnomad_exomes_hemizygous = serializers.BooleanField(allow_null=True)
+    gnomad_exomes_enabled = serializers.BooleanField(required=False, default=False)
+    gnomad_exomes_frequency = serializers.FloatField(required=False)
+    gnomad_exomes_homozygous = serializers.IntegerField(required=False)
+    gnomad_exomes_heterozygous = serializers.IntegerField(required=False)
+    gnomad_exomes_hemizygous = serializers.BooleanField(required=False)
 
-    gnomad_genomes_enabled = serializers.BooleanField()
-    gnomad_genomes_frequency = serializers.FloatField(allow_null=True)
-    gnomad_genomes_homozygous = serializers.IntegerField(allow_null=True)
-    gnomad_genomes_heterozygous = serializers.IntegerField(allow_null=True)
-    gnomad_genomes_hemizygous = serializers.BooleanField(allow_null=True)
+    gnomad_genomes_enabled = serializers.BooleanField(required=False, default=False)
+    gnomad_genomes_frequency = serializers.FloatField(required=False)
+    gnomad_genomes_homozygous = serializers.IntegerField(required=False)
+    gnomad_genomes_heterozygous = serializers.IntegerField(required=False)
+    gnomad_genomes_hemizygous = serializers.BooleanField(required=False)
 
-    helixmtdb_enabled = serializers.BooleanField()
-    helixmtdb_heteroplasmic = serializers.IntegerField(allow_null=True)
-    helixmtdb_homoplasmic = serializers.IntegerField(allow_null=True)
-    helixmtdb_frequency = serializers.FloatField(allow_null=True)
+    helixmtdb_enabled = serializers.BooleanField(required=False, default=False)
+    helixmtdb_heteroplasmic = serializers.IntegerField(required=False)
+    helixmtdb_homoplasmic = serializers.IntegerField(required=False)
+    helixmtdb_frequency = serializers.FloatField(required=False)
 
-    inhouse_enabled = serializers.BooleanField()
-    inhouse_carriers = serializers.IntegerField(allow_null=True)
-    inhouse_homozygous = serializers.IntegerField(allow_null=True)
-    inhouse_heterozygous = serializers.IntegerField(allow_null=True)
-    inhouse_hemizygous = serializers.IntegerField(allow_null=True)
+    inhouse_enabled = serializers.BooleanField(required=False, default=False)
+    inhouse_carriers = serializers.IntegerField(required=False)
+    inhouse_homozygous = serializers.IntegerField(required=False)
+    inhouse_heterozygous = serializers.IntegerField(required=False)
+    inhouse_hemizygous = serializers.IntegerField(required=False)
 
     class Meta:
         model = FrequencySettingsBase
