@@ -5,8 +5,7 @@ from projectroles.models import Project
 from rest_framework import viewsets
 from rest_framework.pagination import CursorPagination
 
-from seqvars.models import (  # SeqvarPresetsColumns,; SeqvarPresetsConsequence,; SeqvarPresetsLocus,; SeqvarPresetsMisc,; SeqvarPresetsPhenotypePrio,; SeqvarPresetsVariantPrio,
-    SeqvarPresetsFrequency,
+from seqvars.models import (
     SeqvarQuery,
     SeqvarQueryExecution,
     SeqvarQueryPresetsSet,
@@ -14,7 +13,7 @@ from seqvars.models import (  # SeqvarPresetsColumns,; SeqvarPresetsConsequence,
     SeqvarResultRow,
     SeqvarResultSet,
 )
-from seqvars.serializers import (  # SeqvarPresetsColumnsSerializer,; SeqvarPresetsConsequenceSerializer,; SeqvarPresetsLocusSerializer,; SeqvarPresetsMiscSerializer,; SeqvarPresetsPhenotypePrioSerializer,; SeqvarPresetsVariantPrioSerializer,
+from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
     SeqvarQueryExecutionSerializer,
     SeqvarQueryPresetsSetRetrieveSerializer,

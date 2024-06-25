@@ -113,7 +113,7 @@ class LabeledSortableBaseSerializer(serializers.ModelSerializer):
 
     rank = serializers.IntegerField(default=1, initial=1)
     label = serializers.CharField(max_length=128)
-    description = serializers.CharField(allow_null=True)
+    description = serializers.CharField(allow_null=True, default=None)
 
     class Meta:
         fields = BaseModelSerializer.Meta.fields + [
