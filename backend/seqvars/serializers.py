@@ -1,4 +1,5 @@
 from django_pydantic_field.rest_framework import SchemaField
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from seqvars.models import (
@@ -40,27 +41,41 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     gnomad_exomes_enabled = serializers.BooleanField(required=False, default=False)
-    gnomad_exomes_frequency = serializers.FloatField(required=False)
-    gnomad_exomes_homozygous = serializers.IntegerField(required=False)
-    gnomad_exomes_heterozygous = serializers.IntegerField(required=False)
-    gnomad_exomes_hemizygous = serializers.BooleanField(required=False)
+    gnomad_exomes_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
+    gnomad_exomes_homozygous = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    gnomad_exomes_heterozygous = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    gnomad_exomes_hemizygous = serializers.BooleanField(
+        required=False, allow_null=True, default=None
+    )
 
     gnomad_genomes_enabled = serializers.BooleanField(required=False, default=False)
-    gnomad_genomes_frequency = serializers.FloatField(required=False)
-    gnomad_genomes_homozygous = serializers.IntegerField(required=False)
-    gnomad_genomes_heterozygous = serializers.IntegerField(required=False)
-    gnomad_genomes_hemizygous = serializers.BooleanField(required=False)
+    gnomad_genomes_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
+    gnomad_genomes_homozygous = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    gnomad_genomes_heterozygous = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    gnomad_genomes_hemizygous = serializers.BooleanField(
+        required=False, allow_null=True, default=None
+    )
 
     helixmtdb_enabled = serializers.BooleanField(required=False, default=False)
-    helixmtdb_heteroplasmic = serializers.IntegerField(required=False)
-    helixmtdb_homoplasmic = serializers.IntegerField(required=False)
-    helixmtdb_frequency = serializers.FloatField(required=False)
+    helixmtdb_heteroplasmic = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    helixmtdb_homoplasmic = serializers.IntegerField(required=False, allow_null=True, default=None)
+    helixmtdb_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
 
     inhouse_enabled = serializers.BooleanField(required=False, default=False)
-    inhouse_carriers = serializers.IntegerField(required=False)
-    inhouse_homozygous = serializers.IntegerField(required=False)
-    inhouse_heterozygous = serializers.IntegerField(required=False)
-    inhouse_hemizygous = serializers.IntegerField(required=False)
+    inhouse_carriers = serializers.IntegerField(required=False, allow_null=True, default=None)
+    inhouse_homozygous = serializers.IntegerField(required=False, allow_null=True, default=None)
+    inhouse_heterozygous = serializers.IntegerField(required=False, allow_null=True, default=None)
+    inhouse_hemizygous = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
         model = FrequencySettingsBase
@@ -200,18 +215,6 @@ class SeqvarQueryPresetsSetRetrieveSerializer(SeqvarQueryPresetsSetSerializer):
         read_only_fields = fields
 
 
-class SeqvarQuerySettingsSerializer(BaseModelSerializer):
-    """Serializer for ``SeqvarQuerySettings``."""
-
-    #: Serialize ``case`` as its ``sodar_uuid``.
-    case = serializers.ReadOnlyField(source="case.sodar_uuid")
-
-    class Meta:
-        model = SeqvarQuerySettings
-        fields = BaseModelSerializer.Meta.fields + ["case"]
-        read_only_fields = fields
-
-
 class SeqvarQuerySettingsBaseSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQuerySettings``."""
 
@@ -241,6 +244,27 @@ class SeqvarQuerySettingsFrequencySerializer(
             FrequencySettingsBaseSerializer.Meta.fields
             + SeqvarQuerySettingsBaseSerializer.Meta.fields
         )
+        read_only_fields = fields
+
+
+class SeqvarQuerySettingsSerializer(BaseModelSerializer, WritableNestedModelSerializer):
+    """Serializer for ``SeqvarQuerySettings``."""
+
+    #: Serialize ``case`` as its ``sodar_uuid``.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+
+    #: Nested serialization of the frequency settings.
+    seqvarquerysettingsfrequency = SeqvarQuerySettingsFrequencySerializer()
+
+    def validate(self, attrs):
+        """Augment the attributes by the case from context."""
+        if "case" in self.context:
+            attrs["case"] = self.context["case"]
+        return attrs
+
+    class Meta:
+        model = SeqvarQuerySettings
+        fields = BaseModelSerializer.Meta.fields + ["case", "seqvarquerysettingsfrequency"]
         read_only_fields = fields
 
 

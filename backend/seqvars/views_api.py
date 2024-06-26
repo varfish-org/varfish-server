@@ -25,6 +25,7 @@ from seqvars.serializers import (
     SeqvarResultRowSerializer,
     SeqvarResultSetSerializer,
 )
+from variants.models.case import Case
 
 
 class StandardPagination(CursorPagination):
@@ -123,10 +124,7 @@ class SeqvarCategoryPresetsViewSetBase(PermissionBaseViewSetBase):
     """ViewSet for the ``SeqvarPresets<*>ViewSet`` models."""
 
     def get_queryset(self):
-        """Return queryset with all ``CaseAnalysis`` records for the given case.
-
-        Currently, this will be at most one.
-        """
+        """Return queryset with all ``SeqvarPresets*`` records for the given presets set."""
         assert self.serializer_class
         assert self.serializer_class.Meta
         assert self.serializer_class.Meta.model
@@ -190,11 +188,26 @@ class SeqvarPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
 #     pagination_class = StandardPagination
 
 
-class SeqvarQuerySettingsViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarQuerySettings.objects.all()
+class SeqvarQuerySettingsViewSet(BaseViewSet):
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarquerysettings"
+    #: The default serializer class to use.
     serializer_class = SeqvarQuerySettingsSerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        """Return queryset with all ``SeqvarQuerySettings`` records for the given case."""
+        result = SeqvarQuerySettings.objects.all()
+        result = result.filter(case__sodar_uuid=self.kwargs["case"])
+        return result
+
+    def get_serializer_context(self):
+        """Augment base serializer context with the case from URL kwargs."""
+        context = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
+            return context
+        context["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        context["project"] = context["case"].project
+        return context
 
 
 class SeqvarQueryViewSet(viewsets.ModelViewSet):

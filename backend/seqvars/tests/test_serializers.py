@@ -161,6 +161,7 @@ class TestSeqvarQueryPresetsSetSerializer(TestCase):
 class TestSeqvarQuerySettingsSerializer(TestCase):
     def setUp(self):
         super().setUp()
+        self.maxDiff = None
         self.seqvarquerysettings = SeqvarQuerySettingsFactory()
 
     def test_serialize_existing(self):
@@ -172,6 +173,7 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
             "date_modified",
             # SeqvarQuerySettings
             "case",
+            "seqvarquerysettingsfrequency",
         ]
         expected = model_to_dict(
             self.seqvarquerysettings,
@@ -183,6 +185,10 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # The same is true for the related one-to-one fields.
+        expected["seqvarquerysettingsfrequency"] = SeqvarQuerySettingsFrequencySerializer(
+            self.seqvarquerysettings.seqvarquerysettingsfrequency
+        ).data
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
 

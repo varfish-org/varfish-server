@@ -76,8 +76,10 @@ class TestSeqvarQuerySettings(TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarQuerySettings.objects.count(), 0)
+        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 0)
         SeqvarQuerySettingsFactory()
         self.assertEqual(SeqvarQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 1)
 
     def test_str(self):
         seqvarquerysettings = SeqvarQuerySettingsFactory()
