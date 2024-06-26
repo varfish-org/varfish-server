@@ -18,9 +18,10 @@ from seqvars.models import (
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
     SeqvarQueryExecutionSerializer,
-    SeqvarQueryPresetsSetRetrieveSerializer,
+    SeqvarQueryPresetsSetDetailSerializer,
     SeqvarQueryPresetsSetSerializer,
     SeqvarQuerySerializer,
+    SeqvarQuerySettingsDetailSerializer,
     SeqvarQuerySettingsSerializer,
     SeqvarResultRowSerializer,
     SeqvarResultSetSerializer,
@@ -47,16 +48,32 @@ class BaseViewSet(viewsets.ModelViewSet):
     #: Enable generation of OpenAPI schemas for pydantic field.
     schema = AutoSchema()
 
+    def get_permission_required(self):
+        """Return the permission required for the current action."""
+        if self.action in ("list", "retrieve"):
+            return "seqvars.view_data"
+        else:
+            return "seqvars.update_data"
+
+    def get_serializer_class(self):
+        """Allow overriding serializer class based on action."""
+        if hasattr(self, "action_serializers"):
+            return self.action_serializers.get(self.action, self.serializer_class)
+        return super().get_serializer_class()
+
 
 def get_project(kwargs):
     """Return the project from the URL kwargs."""
     if "project" in kwargs:  # list/create actions
         project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
-    elif "seqvarquerypresetsset" in kwargs:  # other actions
+    elif "seqvarquerypresetsset" in kwargs:
         seqvarquerypresetsset = get_object_or_404(
             SeqvarQueryPresetsSet.objects.all(), sodar_uuid=kwargs["seqvarquerypresetsset"]
         )
         project = seqvarquerypresetsset.project
+    elif "case" in kwargs:
+        case = get_object_or_404(Case.objects.all(), sodar_uuid=kwargs["case"])
+        project = case.project
     else:
         raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
     return project
@@ -98,17 +115,8 @@ class SeqvarQueryPresetsPermission(SODARAPIProjectPermission):
 class PermissionBaseViewSetBase(ProjectContextBaseViewSet):
     """Base class for ``ViewSets``s protected by permission system."""
 
-    #: Override details serializer to render all presets.
-    action_serializers = {"retrieve": SeqvarQueryPresetsSetRetrieveSerializer}
     #: Use the custom permission class.
     permission_classes = [SeqvarQueryPresetsPermission]
-
-    def get_permission_required(self):
-        """Return the permission required for the current action."""
-        if self.action in ("list", "retrieve"):
-            return "seqvars.view_data"
-        else:
-            return "seqvars.update_data"
 
 
 class SeqvarQueryPresetsSetViewSet(PermissionBaseViewSetBase):
@@ -118,6 +126,8 @@ class SeqvarQueryPresetsSetViewSet(PermissionBaseViewSetBase):
     lookup_url_kwarg = "seqvarquerypresetsset"
     #: The default serializer class to use.
     serializer_class = SeqvarQueryPresetsSetSerializer
+    #: Override ``retrieve`` serializer to render all presets.
+    action_serializers = {"retrieve": SeqvarQueryPresetsSetDetailSerializer}
 
 
 class SeqvarCategoryPresetsViewSetBase(PermissionBaseViewSetBase):
@@ -150,6 +160,9 @@ class SeqvarPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
 
     lookup_url_kwarg = "seqvarpresetsfrequency"
     serializer_class = SeqvarPresetsFrequencySerializer
+
+    def retrieve(self, *args, **kwargs):
+        return super().retrieve(*args, **kwargs)
 
 
 # class SeqvarPresetsConsequenceViewSet(viewsets.ModelViewSet):
@@ -193,6 +206,16 @@ class SeqvarQuerySettingsViewSet(BaseViewSet):
     lookup_url_kwarg = "seqvarquerysettings"
     #: The default serializer class to use.
     serializer_class = SeqvarQuerySettingsSerializer
+    #: Override ``create`` and ``*-detail`` serializer to render all presets.
+    action_serializers = {
+        "create": SeqvarQuerySettingsDetailSerializer,
+        "retrieve": SeqvarQuerySettingsDetailSerializer,
+        "update": SeqvarQuerySettingsDetailSerializer,
+        "partial_update": SeqvarQuerySettingsDetailSerializer,
+        "delete": SeqvarQuerySettingsDetailSerializer,
+    }
+    #: Use the custom permission class.
+    permission_classes = [SeqvarQueryPresetsPermission]
 
     def get_queryset(self):
         """Return queryset with all ``SeqvarQuerySettings`` records for the given case."""

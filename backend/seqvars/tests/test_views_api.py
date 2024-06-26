@@ -12,7 +12,9 @@ from seqvars.models import (
 )
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
+    SeqvarQueryPresetsSetDetailSerializer,
     SeqvarQueryPresetsSetSerializer,
+    SeqvarQuerySettingsDetailSerializer,
     SeqvarQuerySettingsFrequencySerializer,
     SeqvarQuerySettingsSerializer,
 )
@@ -83,7 +85,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryPresetsSetSerializer(self.seqvarquerypresetsset).data
+        result_json = SeqvarQueryPresetsSetDetailSerializer(self.seqvarquerypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -350,7 +352,7 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQuerySettingsSerializer(self.seqvarquerysettings).data
+        result_json = SeqvarQuerySettingsDetailSerializer(self.seqvarquerysettings).data
         result_json["case"] = str(result_json["case"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -383,6 +385,8 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
     )
     def test_patch(self, data: dict[str, Any]):
         self.seqvarquerysettings.refresh_from_db()
+        for key in data.keys():
+            getattr(self.seqvarquerysettings, key).refresh_from_db()
         for key, value in data.items():
             self.assertNotEqual(getattr(self.seqvarquerysettings, key), value, f"key={key}")
 
@@ -402,6 +406,8 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
         self.assertEqual(response.status_code, 200)
 
         self.seqvarquerysettings.refresh_from_db()
+        for key in data.keys():
+            getattr(self.seqvarquerysettings, key).refresh_from_db()
         for key, value in data.items():
             if isinstance(value, dict):
                 for subkey, subvalue in value.items():

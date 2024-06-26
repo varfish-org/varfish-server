@@ -5,11 +5,11 @@ from test_plus import TestCase
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
     SeqvarQueryExecutionSerializer,
-    SeqvarQueryPresetsSetRetrieveSerializer,
+    SeqvarQueryPresetsSetDetailSerializer,
     SeqvarQueryPresetsSetSerializer,
     SeqvarQuerySerializer,
+    SeqvarQuerySettingsDetailSerializer,
     SeqvarQuerySettingsFrequencySerializer,
-    SeqvarQuerySettingsSerializer,
     SeqvarResultRowSerializer,
     SeqvarResultSetSerializer,
 )
@@ -124,7 +124,8 @@ class TestSeqvarQueryPresetsSetSerializer(TestCase):
         )
 
     def test_serialize_existing(self):
-        serializer = SeqvarQueryPresetsSetRetrieveSerializer(self.seqvarquerypresetsset)
+        # Note that we test the ``*Details*`` version as it extends the normal serializer.
+        serializer = SeqvarQueryPresetsSetDetailSerializer(self.seqvarquerypresetsset)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -165,7 +166,8 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
         self.seqvarquerysettings = SeqvarQuerySettingsFactory()
 
     def test_serialize_existing(self):
-        serializer = SeqvarQuerySettingsSerializer(self.seqvarquerysettings)
+        # Note that we test the ``*Details*`` version as it extends the normal serializer.
+        serializer = SeqvarQuerySettingsDetailSerializer(self.seqvarquerysettings)
         fields = [
             # BaseModel
             "sodar_uuid",

@@ -197,18 +197,18 @@ class SeqvarQueryPresetsSetSerializer(LabeledSortableBaseSerializer):
         read_only_fields = fields
 
 
-class SeqvarQueryPresetsSetRetrieveSerializer(SeqvarQueryPresetsSetSerializer):
-    """Serializer for ``SeqvarQueryPresetsSet`` (retrieve only).
+class SeqvarQueryPresetsSetDetailSerializer(SeqvarQueryPresetsSetSerializer):
+    """Serializer for ``SeqvarQueryPresetsSet`` (for ``*-detail``).
 
     When retrieving the details of a seqvar query preset set, we also render the
     owned records.
     """
 
     #: Serialize all frequency presets.
-    seqvarpresetsfrequency_set = SeqvarPresetsFrequencySerializer(many=True)
+    seqvarpresetsfrequency_set = SeqvarPresetsFrequencySerializer(many=True, read_only=True)
 
     class Meta:
-        model = SeqvarQueryPresetsSet
+        model = SeqvarQueryPresetsSetSerializer.Meta.model
         fields = SeqvarQueryPresetsSetSerializer.Meta.fields + [
             "seqvarpresetsfrequency_set",
         ]
@@ -247,14 +247,11 @@ class SeqvarQuerySettingsFrequencySerializer(
         read_only_fields = fields
 
 
-class SeqvarQuerySettingsSerializer(BaseModelSerializer, WritableNestedModelSerializer):
+class SeqvarQuerySettingsSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQuerySettings``."""
 
     #: Serialize ``case`` as its ``sodar_uuid``.
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
-
-    #: Nested serialization of the frequency settings.
-    seqvarquerysettingsfrequency = SeqvarQuerySettingsFrequencySerializer()
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -265,6 +262,26 @@ class SeqvarQuerySettingsSerializer(BaseModelSerializer, WritableNestedModelSeri
     class Meta:
         model = SeqvarQuerySettings
         fields = BaseModelSerializer.Meta.fields + ["case", "seqvarquerysettingsfrequency"]
+        read_only_fields = fields
+
+
+class SeqvarQuerySettingsDetailSerializer(
+    SeqvarQuerySettingsSerializer, WritableNestedModelSerializer
+):
+    """Serializer for ``SeqvarQuerySettings`` (for ``*-detail``).
+
+    When for retrieve, update, or delete operations, we also render the nested
+    frequency settings.
+    """
+
+    #: Nested serialization of the frequency settings.
+    seqvarquerysettingsfrequency = SeqvarQuerySettingsFrequencySerializer()
+
+    class Meta:
+        model = SeqvarQuerySettingsSerializer.Meta.model
+        fields = SeqvarQuerySettingsSerializer.Meta.fields + [
+            "seqvarquerysettingsfrequency",
+        ]
         read_only_fields = fields
 
 
