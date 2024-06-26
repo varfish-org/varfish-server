@@ -179,7 +179,7 @@ class SeqvarQuerySettingsCategoryBase(BaseModel):
     """Base class for concrete category query settings."""
 
     #: The owning ``SeqvarQuerySettings``.
-    querysettings = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
+    querysettings = models.OneToOneField(SeqvarQuerySettings, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
