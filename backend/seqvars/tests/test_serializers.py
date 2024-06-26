@@ -170,11 +170,15 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
             "sodar_uuid",
             "date_created",
             "date_modified",
+            # SeqvarQuerySettings
+            "case",
         ]
         expected = model_to_dict(
             self.seqvarquerysettings,
             fields=fields,
         )
+        # We replace the case object with its UUID.
+        expected["case"] = self.seqvarquerysettings.case.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"

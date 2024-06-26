@@ -11,7 +11,7 @@ router.register(
     basename="api-seqvarquerypresetsset",
 )
 router.register(
-    r"api/seqvarpresetsfrequency/(?P<presetsset>[0-9a-f-]+)",
+    r"api/seqvarpresetsfrequency/(?P<seqvarquerypresetsset>[0-9a-f-]+)",
     views_api.SeqvarPresetsFrequencyViewSet,
     basename="api-seqvarpresetsfrequency",
 )

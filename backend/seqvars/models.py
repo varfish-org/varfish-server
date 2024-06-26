@@ -166,13 +166,16 @@ class SeqvarPresetsFrequency(FrequencySettingsBase, SeqvarPresetsBase):
 
 
 class SeqvarQuerySettings(BaseModel):
-    """The query settings for a given query."""
+    """The query settings for a case."""
+
+    #: The owning ``Case``.
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"SeqvarQuerySettings '{self.sodar_uuid}'"
 
 
-class SeqvarQuerySettingsBase(BaseModel):
+class SeqvarQuerySettingsCategoryBase(BaseModel):
     """Base class for concrete category query settings."""
 
     #: The owning ``SeqvarQuerySettings``.
@@ -182,7 +185,7 @@ class SeqvarQuerySettingsBase(BaseModel):
         abstract = True
 
 
-class SeqvarQuerySettingsFrequency(FrequencySettingsBase, SeqvarQuerySettingsBase):
+class SeqvarQuerySettingsFrequency(FrequencySettingsBase, SeqvarQuerySettingsCategoryBase):
     """Query settings in the frequency category."""
 
     def __str__(self):

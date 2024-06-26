@@ -19,7 +19,7 @@ from seqvars.models import (
     SeqvarResultRowPayload,
     SeqvarResultSet,
 )
-from variants.tests.factories import ProjectFactory
+from variants.tests.factories import CaseFactory, ProjectFactory
 
 
 class SampleGenotypeChoiceFactory(factory.Factory):
@@ -117,6 +117,7 @@ class SeqvarPresetsFrequencyFactory(FrequencySettingsBaseFactory, SeqvarPresetsB
 
 class SeqvarQuerySettingsFactory(BaseModelFactory):
 
+    case = factory.SubFactory(CaseFactory)
     seqvarquerysettingsfrequency = factory.RelatedFactory(
         "seqvars.tests.factories.SeqvarQuerySettingsFrequencyFactory",
         factory_related_name="querysettings",

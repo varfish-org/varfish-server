@@ -10,7 +10,7 @@ from seqvars.models import (
     SeqvarQueryExecution,
     SeqvarQueryPresetsSet,
     SeqvarQuerySettings,
-    SeqvarQuerySettingsBase,
+    SeqvarQuerySettingsCategoryBase,
     SeqvarQuerySettingsFrequency,
     SeqvarResultRow,
     SeqvarResultRowPayload,
@@ -133,6 +133,12 @@ class SeqvarPresetsBaseSerializer(LabeledSortableBaseSerializer):
     #: Serialize ``presetsset`` as its ``sodar_uuid``.
     presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
 
+    def validate(self, attrs):
+        """Augment the attributes by the presets set object from context."""
+        if "seqvarquerypresetsset" in self.context:
+            attrs["presetsset"] = self.context["seqvarquerypresetsset"]
+        return attrs
+
     class Meta:
         fields = LabeledSortableBaseSerializer.Meta.fields + [
             "presetsset",
@@ -197,9 +203,12 @@ class SeqvarQueryPresetsSetRetrieveSerializer(SeqvarQueryPresetsSetSerializer):
 class SeqvarQuerySettingsSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQuerySettings``."""
 
+    #: Serialize ``case`` as its ``sodar_uuid``.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+
     class Meta:
         model = SeqvarQuerySettings
-        fields = BaseModelSerializer.Meta.fields + []
+        fields = BaseModelSerializer.Meta.fields + ["case"]
         read_only_fields = fields
 
 
@@ -209,8 +218,14 @@ class SeqvarQuerySettingsBaseSerializer(BaseModelSerializer):
     #: Serialize ``querysettings`` as its ``sodar_uuid``.
     querysettings = serializers.ReadOnlyField(source="querysettings.sodar_uuid")
 
+    def validate(self, attrs):
+        """Augment the attributes by the query settings object from context."""
+        if "querysettings" in self.context:
+            attrs["querysettings"] = self.context["querysettings"]
+        return attrs
+
     class Meta:
-        model = SeqvarQuerySettingsBase
+        model = SeqvarQuerySettingsCategoryBase
         fields = BaseModelSerializer.Meta.fields + ["querysettings"]
         read_only_fields = fields
 

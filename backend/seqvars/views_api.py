@@ -47,6 +47,20 @@ class BaseViewSet(viewsets.ModelViewSet):
     schema = AutoSchema()
 
 
+def get_project(kwargs):
+    """Return the project from the URL kwargs."""
+    if "project" in kwargs:  # list/create actions
+        project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
+    elif "seqvarquerypresetsset" in kwargs:  # other actions
+        seqvarquerypresetsset = get_object_or_404(
+            SeqvarQueryPresetsSet.objects.all(), sodar_uuid=kwargs["seqvarquerypresetsset"]
+        )
+        project = seqvarquerypresetsset.project
+    else:
+        raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
+    return project
+
+
 class ProjectContextBaseViewSet(BaseViewSet):
     """Base class for app view sets having project from URL kwarg as context."""
 
@@ -68,34 +82,21 @@ class ProjectContextBaseViewSet(BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["project"] = Project.objects.get(sodar_uuid=self.kwargs["project"])
+        context["project"] = get_project(self.kwargs)
         return context
 
 
 class SeqvarQueryPresetsPermission(SODARAPIProjectPermission):
-    """Permission class that obtains the project from the ``case`` parameter in URL."""
+    """Permission class that obtains the project from the ``lookup_kwarg`` parameter in URL."""
 
     def get_project(self, request=None, kwargs=None):
         _ = request
-        if "project" in kwargs:  # list/create actions
-            project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
-        elif "seqvarquerypresetsset" in kwargs:  # other actions
-            seqvarquerypresetsset = get_object_or_404(
-                SeqvarQueryPresetsSet.objects.all, sodar_uuid=kwargs["seqvarquerypresetsset"]
-            )
-            project = seqvarquerypresetsset.project
-        else:
-            raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
-        return project
+        return get_project(kwargs)
 
 
-class SeqvarQueryPresetsSetViewSet(ProjectContextBaseViewSet):
-    """ViewSet for the ``SeqvarQueryPresetsSet`` model."""
+class PermissionBaseViewSetBase(ProjectContextBaseViewSet):
+    """Base class for ``ViewSets``s protected by permission system."""
 
-    #: Define lookup URL kwarg.
-    lookup_url_kwarg = "seqvarquerypresetsset"
-    #: The default serializer class to use.
-    serializer_class = SeqvarQueryPresetsSetSerializer
     #: Override details serializer to render all presets.
     action_serializers = {"retrieve": SeqvarQueryPresetsSetRetrieveSerializer}
     #: Use the custom permission class.
@@ -109,7 +110,16 @@ class SeqvarQueryPresetsSetViewSet(ProjectContextBaseViewSet):
             return "seqvars.update_data"
 
 
-class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
+class SeqvarQueryPresetsSetViewSet(PermissionBaseViewSetBase):
+    """ViewSet for the ``SeqvarQueryPresetsSet`` model."""
+
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarquerypresetsset"
+    #: The default serializer class to use.
+    serializer_class = SeqvarQueryPresetsSetSerializer
+
+
+class SeqvarCategoryPresetsViewSetBase(PermissionBaseViewSetBase):
     """ViewSet for the ``SeqvarPresets<*>ViewSet`` models."""
 
     def get_queryset(self):
@@ -122,7 +132,7 @@ class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
         assert self.serializer_class.Meta.model
 
         result = self.serializer_class.Meta.model.objects.all()
-        result = result.filter(presetsset__sodar_uuid=self.kwargs["presetsset"])
+        result = result.filter(presetsset__sodar_uuid=self.kwargs["seqvarquerypresetsset"])
         return result
 
     def get_serializer_context(self):
@@ -130,17 +140,17 @@ class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["presetsset"] = SeqvarQueryPresetsSet.objects.get(
-            sodar_uuid=self.kwargs["presetsset"]
+        context["seqvarquerypresetsset"] = SeqvarQueryPresetsSet.objects.get(
+            sodar_uuid=self.kwargs["seqvarquerypresetsset"]
         )
-        context["project"] = context["presetsset"].project
+        context["project"] = context["seqvarquerypresetsset"].project
         return context
 
 
 class SeqvarPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
     """ViewSet for the ``SeqvarPresetsFrequency`` model."""
 
-    lookup_url_kwargs = "seqvarpresetsfrequency"
+    lookup_url_kwarg = "seqvarpresetsfrequency"
     serializer_class = SeqvarPresetsFrequencySerializer
 
 
