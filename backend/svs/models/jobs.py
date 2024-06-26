@@ -327,6 +327,10 @@ def run_sv_query_bg_job(pk):  # noqa: C901
             "anc": "anc",
             "pc": "pc",
         }
+        # Mapping of key from database JSON keys to VCF coercion function.
+        coerce_db_to_vcf = {
+            "cn": lambda x: int(x),
+        }
 
         # Dump the SVs to a TSV file for processing by the worker
         filter_job.add_log_entry("Dumping SVs and query to temporary files ...")
@@ -405,7 +409,16 @@ def run_sv_query_bg_job(pk):  # noqa: C901
                     info,
                     ":".join([format_db_to_vcf[key] for key in keys_in_row]),
                 ] + [
-                    ":".join([str(record.genotype[sample].get(key, ".")) for key in keys_in_row])
+                    ":".join(
+                        [
+                            str(
+                                coerce_db_to_vcf.get(key, lambda x: x)(
+                                    record.genotype[sample].get(key, ".")
+                                )
+                            )
+                            for key in keys_in_row
+                        ]
+                    )
                     for sample in samples
                 ]
                 print("\t".join(map(str, arr)), file=outputf)
