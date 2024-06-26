@@ -52,7 +52,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@tests': resolve(__dirname, './tests/'),
+      '@test': resolve(__dirname, './tests/'),
       '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
       '@': resolve(__dirname, './src/'),
     },
