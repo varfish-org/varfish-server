@@ -46,24 +46,18 @@ router.register(
     views_api.SeqvarQuerySettingsViewSet,
     basename="api-seqvarquerysettings",
 )
-# router.register(
-#     r"api/seqvarquery/(?P<project>[0-9a-f-]+)/(?P<caseanalysissession>[0-9a-f-]+)",
-#     views_api.SeqvarQueryViewSet,
-#     basename="api-seqvarquery",
-# )
-# router.register(
-#     r"api/seqvarqueryexecution/(?P<project>[0-9a-f-]+)",
-#     views_api.SeqvarQueryExecutionViewSet,
-#     basename="api-seqvarqueryexecution",
-# )
-# router.register(r"api/seqvarquery/(?P<project>[0-9a-f-]+)", views_api.SeqvarQueryViewSet, basename="api-seqvarquery")
-# router.register(
-#     r"api/seqvarqueryexecution/(?P<project>[0-9a-f-]+)",
-#     views_api.SeqvarQueryExecutionViewSet,
-#     basename="api-seqvarqueryexecution",
-# )
 router.register(
-    r"api/seqvarresultset/(?P<case>[0-9a-f-]+)",
+    r"api/seqvarquery/(?P<case>[0-9a-f-]+)",
+    views_api.SeqvarQueryViewSet,
+    basename="api-seqvarquery",
+)
+router.register(
+    r"api/seqvarqueryexecution/(?P<seqvarquery>[0-9a-f-]+)",
+    views_api.SeqvarQueryExecutionViewSet,
+    basename="api-seqvarqueryexecution",
+)
+router.register(
+    r"api/seqvarresultset/(?P<seqvarquery>[0-9a-f-]+)",
     views_api.SeqvarResultSetViewSet,
     basename="api-seqvarresultset",
 )

@@ -17,11 +17,13 @@ from seqvars.models import (
 )
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
+    SeqvarQueryDetailsSerializer,
+    SeqvarQueryExecutionDetailsSerializer,
     SeqvarQueryExecutionSerializer,
-    SeqvarQueryPresetsSetDetailSerializer,
+    SeqvarQueryPresetsSetDetailsSerializer,
     SeqvarQueryPresetsSetSerializer,
     SeqvarQuerySerializer,
-    SeqvarQuerySettingsDetailSerializer,
+    SeqvarQuerySettingsDetailsSerializer,
     SeqvarQuerySettingsSerializer,
     SeqvarResultRowSerializer,
     SeqvarResultSetSerializer,
@@ -36,30 +38,6 @@ class StandardPagination(CursorPagination):
     page_size_query_param = "page_size"
     max_page_size = 1000
     ordering = "-date_created"
-
-
-class BaseViewSet(viewsets.ModelViewSet):
-    """Base view set for app."""
-
-    #: Use canonical lookup field ``sodar_uuid``.
-    lookup_field = "sodar_uuid"
-    #: Use the app's standard pagination.
-    pagination_class = StandardPagination
-    #: Enable generation of OpenAPI schemas for pydantic field.
-    schema = AutoSchema()
-
-    def get_permission_required(self):
-        """Return the permission required for the current action."""
-        if self.action in ("list", "retrieve"):
-            return "seqvars.view_data"
-        else:
-            return "seqvars.update_data"
-
-    def get_serializer_class(self):
-        """Allow overriding serializer class based on action."""
-        if hasattr(self, "action_serializers"):
-            return self.action_serializers.get(self.action, self.serializer_class)
-        return super().get_serializer_class()
 
 
 def get_project(kwargs):
@@ -77,6 +55,48 @@ def get_project(kwargs):
     else:
         raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
     return project
+
+
+class SeqvarQueryPresetsPermission(SODARAPIProjectPermission):
+    """Permission class that obtains the project from the ``lookup_kwarg`` parameter in URL."""
+
+    def get_project(self, request=None, kwargs=None):
+        _ = request
+        return get_project(kwargs)
+
+
+class BaseViewSetMixin:
+    """Base mixin for view sets."""
+
+    #: Use canonical lookup field ``sodar_uuid``.
+    lookup_field = "sodar_uuid"
+    #: Use the app's standard pagination.
+    pagination_class = StandardPagination
+    #: Enable generation of OpenAPI schemas for pydantic field.
+    schema = AutoSchema()
+    #: Use the custom permission class.
+    permission_classes = [SeqvarQueryPresetsPermission]
+
+    def get_permission_required(self):
+        """Return the permission required for the current action."""
+        if self.action in ("list", "retrieve"):
+            return "seqvars.view_data"
+        else:
+            return "seqvars.update_data"
+
+    def get_serializer_class(self):
+        """Allow overriding serializer class based on action."""
+        if hasattr(self, "action_serializers"):
+            return self.action_serializers.get(self.action, self.serializer_class)
+        return super().get_serializer_class()
+
+
+class BaseReadOnlyViewSet(BaseViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    """Base read only view sts for app."""
+
+
+class BaseViewSet(BaseViewSetMixin, viewsets.ModelViewSet):
+    """Base view set for app."""
 
 
 class ProjectContextBaseViewSet(BaseViewSet):
@@ -104,22 +124,7 @@ class ProjectContextBaseViewSet(BaseViewSet):
         return context
 
 
-class SeqvarQueryPresetsPermission(SODARAPIProjectPermission):
-    """Permission class that obtains the project from the ``lookup_kwarg`` parameter in URL."""
-
-    def get_project(self, request=None, kwargs=None):
-        _ = request
-        return get_project(kwargs)
-
-
-class PermissionBaseViewSetBase(ProjectContextBaseViewSet):
-    """Base class for ``ViewSets``s protected by permission system."""
-
-    #: Use the custom permission class.
-    permission_classes = [SeqvarQueryPresetsPermission]
-
-
-class SeqvarQueryPresetsSetViewSet(PermissionBaseViewSetBase):
+class SeqvarQueryPresetsSetViewSet(BaseViewSet):
     """ViewSet for the ``SeqvarQueryPresetsSet`` model."""
 
     #: Define lookup URL kwarg.
@@ -127,10 +132,16 @@ class SeqvarQueryPresetsSetViewSet(PermissionBaseViewSetBase):
     #: The default serializer class to use.
     serializer_class = SeqvarQueryPresetsSetSerializer
     #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": SeqvarQueryPresetsSetDetailSerializer}
+    action_serializers = {"retrieve": SeqvarQueryPresetsSetDetailsSerializer}
+
+    def get_queryset(self):
+        """Return queryset with all ``SeqvarQueryPresets`` records for the given project."""
+        result = SeqvarQueryPresetsSet.objects.all()
+        result = result.filter(project__sodar_uuid=self.kwargs["project"])
+        return result
 
 
-class SeqvarCategoryPresetsViewSetBase(PermissionBaseViewSetBase):
+class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
     """ViewSet for the ``SeqvarPresets<*>ViewSet`` models."""
 
     def get_queryset(self):
@@ -202,17 +213,19 @@ class SeqvarPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
 
 
 class SeqvarQuerySettingsViewSet(BaseViewSet):
+    """ViewSet for the ``SeqvarQuerySettings`` model."""
+
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "seqvarquerysettings"
     #: The default serializer class to use.
     serializer_class = SeqvarQuerySettingsSerializer
     #: Override ``create`` and ``*-detail`` serializer to render all presets.
     action_serializers = {
-        "create": SeqvarQuerySettingsDetailSerializer,
-        "retrieve": SeqvarQuerySettingsDetailSerializer,
-        "update": SeqvarQuerySettingsDetailSerializer,
-        "partial_update": SeqvarQuerySettingsDetailSerializer,
-        "delete": SeqvarQuerySettingsDetailSerializer,
+        "create": SeqvarQuerySettingsDetailsSerializer,
+        "retrieve": SeqvarQuerySettingsDetailsSerializer,
+        "update": SeqvarQuerySettingsDetailsSerializer,
+        "partial_update": SeqvarQuerySettingsDetailsSerializer,
+        "delete": SeqvarQuerySettingsDetailsSerializer,
     }
     #: Use the custom permission class.
     permission_classes = [SeqvarQueryPresetsPermission]
@@ -233,28 +246,25 @@ class SeqvarQuerySettingsViewSet(BaseViewSet):
         return context
 
 
-class SeqvarQueryViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarQuery.objects.all()
-    serializer_class = SeqvarQuerySerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
-
-
-class SeqvarQueryExecutionViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarQueryExecution.objects.all()
-    serializer_class = SeqvarQueryExecutionSerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
-
-
-class SeqvarQueryViewSet(viewsets.ModelViewSet):
+class SeqvarQueryViewSet(BaseViewSet):
     """Allow CRUD of the user's queries."""
 
-    # TODO: permissions
+    # TODO XXX XXX ADD LAUNCH ACTION XXX XXX TODO
 
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarquery"
+    #: The default serializer class to use.
     serializer_class = SeqvarQuerySerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
+    #: Override ``create`` and ``*-detail`` serializer to render all presets.
+    action_serializers = {
+        "create": SeqvarQueryDetailsSerializer,
+        "retrieve": SeqvarQueryDetailsSerializer,
+        "update": SeqvarQueryDetailsSerializer,
+        "partial_update": SeqvarQueryDetailsSerializer,
+        "delete": SeqvarQueryDetailsSerializer,
+    }
+    #: Use the custom permission class.
+    permission_classes = [SeqvarQueryPresetsPermission]
 
     def get_queryset(self):
         """Return queryset with all ``SeqvarQuery`` records for the given case
@@ -264,27 +274,70 @@ class SeqvarQueryViewSet(viewsets.ModelViewSet):
         """
         result = SeqvarQuery.objects.all()
         result = result.filter(
-            session__sodar_uuid=self.kwargs["caseanalysissession"],
+            case__sodar_uuid=self.kwargs["case"],
+        )
+        return result
+
+    def get_serializer_context(self):
+        """Augment base serializer context with the case from URL kwargs."""
+        context = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
+            return context
+        context["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        context["project"] = context["case"].project
+        return context
+
+
+class SeqvarQueryExecutionViewSet(BaseReadOnlyViewSet):
+    """ViewSet for retrieving ``SeqvarQueryExecution`` records."""
+
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarqueryexecution"
+    #: The default serializer class to use.
+    serializer_class = SeqvarQueryExecutionSerializer
+    #: Override ``retrieve`` serializer to render all presets.
+    action_serializers = {
+        "retrieve": SeqvarQueryExecutionDetailsSerializer,
+    }
+
+    def get_queryset(self):
+        """Return queryset with all ``SeqvarQueryExecution`` records for the given query."""
+        result = SeqvarQueryExecution.objects.all()
+        result = result.filter(
+            query__sodar_uuid=self.kwargs["seqvarquery"],
         )
         return result
 
 
-class SeqvarQueryExecutionViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarQueryExecution.objects.all()
-    serializer_class = SeqvarQueryExecutionSerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
+class SeqvarResultSetViewSet(BaseReadOnlyViewSet):
+    """ViewSet for retrieving ``SeqvarResultSet`` records."""
 
-
-class SeqvarResultSetViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarResultSet.objects.all()
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarresultset"
+    #: The default serializer class to use.
     serializer_class = SeqvarResultSetSerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        """Return queryset with all ``SeqvarResultSet`` records for the given query."""
+        result = SeqvarResultSet.objects.all()
+        result = result.filter(
+            queryexecution__query__sodar_uuid=self.kwargs["seqvarquery"],
+        )
+        return result
 
 
-class SeqvarResultRowViewSet(viewsets.ModelViewSet):
-    queryset = SeqvarResultRow.objects.all()
+class SeqvarResultRowViewSet(BaseReadOnlyViewSet):
+    """ViewSet for retrieving ``SeqvarResultRow`` records."""
+
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "seqvarresultrow"
+    #: The default serializer class to use.
     serializer_class = SeqvarResultRowSerializer
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        """Return queryset with all ``SeqvarResultRow`` records for the given result set."""
+        result = SeqvarResultRow.objects.all()
+        result = result.filter(
+            resultset__sodar_uuid=self.kwargs["seqvarresultset"],
+        )
+        return result

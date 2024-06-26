@@ -12,9 +12,9 @@ from seqvars.models import (
 )
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
-    SeqvarQueryPresetsSetDetailSerializer,
+    SeqvarQueryPresetsSetDetailsSerializer,
     SeqvarQueryPresetsSetSerializer,
-    SeqvarQuerySettingsDetailSerializer,
+    SeqvarQuerySettingsDetailsSerializer,
     SeqvarQuerySettingsFrequencySerializer,
     SeqvarQuerySettingsSerializer,
 )
@@ -85,7 +85,7 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryPresetsSetDetailSerializer(self.seqvarquerypresetsset).data
+        result_json = SeqvarQueryPresetsSetDetailsSerializer(self.seqvarquerypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -352,7 +352,7 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQuerySettingsDetailSerializer(self.seqvarquerysettings).data
+        result_json = SeqvarQuerySettingsDetailsSerializer(self.seqvarquerysettings).data
         result_json["case"] = str(result_json["case"])
         self.assertDictEqual(response.json(), result_json)
 

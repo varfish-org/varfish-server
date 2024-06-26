@@ -197,7 +197,7 @@ class SeqvarQueryPresetsSetSerializer(LabeledSortableBaseSerializer):
         read_only_fields = fields
 
 
-class SeqvarQueryPresetsSetDetailSerializer(SeqvarQueryPresetsSetSerializer):
+class SeqvarQueryPresetsSetDetailsSerializer(SeqvarQueryPresetsSetSerializer):
     """Serializer for ``SeqvarQueryPresetsSet`` (for ``*-detail``).
 
     When retrieving the details of a seqvar query preset set, we also render the
@@ -265,12 +265,12 @@ class SeqvarQuerySettingsSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class SeqvarQuerySettingsDetailSerializer(
+class SeqvarQuerySettingsDetailsSerializer(
     SeqvarQuerySettingsSerializer, WritableNestedModelSerializer
 ):
     """Serializer for ``SeqvarQuerySettings`` (for ``*-detail``).
 
-    When for retrieve, update, or delete operations, we also render the nested
+    For retrieve, update, or delete operations, we also render the nested
     frequency settings.
     """
 
@@ -307,6 +307,22 @@ class SeqvarQuerySerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
+class SeqvarQueryDetailsSerializer(SeqvarQuerySerializer, WritableNestedModelSerializer):
+    """Serializer for ``SeqvarQuery`` (for ``*-detail``).
+
+    For retrieve, update, or delete operations, we also render the nested query settings
+    in detail.
+    """
+
+    #: For the details serializer, we use a nested details serializer.
+    settings_buffer = SeqvarQuerySettingsDetailsSerializer()
+
+    class Meta:
+        model = SeqvarQuery
+        fields = SeqvarQuerySerializer.Meta.fields
+        read_only_fields = fields
+
+
 class SeqvarQueryExecutionSerializer(BaseModelSerializer):
     """Serializer for ``SeqvarQueryExecution``."""
 
@@ -326,6 +342,18 @@ class SeqvarQueryExecutionSerializer(BaseModelSerializer):
             "query",
             "querysettings",
         ]
+        read_only_fields = fields
+
+
+class SeqvarQueryExecutionDetailsSerializer(SeqvarQueryExecutionSerializer):
+    """Serializer for ``SeqvarQueryExecution``."""
+
+    #: For the details, serialize ``querysettings`` fully.
+    querysettings = SeqvarQuerySettingsSerializer()
+
+    class Meta:
+        model = SeqvarQueryExecution
+        fields = SeqvarQueryExecutionSerializer.Meta.fields
         read_only_fields = fields
 
 

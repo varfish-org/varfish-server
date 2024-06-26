@@ -4,11 +4,13 @@ from test_plus import TestCase
 
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
+    SeqvarQueryDetailsSerializer,
+    SeqvarQueryExecutionDetailsSerializer,
     SeqvarQueryExecutionSerializer,
-    SeqvarQueryPresetsSetDetailSerializer,
+    SeqvarQueryPresetsSetDetailsSerializer,
     SeqvarQueryPresetsSetSerializer,
     SeqvarQuerySerializer,
-    SeqvarQuerySettingsDetailSerializer,
+    SeqvarQuerySettingsDetailsSerializer,
     SeqvarQuerySettingsFrequencySerializer,
     SeqvarResultRowSerializer,
     SeqvarResultSetSerializer,
@@ -124,8 +126,9 @@ class TestSeqvarQueryPresetsSetSerializer(TestCase):
         )
 
     def test_serialize_existing(self):
+        # TODO XXX TODO XXX TEST BOTH SEPARATELY XXX TODO XXX TODO
         # Note that we test the ``*Details*`` version as it extends the normal serializer.
-        serializer = SeqvarQueryPresetsSetDetailSerializer(self.seqvarquerypresetsset)
+        serializer = SeqvarQueryPresetsSetDetailsSerializer(self.seqvarquerypresetsset)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -166,8 +169,9 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
         self.seqvarquerysettings = SeqvarQuerySettingsFactory()
 
     def test_serialize_existing(self):
+        # TODO XXX TODO XXX TEST BOTH SEPARATELY XXX TODO XXX TODO
         # Note that we test the ``*Details*`` version as it extends the normal serializer.
-        serializer = SeqvarQuerySettingsDetailSerializer(self.seqvarquerysettings)
+        serializer = SeqvarQuerySettingsDetailsSerializer(self.seqvarquerysettings)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -252,7 +256,9 @@ class TestSeqvarQuerySerializer(TestCase):
         self.seqvarquery = SeqvarQueryFactory()
 
     def test_serialize_existing(self):
-        serializer = SeqvarQuerySerializer(self.seqvarquery)
+        # TODO XXX TODO XXX TEST BOTH SEPARATELY XXX TODO XXX TODO
+        # Note that we test the ``*Details*`` version as it extends the normal serializer.
+        serializer = SeqvarQueryDetailsSerializer(self.seqvarquery)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -317,9 +323,58 @@ class TestSeqvarQueryExecutionSerializer(TestCase):
         expected["start_time"] = expected["start_time"].isoformat().replace("+00:00", "Z")
         expected["end_time"] = expected["end_time"].isoformat().replace("+00:00", "Z")
         # ... and also fix the "elapsed_seconds" value.
-        expected["elapsed_seconds"] = int(expected["elapsed_seconds"])
+        expected["elapsed_seconds"] = expected["elapsed_seconds"]
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarQueryExecutionDetailsSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.seqvarqueryexecution = SeqvarQueryExecutionFactory()
+
+    def test_serialize_existing(self):
+        # Note that we test the ``*Details*`` version as it extends the normal serializer.
+        serializer = SeqvarQueryExecutionDetailsSerializer(self.seqvarqueryexecution)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # SeqvarQueryExecution
+            "state",
+            "complete_percent",
+            "start_time",
+            "end_time",
+            "elapsed_seconds",
+            "query",
+            "querysettings",
+        ]
+        expected = model_to_dict(
+            self.seqvarqueryexecution,
+            fields=fields,
+        )
+        # We replace the query object with its UUID.
+        expected["query"] = self.seqvarqueryexecution.query.sodar_uuid
+        # We render the query settings as a dictionary.
+        expected["querysettings"] = SeqvarQuerySettingsDetailsSerializer(
+            self.seqvarqueryexecution.querysettings
+        ).data
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # We convert the ``FakeDateTime`` objects into strings
+        expected["start_time"] = expected["start_time"].isoformat().replace("+00:00", "Z")
+        expected["end_time"] = expected["end_time"].isoformat().replace("+00:00", "Z")
+        # ... and also fix the "elapsed_seconds" value.
+        expected["elapsed_seconds"] = expected["elapsed_seconds"]
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        # Convert OrderedDict in result to dict.
+        result = dict(serializer.data)
+        result["querysettings"] = dict(result["querysettings"])
+        self.assertDictEqual(result, expected)
 
 
 @freeze_time("2012-01-14 12:00:01")
