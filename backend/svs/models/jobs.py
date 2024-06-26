@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from itertools import islice
 import json
 import os
+import re
 import subprocess
 from tempfile import TemporaryDirectory
 import traceback
@@ -346,7 +347,7 @@ def run_sv_query_bg_job(pk):  # noqa: C901
             records = StructuralVariant.objects.filter(case_id=case_id, set_id=variant_set_id)
             callers = set()
             for record in records:
-                for caller in record.caller.split(";"):
+                for caller in re.split(r'[+;]', record.caller):
                     callers.add(caller)
 
             _write_header(outputf, filter_job.case, list(sorted(callers)))
