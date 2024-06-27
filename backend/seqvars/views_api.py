@@ -124,7 +124,7 @@ class ProjectContextBaseViewSet(BaseViewSet):
         return context
 
 
-class SeqvarQueryPresetsSetViewSet(BaseViewSet):
+class SeqvarQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``SeqvarQueryPresetsSet`` model."""
 
     #: Define lookup URL kwarg.
@@ -141,7 +141,7 @@ class SeqvarQueryPresetsSetViewSet(BaseViewSet):
         return result
 
 
-class SeqvarCategoryPresetsViewSetBase(BaseViewSet):
+class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``SeqvarPresets<*>ViewSet`` models."""
 
     def get_queryset(self):

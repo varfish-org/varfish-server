@@ -252,6 +252,10 @@ class SeqvarQuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``case`` as its ``sodar_uuid``.
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
+    #: Serialize ``seqvarquerysettingsfrequency`` as its ``sodar_uuid``.
+    seqvarquerysettingsfrequency = serializers.ReadOnlyField(
+        source="seqvarquerysettingsfrequency.sodar_uuid"
+    )
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -349,7 +353,7 @@ class SeqvarQueryExecutionDetailsSerializer(SeqvarQueryExecutionSerializer):
     """Serializer for ``SeqvarQueryExecution``."""
 
     #: For the details, serialize ``querysettings`` fully.
-    querysettings = SeqvarQuerySettingsSerializer()
+    querysettings = SeqvarQuerySettingsDetailsSerializer()
 
     class Meta:
         model = SeqvarQueryExecution
