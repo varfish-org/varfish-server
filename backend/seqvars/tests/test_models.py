@@ -97,10 +97,10 @@ class TestQuerySettingsFrequency(TestCase):
         self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
 
     def test_str(self):
-        querysettingsfrequency = QuerySettingsFrequencyFactory()
+        frequency = QuerySettingsFrequencyFactory()
         self.assertEqual(
-            f"QuerySettingsFrequency '{querysettingsfrequency.sodar_uuid}'",
-            querysettingsfrequency.__str__(),
+            f"QuerySettingsFrequency '{frequency.sodar_uuid}'",
+            frequency.__str__(),
         )
 
 

@@ -249,8 +249,8 @@ class QuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``session`` as its ``sodar_uuid``.
     session = serializers.ReadOnlyField(source="session.sodar_uuid")
-    #: Serialize ``querysettingsfrequency`` as its ``sodar_uuid``.
-    querysettingsfrequency = serializers.ReadOnlyField(source="querysettingsfrequency.sodar_uuid")
+    #: Serialize ``frequency`` as its ``sodar_uuid``.
+    frequency = serializers.ReadOnlyField(source="frequency.sodar_uuid")
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -260,7 +260,7 @@ class QuerySettingsSerializer(BaseModelSerializer):
 
     class Meta:
         model = QuerySettings
-        fields = BaseModelSerializer.Meta.fields + ["session", "querysettingsfrequency"]
+        fields = BaseModelSerializer.Meta.fields + ["session", "frequency"]
         read_only_fields = fields
 
 
@@ -272,12 +272,12 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
     """
 
     #: Nested serialization of the frequency settings.
-    querysettingsfrequency = QuerySettingsFrequencySerializer()
+    frequency = QuerySettingsFrequencySerializer()
 
     class Meta:
         model = QuerySettingsSerializer.Meta.model
         fields = QuerySettingsSerializer.Meta.fields + [
-            "querysettingsfrequency",
+            "frequency",
         ]
         read_only_fields = fields
 

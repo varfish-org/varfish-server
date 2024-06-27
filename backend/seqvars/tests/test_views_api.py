@@ -344,7 +344,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                     },
                 ),
                 data={
-                    "querysettingsfrequency": QuerySettingsFrequencySerializer(
+                    "frequency": QuerySettingsFrequencySerializer(
                         QuerySettingsFrequencyFactory.build(querysettings=None)
                     ).data
                 },
@@ -394,7 +394,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"querysettingsfrequency": {"gnomad_genomes_enabled": True}}],
+            [{"frequency": {"gnomad_genomes_enabled": True}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
@@ -492,7 +492,7 @@ class TestQueryViewSet(ApiViewTestBase):
             settings_buffer = QuerySettingsSerializer(
                 QuerySettingsFactory.build(),
             ).data
-            settings_buffer["querysettingsfrequency"] = QuerySettingsFrequencySerializer(
+            settings_buffer["frequency"] = QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
             response = self.client.post(
@@ -552,7 +552,7 @@ class TestQueryViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"settings_buffer": {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}}],
+            [{"settings_buffer": {"frequency": {"gnomad_genomes_enabled": True}}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):

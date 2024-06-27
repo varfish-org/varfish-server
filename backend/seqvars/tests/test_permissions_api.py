@@ -349,7 +349,7 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
 
         data = {
-            "querysettingsfrequency": QuerySettingsFrequencySerializer(
+            "frequency": QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data,
         }
@@ -419,7 +419,7 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
                 "querysettings": self.querysettings.sodar_uuid,
             },
         )
-        data = {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}
+        data = {"frequency": {"gnomad_genomes_enabled": True}}
         good_users = [
             self.superuser,
             self.user_contributor,
@@ -528,7 +528,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         data = {
             "label": "test label",
             "settings_buffer": {
-                "querysettingsfrequency": (
+                "frequency": (
                     QuerySettingsFrequencySerializer(
                         QuerySettingsFrequencyFactory.build(querysettings=None)
                     ).data
@@ -601,7 +601,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
                 "query": self.query.sodar_uuid,
             },
         )
-        data = {"query_buffer": {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}}
+        data = {"query_buffer": {"frequency": {"gnomad_genomes_enabled": True}}}
         good_users = [
             self.superuser,
             self.user_contributor,

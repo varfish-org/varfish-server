@@ -118,7 +118,7 @@ class QueryPresetsFrequencyFactory(FrequencySettingsBaseFactory, QueryPresetsBas
 class QuerySettingsFactory(BaseModelFactory):
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    querysettingsfrequency = factory.RelatedFactory(
+    frequency = factory.RelatedFactory(
         "seqvars.tests.factories.QuerySettingsFrequencyFactory",
         factory_related_name="querysettings",
     )
@@ -129,9 +129,9 @@ class QuerySettingsFactory(BaseModelFactory):
 
 class QuerySettingsFrequencyFactory(BaseModelFactory):
 
-    # We pass in querysettingsfrequency=None to prevent creation of a second
+    # We pass in frequency=None to prevent creation of a second
     # ``QuerySettingsFrequency``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, querysettingsfrequency=None)
+    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
 
     class Meta:
         model = QuerySettingsFrequency

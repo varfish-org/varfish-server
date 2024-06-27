@@ -214,7 +214,7 @@ class TestQuerySettingsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
-            "querysettingsfrequency",
+            "frequency",
         ]
         expected = model_to_dict(
             self.querysettings,
@@ -222,7 +222,7 @@ class TestQuerySettingsSerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["session"] = self.querysettings.session.sodar_uuid
-        expected["querysettingsfrequency"] = self.querysettings.querysettingsfrequency.sodar_uuid
+        expected["frequency"] = self.querysettings.frequency.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -248,7 +248,7 @@ class TestQuerySettingsDetailsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
-            "querysettingsfrequency",
+            "frequency",
         ]
         expected = model_to_dict(
             self.querysettings,
@@ -261,9 +261,7 @@ class TestQuerySettingsDetailsSerializer(TestCase):
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
         # The same is true for the related one-to-one fields.
-        expected["querysettingsfrequency"] = QuerySettingsFrequencySerializer(
-            self.querysettings.querysettingsfrequency
-        ).data
+        expected["frequency"] = QuerySettingsFrequencySerializer(self.querysettings.frequency).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
@@ -273,10 +271,10 @@ class TestQuerySettingsDetailsSerializer(TestCase):
 class TestQuerySettingsFrequencySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querysettingsfrequency = QuerySettingsFrequencyFactory()
+        self.frequency = QuerySettingsFrequencyFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsFrequencySerializer(self.querysettingsfrequency)
+        serializer = QuerySettingsFrequencySerializer(self.frequency)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -306,11 +304,11 @@ class TestQuerySettingsFrequencySerializer(TestCase):
             "inhouse_hemizygous",
         ]
         expected = model_to_dict(
-            self.querysettingsfrequency,
+            self.frequency,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["querysettings"] = self.querysettingsfrequency.querysettings.sodar_uuid
+        expected["querysettings"] = self.frequency.querysettings.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -468,9 +466,7 @@ class TestQueryExecutionDetailsSerializer(TestCase):
         expected["querysettings"] = dict(
             QuerySettingsDetailsSerializer(self.queryexecution.querysettings).data
         )
-        expected["querysettings"]["querysettingsfrequency"] = dict(
-            expected["querysettings"]["querysettingsfrequency"]
-        )
+        expected["querysettings"]["frequency"] = dict(expected["querysettings"]["frequency"])
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
