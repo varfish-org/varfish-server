@@ -15,46 +15,6 @@ from variants.models.projectroles import Project
 User = get_user_model()
 
 
-class GenotypeChoice(str, Enum):
-    """Store genotype choice of a ``SampleGenotype``."""
-
-    #: Reference (wild type, homozygous/hemizygous reference) genotype.
-    REF = "ref"
-    #: Heterozygous genotype.
-    HET = "het"
-    #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
-    HOM = "hom"
-
-    @classmethod
-    def values(cls) -> list[str]:
-        return list(map(lambda c: c.value, cls))
-
-
-class SampleGenotypeChoice(pydantic.BaseModel):
-    """Store the genotype of a sample."""
-
-    #: The sample identifier.
-    sample: str
-    #: The genotype.
-    genotypes: list[GenotypeChoice]
-
-    @pydantic.field_validator("genotypes")
-    @classmethod
-    def genotypes_sort_and_make_unique(cls, v: list[GenotypeChoice]) -> list[GenotypeChoice]:
-        """Convert ``genotypes`` value to sorted list with unique elements."""
-        return list(sorted(set(v)))
-
-
-class SampleGenotypeSettingsBase(models.Model):
-    """Abstract model for storing genotype-related settings."""
-
-    #: Per-sample genotypes for the pedigree.
-    sample_genotypes = SchemaField(schema=list[SampleGenotypeChoice], default=list)
-
-    class Meta:
-        abstract = True
-
-
 class FrequencySettingsBase(models.Model):
     """Abstract model for storing frequency-related settings."""
 
@@ -537,6 +497,63 @@ class QuerySettingsCategoryBase(BaseModel):
 
     class Meta:
         abstract = True
+
+
+class GenotypeChoice(str, Enum):
+    """Store genotype choice of a ``SampleGenotype``."""
+
+    #: Any.
+    ANY = "any"
+    #: Reference (wild type, homozygous/hemizygous reference) genotype.
+    REF = "ref"
+    #: Heterozygous genotype.
+    HET = "het"
+    #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
+    HOM = "hom"
+    #: Non-homozygous.
+    NON_HOM = "non-hom"
+    #: Variant.
+    VARIANT = "variant"
+    #: Compound heterozygous index.
+    COMPHET_INDEX = "comphet_index"
+    #: Recessive index.
+    RECESSIVE_INDEX = "recessive_index"
+    #: Recessive parent.
+    RECESSIVE_PARENT = "recessive_parent"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class SampleGenotypeChoice(pydantic.BaseModel):
+    """Store the genotype of a sample."""
+
+    #: The sample identifier.
+    sample: str
+    #: The genotype.
+    genotype: GenotypeChoice
+
+    @pydantic.field_validator("genotypes")
+    @classmethod
+    def genotypes_sort_and_make_unique(cls, v: list[GenotypeChoice]) -> list[GenotypeChoice]:
+        """Convert ``genotypes`` value to sorted list with unique elements."""
+        return list(sorted(set(v)))
+
+
+class QuerySettingsGenotype(QuerySettingsCategoryBase):
+    """Query settings for per-sample genotype filtration."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="genotype"
+    )
+
+    #: Per-sample genotype choice.
+    sample_genotype_choices = SchemaField(schema=list[SampleGenotypeChoice], default=list)
+
+    def __str__(self):
+        return f"QuerySettingsGenotype '{self.sodar_uuid}'"
 
 
 class QualityFilterOnFailureChoice(str, Enum):

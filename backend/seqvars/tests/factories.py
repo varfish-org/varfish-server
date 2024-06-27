@@ -5,19 +5,44 @@ import factory
 
 from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.models import (
+    ClinvarGermlineAggregateDescription,
+    ColumnConfig,
     DataSourceInfo,
     DataSourceInfos,
+    Gene,
     GenotypeChoice,
     Query,
     QueryExecution,
+    QueryPresetsClinvar,
+    QueryPresetsColumns,
+    QueryPresetsConsequence,
     QueryPresetsFrequency,
+    QueryPresetsLocus,
+    QueryPresetsPhenotypePrio,
+    QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsVariantPrio,
     QuerySettings,
+    QuerySettingsClinvar,
+    QuerySettingsColumns,
+    QuerySettingsConsequence,
     QuerySettingsFrequency,
+    QuerySettingsGenotype,
+    QuerySettingsLocus,
+    QuerySettingsPhenotypePrio,
+    QuerySettingsQuality,
+    QuerySettingsVariantPrio,
     ResultRow,
     ResultRowPayload,
     ResultSet,
     SampleGenotypeChoice,
+    SampleQualityFilter,
+    Term,
+    TermPresence,
+    TranscriptTypeChoice,
+    VariantConsequenceChoice,
+    VariantPrioService,
+    VariantTypeChoice,
 )
 from variants.tests.factories import CaseFactory, ProjectFactory
 
@@ -75,6 +100,82 @@ class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
         abstract = True
 
 
+class ConsequenceSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    varian_types = [VariantTypeChoice.SNV]
+    transcript_types = [TranscriptTypeChoice.CODING]
+    variant_consequences = [VariantConsequenceChoice.MISSENSE_VARIANT]
+
+    class Meta:
+        abstract = True
+
+
+class LocusSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    genes = [
+        Gene(hgnc_id="HGNC:1234", symbol="GENE1"),
+    ]
+    genome_regions = []
+
+    class Meta:
+        abstract = True
+
+
+class PhenotypePrioSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    phenotype_prio_enabled = False
+    phenotype_prio_algorithm = "HiPhive"
+    terms = [
+        TermPresence(
+            term=Term(
+                term_id="HP:0000001",
+                label="Phenotype 1",
+            ),
+            excluded=False,
+        )
+    ]
+
+    class Meta:
+        abstract = True
+
+
+class VariantPrioSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    phenotype_prio_enabled = False
+    services = [VariantPrioService(service="MutationTaster", version="2021")]
+
+    class Meta:
+        abstract = True
+
+
+class ClinvarSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    clinvar_presence_required = False
+    clinvar_germline_aggregate_description = [
+        ClinvarGermlineAggregateDescription.PATHOGENIC,
+        ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
+    ]
+    include_legacy_descriptions = False
+
+    class Meta:
+        abstract = True
+
+
+class ColumnsSettingsBaseFactory(factory.django.DjangoModelFactory):
+
+    column_settings = [
+        ColumnConfig(
+            name="chromosome",
+            label="Chromosome",
+            width=300,
+            visible=True,
+        )
+    ]
+
+    class Meta:
+        abstract = True
+
+
 class BaseModelFactory(factory.django.DjangoModelFactory):
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(django.utils.timezone.now)
@@ -109,10 +210,59 @@ class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
         abstract = True
 
 
+class QueryPresetsQualityFactory(QueryPresetsBaseFactory):
+
+    min_dp_het = 10
+    min_dp_hom = 5
+    min_ab_het = 0.3
+    min_gq = 20
+    min_ad = 3
+    on_failure = QueryPresetsQuality.ON_FAILURE_DROP_VARIANT
+
+    class Meta:
+        model = QueryPresetsQuality
+
+
 class QueryPresetsFrequencyFactory(FrequencySettingsBaseFactory, QueryPresetsBaseFactory):
 
     class Meta:
         model = QueryPresetsFrequency
+
+
+class QueryPresetsConsequenceFactory(ConsequenceSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsConsequence
+
+
+class QueryPresetsLocusFactory(LocusSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsLocus
+
+
+class QueryPresetsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsPhenotypePrio
+
+
+class QueryPresetsVariantPrioFactory(VariantPrioSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsVariantPrio
+
+
+class QueryPresetsClinvarFactory(ClinvarSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsClinvar
+
+
+class QueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = QueryPresetsColumns
 
 
 class QuerySettingsFactory(BaseModelFactory):
@@ -127,7 +277,105 @@ class QuerySettingsFactory(BaseModelFactory):
         model = QuerySettings
 
 
-class QuerySettingsFrequencyFactory(BaseModelFactory):
+class QuerySettingsGenotypeFactory(BaseModelFactory):
+
+    # We pass in genotype=None to prevent creation of a second
+    # ``QuerySettingsGenotype``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, genotype=None)
+
+    sample_genotype_choices = [SampleGenotypeChoiceFactory()]
+
+    class Meta:
+        model = QuerySettingsGenotype
+
+
+class QuerySettingsQualityFactory(BaseModelFactory):
+
+    # We pass in quality=None to prevent creation of a second
+    # ``QuerySettingsQuality``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, quality=None)
+    sample_quality_filters = [
+        SampleQualityFilter(
+            sample="index",
+            on_failure=SampleQualityFilter.ON_FAILURE_DROP_SAMPLE,
+        )
+    ]
+
+    class Meta:
+        model = QuerySettingsQuality
+
+
+class QuerySettingsConsequenceFactory(ConsequenceSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in consequence=None to prevent creation of a second
+    # ``QuerySettingsConsequence``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, consequence=None)
+
+    class Meta:
+        model = QuerySettingsConsequence
+
+
+class QuerySettingsLocusFactory(LocusSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in locus=None to prevent creation of a second
+    # ``QuerySettingsLocus``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, locus=None)
+
+    class Meta:
+        model = QuerySettingsLocus
+
+
+class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
+
+    # We pass in frequency=None to prevent creation of a second
+    # ``QuerySettingsFrequency``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
+
+    class Meta:
+        model = QuerySettingsFrequency
+
+
+class QuerySettingsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in phenotypeprio=None to prevent creation of a second
+    # ``QuerySettingsPhenotypePrio``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, phenotypeprio=None)
+
+    class Meta:
+        model = QuerySettingsPhenotypePrio
+
+
+class QuerySettingsVariantPrioFactory(VariantPrioSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in variantprio=None to prevent creation of a second
+    # ``QuerySettingsVariantPrio``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, variantprio=None)
+
+    class Meta:
+        model = QuerySettingsVariantPrio
+
+
+class QuerySettingsClinvarFactory(ClinvarSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in clinvar=None to prevent creation of a second
+    # ``QuerySettingsClinvar``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, clinvar=None)
+
+    class Meta:
+        model = QuerySettingsClinvar
+
+
+class QuerySettingsColumnsFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in columns=None to prevent creation of a second
+    # ``QuerySettingsColumns``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, columns=None)
+
+    class Meta:
+        model = QuerySettingsColumns
+
+
+class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
 
     # We pass in frequency=None to prevent creation of a second
     # ``QuerySettingsFrequency``.
