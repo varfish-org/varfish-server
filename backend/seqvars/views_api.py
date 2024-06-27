@@ -55,6 +55,14 @@ def get_project(kwargs):
             CaseAnalysisSession.objects.all(), sodar_uuid=kwargs["caseanalysissession"]
         )
         project = caseanalysissession.caseanalysis.case.project
+    elif "seqvarquery" in kwargs:
+        seqvarquery = get_object_or_404(SeqvarQuery.objects.all(), sodar_uuid=kwargs["seqvarquery"])
+        project = seqvarquery.session.caseanalysis.case.project
+    elif "seqvarresultset" in kwargs:
+        seqvarresultset = get_object_or_404(
+            SeqvarResultSet.objects.all(), sodar_uuid=kwargs["seqvarresultset"]
+        )
+        project = seqvarresultset.queryexecution.query.session.caseanalysis.case.project
     elif "case" in kwargs:
         case = get_object_or_404(Case.objects.all(), sodar_uuid=kwargs["case"])
         project = case.project
@@ -336,6 +344,12 @@ class SeqvarResultSetViewSet(BaseReadOnlyViewSet):
         return result
 
 
+class ResultRowPagination(StandardPagination):
+    """Cursor navigation for result rows."""
+
+    ordering = ["-chromosome_no", "start"]
+
+
 class SeqvarResultRowViewSet(BaseReadOnlyViewSet):
     """ViewSet for retrieving ``SeqvarResultRow`` records."""
 
@@ -343,6 +357,8 @@ class SeqvarResultRowViewSet(BaseReadOnlyViewSet):
     lookup_url_kwarg = "seqvarresultrow"
     #: The default serializer class to use.
     serializer_class = SeqvarResultRowSerializer
+    #: Override pagination as rows do not have ``date_created``.
+    pagination_class = ResultRowPagination
 
     def get_queryset(self):
         """Return queryset with all ``SeqvarResultRow`` records for the given result set."""

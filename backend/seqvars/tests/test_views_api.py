@@ -15,19 +15,26 @@ from seqvars.models import (
 from seqvars.serializers import (
     SeqvarPresetsFrequencySerializer,
     SeqvarQueryDetailsSerializer,
+    SeqvarQueryExecutionDetailsSerializer,
+    SeqvarQueryExecutionSerializer,
     SeqvarQueryPresetsSetDetailsSerializer,
     SeqvarQueryPresetsSetSerializer,
     SeqvarQuerySerializer,
     SeqvarQuerySettingsDetailsSerializer,
     SeqvarQuerySettingsFrequencySerializer,
     SeqvarQuerySettingsSerializer,
+    SeqvarResultRowSerializer,
+    SeqvarResultSetSerializer,
 )
 from seqvars.tests.factories import (
     SeqvarPresetsFrequencyFactory,
+    SeqvarQueryExecutionFactory,
     SeqvarQueryFactory,
     SeqvarQueryPresetsSetFactory,
     SeqvarQuerySettingsFactory,
     SeqvarQuerySettingsFrequencyFactory,
+    SeqvarResultRowFactory,
+    SeqvarResultSetFactory,
 )
 from variants.tests.factories import CaseFactory
 from variants.tests.helpers import ApiViewTestBase
@@ -636,3 +643,219 @@ class TestSeqvarQueryViewSet(ApiViewTestBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(SeqvarQuery.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarQueryExecutionViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.caseanalysis = CaseAnalysisFactory(case=self.case)
+        self.caseanalysissession = CaseAnalysisSessionFactory(
+            caseanalysis=self.caseanalysis, user=self.superuser
+        )
+        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
+        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarqueryexecution-list",
+                    kwargs={
+                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarQueryExecutionSerializer(self.seqvarqueryexecution).data
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarqueryexecution-detail",
+                    kwargs={
+                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "seqvarqueryexecution": self.seqvarqueryexecution.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarQueryExecutionDetailsSerializer(self.seqvarqueryexecution).data
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"seqvarquery": "00000000-0000-0000-0000-000000000000"}],
+            [{"seqvarqueryexecution": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarqueryexecution-detail",
+                    kwargs={
+                        **{
+                            "seqvarquery": self.seqvarquery.sodar_uuid,
+                            "seqvarqueryexecution": self.seqvarqueryexecution.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarResultSetViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.caseanalysis = CaseAnalysisFactory(case=self.case)
+        self.caseanalysissession = CaseAnalysisSessionFactory(
+            caseanalysis=self.caseanalysis, user=self.superuser
+        )
+        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
+        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
+        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultset-list",
+                    kwargs={
+                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarResultSetSerializer(self.seqvarresultset).data
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultset-detail",
+                    kwargs={
+                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarResultSetSerializer(self.seqvarresultset).data
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"seqvarquery": "00000000-0000-0000-0000-000000000000"}],
+            [{"seqvarresultset": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultset-detail",
+                    kwargs={
+                        **{
+                            "seqvarquery": self.seqvarquery.sodar_uuid,
+                            "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarResultRowViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.caseanalysis = CaseAnalysisFactory(case=self.case)
+        self.caseanalysissession = CaseAnalysisSessionFactory(
+            caseanalysis=self.caseanalysis, user=self.superuser
+        )
+        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
+        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
+        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
+        self.seqvarresultrow = SeqvarResultRowFactory(resultset=self.seqvarresultset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultrow-list",
+                    kwargs={
+                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarResultRowSerializer(self.seqvarresultrow).data
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultrow-detail",
+                    kwargs={
+                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                        "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = SeqvarResultRowSerializer(self.seqvarresultrow).data
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"seqvarresultset": "00000000-0000-0000-0000-000000000000"}],
+            [{"seqvarresultrow": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-seqvarresultrow-detail",
+                    kwargs={
+                        **{
+                            "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                            "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
