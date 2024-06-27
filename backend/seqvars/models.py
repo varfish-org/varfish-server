@@ -49,7 +49,7 @@ class SampleGenotypeSettingsBase(models.Model):
     """Abstract model for storing genotype-related settings."""
 
     #: Per-sample genotypes for the pedigree.
-    sample_genotypes = SchemaField(schema=list[SampleGenotypeChoice])
+    sample_genotypes = SchemaField(schema=list[SampleGenotypeChoice], default=list)
 
     class Meta:
         abstract = True
@@ -80,6 +80,307 @@ class FrequencySettingsBase(models.Model):
     inhouse_homozygous = models.BooleanField(null=True, blank=True)
     inhouse_heterozygous = models.BooleanField(null=True, blank=True)
     inhouse_hemizygous = models.BooleanField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class VariantTypeChoice(str, Enum):
+    """The type of a variant."""
+
+    #: Single nucleotide variant.
+    SNV = "snv"
+    #: Insertion/deletion.
+    INDEL = "indel"
+    #: Multi-nucleotide variant.
+    MNV = "mnv"
+    #: Complex substitution.
+    COMPLEX_SUBSTITUTION = "complex_substitution"
+
+
+class TranscriptTypeChoice(str, Enum):
+    """The type of a transcript."""
+
+    #: Coding transcript.
+    CODING = "coding"
+    #: Non-coding transcript.
+    NON_CODING = "non_coding"
+
+
+class VariantConsequenceChoice(str, Enum):
+    """The variant consequence."""
+
+    # high impact
+
+    # skipped chromosome_number_variation
+    # skipped exon_loss_variant
+    #: Frameshift variant
+    FRAMESHIFT_VARIANT = "frameshift_variant"
+    #: Rare amino acid variant
+    RARE_AMINO_ACID_VARIANT = "rare_amino_acid_variant"
+    #: Splice acceptor variant
+    SPLICE_ACCEPTOR_VARIANT = "splice_acceptor_variant"
+    #: Splice donor variant
+    SPLICE_DONOR_VARIANT = "splice_donor_variant"
+    #: Start lost
+    START_LOST = "start_lost"
+    #: Stop gained
+    STOP_GAINED = "stop_gained"
+    #: Stop lost
+    STOP_LOST = "stop_lost"
+    # skipped transcript_ablation
+
+    # moderate impact
+
+    # 3' UTR truncation
+    THREE_PRIME_UTR_TRUNCATION = "3_prime_UTR_truncation"
+    # 5' UTR truncation
+    FIVE_PRIME_UTR_TRUNCATION = "5_prime_UTR_truncation"
+    #: Conservative inframe deletion
+    CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
+    #: Conservative inframe insertion
+    CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
+    #: Disruptive inframe deletion
+    DISRUPTIVE_INFRAME_DELETION = "disruptive_inframe_deletion"
+    #: Disruptive inframe insertion
+    DISRUPTIVE_INFRAME_INSERTION = "disruptive_inframe_insertion"
+    #: Missense variant
+    MISSENSE_VARIANT = "missense_variant"
+    #: skipped regulatory_region_ablation
+    #: Splice region variant
+    SPLICE_REGION_VARIANT = "splice_region_variant"
+    # skipped TFBS_ablation
+
+    # low impact
+
+    # skipped 5_prime_UTR_premature_start_codon_gain_variant
+    #: Initiator codon variant
+    INITIATOR_CODON_VARIANT = "initiator_codon_variant"
+    #: Start retained
+    START_RETAINED = "start_retained"
+    #: Stop retained variant
+    STOP_RETAINED_VARIANT = "stop_retained_variant"
+    #: Synonymous variant
+    SYNONYMOUS_VARIANT = "synonymous_variant"
+
+    # modifier
+
+    # skipped 3_prime_UTR_variant
+    # skipped 5_prime_UTR_variant
+    # skipped coding_sequence_variant
+    # skipped conserved_intergenic_variant
+    # skipped conserved_intron_variant
+    #: Downstream gene variant
+    DOWNSTREAM_GENE_VARIANT = "downstream_gene_variant"
+    # skipped exon_variant
+    # skipped feature_elongation
+    # skipped feature_truncation
+    # skipped gene_variant
+    # skipped intergenic_variant
+    # skipped intron_variant
+    # skipped mature_miRNA_variant
+    # skipped miRNA
+    # skipped NMD_transcript_variant
+    #: Non-coding transcript exon variant
+    NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"
+    #: Non-coding transcript intron variant
+    NON_CODING_TRANSCRIPT_INTRON_VARIANT = "non_coding_transcript_intron_variant"
+    #: 5' UTR variant
+    FIVE_PRIME_UTR_VARIANT = "5_prime_UTR_variant"
+    #: Coding sequence variant
+    CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
+    # skipped regulatory_region_amplification
+    # skipped regulatory_region_variant
+    # skipped TF_binding_site_variant
+    # skipped TFBS_amplification
+    # skipped transcript_amplification
+    # skipped transcript_variant
+    #: Upstream gene variant
+    UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
+
+    #: EXTRA, not directly written by Mehari: 3' UTR variant + exon variant
+    THREE_PRIME_UTR_VARIANT_EXON_VARIANT = "3_prime_UTR_variant-exon_variant"
+    #: EXTRA, not directly written by Mehari: 5' UTR variant + exon variant
+    FIVE_PRIME_UTR_VARIANT_EXON_VARIANT = "5_prime_UTR_variant-exon_variant"
+    #: EXTRA, not directly written by Mehari: 3' UTR variant + intron_variant
+    THREE_PRIME_UTR_VARIANT_INTRON_VARIANT = "3_prime_UTR_variant-intron_variant"
+    #: EXTRA, not directly written by Mehari: 5' UTR variant + intron_variant
+    FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT = "5_prime_UTR_variant-intron_variant"
+
+
+class ConsequenceBase(models.Model):
+    """Abstract model for storing consequence-related settings."""
+
+    #: The variant types.
+    variant_types = SchemaField(schema=list[VariantTypeChoice], default=list)
+    #: The transcript types.
+    transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
+    #: The variant consequences.
+    variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+
+    class Meta:
+        abstract = True
+
+
+class Gene(pydantic.BaseModel):
+    """Representation of a gene to query for."""
+
+    #: The HGNC identifier used as stable ID.
+    hgnc_id: str
+    #: The HGNC gene symbol (informative for the user).
+    symbol: str
+    #: Optionally, the gene name (informative for the user).
+    name: typing.Optional[str]
+    #: Optionally, the NCBI Entrez GeneID (informative for the user).
+    entrez_id: typing.Optional[int]
+    #: Optionally, the Ensembl gene ID (informative for the user).
+    ensembl_id: typing.Optional[str]
+
+
+class OneBasedRange(pydantic.BaseModel):
+    """Representation of a 1-based range."""
+
+    #: The 1-based start position.
+    start: int
+    #: The 1-based end position.
+    end: int
+
+
+class GenomeRegion(pydantic.BaseModel):
+    """Representation of a genomic region to query for."""
+
+    #: The chromosome name.
+    chromosome: str
+    #: The optional range.
+    range: typing.Optional[OneBasedRange] = None
+
+
+class LocusSettingsBase(models.Model):
+    """Abstract model for storing locus-related settings."""
+
+    #: Optional list of gene symbols to filter for.
+    genes = SchemaField(schema=list[Gene], default=list)
+    #: Optional list of genomic regions to filter for.
+    genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
+
+    class Meta:
+        abstract = True
+
+
+class Term(pydantic.BaseModel):
+    """Representation of a condition (phenotype / disease) term."""
+
+    #: CURIE-style identifier, e.g., with prefixes "HP:0000001", "OMIM:123456", "ORPHA:123456
+    term_id: str
+    #: An optional label for the term.
+    label: typing.Optional[str]
+
+
+class TermPresence(pydantic.BaseModel):
+    """Representation of a term with optional presence (default is not excluded)."""
+
+    #: The condition term.
+    term: Term
+    #: Whether the term is excluded.
+    excluded: typing.Optional[bool] = None
+
+
+class PhenotypePrioSettingsBase(models.Model):
+    """Abstract model for storing phenotype priorization--related settings."""
+
+    #: Whether to enable phenotype-based priorization.
+    phenotype_prio_enabled = models.BooleanField(default=False, null=False, blank=False)
+    #: The algorithm to use for priorization.
+    phenotype_prio_algorithm = models.CharField(max_length=128, null=True, blank=True)
+    #: The phenotype terms to use.
+    terms = SchemaField(schema=list[TermPresence], default=list)
+
+    class Meta:
+        abstract = True
+
+
+class VariantPrioService(pydantic.BaseModel):
+    """Representation of a variant pathogenicity service."""
+
+    #: The name of the service.
+    name: str
+    #: The version of the service.
+    version: str
+
+
+class VariantPrioSettingsBase(models.Model):
+    """Abstract model for storing variant priorization--related settings.
+
+    Note that this refers to external APIs that provide variant pathogenicity scores
+    that are not annotated by the worker already (i.e., not precomputed).
+    """
+
+    #: Whether to enable variant-based priorization.
+    variant_prio_enabled = models.BooleanField(default=False, null=False, blank=False)
+    #: The enabled services.
+    services = SchemaField(schema=list[VariantPrioService], default=list)
+
+    class Meta:
+        abstract = True
+
+
+class ClinvarGermlineAggregateDescription(str, Enum):
+    """The aggregate description for germline variants in ClinVar."""
+
+    #: Pathogenic
+    PATHOGENIC = "pathogenic"
+    # #: Pathogenic / likely pathogenic
+    # PATHOGENIC_LIKELY_PATHOGENIC = "pathogenic_likely_pathogenic"
+    #: Likely pathogenic
+    LIKELY_PATHOGENIC = "likely_pathogenic"
+    #: Uncertain significance
+    UNCERTAIN_SIGNIFICANCE = "uncertain_significance"
+    #: Likely benign
+    LIKELY_BENIGN = "likely_benign"
+    # #: Benign / likely benign
+    # BENIGN_LIKELY_BENIGN = "benign_likely_benign"
+    #: Benign
+    BENIGN = "benign"
+    # #: Conflicting interpretations of pathogenicity
+    # CONFLICTING_CLASSIFICATIONS_OF_PATHOGENICITY = "conflicting_classifications_of_pathogenicity"
+
+
+class ClinvarSettingsBase(models.Model):
+    """Abstract model for storing clinvar-related settings."""
+
+    #: Whether to require presence in ClinVar priorization.
+    clinvar_presence_required = models.BooleanField(default=False, null=False, blank=False)
+    #: The aggregate description for germline variants.
+    clinvar_germline_aggregate_description = SchemaField(
+        schema=list[ClinvarGermlineAggregateDescription], default=list
+    )
+    #: Whether to include "legacy" aggregate descriptions.
+    include_legacy_descriptions = models.BooleanField(default=False, null=False, blank=False)
+
+    class Meta:
+        abstract = True
+
+
+class ColumnConfig(pydantic.BaseModel):
+    """Configuration for a single column in the result table."""
+
+    #: The column name.
+    name: str
+    #: The column label.
+    label: str
+    #: The column description.
+    description: typing.Optional[str]
+    #: The column width.
+    width: int
+    #: The column visibility.
+    visible: bool
+
+
+class ColumnsSettingsBase(models.Model):
+    """Abstract model for storing column-related settings."""
+
+    #: List of columns with their widths.
+    column_settings = SchemaField(schema=list[ColumnConfig], default=list)
 
     class Meta:
         abstract = True
@@ -134,6 +435,44 @@ class QueryPresetsBase(LabeledSortableBase):
         abstract = True
 
 
+class QueryPresetsQuality(QueryPresetsBase):
+    """Presets for quality settings within a ``QueryPresetsSet``.
+
+    This is copied into ``QuerySettingsQuality.sample_quality_filters`` for
+    each sample in the family when creating filter settings.
+    """
+
+    ON_FAILURE_DROP_VARIANT = "drop_variant"
+    ON_FAILURE_DO_NOTHING = "do_nothing"
+    ON_FAILURE_NO_CALL = "no_call"
+
+    ON_FAILURE_CHOICES = (
+        (ON_FAILURE_DROP_VARIANT, ON_FAILURE_DROP_VARIANT),
+        (ON_FAILURE_DO_NOTHING, ON_FAILURE_DO_NOTHING),
+        (ON_FAILURE_NO_CALL, ON_FAILURE_NO_CALL),
+    )
+
+    #: Minimal depth for het. variants.
+    min_dp_het = models.IntegerField(null=True, blank=True)
+    #: Minimal depth for hom. variants.
+    min_dp_hom = models.IntegerField(null=True, blank=True)
+    #: Minimal allele balance for het. variants.
+    min_ab_het = models.FloatField(null=True, blank=True)
+    #: Minimal genotype quality.
+    min_gq = models.IntegerField(null=True, blank=True)
+    #: Minimal alternate allele read depth.
+    min_ad = models.IntegerField(null=True, blank=True)
+    #: Maximal alternate allele read depth.
+    max_ad = models.IntegerField(null=True, blank=True)
+    #: Behaviour for failing filter.
+    on_failure = models.CharField(
+        max_length=128, choices=ON_FAILURE_CHOICES, default=ON_FAILURE_DROP_VARIANT
+    )
+
+    def __str__(self):
+        return f"QueryPresetsQuality '{self.sodar_uuid}'"
+
+
 class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
     """Presets for frequency settings within a ``QueryPresetsSet``."""
 
@@ -141,28 +480,46 @@ class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
         return f"QueryPresetsFrequency '{self.sodar_uuid}'"
 
 
-# class QueryPresetsConsequence(QueryPresetsBase):
-#     """Presets for consequence-related settings within a ``QueryPresetsSet``."""
+class QueryPresetsConsequence(ConsequenceBase, QueryPresetsBase):
+    """Presets for consequence-related settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsConsequence '{self.sodar_uuid}'"
 
 
-# class QueryPresetsLocus(QueryPresetsBase):
-#     """Presets for locus-related settings within a ``QueryPresetsSet``."""
+class QueryPresetsLocus(LocusSettingsBase, QueryPresetsBase):
+    """Presets for locus-related settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsLocus '{self.sodar_uuid}'"
 
 
-# class QueryPresetsPhenotypePrio(QueryPresetsBase):
-#     """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
+class QueryPresetsPhenotypePrio(PhenotypePrioSettingsBase, QueryPresetsBase):
+    """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsPhenotypePrio '{self.sodar_uuid}'"
 
 
-# class QueryPresetsVariantPrio(QueryPresetsBase):
-#     """Presets for variant pathogenicity--related settings within a ``QueryPresetsSet``."""
+class QueryPresetsVariantPrio(VariantPrioSettingsBase, QueryPresetsBase):
+    """Presets for variant pathogenicity--related settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsVariantPrio '{self.sodar_uuid}'"
 
 
-# class QueryPresetsColumns(QueryPresetsBase):
-#     """Presets for columns presets within a ``QueryPresetsSet``."""
+class QueryPresetsClinvar(ClinvarSettingsBase, QueryPresetsBase):
+    """Presets for clinvar-related settings within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsClinvar '{self.sodar_uuid}'"
 
 
-# class QueryPresetsMisc(QueryPresetsBase):
-#     """Presets for miscellaneous presets within a ``QueryPresetsSet``."""
+class QueryPresetsColumns(ColumnsSettingsBase, QueryPresetsBase):
+    """Presets for columns presets within a ``QueryPresetsSet``."""
+
+    def __str__(self):
+        return f"QueryPresetsColumns '{self.sodar_uuid}'"
 
 
 class QuerySettings(BaseModel):
@@ -178,18 +535,132 @@ class QuerySettings(BaseModel):
 class QuerySettingsCategoryBase(BaseModel):
     """Base class for concrete category query settings."""
 
-    #: The owning ``QuerySettings``.
-    querysettings = models.OneToOneField(QuerySettings, on_delete=models.CASCADE)
-
     class Meta:
         abstract = True
+
+
+class QualityFilterOnFailureChoice(str, Enum):
+    """The behaviour for failing quality filters."""
+
+    #: Drop the variant.
+    DROP_VARIANT = "drop_variant"
+    #: Do nothing.
+    DO_NOTHING = "do_nothing"
+    #: Mark as no call.
+    NO_CALL = "no_call"
+
+
+class SampleQualityFilter(pydantic.BaseModel):
+    """Stores per-sample quality filter settings for a particular query."""
+
+    #: Name of the sample.
+    sample: str
+
+    #: Minimal depth for het. variants.
+    min_dp_het: typing.Optional[int] = None
+    #: Minimal depth for hom. variants.
+    min_dp_hom: typing.Optional[int] = None
+    #: Minimal allele balance for het. variants.
+    min_ab_het: typing.Optional[float] = None
+    #: Minimal genotype quality.
+    min_gq: typing.Optional[int] = None
+    #: Minimal alternate allele read depth.
+    min_ad: typing.Optional[int] = None
+    #: Maximal alternate allele read depth.
+    max_ad: typing.Optional[int] = None
+
+    #: Behaviour for failing filter.
+    on_failure: QualityFilterOnFailureChoice = QualityFilterOnFailureChoice.DROP_VARIANT
+
+
+class QuerySettingsQuality(QuerySettingsCategoryBase):
+    """Query settings for per-sample quality filtration."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="quality"
+    )
+
+    #: Per-sample quality settings.
+    sample_quality_filters = SchemaField(schema=list[SampleQualityFilter], default=list)
+
+    def __str__(self):
+        return f"QuerySettingsQuality '{self.sodar_uuid}'"
+
+
+class QuerySettingsConsequence(LocusSettingsBase, QuerySettingsCategoryBase):
+    """Presets for consequence-related settings within a ``QuerySettingsSet``."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="consequence"
+    )
+
+    def __str__(self):
+        return f"QuerySettingsConsequence '{self.sodar_uuid}'"
+
+
+class QuerySettingsLocus(LocusSettingsBase, QuerySettingsCategoryBase):
+    """Presets for locus-related settings within a ``QuerySettingsSet``."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="locus"
+    )
+
+    def __str__(self):
+        return f"QuerySettingsLocus '{self.sodar_uuid}'"
 
 
 class QuerySettingsFrequency(FrequencySettingsBase, QuerySettingsCategoryBase):
     """Query settings in the frequency category."""
 
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="frequency"
+    )
+
     def __str__(self):
         return f"QuerySettingsFrequency '{self.sodar_uuid}'"
+
+
+class QuerySettingsPhenotypePrio(PhenotypePrioSettingsBase, QueryPresetsBase):
+    """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="phenotypeprio"
+    )
+
+    def __str__(self):
+        return f"QuerySettingsPhenotypePrio '{self.sodar_uuid}'"
+
+
+class QuerySettingsVariantPrio(VariantPrioSettingsBase, QuerySettingsCategoryBase):
+    """Query settings in the variant priorization category."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="variantprio"
+    )
+
+
+class QuerySettingsClinvar(ClinvarSettingsBase, QuerySettingsCategoryBase):
+    """Query settings in the variant priorization category."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="clinvar"
+    )
+
+
+class QuerySettingsColumns(ColumnsSettingsBase, QuerySettingsCategoryBase):
+    """Query settings in the column category."""
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        QuerySettings, on_delete=models.CASCADE, related_name="columns"
+    )
 
 
 class Query(BaseModel):
