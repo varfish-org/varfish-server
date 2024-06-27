@@ -2,38 +2,30 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
-from seqvars.models import (
-    SeqvarPresetsFrequency,
-    SeqvarQuery,
-    SeqvarQueryPresetsSet,
-    SeqvarQuerySettings,
-)
-from seqvars.serializers import (
-    SeqvarQuerySettingsFrequencySerializer,
-    SeqvarQuerySettingsSerializer,
-)
+from seqvars.models import Query, QueryPresetsFrequency, QueryPresetsSet, QuerySettings
+from seqvars.serializers import QuerySettingsFrequencySerializer, QuerySettingsSerializer
 from seqvars.tests.factories import (
-    SeqvarPresetsFrequencyFactory,
-    SeqvarQueryExecutionFactory,
-    SeqvarQueryFactory,
-    SeqvarQueryPresetsSetFactory,
-    SeqvarQuerySettingsFactory,
-    SeqvarQuerySettingsFrequencyFactory,
-    SeqvarResultRowFactory,
-    SeqvarResultSetFactory,
+    QueryExecutionFactory,
+    QueryFactory,
+    QueryPresetsFrequencyFactory,
+    QueryPresetsSetFactory,
+    QuerySettingsFactory,
+    QuerySettingsFrequencyFactory,
+    ResultRowFactory,
+    ResultSetFactory,
 )
 from variants.tests.factories import CaseFactory
 
 
-class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.seqvarquerypresetsset = SeqvarQueryPresetsSetFactory(project=self.project)
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarquerypresetsset-list",
+            "seqvars:api-querypresetsset-list",
             kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
@@ -51,7 +43,7 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
 
     def test_create(self):
         url = reverse(
-            "seqvars:api-seqvarquerypresetsset-list",
+            "seqvars:api-querypresetsset-list",
             kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
@@ -68,10 +60,10 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
             "label": "test",
         }
 
-        seqvarquerypresetsset_uuid = self.seqvarquerypresetsset.sodar_uuid
+        querypresetsset_uuid = self.querypresetsset.sodar_uuid
 
         def cleanup():
-            for obj in SeqvarQueryPresetsSet.objects.exclude(sodar_uuid=seqvarquerypresetsset_uuid):
+            for obj in QueryPresetsSet.objects.exclude(sodar_uuid=querypresetsset_uuid):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -84,10 +76,10 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarquerypresetsset-detail",
+            "seqvars:api-querypresetsset-detail",
             kwargs={
                 "project": self.project.sodar_uuid,
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
             },
         )
         good_users = [
@@ -107,10 +99,10 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
 
     def test_patch(self):
         url = reverse(
-            "seqvars:api-seqvarquerypresetsset-detail",
+            "seqvars:api-querypresetsset-detail",
             kwargs={
                 "project": self.project.sodar_uuid,
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
             },
         )
         data = {"rank": 42}
@@ -134,10 +126,10 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
     def test_delete(self):
 
         url = reverse(
-            "seqvars:api-seqvarquerypresetsset-detail",
+            "seqvars:api-querypresetsset-detail",
             kwargs={
                 "project": self.project.sodar_uuid,
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
             },
         )
         good_users = [
@@ -154,12 +146,12 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
             self.user_guest,
         ]
 
-        seqvarquerypresetsset_uuid = self.seqvarquerypresetsset.sodar_uuid
+        querypresetsset_uuid = self.querypresetsset.sodar_uuid
 
         def cleanup():
-            if not SeqvarQueryPresetsSet.objects.filter(sodar_uuid=seqvarquerypresetsset_uuid):
-                self.seqvarquerypresetsset = SeqvarQueryPresetsSetFactory(
-                    sodar_uuid=seqvarquerypresetsset_uuid,
+            if not QueryPresetsSet.objects.filter(sodar_uuid=querypresetsset_uuid):
+                self.querypresetsset = QueryPresetsSetFactory(
+                    sodar_uuid=querypresetsset_uuid,
                     project=self.project,
                 )
 
@@ -168,19 +160,17 @@ class TestSeqvarQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.seqvarquerypresetsset = SeqvarQueryPresetsSetFactory(project=self.project)
-        self.seqvarpresetsfrequency = SeqvarPresetsFrequencyFactory(
-            presetsset=self.seqvarquerypresetsset
-        )
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.querypresetsset)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarpresetsfrequency-list",
-            kwargs={"seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid},
+            "seqvars:api-querypresetsfrequency-list",
+            kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -197,8 +187,8 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def test_create(self):
         url = reverse(
-            "seqvars:api-seqvarpresetsfrequency-list",
-            kwargs={"seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid},
+            "seqvars:api-querypresetsfrequency-list",
+            kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -214,12 +204,10 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
             "label": "test",
         }
 
-        seqvarpresetsfrequency_uuid = self.seqvarpresetsfrequency.sodar_uuid
+        querypresetsfrequency_uuid = self.querypresetsfrequency.sodar_uuid
 
         def cleanup():
-            for obj in SeqvarPresetsFrequency.objects.exclude(
-                sodar_uuid=seqvarpresetsfrequency_uuid
-            ):
+            for obj in QueryPresetsFrequency.objects.exclude(sodar_uuid=querypresetsfrequency_uuid):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -232,10 +220,10 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarpresetsfrequency-detail",
+            "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
-                "seqvarpresetsfrequency": self.seqvarpresetsfrequency.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
         good_users = [
@@ -255,10 +243,10 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def test_patch(self):
         url = reverse(
-            "seqvars:api-seqvarpresetsfrequency-detail",
+            "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
-                "seqvarpresetsfrequency": self.seqvarpresetsfrequency.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
         data = {"rank": 42}
@@ -282,10 +270,10 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
     def test_delete(self):
 
         url = reverse(
-            "seqvars:api-seqvarpresetsfrequency-detail",
+            "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
-                "seqvarpresetsfrequency": self.seqvarpresetsfrequency.sodar_uuid,
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
         good_users = [
@@ -302,12 +290,12 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
             self.user_guest,
         ]
 
-        seqvarquerypresetsset_uuid = self.seqvarpresetsfrequency.sodar_uuid
+        querypresetsset_uuid = self.querypresetsfrequency.sodar_uuid
 
         def cleanup():
-            if not SeqvarPresetsFrequency.objects.filter(sodar_uuid=seqvarquerypresetsset_uuid):
-                self.seqvarpresetsfrequency = SeqvarPresetsFrequencyFactory(
-                    sodar_uuid=seqvarquerypresetsset_uuid, presetsset=self.seqvarquerypresetsset
+            if not QueryPresetsFrequency.objects.filter(sodar_uuid=querypresetsset_uuid):
+                self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+                    sodar_uuid=querypresetsset_uuid, presetsset=self.querypresetsset
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
@@ -315,20 +303,20 @@ class TestSeqvarPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
+class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquerysettings = SeqvarQuerySettingsFactory(session=self.caseanalysissession)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.querysettings = QuerySettingsFactory(session=self.session)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarquerysettings-list",
+            "seqvars:api-querysettings-list",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                "session": self.session.sodar_uuid,
             },
         )
         good_users = [
@@ -346,9 +334,9 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
 
     def test_create(self):
         url = reverse(
-            "seqvars:api-seqvarquerysettings-list",
+            "seqvars:api-querysettings-list",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                "session": self.session.sodar_uuid,
             },
         )
         good_users = [
@@ -361,15 +349,15 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
 
         data = {
-            "seqvarquerysettingsfrequency": SeqvarQuerySettingsFrequencySerializer(
-                SeqvarQuerySettingsFrequencyFactory.build(querysettings=None)
+            "querysettingsfrequency": QuerySettingsFrequencySerializer(
+                QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data,
         }
 
-        seqvarquerysettings_uuid = self.seqvarquerysettings.sodar_uuid
+        querysettings_uuid = self.querysettings.sodar_uuid
 
         def cleanup():
-            for obj in SeqvarQuerySettings.objects.exclude(sodar_uuid=seqvarquerysettings_uuid):
+            for obj in QuerySettings.objects.exclude(sodar_uuid=querysettings_uuid):
                 obj.delete()
 
         self.assert_response(
@@ -402,10 +390,10 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarquerysettings-detail",
+            "seqvars:api-querysettings-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "querysettings": self.querysettings.sodar_uuid,
             },
         )
         good_users = [
@@ -425,13 +413,13 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
 
     def test_patch(self):
         url = reverse(
-            "seqvars:api-seqvarquerysettings-detail",
+            "seqvars:api-querysettings-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "querysettings": self.querysettings.sodar_uuid,
             },
         )
-        data = {"seqvarquerysettingsfrequency": {"gnomad_genomes_enabled": True}}
+        data = {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}
         good_users = [
             self.superuser,
             self.user_contributor,
@@ -458,10 +446,10 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
     def test_delete(self):
 
         url = reverse(
-            "seqvars:api-seqvarquerysettings-detail",
+            "seqvars:api-querysettings-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "querysettings": self.querysettings.sodar_uuid,
             },
         )
         good_users = [
@@ -478,13 +466,13 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
             self.user_guest,
         ]
 
-        seqvarquerysettings_uuid = self.seqvarquerysettings.sodar_uuid
+        querysettings_uuid = self.querysettings.sodar_uuid
 
         def cleanup():
-            if not SeqvarQuerySettings.objects.filter(sodar_uuid=seqvarquerysettings_uuid):
-                self.seqvarquerysettings = SeqvarQuerySettingsFactory(
-                    sodar_uuid=seqvarquerysettings_uuid,
-                    session=self.caseanalysissession,
+            if not QuerySettings.objects.filter(sodar_uuid=querysettings_uuid):
+                self.querysettings = QuerySettingsFactory(
+                    sodar_uuid=querysettings_uuid,
+                    session=self.session,
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
@@ -492,20 +480,20 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
+class TestQueryViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.query = QueryFactory(session=self.session)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarquery-list",
+            "seqvars:api-query-list",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                "session": self.session.sodar_uuid,
             },
         )
         good_users = [
@@ -523,9 +511,9 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
 
     def test_create(self):
         url = reverse(
-            "seqvars:api-seqvarquery-list",
+            "seqvars:api-query-list",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                "session": self.session.sodar_uuid,
             },
         )
         good_users = [
@@ -540,18 +528,18 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
         data = {
             "label": "test label",
             "settings_buffer": {
-                "seqvarquerysettingsfrequency": (
-                    SeqvarQuerySettingsFrequencySerializer(
-                        SeqvarQuerySettingsFrequencyFactory.build(querysettings=None)
+                "querysettingsfrequency": (
+                    QuerySettingsFrequencySerializer(
+                        QuerySettingsFrequencyFactory.build(querysettings=None)
                     ).data
                 ),
             },
         }
 
-        seqvarquery_uuid = self.seqvarquery.sodar_uuid
+        query_uuid = self.query.sodar_uuid
 
         def cleanup():
-            for obj in SeqvarQuerySettings.objects.exclude(sodar_uuid=seqvarquery_uuid):
+            for obj in QuerySettings.objects.exclude(sodar_uuid=query_uuid):
                 obj.delete()
 
         self.assert_response(
@@ -584,10 +572,10 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarquery-detail",
+            "seqvars:api-query-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquery": self.seqvarquery.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "query": self.query.sodar_uuid,
             },
         )
         good_users = [
@@ -607,13 +595,13 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
 
     def test_patch(self):
         url = reverse(
-            "seqvars:api-seqvarquery-detail",
+            "seqvars:api-query-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquery": self.seqvarquery.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "query": self.query.sodar_uuid,
             },
         )
-        data = {"query_buffer": {"seqvarquerysettingsfrequency": {"gnomad_genomes_enabled": True}}}
+        data = {"query_buffer": {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}}
         good_users = [
             self.superuser,
             self.user_contributor,
@@ -640,10 +628,10 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
     def test_delete(self):
 
         url = reverse(
-            "seqvars:api-seqvarquery-detail",
+            "seqvars:api-query-detail",
             kwargs={
-                "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                "seqvarquery": self.seqvarquery.sodar_uuid,
+                "session": self.session.sodar_uuid,
+                "query": self.query.sodar_uuid,
             },
         )
         good_users = [
@@ -660,13 +648,13 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
             self.user_guest,
         ]
 
-        seqvarquery_uuid = self.seqvarquery.sodar_uuid
+        query_uuid = self.query.sodar_uuid
 
         def cleanup():
-            if not SeqvarQuery.objects.filter(sodar_uuid=seqvarquery_uuid):
-                self.seqvarquery = SeqvarQueryFactory(
-                    sodar_uuid=seqvarquery_uuid,
-                    session=self.caseanalysissession,
+            if not Query.objects.filter(sodar_uuid=query_uuid):
+                self.query = QueryFactory(
+                    sodar_uuid=query_uuid,
+                    session=self.session,
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
@@ -674,21 +662,21 @@ class TestSeqvarQueryViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSeqvarQueryExecutionViewSet(TestProjectAPIPermissionBase):
+class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarqueryexecution-list",
+            "seqvars:api-queryexecution-list",
             kwargs={
-                "seqvarquery": self.seqvarquery.sodar_uuid,
+                "query": self.query.sodar_uuid,
             },
         )
         good_users = [
@@ -706,10 +694,10 @@ class TestSeqvarQueryExecutionViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarqueryexecution-detail",
+            "seqvars:api-queryexecution-detail",
             kwargs={
-                "seqvarquery": self.seqvarquery.sodar_uuid,
-                "seqvarqueryexecution": self.seqvarqueryexecution.sodar_uuid,
+                "query": self.query.sodar_uuid,
+                "queryexecution": self.queryexecution.sodar_uuid,
             },
         )
         good_users = [
@@ -728,22 +716,22 @@ class TestSeqvarQueryExecutionViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSeqvarResultSetViewSet(TestProjectAPIPermissionBase):
+class TestResultSetViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
-        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarresultset-list",
+            "seqvars:api-resultset-list",
             kwargs={
-                "seqvarquery": self.seqvarquery.sodar_uuid,
+                "query": self.query.sodar_uuid,
             },
         )
         good_users = [
@@ -761,10 +749,10 @@ class TestSeqvarResultSetViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarresultset-detail",
+            "seqvars:api-resultset-detail",
             kwargs={
-                "seqvarquery": self.seqvarquery.sodar_uuid,
-                "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                "query": self.query.sodar_uuid,
+                "resultset": self.resultset.sodar_uuid,
             },
         )
         good_users = [
@@ -783,23 +771,23 @@ class TestSeqvarResultSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSeqvarResultRowViewSet(TestProjectAPIPermissionBase):
+class TestResultRowViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
-        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
-        self.seqvarresultrow = SeqvarResultRowFactory(resultset=self.seqvarresultset)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
+        self.seqvarresultrow = ResultRowFactory(resultset=self.resultset)
 
     def test_list(self):
         url = reverse(
             "seqvars:api-seqvarresultrow-list",
             kwargs={
-                "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                "resultset": self.resultset.sodar_uuid,
             },
         )
         good_users = [
@@ -819,7 +807,7 @@ class TestSeqvarResultRowViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-seqvarresultrow-detail",
             kwargs={
-                "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                "resultset": self.resultset.sodar_uuid,
                 "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
             },
         )

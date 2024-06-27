@@ -1,9 +1,9 @@
 """Factory defaults for seqvars query settings."""
 
-from seqvars.models import SeqvarPresetsFrequency
+from seqvars.models import QueryPresetsFrequency
 
 #: Frequency Preset "any"
-FREQUENCY_ANY = SeqvarPresetsFrequency(
+FREQUENCY_ANY = QueryPresetsFrequency(
     rank=0,
     label="any",
     gnomad_exomes_enabled=False,
@@ -27,7 +27,7 @@ FREQUENCY_ANY = SeqvarPresetsFrequency(
     helixmtdb_frequency=None,
 )
 #: Frequency Preset "dominant super strict"
-FREQUENCY_DOMINANT_SUPER_STRICT = SeqvarPresetsFrequency(
+FREQUENCY_DOMINANT_SUPER_STRICT = QueryPresetsFrequency(
     rank=1,
     label="dominant super strict",
     gnomad_exomes_enabled=True,
@@ -51,7 +51,7 @@ FREQUENCY_DOMINANT_SUPER_STRICT = SeqvarPresetsFrequency(
     helixmtdb_frequency=None,
 )
 #: Frequency Preset "dominant strict"
-FREQUENCY_DOMINANT_STRICT = SeqvarPresetsFrequency(
+FREQUENCY_DOMINANT_STRICT = QueryPresetsFrequency(
     rank=2,
     label="dominant strict",
     gnomad_exomes_enabled=True,
@@ -75,7 +75,7 @@ FREQUENCY_DOMINANT_STRICT = SeqvarPresetsFrequency(
     helixmtdb_frequency=None,
 )
 #: Frequency Preset "recessive relaxed"
-FREQUENCY_DOMINANT_RELAXED = SeqvarPresetsFrequency(
+FREQUENCY_DOMINANT_RELAXED = QueryPresetsFrequency(
     rank=3,
     label="dominant relaxed",
     gnomad_exomes_enabled=True,
@@ -99,7 +99,7 @@ FREQUENCY_DOMINANT_RELAXED = SeqvarPresetsFrequency(
     helixmtdb_frequency=None,
 )
 #: Frequency Preset "recessive strict"
-FREQUENCY_RECESSIVE_STRICT = SeqvarPresetsFrequency(
+FREQUENCY_RECESSIVE_STRICT = QueryPresetsFrequency(
     rank=4,
     label="recessive strict",
     gnomad_exomes_enabled=True,
@@ -123,7 +123,7 @@ FREQUENCY_RECESSIVE_STRICT = SeqvarPresetsFrequency(
     helixmtdb_frequency=None,
 )
 #: Frequency Preset "recessive relaxed"
-FREQUENCY_RECESSIVE_RELAXED = SeqvarPresetsFrequency(
+FREQUENCY_RECESSIVE_RELAXED = QueryPresetsFrequency(
     rank=5,
     label="recessive relaxed",
     gnomad_exomes_enabled=True,

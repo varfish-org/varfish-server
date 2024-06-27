@@ -1,17 +1,17 @@
 from django.contrib import admin
 
 from seqvars.models import (
-    SeqvarPresetsFrequency,
-    SeqvarQuery,
-    SeqvarQueryExecution,
-    SeqvarQueryPresetsSet,
-    SeqvarResultRow,
-    SeqvarResultSet,
+    Query,
+    QueryExecution,
+    QueryPresetsFrequency,
+    QueryPresetsSet,
+    ResultRow,
+    ResultSet,
 )
 
-admin.site.register(SeqvarQueryPresetsSet)
-admin.site.register(SeqvarPresetsFrequency)
-admin.site.register(SeqvarQuery)
-admin.site.register(SeqvarQueryExecution)
-admin.site.register(SeqvarResultSet)
-admin.site.register(SeqvarResultRow)
+admin.site.register(QueryPresetsSet)
+admin.site.register(QueryPresetsFrequency)
+admin.site.register(Query)
+admin.site.register(QueryExecution)
+admin.site.register(ResultSet)
+admin.site.register(ResultRow)

@@ -8,16 +8,16 @@ from seqvars.models import (
     DataSourceInfo,
     DataSourceInfos,
     GenotypeChoice,
+    Query,
+    QueryExecution,
+    QueryPresetsFrequency,
+    QueryPresetsSet,
+    QuerySettings,
+    QuerySettingsFrequency,
+    ResultRow,
+    ResultRowPayload,
+    ResultSet,
     SampleGenotypeChoice,
-    SeqvarPresetsFrequency,
-    SeqvarQuery,
-    SeqvarQueryExecution,
-    SeqvarQueryPresetsSet,
-    SeqvarQuerySettings,
-    SeqvarQuerySettingsFrequency,
-    SeqvarResultRow,
-    SeqvarResultRowPayload,
-    SeqvarResultSet,
 )
 from variants.tests.factories import CaseFactory, ProjectFactory
 
@@ -93,72 +93,70 @@ class LabeledSortableBaseFactory(BaseModelFactory):
         abstract = True
 
 
-class SeqvarQueryPresetsSetFactory(LabeledSortableBaseFactory):
+class QueryPresetsSetFactory(LabeledSortableBaseFactory):
 
     project = factory.SubFactory(ProjectFactory)
 
     class Meta:
-        model = SeqvarQueryPresetsSet
+        model = QueryPresetsSet
 
 
-class SeqvarPresetsBaseFactory(LabeledSortableBaseFactory):
+class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
 
-    presetsset = factory.SubFactory(SeqvarQueryPresetsSetFactory)
+    presetsset = factory.SubFactory(QueryPresetsSetFactory)
 
     class Meta:
         abstract = True
 
 
-class SeqvarPresetsFrequencyFactory(FrequencySettingsBaseFactory, SeqvarPresetsBaseFactory):
+class QueryPresetsFrequencyFactory(FrequencySettingsBaseFactory, QueryPresetsBaseFactory):
 
     class Meta:
-        model = SeqvarPresetsFrequency
+        model = QueryPresetsFrequency
 
 
-class SeqvarQuerySettingsFactory(BaseModelFactory):
+class QuerySettingsFactory(BaseModelFactory):
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    seqvarquerysettingsfrequency = factory.RelatedFactory(
-        "seqvars.tests.factories.SeqvarQuerySettingsFrequencyFactory",
+    querysettingsfrequency = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsFrequencyFactory",
         factory_related_name="querysettings",
     )
 
     class Meta:
-        model = SeqvarQuerySettings
+        model = QuerySettings
 
 
-class SeqvarQuerySettingsFrequencyFactory(BaseModelFactory):
+class QuerySettingsFrequencyFactory(BaseModelFactory):
 
-    # We pass in seqvarquerysettingsfrequency=None to prevent creation of a second
-    # ``SeqvarQuerySettingsFrequency``.
-    querysettings = factory.SubFactory(
-        SeqvarQuerySettingsFactory, seqvarquerysettingsfrequency=None
-    )
+    # We pass in querysettingsfrequency=None to prevent creation of a second
+    # ``QuerySettingsFrequency``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, querysettingsfrequency=None)
 
     class Meta:
-        model = SeqvarQuerySettingsFrequency
+        model = QuerySettingsFrequency
 
 
-class SeqvarQueryFactory(BaseModelFactory):
+class QueryFactory(BaseModelFactory):
 
     rank = 1
     label = factory.Sequence(lambda n: f"query-{n}")
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    settings_buffer = factory.SubFactory(SeqvarQuerySettingsFactory)
+    settings_buffer = factory.SubFactory(QuerySettingsFactory)
 
     class Meta:
-        model = SeqvarQuery
+        model = Query
 
 
-class SeqvarQueryExecutionFactory(BaseModelFactory):
+class QueryExecutionFactory(BaseModelFactory):
 
-    state = SeqvarQueryExecution.STATE_DONE
+    state = QueryExecution.STATE_DONE
     start_time = factory.LazyFunction(django.utils.timezone.now)
     end_time = factory.LazyFunction(django.utils.timezone.now)
     # elapsed_seconds: see @factory.lazy_attribute below
-    query = factory.SubFactory(SeqvarQueryFactory)
-    querysettings = factory.SubFactory(SeqvarQuerySettingsFactory)
+    query = factory.SubFactory(QueryFactory)
+    querysettings = factory.SubFactory(QuerySettingsFactory)
 
     @factory.lazy_attribute
     def elapsed_seconds(self):
@@ -168,12 +166,12 @@ class SeqvarQueryExecutionFactory(BaseModelFactory):
             return None
 
     class Meta:
-        model = SeqvarQueryExecution
+        model = QueryExecution
 
 
-class SeqvarResultSetFactory(BaseModelFactory):
+class ResultSetFactory(BaseModelFactory):
 
-    queryexecution = factory.SubFactory(SeqvarQueryExecutionFactory)
+    queryexecution = factory.SubFactory(QueryExecutionFactory)
     result_row_count = 2
     # datasource_infos: see @factory.lazy_attribute below
 
@@ -189,14 +187,14 @@ class SeqvarResultSetFactory(BaseModelFactory):
         )
 
     class Meta:
-        model = SeqvarResultSet
+        model = ResultSet
 
 
-class SeqvarResultRowFactory(factory.django.DjangoModelFactory):
+class ResultRowFactory(factory.django.DjangoModelFactory):
 
     sodar_uuid = factory.Faker("uuid4")
 
-    resultset = factory.SubFactory(SeqvarResultSetFactory)
+    resultset = factory.SubFactory(ResultSetFactory)
 
     release = "GRCh38"
     chromosome = factory.Sequence(lambda n: f"chr{n % 22}")
@@ -208,7 +206,7 @@ class SeqvarResultRowFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def payload(self):
-        return SeqvarResultRowPayload(foo=42)
+        return ResultRowPayload(foo=42)
 
     class Meta:
-        model = SeqvarResultRow
+        model = ResultRow

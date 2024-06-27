@@ -6,56 +6,56 @@ from parameterized import parameterized
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import (
-    SeqvarPresetsFrequency,
-    SeqvarQuery,
-    SeqvarQueryPresetsSet,
-    SeqvarQuerySettings,
-    SeqvarQuerySettingsFrequency,
+    Query,
+    QueryPresetsFrequency,
+    QueryPresetsSet,
+    QuerySettings,
+    QuerySettingsFrequency,
 )
 from seqvars.serializers import (
-    SeqvarPresetsFrequencySerializer,
-    SeqvarQueryDetailsSerializer,
-    SeqvarQueryExecutionDetailsSerializer,
-    SeqvarQueryExecutionSerializer,
-    SeqvarQueryPresetsSetDetailsSerializer,
-    SeqvarQueryPresetsSetSerializer,
-    SeqvarQuerySerializer,
-    SeqvarQuerySettingsDetailsSerializer,
-    SeqvarQuerySettingsFrequencySerializer,
-    SeqvarQuerySettingsSerializer,
-    SeqvarResultRowSerializer,
-    SeqvarResultSetSerializer,
+    QueryDetailsSerializer,
+    QueryExecutionDetailsSerializer,
+    QueryExecutionSerializer,
+    QueryPresetsFrequencySerializer,
+    QueryPresetsSetDetailsSerializer,
+    QueryPresetsSetSerializer,
+    QuerySerializer,
+    QuerySettingsDetailsSerializer,
+    QuerySettingsFrequencySerializer,
+    QuerySettingsSerializer,
+    ResultRowSerializer,
+    ResultSetSerializer,
 )
 from seqvars.tests.factories import (
-    SeqvarPresetsFrequencyFactory,
-    SeqvarQueryExecutionFactory,
-    SeqvarQueryFactory,
-    SeqvarQueryPresetsSetFactory,
-    SeqvarQuerySettingsFactory,
-    SeqvarQuerySettingsFrequencyFactory,
-    SeqvarResultRowFactory,
-    SeqvarResultSetFactory,
+    QueryExecutionFactory,
+    QueryFactory,
+    QueryPresetsFrequencyFactory,
+    QueryPresetsSetFactory,
+    QuerySettingsFactory,
+    QuerySettingsFrequencyFactory,
+    ResultRowFactory,
+    ResultSetFactory,
 )
 from variants.tests.factories import CaseFactory
 from variants.tests.helpers import ApiViewTestBase
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
+class TestQueryPresetsSetViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.seqvarquerypresetsset = SeqvarQueryPresetsSetFactory(project=self.project)
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-list",
+                    "seqvars:api-querypresetsset-list",
                     kwargs={"project": self.project.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryPresetsSetSerializer(self.seqvarquerypresetsset).data
+        result_json = QueryPresetsSetSerializer(self.querypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(
             response.json(),
@@ -73,49 +73,49 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         ]
     )
     def test_create(self, data_override: dict[str, Any]):
-        self.assertEqual(SeqvarQueryPresetsSet.objects.count(), 1)
+        self.assertEqual(QueryPresetsSet.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-list",
+                    "seqvars:api-querypresetsset-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={**{"rank": 1, "label": "test"}, **data_override},
             )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(SeqvarQueryPresetsSet.objects.count(), 2)
+        self.assertEqual(QueryPresetsSet.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-detail",
+                    "seqvars:api-querypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryPresetsSetDetailsSerializer(self.seqvarquerypresetsset).data
+        result_json = QueryPresetsSetDetailsSerializer(self.querypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
             [{"project": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarquerypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-detail",
+                    "seqvars:api-querypresetsset-detail",
                     kwargs={
                         **{
                             "project": self.project.sodar_uuid,
-                            "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                            "querypresetsset": self.querypresetsset.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -130,17 +130,17 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
         ]
     )
     def test_patch(self, data: dict[str, Any]):
-        self.seqvarquerypresetsset.refresh_from_db()
+        self.querypresetsset.refresh_from_db()
         for key, value in data.items():
-            self.assertNotEqual(getattr(self.seqvarquerypresetsset, key), value, f"key={key}")
+            self.assertNotEqual(getattr(self.querypresetsset, key), value, f"key={key}")
 
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-detail",
+                    "seqvars:api-querypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
                     },
                 ),
                 data=data,
@@ -148,48 +148,48 @@ class TestSeqvarQueryPresetsSetViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.seqvarquerypresetsset.refresh_from_db()
+        self.querypresetsset.refresh_from_db()
         for key, value in data.items():
-            self.assertEqual(getattr(self.seqvarquerypresetsset, key), value, f"key={key}")
+            self.assertEqual(getattr(self.querypresetsset, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(SeqvarQueryPresetsSet.objects.count(), 1)
+        self.assertEqual(QueryPresetsSet.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "seqvars:api-seqvarquerypresetsset-detail",
+                    "seqvars:api-querypresetsset-detail",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "seqvarquerypresetsset": self.seqvarquerypresetsset.sodar_uuid,
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
                     },
                 ),
             )
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(SeqvarQueryPresetsSet.objects.count(), 0)
+        self.assertEqual(QueryPresetsSet.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarPresetsFrequencyViewSet(ApiViewTestBase):
+class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = SeqvarQueryPresetsSetFactory(project=self.project)
-        self.presetsfrequency = SeqvarPresetsFrequencyFactory(presetsset=self.presetsset)
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.presetsset)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-list",
+                    "seqvars:api-querypresetsfrequency-list",
                     kwargs={
-                        "seqvarquerypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsset": self.presetsset.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarPresetsFrequencySerializer(self.presetsfrequency).data
+        result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
         result_json["presetsset"] = str(result_json["presetsset"])
         self.assertDictEqual(
             response.json(),
@@ -201,51 +201,51 @@ class TestSeqvarPresetsFrequencyViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(SeqvarPresetsFrequency.objects.count(), 1)
+        self.assertEqual(QueryPresetsFrequency.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-list",
+                    "seqvars:api-querypresetsfrequency-list",
                     kwargs={
-                        "seqvarquerypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsset": self.presetsset.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(SeqvarPresetsFrequency.objects.count(), 2)
+        self.assertEqual(QueryPresetsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-detail",
+                    "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "seqvarquerypresetsset": self.presetsset.sodar_uuid,
-                        "seqvarpresetsfrequency": self.presetsfrequency.sodar_uuid,
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarPresetsFrequencySerializer(self.presetsfrequency).data
+        result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
         result_json["presetsset"] = str(result_json["presetsset"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"seqvarquerypresetsset": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarpresetsfrequency": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsfrequency": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-detail",
+                    "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
                         **{
-                            "seqvarquerypresetsset": self.presetsset.sodar_uuid,
-                            "seqvarpresetsfrequency": self.presetsfrequency.sodar_uuid,
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -267,10 +267,10 @@ class TestSeqvarPresetsFrequencyViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-detail",
+                    "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "seqvarquerypresetsset": self.presetsset.sodar_uuid,
-                        "seqvarpresetsfrequency": self.presetsfrequency.sodar_uuid,
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 ),
                 data=data,
@@ -283,45 +283,45 @@ class TestSeqvarPresetsFrequencyViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsfrequency, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(SeqvarPresetsFrequency.objects.count(), 1)
+        self.assertEqual(QueryPresetsFrequency.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "seqvars:api-seqvarpresetsfrequency-detail",
+                    "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "seqvarquerypresetsset": self.presetsset.sodar_uuid,
-                        "seqvarpresetsfrequency": self.presetsfrequency.sodar_uuid,
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 ),
             )
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(SeqvarPresetsFrequency.objects.count(), 0)
+        self.assertEqual(QueryPresetsFrequency.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
+class TestQuerySettingsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.seqvarquerysettings = SeqvarQuerySettingsFactory(session=self.caseanalysissession)
+        self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.querysettings = QuerySettingsFactory(session=self.session)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-list",
+                    "seqvars:api-querysettings-list",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                        "session": self.session.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQuerySettingsSerializer(self.seqvarquerysettings).data
+        result_json = QuerySettingsSerializer(self.querysettings).data
         result_json["session"] = str(result_json["session"])
         self.assertDictEqual(
             response.json(),
@@ -333,58 +333,58 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 1)
-        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(QuerySettings.objects.count(), 1)
+        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-list",
+                    "seqvars:api-querysettings-list",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                        "session": self.session.sodar_uuid,
                     },
                 ),
                 data={
-                    "seqvarquerysettingsfrequency": SeqvarQuerySettingsFrequencySerializer(
-                        SeqvarQuerySettingsFrequencyFactory.build(querysettings=None)
+                    "querysettingsfrequency": QuerySettingsFrequencySerializer(
+                        QuerySettingsFrequencyFactory.build(querysettings=None)
                     ).data
                 },
                 format="json",
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 2)
-        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 2)
+        self.assertEqual(QuerySettings.objects.count(), 2)
+        self.assertEqual(QuerySettingsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-detail",
+                    "seqvars:api-querysettings-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "querysettings": self.querysettings.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQuerySettingsDetailsSerializer(self.seqvarquerysettings).data
+        result_json = QuerySettingsDetailsSerializer(self.querysettings).data
         result_json["session"] = str(result_json["session"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"caseanalysissession": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarquerysettings": "00000000-0000-0000-0000-000000000000"}],
+            [{"session": "00000000-0000-0000-0000-000000000000"}],
+            [{"querysettings": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-detail",
+                    "seqvars:api-querysettings-detail",
                     kwargs={
                         **{
-                            "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                            "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                            "session": self.session.sodar_uuid,
+                            "querysettings": self.querysettings.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -394,23 +394,23 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"seqvarquerysettingsfrequency": {"gnomad_genomes_enabled": True}}],
+            [{"querysettingsfrequency": {"gnomad_genomes_enabled": True}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
-        self.seqvarquerysettings.refresh_from_db()
+        self.querysettings.refresh_from_db()
         for key in data.keys():
-            getattr(self.seqvarquerysettings, key).refresh_from_db()
+            getattr(self.querysettings, key).refresh_from_db()
         for key, value in data.items():
-            self.assertNotEqual(getattr(self.seqvarquerysettings, key), value, f"key={key}")
+            self.assertNotEqual(getattr(self.querysettings, key), value, f"key={key}")
 
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-detail",
+                    "seqvars:api-querysettings-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "querysettings": self.querysettings.sodar_uuid,
                     },
                 ),
                 data=data,
@@ -419,62 +419,62 @@ class TestSeqvarQuerySettingsViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.seqvarquerysettings.refresh_from_db()
+        self.querysettings.refresh_from_db()
         for key in data.keys():
-            getattr(self.seqvarquerysettings, key).refresh_from_db()
+            getattr(self.querysettings, key).refresh_from_db()
         for key, value in data.items():
             if isinstance(value, dict):
                 for subkey, subvalue in value.items():
                     self.assertEqual(
-                        getattr(getattr(self.seqvarquerysettings, key), subkey),
+                        getattr(getattr(self.querysettings, key), subkey),
                         subvalue,
                         f"key={key}, subkey={subkey}",
                     )
             else:
-                self.assertEqual(getattr(self.seqvarquerysettings, key), value, f"key={key}")
+                self.assertEqual(getattr(self.querysettings, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 1)
+        self.assertEqual(QuerySettings.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "seqvars:api-seqvarquerysettings-detail",
+                    "seqvars:api-querysettings-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "querysettings": self.querysettings.sodar_uuid,
                     },
                 ),
             )
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 0)
+        self.assertEqual(QuerySettings.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarQueryViewSet(ApiViewTestBase):
+class TestQueryViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(
+        self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
+        self.query = QueryFactory(session=self.session)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquery-list",
+                    "seqvars:api-query-list",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                        "session": self.session.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQuerySerializer(self.seqvarquery).data
+        result_json = QuerySerializer(self.query).data
         self.assertDictEqual(
             response.json(),
             {
@@ -485,23 +485,21 @@ class TestSeqvarQueryViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(SeqvarQuery.objects.count(), 1)
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 1)
-        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(Query.objects.count(), 1)
+        self.assertEqual(QuerySettings.objects.count(), 1)
+        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
-            settings_buffer = SeqvarQuerySettingsSerializer(
-                SeqvarQuerySettingsFactory.build(),
+            settings_buffer = QuerySettingsSerializer(
+                QuerySettingsFactory.build(),
             ).data
-            settings_buffer["seqvarquerysettingsfrequency"] = (
-                SeqvarQuerySettingsFrequencySerializer(
-                    SeqvarQuerySettingsFrequencyFactory.build(querysettings=None)
-                ).data
-            )
+            settings_buffer["querysettingsfrequency"] = QuerySettingsFrequencySerializer(
+                QuerySettingsFrequencyFactory.build(querysettings=None)
+            ).data
             response = self.client.post(
                 reverse(
-                    "seqvars:api-seqvarquery-list",
+                    "seqvars:api-query-list",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
+                        "session": self.session.sodar_uuid,
                     },
                 ),
                 data={
@@ -511,40 +509,40 @@ class TestSeqvarQueryViewSet(ApiViewTestBase):
                 format="json",
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(SeqvarQuery.objects.count(), 2)
-        self.assertEqual(SeqvarQuerySettings.objects.count(), 2)
-        self.assertEqual(SeqvarQuerySettingsFrequency.objects.count(), 2)
+        self.assertEqual(Query.objects.count(), 2)
+        self.assertEqual(QuerySettings.objects.count(), 2)
+        self.assertEqual(QuerySettingsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquery-detail",
+                    "seqvars:api-query-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "query": self.query.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryDetailsSerializer(self.seqvarquery).data
+        result_json = QueryDetailsSerializer(self.query).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"caseanalysissession": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarquery": "00000000-0000-0000-0000-000000000000"}],
+            [{"session": "00000000-0000-0000-0000-000000000000"}],
+            [{"query": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarquery-detail",
+                    "seqvars:api-query-detail",
                     kwargs={
                         **{
-                            "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                            "seqvarquery": self.seqvarquery.sodar_uuid,
+                            "session": self.session.sodar_uuid,
+                            "query": self.query.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -554,48 +552,42 @@ class TestSeqvarQueryViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [
-                {
-                    "settings_buffer": {
-                        "seqvarquerysettingsfrequency": {"gnomad_genomes_enabled": True}
-                    }
-                }
-            ],
+            [{"settings_buffer": {"querysettingsfrequency": {"gnomad_genomes_enabled": True}}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
-        self.seqvarquery.refresh_from_db()
+        self.query.refresh_from_db()
         for key, value in data.items():
-            getattr(self.seqvarquery, key).refresh_from_db()
+            getattr(self.query, key).refresh_from_db()
             if isinstance(value, dict):
                 for key2, value2 in value.items():
-                    getattr(getattr(self.seqvarquery, key), key2).refresh_from_db()
+                    getattr(getattr(self.query, key), key2).refresh_from_db()
         for key, value in data.items():
             if isinstance(value, dict):
                 for key2, value2 in value.items():
                     if isinstance(value2, dict):
                         for key3, value3 in value2.items():
                             self.assertNotEqual(
-                                getattr(getattr(getattr(self.seqvarquery, key), key2), key3),
+                                getattr(getattr(getattr(self.query, key), key2), key3),
                                 value3,
                                 f"key={key}, key2={key2}, key3={key3}",
                             )
                     else:
                         self.assertNotEqual(
-                            getattr(getattr(self.seqvarquery, key), key2),
+                            getattr(getattr(self.query, key), key2),
                             value2,
                             f"key={key}, key2={key2}",
                         )
             else:
-                self.assertNotEqual(getattr(self.seqvarquery, key), value, f"key={key}")
+                self.assertNotEqual(getattr(self.query, key), value, f"key={key}")
 
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "seqvars:api-seqvarquery-detail",
+                    "seqvars:api-query-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "query": self.query.sodar_uuid,
                     },
                 ),
                 data=data,
@@ -604,71 +596,71 @@ class TestSeqvarQueryViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.seqvarquery.refresh_from_db()
+        self.query.refresh_from_db()
         for key in data.keys():
-            getattr(self.seqvarquery, key).refresh_from_db()
+            getattr(self.query, key).refresh_from_db()
         for key, value in data.items():
             if isinstance(value, dict):
                 for key2, value2 in value.items():
                     if isinstance(value2, dict):
                         for key3, value3 in value2.items():
                             self.assertEqual(
-                                getattr(getattr(getattr(self.seqvarquery, key), key2), key3),
+                                getattr(getattr(getattr(self.query, key), key2), key3),
                                 value3,
                                 f"key={key}, key2={key2}, key3={key3}",
                             )
                     else:
                         self.assertEqual(
-                            getattr(getattr(self.seqvarquery, key), key2),
+                            getattr(getattr(self.query, key), key2),
                             value2,
                             f"key={key}, key2={key2}",
                         )
             else:
-                self.assertEqual(getattr(self.seqvarquery, key), value, f"key={key}")
+                self.assertEqual(getattr(self.query, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(SeqvarQuery.objects.count(), 1)
+        self.assertEqual(Query.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "seqvars:api-seqvarquery-detail",
+                    "seqvars:api-query-detail",
                     kwargs={
-                        "caseanalysissession": self.caseanalysissession.sodar_uuid,
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "session": self.session.sodar_uuid,
+                        "query": self.query.sodar_uuid,
                     },
                 ),
             )
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(SeqvarQuery.objects.count(), 0)
+        self.assertEqual(Query.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarQueryExecutionViewSet(ApiViewTestBase):
+class TestQueryExecutionViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(
+        self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarqueryexecution-list",
+                    "seqvars:api-queryexecution-list",
                     kwargs={
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "query": self.query.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryExecutionSerializer(self.seqvarqueryexecution).data
+        result_json = QueryExecutionSerializer(self.queryexecution).data
         self.assertDictEqual(
             response.json(),
             {
@@ -682,32 +674,32 @@ class TestSeqvarQueryExecutionViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarqueryexecution-detail",
+                    "seqvars:api-queryexecution-detail",
                     kwargs={
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
-                        "seqvarqueryexecution": self.seqvarqueryexecution.sodar_uuid,
+                        "query": self.query.sodar_uuid,
+                        "queryexecution": self.queryexecution.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarQueryExecutionDetailsSerializer(self.seqvarqueryexecution).data
+        result_json = QueryExecutionDetailsSerializer(self.queryexecution).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"seqvarquery": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarqueryexecution": "00000000-0000-0000-0000-000000000000"}],
+            [{"query": "00000000-0000-0000-0000-000000000000"}],
+            [{"queryexecution": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarqueryexecution-detail",
+                    "seqvars:api-queryexecution-detail",
                     kwargs={
                         **{
-                            "seqvarquery": self.seqvarquery.sodar_uuid,
-                            "seqvarqueryexecution": self.seqvarqueryexecution.sodar_uuid,
+                            "query": self.query.sodar_uuid,
+                            "queryexecution": self.queryexecution.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -717,30 +709,30 @@ class TestSeqvarQueryExecutionViewSet(ApiViewTestBase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarResultSetViewSet(ApiViewTestBase):
+class TestResultSetViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(
+        self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
-        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultset-list",
+                    "seqvars:api-resultset-list",
                     kwargs={
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
+                        "query": self.query.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarResultSetSerializer(self.seqvarresultset).data
+        result_json = ResultSetSerializer(self.resultset).data
         self.assertDictEqual(
             response.json(),
             {
@@ -754,32 +746,32 @@ class TestSeqvarResultSetViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultset-detail",
+                    "seqvars:api-resultset-detail",
                     kwargs={
-                        "seqvarquery": self.seqvarquery.sodar_uuid,
-                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                        "query": self.query.sodar_uuid,
+                        "resultset": self.resultset.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarResultSetSerializer(self.seqvarresultset).data
+        result_json = ResultSetSerializer(self.resultset).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"seqvarquery": "00000000-0000-0000-0000-000000000000"}],
-            [{"seqvarresultset": "00000000-0000-0000-0000-000000000000"}],
+            [{"query": "00000000-0000-0000-0000-000000000000"}],
+            [{"resultset": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
     def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultset-detail",
+                    "seqvars:api-resultset-detail",
                     kwargs={
                         **{
-                            "seqvarquery": self.seqvarquery.sodar_uuid,
-                            "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                            "query": self.query.sodar_uuid,
+                            "resultset": self.resultset.sodar_uuid,
                         },
                         **kwargs_override,
                     },
@@ -789,18 +781,18 @@ class TestSeqvarResultSetViewSet(ApiViewTestBase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestSeqvarResultRowViewSet(ApiViewTestBase):
+class TestResultRowViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
-        self.caseanalysissession = CaseAnalysisSessionFactory(
+        self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.seqvarquery = SeqvarQueryFactory(session=self.caseanalysissession)
-        self.seqvarqueryexecution = SeqvarQueryExecutionFactory(query=self.seqvarquery)
-        self.seqvarresultset = SeqvarResultSetFactory(queryexecution=self.seqvarqueryexecution)
-        self.seqvarresultrow = SeqvarResultRowFactory(resultset=self.seqvarresultset)
+        self.query = QueryFactory(session=self.session)
+        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
+        self.seqvarresultrow = ResultRowFactory(resultset=self.resultset)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -808,12 +800,12 @@ class TestSeqvarResultRowViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-seqvarresultrow-list",
                     kwargs={
-                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                        "resultset": self.resultset.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarResultRowSerializer(self.seqvarresultrow).data
+        result_json = ResultRowSerializer(self.seqvarresultrow).data
         self.assertDictEqual(
             response.json(),
             {
@@ -829,18 +821,18 @@ class TestSeqvarResultRowViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-seqvarresultrow-detail",
                     kwargs={
-                        "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                        "resultset": self.resultset.sodar_uuid,
                         "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
                     },
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = SeqvarResultRowSerializer(self.seqvarresultrow).data
+        result_json = ResultRowSerializer(self.seqvarresultrow).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"seqvarresultset": "00000000-0000-0000-0000-000000000000"}],
+            [{"resultset": "00000000-0000-0000-0000-000000000000"}],
             [{"seqvarresultrow": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -851,7 +843,7 @@ class TestSeqvarResultRowViewSet(ApiViewTestBase):
                     "seqvars:api-seqvarresultrow-detail",
                     kwargs={
                         **{
-                            "seqvarresultset": self.seqvarresultset.sodar_uuid,
+                            "resultset": self.resultset.sodar_uuid,
                             "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
                         },
                         **kwargs_override,

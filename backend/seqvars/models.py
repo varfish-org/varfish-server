@@ -114,85 +114,85 @@ class LabeledSortableBase(BaseModel):
         abstract = True
 
 
-class SeqvarQueryPresetsSet(LabeledSortableBase):
+class QueryPresetsSet(LabeledSortableBase):
     """Configured presets for a given project."""
 
     #: The owning ``Project``.
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"SeqvarQueryPresetsSet '{self.sodar_uuid}'"
+        return f"QueryPresetsSet '{self.sodar_uuid}'"
 
 
-class SeqvarPresetsBase(LabeledSortableBase):
+class QueryPresetsBase(LabeledSortableBase):
     """Base presets."""
 
-    #: The owning ``SeqvarQueryPresetsSet``.
-    presetsset = models.ForeignKey(SeqvarQueryPresetsSet, on_delete=models.CASCADE)
+    #: The owning ``QueryPresetsSet``.
+    presetsset = models.ForeignKey(QueryPresetsSet, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
-class SeqvarPresetsFrequency(FrequencySettingsBase, SeqvarPresetsBase):
+class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
     """Presets for frequency settings within a ``QueryPresetsSet``."""
 
     def __str__(self):
-        return f"SeqvarPresetsFrequency '{self.sodar_uuid}'"
+        return f"QueryPresetsFrequency '{self.sodar_uuid}'"
 
 
-# class SeqvarPresetsConsequence(SeqvarPresetsBase):
+# class QueryPresetsConsequence(QueryPresetsBase):
 #     """Presets for consequence-related settings within a ``QueryPresetsSet``."""
 
 
-# class SeqvarPresetsLocus(SeqvarPresetsBase):
+# class QueryPresetsLocus(QueryPresetsBase):
 #     """Presets for locus-related settings within a ``QueryPresetsSet``."""
 
 
-# class SeqvarPresetsPhenotypePrio(SeqvarPresetsBase):
+# class QueryPresetsPhenotypePrio(QueryPresetsBase):
 #     """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
 
 
-# class SeqvarPresetsVariantPrio(SeqvarPresetsBase):
+# class QueryPresetsVariantPrio(QueryPresetsBase):
 #     """Presets for variant pathogenicity--related settings within a ``QueryPresetsSet``."""
 
 
-# class SeqvarPresetsColumns(SeqvarPresetsBase):
+# class QueryPresetsColumns(QueryPresetsBase):
 #     """Presets for columns presets within a ``QueryPresetsSet``."""
 
 
-# class SeqvarPresetsMisc(SeqvarPresetsBase):
+# class QueryPresetsMisc(QueryPresetsBase):
 #     """Presets for miscellaneous presets within a ``QueryPresetsSet``."""
 
 
-class SeqvarQuerySettings(BaseModel):
+class QuerySettings(BaseModel):
     """The query settings for a case."""
 
     #: The owning ``CaseAnalysisSession``.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"SeqvarQuerySettings '{self.sodar_uuid}'"
+        return f"QuerySettings '{self.sodar_uuid}'"
 
 
-class SeqvarQuerySettingsCategoryBase(BaseModel):
+class QuerySettingsCategoryBase(BaseModel):
     """Base class for concrete category query settings."""
 
-    #: The owning ``SeqvarQuerySettings``.
-    querysettings = models.OneToOneField(SeqvarQuerySettings, on_delete=models.CASCADE)
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(QuerySettings, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
-class SeqvarQuerySettingsFrequency(FrequencySettingsBase, SeqvarQuerySettingsCategoryBase):
+class QuerySettingsFrequency(FrequencySettingsBase, QuerySettingsCategoryBase):
     """Query settings in the frequency category."""
 
     def __str__(self):
-        return f"SeqvarQuerySettingsFrequency '{self.sodar_uuid}'"
+        return f"QuerySettingsFrequency '{self.sodar_uuid}'"
 
 
-class SeqvarQuery(BaseModel):
+class Query(BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
 
     #: An integer rank for manual sorting in UI.
@@ -203,7 +203,7 @@ class SeqvarQuery(BaseModel):
     #: Owning/containing session.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Buffer with settings to be edited in the next query execution.
-    settings_buffer = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
+    settings_buffer = models.ForeignKey(QuerySettings, on_delete=models.CASCADE)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -213,10 +213,10 @@ class SeqvarQuery(BaseModel):
             return None
 
     def __str__(self):
-        return f"SeqvarQuery '{self.sodar_uuid}'"
+        return f"Query '{self.sodar_uuid}'"
 
 
-class SeqvarQueryExecution(BaseModel):
+class QueryExecution(BaseModel):
     """Hold the state, query settings, and results for running one seqvar query."""
 
     #: Initial status.
@@ -253,9 +253,9 @@ class SeqvarQueryExecution(BaseModel):
     elapsed_seconds = models.FloatField(null=True)
 
     #: The owning/containing query.
-    query = models.ForeignKey(SeqvarQuery, on_delete=models.CASCADE)
+    query = models.ForeignKey(Query, on_delete=models.CASCADE)
     #: Effective query settings of execution.
-    querysettings = models.ForeignKey(SeqvarQuerySettings, on_delete=models.CASCADE)
+    querysettings = models.ForeignKey(QuerySettings, on_delete=models.CASCADE)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -265,7 +265,7 @@ class SeqvarQueryExecution(BaseModel):
             return None
 
     def __str__(self):
-        return f"SeqvarQueryExecution '{self.sodar_uuid}'"
+        return f"QueryExecution '{self.sodar_uuid}'"
 
 
 class DataSourceInfo(pydantic.BaseModel):
@@ -284,11 +284,11 @@ class DataSourceInfos(pydantic.BaseModel):
     infos: list[DataSourceInfo]
 
 
-class SeqvarResultSet(BaseModel):
+class ResultSet(BaseModel):
     """Store result rows and version information about the query."""
 
     #: The owning query execution.
-    queryexecution = models.ForeignKey(SeqvarQueryExecution, on_delete=models.CASCADE)
+    queryexecution = models.ForeignKey(QueryExecution, on_delete=models.CASCADE)
     #: The number of rows in the result.
     result_row_count = models.IntegerField(null=False, blank=False)
     #: Information about the data sources and versions used in the query, backed by
@@ -303,27 +303,27 @@ class SeqvarResultSet(BaseModel):
             return None
 
     def get_absolute_url(self) -> str:
-        return f"/seqvars/api/seqvarresultset/{self.case.sodar_uuid}/{self.sodar_uuid}/"
+        return f"/seqvars/api/resultset/{self.case.sodar_uuid}/{self.sodar_uuid}/"
 
     def __str__(self):
-        return f"SeqvarResultSet '{self.sodar_uuid}'"
+        return f"ResultSet '{self.sodar_uuid}'"
 
 
-class SeqvarResultRowPayload(pydantic.BaseModel):
+class ResultRowPayload(pydantic.BaseModel):
     """Payload for one result row of a seqvar query."""
 
     # TODO: implement me / infer from protobuf schema
     foo: int
 
 
-class SeqvarResultRow(models.Model):
+class ResultRow(models.Model):
     """One entry in the result set."""
 
     #: UUID used in URLs.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
 
     #: The owning result set.
-    resultset = models.ForeignKey(SeqvarResultSet, on_delete=models.CASCADE)
+    resultset = models.ForeignKey(ResultSet, on_delete=models.CASCADE)
 
     #: Genome build
     release = models.CharField(max_length=32)
@@ -341,11 +341,11 @@ class SeqvarResultRow(models.Model):
     alternative = models.CharField(max_length=512)
 
     #: The payload of the result row, backed by pydantic model
-    #: ``SeqvarResultRowPayload``.
-    payload = SchemaField(schema=typing.Optional[SeqvarResultRowPayload])
+    #: ``ResultRowPayload``.
+    payload = SchemaField(schema=typing.Optional[ResultRowPayload])
 
     def __str__(self):
         return (
-            f"SeqvarResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
+            f"ResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
             f"{self.start}-{self.reference}-{self.alternative}'"
         )
