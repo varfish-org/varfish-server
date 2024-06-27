@@ -300,6 +300,12 @@ class SeqvarQuerySerializer(BaseModelSerializer):
     #: Serializer ``settings_buffer`` as its ``sodar_uuid``.
     settings_buffer = serializers.ReadOnlyField(source="settings_buffer.sodar_uuid")
 
+    def validate(self, attrs):
+        """Augment the attributes by the case from context."""
+        if "session" in self.context:
+            attrs["session"] = self.context["session"]
+        return attrs
+
     class Meta:
         model = SeqvarQuery
         fields = BaseModelSerializer.Meta.fields + [
