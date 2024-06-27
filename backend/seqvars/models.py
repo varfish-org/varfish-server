@@ -168,8 +168,8 @@ class SeqvarPresetsFrequency(FrequencySettingsBase, SeqvarPresetsBase):
 class SeqvarQuerySettings(BaseModel):
     """The query settings for a case."""
 
-    #: The owning ``Case``.
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    #: The owning ``CaseAnalysisSession``.
+    session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"SeqvarQuerySettings '{self.sodar_uuid}'"

@@ -42,12 +42,12 @@ router.register(
 #     r"api/seqvarpresetsmisc/(?P<project>[0-9a-f-]+)", views_api.SeqvarPresetsMiscViewSet, basename="api-seqvarpresetsmisc"
 # )
 router.register(
-    r"api/seqvarquerysettings/(?P<case>[0-9a-f-]+)",
+    r"api/seqvarquerysettings/(?P<caseanalysissession>[0-9a-f-]+)",
     views_api.SeqvarQuerySettingsViewSet,
     basename="api-seqvarquerysettings",
 )
 router.register(
-    r"api/seqvarquery/(?P<case>[0-9a-f-]+)",
+    r"api/seqvarquery/(?P<caseanalysissession>[0-9a-f-]+)",
     views_api.SeqvarQueryViewSet,
     basename="api-seqvarquery",
 )

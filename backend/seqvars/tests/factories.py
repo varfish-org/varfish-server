@@ -117,7 +117,7 @@ class SeqvarPresetsFrequencyFactory(FrequencySettingsBaseFactory, SeqvarPresetsB
 
 class SeqvarQuerySettingsFactory(BaseModelFactory):
 
-    case = factory.SubFactory(CaseFactory)
+    session = factory.SubFactory(CaseAnalysisSessionFactory)
     seqvarquerysettingsfrequency = factory.RelatedFactory(
         "seqvars.tests.factories.SeqvarQuerySettingsFrequencyFactory",
         factory_related_name="querysettings",

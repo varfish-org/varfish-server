@@ -217,7 +217,7 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
             "date_created",
             "date_modified",
             # SeqvarQuerySettings
-            "case",
+            "session",
             "seqvarquerysettingsfrequency",
         ]
         expected = model_to_dict(
@@ -225,7 +225,7 @@ class TestSeqvarQuerySettingsSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["case"] = self.seqvarquerysettings.case.sodar_uuid
+        expected["session"] = self.seqvarquerysettings.session.sodar_uuid
         expected["seqvarquerysettingsfrequency"] = (
             self.seqvarquerysettings.seqvarquerysettingsfrequency.sodar_uuid
         )
@@ -253,7 +253,7 @@ class TestSeqvarQuerySettingsDetailsSerializer(TestCase):
             "date_created",
             "date_modified",
             # SeqvarQuerySettings
-            "case",
+            "session",
             "seqvarquerysettingsfrequency",
         ]
         expected = model_to_dict(
@@ -261,7 +261,7 @@ class TestSeqvarQuerySettingsDetailsSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["case"] = self.seqvarquerysettings.case.sodar_uuid
+        expected["session"] = self.seqvarquerysettings.session.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"

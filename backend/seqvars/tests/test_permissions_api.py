@@ -1,6 +1,7 @@
 from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
+from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import SeqvarPresetsFrequency, SeqvarQueryPresetsSet, SeqvarQuerySettings
 from seqvars.serializers import SeqvarQuerySettingsFrequencySerializer
 from seqvars.tests.factories import (
@@ -307,13 +308,15 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
-        self.seqvarquerysettings = SeqvarQuerySettingsFactory(case=self.case)
+        self.caseanalysis = CaseAnalysisFactory(case=self.case)
+        self.caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
+        self.seqvarquerysettings = SeqvarQuerySettingsFactory(session=self.caseanalysissession)
 
     def test_list(self):
         url = reverse(
             "seqvars:api-seqvarquerysettings-list",
             kwargs={
-                "case": self.case.sodar_uuid,
+                "caseanalysissession": self.caseanalysissession.sodar_uuid,
             },
         )
         good_users = [
@@ -333,7 +336,7 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-seqvarquerysettings-list",
             kwargs={
-                "case": self.case.sodar_uuid,
+                "caseanalysissession": self.caseanalysissession.sodar_uuid,
             },
         )
         good_users = [
@@ -389,7 +392,7 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-seqvarquerysettings-detail",
             kwargs={
-                "case": self.case.sodar_uuid,
+                "caseanalysissession": self.caseanalysissession.sodar_uuid,
                 "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
             },
         )
@@ -412,7 +415,7 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-seqvarquerysettings-detail",
             kwargs={
-                "case": self.case.sodar_uuid,
+                "caseanalysissession": self.caseanalysissession.sodar_uuid,
                 "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
             },
         )
@@ -445,7 +448,7 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-seqvarquerysettings-detail",
             kwargs={
-                "case": self.case.sodar_uuid,
+                "caseanalysissession": self.caseanalysissession.sodar_uuid,
                 "seqvarquerysettings": self.seqvarquerysettings.sodar_uuid,
             },
         )
@@ -468,7 +471,8 @@ class TestSeqvarQuerySettingsViewSet(TestProjectAPIPermissionBase):
         def cleanup():
             if not SeqvarQuerySettings.objects.filter(sodar_uuid=seqvarquerysettings_uuid):
                 self.seqvarpresetsfrequency = SeqvarQuerySettingsFactory(
-                    sodar_uuid=seqvarquerysettings_uuid, case=self.case
+                    sodar_uuid=seqvarquerysettings_uuid,
+                    session=self.caseanalysissession,
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)

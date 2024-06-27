@@ -7,6 +7,7 @@ from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
 from rest_framework.pagination import CursorPagination
 
+from cases_analysis.models import CaseAnalysisSession
 from seqvars.models import (
     SeqvarQuery,
     SeqvarQueryExecution,
@@ -49,11 +50,16 @@ def get_project(kwargs):
             SeqvarQueryPresetsSet.objects.all(), sodar_uuid=kwargs["seqvarquerypresetsset"]
         )
         project = seqvarquerypresetsset.project
+    elif "caseanalysissession" in kwargs:
+        caseanalysissession = get_object_or_404(
+            CaseAnalysisSession.objects.all(), sodar_uuid=kwargs["caseanalysissession"]
+        )
+        project = caseanalysissession.caseanalysis.case.project
     elif "case" in kwargs:
         case = get_object_or_404(Case.objects.all(), sodar_uuid=kwargs["case"])
         project = case.project
     else:
-        raise ValueError("No project or seqvarquerypresetsset in URL kwargs")
+        raise ValueError("No reference to project in URL kwargs")
     return project
 
 
@@ -227,13 +233,11 @@ class SeqvarQuerySettingsViewSet(BaseViewSet):
         "partial_update": SeqvarQuerySettingsDetailsSerializer,
         "delete": SeqvarQuerySettingsDetailsSerializer,
     }
-    #: Use the custom permission class.
-    permission_classes = [SeqvarQueryPresetsPermission]
 
     def get_queryset(self):
         """Return queryset with all ``SeqvarQuerySettings`` records for the given case."""
         result = SeqvarQuerySettings.objects.all()
-        result = result.filter(case__sodar_uuid=self.kwargs["case"])
+        result = result.filter(session__sodar_uuid=self.kwargs["caseanalysissession"])
         return result
 
     def get_serializer_context(self):
@@ -241,7 +245,11 @@ class SeqvarQuerySettingsViewSet(BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        context["session"] = CaseAnalysisSession.objects.get(
+            sodar_uuid=self.kwargs["caseanalysissession"]
+        )
+        context["caseanalysis"] = context["session"].caseanalysis
+        context["case"] = context["caseanalysis"].case
         context["project"] = context["case"].project
         return context
 
@@ -263,8 +271,6 @@ class SeqvarQueryViewSet(BaseViewSet):
         "partial_update": SeqvarQueryDetailsSerializer,
         "delete": SeqvarQueryDetailsSerializer,
     }
-    #: Use the custom permission class.
-    permission_classes = [SeqvarQueryPresetsPermission]
 
     def get_queryset(self):
         """Return queryset with all ``SeqvarQuery`` records for the given case
@@ -274,7 +280,7 @@ class SeqvarQueryViewSet(BaseViewSet):
         """
         result = SeqvarQuery.objects.all()
         result = result.filter(
-            case__sodar_uuid=self.kwargs["case"],
+            session__sodar_uuid=self.kwargs["caseanalysissession"],
         )
         return result
 
@@ -283,7 +289,11 @@ class SeqvarQueryViewSet(BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        context["session"] = CaseAnalysisSession.objects.get(
+            sodar_uuid=self.kwargs["caseanalysissession"]
+        )
+        context["caseanalysis"] = context["session"].caseanalysis
+        context["case"] = context["caseanalysis"].case
         context["project"] = context["case"].project
         return context
 
