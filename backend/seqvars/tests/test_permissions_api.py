@@ -1807,6 +1807,8 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         query_uuid = self.query.sodar_uuid
 
         def cleanup():
+            for obj in Query.objects.exclude(querysettings__sodar_uuid=query_uuid):
+                obj.delete()
             for obj in QuerySettings.objects.exclude(sodar_uuid=query_uuid):
                 obj.delete()
 

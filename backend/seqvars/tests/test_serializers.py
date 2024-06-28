@@ -577,7 +577,7 @@ class TestQuerySettingsSerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["session"] = self.querysettings.session.sodar_uuid
-        expected["presetssetversion"] = self.querysettings.presetssetversion.sodar_uuid
+        # expected["presetssetversion"] = self.querysettings.presetssetversion.sodar_uuid  # is None
         expected["genotype"] = self.querysettings.genotype.sodar_uuid
         expected["quality"] = self.querysettings.quality.sodar_uuid
         expected["consequence"] = self.querysettings.consequence.sodar_uuid
@@ -627,7 +627,7 @@ class TestQuerySettingsDetailsSerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["session"] = self.querysettings.session.sodar_uuid
-        expected["presetssetversion"] = self.querysettings.presetssetversion.sodar_uuid
+        # expected["presetssetversion"] = self.querysettings.presetssetversion.sodar_uuid  # is None
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
