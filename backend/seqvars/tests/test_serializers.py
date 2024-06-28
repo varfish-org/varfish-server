@@ -78,13 +78,13 @@ class TestQueryPresetsQualitySerializer(TestCase):
             # QueryPresetsBase
             "presetsset",
             # QueryPresetsQuality
+            "filter_active",
             "min_dp_het",
             "min_dp_hom",
             "min_ab_het",
             "min_gq",
             "min_ad",
             "max_ad",
-            "on_failure",
         ]
         expected = model_to_dict(
             self.querypresetsquality,

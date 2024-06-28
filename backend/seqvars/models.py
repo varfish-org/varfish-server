@@ -430,16 +430,8 @@ class QueryPresetsQuality(QueryPresetsBase):
     each sample in the family when creating filter settings.
     """
 
-    ON_FAILURE_DROP_VARIANT = "drop_variant"
-    ON_FAILURE_DO_NOTHING = "do_nothing"
-    ON_FAILURE_NO_CALL = "no_call"
-
-    ON_FAILURE_CHOICES = (
-        (ON_FAILURE_DROP_VARIANT, ON_FAILURE_DROP_VARIANT),
-        (ON_FAILURE_DO_NOTHING, ON_FAILURE_DO_NOTHING),
-        (ON_FAILURE_NO_CALL, ON_FAILURE_NO_CALL),
-    )
-
+    #: Drop whole variant on failure.
+    filter_active = models.BooleanField(default=False, null=False, blank=False)
     #: Minimal depth for het. variants.
     min_dp_het = models.IntegerField(null=True, blank=True)
     #: Minimal depth for hom. variants.
@@ -452,10 +444,6 @@ class QueryPresetsQuality(QueryPresetsBase):
     min_ad = models.IntegerField(null=True, blank=True)
     #: Maximal alternate allele read depth.
     max_ad = models.IntegerField(null=True, blank=True)
-    #: Behaviour for failing filter.
-    on_failure = models.CharField(
-        max_length=128, choices=ON_FAILURE_CHOICES, default=ON_FAILURE_DROP_VARIANT
-    )
 
     def __str__(self):
         return f"QueryPresetsQuality '{self.sodar_uuid}'"
@@ -578,23 +566,14 @@ class QuerySettingsGenotype(QuerySettingsCategoryBase):
         return f"QuerySettingsGenotype '{self.sodar_uuid}'"
 
 
-class QualityFilterOnFailureChoice(str, Enum):
-    """The behaviour for failing quality filters."""
-
-    #: Drop the variant.
-    DROP_VARIANT = "drop_variant"
-    #: Do nothing.
-    DO_NOTHING = "do_nothing"
-    #: Mark as no call.
-    NO_CALL = "no_call"
-
-
 class SampleQualityFilter(pydantic.BaseModel):
     """Stores per-sample quality filter settings for a particular query."""
 
     #: Name of the sample.
     sample: str
 
+    #: Whether the filter is active.
+    filter_active: bool = False
     #: Minimal depth for het. variants.
     min_dp_het: typing.Optional[int] = None
     #: Minimal depth for hom. variants.
@@ -607,9 +586,6 @@ class SampleQualityFilter(pydantic.BaseModel):
     min_ad: typing.Optional[int] = None
     #: Maximal alternate allele read depth.
     max_ad: typing.Optional[int] = None
-
-    #: Behaviour for failing filter.
-    on_failure: QualityFilterOnFailureChoice = QualityFilterOnFailureChoice.DROP_VARIANT
 
 
 class QuerySettingsQuality(QuerySettingsCategoryBase):

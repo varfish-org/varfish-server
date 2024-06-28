@@ -300,6 +300,8 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     Not used directly but used as base class.
     """
 
+    #: Whether the filter is active or not.
+    filter_active = serializers.BooleanField(required=False, default=False)
     #: Minimal depth for het. variants.
     min_dp_het = serializers.IntegerField(allow_null=True, required=False)
     #: Minimal depth for hom. variants.
@@ -312,10 +314,6 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     min_ad = serializers.IntegerField(allow_null=True, required=False)
     #: Maximal alternate allele read depth.
     max_ad = serializers.IntegerField(allow_null=True, required=False)
-    #: Behaviour for failing filter.
-    on_failure = serializers.CharField(
-        max_length=128, default=QueryPresetsQuality.ON_FAILURE_DROP_VARIANT, required=False
-    )
 
     class Meta:
         model = QueryPresetsQuality
@@ -326,7 +324,7 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
             "min_gq",
             "min_ad",
             "max_ad",
-            "on_failure",
+            "filter_active",
         ]
         read_only_fields = fields
 

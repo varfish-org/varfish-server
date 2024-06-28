@@ -13,7 +13,6 @@ from seqvars.models import (
     GenePanel,
     GenePanelSource,
     GenotypeChoice,
-    QualityFilterOnFailureChoice,
     Query,
     QueryColumnsConfig,
     QueryExecution,
@@ -225,12 +224,12 @@ class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
 
 class QueryPresetsQualityFactory(QueryPresetsBaseFactory):
 
+    filter_active = True
     min_dp_het = 10
     min_dp_hom = 5
     min_ab_het = 0.3
     min_gq = 20
     min_ad = 3
-    on_failure = QueryPresetsQuality.ON_FAILURE_DROP_VARIANT
 
     class Meta:
         model = QueryPresetsQuality
@@ -338,7 +337,6 @@ class QuerySettingsQualityFactory(BaseModelFactory):
     sample_quality_filters = [
         SampleQualityFilter(
             sample="index",
-            on_failure=QualityFilterOnFailureChoice.DROP_VARIANT,
         )
     ]
 
