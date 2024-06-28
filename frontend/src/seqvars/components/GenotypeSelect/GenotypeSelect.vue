@@ -15,8 +15,6 @@ watch(pedigreeMembers, () => {
     (_, i) => membersInheritanceMode.value.at(i) ?? new Set(),
   )
 })
-
-const icon = []
 </script>
 
 <template>
