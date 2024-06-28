@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue'
+
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import {
   Affected,
@@ -6,6 +8,29 @@ import {
 } from '@/seqvars/components/GenotypeSelect/types'
 import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
 import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
+
+const pedigreeMembers = ref([
+  {
+    name: 'index II',
+    affected: Affected.AFFECTED,
+    sexAssignedAtBirth: SexAssignedAtBirth.UNDEFINED,
+  },
+  {
+    name: 'father I',
+    affected: Affected.UNDEFINED,
+    sexAssignedAtBirth: SexAssignedAtBirth.MALE,
+  },
+  {
+    name: 'mother I',
+    affected: Affected.AFFECTED,
+    sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
+  },
+  {
+    name: 'sibling',
+    affected: Affected.UNAFFECTED,
+    sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
+  },
+])
 </script>
 
 <template>
@@ -42,30 +67,7 @@ import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresets
           ]"
         />
 
-        <GenotypeSelect
-          :pedigree-members="[
-            {
-              name: 'index II',
-              affected: Affected.AFFECTED,
-              sexAssignedAtBirth: SexAssignedAtBirth.UNDEFINED,
-            },
-            {
-              name: 'father I',
-              affected: Affected.UNDEFINED,
-              sexAssignedAtBirth: SexAssignedAtBirth.MALE,
-            },
-            {
-              name: 'mother I',
-              affected: Affected.AFFECTED,
-              sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
-            },
-            {
-              name: 'sibling',
-              affected: Affected.UNAFFECTED,
-              sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
-            },
-          ]"
-        />
+        <GenotypeSelect :pedigree-members="pedigreeMembers" />
       </div>
     </div>
     <div>TODO</div>

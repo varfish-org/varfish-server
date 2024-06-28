@@ -5,6 +5,7 @@
     "types": [
       "vite/client",
       "jquery",
+      "unplugin-icons/types/vue"
     ],
     "useDefineForClassFields": true,
     "module": "ESNext",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
+import Item from '@/seqvars/components/Item.vue'
 import { QuickPresets } from './types'
 
 const { presets } = defineProps<{ presets: QuickPresets[] }>()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ selected: boolean }>(), {
+const props = withDefaults(defineProps<{ selected?: boolean }>(), {
   selected: false,
 })
 </script>

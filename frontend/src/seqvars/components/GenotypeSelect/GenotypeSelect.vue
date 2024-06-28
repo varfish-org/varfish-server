@@ -2,9 +2,11 @@
 import { ref, watch } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import { GENOTYPE_LABELS } from './constants'
+import Item from '@/seqvars/components/Item.vue'
 import InheritanceModeControls from './InheritanceModeControls.vue'
-import { Affected, PedigreeMember, SexAssignedAtBirth } from './types'
+import SexAffectedIcon from './SexAffectedIcon'
+import { GENOTYPE_LABELS } from './constants'
+import { PedigreeMember } from './types'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
@@ -50,50 +52,10 @@ watch(pedigreeMembers, () => {
             "
             ><span>{{ member.name }}</span>
 
-            <span
-              :style="
-                member.affected == Affected.UNDEFINED ? { opacity: 0.5 } : {}
-              "
-            >
-              <i-bi-diamond
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
-                  member.affected == Affected.UNAFFECTED
-                "
-              />
-              <i-bi-diamond-fill
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
-                  member.affected != Affected.UNAFFECTED
-                "
-              />
-
-              <i-bi-circle
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
-                  member.affected == Affected.UNAFFECTED
-                "
-              />
-              <i-bi-circle-fill
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
-                  member.affected != Affected.UNAFFECTED
-                "
-              />
-
-              <i-bi-square
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
-                  member.affected == Affected.UNAFFECTED
-                "
-              />
-              <i-bi-square-fill
-                v-if="
-                  member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
-                  member.affected != Affected.UNAFFECTED
-                "
-              />
-            </span>
+            <SexAffectedIcon
+              :sex="member.sexAssignedAtBirth"
+              :affected="member.affected"
+            />
           </label>
           <InheritanceModeControls v-model="membersInheritanceMode[index]" />
         </div>
