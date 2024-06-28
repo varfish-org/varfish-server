@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
+import { GENOTYPE_LABELS } from './constants'
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import { Affected, PedigreeMember, SexAssignedAtBirth } from './types'
-import { watch } from 'vue'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
@@ -21,10 +21,11 @@ watch(pedigreeMembers, () => {
   <CollapsibleGroup title="Genotype">
     <div style="width: 100%; display: flex; flex-direction: column; gap: 16px">
       <div style="width: 100%; display: flex; flex-direction: column">
-        <Item>de novo</Item>
-        <Item>dominant</Item>
-        <Item>affected caries</Item>
-        <Item>any mode</Item>
+        <Item
+          v-for="[key, label] in Object.entries(GENOTYPE_LABELS)"
+          :key="key"
+          >{{ label }}</Item
+        >
       </div>
 
       <div
