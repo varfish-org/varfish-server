@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import InheritanceModeControls from './InheritanceModeControls.vue'
+import InheritanceModeControls from '@/seqvars/components/GenotypeSelect/InheritanceModeControls.vue'
 
 const meta: Meta<typeof InheritanceModeControls> = {
-  title: 'Variants New / InheritanceModeControls',
+  title: 'Seqvars / Inheritance Mode Controls',
   component: InheritanceModeControls,
 }
 
@@ -17,7 +17,7 @@ export const Example: Story = {
     components: { InheritanceModeControls },
     setup() {
       const model = ref(new Set())
-      const updateModel = (event) => (model.value = event)
+      const updateModel = (value: Set<string>) => (model.value = value)
       return { model, updateModel }
     },
     template:

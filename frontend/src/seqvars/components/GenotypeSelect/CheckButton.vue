@@ -3,22 +3,24 @@ const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <button
-    type="button"
+  <v-btn
     class="root ui-control-text"
-    :aria-selected="JSON.stringify(model)"
+    variant="outlined"
+    rounded="sm"
+    :aria-selected="model"
     @click="model = !model"
   >
     <slot />
-  </button>
+  </v-btn>
 </template>
 
 <style scoped>
 .root {
-  border-radius: 4px;
-  border: 1px solid black;
   padding: 5px 12px;
   height: fit-content;
+  min-width: auto;
+  color: black !important;
+  text-transform: none;
   cursor: pointer;
 
   &:focus {
@@ -27,7 +29,12 @@ const model = defineModel<boolean>({ default: false })
 
   &[aria-selected='true'] {
     border-color: #0f6cbd;
-    background: #f3f9ff;
+    background: #0f6cbd;
+    color: white !important;
+
+    &:hover {
+      color: black !important;
+    }
   }
 
   &:hover {

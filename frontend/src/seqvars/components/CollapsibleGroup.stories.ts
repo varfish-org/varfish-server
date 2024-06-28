@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import CollapsibleGroup from './CollapsibleGroup.vue'
 
 const meta: Meta<typeof CollapsibleGroup> = {
-  title: 'Variants New / CollapsibleGroup',
+  title: 'Seqvars / Collapsible Group',
   component: CollapsibleGroup,
 }
 

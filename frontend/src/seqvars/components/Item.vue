@@ -5,11 +5,7 @@ const props = withDefaults(defineProps<{ selected: boolean }>(), {
 </script>
 
 <template>
-  <button
-    type="button"
-    class="root"
-    :aria-selected="JSON.stringify(props.selected)"
-  >
+  <button type="button" class="root" :aria-selected="props.selected">
     <slot />
   </button>
 </template>

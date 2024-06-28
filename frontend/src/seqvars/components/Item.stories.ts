@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import Item from './Item.vue'
 
 const meta: Meta<typeof Item> = {
-  title: 'Variants New / Item',
+  title: 'Seqvars / Item',
   component: Item,
 }
 
@@ -12,7 +12,7 @@ export default meta
 type Story = StoryObj<typeof Item>
 
 export const Example: Story = {
-  args: { body: 'Item text' },
+  args: { default: 'Some text' },
 
   render: (args) => ({
     components: { Item },
@@ -20,6 +20,6 @@ export const Example: Story = {
       return { args }
     },
     template:
-      '<div style="background: white"><Item v-bind="args">{{args.body}}</Item></div>',
+      '<div style="background: white"><Item v-bind="args">{{args.default}}</Item></div>',
   }),
 }
