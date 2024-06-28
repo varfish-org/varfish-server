@@ -546,6 +546,14 @@ class QuerySettings(BaseModel):
     #: The owning ``CaseAnalysisSession``.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
 
+    #: The presets set version that this ``QuerySettings`` is based on.
+    #:
+    #: This information is used for computing differences between the presets and the
+    #: effective query settings.
+    presetssetversion = models.ForeignKey(
+        QueryPresetsSetVersion, on_delete=models.PROTECT, null=True, blank=True
+    )
+
     def __str__(self):
         return f"QuerySettings '{self.sodar_uuid}'"
 
@@ -740,9 +748,9 @@ class Query(BaseModel):
     #: Owning/containing session.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Query settings to be edited in the next query execution.
-    settings = models.OneToOneField(QuerySettings, on_delete=models.CASCADE)
+    settings = models.OneToOneField(QuerySettings, on_delete=models.PROTECT)
     #: The columns configuration of the query.
-    columnsconfig = models.OneToOneField(QueryColumnsConfig, on_delete=models.CASCADE)
+    columnsconfig = models.OneToOneField(QueryColumnsConfig, on_delete=models.PROTECT)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -794,7 +802,7 @@ class QueryExecution(BaseModel):
     #: The owning/containing query.
     query = models.ForeignKey(Query, on_delete=models.CASCADE)
     #: Effective query settings of execution.
-    querysettings = models.ForeignKey(QuerySettings, on_delete=models.CASCADE)
+    querysettings = models.ForeignKey(QuerySettings, on_delete=models.PROTECT)
 
     @property
     def case(self) -> typing.Optional[Case]:

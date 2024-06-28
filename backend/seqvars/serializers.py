@@ -646,6 +646,10 @@ class QuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``session`` as its ``sodar_uuid``.
     session = serializers.ReadOnlyField(source="session.sodar_uuid")
+
+    #: Serialize ``presetssetversion`` as its ``sodar_uuid``.
+    presetssetversion = serializers.ReadOnlyField(source="presetssetversion.sodar_uuid")
+
     #: Serialize ``genotype`` as its ``sodar_uuid``.
     genotype = serializers.ReadOnlyField(source="genotype.sodar_uuid")
     #: Serialize ``quality`` as its ``sodar_uuid``.
@@ -673,6 +677,7 @@ class QuerySettingsSerializer(BaseModelSerializer):
         model = QuerySettings
         fields = BaseModelSerializer.Meta.fields + [
             "session",
+            "presetssetversion",
             "genotype",
             "quality",
             "consequence",
@@ -689,7 +694,7 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
     """Serializer for ``QuerySettings`` (for ``*-detail``).
 
     For retrieve, update, or delete operations, we also render the nested
-    frequency settings.
+    owned category settings.
     """
 
     #: Nested serialization of the genotype settings.
