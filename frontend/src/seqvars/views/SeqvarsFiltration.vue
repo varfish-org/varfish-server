@@ -51,7 +51,7 @@ import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresets
             },
             {
               name: 'father I',
-              affected: Affected.UNAFFECTED,
+              affected: Affected.UNDEFINED,
               sexAssignedAtBirth: SexAssignedAtBirth.MALE,
             },
             {

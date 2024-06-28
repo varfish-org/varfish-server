@@ -50,44 +50,50 @@ watch(pedigreeMembers, () => {
             "
             ><span>{{ member.name }}</span>
 
-            <i-bi-diamond
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
-                member.affected == Affected.UNAFFECTED
+            <span
+              :style="
+                member.affected == Affected.UNDEFINED ? { opacity: 0.5 } : {}
               "
-            />
-            <i-bi-diamond-fill
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
-                member.affected == Affected.AFFECTED
-              "
-            />
+            >
+              <i-bi-diamond
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
+                  member.affected == Affected.UNAFFECTED
+                "
+              />
+              <i-bi-diamond-fill
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.UNDEFINED &&
+                  member.affected != Affected.UNAFFECTED
+                "
+              />
 
-            <i-bi-circle
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
-                member.affected == Affected.UNAFFECTED
-              "
-            />
-            <i-bi-circle-fill
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
-                member.affected == Affected.AFFECTED
-              "
-            />
+              <i-bi-circle
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
+                  member.affected == Affected.UNAFFECTED
+                "
+              />
+              <i-bi-circle-fill
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.FEMALE &&
+                  member.affected != Affected.UNAFFECTED
+                "
+              />
 
-            <i-bi-square
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
-                member.affected == Affected.UNAFFECTED
-              "
-            />
-            <i-bi-square-fill
-              v-if="
-                member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
-                member.affected == Affected.AFFECTED
-              "
-            />
+              <i-bi-square
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
+                  member.affected == Affected.UNAFFECTED
+                "
+              />
+              <i-bi-square-fill
+                v-if="
+                  member.sexAssignedAtBirth == SexAssignedAtBirth.MALE &&
+                  member.affected != Affected.UNAFFECTED
+                "
+              />
+            </span>
           </label>
           <InheritanceModeControls v-model="membersInheritanceMode[index]" />
         </div>
