@@ -57,6 +57,8 @@ toml = "*"
 black = "*"
 rich = "*"
 drf-writable-nested = "*"
+django-modelcluster = "*"
+faker = "*"
 
 [dev-packages]
 # packages for testing

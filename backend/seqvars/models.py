@@ -5,6 +5,8 @@ import uuid as uuid_object
 from django.contrib.auth import get_user_model
 from django.db import models
 from django_pydantic_field import SchemaField
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 import pydantic
 
 from cases_analysis.models import CaseAnalysisSession
@@ -137,7 +139,8 @@ class VariantConsequenceChoice(str, Enum):
     # skipped feature_truncation
     # skipped gene_variant
     # skipped intergenic_variant
-    # skipped intron_variant
+    #: Intron variant.
+    INTRON_VARIANT = "intron_variant"
     # skipped mature_miRNA_variant
     # skipped miRNA
     # skipped NMD_transcript_variant
@@ -279,7 +282,7 @@ class PhenotypePrioSettingsBase(models.Model):
     #: The algorithm to use for priorization.
     phenotype_prio_algorithm = models.CharField(max_length=128, null=True, blank=True)
     #: The phenotype terms to use.
-    terms = SchemaField(schema=list[TermPresence], default=list)
+    terms = SchemaField(schema=list[TermPresence] | typing.Literal["__case_terms__"], default=list)
 
     class Meta:
         abstract = True
@@ -315,20 +318,14 @@ class ClinvarGermlineAggregateDescription(str, Enum):
 
     #: Pathogenic
     PATHOGENIC = "pathogenic"
-    # #: Pathogenic / likely pathogenic
-    # PATHOGENIC_LIKELY_PATHOGENIC = "pathogenic_likely_pathogenic"
     #: Likely pathogenic
     LIKELY_PATHOGENIC = "likely_pathogenic"
     #: Uncertain significance
     UNCERTAIN_SIGNIFICANCE = "uncertain_significance"
     #: Likely benign
     LIKELY_BENIGN = "likely_benign"
-    # #: Benign / likely benign
-    # BENIGN_LIKELY_BENIGN = "benign_likely_benign"
     #: Benign
     BENIGN = "benign"
-    # #: Conflicting interpretations of pathogenicity
-    # CONFLICTING_CLASSIFICATIONS_OF_PATHOGENICITY = "conflicting_classifications_of_pathogenicity"
 
 
 class ClinvarSettingsBase(models.Model):
@@ -342,8 +339,6 @@ class ClinvarSettingsBase(models.Model):
     )
     #: Whether to allow for conflicting interpretations of pathogenicity.
     allow_conflicting_interpretations = models.BooleanField(default=False, null=False, blank=False)
-    #: Whether to include "legacy" aggregate descriptions.
-    include_legacy_descriptions = models.BooleanField(default=False, null=False, blank=False)
 
     class Meta:
         abstract = True
@@ -388,7 +383,7 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class LabeledSortableBase(BaseModel):
+class LabeledSortableBaseModel(BaseModel):
     """Base class for models with a rank, label, and description."""
 
     #: An integer rank for manual sorting in UI.
@@ -403,11 +398,17 @@ class LabeledSortableBase(BaseModel):
         abstract = True
 
 
-class QueryPresetsSet(LabeledSortableBase):
-    """Configured presets for a given project."""
+class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
+    """Configured presets for a given project.
+
+    We inherit from ``ClusterableModel`` so we can create presets sets and owned version /
+    presets without storing them in the database for the factory defaults.
+    """
 
     #: The owning ``Project``.
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="seqvarpresetsset")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="seqvarpresetsset", null=True, blank=True
+    )
 
     def __str__(self):
         return f"QueryPresetsSet '{self.sodar_uuid}'"
@@ -455,7 +456,7 @@ class QueryPresetsSetVersion(BaseModel):
         return f"QueryPresetsSetVersion '{self.sodar_uuid}'"
 
 
-class QueryPresetsBase(LabeledSortableBase):
+class QueryPresetsBase(LabeledSortableBaseModel):
     """Base presets."""
 
     #: The owning ``QueryPresetsSetVersion``.

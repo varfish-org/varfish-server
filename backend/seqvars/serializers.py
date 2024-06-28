@@ -530,6 +530,20 @@ class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
         read_only_fields = fields
 
 
+class QueryPresetsSetDetailsSerializer(QueryPresetsSetSerializer):
+    """Serializer for ``QueryPresetsSet`` that renders all nested versions."""
+
+    #: Serialize all versions of the presets set.
+    querypresetssetversion_set = QueryPresetsSetVersionDetailsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QueryPresetsSet
+        fields = QueryPresetsSetSerializer.Meta.fields + [
+            "querypresetssetversion_set",
+        ]
+        read_only_fields = fields
+
+
 class QuerySettingsBaseSerializer(BaseModelSerializer):
     """Serializer for ``QuerySettings``."""
 
