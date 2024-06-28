@@ -318,13 +318,13 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     class Meta:
         model = QueryPresetsQuality
         fields = QueryPresetsBaseSerializer.Meta.fields + [
+            "filter_active",
             "min_dp_het",
             "min_dp_hom",
             "min_ab_het",
             "min_gq",
             "min_ad",
             "max_ad",
-            "filter_active",
         ]
         read_only_fields = fields
 
