@@ -3,14 +3,33 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import Query, QueryPresetsFrequency, QueryPresetsSet, QuerySettings
-from seqvars.serializers import QuerySettingsFrequencySerializer, QuerySettingsSerializer
+from seqvars.serializers import (
+    QueryColumnsConfigSerializer,
+    QuerySettingsClinvarSerializer,
+    QuerySettingsConsequenceSerializer,
+    QuerySettingsFrequencySerializer,
+    QuerySettingsGenotypeSerializer,
+    QuerySettingsLocusSerializer,
+    QuerySettingsPhenotypePrioSerializer,
+    QuerySettingsQualitySerializer,
+    QuerySettingsSerializer,
+    QuerySettingsVariantPrioSerializer,
+)
 from seqvars.tests.factories import (
+    QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
     QueryPresetsFrequencyFactory,
     QueryPresetsSetFactory,
+    QuerySettingsClinvarFactory,
+    QuerySettingsConsequenceFactory,
     QuerySettingsFactory,
     QuerySettingsFrequencyFactory,
+    QuerySettingsGenotypeFactory,
+    QuerySettingsLocusFactory,
+    QuerySettingsPhenotypePrioFactory,
+    QuerySettingsQualityFactory,
+    QuerySettingsVariantPrioFactory,
     ResultRowFactory,
     ResultSetFactory,
 )
@@ -349,8 +368,29 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
 
         data = {
+            "genotype": QuerySettingsGenotypeSerializer(
+                QuerySettingsGenotypeFactory.build(querysettings=None)
+            ).data,
+            "quality": QuerySettingsQualitySerializer(
+                QuerySettingsQualityFactory.build(querysettings=None)
+            ).data,
+            "consequence": QuerySettingsConsequenceSerializer(
+                QuerySettingsConsequenceFactory.build(querysettings=None)
+            ).data,
+            "locus": QuerySettingsLocusSerializer(
+                QuerySettingsLocusFactory.build(querysettings=None)
+            ).data,
             "frequency": QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
+            ).data,
+            "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
+                QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+            ).data,
+            "variantprio": QuerySettingsVariantPrioSerializer(
+                QuerySettingsVariantPrioFactory.build(querysettings=None)
+            ).data,
+            "clinvar": QuerySettingsClinvarSerializer(
+                QuerySettingsClinvarFactory.build(querysettings=None)
             ).data,
         }
 
@@ -528,12 +568,34 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         data = {
             "label": "test label",
             "settings_buffer": {
-                "frequency": (
-                    QuerySettingsFrequencySerializer(
-                        QuerySettingsFrequencyFactory.build(querysettings=None)
-                    ).data
-                ),
+                "genotype": QuerySettingsGenotypeSerializer(
+                    QuerySettingsGenotypeFactory.build(querysettings=None)
+                ).data,
+                "quality": QuerySettingsQualitySerializer(
+                    QuerySettingsQualityFactory.build(querysettings=None)
+                ).data,
+                "consequence": QuerySettingsConsequenceSerializer(
+                    QuerySettingsConsequenceFactory.build(querysettings=None)
+                ).data,
+                "locus": QuerySettingsLocusSerializer(
+                    QuerySettingsLocusFactory.build(querysettings=None)
+                ).data,
+                "frequency": QuerySettingsFrequencySerializer(
+                    QuerySettingsFrequencyFactory.build(querysettings=None)
+                ).data,
+                "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
+                    QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+                ).data,
+                "variantprio": QuerySettingsVariantPrioSerializer(
+                    QuerySettingsVariantPrioFactory.build(querysettings=None)
+                ).data,
+                "clinvar": QuerySettingsClinvarSerializer(
+                    QuerySettingsClinvarFactory.build(querysettings=None)
+                ).data,
             },
+            "columnsconfig": QueryColumnsConfigSerializer(
+                QueryColumnsConfigFactory.build(query=None)
+            ).data,
         }
 
         query_uuid = self.query.sodar_uuid

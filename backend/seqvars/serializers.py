@@ -164,7 +164,9 @@ class PhenotypePrioSettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     phenotype_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
-    phenotype_prio_algorithm = serializers.CharField(max_length=128, allow_null=True)
+    phenotype_prio_algorithm = serializers.CharField(
+        max_length=128, allow_null=True, required=False
+    )
     terms = SchemaField(schema=list[TermPresence], default=list)
 
     class Meta:
@@ -580,8 +582,22 @@ class QuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``session`` as its ``sodar_uuid``.
     session = serializers.ReadOnlyField(source="session.sodar_uuid")
+    #: Serialize ``genotype`` as its ``sodar_uuid``.
+    genotype = serializers.ReadOnlyField(source="genotype.sodar_uuid")
+    #: Serialize ``quality`` as its ``sodar_uuid``.
+    quality = serializers.ReadOnlyField(source="quality.sodar_uuid")
+    #: Serialize ``consequence`` as its ``sodar_uuid``.
+    consequence = serializers.ReadOnlyField(source="consequence.sodar_uuid")
+    #: Serialize ``locus`` as its ``sodar_uuid``.
+    locus = serializers.ReadOnlyField(source="locus.sodar_uuid")
     #: Serialize ``frequency`` as its ``sodar_uuid``.
     frequency = serializers.ReadOnlyField(source="frequency.sodar_uuid")
+    #: Serialize ``phenotypeprio`` as its ``sodar_uuid``.
+    phenotypeprio = serializers.ReadOnlyField(source="phenotypeprio.sodar_uuid")
+    #: Serialize ``variantprio`` as its ``sodar_uuid``.
+    variantprio = serializers.ReadOnlyField(source="variantprio.sodar_uuid")
+    #: Serialize ``clinvar`` as its ``sodar_uuid``.
+    clinvar = serializers.ReadOnlyField(source="clinvar.sodar_uuid")
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -591,7 +607,17 @@ class QuerySettingsSerializer(BaseModelSerializer):
 
     class Meta:
         model = QuerySettings
-        fields = BaseModelSerializer.Meta.fields + ["session", "frequency"]
+        fields = BaseModelSerializer.Meta.fields + [
+            "session",
+            "genotype",
+            "quality",
+            "consequence",
+            "locus",
+            "frequency",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
+        ]
         read_only_fields = fields
 
 
@@ -602,13 +628,34 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
     frequency settings.
     """
 
+    #: Nested serialization of the genotype settings.
+    genotype = QuerySettingsGenotypeSerializer()
+    #: Nested serialization of the quality settings.
+    quality = QuerySettingsQualitySerializer()
+    #: Nested serialization of the consequence settings.
+    consequence = QuerySettingsConsequenceSerializer()
+    #: Nested serialization of the locus settings.
+    locus = QuerySettingsLocusSerializer()
     #: Nested serialization of the frequency settings.
     frequency = QuerySettingsFrequencySerializer()
+    #: Nested serialization of the phenotype prio settings.
+    phenotypeprio = QuerySettingsPhenotypePrioSerializer()
+    #: Nested serialization of the variant prio settings.
+    variantprio = QuerySettingsVariantPrioSerializer()
+    #: Nested serialization of the clinvar settings.
+    clinvar = QuerySettingsClinvarSerializer()
 
     class Meta:
         model = QuerySettingsSerializer.Meta.model
         fields = QuerySettingsSerializer.Meta.fields + [
+            "genotype",
+            "quality",
+            "consequence",
+            "locus",
             "frequency",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
         ]
         read_only_fields = fields
 
@@ -634,10 +681,12 @@ class QuerySerializer(BaseModelSerializer):
     rank = serializers.IntegerField(default=1, initial=1)
     label = serializers.CharField(max_length=128)
 
-    #: Serializer ``session`` as its ``sodar_uuid``.
+    #: Serialize ``session`` as its ``sodar_uuid``.
     session = serializers.ReadOnlyField(source="session.sodar_uuid")
-    #: Serializer ``settings_buffer`` as its ``sodar_uuid``.
+    #: Serialize ``settings_buffer`` as its ``sodar_uuid``.
     settings_buffer = serializers.ReadOnlyField(source="settings_buffer.sodar_uuid")
+    #: Serialize ``columnsconfig`` as its ``sodar_uuid``.
+    columnsconfig = serializers.ReadOnlyField(source="columnsconfig.sodar_uuid")
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -652,6 +701,7 @@ class QuerySerializer(BaseModelSerializer):
             "label",
             "session",
             "settings_buffer",
+            "columnsconfig",
         ]
         read_only_fields = fields
 
@@ -665,6 +715,8 @@ class QueryDetailsSerializer(QuerySerializer, WritableNestedModelSerializer):
 
     #: For the details serializer, we use a nested details serializer.
     settings_buffer = QuerySettingsDetailsSerializer()
+    #: Render the columns configuration here.
+    columnsconfig = QueryColumnsConfigSerializer()
 
     class Meta:
         model = Query

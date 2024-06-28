@@ -13,6 +13,7 @@ from seqvars.models import (
     QuerySettingsFrequency,
 )
 from seqvars.serializers import (
+    QueryColumnsConfigSerializer,
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
@@ -20,19 +21,34 @@ from seqvars.serializers import (
     QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
     QuerySerializer,
+    QuerySettingsClinvarSerializer,
+    QuerySettingsConsequenceSerializer,
     QuerySettingsDetailsSerializer,
     QuerySettingsFrequencySerializer,
+    QuerySettingsGenotypeSerializer,
+    QuerySettingsLocusSerializer,
+    QuerySettingsPhenotypePrioSerializer,
+    QuerySettingsQualitySerializer,
     QuerySettingsSerializer,
+    QuerySettingsVariantPrioSerializer,
     ResultRowSerializer,
     ResultSetSerializer,
 )
 from seqvars.tests.factories import (
+    QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
     QueryPresetsFrequencyFactory,
     QueryPresetsSetFactory,
+    QuerySettingsClinvarFactory,
+    QuerySettingsConsequenceFactory,
     QuerySettingsFactory,
     QuerySettingsFrequencyFactory,
+    QuerySettingsGenotypeFactory,
+    QuerySettingsLocusFactory,
+    QuerySettingsPhenotypePrioFactory,
+    QuerySettingsQualityFactory,
+    QuerySettingsVariantPrioFactory,
     ResultRowFactory,
     ResultSetFactory,
 )
@@ -344,9 +360,30 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                     },
                 ),
                 data={
+                    "genotype": QuerySettingsGenotypeSerializer(
+                        QuerySettingsGenotypeFactory.build(querysettings=None)
+                    ).data,
+                    "quality": QuerySettingsQualitySerializer(
+                        QuerySettingsQualityFactory.build(querysettings=None)
+                    ).data,
+                    "consequence": QuerySettingsConsequenceSerializer(
+                        QuerySettingsConsequenceFactory.build(querysettings=None)
+                    ).data,
+                    "locus": QuerySettingsLocusSerializer(
+                        QuerySettingsLocusFactory.build(querysettings=None)
+                    ).data,
                     "frequency": QuerySettingsFrequencySerializer(
                         QuerySettingsFrequencyFactory.build(querysettings=None)
-                    ).data
+                    ).data,
+                    "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
+                        QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+                    ).data,
+                    "variantprio": QuerySettingsVariantPrioSerializer(
+                        QuerySettingsVariantPrioFactory.build(querysettings=None)
+                    ).data,
+                    "clinvar": QuerySettingsClinvarSerializer(
+                        QuerySettingsClinvarFactory.build(querysettings=None)
+                    ).data,
                 },
                 format="json",
             )
@@ -495,6 +532,35 @@ class TestQueryViewSet(ApiViewTestBase):
             settings_buffer["frequency"] = QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
+            settings_buffer["genotype"] = QuerySettingsGenotypeSerializer(
+                QuerySettingsGenotypeFactory.build(querysettings=None)
+            ).data
+            settings_buffer["quality"] = QuerySettingsQualitySerializer(
+                QuerySettingsQualityFactory.build(querysettings=None)
+            ).data
+            settings_buffer["consequence"] = QuerySettingsConsequenceSerializer(
+                QuerySettingsConsequenceFactory.build(querysettings=None)
+            ).data
+            settings_buffer["locus"] = QuerySettingsLocusSerializer(
+                QuerySettingsLocusFactory.build(querysettings=None)
+            ).data
+            settings_buffer["frequency"] = QuerySettingsFrequencySerializer(
+                QuerySettingsFrequencyFactory.build(querysettings=None)
+            ).data
+            settings_buffer["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
+                QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+            ).data
+            settings_buffer["variantprio"] = QuerySettingsVariantPrioSerializer(
+                QuerySettingsVariantPrioFactory.build(querysettings=None)
+            ).data
+            settings_buffer["clinvar"] = QuerySettingsClinvarSerializer(
+                QuerySettingsClinvarFactory.build(querysettings=None)
+            ).data
+
+            columnsconfig = QueryColumnsConfigSerializer(
+                QueryColumnsConfigFactory.build(query=None)
+            ).data
+
             response = self.client.post(
                 reverse(
                     "seqvars:api-query-list",
@@ -505,6 +571,7 @@ class TestQueryViewSet(ApiViewTestBase):
                 data={
                     "label": "test label",
                     "settings_buffer": settings_buffer,
+                    "columnsconfig": columnsconfig,
                 },
                 format="json",
             )
@@ -556,6 +623,20 @@ class TestQueryViewSet(ApiViewTestBase):
         ]
     )
     def test_patch(self, data: dict[str, Any]):
+        keys = [
+            "genotype",
+            "quality",
+            "consequence",
+            "locus",
+            "frequency",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
+        ]
+        for key in keys:
+            if not key in data["settings_buffer"]:
+                data["settings_buffer"][key] = {}
+
         self.query.refresh_from_db()
         for key, value in data.items():
             getattr(self.query, key).refresh_from_db()

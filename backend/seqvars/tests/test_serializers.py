@@ -3,6 +3,7 @@ from freezegun import freeze_time
 from test_plus import TestCase
 
 from seqvars.serializers import (
+    QueryColumnsConfigSerializer,
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
@@ -31,6 +32,7 @@ from seqvars.serializers import (
     ResultSetSerializer,
 )
 from seqvars.tests.factories import (
+    QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
     QueryPresetsClinvarFactory,
@@ -536,7 +538,14 @@ class TestQuerySettingsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
+            "genotype",
+            "quality",
+            "consequence",
+            "locus",
             "frequency",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
         ]
         expected = model_to_dict(
             self.querysettings,
@@ -544,7 +553,14 @@ class TestQuerySettingsSerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["session"] = self.querysettings.session.sodar_uuid
+        expected["genotype"] = self.querysettings.genotype.sodar_uuid
+        expected["quality"] = self.querysettings.quality.sodar_uuid
+        expected["consequence"] = self.querysettings.consequence.sodar_uuid
+        expected["locus"] = self.querysettings.locus.sodar_uuid
         expected["frequency"] = self.querysettings.frequency.sodar_uuid
+        expected["phenotypeprio"] = self.querysettings.phenotypeprio.sodar_uuid
+        expected["variantprio"] = self.querysettings.variantprio.sodar_uuid
+        expected["clinvar"] = self.querysettings.clinvar.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -570,7 +586,14 @@ class TestQuerySettingsDetailsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
+            "genotype",
+            "quality",
+            "consequence",
+            "locus",
             "frequency",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
         ]
         expected = model_to_dict(
             self.querysettings,
@@ -583,7 +606,20 @@ class TestQuerySettingsDetailsSerializer(TestCase):
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
         # The same is true for the related one-to-one fields.
+        expected["genotype"] = QuerySettingsGenotypeSerializer(self.querysettings.genotype).data
+        expected["quality"] = QuerySettingsQualitySerializer(self.querysettings.quality).data
+        expected["consequence"] = QuerySettingsConsequenceSerializer(
+            self.querysettings.consequence
+        ).data
+        expected["locus"] = QuerySettingsLocusSerializer(self.querysettings.locus).data
         expected["frequency"] = QuerySettingsFrequencySerializer(self.querysettings.frequency).data
+        expected["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
+            self.querysettings.phenotypeprio
+        ).data
+        expected["variantprio"] = QuerySettingsVariantPrioSerializer(
+            self.querysettings.variantprio
+        ).data
+        expected["clinvar"] = QuerySettingsClinvarSerializer(self.querysettings.clinvar).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
@@ -902,6 +938,8 @@ class TestQuerySerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.query = QueryFactory()
+        self.columnsconfig = QueryColumnsConfigFactory(query=self.query)
+        self.query.refresh_from_db()
 
     def test_serialize_existing(self):
         serializer = QuerySerializer(self.query)
@@ -915,14 +953,17 @@ class TestQuerySerializer(TestCase):
             "label",
             "session",
             "settings_buffer",
+            "columnsconfig",
         ]
         expected = model_to_dict(
             self.query,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
+        expected["sodar_uuid"] = str(expected["sodar_uuid"])
         expected["session"] = self.query.session.sodar_uuid
         expected["settings_buffer"] = self.query.settings_buffer.sodar_uuid
+        expected["columnsconfig"] = self.query.columnsconfig.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -937,6 +978,8 @@ class TestQueryDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.query = QueryFactory()
+        self.columnsconfig = QueryColumnsConfigFactory(query=self.query)
+        self.query.refresh_from_db()
 
     def test_serialize_existing(self):
         serializer = QueryDetailsSerializer(self.query)
@@ -950,12 +993,14 @@ class TestQueryDetailsSerializer(TestCase):
             "label",
             "session",
             "settings_buffer",
+            "columnsconfig",
         ]
         expected = model_to_dict(
             self.query,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
+        expected["sodar_uuid"] = str(self.query.sodar_uuid)
         expected["session"] = self.query.session.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
@@ -965,6 +1010,7 @@ class TestQueryDetailsSerializer(TestCase):
         expected["settings_buffer"] = QuerySettingsDetailsSerializer(
             self.query.settings_buffer
         ).data
+        expected["columnsconfig"] = QueryColumnsConfigSerializer(self.query.columnsconfig).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)

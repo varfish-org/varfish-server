@@ -280,8 +280,36 @@ class QueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresetsBaseFac
 class QuerySettingsFactory(BaseModelFactory):
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
+    genotype = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsGenotypeFactory",
+        factory_related_name="querysettings",
+    )
+    quality = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsQualityFactory",
+        factory_related_name="querysettings",
+    )
+    consequence = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsConsequenceFactory",
+        factory_related_name="querysettings",
+    )
+    locus = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsLocusFactory",
+        factory_related_name="querysettings",
+    )
     frequency = factory.RelatedFactory(
         "seqvars.tests.factories.QuerySettingsFrequencyFactory",
+        factory_related_name="querysettings",
+    )
+    phenotypeprio = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsPhenotypePrioFactory",
+        factory_related_name="querysettings",
+    )
+    variantprio = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsVariantPrioFactory",
+        factory_related_name="querysettings",
+    )
+    clinvar = factory.RelatedFactory(
+        "seqvars.tests.factories.QuerySettingsClinvarFactory",
         factory_related_name="querysettings",
     )
 
