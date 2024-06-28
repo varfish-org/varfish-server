@@ -26,6 +26,7 @@ from seqvars.models import (
     QueryPresetsPhenotypePrio,
     QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsSetVersion,
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsCategoryBase,
@@ -253,7 +254,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
         ]
 
 
-class LabeledSortableBaseSerializer(serializers.ModelSerializer):
+class LabeledSortableBaseModelSerializer(serializers.ModelSerializer):
     """Serializer for ``LabeledSortableBase``.
 
     Not used directly but used as a base class.
@@ -272,24 +273,24 @@ class LabeledSortableBaseSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class QueryPresetsBaseSerializer(LabeledSortableBaseSerializer):
+class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
     """Serializer for ``QueryPresetsBase``.
 
     Not used directly but as a base class.
     """
 
-    #: Serialize ``presetsset`` as its ``sodar_uuid``.
-    presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
+    #: Serialize ``presetssetversion`` as its ``sodar_uuid``.
+    presetssetversion = serializers.ReadOnlyField(source="presetssetversion.sodar_uuid")
 
     def validate(self, attrs):
         """Augment the attributes by the presets set object from context."""
-        if "querypresetsset" in self.context:
-            attrs["presetsset"] = self.context["querypresetsset"]
+        if "querypresetssetversion" in self.context:
+            attrs["presetssetversion"] = self.context["querypresetssetversion"]
         return attrs
 
     class Meta:
-        fields = LabeledSortableBaseSerializer.Meta.fields + [
-            "presetsset",
+        fields = LabeledSortableBaseModelSerializer.Meta.fields + [
+            "presetssetversion",
         ]
         read_only_fields = fields
 
@@ -427,7 +428,7 @@ class QueryPresetsColumnsSerializer(ColumnsSettingsBaseSerializer, QueryPresetsB
         read_only_fields = fields
 
 
-class QueryPresetsSetSerializer(LabeledSortableBaseSerializer):
+class QueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
     """Serializer for ``QueryPresetsSet``."""
 
     #: Serialize ``project`` as its ``sodar_uuid``.
@@ -441,26 +442,70 @@ class QueryPresetsSetSerializer(LabeledSortableBaseSerializer):
 
     class Meta:
         model = QueryPresetsSet
-        fields = LabeledSortableBaseSerializer.Meta.fields + [
+        fields = LabeledSortableBaseModelSerializer.Meta.fields + [
             "project",
         ]
         read_only_fields = fields
 
 
-class QueryPresetsSetDetailsSerializer(QueryPresetsSetSerializer):
-    """Serializer for ``QueryPresetsSet`` (for ``*-detail``).
+class QueryPresetsSetVersionSerializer(BaseModelSerializer):
+    """Serializer for ``QueryPresetsSetVersion``."""
 
-    When retrieving the details of a seqvar query preset set, we also render the
-    owned records.
-    """
+    #: Serialize ``presetsset`` as its ``sodar_uuid``.
+    presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
 
-    #: Serialize all frequency presets.
-    querypresetsfrequency_set = QueryPresetsFrequencySerializer(many=True, read_only=True)
+    def validate(self, attrs):
+        """Augment the attributes by the presetsset from context."""
+        if "presetsset" in self.context:
+            attrs["presetsset"] = self.context["presetsset"]
+        return attrs
 
     class Meta:
-        model = QueryPresetsSetSerializer.Meta.model
-        fields = QueryPresetsSetSerializer.Meta.fields + [
+        model = QueryPresetsSetVersion
+        fields = BaseModelSerializer.Meta.fields + [
+            "presetsset",
+        ]
+        read_only_fields = fields
+
+
+class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
+    """Serializer for ``QueryPresetsSetVersion`` (for ``*-detail``).
+
+    When retrieving the details of a seqvar query preset set version, we also render the
+    owned records as well as the presetsset.
+    """
+
+    #: Serialize ``presetsset`` in full.
+    presetsset = QueryPresetsSetSerializer(read_only=True)
+
+    #: Serialize all quality presets.
+    querypresetsquality_set = QueryPresetsQualitySerializer(many=True, read_only=True)
+    #: Serialize all frequency presets.
+    querypresetsfrequency_set = QueryPresetsFrequencySerializer(many=True, read_only=True)
+    #: Serialize all consequence presets.
+    querypresetsconsequence_set = QueryPresetsConsequenceSerializer(many=True, read_only=True)
+    #: Serialize all locus presets.
+    querypresetslocus_set = QueryPresetsLocusSerializer(many=True, read_only=True)
+    #: Serialize all phenotype prio presets.
+    querypresetsphenotypeprio_set = QueryPresetsPhenotypePrioSerializer(many=True, read_only=True)
+    #: Serialize all variant prio presets.
+    querypresetsvariantprio_set = QueryPresetsVariantPrioSerializer(many=True, read_only=True)
+    #: Serialize all clinvar presets.
+    querypresetsclinvar_set = QueryPresetsClinvarSerializer(many=True, read_only=True)
+    #: Serialize all columns presets.
+    querypresetscolumns_set = QueryPresetsColumnsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = QueryPresetsSetVersionSerializer.Meta.model
+        fields = QueryPresetsSetVersionSerializer.Meta.fields + [
+            "querypresetsquality_set",
             "querypresetsfrequency_set",
+            "querypresetsconsequence_set",
+            "querypresetslocus_set",
+            "querypresetsphenotypeprio_set",
+            "querypresetsvariantprio_set",
+            "querypresetsclinvar_set",
+            "querypresetscolumns_set",
         ]
         read_only_fields = fields
 

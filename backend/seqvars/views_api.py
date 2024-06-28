@@ -12,6 +12,7 @@ from seqvars.models import (
     Query,
     QueryExecution,
     QueryPresetsSet,
+    QueryPresetsSetVersion,
     QuerySettings,
     ResultRow,
     ResultSet,
@@ -27,8 +28,9 @@ from seqvars.serializers import (
     QueryPresetsLocusSerializer,
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
-    QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsSetVersionDetailsSerializer,
+    QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
     QuerySerializer,
     QuerySettingsDetailsSerializer,
@@ -148,13 +150,28 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
     lookup_url_kwarg = "querypresetsset"
     #: The default serializer class to use.
     serializer_class = QueryPresetsSetSerializer
-    #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": QueryPresetsSetDetailsSerializer}
 
     def get_queryset(self):
-        """Return queryset with all ``QueryPresets`` records for the given project."""
+        """Return queryset with all ``QueryPresetsSet`` records for the given project."""
         result = QueryPresetsSet.objects.all()
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
+        return result
+
+
+class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
+    """ViewSet for the ``QueryPresetsSetVersion`` model."""
+
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "querypresetssetversion"
+    #: The default serializer class to use.
+    serializer_class = QueryPresetsSetVersionSerializer
+    #: Override ``retrieve`` serializer to render all presets.
+    action_serializers = {"retrieve": QueryPresetsSetVersionDetailsSerializer}
+
+    def get_queryset(self):
+        """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
+        result = QueryPresetsSetVersion.objects.all()
+        result = result.filter(project__sodar_uuid=self.kwargs["presetsset"])
         return result
 
 
@@ -168,7 +185,7 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         assert self.serializer_class.Meta.model
 
         result = self.serializer_class.Meta.model.objects.all()
-        result = result.filter(presetsset__sodar_uuid=self.kwargs["querypresetsset"])
+        result = result.filter(presetssetversion__sodar_uuid=self.kwargs["querypresetssetversion"])
         return result
 
     def get_serializer_context(self):
@@ -176,10 +193,10 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["querypresetsset"] = QueryPresetsSet.objects.get(
-            sodar_uuid=self.kwargs["querypresetsset"]
+        context["querypresetssetversion"] = QueryPresetsSetVersion.objects.get(
+            sodar_uuid=self.kwargs["querypresetssetversion"]
         )
-        context["project"] = context["querypresetsset"].project
+        context["project"] = context["querypresetssetversion"].project
         return context
 
 

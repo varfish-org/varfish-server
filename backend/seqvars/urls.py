@@ -11,42 +11,47 @@ router.register(
     basename="api-querypresetsset",
 )
 router.register(
-    r"api/querypresetsquality/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsset/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsSetVersionViewSet,
+    basename="api-querypresetssetversion",
+)
+router.register(
+    r"api/querypresetsquality/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsQualityViewSet,
     basename="api-querypresetsquality",
 )
 router.register(
-    r"api/querypresetsfrequency/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsfrequency/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsFrequencyViewSet,
     basename="api-querypresetsfrequency",
 )
 router.register(
-    r"api/querypresetsconsequence/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsconsequence/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsConsequenceViewSet,
     basename="api-querypresetsconsequence",
 )
 router.register(
-    r"api/querypresetslocus/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetslocus/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsLocusViewSet,
     basename="api-querypresetslocus",
 )
 router.register(
-    r"api/querypresetsphenotypeprio/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsphenotypeprio/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsPhenotypePrioViewSet,
     basename="api-querypresetsphenotypeprio",
 )
 router.register(
-    r"api/querypresetsvariantprio/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsvariantprio/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsVariantPrioViewSet,
     basename="api-querypresetsvariantprio",
 )
 router.register(
-    r"api/querypresetsclinvar/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetsclinvar/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsClinvarViewSet,
     basename="api-querypresetsclinvar",
 )
 router.register(
-    r"api/querypresetscolumns/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetscolumns/(?P<querypresetssetversion>[0-9a-f-]+)",
     views_api.QueryPresetsColumnsViewSet,
     basename="api-querypresetscolumns",
 )

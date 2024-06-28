@@ -14,8 +14,9 @@ from seqvars.serializers import (
     QueryPresetsLocusSerializer,
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
-    QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsSetVersionDetailsSerializer,
+    QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
     QuerySerializer,
     QuerySettingsClinvarSerializer,
@@ -43,6 +44,7 @@ from seqvars.tests.factories import (
     QueryPresetsPhenotypePrioFactory,
     QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsSetVersionFactory,
     QueryPresetsVariantPrioFactory,
     QuerySettingsClinvarFactory,
     QuerySettingsConsequenceFactory,
@@ -76,7 +78,7 @@ class TestQueryPresetsQualitySerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # QueryPresetsQuality
             "filter_active",
             "min_dp_het",
@@ -91,7 +93,7 @@ class TestQueryPresetsQualitySerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsquality.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsquality.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -119,7 +121,7 @@ class TestQueryPresetsFrequencySerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # FrequencySettingsBase
             "gnomad_exomes_enabled",
             "gnomad_exomes_frequency",
@@ -146,7 +148,7 @@ class TestQueryPresetsFrequencySerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsfrequency.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsfrequency.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -174,7 +176,7 @@ class TestQueryPresetsConsequenceSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # ConsequenceSettingsBase
             "variant_types",
             "transcript_types",
@@ -186,7 +188,7 @@ class TestQueryPresetsConsequenceSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsconsequence.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsconsequence.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -218,7 +220,7 @@ class TestQueryPresetsLocusSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # LocusSettingsBase
             "genes",
             "gene_panels",
@@ -229,7 +231,7 @@ class TestQueryPresetsLocusSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetslocus.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetslocus.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -260,7 +262,7 @@ class TestQueryPresetsPhenotypePrioSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # PhenotypePrioSettingsBase
             "phenotype_prio_enabled",
             "phenotype_prio_algorithm",
@@ -271,7 +273,7 @@ class TestQueryPresetsPhenotypePrioSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsphenotypeprio.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsphenotypeprio.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -301,7 +303,7 @@ class TestQueryPresetsVariantPrioSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # VariantPrioSettingsBase
             "variant_prio_enabled",
             "services",
@@ -311,7 +313,7 @@ class TestQueryPresetsVariantPrioSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsvariantprio.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsvariantprio.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -341,7 +343,7 @@ class TestQueryPresetsClinvarSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # ClinvarSettingsBase
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
@@ -353,7 +355,7 @@ class TestQueryPresetsClinvarSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetsclinvar.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetsclinvar.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -385,7 +387,7 @@ class TestQueryPresetsColumnsSerializer(TestCase):
             "description",
             "rank",
             # QueryPresetsBase
-            "presetsset",
+            "presetssetversion",
             # ColumnsSettingsBase
             "column_settings",
         ]
@@ -394,7 +396,7 @@ class TestQueryPresetsColumnsSerializer(TestCase):
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetscolumns.presetsset.sodar_uuid
+        expected["presetssetversion"] = self.querypresetscolumns.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -444,33 +446,31 @@ class TestQueryPresetsSetSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetSerializer(TestCase):
+class TestQueryPresetsSetVersionSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querypresetsset = QueryPresetsSetFactory()
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.querypresetsset)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory()
+        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+            presetssetversion=self.querypresetssetversion
+        )
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetSerializer(self.querypresetsset)
+        serializer = QueryPresetsSetVersionSerializer(self.querypresetssetversion)
         fields = [
             # BaseModel
             "sodar_uuid",
             "date_created",
             "date_modified",
-            # LabeledSortableBase
-            "label",
-            "description",
-            "rank",
-            # QueryPresetsSet
-            "project",
+            # QueryPresetsSetVersion
+            "presetsset",
         ]
         expected = model_to_dict(
-            self.querypresetsset,
+            self.querypresetssetversion,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["project"] = self.querypresetsset.project.sodar_uuid
+        expected["presetsset"] = self.querypresetssetversion.presetsset.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -481,39 +481,53 @@ class TestQueryPresetsSetSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetDetailsSerializer(TestCase):
+class TestQueryPresetsSetVersionDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querypresetsset = QueryPresetsSetFactory()
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.querypresetsset)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory()
+        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+            presetssetversion=self.querypresetssetversion
+        )
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetDetailsSerializer(self.querypresetsset)
+        serializer = QueryPresetsSetVersionDetailsSerializer(self.querypresetssetversion)
         fields = [
             # BaseModel
             "sodar_uuid",
             "date_created",
             "date_modified",
-            # LabeledSortableBase
-            "label",
-            "description",
-            "rank",
-            # QueryPresetsSet
-            "project",
+            # QueryPresetsSetVersion
+            "presetsset",
             # (only in details serializer)
             "querypresetsfrequency_set",
+            "querypresetsvariantprio_set",
+            "querypresetsclinvar_set",
+            "querypresetscolumns_set",
+            "querypresetslocus_set",
+            "querypresetsconsequence_set",
+            "querypresetsquality_set",
+            "querypresetsphenotypeprio_set",
         ]
         expected = model_to_dict(
-            self.querypresetsset,
+            self.querypresetssetversion,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["project"] = self.querypresetsset.project.sodar_uuid
+        expected["presetsset"] = dict(
+            QueryPresetsSetSerializer(self.querypresetssetversion.presetsset).data
+        )
         # We add the missing "querypresetsfrequency_set".
         expected["querypresetsfrequency_set"] = [
             QueryPresetsFrequencySerializer(self.querypresetsfrequency).data
         ]
+        expected["querypresetsvariantprio_set"] = []
+        expected["querypresetsclinvar_set"] = []
+        expected["querypresetscolumns_set"] = []
+        expected["querypresetslocus_set"] = []
+        expected["querypresetsconsequence_set"] = []
+        expected["querypresetsquality_set"] = []
+        expected["querypresetsphenotypeprio_set"] = []
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"

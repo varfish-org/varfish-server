@@ -407,7 +407,7 @@ class QueryPresetsSet(LabeledSortableBase):
     """Configured presets for a given project."""
 
     #: The owning ``Project``.
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="seqvarpresetsset")
 
     def __str__(self):
         return f"QueryPresetsSet '{self.sodar_uuid}'"
