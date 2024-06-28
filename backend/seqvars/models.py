@@ -440,10 +440,19 @@ class QueryPresetsSetVersion(BaseModel):
     version_minor = models.IntegerField()
     #: The current status.
     status = models.CharField(max_length=32, choices=STATUS_CHOICES)
-
+    #: The user who signed off the presets.
+    signed_off_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
         unique_together = [("presetsset", "version_major", "version_minor")]
+
+    def __str__(self):
+        return f"QueryPresetsSetVersion '{self.sodar_uuid}'"
 
 
 class QueryPresetsBase(LabeledSortableBase):

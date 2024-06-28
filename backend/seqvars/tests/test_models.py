@@ -16,6 +16,7 @@ from seqvars.models import (
     QueryPresetsPhenotypePrio,
     QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsSetVersion,
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsClinvar,
@@ -41,6 +42,7 @@ from seqvars.tests.factories import (
     QueryPresetsPhenotypePrioFactory,
     QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsSetVersionFactory,
     QueryPresetsVariantPrioFactory,
     QuerySettingsClinvarFactory,
     QuerySettingsConsequenceFactory,
@@ -94,6 +96,21 @@ class TestQueryPresetsSet(TestCase):
         self.assertEqual(
             f"QueryPresetsSet '{querypresetsset.sodar_uuid}'",
             querypresetsset.__str__(),
+        )
+
+
+class TestQueryPresetsSetVersion(TestCase):
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 0)
+        QueryPresetsSetVersionFactory()
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
+
+    def test_str(self):
+        querypresetssetversion = QueryPresetsSetVersionFactory()
+        self.assertEqual(
+            f"QueryPresetsSetVersion '{querypresetssetversion.sodar_uuid}'",
+            querypresetssetversion.__str__(),
         )
 
 
