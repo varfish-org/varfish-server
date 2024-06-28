@@ -29,11 +29,19 @@ from seqvars.models import (
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsCategoryBase,
+    QuerySettingsClinvar,
+    QuerySettingsConsequence,
     QuerySettingsFrequency,
+    QuerySettingsGenotype,
+    QuerySettingsLocus,
+    QuerySettingsPhenotypePrio,
+    QuerySettingsQuality,
+    QuerySettingsVariantPrio,
     ResultRow,
     ResultRowPayload,
     ResultSet,
     SampleGenotypeChoice,
+    SampleQualityFilter,
     TermPresence,
     TranscriptTypeChoice,
     VariantConsequenceChoice,
@@ -195,6 +203,7 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
     clinvar_germline_aggregate_description = SchemaField(
         schema=list[ClinvarGermlineAggregateDescription], default=list
     )
+    allow_conflicting_interpretations = serializers.BooleanField(default=False, allow_null=False)
     include_legacy_descriptions = serializers.BooleanField(default=False, allow_null=False)
 
     class Meta:
@@ -202,6 +211,7 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
         fields = [
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
+            "allow_conflicting_interpretations",
             "include_legacy_descriptions",
         ]
 
@@ -472,16 +482,96 @@ class QuerySettingsBaseSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
+class QuerySettingsGenotypeSerializer(QuerySettingsBaseSerializer):
+    """Serializer for ``QuerySettingsGenotype``."""
+
+    sample_genotype_choices = SchemaField(schema=list[SampleGenotypeChoice], default=list)
+
+    class Meta:
+        model = QuerySettingsGenotype
+        fields = QuerySettingsBaseSerializer.Meta.fields + ["sample_genotype_choices"]
+        read_only_fields = fields
+
+
+class QuerySettingsQualitySerializer(QuerySettingsBaseSerializer):
+    """Serializer for ``QuerySettingsQuality``."""
+
+    sample_quality_filters = SchemaField(schema=list[SampleQualityFilter], default=list)
+
+    class Meta:
+        model = QuerySettingsQuality
+        fields = QuerySettingsBaseSerializer.Meta.fields + ["sample_quality_filters"]
+        read_only_fields = fields
+
+
+class QuerySettingsConsequenceSerializer(
+    ConsequenceSettingsBaseSerializer, QuerySettingsBaseSerializer
+):
+    """Serializer for ``QuerySettingsConsequence``."""
+
+    class Meta:
+        model = QuerySettingsConsequence
+        fields = (
+            ConsequenceSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QuerySettingsLocusSerializer(LocusSettingsBaseSerializer, QuerySettingsBaseSerializer):
+    """Serializer for ``QuerySettingsLocus``."""
+
+    class Meta:
+        model = QuerySettingsLocus
+        fields = LocusSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+        read_only_fields = fields
+
+
 class QuerySettingsFrequencySerializer(
     FrequencySettingsBaseSerializer, QuerySettingsBaseSerializer
 ):
-    """Serializer for ``QuerySettings``."""
+    """Serializer for ``QuerySettingsFrequency``."""
 
     class Meta:
         model = QuerySettingsFrequency
         fields = (
             FrequencySettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
         )
+        read_only_fields = fields
+
+
+class QuerySettingsPhenotypePrioSerializer(
+    PhenotypePrioSettingsBaseSerializer, QuerySettingsBaseSerializer
+):
+    """Serializer for ``QuerySettingsPhenotypePrio``."""
+
+    class Meta:
+        model = QuerySettingsPhenotypePrio
+        fields = (
+            PhenotypePrioSettingsBaseSerializer.Meta.fields
+            + QuerySettingsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QuerySettingsVariantPrioSerializer(
+    VariantPrioSettingsBaseSerializer, QuerySettingsBaseSerializer
+):
+    """Serializer for ``QuerySettingsVariantPrio``."""
+
+    class Meta:
+        model = QuerySettingsVariantPrio
+        fields = (
+            VariantPrioSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QuerySettingsClinvarSerializer(ClinvarSettingsBaseSerializer, QuerySettingsBaseSerializer):
+    """Serializer for ``QuerySettingsClinvar``."""
+
+    class Meta:
+        model = QuerySettingsClinvar
+        fields = ClinvarSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 

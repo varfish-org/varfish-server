@@ -338,6 +338,8 @@ class ClinvarSettingsBase(models.Model):
     clinvar_germline_aggregate_description = SchemaField(
         schema=list[ClinvarGermlineAggregateDescription], default=list
     )
+    #: Whether to allow for conflicting interpretations of pathogenicity.
+    allow_conflicting_interpretations = models.BooleanField(default=False, null=False, blank=False)
     #: Whether to include "legacy" aggregate descriptions.
     include_legacy_descriptions = models.BooleanField(default=False, null=False, blank=False)
 

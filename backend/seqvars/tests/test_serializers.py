@@ -6,26 +6,97 @@ from seqvars.serializers import (
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
+    QueryPresetsClinvarSerializer,
+    QueryPresetsColumnsSerializer,
+    QueryPresetsConsequenceSerializer,
     QueryPresetsFrequencySerializer,
+    QueryPresetsLocusSerializer,
+    QueryPresetsPhenotypePrioSerializer,
+    QueryPresetsQualitySerializer,
     QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsVariantPrioSerializer,
     QuerySerializer,
+    QuerySettingsClinvarSerializer,
+    QuerySettingsConsequenceSerializer,
     QuerySettingsDetailsSerializer,
     QuerySettingsFrequencySerializer,
+    QuerySettingsGenotypeSerializer,
+    QuerySettingsLocusSerializer,
+    QuerySettingsPhenotypePrioSerializer,
+    QuerySettingsQualitySerializer,
     QuerySettingsSerializer,
+    QuerySettingsVariantPrioSerializer,
     ResultRowSerializer,
     ResultSetSerializer,
 )
 from seqvars.tests.factories import (
     QueryExecutionFactory,
     QueryFactory,
+    QueryPresetsClinvarFactory,
+    QueryPresetsColumnsFactory,
+    QueryPresetsConsequenceFactory,
     QueryPresetsFrequencyFactory,
+    QueryPresetsLocusFactory,
+    QueryPresetsPhenotypePrioFactory,
+    QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsVariantPrioFactory,
+    QuerySettingsClinvarFactory,
+    QuerySettingsConsequenceFactory,
     QuerySettingsFactory,
     QuerySettingsFrequencyFactory,
+    QuerySettingsGenotypeFactory,
+    QuerySettingsLocusFactory,
+    QuerySettingsPhenotypePrioFactory,
+    QuerySettingsQualityFactory,
+    QuerySettingsVariantPrioFactory,
     ResultRowFactory,
     ResultSetFactory,
 )
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsQualitySerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsquality = QueryPresetsQualityFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsQualitySerializer(self.querypresetsquality)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # QueryPresetsQuality
+            "min_dp_het",
+            "min_dp_hom",
+            "min_ab_het",
+            "min_gq",
+            "min_ad",
+            "max_ad",
+            "on_failure",
+        ]
+        expected = model_to_dict(
+            self.querypresetsquality,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetsquality.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -78,6 +149,257 @@ class TestQueryPresetsFrequencySerializer(TestCase):
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsConsequenceSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsconsequence = QueryPresetsConsequenceFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsConsequenceSerializer(self.querypresetsconsequence)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # ConsequenceSettingsBase
+            "variant_types",
+            "transcript_types",
+            "variant_consequences",
+        ]
+        expected = model_to_dict(
+            self.querypresetsconsequence,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetsconsequence.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the enums from pydantic fields to their string value.
+        expected["transcript_types"] = [x.value for x in expected["transcript_types"]]
+        expected["variant_consequences"] = [x.value for x in expected["variant_consequences"]]
+        expected["variant_types"] = [x.value for x in expected["variant_types"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsLocusSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetslocus = QueryPresetsLocusFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsLocusSerializer(self.querypresetslocus)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # LocusSettingsBase
+            "genes",
+            "gene_panels",
+            "genome_regions",
+        ]
+        expected = model_to_dict(
+            self.querypresetslocus,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetslocus.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["gene_panels"] = [x.model_dump(mode="json") for x in expected["gene_panels"]]
+        expected["genes"] = [x.model_dump(mode="json") for x in expected["genes"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsPhenotypePrioSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsPhenotypePrioSerializer(self.querypresetsphenotypeprio)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # PhenotypePrioSettingsBase
+            "phenotype_prio_enabled",
+            "phenotype_prio_algorithm",
+            "terms",
+        ]
+        expected = model_to_dict(
+            self.querypresetsphenotypeprio,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetsphenotypeprio.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["terms"] = [x.model_dump(mode="json") for x in expected["terms"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsVariantPrioSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsvariantprio = QueryPresetsVariantPrioFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsVariantPrioSerializer(self.querypresetsvariantprio)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # VariantPrioSettingsBase
+            "variant_prio_enabled",
+            "services",
+        ]
+        expected = model_to_dict(
+            self.querypresetsvariantprio,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetsvariantprio.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["services"] = [x.model_dump(mode="json") for x in expected["services"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsClinvarSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsclinvar = QueryPresetsClinvarFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsClinvarSerializer(self.querypresetsclinvar)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # ClinvarSettingsBase
+            "clinvar_presence_required",
+            "clinvar_germline_aggregate_description",
+            "allow_conflicting_interpretations",
+            "include_legacy_descriptions",
+        ]
+        expected = model_to_dict(
+            self.querypresetsclinvar,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetsclinvar.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["clinvar_germline_aggregate_description"] = [
+            x.value for x in expected["clinvar_germline_aggregate_description"]
+        ]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsColumnsSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetscolumns = QueryPresetsColumnsFactory()
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsColumnsSerializer(self.querypresetscolumns)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsBase
+            "presetsset",
+            # ColumnsSettingsBase
+            "column_settings",
+        ]
+        expected = model_to_dict(
+            self.querypresetscolumns,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["presetsset"] = self.querypresetscolumns.presetsset.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["column_settings"] = [
+            x.model_dump(mode="json") for x in expected["column_settings"]
+        ]
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
@@ -268,6 +590,154 @@ class TestQuerySettingsDetailsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsGenotypeSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.genotype = QuerySettingsGenotypeFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsGenotypeSerializer(self.genotype)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # GenotypeSettingsBase
+            "sample_genotype_choices",
+        ]
+        expected = model_to_dict(
+            self.genotype,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.genotype.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["sample_genotype_choices"] = [
+            x.model_dump(mode="json") for x in expected["sample_genotype_choices"]
+        ]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsQualitySerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.quality = QuerySettingsQualityFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsQualitySerializer(self.quality)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # QualitySettingsBase
+            "sample_quality_filters",
+        ]
+        expected = model_to_dict(
+            self.quality,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.quality.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["sample_quality_filters"] = [
+            x.model_dump(mode="json") for x in expected["sample_quality_filters"]
+        ]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsConsequenceSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.consequence = QuerySettingsConsequenceFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsConsequenceSerializer(self.consequence)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # ConsequenceSettingsBase
+            "variant_types",
+            "transcript_types",
+            "variant_consequences",
+        ]
+        expected = model_to_dict(
+            self.consequence,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.consequence.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsLocusSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.locus = QuerySettingsLocusFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsLocusSerializer(self.locus)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # LocusSettingsBase
+            "genes",
+            "gene_panels",
+            "genome_regions",
+        ]
+        expected = model_to_dict(
+            self.locus,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.locus.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["genes"] = [x.model_dump(mode="json") for x in expected["genes"]]
+        expected["gene_panels"] = [x.model_dump(mode="json") for x in expected["gene_panels"]]
+        expected["genome_regions"] = [x.model_dump(mode="json") for x in expected["genome_regions"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
 class TestQuerySettingsFrequencySerializer(TestCase):
     def setUp(self):
         super().setUp()
@@ -309,6 +779,115 @@ class TestQuerySettingsFrequencySerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["querysettings"] = self.frequency.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsPhenotypePrioSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.phenotypeprio = QuerySettingsPhenotypePrioFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsPhenotypePrioSerializer(self.phenotypeprio)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # PhenotypePrioSettingsBase
+            "phenotype_prio_enabled",
+            "phenotype_prio_algorithm",
+            "terms",
+        ]
+        expected = model_to_dict(
+            self.phenotypeprio,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.phenotypeprio.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["terms"] = [x.model_dump(mode="json") for x in expected["terms"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsVariantPrioSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.variantprio = QuerySettingsVariantPrioFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsVariantPrioSerializer(self.variantprio)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # VariantPrioSettingsBase
+            "variant_prio_enabled",
+            "services",
+        ]
+        expected = model_to_dict(
+            self.variantprio,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.variantprio.querysettings.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Map the pydantic fields to their JSON value.
+        expected["services"] = [x.model_dump(mode="json") for x in expected["services"]]
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQuerySettingsClinvarSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.clinvar = QuerySettingsClinvarFactory()
+
+    def test_serialize_existing(self):
+        serializer = QuerySettingsClinvarSerializer(self.clinvar)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # QuerySettingsBase
+            "querysettings",
+            # ClinvarSettingsBase
+            "clinvar_presence_required",
+            "clinvar_germline_aggregate_description",
+            "allow_conflicting_interpretations",
+            "include_legacy_descriptions",
+        ]
+        expected = model_to_dict(
+            self.clinvar,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["querysettings"] = self.clinvar.querysettings.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"

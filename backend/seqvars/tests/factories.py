@@ -166,6 +166,7 @@ class ClinvarSettingsBaseFactory(factory.django.DjangoModelFactory):
         ClinvarGermlineAggregateDescription.PATHOGENIC,
         ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
     ]
+    allow_conflicting_interpretations = False
     include_legacy_descriptions = False
 
     class Meta:
