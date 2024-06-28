@@ -128,6 +128,7 @@ class ConsequenceSettingsBaseSerializer(serializers.ModelSerializer):
     variant_types = SchemaField(schema=list[VariantTypeChoice], default=list)
     transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
     variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+    max_distance_to_exon = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
         model = ConsequenceSettingsBase
@@ -135,6 +136,7 @@ class ConsequenceSettingsBaseSerializer(serializers.ModelSerializer):
             "variant_types",
             "transcript_types",
             "variant_consequences",
+            "max_distance_to_exon",
         ]
 
 

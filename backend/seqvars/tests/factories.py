@@ -108,6 +108,7 @@ class ConsequenceSettingsBaseFactory(factory.django.DjangoModelFactory):
     variant_types = [VariantTypeChoice.SNV]
     transcript_types = [TranscriptTypeChoice.CODING]
     variant_consequences = [VariantConsequenceChoice.MISSENSE_VARIANT]
+    max_distance_to_exon = 50
 
     class Meta:
         abstract = True

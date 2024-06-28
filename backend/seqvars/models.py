@@ -177,6 +177,8 @@ class ConsequenceSettingsBase(models.Model):
     transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
     #: The variant consequences.
     variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+    #: Maximal distance to next exon.
+    max_distance_to_exon = models.IntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True

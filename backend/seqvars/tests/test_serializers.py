@@ -179,6 +179,7 @@ class TestQueryPresetsConsequenceSerializer(TestCase):
             "variant_types",
             "transcript_types",
             "variant_consequences",
+            "max_distance_to_exon",
         ]
         expected = model_to_dict(
             self.querypresetsconsequence,
@@ -718,6 +719,7 @@ class TestQuerySettingsConsequenceSerializer(TestCase):
             "variant_types",
             "transcript_types",
             "variant_consequences",
+            "max_distance_to_exon",
         ]
         expected = model_to_dict(
             self.consequence,
