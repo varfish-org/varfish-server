@@ -411,17 +411,14 @@ class QueryFactory(BaseModelFactory):
     label = factory.Sequence(lambda n: f"query-{n}")
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    settings_buffer = factory.SubFactory(QuerySettingsFactory)
+    settings = factory.SubFactory(QuerySettingsFactory)
+    columnsconfig = factory.SubFactory("seqvars.tests.factories.QueryColumnsConfigFactory")
 
     class Meta:
         model = Query
 
 
 class QueryColumnsConfigFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
-
-    # We pass in columnsconfig=None to prevent creation of a second
-    # ``QuerySettingsColumns``.
-    query = factory.SubFactory(QueryFactory, columnsconfig=None)
 
     class Meta:
         model = QueryColumnsConfig

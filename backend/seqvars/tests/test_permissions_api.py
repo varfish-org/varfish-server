@@ -567,7 +567,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
 
         data = {
             "label": "test label",
-            "settings_buffer": {
+            "settings": {
                 "genotype": QuerySettingsGenotypeSerializer(
                     QuerySettingsGenotypeFactory.build(querysettings=None)
                 ).data,

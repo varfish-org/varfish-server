@@ -682,8 +682,8 @@ class QuerySerializer(BaseModelSerializer):
 
     #: Serialize ``session`` as its ``sodar_uuid``.
     session = serializers.ReadOnlyField(source="session.sodar_uuid")
-    #: Serialize ``settings_buffer`` as its ``sodar_uuid``.
-    settings_buffer = serializers.ReadOnlyField(source="settings_buffer.sodar_uuid")
+    #: Serialize ``settings`` as its ``sodar_uuid``.
+    settings = serializers.ReadOnlyField(source="settings.sodar_uuid")
     #: Serialize ``columnsconfig`` as its ``sodar_uuid``.
     columnsconfig = serializers.ReadOnlyField(source="columnsconfig.sodar_uuid")
 
@@ -699,7 +699,7 @@ class QuerySerializer(BaseModelSerializer):
             "rank",
             "label",
             "session",
-            "settings_buffer",
+            "settings",
             "columnsconfig",
         ]
         read_only_fields = fields
@@ -713,7 +713,7 @@ class QueryDetailsSerializer(QuerySerializer, WritableNestedModelSerializer):
     """
 
     #: For the details serializer, we use a nested details serializer.
-    settings_buffer = QuerySettingsDetailsSerializer()
+    settings = QuerySettingsDetailsSerializer()
     #: Render the columns configuration here.
     columnsconfig = QueryColumnsConfigSerializer()
 

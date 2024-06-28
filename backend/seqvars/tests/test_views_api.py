@@ -1457,34 +1457,34 @@ class TestQueryViewSet(ApiViewTestBase):
         self.assertEqual(QuerySettings.objects.count(), 1)
         self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
-            settings_buffer = QuerySettingsSerializer(
+            settings = QuerySettingsSerializer(
                 QuerySettingsFactory.build(),
             ).data
-            settings_buffer["frequency"] = QuerySettingsFrequencySerializer(
+            settings["frequency"] = QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
-            settings_buffer["genotype"] = QuerySettingsGenotypeSerializer(
+            settings["genotype"] = QuerySettingsGenotypeSerializer(
                 QuerySettingsGenotypeFactory.build(querysettings=None)
             ).data
-            settings_buffer["quality"] = QuerySettingsQualitySerializer(
+            settings["quality"] = QuerySettingsQualitySerializer(
                 QuerySettingsQualityFactory.build(querysettings=None)
             ).data
-            settings_buffer["consequence"] = QuerySettingsConsequenceSerializer(
+            settings["consequence"] = QuerySettingsConsequenceSerializer(
                 QuerySettingsConsequenceFactory.build(querysettings=None)
             ).data
-            settings_buffer["locus"] = QuerySettingsLocusSerializer(
+            settings["locus"] = QuerySettingsLocusSerializer(
                 QuerySettingsLocusFactory.build(querysettings=None)
             ).data
-            settings_buffer["frequency"] = QuerySettingsFrequencySerializer(
+            settings["frequency"] = QuerySettingsFrequencySerializer(
                 QuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
-            settings_buffer["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
+            settings["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
                 QuerySettingsPhenotypePrioFactory.build(querysettings=None)
             ).data
-            settings_buffer["variantprio"] = QuerySettingsVariantPrioSerializer(
+            settings["variantprio"] = QuerySettingsVariantPrioSerializer(
                 QuerySettingsVariantPrioFactory.build(querysettings=None)
             ).data
-            settings_buffer["clinvar"] = QuerySettingsClinvarSerializer(
+            settings["clinvar"] = QuerySettingsClinvarSerializer(
                 QuerySettingsClinvarFactory.build(querysettings=None)
             ).data
 
@@ -1501,7 +1501,7 @@ class TestQueryViewSet(ApiViewTestBase):
                 ),
                 data={
                     "label": "test label",
-                    "settings_buffer": settings_buffer,
+                    "settings": settings,
                     "columnsconfig": columnsconfig,
                 },
                 format="json",
@@ -1550,7 +1550,7 @@ class TestQueryViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"settings_buffer": {"frequency": {"gnomad_genomes_enabled": True}}}],
+            [{"settings": {"frequency": {"gnomad_genomes_enabled": True}}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
@@ -1565,8 +1565,8 @@ class TestQueryViewSet(ApiViewTestBase):
             "clinvar",
         ]
         for key in keys:
-            if not key in data["settings_buffer"]:
-                data["settings_buffer"][key] = {}
+            if not key in data["settings"]:
+                data["settings"][key] = {}
 
         self.query.refresh_from_db()
         for key, value in data.items():

@@ -952,7 +952,7 @@ class TestQuerySerializer(TestCase):
             "rank",
             "label",
             "session",
-            "settings_buffer",
+            "settings",
             "columnsconfig",
         ]
         expected = model_to_dict(
@@ -962,7 +962,7 @@ class TestQuerySerializer(TestCase):
         # We replace the related objects with their UUIDs.
         expected["sodar_uuid"] = str(expected["sodar_uuid"])
         expected["session"] = self.query.session.sodar_uuid
-        expected["settings_buffer"] = self.query.settings_buffer.sodar_uuid
+        expected["settings"] = self.query.settings.sodar_uuid
         expected["columnsconfig"] = self.query.columnsconfig.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
@@ -992,7 +992,7 @@ class TestQueryDetailsSerializer(TestCase):
             "rank",
             "label",
             "session",
-            "settings_buffer",
+            "settings",
             "columnsconfig",
         ]
         expected = model_to_dict(
@@ -1006,10 +1006,8 @@ class TestQueryDetailsSerializer(TestCase):
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
-        # The same is true for settings_buffer.
-        expected["settings_buffer"] = QuerySettingsDetailsSerializer(
-            self.query.settings_buffer
-        ).data
+        # The same is true for settings.
+        expected["settings"] = QuerySettingsDetailsSerializer(self.query.settings).data
         expected["columnsconfig"] = QueryColumnsConfigSerializer(self.query.columnsconfig).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))

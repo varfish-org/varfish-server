@@ -697,6 +697,18 @@ class QuerySettingsClinvar(ClinvarSettingsBase, QuerySettingsCategoryBase):
         return f"QuerySettingsClinvar '{self.sodar_uuid}'"
 
 
+class QueryColumnsConfig(ColumnsSettingsBase, BaseModel):
+    """Per-query (not execution) configuration of columns.
+
+    This will be copied over from the presets to the query and not the query
+    settings.  Thus, it will not be persisted by query execution but is
+    editable after query execution.
+    """
+
+    def __str__(self):
+        return f"QueryColumnsConfig '{self.sodar_uuid}'"
+
+
 class Query(BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
 
@@ -707,8 +719,10 @@ class Query(BaseModel):
 
     #: Owning/containing session.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
-    #: Buffer with settings to be edited in the next query execution.
-    settings_buffer = models.ForeignKey(QuerySettings, on_delete=models.CASCADE)
+    #: Query settings to be edited in the next query execution.
+    settings = models.OneToOneField(QuerySettings, on_delete=models.CASCADE)
+    #: The columns configuration of the query.
+    columnsconfig = models.OneToOneField(QueryColumnsConfig, on_delete=models.CASCADE)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -719,21 +733,6 @@ class Query(BaseModel):
 
     def __str__(self):
         return f"Query '{self.sodar_uuid}'"
-
-
-class QueryColumnsConfig(ColumnsSettingsBase, BaseModel):
-    """Per-query (not execution) configuration of columns.
-
-    This will be copied over from the presets to the query and not the query
-    settings.  Thus, it will not be persisted by query execution but is
-    editable after query execution.
-    """
-
-    #: The owning ``QuerySettings``.
-    query = models.OneToOneField(Query, on_delete=models.CASCADE, related_name="columnsconfig")
-
-    def __str__(self):
-        return f"QueryColumnsConfig '{self.sodar_uuid}'"
 
 
 class QueryExecution(BaseModel):
