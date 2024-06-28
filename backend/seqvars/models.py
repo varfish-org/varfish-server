@@ -413,18 +413,51 @@ class QueryPresetsSet(LabeledSortableBase):
         return f"QueryPresetsSet '{self.sodar_uuid}'"
 
 
-class QueryPresetsBase(LabeledSortableBase):
-    """Base presets."""
+class QueryPresetsSetVersion(BaseModel):
+    """One version of query presets set.
+
+    It is assumed that there is at most one active version and at most one draft version.
+    """
+
+    #: The version is active.
+    STATUS_ACTIVE = "active"
+    #: The version is in draft state.
+    STATUS_DRAFT = "draft"
+    #: The version has been retired.
+    STATUS_RETIRED = "retired"
+
+    STATUS_CHOICES = (
+        (STATUS_ACTIVE, STATUS_ACTIVE),
+        (STATUS_DRAFT, STATUS_DRAFT),
+        (STATUS_RETIRED, STATUS_RETIRED),
+    )
 
     #: The owning ``QueryPresetsSet``.
     presetsset = models.ForeignKey(QueryPresetsSet, on_delete=models.CASCADE)
+    #: The major version.
+    version_major = models.IntegerField()
+    #: The minor version.
+    version_minor = models.IntegerField()
+    #: The current status.
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES)
+
+
+    class Meta:
+        unique_together = [("presetsset", "version_major", "version_minor")]
+
+
+class QueryPresetsBase(LabeledSortableBase):
+    """Base presets."""
+
+    #: The owning ``QueryPresetsSetVersion``.
+    presetssetversion = models.ForeignKey(QueryPresetsSetVersion, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
 class QueryPresetsQuality(QueryPresetsBase):
-    """Presets for quality settings within a ``QueryPresetsSet``.
+    """Presets for quality settings within a ``QueryPresetsSetVersion``.
 
     This is copied into ``QuerySettingsQuality.sample_quality_filters`` for
     each sample in the family when creating filter settings.
@@ -450,49 +483,49 @@ class QueryPresetsQuality(QueryPresetsBase):
 
 
 class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
-    """Presets for frequency settings within a ``QueryPresetsSet``."""
+    """Presets for frequency settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsFrequency '{self.sodar_uuid}'"
 
 
 class QueryPresetsConsequence(ConsequenceSettingsBase, QueryPresetsBase):
-    """Presets for consequence-related settings within a ``QueryPresetsSet``."""
+    """Presets for consequence-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsConsequence '{self.sodar_uuid}'"
 
 
 class QueryPresetsLocus(LocusSettingsBase, QueryPresetsBase):
-    """Presets for locus-related settings within a ``QueryPresetsSet``."""
+    """Presets for locus-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsLocus '{self.sodar_uuid}'"
 
 
 class QueryPresetsPhenotypePrio(PhenotypePrioSettingsBase, QueryPresetsBase):
-    """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
+    """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsPhenotypePrio '{self.sodar_uuid}'"
 
 
 class QueryPresetsVariantPrio(VariantPrioSettingsBase, QueryPresetsBase):
-    """Presets for variant pathogenicity--related settings within a ``QueryPresetsSet``."""
+    """Presets for variant pathogenicity--related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsVariantPrio '{self.sodar_uuid}'"
 
 
 class QueryPresetsClinvar(ClinvarSettingsBase, QueryPresetsBase):
-    """Presets for clinvar-related settings within a ``QueryPresetsSet``."""
+    """Presets for clinvar-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsClinvar '{self.sodar_uuid}'"
 
 
 class QueryPresetsColumns(ColumnsSettingsBase, QueryPresetsBase):
-    """Presets for columns presets within a ``QueryPresetsSet``."""
+    """Presets for columns presets within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
         return f"QueryPresetsColumns '{self.sodar_uuid}'"
@@ -640,7 +673,7 @@ class QuerySettingsFrequency(FrequencySettingsBase, QuerySettingsCategoryBase):
 
 
 class QuerySettingsPhenotypePrio(PhenotypePrioSettingsBase, QuerySettingsCategoryBase):
-    """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
+    """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(

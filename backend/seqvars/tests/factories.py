@@ -24,6 +24,7 @@ from seqvars.models import (
     QueryPresetsPhenotypePrio,
     QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsSetVersion,
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsClinvar,
@@ -214,9 +215,20 @@ class QueryPresetsSetFactory(LabeledSortableBaseFactory):
         model = QueryPresetsSet
 
 
-class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
+class QueryPresetsSetVersionFactory(BaseModelFactory):
 
     presetsset = factory.SubFactory(QueryPresetsSetFactory)
+    version_major = 1
+    version_minor = 0
+    status = QueryPresetsSetVersion.STATUS_ACTIVE
+
+    class Meta:
+        model = QueryPresetsSetVersion
+
+
+class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
+
+    presetssetversion = factory.SubFactory(QueryPresetsSetVersionFactory)
 
     class Meta:
         abstract = True
