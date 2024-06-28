@@ -15,6 +15,7 @@ from seqvars.models import (
     QueryPresetsPhenotypePrio,
     QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsSetVersion,
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsFrequency,
@@ -31,8 +32,8 @@ from seqvars.serializers import (
     QueryPresetsLocusSerializer,
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
-    QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
     QuerySerializer,
     QuerySettingsClinvarSerializer,
@@ -134,7 +135,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetDetailsSerializer(self.querypresetsset).data
+        result_json = QueryPresetsSetSerializer(self.querypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -209,11 +210,153 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
 
 
 @freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsQualityFactory(presetsset=self.querypresetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetssetversion-list",
+                    kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsSetVersionSerializer(self.querypresetssetversion).data
+        result_json["project"] = str(result_json["project"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    @parameterized.expand(
+        [
+            [{}],
+            [{"version_major": 2}],
+        ]
+    )
+    def test_create(self, data_override: dict[str, Any]):
+        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetssetversion-list",
+                    kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+                ),
+                data={
+                    **{
+                        "version_major": 1,
+                        "version_minor": 0,
+                        "status": QueryPresetsSetVersion.STATUS_ACTIVE,
+                    },
+                    **data_override,
+                },
+            )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(QueryPresetsSet.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetssetversion-detail",
+                    kwargs={
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
+                        "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsSetSerializer(self.querypresetssetversion).data
+        result_json["project"] = str(result_json["project"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetssetversion-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.querypresetsset.sodar_uuid,
+                            "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.querypresetssetversion.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.querypresetssetversion, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetssetversion-detail",
+                    kwargs={
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
+                        "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.querypresetssetversion.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.querypresetssetversion, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetssetversion-detail",
+                    kwargs={
+                        "querypresetsset": self.querypresetsset.sodar_uuid,
+                        "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsSet.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsQualityViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsquality = QueryPresetsQualityFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsquality = QueryPresetsQualityFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -221,7 +364,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsquality-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -244,7 +387,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsquality-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -258,7 +401,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsquality-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsquality": self.presetsquality.sodar_uuid,
                     },
                 )
@@ -281,7 +424,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsquality-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsquality": self.presetsquality.sodar_uuid,
                         },
                         **kwargs_override,
@@ -306,7 +449,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsquality-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsquality": self.presetsquality.sodar_uuid,
                     },
                 ),
@@ -327,7 +470,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsquality-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsquality": self.presetsquality.sodar_uuid,
                     },
                 ),
@@ -343,7 +486,12 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsconsequence = QueryPresetsConsequenceFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsconsequence = QueryPresetsConsequenceFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -351,7 +499,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsconsequence-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -374,7 +522,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsconsequence-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -388,7 +536,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsconsequence-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
                     },
                 )
@@ -411,7 +559,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsconsequence-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
                         },
                         **kwargs_override,
@@ -436,7 +584,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsconsequence-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
                     },
                 ),
@@ -457,7 +605,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsconsequence-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
                     },
                 ),
@@ -473,7 +621,12 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsfrequency = QueryPresetsFrequencyFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -481,7 +634,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsfrequency-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -504,7 +657,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsfrequency-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -518,7 +671,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 )
@@ -541,7 +694,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                         },
                         **kwargs_override,
@@ -566,7 +719,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 ),
@@ -587,7 +740,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsfrequency-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsfrequency": self.presetsfrequency.sodar_uuid,
                     },
                 ),
@@ -603,7 +756,10 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetslocus = QueryPresetsLocusFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetslocus = QueryPresetsLocusFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -611,7 +767,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetslocus-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -634,7 +790,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetslocus-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -648,7 +804,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetslocus-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetslocus": self.presetslocus.sodar_uuid,
                     },
                 )
@@ -671,7 +827,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetslocus-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetslocus": self.presetslocus.sodar_uuid,
                         },
                         **kwargs_override,
@@ -696,7 +852,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetslocus-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetslocus": self.presetslocus.sodar_uuid,
                     },
                 ),
@@ -717,7 +873,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetslocus-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetslocus": self.presetslocus.sodar_uuid,
                     },
                 ),
@@ -733,7 +889,12 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsphenotypeprio = QueryPresetsPhenotypePrioFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -741,7 +902,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsphenotypeprio-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -764,7 +925,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsphenotypeprio-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -778,7 +939,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsphenotypeprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
                     },
                 )
@@ -801,7 +962,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsphenotypeprio-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
                         },
                         **kwargs_override,
@@ -826,7 +987,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsphenotypeprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
                     },
                 ),
@@ -847,7 +1008,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsphenotypeprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
                     },
                 ),
@@ -863,7 +1024,12 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsvariantprio = QueryPresetsVariantPrioFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsvariantprio = QueryPresetsVariantPrioFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -871,7 +1037,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsvariantprio-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -894,7 +1060,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsvariantprio-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -908,7 +1074,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsvariantprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
                     },
                 )
@@ -931,7 +1097,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsvariantprio-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
                         },
                         **kwargs_override,
@@ -956,7 +1122,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsvariantprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
                     },
                 ),
@@ -977,7 +1143,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsvariantprio-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
                     },
                 ),
@@ -993,7 +1159,10 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetscolumns = QueryPresetsColumnsFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetscolumns = QueryPresetsColumnsFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1001,7 +1170,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetscolumns-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -1024,7 +1193,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetscolumns-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -1038,7 +1207,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetscolumns-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetscolumns": self.presetscolumns.sodar_uuid,
                     },
                 )
@@ -1061,7 +1230,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetscolumns-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetscolumns": self.presetscolumns.sodar_uuid,
                         },
                         **kwargs_override,
@@ -1086,7 +1255,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetscolumns-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetscolumns": self.presetscolumns.sodar_uuid,
                     },
                 ),
@@ -1107,7 +1276,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetscolumns-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetscolumns": self.presetscolumns.sodar_uuid,
                     },
                 ),
@@ -1123,7 +1292,10 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetsclinvar = QueryPresetsClinvarFactory(presetsset=self.presetsset)
+        self.presetssetversion = QueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
+        self.presetsclinvar = QueryPresetsClinvarFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1131,7 +1303,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsclinvar-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 )
             )
@@ -1154,7 +1326,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsclinvar-list",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                     },
                 ),
                 data={"rank": 1, "label": "test"},
@@ -1168,7 +1340,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsclinvar-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
                     },
                 )
@@ -1191,7 +1363,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                     "seqvars:api-querypresetsclinvar-detail",
                     kwargs={
                         **{
-                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
                             "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
                         },
                         **kwargs_override,
@@ -1216,7 +1388,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsclinvar-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
                     },
                 ),
@@ -1237,7 +1409,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-querypresetsclinvar-detail",
                     kwargs={
-                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
                         "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
                     },
                 ),

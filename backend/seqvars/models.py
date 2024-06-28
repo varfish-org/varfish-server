@@ -435,11 +435,11 @@ class QueryPresetsSetVersion(BaseModel):
     #: The owning ``QueryPresetsSet``.
     presetsset = models.ForeignKey(QueryPresetsSet, on_delete=models.CASCADE)
     #: The major version.
-    version_major = models.IntegerField()
+    version_major = models.IntegerField(default=1)
     #: The minor version.
-    version_minor = models.IntegerField()
+    version_minor = models.IntegerField(default=0)
     #: The current status.
-    status = models.CharField(max_length=32, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
     #: The user who signed off the presets.
     signed_off_by = models.ForeignKey(
         User,

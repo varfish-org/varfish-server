@@ -54,6 +54,11 @@ def get_project(kwargs):
     """Return the project from the URL kwargs."""
     if "project" in kwargs:  # list/create actions
         project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
+    elif "querypresetssetversion" in kwargs:
+        querypresetssetversion = get_object_or_404(
+            QueryPresetsSetVersion.objects.all(), sodar_uuid=kwargs["querypresetssetversion"]
+        )
+        project = querypresetssetversion.presetsset.project
     elif "querypresetsset" in kwargs:
         querypresetsset = get_object_or_404(
             QueryPresetsSet.objects.all(), sodar_uuid=kwargs["querypresetsset"]
@@ -171,7 +176,7 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
         result = QueryPresetsSetVersion.objects.all()
-        result = result.filter(project__sodar_uuid=self.kwargs["presetsset"])
+        result = result.filter(presetsset__sodar_uuid=self.kwargs["presetsset"])
         return result
 
 
