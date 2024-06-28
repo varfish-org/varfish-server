@@ -3,12 +3,30 @@ from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from seqvars.models import (
+    ClinvarGermlineAggregateDescription,
+    ClinvarSettingsBase,
+    ColumnConfig,
+    ColumnsSettingsBase,
+    ConsequenceSettingsBase,
     DataSourceInfos,
     FrequencySettingsBase,
+    Gene,
+    GenePanel,
+    GenomeRegion,
+    LocusSettingsBase,
+    PhenotypePrioSettingsBase,
     Query,
+    QueryColumnsConfig,
     QueryExecution,
+    QueryPresetsClinvar,
+    QueryPresetsColumns,
+    QueryPresetsConsequence,
     QueryPresetsFrequency,
+    QueryPresetsLocus,
+    QueryPresetsPhenotypePrio,
+    QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsCategoryBase,
     QuerySettingsFrequency,
@@ -16,28 +34,19 @@ from seqvars.models import (
     ResultRowPayload,
     ResultSet,
     SampleGenotypeChoice,
+    TermPresence,
+    TranscriptTypeChoice,
+    VariantConsequenceChoice,
+    VariantPrioService,
+    VariantPrioSettingsBase,
+    VariantTypeChoice,
 )
-
-
-class SampleGenotypeSettingsBaseSerializer(serializers.ModelSerializer):
-    """Serializer for ``SampleGenotypeSettingsBase``.
-
-    Not used directly but uased as base class.
-    """
-
-    sample_genotypes = SchemaField(schema=list[SampleGenotypeChoice])
-
-    class Meta:
-        model = FrequencySettingsBase
-        fields = [
-            "sample_genotypes",
-        ]
 
 
 class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """Serializer for ``FrequencySettingsBase``.
 
-    Not used directly but uased as base class.
+    Not used directly but used as base class.
     """
 
     gnomad_exomes_enabled = serializers.BooleanField(required=False, default=False)
@@ -102,6 +111,116 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
         ]
 
 
+class ConsequenceSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``ConsequenceSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    variant_types = SchemaField(schema=list[VariantTypeChoice], default=list)
+    transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
+    variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+
+    class Meta:
+        model = ConsequenceSettingsBase
+        fields = [
+            "variant_types",
+            "transcript_types",
+            "variant_consequences",
+        ]
+
+
+class LocusSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``LocusSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    genes = SchemaField(schema=list[Gene], default=list)
+    gene_panels = SchemaField(schema=list[GenePanel], default=list)
+    genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
+
+    class Meta:
+        model = LocusSettingsBase
+        fields = [
+            "genes",
+            "gene_panels",
+            "genome_regions",
+        ]
+
+
+class PhenotypePrioSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``PhenotypePrioSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    phenotype_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
+    phenotype_prio_algorithm = serializers.CharField(max_length=128, allow_null=True)
+    terms = SchemaField(schema=list[TermPresence], default=list)
+
+    class Meta:
+        model = PhenotypePrioSettingsBase
+        fields = [
+            "phenotype_prio_enabled",
+            "phenotype_prio_algorithm",
+            "terms",
+        ]
+
+
+class VariantPrioSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``VariantPrioSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    variant_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
+    services = SchemaField(schema=list[VariantPrioService], default=list)
+
+    class Meta:
+        model = VariantPrioSettingsBase
+        fields = [
+            "variant_prio_enabled",
+            "services",
+        ]
+
+
+class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``ClinvarSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    clinvar_presence_required = serializers.BooleanField(default=False, allow_null=False)
+    clinvar_germline_aggregate_description = SchemaField(
+        schema=list[ClinvarGermlineAggregateDescription], default=list
+    )
+    include_legacy_descriptions = serializers.BooleanField(default=False, allow_null=False)
+
+    class Meta:
+        model = ClinvarSettingsBase
+        fields = [
+            "clinvar_presence_required",
+            "clinvar_germline_aggregate_description",
+            "include_legacy_descriptions",
+        ]
+
+
+class ColumnsSettingsBaseSerializer(serializers.ModelSerializer):
+    """Serializer for ``ColumnsSettingsBase``.
+
+    Not used directly but used as base class.
+    """
+
+    column_settings = SchemaField(schema=list[ColumnConfig], default=list)
+
+    class Meta:
+        model = ColumnsSettingsBase
+        fields = [
+            "column_settings",
+        ]
+
+
 class BaseModelSerializer(serializers.ModelSerializer):
     """Base serializer for models with sodar_uuid and creation/update time.
 
@@ -161,10 +280,48 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseSerializer):
         read_only_fields = fields
 
 
+class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
+    """Serializer for ``QueryPresetsQuality``.
+
+    Not used directly but used as base class.
+    """
+
+    #: Minimal depth for het. variants.
+    min_dp_het = serializers.IntegerField(allow_null=True)
+    #: Minimal depth for hom. variants.
+    min_dp_hom = serializers.IntegerField(allow_null=True)
+    #: Minimal allele balance for het. variants.
+    min_ab_het = serializers.FloatField(allow_null=True)
+    #: Minimal genotype quality.
+    min_gq = serializers.IntegerField(allow_null=True)
+    #: Minimal alternate allele read depth.
+    min_ad = serializers.IntegerField(allow_null=True)
+    #: Maximal alternate allele read depth.
+    max_ad = serializers.IntegerField(allow_null=True)
+    #: Behaviour for failing filter.
+    on_failure = serializers.CharField(
+        max_length=128,
+        default=QueryPresetsQuality.ON_FAILURE_DROP_VARIANT,
+    )
+
+    class Meta:
+        model = QueryPresetsQuality
+        fields = QueryPresetsBaseSerializer.Meta.fields + [
+            "min_dp_het",
+            "min_dp_hom",
+            "min_ab_het",
+            "min_gq",
+            "min_ad",
+            "max_ad",
+            "on_failure",
+        ]
+        read_only_fields = fields
+
+
 class QueryPresetsFrequencySerializer(FrequencySettingsBaseSerializer, QueryPresetsBaseSerializer):
     """Serializer for ``QueryPresetsFrequency``.
 
-    Not used directly but uased as base class.
+    Not used directly but used as base class.
     """
 
     class Meta:
@@ -172,6 +329,90 @@ class QueryPresetsFrequencySerializer(FrequencySettingsBaseSerializer, QueryPres
         fields = (
             FrequencySettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         )
+        read_only_fields = fields
+
+
+class QueryPresetsConsequenceSerializer(
+    ConsequenceSettingsBaseSerializer, QueryPresetsBaseSerializer
+):
+    """Serializer for ``QueryPresetsConsequence``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsConsequence
+        fields = (
+            ConsequenceSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QueryPresetsLocusSerializer(LocusSettingsBaseSerializer, QueryPresetsBaseSerializer):
+    """Serializer for ``QueryPresetsLocus``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsLocus
+        fields = LocusSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
+        read_only_fields = fields
+
+
+class QueryPresetsPhenotypePrioSerializer(
+    PhenotypePrioSettingsBaseSerializer, QueryPresetsBaseSerializer
+):
+    """Serializer for ``QueryPresetsPhenotypePrio``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsPhenotypePrio
+        fields = (
+            PhenotypePrioSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QueryPresetsVariantPrioSerializer(
+    VariantPrioSettingsBaseSerializer, QueryPresetsBaseSerializer
+):
+    """Serializer for ``QueryPresetsVariantPrio``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsVariantPrio
+        fields = (
+            VariantPrioSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
+class QueryPresetsClinvarSerializer(ClinvarSettingsBaseSerializer, QueryPresetsBaseSerializer):
+    """Serializer for ``QueryPresetsClinvar``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsClinvar
+        fields = ClinvarSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
+        read_only_fields = fields
+
+
+class QueryPresetsColumnsSerializer(ColumnsSettingsBaseSerializer, QueryPresetsBaseSerializer):
+    """Serializer for ``QueryPresetsColumns``.
+
+    Not used directly but used as base class.
+    """
+
+    class Meta:
+        model = QueryPresetsColumns
+        fields = ColumnsSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
@@ -279,6 +520,21 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
         fields = QuerySettingsSerializer.Meta.fields + [
             "frequency",
         ]
+        read_only_fields = fields
+
+
+class QueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseModelSerializer):
+    """Serializer for ``QueryColumnsConfig``."""
+
+    def validate(self, attrs):
+        """Augment the attributes by the case from context."""
+        if "query" in self.context:
+            attrs["query"] = self.context["query"]
+        return attrs
+
+    class Meta:
+        model = QueryColumnsConfig
+        fields = BaseModelSerializer.Meta.fields + ColumnsSettingsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 

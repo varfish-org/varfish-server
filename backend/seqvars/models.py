@@ -168,7 +168,7 @@ class VariantConsequenceChoice(str, Enum):
     FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT = "5_prime_UTR_variant-intron_variant"
 
 
-class ConsequenceBase(models.Model):
+class ConsequenceSettingsBase(models.Model):
     """Abstract model for storing consequence-related settings."""
 
     #: The variant types.
@@ -190,11 +190,33 @@ class Gene(pydantic.BaseModel):
     #: The HGNC gene symbol (informative for the user).
     symbol: str
     #: Optionally, the gene name (informative for the user).
-    name: typing.Optional[str]
+    name: typing.Optional[str] = None
     #: Optionally, the NCBI Entrez GeneID (informative for the user).
-    entrez_id: typing.Optional[int]
+    entrez_id: typing.Optional[int] = None
     #: Optionally, the Ensembl gene ID (informative for the user).
-    ensembl_id: typing.Optional[str]
+    ensembl_id: typing.Optional[str] = None
+
+
+class GenePanelSource(str, Enum):
+    """The source of a gene panel."""
+
+    #: PanelApp.
+    PANELAPP = "panelapp"
+    #: Internal to varfish intance.
+    INTERNAL = "internal"
+
+
+class GenePanel(pydantic.BaseModel):
+    """Representation of a gene panel to use in the query."""
+
+    #: The source of the gene panel.
+    source: GenePanelSource
+    #: The panel ID (number for PanelApp, UUID for internal).
+    panel_id: str
+    #: The panel name.
+    name: str
+    #: The panel version.
+    version: str
 
 
 class OneBasedRange(pydantic.BaseModel):
@@ -220,6 +242,8 @@ class LocusSettingsBase(models.Model):
 
     #: Optional list of gene symbols to filter for.
     genes = SchemaField(schema=list[Gene], default=list)
+    #: Optional ilst of gene panels to use in the query.
+    gene_panels = SchemaField(schema=list[GenePanel], default=list)
     #: Optional list of genomic regions to filter for.
     genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
 
@@ -329,7 +353,7 @@ class ColumnConfig(pydantic.BaseModel):
     #: The column label.
     label: str
     #: The column description.
-    description: typing.Optional[str]
+    description: typing.Optional[str] = None
     #: The column width.
     width: int
     #: The column visibility.
@@ -440,7 +464,7 @@ class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
         return f"QueryPresetsFrequency '{self.sodar_uuid}'"
 
 
-class QueryPresetsConsequence(ConsequenceBase, QueryPresetsBase):
+class QueryPresetsConsequence(ConsequenceSettingsBase, QueryPresetsBase):
     """Presets for consequence-related settings within a ``QueryPresetsSet``."""
 
     def __str__(self):
@@ -534,12 +558,6 @@ class SampleGenotypeChoice(pydantic.BaseModel):
     #: The genotype.
     genotype: GenotypeChoice
 
-    @pydantic.field_validator("genotypes")
-    @classmethod
-    def genotypes_sort_and_make_unique(cls, v: list[GenotypeChoice]) -> list[GenotypeChoice]:
-        """Convert ``genotypes`` value to sorted list with unique elements."""
-        return list(sorted(set(v)))
-
 
 class QuerySettingsGenotype(QuerySettingsCategoryBase):
     """Query settings for per-sample genotype filtration."""
@@ -605,7 +623,7 @@ class QuerySettingsQuality(QuerySettingsCategoryBase):
         return f"QuerySettingsQuality '{self.sodar_uuid}'"
 
 
-class QuerySettingsConsequence(LocusSettingsBase, QuerySettingsCategoryBase):
+class QuerySettingsConsequence(ConsequenceSettingsBase, QuerySettingsCategoryBase):
     """Presets for consequence-related settings within a ``QuerySettingsSet``."""
 
     #: The owning ``QuerySettings``.
@@ -641,7 +659,7 @@ class QuerySettingsFrequency(FrequencySettingsBase, QuerySettingsCategoryBase):
         return f"QuerySettingsFrequency '{self.sodar_uuid}'"
 
 
-class QuerySettingsPhenotypePrio(PhenotypePrioSettingsBase, QueryPresetsBase):
+class QuerySettingsPhenotypePrio(PhenotypePrioSettingsBase, QuerySettingsCategoryBase):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSet``."""
 
     #: The owning ``QuerySettings``.
@@ -661,6 +679,9 @@ class QuerySettingsVariantPrio(VariantPrioSettingsBase, QuerySettingsCategoryBas
         QuerySettings, on_delete=models.CASCADE, related_name="variantprio"
     )
 
+    def __str__(self):
+        return f"QuerySettingsVariantPrio '{self.sodar_uuid}'"
+
 
 class QuerySettingsClinvar(ClinvarSettingsBase, QuerySettingsCategoryBase):
     """Query settings in the variant priorization category."""
@@ -670,14 +691,8 @@ class QuerySettingsClinvar(ClinvarSettingsBase, QuerySettingsCategoryBase):
         QuerySettings, on_delete=models.CASCADE, related_name="clinvar"
     )
 
-
-class QuerySettingsColumns(ColumnsSettingsBase, QuerySettingsCategoryBase):
-    """Query settings in the column category."""
-
-    #: The owning ``QuerySettings``.
-    querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="columns"
-    )
+    def __str__(self):
+        return f"QuerySettingsClinvar '{self.sodar_uuid}'"
 
 
 class Query(BaseModel):
@@ -702,6 +717,21 @@ class Query(BaseModel):
 
     def __str__(self):
         return f"Query '{self.sodar_uuid}'"
+
+
+class QueryColumnsConfig(ColumnsSettingsBase, BaseModel):
+    """Per-query (not execution) configuration of columns.
+
+    This will be copied over from the presets to the query and not the query
+    settings.  Thus, it will not be persisted by query execution but is
+    editable after query execution.
+    """
+
+    #: The owning ``QuerySettings``.
+    query = models.OneToOneField(Query, on_delete=models.CASCADE, related_name="columnsconfig")
+
+    def __str__(self):
+        return f"QueryColumnsConfig '{self.sodar_uuid}'"
 
 
 class QueryExecution(BaseModel):

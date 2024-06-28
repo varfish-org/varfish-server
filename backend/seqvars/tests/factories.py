@@ -10,8 +10,12 @@ from seqvars.models import (
     DataSourceInfo,
     DataSourceInfos,
     Gene,
+    GenePanel,
+    GenePanelSource,
     GenotypeChoice,
+    QualityFilterOnFailureChoice,
     Query,
+    QueryColumnsConfig,
     QueryExecution,
     QueryPresetsClinvar,
     QueryPresetsColumns,
@@ -24,7 +28,6 @@ from seqvars.models import (
     QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsClinvar,
-    QuerySettingsColumns,
     QuerySettingsConsequence,
     QuerySettingsFrequency,
     QuerySettingsGenotype,
@@ -44,7 +47,7 @@ from seqvars.models import (
     VariantPrioService,
     VariantTypeChoice,
 )
-from variants.tests.factories import CaseFactory, ProjectFactory
+from variants.tests.factories import ProjectFactory
 
 
 class SampleGenotypeChoiceFactory(factory.Factory):
@@ -52,9 +55,9 @@ class SampleGenotypeChoiceFactory(factory.Factory):
     # genotypes: see @factory.lazy_attribute_sequence below
 
     @factory.lazy_attribute_sequence
-    def genotypes(self, n: int):
+    def genotype(self, n: int):
         values = GenotypeChoice.values()
-        return [GenotypeChoice(values[n % len(values)])]
+        return GenotypeChoice(values[n % len(values)])
 
     class Meta:
         model = SampleGenotypeChoice
@@ -102,7 +105,7 @@ class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
 
 class ConsequenceSettingsBaseFactory(factory.django.DjangoModelFactory):
 
-    varian_types = [VariantTypeChoice.SNV]
+    variant_types = [VariantTypeChoice.SNV]
     transcript_types = [TranscriptTypeChoice.CODING]
     variant_consequences = [VariantConsequenceChoice.MISSENSE_VARIANT]
 
@@ -114,6 +117,14 @@ class LocusSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     genes = [
         Gene(hgnc_id="HGNC:1234", symbol="GENE1"),
+    ]
+    gene_panels = [
+        GenePanel(
+            source=GenePanelSource.PANELAPP,
+            panel_id="126",
+            name="Monogenic hearing loss",
+            version="4.39",
+        )
     ]
     genome_regions = []
 
@@ -141,8 +152,8 @@ class PhenotypePrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 
 class VariantPrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 
-    phenotype_prio_enabled = False
-    services = [VariantPrioService(service="MutationTaster", version="2021")]
+    variant_prio_enabled = False
+    services = [VariantPrioService(name="MutationTaster", version="2021")]
 
     class Meta:
         abstract = True
@@ -297,12 +308,22 @@ class QuerySettingsQualityFactory(BaseModelFactory):
     sample_quality_filters = [
         SampleQualityFilter(
             sample="index",
-            on_failure=SampleQualityFilter.ON_FAILURE_DROP_SAMPLE,
+            on_failure=QualityFilterOnFailureChoice.DROP_VARIANT,
         )
     ]
 
     class Meta:
         model = QuerySettingsQuality
+
+
+class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
+
+    # We pass in frequency=None to prevent creation of a second
+    # ``QuerySettingsFrequency``.
+    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
+
+    class Meta:
+        model = QuerySettingsFrequency
 
 
 class QuerySettingsConsequenceFactory(ConsequenceSettingsBaseFactory, BaseModelFactory):
@@ -323,16 +344,6 @@ class QuerySettingsLocusFactory(LocusSettingsBaseFactory, BaseModelFactory):
 
     class Meta:
         model = QuerySettingsLocus
-
-
-class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
-
-    # We pass in frequency=None to prevent creation of a second
-    # ``QuerySettingsFrequency``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
-
-    class Meta:
-        model = QuerySettingsFrequency
 
 
 class QuerySettingsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, BaseModelFactory):
@@ -365,26 +376,6 @@ class QuerySettingsClinvarFactory(ClinvarSettingsBaseFactory, BaseModelFactory):
         model = QuerySettingsClinvar
 
 
-class QuerySettingsColumnsFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
-
-    # We pass in columns=None to prevent creation of a second
-    # ``QuerySettingsColumns``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, columns=None)
-
-    class Meta:
-        model = QuerySettingsColumns
-
-
-class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
-
-    # We pass in frequency=None to prevent creation of a second
-    # ``QuerySettingsFrequency``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
-
-    class Meta:
-        model = QuerySettingsFrequency
-
-
 class QueryFactory(BaseModelFactory):
 
     rank = 1
@@ -395,6 +386,16 @@ class QueryFactory(BaseModelFactory):
 
     class Meta:
         model = Query
+
+
+class QueryColumnsConfigFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in columnsconfig=None to prevent creation of a second
+    # ``QuerySettingsColumns``.
+    query = factory.SubFactory(QueryFactory, columnsconfig=None)
+
+    class Meta:
+        model = QueryColumnsConfig
 
 
 class QueryExecutionFactory(BaseModelFactory):
