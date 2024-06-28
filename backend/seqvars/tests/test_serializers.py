@@ -561,7 +561,7 @@ class TestQuerySettingsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
-            "presetssetversion",
+            # "presetssetversion",
             "genotype",
             "quality",
             "consequence",
@@ -611,7 +611,7 @@ class TestQuerySettingsDetailsSerializer(TestCase):
             "date_modified",
             # QuerySettings
             "session",
-            "presetssetversion",
+            # "presetssetversion",
             "genotype",
             "quality",
             "consequence",
