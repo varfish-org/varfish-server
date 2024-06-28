@@ -299,21 +299,20 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     """
 
     #: Minimal depth for het. variants.
-    min_dp_het = serializers.IntegerField(allow_null=True)
+    min_dp_het = serializers.IntegerField(allow_null=True, required=False)
     #: Minimal depth for hom. variants.
-    min_dp_hom = serializers.IntegerField(allow_null=True)
+    min_dp_hom = serializers.IntegerField(allow_null=True, required=False)
     #: Minimal allele balance for het. variants.
-    min_ab_het = serializers.FloatField(allow_null=True)
+    min_ab_het = serializers.FloatField(allow_null=True, required=False)
     #: Minimal genotype quality.
-    min_gq = serializers.IntegerField(allow_null=True)
+    min_gq = serializers.IntegerField(allow_null=True, required=False)
     #: Minimal alternate allele read depth.
-    min_ad = serializers.IntegerField(allow_null=True)
+    min_ad = serializers.IntegerField(allow_null=True, required=False)
     #: Maximal alternate allele read depth.
-    max_ad = serializers.IntegerField(allow_null=True)
+    max_ad = serializers.IntegerField(allow_null=True, required=False)
     #: Behaviour for failing filter.
     on_failure = serializers.CharField(
-        max_length=128,
-        default=QueryPresetsQuality.ON_FAILURE_DROP_VARIANT,
+        max_length=128, default=QueryPresetsQuality.ON_FAILURE_DROP_VARIANT, required=False
     )
 
     class Meta:

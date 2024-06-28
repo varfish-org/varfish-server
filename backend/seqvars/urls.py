@@ -6,41 +6,50 @@ from seqvars import views_api
 # Create a router and register our ViewSets with it.
 router = DefaultRouter()
 router.register(
-    r"api/seqvarpresetsset/(?P<project>[0-9a-f-]+)",
+    r"api/querypresetsset/(?P<project>[0-9a-f-]+)",
     views_api.QueryPresetsSetViewSet,
     basename="api-querypresetsset",
+)
+router.register(
+    r"api/querypresetsquality/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsQualityViewSet,
+    basename="api-querypresetsquality",
 )
 router.register(
     r"api/querypresetsfrequency/(?P<querypresetsset>[0-9a-f-]+)",
     views_api.QueryPresetsFrequencyViewSet,
     basename="api-querypresetsfrequency",
 )
-# router.register(
-#     r"api/seqvarpresetsconsequence/(?P<project>[0-9a-f-]+)",
-#     views_api.QueryPresetsConsequenceViewSet,
-#     basename="api-seqvarpresetsconsequence",
-# )
-# router.register(
-#     r"api/seqvarpresetslocus/(?P<project>[0-9a-f-]+)", views_api.QueryPresetsLocusViewSet, basename="api-seqvarpresetslocus"
-# )
-# router.register(
-#     r"api/seqvarpresetsphenotypeprio/(?P<project>[0-9a-f-]+)",
-#     views_api.QueryPresetsPhenotypePrioViewSet,
-#     basename="api-seqvarpresetsphenotypeprio",
-# )
-# router.register(
-#     r"api/seqvarpresetsvariantprio/(?P<project>[0-9a-f-]+)",
-#     views_api.QueryPresetsVariantPrioViewSet,
-#     basename="api-seqvarpresetsvariantprio",
-# )
-# router.register(
-#     r"api/seqvarpresetscolumns/(?P<project>[0-9a-f-]+)",
-#     views_api.QueryPresetsColumnsViewSet,
-#     basename="api-seqvarpresetscolumns",
-# )
-# router.register(
-#     r"api/seqvarpresetsmisc/(?P<project>[0-9a-f-]+)", views_api.QueryPresetsMiscViewSet, basename="api-seqvarpresetsmisc"
-# )
+router.register(
+    r"api/querypresetsconsequence/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsConsequenceViewSet,
+    basename="api-querypresetsconsequence",
+)
+router.register(
+    r"api/querypresetslocus/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsLocusViewSet,
+    basename="api-querypresetslocus",
+)
+router.register(
+    r"api/querypresetsphenotypeprio/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsPhenotypePrioViewSet,
+    basename="api-querypresetsphenotypeprio",
+)
+router.register(
+    r"api/querypresetsvariantprio/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsVariantPrioViewSet,
+    basename="api-querypresetsvariantprio",
+)
+router.register(
+    r"api/querypresetsclinvar/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsClinvarViewSet,
+    basename="api-querypresetsclinvar",
+)
+router.register(
+    r"api/querypresetscolumns/(?P<querypresetsset>[0-9a-f-]+)",
+    views_api.QueryPresetsColumnsViewSet,
+    basename="api-querypresetscolumns",
+)
 router.register(
     r"api/querysettings/(?P<session>[0-9a-f-]+)",
     views_api.QuerySettingsViewSet,
@@ -62,11 +71,10 @@ router.register(
     basename="api-resultset",
 )
 router.register(
-    r"api/seqvarresultrow/(?P<resultset>[0-9a-f-]+)",
+    r"api/resultrow/(?P<resultset>[0-9a-f-]+)",
     views_api.ResultRowViewSet,
-    basename="api-seqvarresultrow",
+    basename="api-resultrow",
 )
-
 
 # Below is the usual URL pattern boilerplate.
 app_name = "seqvars"

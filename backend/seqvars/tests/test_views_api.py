@@ -7,8 +7,15 @@ from parameterized import parameterized
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import (
     Query,
+    QueryPresetsClinvar,
+    QueryPresetsColumns,
+    QueryPresetsConsequence,
     QueryPresetsFrequency,
+    QueryPresetsLocus,
+    QueryPresetsPhenotypePrio,
+    QueryPresetsQuality,
     QueryPresetsSet,
+    QueryPresetsVariantPrio,
     QuerySettings,
     QuerySettingsFrequency,
 )
@@ -17,9 +24,16 @@ from seqvars.serializers import (
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
+    QueryPresetsClinvarSerializer,
+    QueryPresetsColumnsSerializer,
+    QueryPresetsConsequenceSerializer,
     QueryPresetsFrequencySerializer,
+    QueryPresetsLocusSerializer,
+    QueryPresetsPhenotypePrioSerializer,
+    QueryPresetsQualitySerializer,
     QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsVariantPrioSerializer,
     QuerySerializer,
     QuerySettingsClinvarSerializer,
     QuerySettingsConsequenceSerializer,
@@ -38,8 +52,15 @@ from seqvars.tests.factories import (
     QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
+    QueryPresetsClinvarFactory,
+    QueryPresetsColumnsFactory,
+    QueryPresetsConsequenceFactory,
     QueryPresetsFrequencyFactory,
+    QueryPresetsLocusFactory,
+    QueryPresetsPhenotypePrioFactory,
+    QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsVariantPrioFactory,
     QuerySettingsClinvarFactory,
     QuerySettingsConsequenceFactory,
     QuerySettingsFactory,
@@ -188,6 +209,266 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
 
 
 @freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsQualityViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsquality = QueryPresetsQualityFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsquality-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsQualitySerializer(self.presetsquality).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsQuality.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetsquality-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsQuality.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsquality-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsquality": self.presetsquality.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsQualitySerializer(self.presetsquality).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsquality": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsquality-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsquality": self.presetsquality.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetsquality.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetsquality, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetsquality-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsquality": self.presetsquality.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetsquality.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetsquality, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsQuality.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetsquality-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsquality": self.presetsquality.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsQuality.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsconsequence = QueryPresetsConsequenceFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsConsequence.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsConsequence.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsconsequence": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetsconsequence.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetsconsequence, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetsconsequence.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetsconsequence, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsConsequence.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetsconsequence-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsconsequence": self.presetsconsequence.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsConsequence.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
@@ -315,6 +596,656 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(QueryPresetsFrequency.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsLocusViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetslocus = QueryPresetsLocusFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetslocus-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsLocusSerializer(self.presetslocus).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsLocus.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetslocus-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsLocus.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetslocus-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetslocus": self.presetslocus.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsLocusSerializer(self.presetslocus).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetslocus": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetslocus-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetslocus": self.presetslocus.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetslocus.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetslocus, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetslocus-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetslocus": self.presetslocus.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetslocus.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetslocus, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsLocus.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetslocus-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetslocus": self.presetslocus.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsLocus.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsphenotypeprio = QueryPresetsPhenotypePrioFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsphenotypeprio": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetsphenotypeprio.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetsphenotypeprio, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetsphenotypeprio.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetsphenotypeprio, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetsphenotypeprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsphenotypeprio": self.presetsphenotypeprio.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsvariantprio = QueryPresetsVariantPrioFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsvariantprio": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetsvariantprio.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetsvariantprio, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetsvariantprio.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetsvariantprio, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetsvariantprio-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsvariantprio": self.presetsvariantprio.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetscolumns = QueryPresetsColumnsFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetscolumns-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsColumns.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetscolumns-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsColumns.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetscolumns-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetscolumns": self.presetscolumns.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetscolumns": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetscolumns-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetscolumns": self.presetscolumns.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetscolumns.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetscolumns, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetscolumns-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetscolumns": self.presetscolumns.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetscolumns.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetscolumns, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsColumns.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetscolumns-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetscolumns": self.presetscolumns.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsColumns.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetsclinvar = QueryPresetsClinvarFactory(presetsset=self.presetsset)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(QueryPresetsClinvar.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-list",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(QueryPresetsClinvar.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
+        result_json["presetsset"] = str(result_json["presetsset"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetsclinvar": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-detail",
+                    kwargs={
+                        **{
+                            "querypresetsset": self.presetsset.sodar_uuid,
+                            "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.presetsclinvar.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.presetsclinvar, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.presetsclinvar.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.presetsclinvar, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(QueryPresetsClinvar.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-querypresetsclinvar-detail",
+                    kwargs={
+                        "querypresetsset": self.presetsset.sodar_uuid,
+                        "querypresetsclinvar": self.presetsclinvar.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(QueryPresetsClinvar.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -879,7 +1810,7 @@ class TestResultRowViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultrow-list",
+                    "seqvars:api-resultrow-list",
                     kwargs={
                         "resultset": self.resultset.sodar_uuid,
                     },
@@ -900,7 +1831,7 @@ class TestResultRowViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultrow-detail",
+                    "seqvars:api-resultrow-detail",
                     kwargs={
                         "resultset": self.resultset.sodar_uuid,
                         "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
@@ -921,7 +1852,7 @@ class TestResultRowViewSet(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "seqvars:api-seqvarresultrow-detail",
+                    "seqvars:api-resultrow-detail",
                     kwargs={
                         **{
                             "resultset": self.resultset.sodar_uuid,

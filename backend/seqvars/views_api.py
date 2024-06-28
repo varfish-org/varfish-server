@@ -20,9 +20,16 @@ from seqvars.serializers import (
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
+    QueryPresetsClinvarSerializer,
+    QueryPresetsColumnsSerializer,
+    QueryPresetsConsequenceSerializer,
     QueryPresetsFrequencySerializer,
+    QueryPresetsLocusSerializer,
+    QueryPresetsPhenotypePrioSerializer,
+    QueryPresetsQualitySerializer,
     QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsVariantPrioSerializer,
     QuerySerializer,
     QuerySettingsDetailsSerializer,
     QuerySettingsSerializer,
@@ -176,50 +183,60 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         return context
 
 
+class QueryPresetsQualityViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsQuality`` model."""
+
+    lookup_url_kwarg = "querypresetsquality"
+    serializer_class = QueryPresetsQualitySerializer
+
+
+class QueryPresetsConsequenceViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsConsequence`` model."""
+
+    lookup_url_kwarg = "querypresetsconsequence"
+    serializer_class = QueryPresetsConsequenceSerializer
+
+
 class QueryPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsFrequency`` model."""
 
     lookup_url_kwarg = "querypresetsfrequency"
     serializer_class = QueryPresetsFrequencySerializer
 
-    def retrieve(self, *args, **kwargs):
-        return super().retrieve(*args, **kwargs)
+
+class QueryPresetsLocusViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsLocus`` model."""
+
+    lookup_url_kwarg = "querypresetslocus"
+    serializer_class = QueryPresetsLocusSerializer
 
 
-# class QueryPresetsConsequenceViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsConsequenceSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
+class QueryPresetsPhenotypePrioViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsPhenotypePrio`` model."""
+
+    lookup_url_kwarg = "querypresetsphenotypeprio"
+    serializer_class = QueryPresetsPhenotypePrioSerializer
 
 
-# class QueryPresetsLocusViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsLocusSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
+class QueryPresetsVariantPrioViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsVariantPrio`` model."""
+
+    lookup_url_kwarg = "querypresetsvariantprio"
+    serializer_class = QueryPresetsVariantPrioSerializer
 
 
-# class QueryPresetsPhenotypePrioViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsPhenotypePrioSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
+class QueryPresetsColumnsViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsColumns`` model."""
+
+    lookup_url_kwarg = "querypresetscolumns"
+    serializer_class = QueryPresetsColumnsSerializer
 
 
-# class QueryPresetsVariantPrioViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsVariantPrioSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
+class QueryPresetsClinvarViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``QueryPresetsClinvar`` model."""
 
-
-# class QueryPresetsColumnsViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsColumnsSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
-
-
-# class QueryPresetsMiscViewSet(viewsets.ModelViewSet):
-#     serializer_class = QueryPresetsMiscSerializer
-#     schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-#     pagination_class = StandardPagination
+    lookup_url_kwarg = "querypresetsclinvar"
+    serializer_class = QueryPresetsClinvarSerializer
 
 
 class QuerySettingsViewSet(BaseViewSet):

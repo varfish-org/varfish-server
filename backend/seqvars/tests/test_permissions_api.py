@@ -847,7 +847,7 @@ class TestResultRowViewSet(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-seqvarresultrow-list",
+            "seqvars:api-resultrow-list",
             kwargs={
                 "resultset": self.resultset.sodar_uuid,
             },
@@ -867,7 +867,7 @@ class TestResultRowViewSet(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "seqvars:api-seqvarresultrow-detail",
+            "seqvars:api-resultrow-detail",
             kwargs={
                 "resultset": self.resultset.sodar_uuid,
                 "seqvarresultrow": self.seqvarresultrow.sodar_uuid,
