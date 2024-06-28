@@ -29,11 +29,11 @@ const model = defineModel<boolean>({ default: false })
 
   &[aria-selected='true'] {
     border-color: #0f6cbd;
-    background: #0f6cbd;
     color: white !important;
 
+    &,
     &:hover {
-      color: black !important;
+      background: #0f6cbd;
     }
   }
 
