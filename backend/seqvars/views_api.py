@@ -140,7 +140,7 @@ class ProjectContextBaseViewSet(BaseViewSet):
         return result
 
     def get_serializer_context(self):
-        """Augment base serializer context with the project from URL kwargs."""
+        """Augment base serializer context with the query preset set version from URL kwargs."""
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
@@ -166,6 +166,8 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
 class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``QueryPresetsSetVersion`` model."""
 
+    # TODO XXX XXX ADD SIGN OFF ACTION XXX XXX TODO
+
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "querypresetssetversion"
     #: The default serializer class to use.
@@ -176,8 +178,19 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
         result = QueryPresetsSetVersion.objects.all()
-        result = result.filter(presetsset__sodar_uuid=self.kwargs["presetsset"])
+        result = result.filter(presetsset__sodar_uuid=self.kwargs["querypresetsset"])
         return result
+
+    def get_serializer_context(self):
+        """Augment base serializer context with the query preset set from URL kwargs."""
+        context = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
+            return context
+        context["presetsset"] = QueryPresetsSet.objects.get(
+            sodar_uuid=self.kwargs["querypresetsset"]
+        )
+        context["project"] = context["presetsset"].project
+        return context
 
 
 class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
@@ -194,14 +207,15 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         return result
 
     def get_serializer_context(self):
-        """Augment base serializer context with the project from URL kwargs."""
+        """Augment base serializer context with the query preset set version from URL kwargs."""
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["querypresetssetversion"] = QueryPresetsSetVersion.objects.get(
+        context["presetssetversion"] = QueryPresetsSetVersion.objects.get(
             sodar_uuid=self.kwargs["querypresetssetversion"]
         )
-        context["project"] = context["querypresetssetversion"].project
+        context["presetsset"] = context["presetssetversion"].presetsset
+        context["project"] = context["presetsset"].project
         return context
 
 

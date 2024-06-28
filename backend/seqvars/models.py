@@ -439,7 +439,7 @@ class QueryPresetsSetVersion(BaseModel):
     #: The minor version.
     version_minor = models.IntegerField(default=0)
     #: The current status.
-    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default=STATUS_DRAFT)
     #: The user who signed off the presets.
     signed_off_by = models.ForeignKey(
         User,

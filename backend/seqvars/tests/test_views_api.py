@@ -33,6 +33,7 @@ from seqvars.serializers import (
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsSetVersionDetailsSerializer,
     QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
     QuerySerializer,
@@ -61,6 +62,7 @@ from seqvars.tests.factories import (
     QueryPresetsPhenotypePrioFactory,
     QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsSetVersionFactory,
     QueryPresetsVariantPrioFactory,
     QuerySettingsClinvarFactory,
     QuerySettingsConsequenceFactory,
@@ -214,19 +216,19 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsQualityFactory(presetsset=self.querypresetsset)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
 
     def test_list(self):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "seqvars:api-querypresetssetversion-list",
-                    kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+                    kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsSetVersionSerializer(self.querypresetssetversion).data
-        result_json["project"] = str(result_json["project"])
+        result_json["presetsset"] = str(result_json["presetsset"])
         self.assertDictEqual(
             response.json(),
             {
@@ -243,24 +245,24 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
         ]
     )
     def test_create(self, data_override: dict[str, Any]):
-        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "seqvars:api-querypresetssetversion-list",
-                    kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+                    kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
                 ),
                 data={
                     **{
                         "version_major": 1,
-                        "version_minor": 0,
+                        "version_minor": self.querypresetssetversion.version_minor + 1,
                         "status": QueryPresetsSetVersion.STATUS_ACTIVE,
                     },
                     **data_override,
                 },
             )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(QueryPresetsSet.objects.count(), 2)
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -274,8 +276,9 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetSerializer(self.querypresetssetversion).data
-        result_json["project"] = str(result_json["project"])
+        result_json = QueryPresetsSetVersionDetailsSerializer(self.querypresetssetversion).data
+        result_json["presetsset"] = dict(result_json["presetsset"])
+        result_json["presetsset"]["project"] = str(result_json["presetsset"]["project"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
@@ -302,8 +305,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"rank": 2}],
-            [{"description": "description"}],
+            [{"version_major": 2}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
@@ -330,7 +332,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.querypresetssetversion, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -345,7 +347,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsSet.objects.count(), 0)
+        self.assertEqual(QueryPresetsSetVersion.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -353,9 +355,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsquality = QueryPresetsQualityFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
@@ -370,7 +370,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsQualitySerializer(self.presetsquality).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -408,12 +408,12 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsQualitySerializer(self.presetsquality).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsquality": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -486,9 +486,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsconsequence = QueryPresetsConsequenceFactory(
             presetssetversion=self.presetssetversion
         )
@@ -505,7 +503,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -543,12 +541,12 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsconsequence": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -621,9 +619,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsfrequency = QueryPresetsFrequencyFactory(
             presetssetversion=self.presetssetversion
         )
@@ -640,7 +636,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -678,12 +674,12 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsfrequency": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -756,9 +752,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetslocus = QueryPresetsLocusFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
@@ -773,7 +767,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsLocusSerializer(self.presetslocus).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -811,12 +805,12 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsLocusSerializer(self.presetslocus).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetslocus": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -889,9 +883,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -908,7 +900,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -946,12 +938,12 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsphenotypeprio": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -1024,9 +1016,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsvariantprio = QueryPresetsVariantPrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1043,7 +1033,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -1081,12 +1071,12 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsvariantprio": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -1159,9 +1149,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetscolumns = QueryPresetsColumnsFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
@@ -1176,7 +1164,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -1214,12 +1202,12 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetscolumns": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -1292,9 +1280,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsQualityFactory(
-            presetssetversion=self.presetssetversion
-        )
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
         self.presetsclinvar = QueryPresetsClinvarFactory(presetssetversion=self.presetssetversion)
 
     def test_list(self):
@@ -1309,7 +1295,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
             {
@@ -1347,12 +1333,12 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 200)
         result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
-        result_json["presetsset"] = str(result_json["presetsset"])
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
         [
-            [{"querypresetsset": "00000000-0000-0000-0000-000000000000"}],
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
             [{"querypresetsclinvar": "00000000-0000-0000-0000-000000000000"}],
         ]
     )

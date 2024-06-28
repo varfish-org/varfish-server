@@ -2,7 +2,20 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
-from seqvars.models import Query, QueryPresetsFrequency, QueryPresetsSet, QuerySettings
+from seqvars.models import (
+    Query,
+    QueryPresetsClinvar,
+    QueryPresetsColumns,
+    QueryPresetsConsequence,
+    QueryPresetsFrequency,
+    QueryPresetsLocus,
+    QueryPresetsPhenotypePrio,
+    QueryPresetsQuality,
+    QueryPresetsSet,
+    QueryPresetsSetVersion,
+    QueryPresetsVariantPrio,
+    QuerySettings,
+)
 from seqvars.serializers import (
     QueryColumnsConfigSerializer,
     QuerySettingsClinvarSerializer,
@@ -19,8 +32,16 @@ from seqvars.tests.factories import (
     QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
+    QueryPresetsClinvarFactory,
+    QueryPresetsColumnsFactory,
+    QueryPresetsConsequenceFactory,
     QueryPresetsFrequencyFactory,
+    QueryPresetsLocusFactory,
+    QueryPresetsPhenotypePrioFactory,
+    QueryPresetsQualityFactory,
     QueryPresetsSetFactory,
+    QueryPresetsSetVersionFactory,
+    QueryPresetsVariantPrioFactory,
     QuerySettingsClinvarFactory,
     QuerySettingsConsequenceFactory,
     QuerySettingsFactory,
@@ -179,16 +200,16 @@ class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
         self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(presetsset=self.querypresetsset)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
 
     def test_list(self):
         url = reverse(
-            "seqvars:api-querypresetsfrequency-list",
+            "seqvars:api-querypresetssetversion-list",
             kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
         )
         good_users = [
@@ -206,8 +227,155 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def test_create(self):
         url = reverse(
-            "seqvars:api-querypresetsfrequency-list",
+            "seqvars:api-querypresetssetversion-list",
             kwargs={"querypresetsset": self.querypresetsset.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "version_minor": 2,
+        }
+
+        querypresetssetversion_uuid = self.querypresetssetversion.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsSetVersion.objects.exclude(
+                sodar_uuid=querypresetssetversion_uuid
+            ):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetssetversion-detail",
+            kwargs={
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetssetversion-detail",
+            kwargs={
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetssetversion-detail",
+            kwargs={
+                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetssetversion_uuid = self.querypresetssetversion.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsSetVersion.objects.filter(sodar_uuid=querypresetssetversion_uuid):
+                self.querypresetssetversion = QueryPresetsSetVersionFactory(
+                    sodar_uuid=querypresetssetversion_uuid, presetsset=self.querypresetsset
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsfrequency-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsfrequency-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -241,7 +409,7 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
                 "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
@@ -264,7 +432,7 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
                 "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
@@ -291,7 +459,7 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-querypresetsfrequency-detail",
             kwargs={
-                "querypresetsset": self.querypresetsset.sodar_uuid,
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
                 "querypresetsfrequency": self.querypresetsfrequency.sodar_uuid,
             },
         )
@@ -309,12 +477,1050 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
             self.user_guest,
         ]
 
-        querypresetsset_uuid = self.querypresetsfrequency.sodar_uuid
+        querypresetsfrequency_uuid = self.querypresetsfrequency.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsFrequency.objects.filter(sodar_uuid=querypresetsset_uuid):
+            if not QueryPresetsFrequency.objects.filter(sodar_uuid=querypresetsfrequency_uuid):
                 self.querypresetsfrequency = QueryPresetsFrequencyFactory(
-                    sodar_uuid=querypresetsset_uuid, presetsset=self.querypresetsset
+                    sodar_uuid=querypresetsfrequency_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsquality = QueryPresetsQualityFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsquality-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsquality-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetsquality_uuid = self.querypresetsquality.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsQuality.objects.exclude(sodar_uuid=querypresetsquality_uuid):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetsquality-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsquality": self.querypresetsquality.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetsquality-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsquality": self.querypresetsquality.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetsquality-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsquality": self.querypresetsquality.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetsquality_uuid = self.querypresetsquality.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsQuality.objects.filter(sodar_uuid=querypresetsquality_uuid):
+                self.querypresetsquality = QueryPresetsQualityFactory(
+                    sodar_uuid=querypresetsquality_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsconsequence = QueryPresetsConsequenceFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsconsequence-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsconsequence-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetsconsequence_uuid = self.querypresetsconsequence.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsConsequence.objects.exclude(
+                sodar_uuid=querypresetsconsequence_uuid
+            ):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetsconsequence-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsconsequence": self.querypresetsconsequence.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetsconsequence-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsconsequence": self.querypresetsconsequence.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetsconsequence-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsconsequence": self.querypresetsconsequence.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetsconsequence_uuid = self.querypresetsconsequence.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsConsequence.objects.filter(sodar_uuid=querypresetsconsequence_uuid):
+                self.querypresetsconsequence = QueryPresetsConsequenceFactory(
+                    sodar_uuid=querypresetsconsequence_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetslocus = QueryPresetsLocusFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetslocus-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetslocus-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetslocus_uuid = self.querypresetslocus.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsLocus.objects.exclude(sodar_uuid=querypresetslocus_uuid):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetslocus-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetslocus": self.querypresetslocus.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetslocus-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetslocus": self.querypresetslocus.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetslocus-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetslocus": self.querypresetslocus.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetslocus_uuid = self.querypresetslocus.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsLocus.objects.filter(sodar_uuid=querypresetslocus_uuid):
+                self.querypresetslocus = QueryPresetsLocusFactory(
+                    sodar_uuid=querypresetslocus_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsphenotypeprio-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsphenotypeprio-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetsphenotypeprio_uuid = self.querypresetsphenotypeprio.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsPhenotypePrio.objects.exclude(
+                sodar_uuid=querypresetsphenotypeprio_uuid
+            ):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetsphenotypeprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsphenotypeprio": self.querypresetsphenotypeprio.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetsphenotypeprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsphenotypeprio": self.querypresetsphenotypeprio.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetsphenotypeprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsphenotypeprio": self.querypresetsphenotypeprio.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetsphenotypeprio_uuid = self.querypresetsphenotypeprio.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsPhenotypePrio.objects.filter(
+                sodar_uuid=querypresetsphenotypeprio_uuid
+            ):
+                self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+                    sodar_uuid=querypresetsphenotypeprio_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsvariantprio = QueryPresetsVariantPrioFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsvariantprio-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsvariantprio-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetsvariantprio_uuid = self.querypresetsvariantprio.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsVariantPrio.objects.exclude(
+                sodar_uuid=querypresetsvariantprio_uuid
+            ):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetsvariantprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsvariantprio": self.querypresetsvariantprio.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetsvariantprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsvariantprio": self.querypresetsvariantprio.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetsvariantprio-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsvariantprio": self.querypresetsvariantprio.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetsvariantprio_uuid = self.querypresetsvariantprio.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsVariantPrio.objects.filter(sodar_uuid=querypresetsvariantprio_uuid):
+                self.querypresetsvariantprio = QueryPresetsVariantPrioFactory(
+                    sodar_uuid=querypresetsvariantprio_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetscolumns = QueryPresetsColumnsFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetscolumns-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetscolumns-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetscolumns_uuid = self.querypresetscolumns.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsColumns.objects.exclude(sodar_uuid=querypresetscolumns_uuid):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetscolumns-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetscolumns": self.querypresetscolumns.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetscolumns-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetscolumns": self.querypresetscolumns.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetscolumns-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetscolumns": self.querypresetscolumns.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetscolumns_uuid = self.querypresetscolumns.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsColumns.objects.filter(sodar_uuid=querypresetscolumns_uuid):
+                self.querypresetscolumns = QueryPresetsColumnsFactory(
+                    sodar_uuid=querypresetscolumns_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsclinvar = QueryPresetsClinvarFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-querypresetsclinvar-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-querypresetsclinvar-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        querypresetsclinvar_uuid = self.querypresetsclinvar.sodar_uuid
+
+        def cleanup():
+            for obj in QueryPresetsClinvar.objects.exclude(sodar_uuid=querypresetsclinvar_uuid):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-querypresetsclinvar-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsclinvar": self.querypresetsclinvar.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-querypresetsclinvar-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsclinvar": self.querypresetsclinvar.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-querypresetsclinvar-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "querypresetsclinvar": self.querypresetsclinvar.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        querypresetsclinvar_uuid = self.querypresetsclinvar.sodar_uuid
+
+        def cleanup():
+            if not QueryPresetsClinvar.objects.filter(sodar_uuid=querypresetsclinvar_uuid):
+                self.querypresetsclinvar = QueryPresetsClinvarFactory(
+                    sodar_uuid=querypresetsclinvar_uuid,
+                    presetssetversion=self.querypresetssetversion,
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)

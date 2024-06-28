@@ -464,6 +464,10 @@ class TestQueryPresetsSetVersionSerializer(TestCase):
             "date_modified",
             # QueryPresetsSetVersion
             "presetsset",
+            "version_major",
+            "version_minor",
+            "status",
+            "signed_off_by",
         ]
         expected = model_to_dict(
             self.querypresetssetversion,
@@ -499,6 +503,10 @@ class TestQueryPresetsSetVersionDetailsSerializer(TestCase):
             "date_modified",
             # QueryPresetsSetVersion
             "presetsset",
+            "version_major",
+            "version_minor",
+            "status",
+            "signed_off_by",
             # (only in details serializer)
             "querypresetsfrequency_set",
             "querypresetsvariantprio_set",

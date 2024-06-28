@@ -11,7 +11,7 @@ router.register(
     basename="api-querypresetsset",
 )
 router.register(
-    r"api/querypresetsset/(?P<querypresetsset>[0-9a-f-]+)",
+    r"api/querypresetssetversion/(?P<querypresetsset>[0-9a-f-]+)",
     views_api.QueryPresetsSetVersionViewSet,
     basename="api-querypresetssetversion",
 )

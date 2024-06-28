@@ -1,5 +1,6 @@
 from django_pydantic_field.rest_framework import SchemaField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
+from projectroles.serializers import SODARUserSerializer
 from rest_framework import serializers
 
 from seqvars.models import (
@@ -284,8 +285,8 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
 
     def validate(self, attrs):
         """Augment the attributes by the presets set object from context."""
-        if "querypresetssetversion" in self.context:
-            attrs["presetssetversion"] = self.context["querypresetssetversion"]
+        if "presetssetversion" in self.context:
+            attrs["presetssetversion"] = self.context["presetssetversion"]
         return attrs
 
     class Meta:
@@ -454,6 +455,21 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
     #: Serialize ``presetsset`` as its ``sodar_uuid``.
     presetsset = serializers.ReadOnlyField(source="presetsset.sodar_uuid")
 
+    version_major = serializers.IntegerField(
+        required=False,
+        allow_null=False,
+        default=1,
+    )
+    version_minor = serializers.IntegerField(
+        required=False,
+        allow_null=False,
+        default=0,
+    )
+    status = serializers.CharField(
+        required=False, allow_null=False, default=QueryPresetsSetVersion.STATUS_DRAFT
+    )
+    signed_off_by = SODARUserSerializer(read_only=True)
+
     def validate(self, attrs):
         """Augment the attributes by the presetsset from context."""
         if "presetsset" in self.context:
@@ -464,6 +480,10 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
         model = QueryPresetsSetVersion
         fields = BaseModelSerializer.Meta.fields + [
             "presetsset",
+            "version_major",
+            "version_minor",
+            "status",
+            "signed_off_by",
         ]
         read_only_fields = fields
 
