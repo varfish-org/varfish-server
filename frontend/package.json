@@ -50,7 +50,7 @@
     "@babel/eslint-parser": "^7.24.7",
     "@babel/preset-env": "^7.24.6",
     "@iconify-json/bi": "^1.1.23",
-    "@iconify-json/carbon": "^1.1.35",
+    "@iconify-json/carbon": "^1.1.36",
     "@iconify-json/cil": "^1.1.8",
     "@iconify-json/entypo": "^1.1.8",
     "@iconify-json/fa": "^1.1.8",
