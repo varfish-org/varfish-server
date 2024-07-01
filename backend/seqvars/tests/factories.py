@@ -13,6 +13,7 @@ from seqvars.models import (
     GenePanel,
     GenePanelSource,
     GenotypeChoice,
+    PredefinedQuery,
     Query,
     QueryColumnsConfig,
     QueryExecution,
@@ -286,6 +287,14 @@ class QueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresetsBaseFac
 
     class Meta:
         model = QueryPresetsColumns
+
+
+class PredefinedQueryFactory(QueryPresetsBaseFactory):
+
+    included_in_sop = False
+
+    class Meta:
+        model = PredefinedQuery
 
 
 class QuerySettingsFactory(BaseModelFactory):

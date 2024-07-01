@@ -541,6 +541,47 @@ class QueryPresetsColumns(ColumnsSettingsBase, QueryPresetsBase):
         return f"QueryPresetsColumns '{self.sodar_uuid}'"
 
 
+class PredefinedQuery(QueryPresetsBase):
+    """A choice of presets from a ``PresetsSet`` in each category."""
+
+    #: Whether this predefined query shall be run as part of an SOP.
+    included_in_sop = models.BooleanField(default=False, null=False, blank=False)
+
+    #: The chosen quality presets.
+    quality = models.ForeignKey(
+        QueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen frequency presets.
+    frequency = models.ForeignKey(
+        QueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen consequence presets.
+    consequence = models.ForeignKey(
+        QueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen locus presets.
+    locus = models.ForeignKey(QueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True)
+    #: The chosen phenotype priorization presets.
+    phenotypeprio = models.ForeignKey(
+        QueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen variant priorization presets.
+    variantprio = models.ForeignKey(
+        QueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen clinvar presets.
+    clinvar = models.ForeignKey(
+        QueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen columns presets.
+    columns = models.ForeignKey(
+        QueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    def __str__(self):
+        return f"PredefinedQuery '{self.sodar_uuid}'"
+
+
 class QuerySettings(BaseModel):
     """The query settings for a case."""
 

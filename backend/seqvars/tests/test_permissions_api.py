@@ -3,6 +3,7 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import (
+    PredefinedQuery,
     Query,
     QueryPresetsClinvar,
     QueryPresetsColumns,
@@ -25,10 +26,10 @@ from seqvars.serializers import (
     QuerySettingsLocusSerializer,
     QuerySettingsPhenotypePrioSerializer,
     QuerySettingsQualitySerializer,
-    QuerySettingsSerializer,
     QuerySettingsVariantPrioSerializer,
 )
 from seqvars.tests.factories import (
+    PredefinedQueryFactory,
     QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
@@ -1520,6 +1521,153 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
             if not QueryPresetsClinvar.objects.filter(sodar_uuid=querypresetsclinvar_uuid):
                 self.querypresetsclinvar = QueryPresetsClinvarFactory(
                     sodar_uuid=querypresetsclinvar_uuid,
+                    presetssetversion=self.querypresetssetversion,
+                )
+
+        self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
+        self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
+
+
+class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
+
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.predefinedquery = PredefinedQueryFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_list(self):
+        url = reverse(
+            "seqvars:api-predefinedquery-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_create(self):
+        url = reverse(
+            "seqvars:api-predefinedquery-list",
+            kwargs={"querypresetssetversion": self.querypresetssetversion.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "rank": 1,
+            "label": "test",
+        }
+
+        predefinedquery_uuid = self.predefinedquery.sodar_uuid
+
+        def cleanup():
+            for obj in PredefinedQuery.objects.exclude(sodar_uuid=predefinedquery_uuid):
+                obj.delete()
+
+        self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
+        self.assert_response(
+            url, bad_users_401, 401, method="POST", data=data, cleanup_method=cleanup
+        )
+        self.assert_response(
+            url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
+        )
+
+    def test_retrieve(self):
+        url = reverse(
+            "seqvars:api-predefinedquery-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "predefinedquery": self.predefinedquery.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+            self.user_guest,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles, self.user_finder_cat]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_patch(self):
+        url = reverse(
+            "seqvars:api-predefinedquery-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "predefinedquery": self.predefinedquery.sodar_uuid,
+            },
+        )
+        data = {"rank": 42}
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+        self.assert_response(url, good_users, 200, method="PATCH", data=data)
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+
+    def test_delete(self):
+
+        url = reverse(
+            "seqvars:api-predefinedquery-detail",
+            kwargs={
+                "querypresetssetversion": self.querypresetssetversion.sodar_uuid,
+                "predefinedquery": self.predefinedquery.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_contributor,
+            self.user_owner,
+            self.user_delegate,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [
+            self.user_no_roles,
+            self.user_guest,
+        ]
+
+        predefinedquery_uuid = self.predefinedquery.sodar_uuid
+
+        def cleanup():
+            if not PredefinedQuery.objects.filter(sodar_uuid=predefinedquery_uuid):
+                self.predefinedquery = PredefinedQueryFactory(
+                    sodar_uuid=predefinedquery_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
 

@@ -5,6 +5,7 @@ from test_plus.test import TestCase
 
 from seqvars.models import (
     GenotypeChoice,
+    PredefinedQuery,
     Query,
     QueryColumnsConfig,
     QueryExecution,
@@ -31,6 +32,7 @@ from seqvars.models import (
     ResultSet,
 )
 from seqvars.tests.factories import (
+    PredefinedQueryFactory,
     QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
@@ -367,6 +369,21 @@ class TestQuerySettingsClinvar(TestCase):
         clinvar = QuerySettingsClinvarFactory()
         self.assertEqual(
             f"QuerySettingsClinvar '{clinvar.sodar_uuid}'",
+            clinvar.__str__(),
+        )
+
+
+class TestPredefinedQuery(TestCase):
+
+    def test_create(self):
+        self.assertEqual(PredefinedQuery.objects.count(), 0)
+        PredefinedQueryFactory()
+        self.assertEqual(PredefinedQuery.objects.count(), 1)
+
+    def test_str(self):
+        clinvar = PredefinedQueryFactory()
+        self.assertEqual(
+            f"PredefinedQuery '{clinvar.sodar_uuid}'",
             clinvar.__str__(),
         )
 

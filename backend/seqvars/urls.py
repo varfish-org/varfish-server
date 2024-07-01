@@ -56,6 +56,11 @@ router.register(
     basename="api-querypresetscolumns",
 )
 router.register(
+    r"api/predefinedquery/(?P<querypresetssetversion>[0-9a-f-]+)",
+    views_api.PredefinedQueryViewSet,
+    basename="api-predefinedquery",
+)
+router.register(
     r"api/querysettings/(?P<session>[0-9a-f-]+)",
     views_api.QuerySettingsViewSet,
     basename="api-querysettings",

@@ -18,6 +18,7 @@ from seqvars.models import (
     ResultSet,
 )
 from seqvars.serializers import (
+    PredefinedQuerySerializer,
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
     QueryExecutionSerializer,
@@ -273,6 +274,13 @@ class QueryPresetsClinvarViewSet(SeqvarCategoryPresetsViewSetBase):
 
     lookup_url_kwarg = "querypresetsclinvar"
     serializer_class = QueryPresetsClinvarSerializer
+
+
+class PredefinedQueryViewSet(SeqvarCategoryPresetsViewSetBase):
+    """ViewSet for the ``PredefinedQuery`` model."""
+
+    lookup_url_kwarg = "predefinedquery"
+    serializer_class = PredefinedQuerySerializer
 
 
 class QuerySettingsViewSet(BaseViewSet):

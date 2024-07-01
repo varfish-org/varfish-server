@@ -6,6 +6,7 @@ from parameterized import parameterized
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import (
+    PredefinedQuery,
     Query,
     QueryPresetsClinvar,
     QueryPresetsColumns,
@@ -21,6 +22,7 @@ from seqvars.models import (
     QuerySettingsFrequency,
 )
 from seqvars.serializers import (
+    PredefinedQuerySerializer,
     QueryColumnsConfigSerializer,
     QueryDetailsSerializer,
     QueryExecutionDetailsSerializer,
@@ -51,6 +53,7 @@ from seqvars.serializers import (
     ResultSetSerializer,
 )
 from seqvars.tests.factories import (
+    PredefinedQueryFactory,
     QueryColumnsConfigFactory,
     QueryExecutionFactory,
     QueryFactory,
@@ -1404,6 +1407,137 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(QueryPresetsClinvar.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class PredefinedQueryViewSet(ApiViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.presetsset = QueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.presetssetversion)
+
+    def test_list(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-predefinedquery-list",
+                    kwargs={
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = PredefinedQuerySerializer(self.predefinedquery).data
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
+        self.assertDictEqual(
+            response.json(),
+            {
+                "next": None,
+                "previous": None,
+                "results": [result_json],
+            },
+        )
+
+    def test_create(self):
+        self.assertEqual(PredefinedQuery.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-predefinedquery-list",
+                    kwargs={
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                    },
+                ),
+                data={"rank": 1, "label": "test"},
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(PredefinedQuery.objects.count(), 2)
+
+    def test_retrieve_existing(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-predefinedquery-detail",
+                    kwargs={
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                        "predefinedquery": self.predefinedquery.sodar_uuid,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        result_json = PredefinedQuerySerializer(self.predefinedquery).data
+        result_json["presetssetversion"] = str(result_json["presetssetversion"])
+        self.assertDictEqual(response.json(), result_json)
+
+    @parameterized.expand(
+        [
+            [{"querypresetssetversion": "00000000-0000-0000-0000-000000000000"}],
+            [{"predefinedquery": "00000000-0000-0000-0000-000000000000"}],
+        ]
+    )
+    def test_retrieve_nonexisting(self, kwargs_override: dict[str, Any]):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "seqvars:api-predefinedquery-detail",
+                    kwargs={
+                        **{
+                            "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                            "predefinedquery": self.predefinedquery.sodar_uuid,
+                        },
+                        **kwargs_override,
+                    },
+                )
+            )
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(
+        [
+            [{"rank": 2}],
+            [{"description": "description"}],
+        ]
+    )
+    def test_patch(self, data: dict[str, Any]):
+        self.predefinedquery.refresh_from_db()
+        for key, value in data.items():
+            self.assertNotEqual(getattr(self.predefinedquery, key), value, f"key={key}")
+
+        with self.login(self.superuser):
+            response = self.client.patch(
+                reverse(
+                    "seqvars:api-predefinedquery-detail",
+                    kwargs={
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                        "predefinedquery": self.predefinedquery.sodar_uuid,
+                    },
+                ),
+                data=data,
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.predefinedquery.refresh_from_db()
+        for key, value in data.items():
+            self.assertEqual(getattr(self.predefinedquery, key), value, f"key={key}")
+
+    def test_delete(self):
+        self.assertEqual(PredefinedQuery.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.delete(
+                reverse(
+                    "seqvars:api-predefinedquery-detail",
+                    kwargs={
+                        "querypresetssetversion": self.presetssetversion.sodar_uuid,
+                        "predefinedquery": self.predefinedquery.sodar_uuid,
+                    },
+                ),
+            )
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(PredefinedQuery.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")

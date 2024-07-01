@@ -16,6 +16,7 @@ from seqvars.models import (
     GenomeRegion,
     LocusSettingsBase,
     PhenotypePrioSettingsBase,
+    PredefinedQuery,
     Query,
     QueryColumnsConfig,
     QueryExecution,
@@ -427,6 +428,57 @@ class QueryPresetsColumnsSerializer(ColumnsSettingsBaseSerializer, QueryPresetsB
         read_only_fields = fields
 
 
+class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
+    """Serializer for ``PredefinedQuery``."""
+
+    included_in_sop = serializers.BooleanField(required=False, default=False)
+
+    quality = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsQuality.objects.all(), required=False, allow_null=True, default=None)
+    frequency = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsFrequency.objects.all(), required=False, allow_null=True, default=None)
+    consequence = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsConsequence.objects.all(), required=False, allow_null=True, default=None)
+    locus = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsLocus.objects.all(), required=False, allow_null=True, default=None)
+    phenotypeprio = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsPhenotypePrio.objects.all(), required=False, allow_null=True, default=None)
+    variantprio = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsVariantPrio.objects.all(), required=False, allow_null=True, default=None)
+    clinvar = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsClinvar.objects.all(), required=False, allow_null=True, default=None)
+    columns = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsColumns.objects.all(), required=False, allow_null=True, default=None)
+
+    def validate(self, data):
+        if "project" not in self.context:
+            raise ValueError("Project is required in serializer context")
+
+        result = super().validate(data)
+
+        keys = ("quality",
+            "frequency",
+            "consequence",
+            "locus",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
+            "columns",)
+        for key in keys:
+            if result.get(key):
+                if result[key].presetssetversion.presetsset.project != self.context["project"]:
+                    raise ValueError(f"Predefined query {key} does not belong to the same project")
+
+        return result
+
+    class Meta:
+        model = PredefinedQuery
+        fields = QueryPresetsBaseSerializer.Meta.fields + [
+            "included_in_sop",
+            "quality",
+            "frequency",
+            "consequence",
+            "locus",
+            "phenotypeprio",
+            "variantprio",
+            "clinvar",
+            "columns",
+        ]
+        read_only_fields = QueryPresetsBaseSerializer.Meta.read_only_fields
+
+
 class QueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
     """Serializer for ``QueryPresetsSet``."""
 
@@ -512,6 +564,8 @@ class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
     querypresetsclinvar_set = QueryPresetsClinvarSerializer(many=True, read_only=True)
     #: Serialize all columns presets.
     querypresetscolumns_set = QueryPresetsColumnsSerializer(many=True, read_only=True)
+    #: Serialize all predefined queries.
+    predefinedquery_set = PredefinedQuerySerializer(many=True, read_only=True)
 
     class Meta:
         model = QueryPresetsSetVersionSerializer.Meta.model
@@ -524,6 +578,7 @@ class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
             "querypresetsvariantprio_set",
             "querypresetsclinvar_set",
             "querypresetscolumns_set",
+            "predefinedquery_set",
         ]
         read_only_fields = fields
 
