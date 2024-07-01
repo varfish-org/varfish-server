@@ -14,6 +14,7 @@ from seqvars.serializers import (
     QueryPresetsLocusSerializer,
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
+    QueryPresetsSetDetailsSerializer,
     QueryPresetsSetSerializer,
     QueryPresetsSetVersionDetailsSerializer,
     QueryPresetsSetVersionSerializer,
@@ -348,7 +349,6 @@ class TestQueryPresetsClinvarSerializer(TestCase):
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
             "allow_conflicting_interpretations",
-            "include_legacy_descriptions",
         ]
         expected = model_to_dict(
             self.querypresetsclinvar,
@@ -440,6 +440,53 @@ class TestQueryPresetsSetSerializer(TestCase):
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
+
+        self.assertEqual(set(serializer.data.keys()), set(fields))
+        self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsSetDetailsSerializer(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.querypresetsset = QueryPresetsSetFactory()
+        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+
+    def test_serialize_existing(self):
+        serializer = QueryPresetsSetDetailsSerializer(self.querypresetsset)
+        fields = [
+            # BaseModel
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            # LabeledSortableBase
+            "label",
+            "description",
+            "rank",
+            # QueryPresetsSet
+            "project",
+            "versions",
+        ]
+        expected = model_to_dict(
+            self.querypresetsset,
+            fields=fields,
+        )
+        # We replace the related objects with their UUIDs.
+        expected["project"] = self.querypresetsset.project.sodar_uuid
+        # Note that "date_created", "date_modified" are ignored in model_to_dict as they
+        # are not editable.
+        expected["date_created"] = "2012-01-14T12:00:01Z"
+        expected["date_modified"] = "2012-01-14T12:00:01Z"
+        # Update the deeply nested related objects.
+        expected["versions"] = list(
+            map(
+                lambda elem: dict(QueryPresetsSetVersionDetailsSerializer(elem).data),
+                self.querypresetsset.versions.all(),
+            )
+        )
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
@@ -944,7 +991,6 @@ class TestQuerySettingsClinvarSerializer(TestCase):
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
             "allow_conflicting_interpretations",
-            "include_legacy_descriptions",
         ]
         expected = model_to_dict(
             self.clinvar,

@@ -210,7 +210,6 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
         schema=list[ClinvarGermlineAggregateDescription], default=list
     )
     allow_conflicting_interpretations = serializers.BooleanField(default=False, allow_null=False)
-    include_legacy_descriptions = serializers.BooleanField(default=False, allow_null=False)
 
     class Meta:
         model = ClinvarSettingsBase
@@ -218,7 +217,6 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
             "allow_conflicting_interpretations",
-            "include_legacy_descriptions",
         ]
 
 
@@ -534,12 +532,12 @@ class QueryPresetsSetDetailsSerializer(QueryPresetsSetSerializer):
     """Serializer for ``QueryPresetsSet`` that renders all nested versions."""
 
     #: Serialize all versions of the presets set.
-    querypresetssetversion_set = QueryPresetsSetVersionDetailsSerializer(many=True, read_only=True)
+    versions = QueryPresetsSetVersionDetailsSerializer(many=True, read_only=True)
 
     class Meta:
         model = QueryPresetsSet
         fields = QueryPresetsSetSerializer.Meta.fields + [
-            "querypresetssetversion_set",
+            "versions",
         ]
         read_only_fields = fields
 

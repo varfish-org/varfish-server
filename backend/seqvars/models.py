@@ -282,7 +282,7 @@ class PhenotypePrioSettingsBase(models.Model):
     #: The algorithm to use for priorization.
     phenotype_prio_algorithm = models.CharField(max_length=128, null=True, blank=True)
     #: The phenotype terms to use.
-    terms = SchemaField(schema=list[TermPresence] | typing.Literal["__case_terms__"], default=list)
+    terms = SchemaField(schema=list[TermPresence], default=list)
 
     class Meta:
         abstract = True
@@ -414,7 +414,7 @@ class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
         return f"QueryPresetsSet '{self.sodar_uuid}'"
 
 
-class QueryPresetsSetVersion(BaseModel):
+class QueryPresetsSetVersion(BaseModel, ClusterableModel):
     """One version of query presets set.
 
     It is assumed that there is at most one active version and at most one draft version.
@@ -434,7 +434,7 @@ class QueryPresetsSetVersion(BaseModel):
     )
 
     #: The owning ``QueryPresetsSet``.
-    presetsset = models.ForeignKey(QueryPresetsSet, on_delete=models.CASCADE)
+    presetsset = ParentalKey(QueryPresetsSet, on_delete=models.CASCADE, related_name="versions")
     #: The major version.
     version_major = models.IntegerField(default=1)
     #: The minor version.
@@ -460,7 +460,7 @@ class QueryPresetsBase(LabeledSortableBaseModel):
     """Base presets."""
 
     #: The owning ``QueryPresetsSetVersion``.
-    presetssetversion = models.ForeignKey(QueryPresetsSetVersion, on_delete=models.CASCADE)
+    presetssetversion = ParentalKey(QueryPresetsSetVersion, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True

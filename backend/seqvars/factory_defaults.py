@@ -599,16 +599,6 @@ def create_querypresetsphenotypeprio(faker: Faker) -> list[QueryPresetsPhenotype
             phenotype_prio_enabled=False,
             phenotype_prio_algorithm="exomiser.hiphive_human",
         ),
-        QueryPresetsPhenotypePrio(
-            sodar_uuid=faker.uuid4(),
-            date_created=TIME_VERSION_1_0,
-            date_modified=TIME_VERSION_1_0,
-            rank=2,
-            label="HiPhive (terms from case)",
-            phenotype_prio_enabled=True,
-            phenotype_prio_algorithm="exomiser.hiphive_human",
-            terms="__case_terms__",
-        ),
     ]
 
 
@@ -723,14 +713,24 @@ def create_presetsset_version_short_read_genome_1_0(
         status=QueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    result.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    result.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    result.querypresetslocus_set = create_querypresetslocus(faker)
-    result.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    result.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    result.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    result.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    result.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0 = QueryPresetsSetVersion(
+        sodar_uuid=faker.uuid4(),
+        date_created=TIME_VERSION_1_0,
+        date_modified=TIME_VERSION_1_0,
+        version_major=1,
+        version_minor=0,
+        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        signed_off_by=None,
+    )
+    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
+    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
+    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
+    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
+    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
+    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
+    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
+    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    result.versions = [version_1_0]
     return result
 
 
@@ -753,14 +753,24 @@ def create_presetsset_short_read_genome(rank: int = 1) -> QueryPresetsSet:
             "least 30x coverage."
         ),
     )
-    result.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    result.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    result.querypresetslocus_set = create_querypresetslocus(faker)
-    result.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    result.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    result.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    result.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    result.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0 = QueryPresetsSetVersion(
+        sodar_uuid=faker.uuid4(),
+        date_created=TIME_VERSION_1_0,
+        date_modified=TIME_VERSION_1_0,
+        version_major=1,
+        version_minor=0,
+        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        signed_off_by=None,
+    )
+    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
+    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
+    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
+    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
+    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
+    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
+    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
+    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    result.versions = [version_1_0]
     return result
 
 
@@ -784,14 +794,24 @@ def create_presetsset_short_read_exome_modern(rank: int = 2) -> QueryPresetsSet:
             "the exome."
         ),
     )
-    result.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    result.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    result.querypresetslocus_set = create_querypresetslocus(faker)
-    result.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    result.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    result.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    result.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    result.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0 = QueryPresetsSetVersion(
+        sodar_uuid=faker.uuid4(),
+        date_created=TIME_VERSION_1_0,
+        date_modified=TIME_VERSION_1_0,
+        version_major=1,
+        version_minor=0,
+        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        signed_off_by=None,
+    )
+    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
+    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
+    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
+    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
+    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
+    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
+    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
+    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    result.versions = [version_1_0]
     return result
 
 
@@ -815,12 +835,22 @@ def create_presetsset_short_read_exome_legacy(rank: int = 3) -> QueryPresetsSet:
             "considerable portion of the exome."
         ),
     )
-    result.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    result.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    result.querypresetslocus_set = create_querypresetslocus(faker)
-    result.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    result.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    result.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    result.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    result.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0 = QueryPresetsSetVersion(
+        sodar_uuid=faker.uuid4(),
+        date_created=TIME_VERSION_1_0,
+        date_modified=TIME_VERSION_1_0,
+        version_major=1,
+        version_minor=0,
+        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        signed_off_by=None,
+    )
+    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
+    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
+    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
+    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
+    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
+    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
+    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
+    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    result.versions = [version_1_0]
     return result
