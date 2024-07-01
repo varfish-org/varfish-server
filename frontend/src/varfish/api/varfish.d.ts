@@ -2088,40 +2088,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/clinvar-export/ajax/{project}/query-omim/': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** @description Allow searching for OMIM terms. */
-    get: operations['listQueryOmimTermApis']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/clinvar-export/ajax/{project}/user-annotations/{family}/': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** @description Retrieve user annotations for all families in the current project. */
-    get: operations['retrieveAnnotatedSmallVariantsApi']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/beaconsite/endpoint/': {
     parameters: {
       query?: never
@@ -3788,23 +3754,6 @@ export interface paths {
      *
      *     **Returns:** CohortCase. */
     post: operations['createCohortCase']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/clinvar-export/ajax/fetch-clinvar-report/{submissionset}/': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /** @description Fetch ClinVar report for the submission set. */
-    post: operations['createFetchClinVarReportApi']
     delete?: never
     options?: never
     head?: never
@@ -9986,49 +9935,6 @@ export interface operations {
       }
     }
   }
-  listQueryOmimTermApis: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        project: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': unknown[]
-        }
-      }
-    }
-  }
-  retrieveAnnotatedSmallVariantsApi: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        project: string
-        family: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': unknown
-        }
-      }
-    }
-  }
   listBeaconInfoApis: {
     parameters: {
       query?: never
@@ -14107,33 +14013,6 @@ export interface operations {
         }
         content: {
           'application/vnd.bihealth.varfish+json': components['schemas']['CohortCase']
-        }
-      }
-    }
-  }
-  createFetchClinVarReportApi: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        submissionset: string
-      }
-      cookie?: never
-    }
-    requestBody?: {
-      content: {
-        'application/json': unknown
-        'application/x-www-form-urlencoded': unknown
-        'multipart/form-data': unknown
-      }
-    }
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': unknown
         }
       }
     }

@@ -3728,52 +3728,6 @@ paths:
           description: ''
       tags:
       - cohorts
-  /clinvar-export/ajax/{project}/query-omim/:
-    get:
-      operationId: listQueryOmimTermApis
-      description: Allow searching for OMIM terms.
-      parameters:
-      - name: project
-        in: path
-        required: true
-        description: ''
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-      tags:
-      - clinvar-export
-  /clinvar-export/ajax/{project}/user-annotations/{family}/:
-    get:
-      operationId: retrieveAnnotatedSmallVariantsApi
-      description: Retrieve user annotations for all families in the current project.
-      parameters:
-      - name: project
-        in: path
-        required: true
-        description: ''
-        schema:
-          type: string
-      - name: family
-        in: path
-        required: true
-        description: ''
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-      tags:
-      - clinvar-export
   /beaconsite/endpoint/:
     get:
       operationId: listBeaconInfoApis
@@ -9064,33 +9018,6 @@ paths:
           description: ''
       tags:
       - cohorts
-  /clinvar-export/ajax/fetch-clinvar-report/{submissionset}/:
-    post:
-      operationId: createFetchClinVarReportApi
-      description: Fetch ClinVar report for the submission set.
-      parameters:
-      - name: submissionset
-        in: path
-        required: true
-        description: ''
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema: {}
-          application/x-www-form-urlencoded:
-            schema: {}
-          multipart/form-data:
-            schema: {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-      tags:
-      - clinvar-export
   /variants/api/small-variant-comment/update/{smallvariantcomment}/:
     put:
       operationId: updateSmallVariantComment
