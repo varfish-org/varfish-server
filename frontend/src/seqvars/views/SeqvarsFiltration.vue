@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
@@ -7,7 +7,10 @@ import {
   SexAssignedAtBirth,
 } from '@/seqvars/components/GenotypeSelect/types'
 import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
+import { Query } from '@/seqvars/components/QueryList/types'
 import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
+
+const queries = ref<Query[]>([])
 
 const pedigreeMembers = ref([
   {
@@ -56,7 +59,25 @@ const pedigreeMembers = ref([
           gap: 16px;
         "
       >
-        <QueryList :queries="[{ label: 'de novo' }, { label: 'dominant' }]" />
+        <QueryList
+          v-if="queries.length > 0"
+          :queries="
+            queries.map((query, i) => {
+              const sameLabelQueriesBefore = queries
+                .slice(0, i)
+                .filter((q) => q.label === query.label).length
+              return {
+                ...query,
+                label:
+                  query.label +
+                  (sameLabelQueriesBefore == 0
+                    ? ''
+                    : ` (${sameLabelQueriesBefore})`),
+              }
+            })
+          "
+          @remove-query="(index) => (queries = queries.toSpliced(index, 1))"
+        />
 
         <QuickPresetsList
           :presets="[
@@ -65,6 +86,13 @@ const pedigreeMembers = ref([
             { label: 'homozygous recessive' },
             { label: 'compound recessive' },
           ]"
+          @add-query="
+            (label) =>
+              (queries = [
+                ...queries,
+                { label, isRunning: false, isModified: false },
+              ])
+          "
         />
 
         <GenotypeSelect :pedigree-members="pedigreeMembers" />
