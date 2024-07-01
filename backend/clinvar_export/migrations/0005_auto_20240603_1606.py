@@ -4,19 +4,6 @@ from django.db import migrations
 from djangoplugins.models import Plugin
 
 
-# poor try to disable the app. impossible.
-def remove_plugin(apps, schema_editor):
-    p = Plugin.objects.get(name="clinvar_export")
-    p.state = 2
-    p.save()
-
-
-def add_plugin(_apps, _schema_editor):
-    p = Plugin.objects.get(name="clinvar_export")
-    p.state = 0
-    p.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -24,7 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(remove_plugin, add_plugin),
         migrations.RemoveField(
             model_name="clinvarreport",
             name="submission_set",
