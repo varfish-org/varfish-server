@@ -495,47 +495,9 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
                 obj.pk = None
                 obj.id = None
                 obj._state.adding = True
-
-                old_uuid = obj.sodar_uuid
                 obj.sodar_uuid = uuid_object.uuid4()
-
                 obj.presetssetversion = result
                 obj.save()
-                old_uuid_to_new_obj[old_uuid] = obj
-
-        for predefinedquery in self.predefined_query_set:
-            predefinedquery.pk = None
-            predefinedquery.id = None
-            predefinedquery._state.adding = True
-
-            if predefinedquery.quality:
-                predefinedquery.quality = old_uuid_to_new_obj[predefinedquery.quality.sodar_uuid]
-            if predefinedquery.frequency:
-                predefinedquery.frequency = old_uuid_to_new_obj[
-                    predefinedquery.frequency.sodar_uuid
-                ]
-            if predefinedquery.consequence:
-                predefinedquery.consequence = old_uuid_to_new_obj[
-                    predefinedquery.consequence.sodar_uuid
-                ]
-            if predefinedquery.locus:
-                predefinedquery.locus = old_uuid_to_new_obj[predefinedquery.locus.sodar_uuid]
-            if predefinedquery.phenotypeprio:
-                predefinedquery.phenotypeprio = old_uuid_to_new_obj[
-                    predefinedquery.phenotypeprio.sodar_uuid
-                ]
-            if predefinedquery.variantprio:
-                predefinedquery.variantprio = old_uuid_to_new_obj[
-                    predefinedquery.variantprio.sodar_uuid
-                ]
-            if predefinedquery.clinvar:
-                predefinedquery.clinvar = old_uuid_to_new_obj[predefinedquery.clinvar.sodar_uuid]
-            if predefinedquery.columns:
-                predefinedquery.columns = old_uuid_to_new_obj[predefinedquery.columns.sodar_uuid]
-
-            obj.sodar_uuid = uuid_object.uuid4()
-            obj.presetssetversion = result
-            obj.save()
 
         return result
 
