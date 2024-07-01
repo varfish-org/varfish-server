@@ -38,6 +38,7 @@ from seqvars.serializers import (
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
     QueryPresetsSetSerializer,
+    QueryPresetsSetDetailsSerializer,
     QueryPresetsSetVersionDetailsSerializer,
     QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
@@ -190,7 +191,33 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         instance = source.clone_with_latest_version()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-        return Response(snippet.highlighted)
+
+
+class QueryPresetsFactoryDefaultsViewSet(BaseViewSet):
+    "ViewSet for listing the factory defaults."
+
+    #: Use canonical lookup field ``sodar_uuid``.
+    lookup_field = "sodar_uuid"
+    #: Use the app's standard pagination.
+    pagination_class = StandardPagination
+    #: Enable generation of OpenAPI schemas for pydantic field.
+    schema = AutoSchema()
+    #: Use the custom permission class.
+    permission_classes = [QueryPresetsPermission]
+
+    def get_permission_required(self):
+        """Return the permission required for the current action."""
+        if self.action in ("list", "retrieve"):
+            return "seqvars.view_data"
+        else:
+            return "seqvars.update_data"
+
+    def get_serializer_class(self):
+        """Allow overriding serializer class based on action."""
+        if hasattr(self, "action_serializers"):
+            return self.action_serializers.get(self.action, self.serializer_class)
+        return super().get_serializer_class()
+
 
 
 class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
