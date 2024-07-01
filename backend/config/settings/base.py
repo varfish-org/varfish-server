@@ -91,9 +91,6 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
-    # DRF spectacular with sidecar so it does not depend on internet access
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -129,6 +126,8 @@ LOCAL_APPS = [
     "beaconsite.apps.BeaconsiteConfig",
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
+    "cases_analysis.apps.CasesAnalysisConfig",
+    "seqvars.apps.SeqvarsConfig",
     "varannos.apps.VarannosConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
@@ -455,6 +454,9 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 # Varfish: Base
 # ------------------------------------------------------------------------------
 
+# Enable v2 API.
+VARFISH_GEN2_ANALYSIS = env.bool("VARFISH_GEN2_ANALYSIS", False)
+
 # Limit on number of cases to allow project/cohort wide queries for.
 VARFISH_MAX_CASE_QUERY_COUNT = env.int("VARFISH_MAX_CASE_QUERY_COUNT", 100)
 
@@ -662,7 +664,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SPECTACULAR_SETTINGS = {

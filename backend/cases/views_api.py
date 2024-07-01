@@ -1,3 +1,5 @@
+import sys
+
 from bgjobs.models import BackgroundJob
 from django.db import transaction
 from projectroles.views_api import (
@@ -251,6 +253,8 @@ class CasePhenotypeTermsListCreateApiView(CaseApiBaseMixin, ListCreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = get_object_or_404(Case.objects.all(), sodar_uuid=self.kwargs["case"])
         return result
 
@@ -332,6 +336,8 @@ class CaseCommentListCreateApiView(CaseApiBaseMixin, ListCreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result["case"] = get_object_or_404(Case.objects.all(), sodar_uuid=self.kwargs["case"])
         return result
 

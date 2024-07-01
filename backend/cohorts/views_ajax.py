@@ -24,6 +24,7 @@ class CohortListCreateAjaxView(CohortListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -37,6 +38,7 @@ class CohortRetrieveUpdateDestroyAjaxView(CohortRetrieveUpdateDestroyApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -50,6 +52,7 @@ class CohortCaseCreateAjaxView(CohortCaseCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -63,6 +66,7 @@ class CohortCaseListAjaxView(CohortCaseListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -76,6 +80,7 @@ class CohortCaseDestroyAjaxView(CohortCaseDestroyApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -89,6 +94,7 @@ class AccessibleProjectsCasesAjaxView(AccessibleProjectsCasesApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 

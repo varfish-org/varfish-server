@@ -1,6 +1,7 @@
 """API views for the importer models."""
 
 import logging
+import sys
 
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
@@ -121,6 +122,8 @@ class RelatedMixin:
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
+        if sys.argv[1:2] == ["generateschema"]:
+            return result
         result[self.related_lookup_field] = self.related_class.objects.get(
             sodar_uuid=self.kwargs[self.related_lookup_url_kwarg]
         )

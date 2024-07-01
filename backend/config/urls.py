@@ -10,7 +10,6 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
 
@@ -90,20 +89,13 @@ urlpatterns += [
     url(r"^cases-qc/", include("cases_qc.urls")),
 ]
 
-# URL Patterns for DRF Spectacular
-# ------------------------------------------------------------------------------
+# Explicitely require v2 analysis endpoints to be enabled.
+if settings.VARFISH_GEN2_ANALYSIS:
+    urlpatterns += [
+        url(r"^cases-analysis/", include("cases_analysis.urls")),
+        url(r"^seqvars/", include("seqvars.urls")),
+    ]
 
-urlpatterns += [
-    # Schema
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    # UI
-    path(
-        "api/schema/swagger-ui/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),
-    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-]
 
 # URL Patterns for Proxies
 # ------------------------------------------------------------------------------

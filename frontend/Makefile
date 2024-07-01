@@ -17,6 +17,8 @@ help:
 	@echo "  test-w      Run tests (watch)"
 	@echo "  ci          Install dependencies, run lints and tests"
 	@echo "  serve       Run the (development) server"
+	@echo "  openapi-ts  Generate TypeScript from OpenAPI from backend"
+	@echo "  openapi     Run openapi-ts, then format and lint"
 
 .PHONY: deps
 deps:
@@ -58,7 +60,7 @@ ci: \
 
 .PHONY: build
 build:
-	MODE=development npm run build
+	NODE_OPTIONS="--max-old-space-size=32768" MODE=development npm run build
 
 .PHONY: serve
 serve:
@@ -67,3 +69,13 @@ serve:
 .PHONY: serve-public
 serve-public:
 	MODE=development npm run serve-public
+
+.PHONY: openapi-ts
+openapi-ts:
+	mkdir -p src/varfish/api
+	npx openapi-typescript \
+		../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+		-o src/varfish/api/varfish.d.ts
+
+.PHONY: openapi
+openapi: openapi-ts format lint

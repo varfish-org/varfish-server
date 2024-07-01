@@ -1,7 +1,6 @@
 """Shared utility code."""
 
 import json
-from typing import Callable, List, Tuple
 
 import django.db.models.fields.json
 
@@ -76,47 +75,3 @@ class VarFishKioskUserMiddleware:
         request.user = User.get_kiosk_user()
         response = self.get_response(request)
         return response
-
-
-def spectacular_preprocess_hook(
-    endpoints: List[Tuple[str, str, str, Callable]]
-) -> List[Tuple[str, str, str, Callable]]:
-    """Ignore some endpoints."""
-    # URL prefixes to ignore from django-sodar-core
-    ignore_prefixes = [
-        # knox
-        "/api/auth/",
-        # django-sodar-core
-        "/admin_alerts/",
-        "/app_alerts/",
-        "/timeline/",
-        "/project/",
-        # local, deprecated
-        "/clinvar-export/",
-        "/geneinfo/",
-        # local, but skipped for now
-        "/beaconsite/",
-        "/cases/ajax/user-permissions/",
-        "/cohorts/",
-        "/svs/ajax/sv-query/list-create/",
-        "/svs/ajax/sv-query/retrieve-update-destroy/",
-        "/svs/ajax/fetch-variants/",
-        "/svs/ajax/query-case/quick-presets/",
-        "/svs/ajax/query-case/category-presets/",
-        "/svs/ajax/query-case/inheritance-presets/",
-        "/svs/ajax/query-case/query-settings-shortcut/",
-        "/variants/ajax/query-case/download/generate/",
-        "/variants/ajax/query-case/download/serve/",
-        "/variants/api/query-case/category-presets/",
-        "/variants/api/query-case/inheritance-presets/",
-        "/variants/api/query-case/quick-presets/",
-        "/variants/api/query-case/download/generate/",
-        "/variants/api/query-case/download/serve/",
-        "/vueapp/ajax/user-setting/",
-    ]
-
-    result = []
-    for path, path_regex, method, callback in endpoints:
-        if not any(path.startswith(prefix) for prefix in ignore_prefixes):
-            result.append((path, path_regex, method, callback))
-    return result

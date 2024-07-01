@@ -30,6 +30,7 @@ class CaseListAjaxView(CaseListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -43,6 +44,7 @@ class CaseRetrieveUpdateDestroyAjaxView(CaseRetrieveUpdateDestroyApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -54,6 +56,7 @@ class AnnotationReleaseInfoAjaxView(AnnotationReleaseInfoApiView):
     **Methods:** ``GET``
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -65,6 +68,7 @@ class SvAnnotationReleaseInfoAjaxView(SvAnnotationReleaseInfoApiView):
     **Methods:** ``GET``
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -78,6 +82,7 @@ class CasePhenotypeTermsListCreateAjaxView(CasePhenotypeTermsListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -93,6 +98,7 @@ class CasePhenotypeTermsRetrieveUpdateDestroyAjaxView(
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -106,6 +112,7 @@ class CaseCommentListCreateAjaxView(CaseCommentListCreateApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -119,6 +126,7 @@ class CaseCommentRetrieveUpdateDestroyAjaxView(CaseCommentRetrieveUpdateDestroyA
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -132,6 +140,7 @@ class CaseGeneAnnotationListAjaxView(CaseGeneAnnotationListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -171,6 +180,7 @@ class CaseAlignmentStatsListAjaxView(CaseAlignmentStatsListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -184,6 +194,7 @@ class SampleVariantStatisticsListAjaxView(SampleVariantStatisticsListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
 
 
@@ -197,4 +208,5 @@ class PedigreeRelatednessListAjaxView(PedigreeRelatednessListApiView):
     **Returns:** See base API class.
     """
 
+    schema = None
     authentication_classes = [SessionAuthentication]
