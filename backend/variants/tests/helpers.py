@@ -40,6 +40,7 @@ class ApiViewTestBase(ViewTestBaseMixin, TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
 
+        self.maxDiff = None
         self.knox_token = self.get_token(self.superuser)
 
 
