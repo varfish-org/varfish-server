@@ -31,6 +31,7 @@ export enum InheritanceMode {
   WILD_TYPE = 'wild-type',
   HET_ALT = 'het. alt.',
   HOM_ALT = 'hom. alt.',
+  NO_CALL = 'no call',
 }
 
 export type InheritanceModeSet = Set<InheritanceMode>
