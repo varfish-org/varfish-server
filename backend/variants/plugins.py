@@ -499,7 +499,9 @@ def change_plugin_status(name, status, plugin_type="app"):
     :raise: ValueError if plugin_type is invalid or plugin with name not found
     """
     # NOTE: Used to forge plugin to a specific status for e.g. testing
-    if plugin_type == "extend_query_info":
+    if plugin_type == "app":
+        plugin = ProjectAppPluginPoint.get_plugin(name)
+    elif plugin_type == "extend_query_info":
         plugin = VariantsExtendQueryInfoColPluginPoint.get_plugin(name)
     elif plugin_type == "variant_details_info":
         plugin = VariantsDetailsPluginPoint.get_plugin(name)

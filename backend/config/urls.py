@@ -79,7 +79,6 @@ urlpatterns += [
     url(r"^manual/", include("docs.urls")),
     url(r"^su/", include("django_su.urls")),
     url(r"^cohorts/", include("cohorts.urls")),
-    url(r"^clinvar-export/", include("clinvar_export.urls")),
     url(r"^beaconsite/", include("beaconsite.urls")),
     url(r"^genepanels/", include("genepanels.urls")),
     url(r"^vueapp/", include("varfish.vueapp.urls")),

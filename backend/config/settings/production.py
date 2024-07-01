@@ -82,9 +82,6 @@ INSTALLED_APPS += ["gunicorn"]
 # ------------------------
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Add Samplesheets vue.js app assets
-# STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
-
 # Add optonal custom directory for static includes at deployment stage
 STATICFILES_DIRS += env.list("CUSTOM_STATIC_DIR", default=[])
 
@@ -169,11 +166,6 @@ VARFISH_BACKEND_URL_PREFIX_VIGUNO = env.str(
 VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
     "VARFISH_BACKEND_URL_PREFIX_NGINX", default="/proxy/varfish/nginx"
 )
-
-
-# WEBPACK / VUE.JS CONFIGURATION
-# ------------------------------------------------------------------------------
-# STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
 
 # Django-docs Settings
 # ------------------------------------------------------------------------------
