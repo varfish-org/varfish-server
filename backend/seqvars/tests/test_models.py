@@ -3,6 +3,7 @@
 from freezegun import freeze_time
 from test_plus.test import TestCase
 
+from seqvars.factory_defaults import create_presetsset_short_read_genome
 from seqvars.models import (
     GenotypeChoice,
     PredefinedQuery,
@@ -99,6 +100,14 @@ class TestQueryPresetsSet(TestCase):
             f"QueryPresetsSet '{querypresetsset.sodar_uuid}'",
             querypresetsset.__str__(),
         )
+
+    def test_clone_from_db(self):
+        querypresetsset = QueryPresetsSetFactory()
+        querypresetsset.clone_with_latest_version()
+
+    def test_clone_factory_default(self):
+        querypresetset = create_presetsset_short_read_genome()
+        querypresetset.clone_with_latest_version()
 
 
 class TestQueryPresetsSetVersion(TestCase):

@@ -580,6 +580,8 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
         """Augment the attributes by the presetsset from context."""
         if "presetsset" in self.context:
             attrs["presetsset"] = self.context["presetsset"]
+        if self.context.get("current_user"):
+            attrs["signed_off_by"] = self.context["current_user"]
         return attrs
 
     class Meta:

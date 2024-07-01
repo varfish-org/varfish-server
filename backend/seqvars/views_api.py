@@ -1,13 +1,21 @@
 import sys
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django_pydantic_field.rest_framework import AutoSchema
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import CursorPagination
+from rest_framework.response import Response
 
 from cases_analysis.models import CaseAnalysisSession
+from seqvars.factory_defaults import (
+    create_presetsset_short_read_exome_legacy,
+    create_presetsset_short_read_exome_modern,
+    create_presetsset_short_read_genome,
+)
 from seqvars.models import (
     Query,
     QueryExecution,
@@ -163,11 +171,30 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
+    @action(detail=True)
+    def copy_from(self, *args, **kwargs):
+        """Copy from another presets set."""
+        source = None
+        try:
+            source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
+        except ObjectDoesNotExist:
+            for value in (
+                create_presetsset_short_read_genome(),
+                create_presetsset_short_read_exome_modern(),
+                create_presetsset_short_read_exome_legacy(),
+            ):
+                if str(value.sodar_uuid) == kwargs["sodar_uuid"]:
+                    source = value
+                    break
+
+        instance = source.clone_with_latest_version()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+        return Response(snippet.highlighted)
+
 
 class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``QueryPresetsSetVersion`` model."""
-
-    # TODO XXX XXX ADD SIGN OFF ACTION XXX XXX TODO
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "querypresetssetversion"
@@ -191,6 +218,8 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
             sodar_uuid=self.kwargs["querypresetsset"]
         )
         context["project"] = context["presetsset"].project
+        # Set the current user from the request into the context.
+        context["current_user"] = self.request.user
         return context
 
 

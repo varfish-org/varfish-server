@@ -2,8 +2,9 @@ from enum import Enum
 import typing
 import uuid as uuid_object
 
+import django
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django_pydantic_field import SchemaField
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
@@ -22,15 +23,15 @@ class FrequencySettingsBase(models.Model):
 
     gnomad_exomes_enabled = models.BooleanField(default=False, null=False, blank=False)
     gnomad_exomes_frequency = models.FloatField(null=True, blank=True)
-    gnomad_exomes_homozygous = models.BooleanField(null=True, blank=True)
-    gnomad_exomes_heterozygous = models.BooleanField(null=True, blank=True)
-    gnomad_exomes_hemizygous = models.BooleanField(null=True, blank=True)
+    gnomad_exomes_homozygous = models.IntegerField(null=True, blank=True)
+    gnomad_exomes_heterozygous = models.IntegerField(null=True, blank=True)
+    gnomad_exomes_hemizygous = models.IntegerField(null=True, blank=True)
 
     gnomad_genomes_enabled = models.BooleanField(default=False, null=False, blank=False)
     gnomad_genomes_frequency = models.FloatField(null=True, blank=True)
-    gnomad_genomes_homozygous = models.BooleanField(null=True, blank=True)
-    gnomad_genomes_heterozygous = models.BooleanField(null=True, blank=True)
-    gnomad_genomes_hemizygous = models.BooleanField(null=True, blank=True)
+    gnomad_genomes_homozygous = models.IntegerField(null=True, blank=True)
+    gnomad_genomes_heterozygous = models.IntegerField(null=True, blank=True)
+    gnomad_genomes_hemizygous = models.IntegerField(null=True, blank=True)
 
     helixmtdb_enabled = models.BooleanField(default=False, null=False, blank=False)
     helixmtdb_heteroplasmic = models.IntegerField(null=True, blank=True)
@@ -39,9 +40,9 @@ class FrequencySettingsBase(models.Model):
 
     inhouse_enabled = models.BooleanField(default=False, null=False, blank=False)
     inhouse_carriers = models.IntegerField(null=True, blank=True)
-    inhouse_homozygous = models.BooleanField(null=True, blank=True)
-    inhouse_heterozygous = models.BooleanField(null=True, blank=True)
-    inhouse_hemizygous = models.BooleanField(null=True, blank=True)
+    inhouse_homozygous = models.IntegerField(null=True, blank=True)
+    inhouse_heterozygous = models.IntegerField(null=True, blank=True)
+    inhouse_hemizygous = models.IntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -410,6 +411,26 @@ class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
         Project, on_delete=models.CASCADE, related_name="seqvarpresetsset", null=True, blank=True
     )
 
+    @transaction.atomic
+    def clone_with_latest_version(self) -> "QueryPresetsSet":
+        # Get label of presets set to create.
+        for i in range(1, 100):
+            label = f"{self.label} (copy {i})"
+            if not QueryPresetsSet.objects.filter(project=self.project, label=label).exists():
+                break
+        # Compute rank.
+        rank = QueryPresetsSet.objects.filter(project=self.project).count() + 1
+
+        result = QueryPresetsSet.objects.create(
+            label=label,
+            rank=rank,
+            description=self.description,
+            project=self.project,
+        )
+        if self.versions.exists():
+            self.versions.first().clone_with_presetsset(result)
+        return result
+
     def __str__(self):
         return f"QueryPresetsSet '{self.sodar_uuid}'"
 
@@ -449,11 +470,81 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
         on_delete=models.PROTECT,
     )
 
-    class Meta:
-        unique_together = [("presetsset", "version_major", "version_minor")]
+    @transaction.atomic
+    def clone_with_presetsset(self, presetsset: QueryPresetsSet) -> "QueryPresetsSetVersion":
+        result = QueryPresetsSetVersion.objects.create(
+            presetsset=presetsset,
+            version_major=1,
+            version_minor=0,
+            status=self.STATUS_DRAFT,
+        )
+
+        old_uuid_to_new_obj = {}
+        for key in (
+            "querypresetsfrequency_set",
+            "querypresetsvariantprio_set",
+            "querypresetsclinvar_set",
+            "querypresetscolumns_set",
+            "querypresetslocus_set",
+            "querypresetsconsequence_set",
+            "querypresetsquality_set",
+            "querypresetsphenotypeprio_set",
+            "predefinedquery_set",
+        ):
+            for obj in getattr(self, key, []).all():
+                obj.pk = None
+                obj.id = None
+                obj._state.adding = True
+
+                old_uuid = obj.sodar_uuid
+                obj.sodar_uuid = uuid_object.uuid4()
+
+                obj.presetssetversion = result
+                obj.save()
+                old_uuid_to_new_obj[old_uuid] = obj
+
+        for predefinedquery in self.predefined_query_set:
+            predefinedquery.pk = None
+            predefinedquery.id = None
+            predefinedquery._state.adding = True
+
+            if predefinedquery.quality:
+                predefinedquery.quality = old_uuid_to_new_obj[predefinedquery.quality.sodar_uuid]
+            if predefinedquery.frequency:
+                predefinedquery.frequency = old_uuid_to_new_obj[
+                    predefinedquery.frequency.sodar_uuid
+                ]
+            if predefinedquery.consequence:
+                predefinedquery.consequence = old_uuid_to_new_obj[
+                    predefinedquery.consequence.sodar_uuid
+                ]
+            if predefinedquery.locus:
+                predefinedquery.locus = old_uuid_to_new_obj[predefinedquery.locus.sodar_uuid]
+            if predefinedquery.phenotypeprio:
+                predefinedquery.phenotypeprio = old_uuid_to_new_obj[
+                    predefinedquery.phenotypeprio.sodar_uuid
+                ]
+            if predefinedquery.variantprio:
+                predefinedquery.variantprio = old_uuid_to_new_obj[
+                    predefinedquery.variantprio.sodar_uuid
+                ]
+            if predefinedquery.clinvar:
+                predefinedquery.clinvar = old_uuid_to_new_obj[predefinedquery.clinvar.sodar_uuid]
+            if predefinedquery.columns:
+                predefinedquery.columns = old_uuid_to_new_obj[predefinedquery.columns.sodar_uuid]
+
+            obj.sodar_uuid = uuid_object.uuid4()
+            obj.presetssetversion = result
+            obj.save()
+
+        return result
 
     def __str__(self):
         return f"QueryPresetsSetVersion '{self.sodar_uuid}'"
+
+    class Meta:
+        unique_together = [("presetsset", "version_major", "version_minor")]
+        ordering = ["-version_major", "-version_minor"]
 
 
 class QueryPresetsBase(LabeledSortableBaseModel):
