@@ -398,6 +398,34 @@ class LabeledSortableBaseModel(BaseModel):
         abstract = True
 
 
+class GenotypePresetChoice(str, Enum):
+    """Presets value for the chosen genotype."""
+
+    #: No restriction on genotypes.
+    ANY = "any"
+    #: De novo inheritance.
+    DE_NOVO = "de_novo"
+    #: Dominant inheritance.
+    DOMINANT = "dominant"
+    #: Recessive inheritance.
+    HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
+    #: Compound heterozygous inheritance.
+    COMPOUND_HETEROZYGOUS_RECESSIVE = "compound_heterozygous_recessive"
+    #: Autosomal recessive inheritance.
+    RECESSIVE = "recessive"
+    #: X-linked dominant inheritance.
+    X_RECESSIVE = "x_recessive"
+    #: All carriers are affected.
+    AFFECTED_CARRIERS = "affected_carriers"
+
+
+class GenotypePresets(pydantic.BaseModel):
+    """Configuration for a single column in the result table."""
+
+    #: The genotype prests choice.
+    choice: typing.Optional[GenotypePresetChoice] = None
+
+
 class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     """Configured presets for a given project.
 
@@ -409,6 +437,9 @@ class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="seqvarpresetsset", null=True, blank=True
     )
+
+    #: Optional presets configuration for the genotype.
+    genotype = SchemaField(schema=typing.Optional[GenotypePresets], default=None)
 
     def __str__(self):
         return f"QueryPresetsSet '{self.sodar_uuid}'"

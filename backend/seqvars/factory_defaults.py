@@ -11,6 +11,7 @@ from faker import Faker
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
     GenomeRegion,
+    PredefinedQuery,
     QueryPresetsClinvar,
     QueryPresetsColumns,
     QueryPresetsConsequence,
@@ -696,7 +697,21 @@ def create_querypresetscolumns(faker: Faker) -> list[QueryPresetsColumns]:
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
+            label="default",
         ),
+    ]
+
+
+def create_craete_predefined_queries(
+    querypresetsversion: QueryPresetsSetVersion, faker: Faker
+) -> list[PredefinedQuery]:
+    return [
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=1,
+        )
     ]
 
 

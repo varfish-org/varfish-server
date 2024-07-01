@@ -433,14 +433,62 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
 
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
-    quality = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsQuality.objects.all(), required=False, allow_null=True, default=None)
-    frequency = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsFrequency.objects.all(), required=False, allow_null=True, default=None)
-    consequence = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsConsequence.objects.all(), required=False, allow_null=True, default=None)
-    locus = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsLocus.objects.all(), required=False, allow_null=True, default=None)
-    phenotypeprio = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsPhenotypePrio.objects.all(), required=False, allow_null=True, default=None)
-    variantprio = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsVariantPrio.objects.all(), required=False, allow_null=True, default=None)
-    clinvar = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsClinvar.objects.all(), required=False, allow_null=True, default=None)
-    columns = serializers.SlugRelatedField(slug_field="sodar_uuid", queryset=QueryPresetsColumns.objects.all(), required=False, allow_null=True, default=None)
+    quality = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsQuality.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    frequency = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsFrequency.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    consequence = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsConsequence.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    locus = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsLocus.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    phenotypeprio = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsPhenotypePrio.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    variantprio = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsVariantPrio.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    clinvar = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsClinvar.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    columns = serializers.SlugRelatedField(
+        slug_field="sodar_uuid",
+        queryset=QueryPresetsColumns.objects.all(),
+        required=False,
+        allow_null=True,
+        default=None,
+    )
 
     def validate(self, data):
         if "project" not in self.context:
@@ -448,14 +496,16 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
 
         result = super().validate(data)
 
-        keys = ("quality",
+        keys = (
+            "quality",
             "frequency",
             "consequence",
             "locus",
             "phenotypeprio",
             "variantprio",
             "clinvar",
-            "columns",)
+            "columns",
+        )
         for key in keys:
             if result.get(key):
                 if result[key].presetssetversion.presetsset.project != self.context["project"]:

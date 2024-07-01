@@ -1535,9 +1535,7 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = QueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.predefinedquery = PredefinedQueryFactory(
-            presetssetversion=self.querypresetssetversion
-        )
+        self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.querypresetssetversion)
 
     def test_list(self):
         url = reverse(

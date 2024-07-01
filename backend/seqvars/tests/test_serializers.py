@@ -419,22 +419,30 @@ class TestPredefinedQuerySerializer(TestCase):
         self.querypresetsset = QueryPresetsSetFactory()
         self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
         self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.querypresetssetversion)
-        self.predefinedquery.quality = QueryPresetsQualityFactory(presetssetversion=self.querypresetssetversion)
+        self.predefinedquery.quality = QueryPresetsQualityFactory(
+            presetssetversion=self.querypresetssetversion
+        )
         self.predefinedquery.frequency = QueryPresetsFrequencyFactory(
             presetssetversion=self.querypresetssetversion
         )
         self.predefinedquery.consequence = QueryPresetsConsequenceFactory(
             presetssetversion=self.querypresetssetversion
         )
-        self.predefinedquery.locus = QueryPresetsLocusFactory(presetssetversion=self.querypresetssetversion)
+        self.predefinedquery.locus = QueryPresetsLocusFactory(
+            presetssetversion=self.querypresetssetversion
+        )
         self.predefinedquery.phenotypeprio = QueryPresetsPhenotypePrioFactory(
             presetssetversion=self.querypresetssetversion
         )
         self.predefinedquery.variantprio = QueryPresetsVariantPrioFactory(
             presetssetversion=self.querypresetssetversion
         )
-        self.predefinedquery.clinvar = QueryPresetsClinvarFactory(presetssetversion=self.querypresetssetversion)
-        self.predefinedquery.columns = QueryPresetsColumnsFactory(presetssetversion=self.querypresetssetversion)
+        self.predefinedquery.clinvar = QueryPresetsClinvarFactory(
+            presetssetversion=self.querypresetssetversion
+        )
+        self.predefinedquery.columns = QueryPresetsColumnsFactory(
+            presetssetversion=self.querypresetssetversion
+        )
 
     def test_serialize_existing(self):
         serializer = PredefinedQuerySerializer(self.predefinedquery)
