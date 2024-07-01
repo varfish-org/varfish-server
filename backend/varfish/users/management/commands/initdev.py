@@ -16,6 +16,7 @@ All steps are executed in a transaction, so no stale state is used or left in th
 
 import traceback
 from typing import Literal, Optional
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -42,6 +43,9 @@ class Command(BaseCommand):
             "--project-name", help="Name of the project to use.", default="DevProject"
         )
         parser.add_argument("--case-name", help="Name of the case to use.", default="DevCase")
+        parser.add_argument(
+            "--reset-password", help="Reset password for users.", action="store_true", defaut=False
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -75,14 +79,33 @@ class Command(BaseCommand):
             )
             raise CommandError("Could not initialize the database.") from e
 
-    def _create_user(self, *, username: str, is_superuser: bool = False, is_staff: bool = False):
+    def _create_user(
+        self,
+        *,
+        username: str,
+        is_superuser: bool = False,
+        is_staff: bool = False,
+        reset_password: bool = False,
+    ):
         """Create a superuser if it does not exist."""
         obj, created = User.objects.get_or_create(
             username=username, defaults={"is_superuser": is_superuser, "is_staff": is_staff}
         )
         if created:
-            self.stderr.write(self.style.SUCCESS(f"Created user {username}"))
+            password = str(uuid4())
+            obj.set_password(password)
+            self.stderr.write(
+                self.style.SUCCESS(f"Created user {username}. Password is '{password}'")
+            )
         else:
+            if reset_password:
+                password = str(uuid4())
+                obj.set_password(password)
+                self.stderr.write(
+                    self.style.SUCCESS(
+                        f"Reset password for user {username}. New password is '{password}'"
+                    )
+                )
             self.stderr.write(self.style.SUCCESS(f"User {username} already exists"))
         return obj
 
