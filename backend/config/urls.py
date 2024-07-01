@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
@@ -87,6 +86,7 @@ urlpatterns += [
     url(r"^seqmeta/", include("seqmeta.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
+    url(r"^settings/", include("vf_settings.urls")),
 ]
 
 # Explicitely require v2 analysis endpoints to be enabled.

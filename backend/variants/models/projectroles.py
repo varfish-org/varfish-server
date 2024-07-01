@@ -82,7 +82,7 @@ class CaseAwareProject(Project):
         """Concatenate all contained case's sex errors dicts"""
         result = {}
         disable_sex_check = _app_settings.get(
-            "variants", "disable_pedigree_sex_check", project=self
+            "variants", "disable_pedigree_sex_check__project", project=self
         )
         if disable_sex_check:
             return result

@@ -3,10 +3,9 @@
 {% load static %}
 {% load rules %}
 
-{% has_perm 'genepanels.add_data' request.user as can_add_data %}
 
 {% block projectroles %}
-  {% has_perm 'genepanels.can_add_data' request.user as can_add_data %}
+  {% has_perm 'genepanels.add_data' request.user as can_add_data %}
   {% has_perm 'genepanels.update_data' request.user as can_update_data %}
   {% has_perm 'genepanels.delete_data' request.user as can_delete_data %}
 

@@ -361,7 +361,9 @@ class CaseFilterTest(TestCase):
         from projectroles.app_settings import AppSettingAPI
 
         app_settings = AppSettingAPI()
-        app_settings.set("variants", "umd_predictor_api_token", "FAKETOKEN", user=self.superuser)
+        app_settings.set(
+            "variants", "umd_predictor_api_token__user", "FAKETOKEN", user=self.superuser
+        )
 
         return_text = "This page was created in 0.001 seconds\n\n"
         return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(

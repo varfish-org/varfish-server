@@ -1,5 +1,3 @@
-import sys
-
 from django.db import transaction
 from django_pydantic_field.rest_framework import AutoSchema
 from projectroles.views_api import SODARAPIProjectPermission

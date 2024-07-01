@@ -2,7 +2,6 @@ from enum import Enum
 import typing
 import uuid as uuid_object
 
-import django
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field import SchemaField

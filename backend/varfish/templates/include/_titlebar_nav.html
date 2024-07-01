@@ -4,7 +4,7 @@
 {% site_version as site_version %}
 
 {% if user and user.is_authenticated %}
-  {% get_user_setting user "variants" "latest_version_seen_changelog" as latest_version_seen_changelog %}
+  {% get_user_setting user "variants" "latest_version_seen_changelog__user" as latest_version_seen_changelog %}
   {% if site_version != latest_version_seen_changelog %}
     <li id="site-new-features" class="nav-item p-0 m-0" onclick="javascript:$('#site-new-features').fadeOut('slow');">
       <a class="btn btn-info" target="_blank" href="{% url 'variants:new-features' %}">

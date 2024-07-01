@@ -725,6 +725,6 @@ class TestNewFeaturesView(ViewTestBase):
             self.assertEqual(response.url, "/manual/history.html")
             settings_api = AppSettingAPI()
             value = settings_api.get(
-                "variants", "latest_version_seen_changelog", user=self.superuser
+                "variants", "latest_version_seen_changelog__user", user=self.superuser
             )
             self.assertEqual(value, site_version())

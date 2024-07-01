@@ -52,10 +52,10 @@ class EntrypointView(
                     "is_superuser": self.request.user.is_superuser,
                 },
                 "umd_predictor_api_token": setting_api.get(
-                    "variants", "umd_predictor_api_token", user=self.request.user
+                    "variants", "umd_predictor_api_token__user", user=self.request.user
                 ),
                 "ga4gh_beacon_network_widget_enabled": setting_api.get(
-                    "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
+                    "variants", "ga4gh_beacon_network_widget_enabled__user", user=self.request.user
                 ),
                 "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
                 "cadd_enabled": settings.VARFISH_ENABLE_CADD,

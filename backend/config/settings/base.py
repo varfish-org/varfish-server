@@ -129,6 +129,7 @@ LOCAL_APPS = [
     "cases_analysis.apps.CasesAnalysisConfig",
     "seqvars.apps.SeqvarsConfig",
     "varannos.apps.VarannosConfig",
+    "vf_settings.apps.VfSettingsConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
 ]

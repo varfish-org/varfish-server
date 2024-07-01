@@ -78,7 +78,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     #: The user settings for this app.
     app_settings = {
-        "umd_predictor_api_token": {
+        "umd_predictor_api_token__user": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "STRING",  # STRING/INTEGER/BOOLEAN
             "default": "",
@@ -89,7 +89,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Afterwards, you can obtain your token from your account settings page."
             ),
         },
-        "ga4gh_beacon_network_widget_enabled": {
+        "ga4gh_beacon_network_widget_enabled__user": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "BOOLEAN",  # STRING/INTEGER/BOOLEAN
             "default": False,
@@ -99,13 +99,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "sent to all beacons on the network."
             ),
         },
-        "latest_version_seen_changelog": {
+        "latest_version_seen_changelog__user": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "STRING",
             "default": "",
             "label": "Changelog seen in version",
         },
-        "user_defined_tags": {
+        "user_defined_tags__project": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
             "type": "STRING",
             "default": "",
@@ -117,7 +117,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "the separator and will separate after the tag is entered."
             ),
         },
-        "disable_pedigree_sex_check": {
+        "disable_pedigree_sex_check__project": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
             "type": "BOOLEAN",
             "default": False,
@@ -128,7 +128,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Use this if the sex is unknown."
             ),
         },
-        "exclude_from_inhouse_db": {
+        "exclude_from_inhouse_db__project": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
             "type": "BOOLEAN",
             "default": False,
@@ -139,7 +139,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "database (such as no variant of a case showing up because being in the in-house database many times)."
             ),
         },
-        "ts_tv_valid_range": {
+        "ts_tv_valid_range__project": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
             "type": "STRING",
             "default": "2.0-2.9",
@@ -148,6 +148,34 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Variants with a Ts/Tv ratio outside this range will be highlighted as a warning. "
                 "The recommended value is <code>2.0-2.9</code>"
             ),
+        },
+        "test_param__project": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "STRING",
+            "default": "test project",
+            "label": "Test parameter for project",
+            "description": "This is a test parameter",
+        },
+        "test_param__project_user": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT_USER"],
+            "type": "STRING",
+            "default": "test project user",
+            "label": "Test parameter for project user",
+            "description": "This is a test parameter",
+        },
+        "test_param__user": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
+            "type": "STRING",
+            "default": "test user",
+            "label": "Test parameter for user",
+            "description": "This is a test parameter",
+        },
+        "test_param__site": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_SITE"],
+            "type": "STRING",
+            "default": "test site",
+            "label": "Test parameter for site",
+            "description": "This is a test parameter",
         },
     }
 
