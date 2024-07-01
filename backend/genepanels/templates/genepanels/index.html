@@ -41,13 +41,13 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="3" class="text-center font-italic">
+                <td colspan="4" class="text-center font-italic">
                   No gene panels or categories have been defined yet.
                 </td>
               </tr>
             {% endfor %}
             <tr>
-              <td class="bg-faded" colspan="7">
+              <td class="bg-faded" colspan="4">
                 <a class="btn btn-secondary" href="{% url "genepanels:category-list" %}">
                   <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span>
                   See list of all gene panels and categories
