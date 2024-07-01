@@ -459,6 +459,7 @@ class TestPredefinedQuerySerializer(TestCase):
             "presetssetversion",
             # ColumnsSettingsBase
             "included_in_sop",
+            "genotype",
             "quality",
             "frequency",
             "consequence",
@@ -472,6 +473,8 @@ class TestPredefinedQuerySerializer(TestCase):
             self.predefinedquery,
             fields=fields,
         )
+        # Map the pydantic fields to their JSON value.
+        expected["genotype"] = expected["genotype"].model_dump(mode="json")
         # We replace the related objects with their UUIDs.
         expected["presetssetversion"] = self.predefinedquery.presetssetversion.sodar_uuid
         expected["quality"] = self.predefinedquery.quality.sodar_uuid

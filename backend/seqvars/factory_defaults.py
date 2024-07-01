@@ -6,11 +6,15 @@ that any changes will be tracked in source code.
 """
 
 from dateutil.parser import parse as parse_datetime
+from django.db import models
 from faker import Faker
 
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
     GenomeRegion,
+    GenotypePresetChoice,
+    GenotypePresets,
+    LabeledSortableBaseModel,
     PredefinedQuery,
     QueryPresetsClinvar,
     QueryPresetsColumns,
@@ -697,21 +701,250 @@ def create_querypresetscolumns(faker: Faker) -> list[QueryPresetsColumns]:
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
-            label="default",
+            label="defaults",
         ),
     ]
 
 
-def create_craete_predefined_queries(
+def create_predefined_queries(
     querypresetsversion: QueryPresetsSetVersion, faker: Faker
 ) -> list[PredefinedQuery]:
+    def pick_by_label(label: str, queryset: models.QuerySet) -> LabeledSortableBaseModel:
+        return next(filter(lambda q: q.label == label, queryset.all()))
+
     return [
         PredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
-        )
+            label="defaults",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.ANY,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "dominant strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=2,
+            label="de novo",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.DE_NOVO,
+            ),
+            quality=pick_by_label("super strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "dominant strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=3,
+            label="dominant",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.DOMINANT,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "dominant strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=4,
+            label="homozygous recessive",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.HOMOZYGOUS_RECESSIVE,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "recessive strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=5,
+            label="compound heterozygous",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "recessive strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=6,
+            label="recessive",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.RECESSIVE,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "recessive strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=7,
+            label="X recessive",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.X_RECESSIVE,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label(
+                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+            ),
+            locus=pick_by_label("X chromosome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "recessive strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=8,
+            label="ClinVar pathogenic",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.AFFECTED_CARRIERS,
+            ),
+            quality=pick_by_label("any", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label("any", querypresetsversion.querypresetsfrequency_set),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label(
+                "Clinvar P/LP +conflicting", querypresetsversion.querypresetsclinvar_set
+            ),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=9,
+            label="mitochondrial",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.AFFECTED_CARRIERS,
+            ),
+            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
+            locus=pick_by_label("MT genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label(
+                "dominant strict", querypresetsversion.querypresetsfrequency_set
+            ),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
+        PredefinedQuery(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=10,
+            label="whole genome",
+            genotype=GenotypePresets(
+                choice=GenotypePresetChoice.ANY,
+            ),
+            quality=pick_by_label("any", querypresetsversion.querypresetsquality_set),
+            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
+            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            frequency=pick_by_label("any", querypresetsversion.querypresetsfrequency_set),
+            phenotypeprio=pick_by_label(
+                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+            ),
+            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+        ),
     ]
 
 
@@ -785,6 +1018,7 @@ def create_presetsset_short_read_genome(rank: int = 1) -> QueryPresetsSet:
     version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
     version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
     version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result
 
@@ -826,6 +1060,7 @@ def create_presetsset_short_read_exome_modern(rank: int = 2) -> QueryPresetsSet:
     version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
     version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
     version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result
 
@@ -867,5 +1102,6 @@ def create_presetsset_short_read_exome_legacy(rank: int = 3) -> QueryPresetsSet:
     version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
     version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
     version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result

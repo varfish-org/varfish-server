@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django_pydantic_field.rest_framework import SchemaField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from projectroles.serializers import SODARUserSerializer
@@ -14,6 +16,7 @@ from seqvars.models import (
     Gene,
     GenePanel,
     GenomeRegion,
+    GenotypePresets,
     LocusSettingsBase,
     PhenotypePrioSettingsBase,
     PredefinedQuery,
@@ -433,6 +436,8 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
 
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
+    genotype = SchemaField(schema=Optional[GenotypePresets], default=GenotypePresets())
+
     quality = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
         queryset=QueryPresetsQuality.objects.all(),
@@ -517,6 +522,7 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
         model = PredefinedQuery
         fields = QueryPresetsBaseSerializer.Meta.fields + [
             "included_in_sop",
+            "genotype",
             "quality",
             "frequency",
             "consequence",
