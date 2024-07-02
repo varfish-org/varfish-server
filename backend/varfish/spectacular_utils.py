@@ -1,46 +1,20 @@
-from django_pydantic_field.v2.fields import PydanticSchemaField as ModelSchemaField
-from django_pydantic_field.v2.rest_framework import SchemaField as SerializerSchemaField
-from rest_framework import serializers
+# import typing
+# from drf_spectacular.contrib.pydantic import PydanticExtension
+# from drf_spectacular.plumbing import build_object_type
 
+# class DjangoPydanticFieldFix(PydanticExtension):
+#     target_class = 'django_pydantic_field.v2.rest_framework.fields.SchemaField'
 
-class SpectacularSchemaField(SerializerSchemaField):
-    """Helper field to integrate ``django-pydantic-field`` with ``drf-spectacular``.
+#     def get_name(self, auto_schema, direction):
+#         if typing.get_origin(self.target.schema) is list:
+#             inner_type = typing.get_args(self.target.schema)[0]
+#             return f'{inner_type.__name__}List'
+#         else:
+#             return super().get_name(auto_schema, direction)
 
-    Source: https://github.com/surenkov/django-pydantic-field/issues/44
-    """
-
-    def __init__(self, exclude_unset=True, *args, **kwargs):
-        kwargs.pop("encoder", None)
-        kwargs.pop("decoder", None)
-        super().__init__(
-            schema=self._spectacular_annotation["field"],
-            exclude_unset=exclude_unset,
-            *args,
-            **kwargs,
-        )
-
-
-class ModelSerializer(serializers.ModelSerializer):
-    """Helper serializer to integrate ``django-pydantic-field`` with ``drf-spectacular``.
-
-    Source: https://github.com/surenkov/django-pydantic-field/issues/44
-    """
-
-    def build_standard_field(self, field_name, model_field):
-        standard_field = super().build_standard_field(field_name, model_field)
-        if isinstance(model_field, ModelSchemaField):
-            standard_field = (
-                type(
-                    model_field.schema.__name__ + "Serializer",
-                    (SpectacularSchemaField,),
-                    {"_spectacular_annotation": {"field": model_field.schema}},
-                ),
-            ) + standard_field[1:]
-        return standard_field
-
-    class Meta:
-        abstract = True
-
+#     def map_serializer_field(self, auto_schema, direction):
+#         import pdb; pdb.set_trace()
+#         return super().map_serializer_field(auto_schema, direction)
 
 def spectacular_preprocess_hook(endpoints):
     blocked_prefixes = (

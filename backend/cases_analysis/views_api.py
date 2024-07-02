@@ -41,8 +41,6 @@ class CaseAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "caseanalysis"
 
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
-
     pagination_class = StandardPagination
 
     permission_classes = [CaseProjectPermission]
@@ -78,8 +76,6 @@ class CaseAnalysisSessionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CaseAnalysisSessionSerializer
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "caseanalysissession"
-
-    schema = AutoSchema()  # OpenAPI schema generation for pydantic fields
 
     pagination_class = StandardPagination
 
