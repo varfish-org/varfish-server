@@ -5,7 +5,8 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
-import { operations, components } from '@/varfish/api/varfish'
+import { SeqvarsService } from '@/varfish/api/server'
+import { client } from '@/cases/plugins/heyApi'
 
 /**
  * Store for the seqvars query presets.
@@ -27,7 +28,10 @@ export const usePresetsStore = defineStore('seqvarPresets', () => {
    * @param forceReload$ Whether to force a reload of the data even if the projectUuuid is the same.
    * @returns
    */
-  const initialize = async (projectUuid$: string, forceReload$: boolean = false) => {
+  const initialize = async (
+    projectUuid$: string,
+    forceReload$: boolean = false,
+  ) => {
     // Do not reinitialize if the project is the same unless forced.
     if (projectUuid$ === projectUuid.value && !forceReload$) {
       return
@@ -53,8 +57,7 @@ export const usePresetsStore = defineStore('seqvarPresets', () => {
    * Load the presets for the project with UUID from `projectUuid`.
    */
   const loadPresets = async () => {
-    // Load the presets.
-    // ...
+    const xs = SeqvarsService.listQueryPresetsSetsFactoryDefaults({ client })
   }
 
   /**
@@ -69,7 +72,6 @@ export const usePresetsStore = defineStore('seqvarPresets', () => {
 
     projectUuid.value = undefined
   }
-
 
   return {
     // attributes

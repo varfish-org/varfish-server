@@ -3,8 +3,10 @@ from typing import Any
 from django.urls import reverse
 from freezegun import freeze_time
 from parameterized import parameterized
+from snapshottest.unittest import TestCase as TestCaseSnapshot
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
+from seqvars.factory_defaults import create_presetsset_short_read_genome
 from seqvars.models import (
     PredefinedQuery,
     Query,
@@ -79,6 +81,7 @@ from seqvars.tests.factories import (
     ResultRowFactory,
     ResultSetFactory,
 )
+from seqvars.tests.test_factory_defaults import canonicalize_dicts
 from variants.tests.factories import CaseFactory
 from variants.tests.helpers import ApiViewTestBase
 
@@ -212,6 +215,27 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
         self.assertEqual(response.status_code, 204)
 
         self.assertEqual(QueryPresetsSet.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsFactoryDefaultsViewSet(TestCaseSnapshot, ApiViewTestBase):
+    def test_list(self):
+        response = self.client.get(
+            reverse("seqvars:api-querypresetsfactorydefaults-list"),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertMatchSnapshot(canonicalize_dicts(response.json()))
+
+    def test_retrieve(self):
+        record_genome = create_presetsset_short_read_genome()
+        response = self.client.get(
+            reverse(
+                "seqvars:api-querypresetsfactorydefaults-detail",
+                kwargs={"querypresetsset": record_genome.sodar_uuid},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertMatchSnapshot(canonicalize_dicts(response.json()))
 
 
 @freeze_time("2012-01-14 12:00:01")

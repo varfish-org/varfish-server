@@ -44,7 +44,7 @@ class Command(BaseCommand):
         )
         parser.add_argument("--case-name", help="Name of the case to use.", default="DevCase")
         parser.add_argument(
-            "--reset-password", help="Reset password for users.", action="store_true", defaut=False
+            "--reset-password", help="Reset password for users.", action="store_true", default=False
         )
 
     @transaction.atomic

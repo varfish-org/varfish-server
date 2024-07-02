@@ -5482,6 +5482,67 @@ paths:
           description: ''
       tags:
       - cases-analysis
+  /seqvars/api/querypresetsfactorydefaults/:
+    get:
+      operationId: listQueryPresetsSetsFactoryDefaults
+      description: 'ViewSet for listing the factory defaults.
+
+
+        This is a public view, no permissions are required.'
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              type: object
+              properties:
+                next:
+                  type: string
+                  nullable: true
+                previous:
+                  type: string
+                  nullable: true
+                results:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/QueryPresetsSet'
+          description: ''
+      tags:
+      - seqvars
+  /seqvars/api/querypresetsfactorydefaults/{querypresetsset}/:
+    get:
+      operationId: retrieveQueryPresetsSetsFactoryDefaults
+      description: 'ViewSet for listing the factory defaults.
+
+
+        This is a public view, no permissions are required.'
+      parameters:
+      - name: querypresetsset
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              $ref: '#/components/schemas/QueryPresetsSetDetails'
+          description: ''
+      tags:
+      - seqvars
   /seqvars/api/querypresetsset/{project}/:
     get:
       operationId: listQueryPresetsSets
@@ -5508,20 +5569,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -5561,9 +5609,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSet'
           description: ''
       tags:
@@ -5588,9 +5634,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSet'
           description: ''
       tags:
@@ -5625,9 +5669,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSet'
           description: ''
       tags:
@@ -5662,9 +5704,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSet'
           description: ''
       tags:
@@ -5710,9 +5750,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSet'
           description: ''
       tags:
@@ -5743,20 +5781,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsSetVersion'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -5796,9 +5821,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSetVersion'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSetVersion'
           description: ''
       tags:
@@ -5823,9 +5846,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSetVersionDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSetVersionDetails'
           description: ''
       tags:
@@ -5860,9 +5881,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSetVersion'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSetVersion'
           description: ''
       tags:
@@ -5897,9 +5916,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsSetVersion'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsSetVersion'
           description: ''
       tags:
@@ -5951,20 +5968,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsQuality'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -6004,9 +6008,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsQuality'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsQuality'
           description: ''
       tags:
@@ -6031,9 +6033,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsQuality'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsQuality'
           description: ''
       tags:
@@ -6068,9 +6068,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsQuality'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsQuality'
           description: ''
       tags:
@@ -6105,9 +6103,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsQuality'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsQuality'
           description: ''
       tags:
@@ -6159,20 +6155,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsFrequency'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -6212,9 +6195,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsFrequency'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsFrequency'
           description: ''
       tags:
@@ -6239,9 +6220,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsFrequency'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsFrequency'
           description: ''
       tags:
@@ -6276,9 +6255,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsFrequency'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsFrequency'
           description: ''
       tags:
@@ -6313,9 +6290,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsFrequency'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsFrequency'
           description: ''
       tags:
@@ -6367,20 +6342,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsConsequence'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -6420,9 +6382,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsConsequence'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsConsequence'
           description: ''
       tags:
@@ -6447,9 +6407,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsConsequence'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsConsequence'
           description: ''
       tags:
@@ -6484,9 +6442,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsConsequence'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsConsequence'
           description: ''
       tags:
@@ -6521,9 +6477,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsConsequence'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsConsequence'
           description: ''
       tags:
@@ -6575,20 +6529,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsLocus'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -6628,9 +6569,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsLocus'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsLocus'
           description: ''
       tags:
@@ -6655,9 +6594,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsLocus'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsLocus'
           description: ''
       tags:
@@ -6692,9 +6629,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsLocus'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsLocus'
           description: ''
       tags:
@@ -6729,9 +6664,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsLocus'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsLocus'
           description: ''
       tags:
@@ -6783,20 +6716,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -6836,9 +6756,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
           description: ''
       tags:
@@ -6863,9 +6781,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
           description: ''
       tags:
@@ -6900,9 +6816,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
           description: ''
       tags:
@@ -6937,9 +6851,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsPhenotypePrio'
           description: ''
       tags:
@@ -6991,20 +6903,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsVariantPrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -7044,9 +6943,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsVariantPrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsVariantPrio'
           description: ''
       tags:
@@ -7071,9 +6968,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsVariantPrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsVariantPrio'
           description: ''
       tags:
@@ -7108,9 +7003,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsVariantPrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsVariantPrio'
           description: ''
       tags:
@@ -7145,9 +7038,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsVariantPrio'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsVariantPrio'
           description: ''
       tags:
@@ -7199,20 +7090,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsClinvar'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -7252,9 +7130,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsClinvar'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsClinvar'
           description: ''
       tags:
@@ -7279,9 +7155,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsClinvar'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsClinvar'
           description: ''
       tags:
@@ -7316,9 +7190,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsClinvar'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsClinvar'
           description: ''
       tags:
@@ -7353,9 +7225,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsClinvar'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsClinvar'
           description: ''
       tags:
@@ -7407,20 +7277,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryPresetsColumns'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -7460,9 +7317,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsColumns'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsColumns'
           description: ''
       tags:
@@ -7487,9 +7342,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsColumns'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsColumns'
           description: ''
       tags:
@@ -7524,9 +7377,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsColumns'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsColumns'
           description: ''
       tags:
@@ -7561,9 +7412,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryPresetsColumns'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryPresetsColumns'
           description: ''
       tags:
@@ -7615,20 +7464,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/PredefinedQuery'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -7668,9 +7504,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/PredefinedQuery'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/PredefinedQuery'
           description: ''
       tags:
@@ -7695,9 +7529,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/PredefinedQuery'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/PredefinedQuery'
           description: ''
       tags:
@@ -7732,9 +7564,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/PredefinedQuery'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/PredefinedQuery'
           description: ''
       tags:
@@ -7769,9 +7599,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/PredefinedQuery'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/PredefinedQuery'
           description: ''
       tags:
@@ -7823,20 +7651,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QuerySettings'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -7876,9 +7691,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QuerySettingsDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QuerySettingsDetails'
           description: ''
       tags:
@@ -7903,9 +7716,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QuerySettingsDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QuerySettingsDetails'
           description: ''
       tags:
@@ -7940,9 +7751,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QuerySettingsDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QuerySettingsDetails'
           description: ''
       tags:
@@ -7977,9 +7786,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QuerySettingsDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QuerySettingsDetails'
           description: ''
       tags:
@@ -8031,20 +7838,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Query'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -8084,9 +7878,7 @@ paths:
       responses:
         '201':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryDetails'
           description: ''
       tags:
@@ -8111,9 +7903,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryDetails'
           description: ''
       tags:
@@ -8148,9 +7938,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryDetails'
           description: ''
       tags:
@@ -8185,9 +7973,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryDetails'
           description: ''
       tags:
@@ -8239,20 +8025,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/QueryExecution'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -8288,9 +8061,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/QueryExecutionDetails'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/QueryExecutionDetails'
           description: ''
       tags:
@@ -8321,20 +8092,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ResultSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -8370,9 +8128,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/ResultSet'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/ResultSet'
           description: ''
       tags:
@@ -8403,20 +8159,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              type: object
-              properties:
-                next:
-                  type: string
-                  nullable: true
-                previous:
-                  type: string
-                  nullable: true
-                results:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/ResultRow'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               type: object
               properties:
                 next:
@@ -8452,9 +8195,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
-              $ref: '#/components/schemas/ResultRow'
-            text/html:
+            application/vnd.bihealth.varfish+json:
               $ref: '#/components/schemas/ResultRow'
           description: ''
       tags:
@@ -13521,6 +13262,800 @@ components:
           readOnly: true
       required:
       - label
+    QueryPresetsSetDetails:
+      type: object
+      properties:
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+        project:
+          type: string
+          readOnly: true
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              sodar_uuid:
+                type: string
+                format: uuid
+                readOnly: true
+              date_created:
+                type: string
+                format: date-time
+                readOnly: true
+              date_modified:
+                type: string
+                format: date-time
+                readOnly: true
+              presetsset:
+                type: object
+                properties:
+                  sodar_uuid:
+                    type: string
+                    format: uuid
+                    readOnly: true
+                  date_created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  date_modified:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  rank:
+                    type: integer
+                    default: 1
+                  label:
+                    type: string
+                    maxLength: 128
+                  description:
+                    type: string
+                    nullable: true
+                  project:
+                    type: string
+                    readOnly: true
+                required:
+                - label
+                readOnly: true
+              version_major:
+                type: integer
+                default: 1
+              version_minor:
+                type: integer
+                default: 0
+              status:
+                type: string
+                default: draft
+              signed_off_by:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: Required. 150 characters or fewer. Letters, digits
+                      and @/./+/-/_ only.
+                    pattern: ^[\w.@+-]+\z
+                    maxLength: 150
+                  name:
+                    type: string
+                    maxLength: 255
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  is_superuser:
+                    type: boolean
+                    description: Designates that this user has all permissions without
+                      explicitly assigning them.
+                  sodar_uuid:
+                    type: string
+                    readOnly: true
+                required:
+                - username
+                readOnly: true
+              querypresetsquality_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                    filter_active:
+                      type: boolean
+                      default: false
+                    min_dp_het:
+                      type: integer
+                      nullable: true
+                    min_dp_hom:
+                      type: integer
+                      nullable: true
+                    min_ab_het:
+                      type: number
+                      nullable: true
+                    min_gq:
+                      type: integer
+                      nullable: true
+                    min_ad:
+                      type: integer
+                      nullable: true
+                    max_ad:
+                      type: integer
+                      nullable: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetsfrequency_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    gnomad_exomes_enabled:
+                      type: boolean
+                      default: false
+                    gnomad_exomes_frequency:
+                      type: number
+                      nullable: true
+                    gnomad_exomes_homozygous:
+                      type: integer
+                      nullable: true
+                    gnomad_exomes_heterozygous:
+                      type: integer
+                      nullable: true
+                    gnomad_exomes_hemizygous:
+                      type: boolean
+                      nullable: true
+                    gnomad_genomes_enabled:
+                      type: boolean
+                      default: false
+                    gnomad_genomes_frequency:
+                      type: number
+                      nullable: true
+                    gnomad_genomes_homozygous:
+                      type: integer
+                      nullable: true
+                    gnomad_genomes_heterozygous:
+                      type: integer
+                      nullable: true
+                    gnomad_genomes_hemizygous:
+                      type: boolean
+                      nullable: true
+                    helixmtdb_enabled:
+                      type: boolean
+                      default: false
+                    helixmtdb_heteroplasmic:
+                      type: integer
+                      nullable: true
+                    helixmtdb_homoplasmic:
+                      type: integer
+                      nullable: true
+                    helixmtdb_frequency:
+                      type: number
+                      nullable: true
+                    inhouse_enabled:
+                      type: boolean
+                      default: false
+                    inhouse_carriers:
+                      type: integer
+                      nullable: true
+                    inhouse_homozygous:
+                      type: integer
+                      nullable: true
+                    inhouse_heterozygous:
+                      type: integer
+                      nullable: true
+                    inhouse_hemizygous:
+                      type: integer
+                      nullable: true
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetsconsequence_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variant_types:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/VariantTypeChoice'
+                    transcript_types:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TranscriptTypeChoice'
+                    variant_consequences:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/VariantConsequenceChoice'
+                    max_distance_to_exon:
+                      type: integer
+                      nullable: true
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetslocus_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    genes:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Gene'
+                    gene_panels:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/GenePanel'
+                    genome_regions:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/GenomeRegion'
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetsphenotypeprio_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    phenotype_prio_enabled:
+                      type: boolean
+                      default: false
+                    phenotype_prio_algorithm:
+                      type: string
+                      nullable: true
+                      maxLength: 128
+                    terms:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TermPresence'
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetsvariantprio_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variant_prio_enabled:
+                      type: boolean
+                      default: false
+                    services:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/VariantPrioService'
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetsclinvar_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    clinvar_presence_required:
+                      type: boolean
+                      default: false
+                    clinvar_germline_aggregate_description:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ClinvarGermlineAggregateDescription'
+                    allow_conflicting_interpretations:
+                      type: boolean
+                      default: false
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              querypresetscolumns_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column_settings:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ColumnConfig'
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                  required:
+                  - label
+                readOnly: true
+              predefinedquery_set:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sodar_uuid:
+                      type: string
+                      format: uuid
+                      readOnly: true
+                    date_created:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    date_modified:
+                      type: string
+                      format: date-time
+                      readOnly: true
+                    rank:
+                      type: integer
+                      default: 1
+                    label:
+                      type: string
+                      maxLength: 128
+                    description:
+                      type: string
+                      nullable: true
+                    presetssetversion:
+                      type: string
+                      readOnly: true
+                    included_in_sop:
+                      type: boolean
+                      default: false
+                    genotype:
+                      anyOf:
+                      - $ref: '#/components/schemas/GenotypePresets'
+                      - type: 'null'
+                    quality:
+                      type: string
+                      nullable: true
+                    frequency:
+                      type: string
+                      nullable: true
+                    consequence:
+                      type: string
+                      nullable: true
+                    locus:
+                      type: string
+                      nullable: true
+                    phenotypeprio:
+                      type: string
+                      nullable: true
+                    variantprio:
+                      type: string
+                      nullable: true
+                    clinvar:
+                      type: string
+                      nullable: true
+                    columns:
+                      type: string
+                      nullable: true
+                  required:
+                  - label
+                readOnly: true
+          readOnly: true
+      required:
+      - label
+    TranscriptTypeChoice:
+      description: The type of a transcript.
+      enum:
+      - coding
+      - non_coding
+      title: TranscriptTypeChoice
+      type: string
+    VariantConsequenceChoice:
+      description: The variant consequence.
+      enum:
+      - frameshift_variant
+      - rare_amino_acid_variant
+      - splice_acceptor_variant
+      - splice_donor_variant
+      - start_lost
+      - stop_gained
+      - stop_lost
+      - 3_prime_UTR_truncation
+      - 5_prime_UTR_truncation
+      - conservative_inframe_deletion
+      - conservative_inframe_insertion
+      - disruptive_inframe_deletion
+      - disruptive_inframe_insertion
+      - missense_variant
+      - splice_region_variant
+      - initiator_codon_variant
+      - start_retained
+      - stop_retained_variant
+      - synonymous_variant
+      - downstream_gene_variant
+      - intron_variant
+      - non_coding_transcript_exon_variant
+      - non_coding_transcript_intron_variant
+      - 5_prime_UTR_variant
+      - coding_sequence_variant
+      - upstream_gene_variant
+      - 3_prime_UTR_variant-exon_variant
+      - 5_prime_UTR_variant-exon_variant
+      - 3_prime_UTR_variant-intron_variant
+      - 5_prime_UTR_variant-intron_variant
+      title: VariantConsequenceChoice
+      type: string
+    VariantTypeChoice:
+      description: The type of a variant.
+      enum:
+      - snv
+      - indel
+      - mnv
+      - complex_substitution
+      title: VariantTypeChoice
+      type: string
+    Gene:
+      description: Representation of a gene to query for.
+      properties:
+        hgnc_id:
+          title: Hgnc Id
+          type: string
+        symbol:
+          title: Symbol
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Name
+        entrez_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Entrez Id
+        ensembl_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Ensembl Id
+      required:
+      - hgnc_id
+      - symbol
+      title: Gene
+      type: object
+    GenePanelSource:
+      description: The source of a gene panel.
+      enum:
+      - panelapp
+      - internal
+      title: GenePanelSource
+      type: string
+    GenomeRegion:
+      description: Representation of a genomic region to query for.
+      properties:
+        chromosome:
+          title: Chromosome
+          type: string
+        range:
+          anyOf:
+          - $ref: '#/components/schemas/OneBasedRange'
+          - type: 'null'
+          default: null
+      required:
+      - chromosome
+      title: GenomeRegion
+      type: object
+    OneBasedRange:
+      description: Representation of a 1-based range.
+      properties:
+        start:
+          title: Start
+          type: integer
+        end:
+          title: End
+          type: integer
+      required:
+      - start
+      - end
+      title: OneBasedRange
+      type: object
+    Term:
+      description: Representation of a condition (phenotype / disease) term.
+      properties:
+        term_id:
+          title: Term Id
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+      required:
+      - term_id
+      - label
+      title: Term
+      type: object
+    TermPresence:
+      description: Representation of a term with optional presence (default is not
+        excluded).
+      properties:
+        term:
+          $ref: '#/components/schemas/Term'
+        excluded:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Excluded
+      required:
+      - term
+      title: TermPresence
+      type: object
+    VariantPrioService:
+      description: Representation of a variant pathogenicity service.
+      properties:
+        name:
+          title: Name
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - name
+      - version
+      title: VariantPrioService
+      type: object
+    ClinvarGermlineAggregateDescription:
+      description: The aggregate description for germline variants in ClinVar.
+      enum:
+      - pathogenic
+      - likely_pathogenic
+      - uncertain_significance
+      - likely_benign
+      - benign
+      title: ClinvarGermlineAggregateDescription
+      type: string
+    ColumnConfig:
+      description: Configuration for a single column in the result table.
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Description
+        width:
+          title: Width
+          type: integer
+        visible:
+          title: Visible
+          type: boolean
+      required:
+      - name
+      - label
+      - width
+      - visible
+      title: ColumnConfig
+      type: object
+    GenotypePresetChoice:
+      description: Presets value for the chosen genotype.
+      enum:
+      - any
+      - de_novo
+      - dominant
+      - homozygous_recessive
+      - compound_heterozygous_recessive
+      - recessive
+      - x_recessive
+      - affected_carriers
+      title: GenotypePresetChoice
+      type: string
+    GenotypePresets:
+      description: Configuration for a single column in the result table.
+      properties:
+        choice:
+          anyOf:
+          - $ref: '#/components/schemas/GenotypePresetChoice'
+          - type: 'null'
+          default: null
+      title: GenotypePresets
+      type: object
     QueryPresetsSetVersion:
       type: object
       properties:
@@ -14110,232 +14645,6 @@ components:
             required:
             - label
           readOnly: true
-    TranscriptTypeChoice:
-      description: The type of a transcript.
-      enum:
-      - coding
-      - non_coding
-      title: TranscriptTypeChoice
-      type: string
-    VariantConsequenceChoice:
-      description: The variant consequence.
-      enum:
-      - frameshift_variant
-      - rare_amino_acid_variant
-      - splice_acceptor_variant
-      - splice_donor_variant
-      - start_lost
-      - stop_gained
-      - stop_lost
-      - 3_prime_UTR_truncation
-      - 5_prime_UTR_truncation
-      - conservative_inframe_deletion
-      - conservative_inframe_insertion
-      - disruptive_inframe_deletion
-      - disruptive_inframe_insertion
-      - missense_variant
-      - splice_region_variant
-      - initiator_codon_variant
-      - start_retained
-      - stop_retained_variant
-      - synonymous_variant
-      - downstream_gene_variant
-      - intron_variant
-      - non_coding_transcript_exon_variant
-      - non_coding_transcript_intron_variant
-      - 5_prime_UTR_variant
-      - coding_sequence_variant
-      - upstream_gene_variant
-      - 3_prime_UTR_variant-exon_variant
-      - 5_prime_UTR_variant-exon_variant
-      - 3_prime_UTR_variant-intron_variant
-      - 5_prime_UTR_variant-intron_variant
-      title: VariantConsequenceChoice
-      type: string
-    VariantTypeChoice:
-      description: The type of a variant.
-      enum:
-      - snv
-      - indel
-      - mnv
-      - complex_substitution
-      title: VariantTypeChoice
-      type: string
-    Gene:
-      description: Representation of a gene to query for.
-      properties:
-        hgnc_id:
-          title: Hgnc Id
-          type: string
-        symbol:
-          title: Symbol
-          type: string
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Name
-        entrez_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Entrez Id
-        ensembl_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Ensembl Id
-      required:
-      - hgnc_id
-      - symbol
-      title: Gene
-      type: object
-    GenePanelSource:
-      description: The source of a gene panel.
-      enum:
-      - panelapp
-      - internal
-      title: GenePanelSource
-      type: string
-    GenomeRegion:
-      description: Representation of a genomic region to query for.
-      properties:
-        chromosome:
-          title: Chromosome
-          type: string
-        range:
-          anyOf:
-          - $ref: '#/components/schemas/OneBasedRange'
-          - type: 'null'
-          default: null
-      required:
-      - chromosome
-      title: GenomeRegion
-      type: object
-    OneBasedRange:
-      description: Representation of a 1-based range.
-      properties:
-        start:
-          title: Start
-          type: integer
-        end:
-          title: End
-          type: integer
-      required:
-      - start
-      - end
-      title: OneBasedRange
-      type: object
-    Term:
-      description: Representation of a condition (phenotype / disease) term.
-      properties:
-        term_id:
-          title: Term Id
-          type: string
-        label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Label
-      required:
-      - term_id
-      - label
-      title: Term
-      type: object
-    TermPresence:
-      description: Representation of a term with optional presence (default is not
-        excluded).
-      properties:
-        term:
-          $ref: '#/components/schemas/Term'
-        excluded:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          default: null
-          title: Excluded
-      required:
-      - term
-      title: TermPresence
-      type: object
-    VariantPrioService:
-      description: Representation of a variant pathogenicity service.
-      properties:
-        name:
-          title: Name
-          type: string
-        version:
-          title: Version
-          type: string
-      required:
-      - name
-      - version
-      title: VariantPrioService
-      type: object
-    ClinvarGermlineAggregateDescription:
-      description: The aggregate description for germline variants in ClinVar.
-      enum:
-      - pathogenic
-      - likely_pathogenic
-      - uncertain_significance
-      - likely_benign
-      - benign
-      title: ClinvarGermlineAggregateDescription
-      type: string
-    ColumnConfig:
-      description: Configuration for a single column in the result table.
-      properties:
-        name:
-          title: Name
-          type: string
-        label:
-          title: Label
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Description
-        width:
-          title: Width
-          type: integer
-        visible:
-          title: Visible
-          type: boolean
-      required:
-      - name
-      - label
-      - width
-      - visible
-      title: ColumnConfig
-      type: object
-    GenotypePresetChoice:
-      description: Presets value for the chosen genotype.
-      enum:
-      - any
-      - de_novo
-      - dominant
-      - homozygous_recessive
-      - compound_heterozygous_recessive
-      - recessive
-      - x_recessive
-      - affected_carriers
-      title: GenotypePresetChoice
-      type: string
-    GenotypePresets:
-      description: Configuration for a single column in the result table.
-      properties:
-        choice:
-          anyOf:
-          - $ref: '#/components/schemas/GenotypePresetChoice'
-          - type: 'null'
-          default: null
-      title: GenotypePresets
-      type: object
     QueryPresetsQuality:
       type: object
       properties:

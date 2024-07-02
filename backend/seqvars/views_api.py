@@ -1,8 +1,10 @@
 import sys
+from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django_pydantic_field.rest_framework import AutoSchema
+from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
@@ -37,8 +39,8 @@ from seqvars.serializers import (
     QueryPresetsLocusSerializer,
     QueryPresetsPhenotypePrioSerializer,
     QueryPresetsQualitySerializer,
-    QueryPresetsSetSerializer,
     QueryPresetsSetDetailsSerializer,
+    QueryPresetsSetSerializer,
     QueryPresetsSetVersionDetailsSerializer,
     QueryPresetsSetVersionSerializer,
     QueryPresetsVariantPrioSerializer,
@@ -48,6 +50,7 @@ from seqvars.serializers import (
     ResultRowSerializer,
     ResultSetSerializer,
 )
+from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models.case import Case
 
 
@@ -98,8 +101,14 @@ class QueryPresetsPermission(SODARAPIProjectPermission):
         _ = request
         return get_project(kwargs)
 
+class VersioningViewSetMixin:
+    """Mixin for renderer and versioning."""
 
-class BaseViewSetMixin:
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+
+class BaseViewSetMixin(VersioningViewSetMixin):
     """Base mixin for view sets."""
 
     #: Use canonical lookup field ``sodar_uuid``.
@@ -193,31 +202,60 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         return Response(serializer.data)
 
 
-class QueryPresetsFactoryDefaultsViewSet(BaseViewSet):
-    "ViewSet for listing the factory defaults."
+class FakeQueryPresetsSetQuerySet(FakeQuerySet):
+    """Helper class that fixes issue with calling ``get()`` with UUID.
+
+    The actual implementation uses the ``python_value()`` of the query value
+    but not the field.
+    """
+
+    def get(self, *args, **kwargs):
+        if "sodar_uuid" in kwargs:
+            filtered = [
+                obj for obj in self.results if str(obj.sodar_uuid) == str(kwargs["sodar_uuid"])
+            ]
+            if filtered:
+                return filtered[0]
+            else:
+                raise ObjectDoesNotExist()
+        else:
+            return super().get(*args, **kwargs)
+
+
+class QueryPresetsFactoryDefaultsViewSet(VersioningViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    """ViewSet for listing the factory defaults.
+
+    This is a public view, no permissions are required.
+    """
 
     #: Use canonical lookup field ``sodar_uuid``.
     lookup_field = "sodar_uuid"
+    #: Define lookup URL kwarg.
+    lookup_url_kwarg = "querypresetsset"
     #: Use the app's standard pagination.
     pagination_class = StandardPagination
-    #: Enable generation of OpenAPI schemas for pydantic field.
-    schema = AutoSchema()
-    #: Use the custom permission class.
-    permission_classes = [QueryPresetsPermission]
-
-    def get_permission_required(self):
-        """Return the permission required for the current action."""
-        if self.action in ("list", "retrieve"):
-            return "seqvars.view_data"
-        else:
-            return "seqvars.update_data"
+    #: Modify the schema operation ID to avoid name clashes with user-editable presets.
+    schema = AutoSchema(
+        operation_id_base="QueryPresetsSetsFactoryDefaults"
+    )
 
     def get_serializer_class(self):
         """Allow overriding serializer class based on action."""
-        if hasattr(self, "action_serializers"):
-            return self.action_serializers.get(self.action, self.serializer_class)
-        return super().get_serializer_class()
+        if self.action == "retrieve":
+            return QueryPresetsSetDetailsSerializer
+        else:
+            return QueryPresetsSetSerializer
 
+    def get_queryset(self):
+        """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
+        return FakeQueryPresetsSetQuerySet(
+            model=QueryPresetsSetVersion,
+            results=[
+                create_presetsset_short_read_genome(),
+                create_presetsset_short_read_exome_modern(),
+                create_presetsset_short_read_exome_legacy(),
+            ],
+        )
 
 
 class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):

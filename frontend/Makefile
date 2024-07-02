@@ -73,9 +73,8 @@ serve-public:
 .PHONY: openapi-ts
 openapi-ts:
 	mkdir -p src/varfish/api
-	npx openapi-typescript \
-		../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
-		-o src/varfish/api/varfish.d.ts
+	rm -rf src/varfish/api/server
+	npx @hey-api/openapi-ts
 
 .PHONY: openapi
 openapi: openapi-ts format lint
