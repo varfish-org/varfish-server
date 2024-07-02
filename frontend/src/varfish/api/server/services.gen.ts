@@ -2,4910 +2,633 @@
 
 import { client, type Options } from '@hey-api/client-fetch'
 import type {
-  ListExtraAnnoFieldsError,
-  ListExtraAnnoFieldsResponse,
-  RetrieveCaseListQcStatsData,
-  RetrieveCaseListQcStatsError,
-  RetrieveCaseListQcStatsResponse,
-  RetrieveCaseData,
-  RetrieveCaseError,
-  RetrieveCaseResponse,
-  RetrieveSmallVariantQueryData,
-  RetrieveSmallVariantQueryError,
-  RetrieveSmallVariantQueryResponse,
-  RetrieveSmallVariantQuery1Data,
-  RetrieveSmallVariantQuery1Error,
-  RetrieveSmallVariantQuery1Response,
-  CreateSmallVariantQueryData,
-  CreateSmallVariantQueryError,
-  CreateSmallVariantQueryResponse,
-  RetrieveSmallVariantQueryWithLogsData,
-  RetrieveSmallVariantQueryWithLogsError,
-  RetrieveSmallVariantQueryWithLogsResponse,
-  UpdateSmallVariantQueryWithLogsData,
-  UpdateSmallVariantQueryWithLogsError,
-  UpdateSmallVariantQueryWithLogsResponse,
-  PartialUpdateSmallVariantQueryWithLogsData,
-  PartialUpdateSmallVariantQueryWithLogsError,
-  PartialUpdateSmallVariantQueryWithLogsResponse,
-  DestroySmallVariantQueryWithLogsData,
-  DestroySmallVariantQueryWithLogsError,
-  DestroySmallVariantQueryWithLogsResponse,
-  RetrieveSmallVariantQueryResultSetData,
-  RetrieveSmallVariantQueryResultSetError,
-  RetrieveSmallVariantQueryResultSetResponse,
-  RetrieveSmallVariantQueryResultSet1Data,
-  RetrieveSmallVariantQueryResultSet1Error,
-  RetrieveSmallVariantQueryResultSet1Response,
-  RetrieveSmallVariantQueryResultRowData,
-  RetrieveSmallVariantQueryResultRowError,
-  RetrieveSmallVariantQueryResultRowResponse,
-  RetrieveSmallVariantQueryResultRow1Data,
-  RetrieveSmallVariantQueryResultRow1Error,
-  RetrieveSmallVariantQueryResultRow1Response,
-  RetrieveSettingsShortcutsData,
-  RetrieveSettingsShortcutsError,
-  RetrieveSettingsShortcutsResponse,
-  ListSmallVariantQuickPresetsApisError,
-  ListSmallVariantQuickPresetsApisResponse,
-  RetrieveSmallVariantCategoryPresetsApiData,
-  RetrieveSmallVariantCategoryPresetsApiError,
-  RetrieveSmallVariantCategoryPresetsApiResponse,
-  RetrieveSmallVariantInheritancePresetsApiData,
-  RetrieveSmallVariantInheritancePresetsApiError,
-  RetrieveSmallVariantInheritancePresetsApiResponse,
-  RetrieveSmallVariantQueryDownloadGenerateApiData,
-  RetrieveSmallVariantQueryDownloadGenerateApiError,
-  RetrieveSmallVariantQueryDownloadGenerateApiResponse,
-  RetrieveSmallVariantQueryDownloadGenerateApi1Data,
-  RetrieveSmallVariantQueryDownloadGenerateApi1Error,
-  RetrieveSmallVariantQueryDownloadGenerateApi1Response,
-  RetrieveSmallVariantQueryDownloadGenerateApi2Data,
-  RetrieveSmallVariantQueryDownloadGenerateApi2Error,
-  RetrieveSmallVariantQueryDownloadGenerateApi2Response,
-  RetrieveSmallVariantQueryDownloadServeApiData,
-  RetrieveSmallVariantQueryDownloadServeApiError,
-  RetrieveSmallVariantQueryDownloadServeApiResponse,
-  RetrieveExportFileBgJobData,
-  RetrieveExportFileBgJobError,
-  RetrieveExportFileBgJobResponse,
-  RetrieveSmallVariantCommentData,
-  RetrieveSmallVariantCommentError,
-  RetrieveSmallVariantCommentResponse,
-  CreateSmallVariantCommentData,
-  CreateSmallVariantCommentError,
-  CreateSmallVariantCommentResponse,
-  RetrieveSmallVariantCommentProjectData,
-  RetrieveSmallVariantCommentProjectError,
-  RetrieveSmallVariantCommentProjectResponse,
-  RetrieveSmallVariantFlagsData,
-  RetrieveSmallVariantFlagsError,
-  RetrieveSmallVariantFlagsResponse,
-  CreateSmallVariantFlagsData,
-  CreateSmallVariantFlagsError,
-  CreateSmallVariantFlagsResponse,
-  RetrieveSmallVariantFlagsProjectData,
-  RetrieveSmallVariantFlagsProjectError,
-  RetrieveSmallVariantFlagsProjectResponse,
-  RetrieveAcmgCriteriaRatingData,
-  RetrieveAcmgCriteriaRatingError,
-  RetrieveAcmgCriteriaRatingResponse,
-  CreateAcmgCriteriaRatingData,
-  CreateAcmgCriteriaRatingError,
-  CreateAcmgCriteriaRatingResponse,
-  ListExtraAnnoFields1Error,
-  ListExtraAnnoFields1Response,
-  RetrieveProjectSettingsData,
-  RetrieveProjectSettingsError,
-  RetrieveProjectSettingsResponse,
-  UpdateSmallVariantCommentData,
-  UpdateSmallVariantCommentError,
-  UpdateSmallVariantCommentResponse,
-  PartialUpdateSmallVariantCommentData,
-  PartialUpdateSmallVariantCommentError,
-  PartialUpdateSmallVariantCommentResponse,
-  UpdateSmallVariantFlagsData,
-  UpdateSmallVariantFlagsError,
-  UpdateSmallVariantFlagsResponse,
-  PartialUpdateSmallVariantFlagsData,
-  PartialUpdateSmallVariantFlagsError,
-  PartialUpdateSmallVariantFlagsResponse,
-  UpdateAcmgCriteriaRatingData,
-  UpdateAcmgCriteriaRatingError,
-  UpdateAcmgCriteriaRatingResponse,
-  PartialUpdateAcmgCriteriaRatingData,
-  PartialUpdateAcmgCriteriaRatingError,
-  PartialUpdateAcmgCriteriaRatingResponse,
-  DestroySmallVariantCommentData,
-  DestroySmallVariantCommentError,
-  DestroySmallVariantCommentResponse,
-  DestroySmallVariantFlagsData,
-  DestroySmallVariantFlagsError,
-  DestroySmallVariantFlagsResponse,
-  DestroyAcmgCriteriaRatingData,
-  DestroyAcmgCriteriaRatingError,
-  DestroyAcmgCriteriaRatingResponse,
-  RetrieveCaseImportInfoData,
-  RetrieveCaseImportInfoError,
-  RetrieveCaseImportInfoResponse,
-  CreateCaseImportInfoData,
-  CreateCaseImportInfoError,
-  CreateCaseImportInfoResponse,
-  RetrieveCaseImportInfo1Data,
-  RetrieveCaseImportInfo1Error,
-  RetrieveCaseImportInfo1Response,
-  UpdateCaseImportInfoData,
-  UpdateCaseImportInfoError,
-  UpdateCaseImportInfoResponse,
-  PartialUpdateCaseImportInfoData,
-  PartialUpdateCaseImportInfoError,
-  PartialUpdateCaseImportInfoResponse,
-  DestroyCaseImportInfoData,
-  DestroyCaseImportInfoError,
-  DestroyCaseImportInfoResponse,
-  RetrieveVariantSetImportInfoData,
-  RetrieveVariantSetImportInfoError,
-  RetrieveVariantSetImportInfoResponse,
-  CreateVariantSetImportInfoData,
-  CreateVariantSetImportInfoError,
-  CreateVariantSetImportInfoResponse,
-  RetrieveVariantSetImportInfo1Data,
-  RetrieveVariantSetImportInfo1Error,
-  RetrieveVariantSetImportInfo1Response,
-  UpdateVariantSetImportInfoData,
-  UpdateVariantSetImportInfoError,
-  UpdateVariantSetImportInfoResponse,
-  PartialUpdateVariantSetImportInfoData,
-  PartialUpdateVariantSetImportInfoError,
-  PartialUpdateVariantSetImportInfoResponse,
-  DestroyVariantSetImportInfoData,
-  DestroyVariantSetImportInfoError,
-  DestroyVariantSetImportInfoResponse,
-  RetrieveBamQcFileData,
-  RetrieveBamQcFileError,
-  RetrieveBamQcFileResponse,
-  CreateBamQcFileData,
-  CreateBamQcFileError,
-  CreateBamQcFileResponse,
-  RetrieveBamQcFile1Data,
-  RetrieveBamQcFile1Error,
-  RetrieveBamQcFile1Response,
-  DestroyBamQcFileData,
-  DestroyBamQcFileError,
-  DestroyBamQcFileResponse,
-  RetrieveCaseGeneAnnotationFileData,
-  RetrieveCaseGeneAnnotationFileError,
-  RetrieveCaseGeneAnnotationFileResponse,
-  CreateCaseGeneAnnotationFileData,
-  CreateCaseGeneAnnotationFileError,
-  CreateCaseGeneAnnotationFileResponse,
-  RetrieveCaseGeneAnnotationFile1Data,
-  RetrieveCaseGeneAnnotationFile1Error,
-  RetrieveCaseGeneAnnotationFile1Response,
-  DestroyCaseGeneAnnotationFileData,
-  DestroyCaseGeneAnnotationFileError,
-  DestroyCaseGeneAnnotationFileResponse,
-  RetrieveGenotypeFileData,
-  RetrieveGenotypeFileError,
-  RetrieveGenotypeFileResponse,
-  CreateGenotypeFileData,
-  CreateGenotypeFileError,
-  CreateGenotypeFileResponse,
-  RetrieveGenotypeFile1Data,
-  RetrieveGenotypeFile1Error,
-  RetrieveGenotypeFile1Response,
-  DestroyGenotypeFileData,
-  DestroyGenotypeFileError,
-  DestroyGenotypeFileResponse,
-  RetrieveEffectFileData,
-  RetrieveEffectFileError,
-  RetrieveEffectFileResponse,
-  CreateEffectFileData,
-  CreateEffectFileError,
-  CreateEffectFileResponse,
-  RetrieveEffectFile1Data,
-  RetrieveEffectFile1Error,
-  RetrieveEffectFile1Response,
-  DestroyEffectFileData,
-  DestroyEffectFileError,
-  DestroyEffectFileResponse,
-  RetrieveDatabaseInfoFileData,
-  RetrieveDatabaseInfoFileError,
-  RetrieveDatabaseInfoFileResponse,
-  CreateDatabaseInfoFileData,
-  CreateDatabaseInfoFileError,
-  CreateDatabaseInfoFileResponse,
-  RetrieveDatabaseInfoFile1Data,
-  RetrieveDatabaseInfoFile1Error,
-  RetrieveDatabaseInfoFile1Response,
-  DestroyDatabaseInfoFileData,
-  DestroyDatabaseInfoFileError,
-  DestroyDatabaseInfoFileResponse,
-  RetrieveSvFetchVariantsAjaxData,
-  RetrieveSvFetchVariantsAjaxError,
-  RetrieveSvFetchVariantsAjaxResponse,
-  ListSvQuickPresetsAjaxsError,
-  ListSvQuickPresetsAjaxsResponse,
-  RetrieveSvCategoryPresetsApiData,
-  RetrieveSvCategoryPresetsApiError,
-  RetrieveSvCategoryPresetsApiResponse,
-  RetrieveSvInheritancePresetsApiData,
-  RetrieveSvInheritancePresetsApiError,
-  RetrieveSvInheritancePresetsApiResponse,
-  RetrieveSvQuerySettingsShortcutsData,
-  RetrieveSvQuerySettingsShortcutsError,
-  RetrieveSvQuerySettingsShortcutsResponse,
-  RetrieveSvQueryData,
-  RetrieveSvQueryError,
-  RetrieveSvQueryResponse,
-  CreateSvQueryData,
-  CreateSvQueryError,
-  CreateSvQueryResponse,
-  RetrieveSvQueryWithLogsData,
-  RetrieveSvQueryWithLogsError,
-  RetrieveSvQueryWithLogsResponse,
-  UpdateSvQueryWithLogsData,
-  UpdateSvQueryWithLogsError,
-  UpdateSvQueryWithLogsResponse,
-  PartialUpdateSvQueryWithLogsData,
-  PartialUpdateSvQueryWithLogsError,
-  PartialUpdateSvQueryWithLogsResponse,
-  DestroySvQueryWithLogsData,
-  DestroySvQueryWithLogsError,
-  DestroySvQueryWithLogsResponse,
-  RetrieveSvQueryResultSetData,
-  RetrieveSvQueryResultSetError,
-  RetrieveSvQueryResultSetResponse,
-  RetrieveSvQueryResultSet1Data,
-  RetrieveSvQueryResultSet1Error,
-  RetrieveSvQueryResultSet1Response,
-  RetrieveSvQueryResultRowData,
-  RetrieveSvQueryResultRowError,
-  RetrieveSvQueryResultRowResponse,
-  RetrieveSvQueryResultRow1Data,
-  RetrieveSvQueryResultRow1Error,
-  RetrieveSvQueryResultRow1Response,
-  RetrieveStructuralVariantFlagsData,
-  RetrieveStructuralVariantFlagsError,
-  RetrieveStructuralVariantFlagsResponse,
-  CreateStructuralVariantFlagsData,
-  CreateStructuralVariantFlagsError,
-  CreateStructuralVariantFlagsResponse,
-  RetrieveStructuralVariantFlagsProjectData,
-  RetrieveStructuralVariantFlagsProjectError,
-  RetrieveStructuralVariantFlagsProjectResponse,
-  RetrieveStructuralVariantFlags1Data,
-  RetrieveStructuralVariantFlags1Error,
-  RetrieveStructuralVariantFlags1Response,
-  UpdateStructuralVariantFlagsData,
-  UpdateStructuralVariantFlagsError,
-  UpdateStructuralVariantFlagsResponse,
-  PartialUpdateStructuralVariantFlagsData,
-  PartialUpdateStructuralVariantFlagsError,
-  PartialUpdateStructuralVariantFlagsResponse,
-  DestroyStructuralVariantFlagsData,
-  DestroyStructuralVariantFlagsError,
-  DestroyStructuralVariantFlagsResponse,
-  RetrieveStructuralVariantCommentData,
-  RetrieveStructuralVariantCommentError,
-  RetrieveStructuralVariantCommentResponse,
-  CreateStructuralVariantCommentData,
-  CreateStructuralVariantCommentError,
-  CreateStructuralVariantCommentResponse,
-  RetrieveStructuralVariantCommentProjectData,
-  RetrieveStructuralVariantCommentProjectError,
-  RetrieveStructuralVariantCommentProjectResponse,
-  RetrieveStructuralVariantComment1Data,
-  RetrieveStructuralVariantComment1Error,
-  RetrieveStructuralVariantComment1Response,
-  UpdateStructuralVariantCommentData,
-  UpdateStructuralVariantCommentError,
-  UpdateStructuralVariantCommentResponse,
-  PartialUpdateStructuralVariantCommentData,
-  PartialUpdateStructuralVariantCommentError,
-  PartialUpdateStructuralVariantCommentResponse,
-  DestroyStructuralVariantCommentData,
-  DestroyStructuralVariantCommentError,
-  DestroyStructuralVariantCommentResponse,
-  RetrieveStructuralVariantAcmgRatingData,
-  RetrieveStructuralVariantAcmgRatingError,
-  RetrieveStructuralVariantAcmgRatingResponse,
-  CreateStructuralVariantAcmgRatingData,
-  CreateStructuralVariantAcmgRatingError,
-  CreateStructuralVariantAcmgRatingResponse,
-  RetrieveStructuralVariantAcmgRatingProjectData,
-  RetrieveStructuralVariantAcmgRatingProjectError,
-  RetrieveStructuralVariantAcmgRatingProjectResponse,
-  RetrieveStructuralVariantAcmgRating1Data,
-  RetrieveStructuralVariantAcmgRating1Error,
-  RetrieveStructuralVariantAcmgRating1Response,
-  UpdateStructuralVariantAcmgRatingData,
-  UpdateStructuralVariantAcmgRatingError,
-  UpdateStructuralVariantAcmgRatingResponse,
-  PartialUpdateStructuralVariantAcmgRatingData,
-  PartialUpdateStructuralVariantAcmgRatingError,
-  PartialUpdateStructuralVariantAcmgRatingResponse,
-  DestroyStructuralVariantAcmgRatingData,
-  DestroyStructuralVariantAcmgRatingError,
-  DestroyStructuralVariantAcmgRatingResponse,
-  ListProjectListAjaxsError,
-  ListProjectListAjaxsResponse,
-  RetrieveSodarUserError,
-  RetrieveSodarUserResponse,
-  ListProjectsError,
-  ListProjectsResponse,
-  RetrieveProjectData,
-  RetrieveProjectError,
-  RetrieveProjectResponse,
-  RetrieveProjectInviteData,
-  RetrieveProjectInviteError,
-  RetrieveProjectInviteResponse,
-  RetrieveAppSettingData,
-  RetrieveAppSettingError,
-  RetrieveAppSettingResponse,
-  RetrieveAppSetting1Error,
-  RetrieveAppSetting1Response,
-  ListSodarUsersError,
-  ListSodarUsersResponse,
-  RetrieveSodarUser1Error,
-  RetrieveSodarUser1Response,
-  RetrieveRemoteProjectGetData,
-  RetrieveRemoteProjectGetError,
-  RetrieveRemoteProjectGetResponse,
-  CreateProjectListColumnAjaxData,
-  CreateProjectListColumnAjaxError,
-  CreateProjectListColumnAjaxResponse,
-  CreateProjectListRoleAjaxData,
-  CreateProjectListRoleAjaxError,
-  CreateProjectListRoleAjaxResponse,
-  CreateProjectStarringAjaxData,
-  CreateProjectStarringAjaxError,
-  CreateProjectStarringAjaxResponse,
-  CreateProjectData,
-  CreateProjectError,
-  CreateProjectResponse,
-  CreateRoleAssignmentData,
-  CreateRoleAssignmentError,
-  CreateRoleAssignmentResponse,
-  CreateRoleAssignmentOwnerTransferData,
-  CreateRoleAssignmentOwnerTransferError,
-  CreateRoleAssignmentOwnerTransferResponse,
-  CreateProjectInviteData,
-  CreateProjectInviteError,
-  CreateProjectInviteResponse,
-  CreateProjectInviteRevokeData,
-  CreateProjectInviteRevokeError,
-  CreateProjectInviteRevokeResponse,
-  CreateProjectInviteResendData,
-  CreateProjectInviteResendError,
-  CreateProjectInviteResendResponse,
-  CreateProjectSettingSetData,
-  CreateProjectSettingSetError,
-  CreateProjectSettingSetResponse,
-  CreateUserSettingSetData,
-  CreateUserSettingSetError,
-  CreateUserSettingSetResponse,
-  UpdateProjectData,
-  UpdateProjectError,
-  UpdateProjectResponse,
-  PartialUpdateProjectData,
-  PartialUpdateProjectError,
-  PartialUpdateProjectResponse,
-  UpdateRoleAssignmentData,
-  UpdateRoleAssignmentError,
-  UpdateRoleAssignmentResponse,
-  PartialUpdateRoleAssignmentData,
-  PartialUpdateRoleAssignmentError,
-  PartialUpdateRoleAssignmentResponse,
-  DestroyRoleAssignmentData,
-  DestroyRoleAssignmentError,
-  DestroyRoleAssignmentResponse,
-  RetrieveProjectEventDetailAjaxData,
-  RetrieveProjectEventDetailAjaxError,
-  RetrieveProjectEventDetailAjaxResponse,
-  RetrieveSiteEventDetailAjaxData,
-  RetrieveSiteEventDetailAjaxError,
-  RetrieveSiteEventDetailAjaxResponse,
-  RetrieveProjectEventExtraAjaxData,
-  RetrieveProjectEventExtraAjaxError,
-  RetrieveProjectEventExtraAjaxResponse,
-  RetrieveSiteEventExtraAjaxData,
-  RetrieveSiteEventExtraAjaxError,
-  RetrieveSiteEventExtraAjaxResponse,
-  RetrieveEventStatusExtraAjaxData,
-  RetrieveEventStatusExtraAjaxError,
-  RetrieveEventStatusExtraAjaxResponse,
-  ListAppAlertStatusAjaxsError,
-  ListAppAlertStatusAjaxsResponse,
-  CreateAppAlertDismissAjaxData,
-  CreateAppAlertDismissAjaxError,
-  CreateAppAlertDismissAjaxResponse,
-  CreateAppAlertDismissAjax1Data,
-  CreateAppAlertDismissAjax1Error,
-  CreateAppAlertDismissAjax1Response,
-  RetrieveProjectUserPermissionsAjaxData,
-  RetrieveProjectUserPermissionsAjaxError,
-  RetrieveProjectUserPermissionsAjaxResponse,
-  RetrieveCohortData,
-  RetrieveCohortError,
-  RetrieveCohortResponse,
-  CreateCohortData,
-  CreateCohortError,
-  CreateCohortResponse,
-  RetrieveCohort1Data,
-  RetrieveCohort1Error,
-  RetrieveCohort1Response,
-  UpdateCohortData,
-  UpdateCohortError,
-  UpdateCohortResponse,
-  PartialUpdateCohortData,
-  PartialUpdateCohortError,
-  PartialUpdateCohortResponse,
-  DestroyCohortData,
-  DestroyCohortError,
-  DestroyCohortResponse,
-  RetrieveCohortCaseData,
-  RetrieveCohortCaseError,
-  RetrieveCohortCaseResponse,
-  RetrieveProjectCasesData,
-  RetrieveProjectCasesError,
-  RetrieveProjectCasesResponse,
-  CreateCohortCaseData,
-  CreateCohortCaseError,
-  CreateCohortCaseResponse,
-  DestroyCohortCaseData,
-  DestroyCohortCaseError,
-  DestroyCohortCaseResponse,
-  ListBeaconInfoApisError,
-  ListBeaconInfoApisResponse,
-  ListBeaconQueryApisError,
-  ListBeaconQueryApisResponse,
-  CreateBeaconQueryApiData,
-  CreateBeaconQueryApiError,
-  CreateBeaconQueryApiResponse,
-  ListGenePanelCategorysError,
-  ListGenePanelCategorysResponse,
-  RetrieveGenePanelError,
-  RetrieveGenePanelResponse,
-  RetrieveCaseSerializerNgData,
-  RetrieveCaseSerializerNgError,
-  RetrieveCaseSerializerNgResponse,
-  RetrieveCaseSerializerNg1Data,
-  RetrieveCaseSerializerNg1Error,
-  RetrieveCaseSerializerNg1Response,
-  UpdateCaseSerializerNgData,
-  UpdateCaseSerializerNgError,
-  UpdateCaseSerializerNgResponse,
-  PartialUpdateCaseSerializerNgData,
-  PartialUpdateCaseSerializerNgError,
-  PartialUpdateCaseSerializerNgResponse,
-  DestroyCaseSerializerNgData,
-  DestroyCaseSerializerNgError,
-  DestroyCaseSerializerNgResponse,
-  RetrieveCaseCommentData,
-  RetrieveCaseCommentError,
-  RetrieveCaseCommentResponse,
-  CreateCaseCommentData,
-  CreateCaseCommentError,
-  CreateCaseCommentResponse,
-  RetrieveCaseCommentsData,
-  RetrieveCaseCommentsError,
-  RetrieveCaseCommentsResponse,
-  UpdateCaseCommentsData,
-  UpdateCaseCommentsError,
-  UpdateCaseCommentsResponse,
-  PartialUpdateCaseCommentsData,
-  PartialUpdateCaseCommentsError,
-  PartialUpdateCaseCommentsResponse,
-  DestroyCaseCommentsData,
-  DestroyCaseCommentsError,
-  DestroyCaseCommentsResponse,
-  RetrieveCasePhenotypeTermsData,
-  RetrieveCasePhenotypeTermsError,
-  RetrieveCasePhenotypeTermsResponse,
-  CreateCasePhenotypeTermsData,
-  CreateCasePhenotypeTermsError,
-  CreateCasePhenotypeTermsResponse,
-  RetrieveCasePhenotypeTerms1Data,
-  RetrieveCasePhenotypeTerms1Error,
-  RetrieveCasePhenotypeTerms1Response,
-  UpdateCasePhenotypeTermsData,
-  UpdateCasePhenotypeTermsError,
-  UpdateCasePhenotypeTermsResponse,
-  PartialUpdateCasePhenotypeTermsData,
-  PartialUpdateCasePhenotypeTermsError,
-  PartialUpdateCasePhenotypeTermsResponse,
-  DestroyCasePhenotypeTermsData,
-  DestroyCasePhenotypeTermsError,
-  DestroyCasePhenotypeTermsResponse,
-  RetrieveAnnotationReleaseInfoData,
-  RetrieveAnnotationReleaseInfoError,
-  RetrieveAnnotationReleaseInfoResponse,
-  RetrieveSvAnnotationReleaseInfoData,
-  RetrieveSvAnnotationReleaseInfoError,
-  RetrieveSvAnnotationReleaseInfoResponse,
-  RetrieveVarAnnoSetData,
-  RetrieveVarAnnoSetError,
-  RetrieveVarAnnoSetResponse,
-  CreateVarAnnoSetData,
-  CreateVarAnnoSetError,
-  CreateVarAnnoSetResponse,
-  RetrieveVarAnnoSet1Data,
-  RetrieveVarAnnoSet1Error,
-  RetrieveVarAnnoSet1Response,
-  UpdateVarAnnoSetData,
-  UpdateVarAnnoSetError,
-  UpdateVarAnnoSetResponse,
-  PartialUpdateVarAnnoSetData,
-  PartialUpdateVarAnnoSetError,
-  PartialUpdateVarAnnoSetResponse,
-  DestroyVarAnnoSetData,
-  DestroyVarAnnoSetError,
-  DestroyVarAnnoSetResponse,
-  RetrieveVarAnnoSetEntryData,
-  RetrieveVarAnnoSetEntryError,
-  RetrieveVarAnnoSetEntryResponse,
-  CreateVarAnnoSetEntryData,
-  CreateVarAnnoSetEntryError,
-  CreateVarAnnoSetEntryResponse,
-  RetrieveVarAnnoSetEntry1Data,
-  RetrieveVarAnnoSetEntry1Error,
-  RetrieveVarAnnoSetEntry1Response,
-  UpdateVarAnnoSetEntryData,
-  UpdateVarAnnoSetEntryError,
-  UpdateVarAnnoSetEntryResponse,
-  PartialUpdateVarAnnoSetEntryData,
-  PartialUpdateVarAnnoSetEntryError,
-  PartialUpdateVarAnnoSetEntryResponse,
-  DestroyVarAnnoSetEntryData,
-  DestroyVarAnnoSetEntryError,
-  DestroyVarAnnoSetEntryResponse,
-  ListEnrichmentKitsError,
-  ListEnrichmentKitsResponse,
-  CreateEnrichmentKitData,
-  CreateEnrichmentKitError,
-  CreateEnrichmentKitResponse,
-  RetrieveEnrichmentKitData,
-  RetrieveEnrichmentKitError,
-  RetrieveEnrichmentKitResponse,
-  UpdateEnrichmentKitData,
-  UpdateEnrichmentKitError,
-  UpdateEnrichmentKitResponse,
-  PartialUpdateEnrichmentKitData,
-  PartialUpdateEnrichmentKitError,
-  PartialUpdateEnrichmentKitResponse,
-  DestroyEnrichmentKitData,
-  DestroyEnrichmentKitError,
-  DestroyEnrichmentKitResponse,
-  RetrieveTargetBedFileData,
-  RetrieveTargetBedFileError,
-  RetrieveTargetBedFileResponse,
-  CreateTargetBedFileData,
-  CreateTargetBedFileError,
-  CreateTargetBedFileResponse,
-  RetrieveTargetBedFile1Data,
-  RetrieveTargetBedFile1Error,
-  RetrieveTargetBedFile1Response,
-  UpdateTargetBedFileData,
-  UpdateTargetBedFileError,
-  UpdateTargetBedFileResponse,
-  PartialUpdateTargetBedFileData,
-  PartialUpdateTargetBedFileError,
-  PartialUpdateTargetBedFileResponse,
-  DestroyTargetBedFileData,
-  DestroyTargetBedFileError,
-  DestroyTargetBedFileResponse,
-  RetrieveCaseImportActionData,
-  RetrieveCaseImportActionError,
-  RetrieveCaseImportActionResponse,
-  CreateCaseImportActionData,
-  CreateCaseImportActionError,
-  CreateCaseImportActionResponse,
-  RetrieveCaseImportAction1Data,
-  RetrieveCaseImportAction1Error,
-  RetrieveCaseImportAction1Response,
-  UpdateCaseImportActionData,
-  UpdateCaseImportActionError,
-  UpdateCaseImportActionResponse,
-  PartialUpdateCaseImportActionData,
-  PartialUpdateCaseImportActionError,
-  PartialUpdateCaseImportActionResponse,
-  DestroyCaseImportActionData,
-  DestroyCaseImportActionError,
-  DestroyCaseImportActionResponse,
-  RetrieveCaseQcData,
-  RetrieveCaseQcError,
-  RetrieveCaseQcResponse,
-  RetrieveVarfishStatsData,
-  RetrieveVarfishStatsError,
-  RetrieveVarfishStatsResponse,
-  ListCaseAnalysisData,
-  ListCaseAnalysisError,
-  ListCaseAnalysisResponse,
-  RetrieveCaseAnalysisData,
-  RetrieveCaseAnalysisError,
-  RetrieveCaseAnalysisResponse,
-  ListCaseAnalysisSessionsData,
-  ListCaseAnalysisSessionsError,
-  ListCaseAnalysisSessionsResponse,
-  RetrieveCaseAnalysisSessionData,
-  RetrieveCaseAnalysisSessionError,
-  RetrieveCaseAnalysisSessionResponse,
-  ListQueryPresetsSetsFactoryDefaultsData,
-  ListQueryPresetsSetsFactoryDefaultsError,
-  ListQueryPresetsSetsFactoryDefaultsResponse,
-  RetrieveQueryPresetsSetsFactoryDefaultsData,
-  RetrieveQueryPresetsSetsFactoryDefaultsError,
-  RetrieveQueryPresetsSetsFactoryDefaultsResponse,
-  ListQueryPresetsSetsData,
-  ListQueryPresetsSetsError,
-  ListQueryPresetsSetsResponse,
-  CreateQueryPresetsSetData,
-  CreateQueryPresetsSetError,
-  CreateQueryPresetsSetResponse,
-  RetrieveQueryPresetsSetData,
-  RetrieveQueryPresetsSetError,
-  RetrieveQueryPresetsSetResponse,
-  UpdateQueryPresetsSetData,
-  UpdateQueryPresetsSetError,
-  UpdateQueryPresetsSetResponse,
-  PartialUpdateQueryPresetsSetData,
-  PartialUpdateQueryPresetsSetError,
-  PartialUpdateQueryPresetsSetResponse,
-  DestroyQueryPresetsSetData,
-  DestroyQueryPresetsSetError,
-  DestroyQueryPresetsSetResponse,
-  CopyFromQueryPresetsSetData,
-  CopyFromQueryPresetsSetError,
-  CopyFromQueryPresetsSetResponse,
-  ListQueryPresetsSetVersionsData,
-  ListQueryPresetsSetVersionsError,
-  ListQueryPresetsSetVersionsResponse,
-  CreateQueryPresetsSetVersionData,
-  CreateQueryPresetsSetVersionError,
-  CreateQueryPresetsSetVersionResponse,
-  RetrieveQueryPresetsSetVersionDetailsData,
-  RetrieveQueryPresetsSetVersionDetailsError,
-  RetrieveQueryPresetsSetVersionDetailsResponse,
-  UpdateQueryPresetsSetVersionData,
-  UpdateQueryPresetsSetVersionError,
-  UpdateQueryPresetsSetVersionResponse,
-  PartialUpdateQueryPresetsSetVersionData,
-  PartialUpdateQueryPresetsSetVersionError,
-  PartialUpdateQueryPresetsSetVersionResponse,
-  DestroyQueryPresetsSetVersionData,
-  DestroyQueryPresetsSetVersionError,
-  DestroyQueryPresetsSetVersionResponse,
-  ListQueryPresetsQualitysData,
-  ListQueryPresetsQualitysError,
-  ListQueryPresetsQualitysResponse,
-  CreateQueryPresetsQualityData,
-  CreateQueryPresetsQualityError,
-  CreateQueryPresetsQualityResponse,
-  RetrieveQueryPresetsQualityData,
-  RetrieveQueryPresetsQualityError,
-  RetrieveQueryPresetsQualityResponse,
-  UpdateQueryPresetsQualityData,
-  UpdateQueryPresetsQualityError,
-  UpdateQueryPresetsQualityResponse,
-  PartialUpdateQueryPresetsQualityData,
-  PartialUpdateQueryPresetsQualityError,
-  PartialUpdateQueryPresetsQualityResponse,
-  DestroyQueryPresetsQualityData,
-  DestroyQueryPresetsQualityError,
-  DestroyQueryPresetsQualityResponse,
-  ListQueryPresetsFrequencysData,
-  ListQueryPresetsFrequencysError,
-  ListQueryPresetsFrequencysResponse,
-  CreateQueryPresetsFrequencyData,
-  CreateQueryPresetsFrequencyError,
-  CreateQueryPresetsFrequencyResponse,
-  RetrieveQueryPresetsFrequencyData,
-  RetrieveQueryPresetsFrequencyError,
-  RetrieveQueryPresetsFrequencyResponse,
-  UpdateQueryPresetsFrequencyData,
-  UpdateQueryPresetsFrequencyError,
-  UpdateQueryPresetsFrequencyResponse,
-  PartialUpdateQueryPresetsFrequencyData,
-  PartialUpdateQueryPresetsFrequencyError,
-  PartialUpdateQueryPresetsFrequencyResponse,
-  DestroyQueryPresetsFrequencyData,
-  DestroyQueryPresetsFrequencyError,
-  DestroyQueryPresetsFrequencyResponse,
-  ListQueryPresetsConsequencesData,
-  ListQueryPresetsConsequencesError,
-  ListQueryPresetsConsequencesResponse,
-  CreateQueryPresetsConsequenceData,
-  CreateQueryPresetsConsequenceError,
-  CreateQueryPresetsConsequenceResponse,
-  RetrieveQueryPresetsConsequenceData,
-  RetrieveQueryPresetsConsequenceError,
-  RetrieveQueryPresetsConsequenceResponse,
-  UpdateQueryPresetsConsequenceData,
-  UpdateQueryPresetsConsequenceError,
-  UpdateQueryPresetsConsequenceResponse,
-  PartialUpdateQueryPresetsConsequenceData,
-  PartialUpdateQueryPresetsConsequenceError,
-  PartialUpdateQueryPresetsConsequenceResponse,
-  DestroyQueryPresetsConsequenceData,
-  DestroyQueryPresetsConsequenceError,
-  DestroyQueryPresetsConsequenceResponse,
-  ListQueryPresetsLocusData,
-  ListQueryPresetsLocusError,
-  ListQueryPresetsLocusResponse,
-  CreateQueryPresetsLocusData,
-  CreateQueryPresetsLocusError,
-  CreateQueryPresetsLocusResponse,
-  RetrieveQueryPresetsLocusData,
-  RetrieveQueryPresetsLocusError,
-  RetrieveQueryPresetsLocusResponse,
-  UpdateQueryPresetsLocusData,
-  UpdateQueryPresetsLocusError,
-  UpdateQueryPresetsLocusResponse,
-  PartialUpdateQueryPresetsLocusData,
-  PartialUpdateQueryPresetsLocusError,
-  PartialUpdateQueryPresetsLocusResponse,
-  DestroyQueryPresetsLocusData,
-  DestroyQueryPresetsLocusError,
-  DestroyQueryPresetsLocusResponse,
-  ListQueryPresetsPhenotypePriosData,
-  ListQueryPresetsPhenotypePriosError,
-  ListQueryPresetsPhenotypePriosResponse,
-  CreateQueryPresetsPhenotypePrioData,
-  CreateQueryPresetsPhenotypePrioError,
-  CreateQueryPresetsPhenotypePrioResponse,
-  RetrieveQueryPresetsPhenotypePrioData,
-  RetrieveQueryPresetsPhenotypePrioError,
-  RetrieveQueryPresetsPhenotypePrioResponse,
-  UpdateQueryPresetsPhenotypePrioData,
-  UpdateQueryPresetsPhenotypePrioError,
-  UpdateQueryPresetsPhenotypePrioResponse,
-  PartialUpdateQueryPresetsPhenotypePrioData,
-  PartialUpdateQueryPresetsPhenotypePrioError,
-  PartialUpdateQueryPresetsPhenotypePrioResponse,
-  DestroyQueryPresetsPhenotypePrioData,
-  DestroyQueryPresetsPhenotypePrioError,
-  DestroyQueryPresetsPhenotypePrioResponse,
-  ListQueryPresetsVariantPriosData,
-  ListQueryPresetsVariantPriosError,
-  ListQueryPresetsVariantPriosResponse,
-  CreateQueryPresetsVariantPrioData,
-  CreateQueryPresetsVariantPrioError,
-  CreateQueryPresetsVariantPrioResponse,
-  RetrieveQueryPresetsVariantPrioData,
-  RetrieveQueryPresetsVariantPrioError,
-  RetrieveQueryPresetsVariantPrioResponse,
-  UpdateQueryPresetsVariantPrioData,
-  UpdateQueryPresetsVariantPrioError,
-  UpdateQueryPresetsVariantPrioResponse,
-  PartialUpdateQueryPresetsVariantPrioData,
-  PartialUpdateQueryPresetsVariantPrioError,
-  PartialUpdateQueryPresetsVariantPrioResponse,
-  DestroyQueryPresetsVariantPrioData,
-  DestroyQueryPresetsVariantPrioError,
-  DestroyQueryPresetsVariantPrioResponse,
-  ListQueryPresetsClinvarsData,
-  ListQueryPresetsClinvarsError,
-  ListQueryPresetsClinvarsResponse,
-  CreateQueryPresetsClinvarData,
-  CreateQueryPresetsClinvarError,
-  CreateQueryPresetsClinvarResponse,
-  RetrieveQueryPresetsClinvarData,
-  RetrieveQueryPresetsClinvarError,
-  RetrieveQueryPresetsClinvarResponse,
-  UpdateQueryPresetsClinvarData,
-  UpdateQueryPresetsClinvarError,
-  UpdateQueryPresetsClinvarResponse,
-  PartialUpdateQueryPresetsClinvarData,
-  PartialUpdateQueryPresetsClinvarError,
-  PartialUpdateQueryPresetsClinvarResponse,
-  DestroyQueryPresetsClinvarData,
-  DestroyQueryPresetsClinvarError,
-  DestroyQueryPresetsClinvarResponse,
-  ListQueryPresetsColumnsData,
-  ListQueryPresetsColumnsError,
-  ListQueryPresetsColumnsResponse,
-  CreateQueryPresetsColumnsData,
-  CreateQueryPresetsColumnsError,
-  CreateQueryPresetsColumnsResponse,
-  RetrieveQueryPresetsColumnsData,
-  RetrieveQueryPresetsColumnsError,
-  RetrieveQueryPresetsColumnsResponse,
-  UpdateQueryPresetsColumnsData,
-  UpdateQueryPresetsColumnsError,
-  UpdateQueryPresetsColumnsResponse,
-  PartialUpdateQueryPresetsColumnsData,
-  PartialUpdateQueryPresetsColumnsError,
-  PartialUpdateQueryPresetsColumnsResponse,
-  DestroyQueryPresetsColumnsData,
-  DestroyQueryPresetsColumnsError,
-  DestroyQueryPresetsColumnsResponse,
-  ListPredefinedQuerysData,
-  ListPredefinedQuerysError,
-  ListPredefinedQuerysResponse,
-  CreatePredefinedQueryData,
-  CreatePredefinedQueryError,
-  CreatePredefinedQueryResponse,
-  RetrievePredefinedQueryData,
-  RetrievePredefinedQueryError,
-  RetrievePredefinedQueryResponse,
-  UpdatePredefinedQueryData,
-  UpdatePredefinedQueryError,
-  UpdatePredefinedQueryResponse,
-  PartialUpdatePredefinedQueryData,
-  PartialUpdatePredefinedQueryError,
-  PartialUpdatePredefinedQueryResponse,
-  DestroyPredefinedQueryData,
-  DestroyPredefinedQueryError,
-  DestroyPredefinedQueryResponse,
-  ListQuerySettingsData,
-  ListQuerySettingsError,
-  ListQuerySettingsResponse,
-  CreateQuerySettingsDetailsData,
-  CreateQuerySettingsDetailsError,
-  CreateQuerySettingsDetailsResponse,
-  RetrieveQuerySettingsDetailsData,
-  RetrieveQuerySettingsDetailsError,
-  RetrieveQuerySettingsDetailsResponse,
-  UpdateQuerySettingsDetailsData,
-  UpdateQuerySettingsDetailsError,
-  UpdateQuerySettingsDetailsResponse,
-  PartialUpdateQuerySettingsDetailsData,
-  PartialUpdateQuerySettingsDetailsError,
-  PartialUpdateQuerySettingsDetailsResponse,
-  DestroyQuerySettingsData,
-  DestroyQuerySettingsError,
-  DestroyQuerySettingsResponse,
-  ListQuerysData,
-  ListQuerysError,
-  ListQuerysResponse,
-  CreateQueryDetailsData,
-  CreateQueryDetailsError,
-  CreateQueryDetailsResponse,
-  RetrieveQueryDetailsData,
-  RetrieveQueryDetailsError,
-  RetrieveQueryDetailsResponse,
-  UpdateQueryDetailsData,
-  UpdateQueryDetailsError,
-  UpdateQueryDetailsResponse,
-  PartialUpdateQueryDetailsData,
-  PartialUpdateQueryDetailsError,
-  PartialUpdateQueryDetailsResponse,
-  DestroyQueryData,
-  DestroyQueryError,
-  DestroyQueryResponse,
-  ListQueryExecutionsData,
-  ListQueryExecutionsError,
-  ListQueryExecutionsResponse,
-  RetrieveQueryExecutionDetailsData,
-  RetrieveQueryExecutionDetailsError,
-  RetrieveQueryExecutionDetailsResponse,
-  ListResultSetsData,
-  ListResultSetsError,
-  ListResultSetsResponse,
-  RetrieveResultSetData,
-  RetrieveResultSetError,
-  RetrieveResultSetResponse,
-  ListResultRowsData,
-  ListResultRowsError,
-  ListResultRowsResponse,
-  RetrieveResultRowData,
-  RetrieveResultRowError,
-  RetrieveResultRowResponse,
-  CreateLoginData,
-  CreateLoginError,
-  CreateLoginResponse,
-  CreateLogoutData,
-  CreateLogoutError,
-  CreateLogoutResponse,
-  CreateLogoutAllData,
-  CreateLogoutAllError,
-  CreateLogoutAllResponse,
-  CreateAdminAlertActiveToggleAjaxData,
-  CreateAdminAlertActiveToggleAjaxError,
-  CreateAdminAlertActiveToggleAjaxResponse,
+  CasesAnalysisApiCaseanalysisListData,
+  CasesAnalysisApiCaseanalysisListError,
+  CasesAnalysisApiCaseanalysisListResponse,
+  CasesAnalysisApiCaseanalysisRetrieveData,
+  CasesAnalysisApiCaseanalysisRetrieveError,
+  CasesAnalysisApiCaseanalysisRetrieveResponse,
+  CasesAnalysisApiCaseanalysissessionListData,
+  CasesAnalysisApiCaseanalysissessionListError,
+  CasesAnalysisApiCaseanalysissessionListResponse,
+  CasesAnalysisApiCaseanalysissessionRetrieveData,
+  CasesAnalysisApiCaseanalysissessionRetrieveError,
+  CasesAnalysisApiCaseanalysissessionRetrieveResponse,
+  CasesImportApiCaseImportActionListCreateListData,
+  CasesImportApiCaseImportActionListCreateListError,
+  CasesImportApiCaseImportActionListCreateListResponse,
+  CasesImportApiCaseImportActionListCreateCreateData,
+  CasesImportApiCaseImportActionListCreateCreateError,
+  CasesImportApiCaseImportActionListCreateCreateResponse,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveError,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateError,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateResponse,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyData,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyError,
+  CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyResponse,
+  CasesQcApiCaseqcRetrieveRetrieveData,
+  CasesQcApiCaseqcRetrieveRetrieveError,
+  CasesQcApiCaseqcRetrieveRetrieveResponse,
+  CasesQcApiVarfishstatsRetrieveRetrieveData,
+  CasesQcApiVarfishstatsRetrieveRetrieveError,
+  CasesQcApiVarfishstatsRetrieveRetrieveResponse,
+  CasesApiAnnotationReleaseInfoListListData,
+  CasesApiAnnotationReleaseInfoListListError,
+  CasesApiAnnotationReleaseInfoListListResponse,
+  CasesApiCaseCommentListCreateListData,
+  CasesApiCaseCommentListCreateListError,
+  CasesApiCaseCommentListCreateListResponse,
+  CasesApiCaseCommentListCreateCreateData,
+  CasesApiCaseCommentListCreateCreateError,
+  CasesApiCaseCommentListCreateCreateResponse,
+  CasesApiCasePhenotypeTermsListCreateListData,
+  CasesApiCasePhenotypeTermsListCreateListError,
+  CasesApiCasePhenotypeTermsListCreateListResponse,
+  CasesApiCasePhenotypeTermsListCreateCreateData,
+  CasesApiCasePhenotypeTermsListCreateCreateError,
+  CasesApiCasePhenotypeTermsListCreateCreateResponse,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveError,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveResponse,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateError,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyError,
+  CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse,
+  CasesApiCaseListListData,
+  CasesApiCaseListListError,
+  CasesApiCaseListListResponse,
+  CasesApiCaseRetrieveUpdateDestroyRetrieveData,
+  CasesApiCaseRetrieveUpdateDestroyRetrieveError,
+  CasesApiCaseRetrieveUpdateDestroyRetrieveResponse,
+  CasesApiCaseRetrieveUpdateDestroyUpdateData,
+  CasesApiCaseRetrieveUpdateDestroyUpdateError,
+  CasesApiCaseRetrieveUpdateDestroyUpdateResponse,
+  CasesApiCaseRetrieveUpdateDestroyPartialUpdateData,
+  CasesApiCaseRetrieveUpdateDestroyPartialUpdateError,
+  CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse,
+  CasesApiCaseRetrieveUpdateDestroyDestroyData,
+  CasesApiCaseRetrieveUpdateDestroyDestroyError,
+  CasesApiCaseRetrieveUpdateDestroyDestroyResponse,
+  CasesApiSvAnnotationReleaseInfoListListData,
+  CasesApiSvAnnotationReleaseInfoListListError,
+  CasesApiSvAnnotationReleaseInfoListListResponse,
+  GenepanelsApiGenepanelCategoryListListError,
+  GenepanelsApiGenepanelCategoryListListResponse,
+  GenepanelsApiLookupGenepanelRetrieveError,
+  GenepanelsApiLookupGenepanelRetrieveResponse,
+  SeqmetaApiEnrichmentkitListCreateListError,
+  SeqmetaApiEnrichmentkitListCreateListResponse,
+  SeqmetaApiEnrichmentkitListCreateCreateData,
+  SeqmetaApiEnrichmentkitListCreateCreateError,
+  SeqmetaApiEnrichmentkitListCreateCreateResponse,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveError,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveResponse,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateError,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyError,
+  SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse,
+  SeqmetaApiTargetbedfileListCreateListData,
+  SeqmetaApiTargetbedfileListCreateListError,
+  SeqmetaApiTargetbedfileListCreateListResponse,
+  SeqmetaApiTargetbedfileListCreateCreateData,
+  SeqmetaApiTargetbedfileListCreateCreateError,
+  SeqmetaApiTargetbedfileListCreateCreateResponse,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveError,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveResponse,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateError,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError,
+  SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse,
+  SeqvarsApiPredefinedqueryListData,
+  SeqvarsApiPredefinedqueryListError,
+  SeqvarsApiPredefinedqueryListResponse,
+  SeqvarsApiPredefinedqueryCreateData,
+  SeqvarsApiPredefinedqueryCreateError,
+  SeqvarsApiPredefinedqueryCreateResponse,
+  SeqvarsApiPredefinedqueryRetrieveData,
+  SeqvarsApiPredefinedqueryRetrieveError,
+  SeqvarsApiPredefinedqueryRetrieveResponse,
+  SeqvarsApiPredefinedqueryUpdateData,
+  SeqvarsApiPredefinedqueryUpdateError,
+  SeqvarsApiPredefinedqueryUpdateResponse,
+  SeqvarsApiPredefinedqueryPartialUpdateData,
+  SeqvarsApiPredefinedqueryPartialUpdateError,
+  SeqvarsApiPredefinedqueryPartialUpdateResponse,
+  SeqvarsApiPredefinedqueryDestroyData,
+  SeqvarsApiPredefinedqueryDestroyError,
+  SeqvarsApiPredefinedqueryDestroyResponse,
+  SeqvarsApiQueryListData,
+  SeqvarsApiQueryListError,
+  SeqvarsApiQueryListResponse,
+  SeqvarsApiQueryCreateData,
+  SeqvarsApiQueryCreateError,
+  SeqvarsApiQueryCreateResponse,
+  SeqvarsApiQueryRetrieveData,
+  SeqvarsApiQueryRetrieveError,
+  SeqvarsApiQueryRetrieveResponse,
+  SeqvarsApiQueryUpdateData,
+  SeqvarsApiQueryUpdateError,
+  SeqvarsApiQueryUpdateResponse,
+  SeqvarsApiQueryPartialUpdateData,
+  SeqvarsApiQueryPartialUpdateError,
+  SeqvarsApiQueryPartialUpdateResponse,
+  SeqvarsApiQueryDestroyData,
+  SeqvarsApiQueryDestroyError,
+  SeqvarsApiQueryDestroyResponse,
+  SeqvarsApiQueryexecutionListData,
+  SeqvarsApiQueryexecutionListError,
+  SeqvarsApiQueryexecutionListResponse,
+  SeqvarsApiQueryexecutionRetrieveData,
+  SeqvarsApiQueryexecutionRetrieveError,
+  SeqvarsApiQueryexecutionRetrieveResponse,
+  SeqvarsApiQuerypresetsclinvarListData,
+  SeqvarsApiQuerypresetsclinvarListError,
+  SeqvarsApiQuerypresetsclinvarListResponse,
+  SeqvarsApiQuerypresetsclinvarCreateData,
+  SeqvarsApiQuerypresetsclinvarCreateError,
+  SeqvarsApiQuerypresetsclinvarCreateResponse,
+  SeqvarsApiQuerypresetsclinvarRetrieveData,
+  SeqvarsApiQuerypresetsclinvarRetrieveError,
+  SeqvarsApiQuerypresetsclinvarRetrieveResponse,
+  SeqvarsApiQuerypresetsclinvarUpdateData,
+  SeqvarsApiQuerypresetsclinvarUpdateError,
+  SeqvarsApiQuerypresetsclinvarUpdateResponse,
+  SeqvarsApiQuerypresetsclinvarPartialUpdateData,
+  SeqvarsApiQuerypresetsclinvarPartialUpdateError,
+  SeqvarsApiQuerypresetsclinvarPartialUpdateResponse,
+  SeqvarsApiQuerypresetsclinvarDestroyData,
+  SeqvarsApiQuerypresetsclinvarDestroyError,
+  SeqvarsApiQuerypresetsclinvarDestroyResponse,
+  SeqvarsApiQuerypresetscolumnsListData,
+  SeqvarsApiQuerypresetscolumnsListError,
+  SeqvarsApiQuerypresetscolumnsListResponse,
+  SeqvarsApiQuerypresetscolumnsCreateData,
+  SeqvarsApiQuerypresetscolumnsCreateError,
+  SeqvarsApiQuerypresetscolumnsCreateResponse,
+  SeqvarsApiQuerypresetscolumnsRetrieveData,
+  SeqvarsApiQuerypresetscolumnsRetrieveError,
+  SeqvarsApiQuerypresetscolumnsRetrieveResponse,
+  SeqvarsApiQuerypresetscolumnsUpdateData,
+  SeqvarsApiQuerypresetscolumnsUpdateError,
+  SeqvarsApiQuerypresetscolumnsUpdateResponse,
+  SeqvarsApiQuerypresetscolumnsPartialUpdateData,
+  SeqvarsApiQuerypresetscolumnsPartialUpdateError,
+  SeqvarsApiQuerypresetscolumnsPartialUpdateResponse,
+  SeqvarsApiQuerypresetscolumnsDestroyData,
+  SeqvarsApiQuerypresetscolumnsDestroyError,
+  SeqvarsApiQuerypresetscolumnsDestroyResponse,
+  SeqvarsApiQuerypresetsconsequenceListData,
+  SeqvarsApiQuerypresetsconsequenceListError,
+  SeqvarsApiQuerypresetsconsequenceListResponse,
+  SeqvarsApiQuerypresetsconsequenceCreateData,
+  SeqvarsApiQuerypresetsconsequenceCreateError,
+  SeqvarsApiQuerypresetsconsequenceCreateResponse,
+  SeqvarsApiQuerypresetsconsequenceRetrieveData,
+  SeqvarsApiQuerypresetsconsequenceRetrieveError,
+  SeqvarsApiQuerypresetsconsequenceRetrieveResponse,
+  SeqvarsApiQuerypresetsconsequenceUpdateData,
+  SeqvarsApiQuerypresetsconsequenceUpdateError,
+  SeqvarsApiQuerypresetsconsequenceUpdateResponse,
+  SeqvarsApiQuerypresetsconsequencePartialUpdateData,
+  SeqvarsApiQuerypresetsconsequencePartialUpdateError,
+  SeqvarsApiQuerypresetsconsequencePartialUpdateResponse,
+  SeqvarsApiQuerypresetsconsequenceDestroyData,
+  SeqvarsApiQuerypresetsconsequenceDestroyError,
+  SeqvarsApiQuerypresetsconsequenceDestroyResponse,
+  SeqvarsApiQuerypresetsfactorydefaultsListData,
+  SeqvarsApiQuerypresetsfactorydefaultsListError,
+  SeqvarsApiQuerypresetsfactorydefaultsListResponse,
+  SeqvarsApiQuerypresetsfactorydefaultsRetrieveData,
+  SeqvarsApiQuerypresetsfactorydefaultsRetrieveError,
+  SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse,
+  SeqvarsApiQuerypresetsfrequencyListData,
+  SeqvarsApiQuerypresetsfrequencyListError,
+  SeqvarsApiQuerypresetsfrequencyListResponse,
+  SeqvarsApiQuerypresetsfrequencyCreateData,
+  SeqvarsApiQuerypresetsfrequencyCreateError,
+  SeqvarsApiQuerypresetsfrequencyCreateResponse,
+  SeqvarsApiQuerypresetsfrequencyRetrieveData,
+  SeqvarsApiQuerypresetsfrequencyRetrieveError,
+  SeqvarsApiQuerypresetsfrequencyRetrieveResponse,
+  SeqvarsApiQuerypresetsfrequencyUpdateData,
+  SeqvarsApiQuerypresetsfrequencyUpdateError,
+  SeqvarsApiQuerypresetsfrequencyUpdateResponse,
+  SeqvarsApiQuerypresetsfrequencyPartialUpdateData,
+  SeqvarsApiQuerypresetsfrequencyPartialUpdateError,
+  SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse,
+  SeqvarsApiQuerypresetsfrequencyDestroyData,
+  SeqvarsApiQuerypresetsfrequencyDestroyError,
+  SeqvarsApiQuerypresetsfrequencyDestroyResponse,
+  SeqvarsApiQuerypresetslocusListData,
+  SeqvarsApiQuerypresetslocusListError,
+  SeqvarsApiQuerypresetslocusListResponse,
+  SeqvarsApiQuerypresetslocusCreateData,
+  SeqvarsApiQuerypresetslocusCreateError,
+  SeqvarsApiQuerypresetslocusCreateResponse,
+  SeqvarsApiQuerypresetslocusRetrieveData,
+  SeqvarsApiQuerypresetslocusRetrieveError,
+  SeqvarsApiQuerypresetslocusRetrieveResponse,
+  SeqvarsApiQuerypresetslocusUpdateData,
+  SeqvarsApiQuerypresetslocusUpdateError,
+  SeqvarsApiQuerypresetslocusUpdateResponse,
+  SeqvarsApiQuerypresetslocusPartialUpdateData,
+  SeqvarsApiQuerypresetslocusPartialUpdateError,
+  SeqvarsApiQuerypresetslocusPartialUpdateResponse,
+  SeqvarsApiQuerypresetslocusDestroyData,
+  SeqvarsApiQuerypresetslocusDestroyError,
+  SeqvarsApiQuerypresetslocusDestroyResponse,
+  SeqvarsApiQuerypresetsphenotypeprioListData,
+  SeqvarsApiQuerypresetsphenotypeprioListError,
+  SeqvarsApiQuerypresetsphenotypeprioListResponse,
+  SeqvarsApiQuerypresetsphenotypeprioCreateData,
+  SeqvarsApiQuerypresetsphenotypeprioCreateError,
+  SeqvarsApiQuerypresetsphenotypeprioCreateResponse,
+  SeqvarsApiQuerypresetsphenotypeprioRetrieveData,
+  SeqvarsApiQuerypresetsphenotypeprioRetrieveError,
+  SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse,
+  SeqvarsApiQuerypresetsphenotypeprioUpdateData,
+  SeqvarsApiQuerypresetsphenotypeprioUpdateError,
+  SeqvarsApiQuerypresetsphenotypeprioUpdateResponse,
+  SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData,
+  SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError,
+  SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse,
+  SeqvarsApiQuerypresetsphenotypeprioDestroyData,
+  SeqvarsApiQuerypresetsphenotypeprioDestroyError,
+  SeqvarsApiQuerypresetsphenotypeprioDestroyResponse,
+  SeqvarsApiQuerypresetsqualityListData,
+  SeqvarsApiQuerypresetsqualityListError,
+  SeqvarsApiQuerypresetsqualityListResponse,
+  SeqvarsApiQuerypresetsqualityCreateData,
+  SeqvarsApiQuerypresetsqualityCreateError,
+  SeqvarsApiQuerypresetsqualityCreateResponse,
+  SeqvarsApiQuerypresetsqualityRetrieveData,
+  SeqvarsApiQuerypresetsqualityRetrieveError,
+  SeqvarsApiQuerypresetsqualityRetrieveResponse,
+  SeqvarsApiQuerypresetsqualityUpdateData,
+  SeqvarsApiQuerypresetsqualityUpdateError,
+  SeqvarsApiQuerypresetsqualityUpdateResponse,
+  SeqvarsApiQuerypresetsqualityPartialUpdateData,
+  SeqvarsApiQuerypresetsqualityPartialUpdateError,
+  SeqvarsApiQuerypresetsqualityPartialUpdateResponse,
+  SeqvarsApiQuerypresetsqualityDestroyData,
+  SeqvarsApiQuerypresetsqualityDestroyError,
+  SeqvarsApiQuerypresetsqualityDestroyResponse,
+  SeqvarsApiQuerypresetssetListData,
+  SeqvarsApiQuerypresetssetListError,
+  SeqvarsApiQuerypresetssetListResponse,
+  SeqvarsApiQuerypresetssetCreateData,
+  SeqvarsApiQuerypresetssetCreateError,
+  SeqvarsApiQuerypresetssetCreateResponse,
+  SeqvarsApiQuerypresetssetRetrieveData,
+  SeqvarsApiQuerypresetssetRetrieveError,
+  SeqvarsApiQuerypresetssetRetrieveResponse,
+  SeqvarsApiQuerypresetssetUpdateData,
+  SeqvarsApiQuerypresetssetUpdateError,
+  SeqvarsApiQuerypresetssetUpdateResponse,
+  SeqvarsApiQuerypresetssetPartialUpdateData,
+  SeqvarsApiQuerypresetssetPartialUpdateError,
+  SeqvarsApiQuerypresetssetPartialUpdateResponse,
+  SeqvarsApiQuerypresetssetDestroyData,
+  SeqvarsApiQuerypresetssetDestroyError,
+  SeqvarsApiQuerypresetssetDestroyResponse,
+  SeqvarsApiQuerypresetssetCopyFromRetrieveData,
+  SeqvarsApiQuerypresetssetCopyFromRetrieveError,
+  SeqvarsApiQuerypresetssetCopyFromRetrieveResponse,
+  SeqvarsApiQuerypresetssetversionListData,
+  SeqvarsApiQuerypresetssetversionListError,
+  SeqvarsApiQuerypresetssetversionListResponse,
+  SeqvarsApiQuerypresetssetversionCreateData,
+  SeqvarsApiQuerypresetssetversionCreateError,
+  SeqvarsApiQuerypresetssetversionCreateResponse,
+  SeqvarsApiQuerypresetssetversionRetrieveData,
+  SeqvarsApiQuerypresetssetversionRetrieveError,
+  SeqvarsApiQuerypresetssetversionRetrieveResponse,
+  SeqvarsApiQuerypresetssetversionUpdateData,
+  SeqvarsApiQuerypresetssetversionUpdateError,
+  SeqvarsApiQuerypresetssetversionUpdateResponse,
+  SeqvarsApiQuerypresetssetversionPartialUpdateData,
+  SeqvarsApiQuerypresetssetversionPartialUpdateError,
+  SeqvarsApiQuerypresetssetversionPartialUpdateResponse,
+  SeqvarsApiQuerypresetssetversionDestroyData,
+  SeqvarsApiQuerypresetssetversionDestroyError,
+  SeqvarsApiQuerypresetssetversionDestroyResponse,
+  SeqvarsApiQuerypresetsvariantprioListData,
+  SeqvarsApiQuerypresetsvariantprioListError,
+  SeqvarsApiQuerypresetsvariantprioListResponse,
+  SeqvarsApiQuerypresetsvariantprioCreateData,
+  SeqvarsApiQuerypresetsvariantprioCreateError,
+  SeqvarsApiQuerypresetsvariantprioCreateResponse,
+  SeqvarsApiQuerypresetsvariantprioRetrieveData,
+  SeqvarsApiQuerypresetsvariantprioRetrieveError,
+  SeqvarsApiQuerypresetsvariantprioRetrieveResponse,
+  SeqvarsApiQuerypresetsvariantprioUpdateData,
+  SeqvarsApiQuerypresetsvariantprioUpdateError,
+  SeqvarsApiQuerypresetsvariantprioUpdateResponse,
+  SeqvarsApiQuerypresetsvariantprioPartialUpdateData,
+  SeqvarsApiQuerypresetsvariantprioPartialUpdateError,
+  SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse,
+  SeqvarsApiQuerypresetsvariantprioDestroyData,
+  SeqvarsApiQuerypresetsvariantprioDestroyError,
+  SeqvarsApiQuerypresetsvariantprioDestroyResponse,
+  SeqvarsApiQuerysettingsListData,
+  SeqvarsApiQuerysettingsListError,
+  SeqvarsApiQuerysettingsListResponse,
+  SeqvarsApiQuerysettingsCreateData,
+  SeqvarsApiQuerysettingsCreateError,
+  SeqvarsApiQuerysettingsCreateResponse,
+  SeqvarsApiQuerysettingsRetrieveData,
+  SeqvarsApiQuerysettingsRetrieveError,
+  SeqvarsApiQuerysettingsRetrieveResponse,
+  SeqvarsApiQuerysettingsUpdateData,
+  SeqvarsApiQuerysettingsUpdateError,
+  SeqvarsApiQuerysettingsUpdateResponse,
+  SeqvarsApiQuerysettingsPartialUpdateData,
+  SeqvarsApiQuerysettingsPartialUpdateError,
+  SeqvarsApiQuerysettingsPartialUpdateResponse,
+  SeqvarsApiQuerysettingsDestroyData,
+  SeqvarsApiQuerysettingsDestroyError,
+  SeqvarsApiQuerysettingsDestroyResponse,
+  SeqvarsApiResultrowListData,
+  SeqvarsApiResultrowListError,
+  SeqvarsApiResultrowListResponse,
+  SeqvarsApiResultrowRetrieveData,
+  SeqvarsApiResultrowRetrieveError,
+  SeqvarsApiResultrowRetrieveResponse,
+  SeqvarsApiResultsetListData,
+  SeqvarsApiResultsetListError,
+  SeqvarsApiResultsetListResponse,
+  SeqvarsApiResultsetRetrieveData,
+  SeqvarsApiResultsetRetrieveError,
+  SeqvarsApiResultsetRetrieveResponse,
 } from './types.gen'
 
-export class VariantsService {
+export class CasesAnalysisService {
   /**
-   * A view that returns all extra annotation field names.
+   * List the ``CaseAnalysis`` objects for the given case.
    *
-   * **URL:** ``/variants/api/extra-anno-fields/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of extra annotation field names.
-   */
-  public static listExtraAnnoFields(options?: Options) {
-    return (options?.client ?? client).get<
-      ListExtraAnnoFieldsResponse,
-      ListExtraAnnoFieldsError
-    >({
-      ...options,
-      url: '/variants/ajax/extra-anno-fields/',
-    })
-  }
-
-  /**
-   * Render JSON with project-wide case statistics
-   */
-  public static retrieveCaseListQcStats(
-    options: Options<RetrieveCaseListQcStatsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseListQcStatsResponse,
-      RetrieveCaseListQcStatsError
-    >({
-      ...options,
-      url: '/variants/api/project/qc/{project}/',
-    })
-  }
-
-  /**
-   * Retrieve detail of the specified case.
-   *
-   * **URL:** ``/variants/api/case/retrieve/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   *
-   * - ``date_created`` - creation timestamp (ISO 8601 ``str``)
-   * - ``date_modified`` - modification timestamp (ISO 8601 ``str``)
-   * - ``index`` - index sample name (``str``)
-   * - ``name`` - case name (``str``)
-   * - ``notes`` - any notes related to case (``str`` or ``null``)
-   * - ``num_small_vars`` - number of small variants (``int`` or ``null``)
-   * - ``num_svs`` - number of structural variants (``int`` or ``null``)
-   * - ``pedigree`` - ``list`` of ``dict`` representing pedigree entries, ``dict`` have keys
-   *
-   * - ``sex`` - PLINK-PED encoded biological sample sex (``int``, 0-unknown, 1-male, 2-female)
-   * - ``father`` - father sample name (``str``)
-   * - ``mother`` - mother sample name (``str``)
-   * - ``name`` - current sample's name (``str``)
-   * - ``affected`` - PLINK-PED encoded affected state (``int``, 0-unknown, 1-unaffected, 2-affected)
-   * - ``has_gt_entries`` - whether sample has genotype entries (``boolean``)
-   *
-   * - ``project`` - UUID of owning project (``str``)
-   * - ``release`` - genome build (``str``, one of ``["GRCh37", "GRCh37"]``)
-   * - ``sodar_uuid`` - case UUID (``str``)
-   * - ``status`` - status of case (``str``, one of ``"initial"``, ``"active"``, ``"closed-unsolved"``,
-   * ``"closed-uncertain"``, ``"closed-solved"``)
-   * - ``tags`` - ``list`` of ``str`` tags
-   */
-  public static retrieveCase(options: Options<RetrieveCaseData>) {
-    return (options?.client ?? client).get<
-      RetrieveCaseResponse,
-      RetrieveCaseError
-    >({
-      ...options,
-      url: '/variants/api/case/retrieve/{case}/',
-    })
-  }
-
-  /**
-   * List small variant queries for the given Case.
-   *
-   * **URL:** ``/variants/api/query-case/list/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``page`` - specify page to return (default/first is ``1``)
-   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-   *
-   * **Returns:**
-   *
-   * - ``count`` - number of total elements (``int``)
-   * - ``next`` - URL to next page (``str`` or ``null``)
-   * - ``previous`` - URL to next page (``str`` or ``null``)
-   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
-   */
-  public static retrieveSmallVariantQuery(
-    options: Options<RetrieveSmallVariantQueryData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryResponse,
-      RetrieveSmallVariantQueryError
-    >({
-      ...options,
-      url: '/variants/api/query-case/list/{case}/',
-    })
-  }
-
-  /**
-   * API endpoint for listing and creating SmallVariant queries for a given case.
-   *
-   * After creation, a background job will be started to execute the query.
-   *
-   * **URL:** ``/variants/api/query/list-create/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   */
-  public static retrieveSmallVariantQuery1(
-    options: Options<RetrieveSmallVariantQuery1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQuery1Response,
-      RetrieveSmallVariantQuery1Error
-    >({
-      ...options,
-      url: '/variants/api/query/list-create/{case}/',
-    })
-  }
-
-  /**
-   * API endpoint for listing and creating SmallVariant queries for a given case.
-   *
-   * After creation, a background job will be started to execute the query.
-   *
-   * **URL:** ``/variants/api/query/list-create/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   */
-  public static createSmallVariantQuery(
-    options: Options<CreateSmallVariantQueryData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateSmallVariantQueryResponse,
-      CreateSmallVariantQueryError
-    >({
-      ...options,
-      url: '/variants/api/query/list-create/{case}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
-   *
-   * **URL:** ``/variants/api/query/retrieve-update-destroy/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static retrieveSmallVariantQueryWithLogs(
-    options: Options<RetrieveSmallVariantQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryWithLogsResponse,
-      RetrieveSmallVariantQueryWithLogsError
-    >({
-      ...options,
-      url: '/variants/api/query/retrieve-update-destroy/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
-   *
-   * **URL:** ``/variants/api/query/retrieve-update-destroy/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static updateSmallVariantQueryWithLogs(
-    options: Options<UpdateSmallVariantQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateSmallVariantQueryWithLogsResponse,
-      UpdateSmallVariantQueryWithLogsError
-    >({
-      ...options,
-      url: '/variants/api/query/retrieve-update-destroy/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
-   *
-   * **URL:** ``/variants/api/query/retrieve-update-destroy/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static partialUpdateSmallVariantQueryWithLogs(
-    options: Options<PartialUpdateSmallVariantQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateSmallVariantQueryWithLogsResponse,
-      PartialUpdateSmallVariantQueryWithLogsError
-    >({
-      ...options,
-      url: '/variants/api/query/retrieve-update-destroy/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
-   *
-   * **URL:** ``/variants/api/query/retrieve-update-destroy/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static destroySmallVariantQueryWithLogs(
-    options: Options<DestroySmallVariantQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroySmallVariantQueryWithLogsResponse,
-      DestroySmallVariantQueryWithLogsError
-    >({
-      ...options,
-      url: '/variants/api/query/retrieve-update-destroy/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * API endpoint for listing query result sets for a query.
-   *
-   * **URL:** ``/variants/api/query-result-set/list/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSmallVariantQueryResultSet(
-    options: Options<RetrieveSmallVariantQueryResultSetData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryResultSetResponse,
-      RetrieveSmallVariantQueryResultSetError
-    >({
-      ...options,
-      url: '/variants/api/query-result-set/list/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving query result sets.
-   *
-   * **URL:** ``/variants/api/query-result-set/retrieve/{smallvariantquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSmallVariantQueryResultSet1(
-    options: Options<RetrieveSmallVariantQueryResultSet1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryResultSet1Response,
-      RetrieveSmallVariantQueryResultSet1Error
-    >({
-      ...options,
-      url: '/variants/api/query-result-set/retrieve/{smallvariantqueryresultset}/',
-    })
-  }
-
-  /**
-   * API endpoint for listing query result rows.
-   *
-   * **URL:** ``/variants/api/query-result-row/list/{smallvariantqueryresultset.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSmallVariantQueryResultRow(
-    options: Options<RetrieveSmallVariantQueryResultRowData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryResultRowResponse,
-      RetrieveSmallVariantQueryResultRowError
-    >({
-      ...options,
-      url: '/variants/api/query-result-row/list/{smallvariantqueryresultset}/',
-    })
-  }
-
-  /**
-   * API endpoint for retrieving one result row.
-   *
-   * **URL:** ``/variants/api/query-result-row/retrieve/{smallvariantqueryresultrow.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSmallVariantQueryResultRow1(
-    options: Options<RetrieveSmallVariantQueryResultRow1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryResultRow1Response,
-      RetrieveSmallVariantQueryResultRow1Error
-    >({
-      ...options,
-      url: '/variants/api/query-result-row/retrieve/{smallvariantqueryresultrow}/',
-    })
-  }
-
-  /**
-   * Generate query settings for a given case by certain shortcuts.
-   *
-   * **URL:** ``/variants/api/query-case/query-settings-shortcut/{case.uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``database`` - the database to query, one of ``"refseq"`` (default) and ``"ensembl"``
-   *
-   * - ``quick_preset`` - overall preset selection using the presets below, valid values are
-   *
-   * - ``defaults`` - applies presets that are recommended for starting out without a specific hypothesis
-   * - ``de_novo`` - applies presets that are recommended for starting out when the hypothesis is dominannt
-   * inheritance with *de novo* variants
-   * - ``dominant`` - applies presets that are recommended for starting out when the hypothesis is dominant
-   * inheritance (but not with *de novo* variants)
-   * - ``homozygous_recessive`` - applies presets that are recommended for starting out when the hypothesis is
-   * recessive with homzygous variants
-   * - ``compound_heterozygous`` - applies presets that are recommended for starting out when the hypothesis is
-   * recessive with compound heterozygous variants
-   * - ``recessive`` - applies presets that are recommended for starting out when the hypothesis is recessive mode
-   * of inheritance
-   * - ``x_recessive`` - applies presets that are recommended for starting out when the hypothesis is X recessive
-   * mode of inheritance
-   * - ``clinvar_pathogenic`` - apply presets that are recommended for screening variants for known pathogenic
-   * variants present Clinvar
-   * - ``mitochondrial`` - apply presets recommended for starting out to filter for mitochondrial mode of
-   * inheritance
-   * - ``whole_exomes`` - apply presets that return all variants of the case, regardless of frequency, quality etc.
-   *
-   * - ``inheritance`` - preset selection for mode of inheritance, valid values are
-   *
-   * - ``any`` - no particular constraint on inheritance (default)
-   * - ``dominant`` - allow variants compatible with dominant mode of inheritance (includes *de novo* variants)
-   * - ``homozygous_recessive`` - allow variants compatible with homozygous recessive mode of inheritance
-   * - ``compound_heterozygous`` - allow variants compatible with compound heterozygous recessive mode of
-   * inheritance
-   * - ``recessive`` - allow variants compatible with recessive mode of inheritance of a disease/trait (includes
-   * both homozygous and compound heterozygous recessive)
-   * - ``x_recessive`` - allow variants compatible with X_recessive mode of inheritance of a disease/trait
-   * - ``mitochondrial`` - mitochondrial inheritance (also applicable for "clinvar pathogenic")
-   * - ``custom`` - indicates custom settings such that none of the above inheritance settings applies
-   *
-   * - ``frequency`` - preset selection for frequencies, valid values are
-   *
-   * - ``any`` - do not apply any thresholds
-   * - ``dominant_super_strict`` - apply thresholds considered "very strict" in a dominant disease context
-   * - ``dominant_strict`` - apply thresholds considered "strict" in a dominant disease context (default)
-   * - ``dominant_relaxed`` - apply thresholds considered "relaxed" in a dominant disease context
-   * - ``recessive_strict`` - apply thresholds considered "strict" in a recessiv disease context
-   * - ``recessive_relaxed`` - apply thresholds considered "relaxed" in a recessiv disease context
-   * - ``custom`` - indicates custom settings such that none of the above frequency settings applies
-   *
-   * - ``impact`` - preset selection for molecular impact values, valid values are
-   *
-   * - ``null_variant`` - allow variants that are predicted to be null variants
-   * - ``aa_change_splicing`` - allow variants that are predicted to change the amino acid of the gene's
-   * protein and also splicing variants
-   * - ``all_coding_deep_intronic`` - allow all coding variants and also deeply intronic ones
-   * - ``whole_transcript`` - allow variants from the whole transcript (exonic/intronic)
-   * - ``any_impact`` - allow any predicted molecular impact
-   * - ``custom`` - indicates custom settings such that none of the above impact settings applies
-   *
-   * - ``quality`` - preset selection for variant call quality values, valid values are
-   *
-   * - ``super_strict`` - very stricdt quality settings
-   * - ``strict`` - strict quality settings, used as the default
-   * - ``relaxed`` - relaxed quality settings
-   * - ``any`` - ignore quality, all variants pass filter
-   * - ``custom`` - indicates custom settings such that none of the above quality settings applies
-   *
-   * - ``chromosomes`` - preset selection for selecting chromosomes/regions/genes allow/block lists, valid values are
-   *
-   * - ``whole_genome`` - the defaults settings selecting the whole genome
-   * - ``autosomes`` - select the variants lying on the autosomes only
-   * - ``x_chromosome`` - select variants on the X chromosome only
-   * - ``y_chromosome`` - select variants on the Y chromosome only
-   * - ``mt_chromosome`` - select variants on the mitochondrial chromosome only
-   * - ``custom`` - indicates custom settings such that none of the above chromosomes presets applies
-   *
-   * - ``flagsetc`` - preset selection for "flags etc." section, valid values are
-   *
-   * - ``defaults`` - the defaults also used in the user interface
-   * - ``clinvar_only`` - select variants present in Clinvar only
-   * - ``user_flagged`` - select user_flagged variants only
-   * - ``custom`` - indicates custom settings such that none of the above flags etc. presets apply
-   *
-   * **Returns:**
-   *
-   * - ``presets`` - a ``dict`` with the following keys; this mirrors back the quick presets and further presets
-   * selected in the parameters
-   *
-   * - ``quick_presets`` - one of the ``quick_presets`` preset values from above
-   * - ``inheritance`` - one of the ``inheritance`` preset values from above
-   * - ``frequency`` - one of the ``frequency`` preset values from above
-   * - ``impact`` - one of the ``impact`` preset values from above
-   * - ``quality`` - one of the ``quality`` preset values from above
-   * - ``chromosomes`` - one of the ``chromosomes`` preset values from above
-   * - ``flagsetc`` - one of the ``flagsetc`` preset values from above
-   *
-   * - ``query_settings`` - a ``dict`` with the query settings ready to be used for the given case; this will
-   * follow :ref:`api_json_schemas_case_query_v1`.
-   */
-  public static retrieveSettingsShortcuts(
-    options: Options<RetrieveSettingsShortcutsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSettingsShortcutsResponse,
-      RetrieveSettingsShortcutsError
-    >({
-      ...options,
-      url: '/variants/api/query-case/query-settings-shortcut/{case}/',
-    })
-  }
-
-  /**
-   * Resolve quick preset name to category preset.
-   *
-   * **URL:** ``/variants/api/query-case/quick-presets``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static listSmallVariantQuickPresetsApis(options?: Options) {
-    return (options?.client ?? client).get<
-      ListSmallVariantQuickPresetsApisResponse,
-      ListSmallVariantQuickPresetsApisError
-    >({
-      ...options,
-      url: '/variants/api/query-case/quick-presets/',
-    })
-  }
-
-  /**
-   * List all presets for the given category.
-   *
-   * **URL:** ``/variants/api/query-case/category-presets/{category}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static retrieveSmallVariantCategoryPresetsApi(
-    options: Options<RetrieveSmallVariantCategoryPresetsApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantCategoryPresetsApiResponse,
-      RetrieveSmallVariantCategoryPresetsApiError
-    >({
-      ...options,
-      url: '/variants/api/query-case/category-presets/{category}/',
-    })
-  }
-
-  /**
-   * List all inheritance presets for the given case.
-   *
-   * **URL:** ``/variants/api/query-case/inheritance-presets/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static retrieveSmallVariantInheritancePresetsApi(
-    options: Options<RetrieveSmallVariantInheritancePresetsApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantInheritancePresetsApiResponse,
-      RetrieveSmallVariantInheritancePresetsApiError
-    >({
-      ...options,
-      url: '/variants/api/query-case/inheritance-presets/{case}/',
-    })
-  }
-
-  /**
-   * Start generating results for download of a small variant query.
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/tsv/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/xlsx/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/vcf/{query.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantQueryDownloadGenerateApi(
-    options: Options<RetrieveSmallVariantQueryDownloadGenerateApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryDownloadGenerateApiResponse,
-      RetrieveSmallVariantQueryDownloadGenerateApiError
-    >({
-      ...options,
-      url: '/variants/api/query-case/download/generate/tsv/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * Start generating results for download of a small variant query.
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/tsv/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/xlsx/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/vcf/{query.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantQueryDownloadGenerateApi1(
-    options: Options<RetrieveSmallVariantQueryDownloadGenerateApi1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryDownloadGenerateApi1Response,
-      RetrieveSmallVariantQueryDownloadGenerateApi1Error
-    >({
-      ...options,
-      url: '/variants/api/query-case/download/generate/vcf/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * Start generating results for download of a small variant query.
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/tsv/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/xlsx/{query.sodar_uuid}``
-   *
-   * **URL:** ``/variants/api/query-case/download/generate/vcf/{query.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantQueryDownloadGenerateApi2(
-    options: Options<RetrieveSmallVariantQueryDownloadGenerateApi2Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryDownloadGenerateApi2Response,
-      RetrieveSmallVariantQueryDownloadGenerateApi2Error
-    >({
-      ...options,
-      url: '/variants/api/query-case/download/generate/xlsx/{smallvariantquery}/',
-    })
-  }
-
-  /**
-   * Serve download results of a small variant query.
-   *
-   * **URL:** ``/variants/api/query-case/download/serve/{exportfilebgjob.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantQueryDownloadServeApi(
-    options: Options<RetrieveSmallVariantQueryDownloadServeApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantQueryDownloadServeApiResponse,
-      RetrieveSmallVariantQueryDownloadServeApiError
-    >({
-      ...options,
-      url: '/variants/api/query-case/download/serve/{exportfilebgjob}/',
-    })
-  }
-
-  /**
-   * Get status of generating results for download of a small variant query.
-   *
-   * **URL:** ``/variants/api/query-case/download/status/{job.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveExportFileBgJob(
-    options: Options<RetrieveExportFileBgJobData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveExportFileBgJobResponse,
-      RetrieveExportFileBgJobError
-    >({
-      ...options,
-      url: '/variants/api/query-case/download/status/{exportfilebgjob}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing comments and new ones.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantComment(
-    options: Options<RetrieveSmallVariantCommentData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantCommentResponse,
-      RetrieveSmallVariantCommentError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing comments and new ones.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:**
-   */
-  public static createSmallVariantComment(
-    options: Options<CreateSmallVariantCommentData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateSmallVariantCommentResponse,
-      CreateSmallVariantCommentError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing comments for a project and variant.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/list-project/{project.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   * - exclude_case_uuid
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantCommentProject(
-    options: Options<RetrieveSmallVariantCommentProjectData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantCommentProjectResponse,
-      RetrieveSmallVariantCommentProjectError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/list-project/{project}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing flags and create new ones.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantFlags(
-    options: Options<RetrieveSmallVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantFlagsResponse,
-      RetrieveSmallVariantFlagsError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing flags and create new ones.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:**
-   */
-  public static createSmallVariantFlags(
-    options: Options<CreateSmallVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateSmallVariantFlagsResponse,
-      CreateSmallVariantFlagsError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that allows to list existing comments for a project and variant.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/list-project/{project.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   * - exclude_case_uuid
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   */
-  public static retrieveSmallVariantFlagsProject(
-    options: Options<RetrieveSmallVariantFlagsProjectData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSmallVariantFlagsProjectResponse,
-      RetrieveSmallVariantFlagsProjectError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/list-project/{project}/',
-    })
-  }
-
-  /**
-   * A view that allows to create new ACMG ratings.
-   *
-   * **URL:** ``/variants/api/acmg-criteria-rating/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``POST``
-   *
-   * **Returns:**
-   */
-  public static retrieveAcmgCriteriaRating(
-    options: Options<RetrieveAcmgCriteriaRatingData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveAcmgCriteriaRatingResponse,
-      RetrieveAcmgCriteriaRatingError
-    >({
-      ...options,
-      url: '/variants/api/acmg-criteria-rating/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that allows to create new ACMG ratings.
-   *
-   * **URL:** ``/variants/api/acmg-criteria-rating/list-create/{case.sodar_uuid}/``
-   *
-   * **Query Arguments:**
-   *
-   * - release
-   * - chromosome
-   * - start
-   * - end
-   * - reference
-   * - alternative
-   *
-   * **Methods:** ``POST``
-   *
-   * **Returns:**
-   */
-  public static createAcmgCriteriaRating(
-    options: Options<CreateAcmgCriteriaRatingData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateAcmgCriteriaRatingResponse,
-      CreateAcmgCriteriaRatingError
-    >({
-      ...options,
-      url: '/variants/api/acmg-criteria-rating/list-create/{case}/',
-    })
-  }
-
-  /**
-   * A view that returns all extra annotation field names.
-   *
-   * **URL:** ``/variants/api/extra-anno-fields/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of extra annotation field names.
-   */
-  public static listExtraAnnoFields1(options?: Options) {
-    return (options?.client ?? client).get<
-      ListExtraAnnoFields1Response,
-      ListExtraAnnoFields1Error
-    >({
-      ...options,
-      url: '/variants/api/extra-anno-fields/',
-    })
-  }
-
-  /**
-   * A view that returns project settings for the given project.
-   *
-   * **URL:** ``/variants/api/project-settings/retrieve/{project.uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** {
-   * ts_tv_warning_upper,
-   * ts_tv_warning_lower
-   * }
-   */
-  public static retrieveProjectSettings(
-    options: Options<RetrieveProjectSettingsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectSettingsResponse,
-      RetrieveProjectSettingsError
-    >({
-      ...options,
-      url: '/variants/api/project-settings/retrieve/{project}/',
-    })
-  }
-
-  /**
-   * A view that allows to update comments.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/update/{smallvariantcomment.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static updateSmallVariantComment(
-    options: Options<UpdateSmallVariantCommentData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateSmallVariantCommentResponse,
-      UpdateSmallVariantCommentError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/update/{smallvariantcomment}/',
-    })
-  }
-
-  /**
-   * A view that allows to update comments.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/update/{smallvariantcomment.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static partialUpdateSmallVariantComment(
-    options: Options<PartialUpdateSmallVariantCommentData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateSmallVariantCommentResponse,
-      PartialUpdateSmallVariantCommentError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/update/{smallvariantcomment}/',
-    })
-  }
-
-  /**
-   * A view that allows to update flags.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/update/{smallvariantflags.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static updateSmallVariantFlags(
-    options: Options<UpdateSmallVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateSmallVariantFlagsResponse,
-      UpdateSmallVariantFlagsError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/update/{smallvariantflags}/',
-    })
-  }
-
-  /**
-   * A view that allows to update flags.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/update/{smallvariantflags.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static partialUpdateSmallVariantFlags(
-    options: Options<PartialUpdateSmallVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateSmallVariantFlagsResponse,
-      PartialUpdateSmallVariantFlagsError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/update/{smallvariantflags}/',
-    })
-  }
-
-  /**
-   * A view that allows to create new ACMG ratings.
-   *
-   * **URL:** ``/variants/api/acmg-criteria-rating/update/{acmgcriteriarating.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static updateAcmgCriteriaRating(
-    options: Options<UpdateAcmgCriteriaRatingData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateAcmgCriteriaRatingResponse,
-      UpdateAcmgCriteriaRatingError
-    >({
-      ...options,
-      url: '/variants/api/acmg-criteria-rating/update/{acmgcriteriarating}/',
-    })
-  }
-
-  /**
-   * A view that allows to create new ACMG ratings.
-   *
-   * **URL:** ``/variants/api/acmg-criteria-rating/update/{acmgcriteriarating.sodar_uuid}/``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Returns:**
-   */
-  public static partialUpdateAcmgCriteriaRating(
-    options: Options<PartialUpdateAcmgCriteriaRatingData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateAcmgCriteriaRatingResponse,
-      PartialUpdateAcmgCriteriaRatingError
-    >({
-      ...options,
-      url: '/variants/api/acmg-criteria-rating/update/{acmgcriteriarating}/',
-    })
-  }
-
-  /**
-   * A view that allows to delete comments.
-   *
-   * **URL:** ``/variants/api/small-variant-comment/delete/{smallvariantcomment.sodar_uuid}/``
-   *
-   * **Methods:** ``DELETE``
-   *
-   * **Returns:**
-   */
-  public static destroySmallVariantComment(
-    options: Options<DestroySmallVariantCommentData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroySmallVariantCommentResponse,
-      DestroySmallVariantCommentError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-comment/delete/{smallvariantcomment}/',
-    })
-  }
-
-  /**
-   * A view that allows to delete flags.
-   *
-   * **URL:** ``/variants/api/small-variant-flags/delete/{smallvariantflags.sodar_uuid}/``
-   *
-   * **Methods:** ``DELETE``
-   *
-   * **Returns:**
-   */
-  public static destroySmallVariantFlags(
-    options: Options<DestroySmallVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroySmallVariantFlagsResponse,
-      DestroySmallVariantFlagsError
-    >({
-      ...options,
-      url: '/variants/api/small-variant-flags/delete/{smallvariantflags}/',
-    })
-  }
-
-  /**
-   * A view that allows to delete ACMG ratings.
-   *
-   * **URL:** ``/variants/api/acmg-criteria-rating/delete/{acmgcriteriarating.sodar_uuid}/``
-   *
-   * **Methods:** ``DELETE``
-   *
-   * **Returns:**
-   */
-  public static destroyAcmgCriteriaRating(
-    options: Options<DestroyAcmgCriteriaRatingData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyAcmgCriteriaRatingResponse,
-      DestroyAcmgCriteriaRatingError
-    >({
-      ...options,
-      url: '/variants/api/acmg-criteria-rating/delete/{acmgcriteriarating}/',
-    })
-  }
-}
-
-export class ImporterService {
-  /**
-   * DRF list-create API view the ``CaseImportInfo`` model.
-   */
-  public static retrieveCaseImportInfo(
-    options: Options<RetrieveCaseImportInfoData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseImportInfoResponse,
-      RetrieveCaseImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``CaseImportInfo`` model.
-   */
-  public static createCaseImportInfo(
-    options: Options<CreateCaseImportInfoData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateCaseImportInfoResponse,
-      CreateCaseImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model.
-   */
-  public static retrieveCaseImportInfo1(
-    options: Options<RetrieveCaseImportInfo1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseImportInfo1Response,
-      RetrieveCaseImportInfo1Error
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model.
-   */
-  public static updateCaseImportInfo(
-    options: Options<UpdateCaseImportInfoData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateCaseImportInfoResponse,
-      UpdateCaseImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model.
-   */
-  public static partialUpdateCaseImportInfo(
-    options: Options<PartialUpdateCaseImportInfoData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateCaseImportInfoResponse,
-      PartialUpdateCaseImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model.
-   */
-  public static destroyCaseImportInfo(
-    options: Options<DestroyCaseImportInfoData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyCaseImportInfoResponse,
-      DestroyCaseImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/case-import-info/{project}/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``VariantSetImportInfo`` model.
-   */
-  public static retrieveVariantSetImportInfo(
-    options: Options<RetrieveVariantSetImportInfoData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveVariantSetImportInfoResponse,
-      RetrieveVariantSetImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``VariantSetImportInfo`` model.
-   */
-  public static createVariantSetImportInfo(
-    options: Options<CreateVariantSetImportInfoData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateVariantSetImportInfoResponse,
-      CreateVariantSetImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VariantSetImportInfo`` model.
-   */
-  public static retrieveVariantSetImportInfo1(
-    options: Options<RetrieveVariantSetImportInfo1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveVariantSetImportInfo1Response,
-      RetrieveVariantSetImportInfo1Error
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VariantSetImportInfo`` model.
-   */
-  public static updateVariantSetImportInfo(
-    options: Options<UpdateVariantSetImportInfoData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateVariantSetImportInfoResponse,
-      UpdateVariantSetImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VariantSetImportInfo`` model.
-   */
-  public static partialUpdateVariantSetImportInfo(
-    options: Options<PartialUpdateVariantSetImportInfoData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateVariantSetImportInfoResponse,
-      PartialUpdateVariantSetImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VariantSetImportInfo`` model.
-   */
-  public static destroyVariantSetImportInfo(
-    options: Options<DestroyVariantSetImportInfoData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyVariantSetImportInfoResponse,
-      DestroyVariantSetImportInfoError
-    >({
-      ...options,
-      url: '/importer/api/variant-set-import-info/{caseimportinfo}/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``BamQcFile`` model.
-   */
-  public static retrieveBamQcFile(options: Options<RetrieveBamQcFileData>) {
-    return (options?.client ?? client).get<
-      RetrieveBamQcFileResponse,
-      RetrieveBamQcFileError
-    >({
-      ...options,
-      url: '/importer/api/bam-qc-file/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``BamQcFile`` model.
-   */
-  public static createBamQcFile(options: Options<CreateBamQcFileData>) {
-    return (options?.client ?? client).post<
-      CreateBamQcFileResponse,
-      CreateBamQcFileError
-    >({
-      ...options,
-      url: '/importer/api/bam-qc-file/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``BamQcFile`` model.
-   */
-  public static retrieveBamQcFile1(options: Options<RetrieveBamQcFile1Data>) {
-    return (options?.client ?? client).get<
-      RetrieveBamQcFile1Response,
-      RetrieveBamQcFile1Error
-    >({
-      ...options,
-      url: '/importer/api/bam-qc-file/{caseimportinfo}/{bamqcfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``BamQcFile`` model.
-   */
-  public static destroyBamQcFile(options: Options<DestroyBamQcFileData>) {
-    return (options?.client ?? client).delete<
-      DestroyBamQcFileResponse,
-      DestroyBamQcFileError
-    >({
-      ...options,
-      url: '/importer/api/bam-qc-file/{caseimportinfo}/{bamqcfile}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``CaseGeneAnnotationFile`` model.
-   */
-  public static retrieveCaseGeneAnnotationFile(
-    options: Options<RetrieveCaseGeneAnnotationFileData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseGeneAnnotationFileResponse,
-      RetrieveCaseGeneAnnotationFileError
-    >({
-      ...options,
-      url: '/importer/api/case-gene-annotation-file/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``CaseGeneAnnotationFile`` model.
-   */
-  public static createCaseGeneAnnotationFile(
-    options: Options<CreateCaseGeneAnnotationFileData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateCaseGeneAnnotationFileResponse,
-      CreateCaseGeneAnnotationFileError
-    >({
-      ...options,
-      url: '/importer/api/case-gene-annotation-file/{caseimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseGeneAnnotationFile`` model.
-   */
-  public static retrieveCaseGeneAnnotationFile1(
-    options: Options<RetrieveCaseGeneAnnotationFile1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseGeneAnnotationFile1Response,
-      RetrieveCaseGeneAnnotationFile1Error
-    >({
-      ...options,
-      url: '/importer/api/case-gene-annotation-file/{caseimportinfo}/{casegeneannotationfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``CaseGeneAnnotationFile`` model.
-   */
-  public static destroyCaseGeneAnnotationFile(
-    options: Options<DestroyCaseGeneAnnotationFileData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyCaseGeneAnnotationFileResponse,
-      DestroyCaseGeneAnnotationFileError
-    >({
-      ...options,
-      url: '/importer/api/case-gene-annotation-file/{caseimportinfo}/{casegeneannotationfile}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``GenotypeFile`` model.
-   */
-  public static retrieveGenotypeFile(
-    options: Options<RetrieveGenotypeFileData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveGenotypeFileResponse,
-      RetrieveGenotypeFileError
-    >({
-      ...options,
-      url: '/importer/api/genotype-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``GenotypeFile`` model.
-   */
-  public static createGenotypeFile(options: Options<CreateGenotypeFileData>) {
-    return (options?.client ?? client).post<
-      CreateGenotypeFileResponse,
-      CreateGenotypeFileError
-    >({
-      ...options,
-      url: '/importer/api/genotype-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``GenotypeFile`` model.
-   */
-  public static retrieveGenotypeFile1(
-    options: Options<RetrieveGenotypeFile1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveGenotypeFile1Response,
-      RetrieveGenotypeFile1Error
-    >({
-      ...options,
-      url: '/importer/api/genotype-file/{variantsetimportinfo}/{genotypefile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``GenotypeFile`` model.
-   */
-  public static destroyGenotypeFile(options: Options<DestroyGenotypeFileData>) {
-    return (options?.client ?? client).delete<
-      DestroyGenotypeFileResponse,
-      DestroyGenotypeFileError
-    >({
-      ...options,
-      url: '/importer/api/genotype-file/{variantsetimportinfo}/{genotypefile}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``EffectsFile`` model.
-   */
-  public static retrieveEffectFile(options: Options<RetrieveEffectFileData>) {
-    return (options?.client ?? client).get<
-      RetrieveEffectFileResponse,
-      RetrieveEffectFileError
-    >({
-      ...options,
-      url: '/importer/api/effects-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``EffectsFile`` model.
-   */
-  public static createEffectFile(options: Options<CreateEffectFileData>) {
-    return (options?.client ?? client).post<
-      CreateEffectFileResponse,
-      CreateEffectFileError
-    >({
-      ...options,
-      url: '/importer/api/effects-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EffectsFile`` model.
-   */
-  public static retrieveEffectFile1(options: Options<RetrieveEffectFile1Data>) {
-    return (options?.client ?? client).get<
-      RetrieveEffectFile1Response,
-      RetrieveEffectFile1Error
-    >({
-      ...options,
-      url: '/importer/api/effects-file/{variantsetimportinfo}/{effectsfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EffectsFile`` model.
-   */
-  public static destroyEffectFile(options: Options<DestroyEffectFileData>) {
-    return (options?.client ?? client).delete<
-      DestroyEffectFileResponse,
-      DestroyEffectFileError
-    >({
-      ...options,
-      url: '/importer/api/effects-file/{variantsetimportinfo}/{effectsfile}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``DatabaseInfoFile`` model.
-   */
-  public static retrieveDatabaseInfoFile(
-    options: Options<RetrieveDatabaseInfoFileData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveDatabaseInfoFileResponse,
-      RetrieveDatabaseInfoFileError
-    >({
-      ...options,
-      url: '/importer/api/database-info-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``DatabaseInfoFile`` model.
-   */
-  public static createDatabaseInfoFile(
-    options: Options<CreateDatabaseInfoFileData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateDatabaseInfoFileResponse,
-      CreateDatabaseInfoFileError
-    >({
-      ...options,
-      url: '/importer/api/database-info-file/{variantsetimportinfo}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``DatabaseInfoFile`` model.
-   */
-  public static retrieveDatabaseInfoFile1(
-    options: Options<RetrieveDatabaseInfoFile1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveDatabaseInfoFile1Response,
-      RetrieveDatabaseInfoFile1Error
-    >({
-      ...options,
-      url: '/importer/api/database-info-file/{variantsetimportinfo}/{databaseinfofile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``DatabaseInfoFile`` model.
-   */
-  public static destroyDatabaseInfoFile(
-    options: Options<DestroyDatabaseInfoFileData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyDatabaseInfoFileResponse,
-      DestroyDatabaseInfoFileError
-    >({
-      ...options,
-      url: '/importer/api/database-info-file/{variantsetimportinfo}/{databaseinfofile}/',
-    })
-  }
-}
-
-export class SvsService {
-  /**
-   * AJAX endpoint for retrieving structural variants from the given case.
-   *
-   * **URL:** ``/ajax/fetch-variants/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvFetchVariantsAjax(
-    options: Options<RetrieveSvFetchVariantsAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvFetchVariantsAjaxResponse,
-      RetrieveSvFetchVariantsAjaxError
-    >({
-      ...options,
-      url: '/svs/ajax/fetch-variants/{case}/',
-    })
-  }
-
-  /**
-   * Resolve quick preset name to category preset.
-   *
-   * **URL:** ``/variants/api/query-case/quick-presets``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static listSvQuickPresetsAjaxs(options?: Options) {
-    return (options?.client ?? client).get<
-      ListSvQuickPresetsAjaxsResponse,
-      ListSvQuickPresetsAjaxsError
-    >({
-      ...options,
-      url: '/svs/ajax/query-case/quick-presets/',
-    })
-  }
-
-  /**
-   * List all presets for the given category.
-   *
-   * **URL:** ``/variants/api/query-case/category-presets/{category}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static retrieveSvCategoryPresetsApi(
-    options: Options<RetrieveSvCategoryPresetsApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvCategoryPresetsApiResponse,
-      RetrieveSvCategoryPresetsApiError
-    >({
-      ...options,
-      url: '/svs/ajax/query-case/category-presets/{category}/',
-    })
-  }
-
-  /**
-   * List all inheritance presets for the given case.
-   *
-   * **URL:** ``/variants/api/query-case/inheritance-presets/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** A dict mapping each of the category names to category preset values.
-   */
-  public static retrieveSvInheritancePresetsApi(
-    options: Options<RetrieveSvInheritancePresetsApiData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvInheritancePresetsApiResponse,
-      RetrieveSvInheritancePresetsApiError
-    >({
-      ...options,
-      url: '/svs/ajax/query-case/inheritance-presets/{case}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint to generate SV query settings for a given case by certain shortcuts.
-   *
-   * **URL:** ``/svs/ajax/query-case/query-settings-shortcut/{case.uuid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``quick_preset`` - overall preset selection using the presets below, valid values are
-   *
-   * - ``defaults`` - applies presets that are recommended for starting out without a specific hypothesis
-   * - ``de_novo`` - applies presets that are recommended for starting out when the hypothesis is dominannt
-   * inheritance with *de novo* variants
-   * - ``dominant`` - applies presets that are recommended for starting out when the hypothesis is dominant
-   * inheritance (but not with *de novo* variants)
-   * - ``homozygous_recessive`` - applies presets that are recommended for starting out when the hypothesis is
-   * recessive with homzygous variants
-   * - ``heterozygous_recessive`` - applies presets that are recommended for starting out when the hypothesis is
-   * recessive with compound heterozygous variants; will only query for SINGLE variants
-   * - ``x_recessive`` - applies presets that are recommended for starting out when the hypothesis is X recessive
-   * mode of inheritance
-   * - ``clinvar_pathogenic`` - apply presets that are recommended for screening variants for known pathogenic
-   * variants present Clinvar
-   * - ``mitochondrial`` - apply presets recommended for starting out to filter for mitochondrial mode of
-   * inheritance
-   * - ``whole_genome`` - apply presets that return all variants of the case, regardless of frequency, quality etc.
-   *
-   * - ``inheritance`` - preset selection for mode of inheritance, valid values are
-   *
-   * - ``any`` - no particular constraint on inheritance (default)
-   * - ``de_novo`` - allow variants compatible with de novo mode of inheritance
-   * - ``dominant`` - allow variants compatible with dominant mode of inheritance (includes *de novo* variants)
-   * - ``homozygous_recessive`` - allow variants compatible with homozygous recessive mode of inheritance
-   * - ``heterozygous_heterozygous`` - allow variants compatible with compound heterozygous recessive mode of
-   * inheritance
-   * - ``x_recessive`` - allow variants compatible with X_recessive mode of inheritance of a disease/trait
-   * - ``mitochondrial`` - mitochondrial inheritance (also applicable for "clinvar pathogenic")
-   * - ``custom`` - indicates custom settings such that none of the above inheritance settings applies
-   *
-   * - ``frequency`` - preset selection for frequencies, valid values are
-   *
-   * - ``any`` - do not apply any thresholds
-   * - ``strict`` - apply thresholds considered "strict"
-   * - ``relaxed`` - apply thresholds considered "relaxed"
-   * - ``custom`` - indicates custom settings such that none of the above frequency settings applies
-   *
-   * - ``impact`` - preset selection for molecular impact values, valid values are
-   *
-   * - ``any`` - allow any impact
-   * - ``almost_all`` - remove variants that commonly are artifacts
-   * - ``cnv_only`` - keep only copy number variable variants
-   * - ``custom`` - indicates custom settings such that none of the above impact settings applies
-   *
-   * - ``chromosomes`` - preset selection for selecting chromosomes/regions/genes allow/block lists, valid values are
-   *
-   * - ``whole_genome`` - the defaults settings selecting the whole genome
-   * - ``autosomes`` - select the variants lying on the autosomes only
-   * - ``x_chromosome`` - select variants on the X chromosome only
-   * - ``y_chromosome`` - select variants on the Y chromosome only
-   * - ``mt_chromosome`` - select variants on the mitochondrial chromosome only
-   * - ``custom`` - indicates custom settings such that none of the above chromosomes presets applies
-   *
-   * - ``regulatory`` - preset selection for regulatory feature annotation
-   *
-   * - ``default`` - the defaults setting selection
-   *
-   * - ``tad`` - preset selection for TAD feature annotation
-   *
-   * - ``default`` - the defaults setting
-   *
-   * - ``known_patho`` - presets related to known pathogenic variants and ClinVar
-   *
-   * - ``default`` - default settings
-   * - ``custom`` - indicates custom settings such that none of the above presets applies
-   *
-   * - ``genotype_criteria`` - selection of filter criteria
-   *
-   * - ``svish_high`` - "high convidence" filter criteria
-   * - ``svish_pass`` - "pass" filter criteria
-   * - ``default`` - define default filter criteria
-   * - ``none`` - define no filter criteria
-   *
-   * - ``database`` - the database to query, one of ``"refseq"`` (default) and ``"ensembl"``
-   *
-   * **Returns:**
-   *
-   * - ``presets`` - a ``dict`` with the following keys; this mirrors back the quick presets and further presets
-   * selected in the parameters
-   *
-   * - ``quick_presets`` - one of the ``quick_presets`` preset values from above
-   * - ``inheritance`` - one of the ``inheritance`` preset values from above
-   * - ``frequency`` - one of the ``frequency`` preset values from above
-   * - ``impact`` - one of the ``impact`` preset values from above
-   * - ``chromosomes`` - one of the ``chromosomes`` preset values from above
-   * - ``regulatory`` - feature annotation based on regulatory features, from above
-   * - ``tad`` - feature annotation based on TADs, from above
-   * - ``filter_criteria_definition`` - definition of filter criteria, from above
-   *
-   * - ``query_settings`` - a ``dict`` with the query settings ready to be used for the given case
-   */
-  public static retrieveSvQuerySettingsShortcuts(
-    options: Options<RetrieveSvQuerySettingsShortcutsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQuerySettingsShortcutsResponse,
-      RetrieveSvQuerySettingsShortcutsError
-    >({
-      ...options,
-      url: '/svs/ajax/query-case/query-settings-shortcut/{case}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for listing and creating SV queries for a given case.
-   *
-   * After creation, a background job will be started to execute the query.
-   *
-   * **URL:** ``/svs/ajax/sv-query/list-create/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   */
-  public static retrieveSvQuery(options: Options<RetrieveSvQueryData>) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryResponse,
-      RetrieveSvQueryError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/list-create/{case}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for listing and creating SV queries for a given case.
-   *
-   * After creation, a background job will be started to execute the query.
-   *
-   * **URL:** ``/svs/ajax/sv-query/list-create/{case.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   */
-  public static createSvQuery(options: Options<CreateSvQueryData>) {
-    return (options?.client ?? client).post<
-      CreateSvQueryResponse,
-      CreateSvQueryError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/list-create/{case}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retrieving, updating, and deleting SV queries for a given case.
-   *
-   * **URL:** ``/svs/ajax/sv-query/retrieve-update-destroy/{svquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static retrieveSvQueryWithLogs(
-    options: Options<RetrieveSvQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryWithLogsResponse,
-      RetrieveSvQueryWithLogsError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/retrieve-update-destroy/{svquery}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retrieving, updating, and deleting SV queries for a given case.
-   *
-   * **URL:** ``/svs/ajax/sv-query/retrieve-update-destroy/{svquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static updateSvQueryWithLogs(
-    options: Options<UpdateSvQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateSvQueryWithLogsResponse,
-      UpdateSvQueryWithLogsError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/retrieve-update-destroy/{svquery}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retrieving, updating, and deleting SV queries for a given case.
-   *
-   * **URL:** ``/svs/ajax/sv-query/retrieve-update-destroy/{svquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static partialUpdateSvQueryWithLogs(
-    options: Options<PartialUpdateSvQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateSvQueryWithLogsResponse,
-      PartialUpdateSvQueryWithLogsError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/retrieve-update-destroy/{svquery}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retrieving, updating, and deleting SV queries for a given case.
-   *
-   * **URL:** ``/svs/ajax/sv-query/retrieve-update-destroy/{svquery.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static destroySvQueryWithLogs(
-    options: Options<DestroySvQueryWithLogsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroySvQueryWithLogsResponse,
-      DestroySvQueryWithLogsError
-    >({
-      ...options,
-      url: '/svs/ajax/sv-query/retrieve-update-destroy/{svquery}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for listing query result sets for a query.
-   *
-   * **URL:** ``/svs/ajax/sv-query-result-set/list/{svqueryresultset.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvQueryResultSet(
-    options: Options<RetrieveSvQueryResultSetData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryResultSetResponse,
-      RetrieveSvQueryResultSetError
-    >({
-      ...options,
-      url: '/svs/sv-query-result-set/list/{svquery}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retrieving query result sets.
-   *
-   * **URL:** ``/svs/ajax/sv-query-result-set/retrieve/{svqueryresultset.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvQueryResultSet1(
-    options: Options<RetrieveSvQueryResultSet1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryResultSet1Response,
-      RetrieveSvQueryResultSet1Error
-    >({
-      ...options,
-      url: '/svs/sv-query-result-set/retrieve/{svqueryresultset}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for listing query result rows for a query.
-   *
-   * **URL:** ``/svs/ajax/sv-query-result-row/list/{svqueryresultset.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvQueryResultRow(
-    options: Options<RetrieveSvQueryResultRowData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryResultRowResponse,
-      RetrieveSvQueryResultRowError
-    >({
-      ...options,
-      url: '/svs/sv-query-result-row/list/{svqueryresultset}/',
-    })
-  }
-
-  /**
-   * AJAX endpoint for retreiving query result row for a query.
-   *
-   * **URL:** ``/svs/ajax/sv-query-result-row/retrieve/{svqueryresultrow.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvQueryResultRow1(
-    options: Options<RetrieveSvQueryResultRow1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvQueryResultRow1Response,
-      RetrieveSvQueryResultRow1Error
-    >({
-      ...options,
-      url: '/svs/sv-query-result-row/retrieve/{svqueryresultrow}/',
-    })
-  }
-
-  public static retrieveStructuralVariantFlags(
-    options: Options<RetrieveStructuralVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantFlagsResponse,
-      RetrieveStructuralVariantFlagsError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/list-create/{case}/',
-    })
-  }
-
-  public static createStructuralVariantFlags(
-    options: Options<CreateStructuralVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateStructuralVariantFlagsResponse,
-      CreateStructuralVariantFlagsError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/list-create/{case}/',
-    })
-  }
-
-  public static retrieveStructuralVariantFlagsProject(
-    options: Options<RetrieveStructuralVariantFlagsProjectData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantFlagsProjectResponse,
-      RetrieveStructuralVariantFlagsProjectError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/list-project/{project}/',
-    })
-  }
-
-  public static retrieveStructuralVariantFlags1(
-    options: Options<RetrieveStructuralVariantFlags1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantFlags1Response,
-      RetrieveStructuralVariantFlags1Error
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/retrieve-update-destroy/{structuralvariantflags}/',
-    })
-  }
-
-  public static updateStructuralVariantFlags(
-    options: Options<UpdateStructuralVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateStructuralVariantFlagsResponse,
-      UpdateStructuralVariantFlagsError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/retrieve-update-destroy/{structuralvariantflags}/',
-    })
-  }
-
-  public static partialUpdateStructuralVariantFlags(
-    options: Options<PartialUpdateStructuralVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateStructuralVariantFlagsResponse,
-      PartialUpdateStructuralVariantFlagsError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/retrieve-update-destroy/{structuralvariantflags}/',
-    })
-  }
-
-  public static destroyStructuralVariantFlags(
-    options: Options<DestroyStructuralVariantFlagsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyStructuralVariantFlagsResponse,
-      DestroyStructuralVariantFlagsError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-flags/retrieve-update-destroy/{structuralvariantflags}/',
-    })
-  }
-
-  public static retrieveStructuralVariantComment(
-    options: Options<RetrieveStructuralVariantCommentData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantCommentResponse,
-      RetrieveStructuralVariantCommentError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/list-create/{case}/',
-    })
-  }
-
-  public static createStructuralVariantComment(
-    options: Options<CreateStructuralVariantCommentData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateStructuralVariantCommentResponse,
-      CreateStructuralVariantCommentError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/list-create/{case}/',
-    })
-  }
-
-  public static retrieveStructuralVariantCommentProject(
-    options: Options<RetrieveStructuralVariantCommentProjectData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantCommentProjectResponse,
-      RetrieveStructuralVariantCommentProjectError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/list-project/{project}/',
-    })
-  }
-
-  public static retrieveStructuralVariantComment1(
-    options: Options<RetrieveStructuralVariantComment1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantComment1Response,
-      RetrieveStructuralVariantComment1Error
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/retrieve-update-destroy/{structuralvariantcomment}/',
-    })
-  }
-
-  public static updateStructuralVariantComment(
-    options: Options<UpdateStructuralVariantCommentData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateStructuralVariantCommentResponse,
-      UpdateStructuralVariantCommentError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/retrieve-update-destroy/{structuralvariantcomment}/',
-    })
-  }
-
-  public static partialUpdateStructuralVariantComment(
-    options: Options<PartialUpdateStructuralVariantCommentData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateStructuralVariantCommentResponse,
-      PartialUpdateStructuralVariantCommentError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/retrieve-update-destroy/{structuralvariantcomment}/',
-    })
-  }
-
-  public static destroyStructuralVariantComment(
-    options: Options<DestroyStructuralVariantCommentData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyStructuralVariantCommentResponse,
-      DestroyStructuralVariantCommentError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-comment/retrieve-update-destroy/{structuralvariantcomment}/',
-    })
-  }
-
-  public static retrieveStructuralVariantAcmgRating(
-    options: Options<RetrieveStructuralVariantAcmgRatingData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantAcmgRatingResponse,
-      RetrieveStructuralVariantAcmgRatingError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/list-create/{case}/',
-    })
-  }
-
-  public static createStructuralVariantAcmgRating(
-    options: Options<CreateStructuralVariantAcmgRatingData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateStructuralVariantAcmgRatingResponse,
-      CreateStructuralVariantAcmgRatingError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/list-create/{case}/',
-    })
-  }
-
-  public static retrieveStructuralVariantAcmgRatingProject(
-    options: Options<RetrieveStructuralVariantAcmgRatingProjectData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantAcmgRatingProjectResponse,
-      RetrieveStructuralVariantAcmgRatingProjectError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/list-project/{project}/',
-    })
-  }
-
-  public static retrieveStructuralVariantAcmgRating1(
-    options: Options<RetrieveStructuralVariantAcmgRating1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveStructuralVariantAcmgRating1Response,
-      RetrieveStructuralVariantAcmgRating1Error
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/{structuralvariantacmgrating}/',
-    })
-  }
-
-  public static updateStructuralVariantAcmgRating(
-    options: Options<UpdateStructuralVariantAcmgRatingData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateStructuralVariantAcmgRatingResponse,
-      UpdateStructuralVariantAcmgRatingError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/{structuralvariantacmgrating}/',
-    })
-  }
-
-  public static partialUpdateStructuralVariantAcmgRating(
-    options: Options<PartialUpdateStructuralVariantAcmgRatingData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateStructuralVariantAcmgRatingResponse,
-      PartialUpdateStructuralVariantAcmgRatingError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/{structuralvariantacmgrating}/',
-    })
-  }
-
-  public static destroyStructuralVariantAcmgRating(
-    options: Options<DestroyStructuralVariantAcmgRatingData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyStructuralVariantAcmgRatingResponse,
-      DestroyStructuralVariantAcmgRatingError
-    >({
-      ...options,
-      url: '/svs/ajax/structural-variant-acmg-rating/retrieve-update-destroy/{structuralvariantacmgrating}/',
-    })
-  }
-}
-
-export class ProjectService {
-  /**
-   * View to retrieve project list entries from the client
-   */
-  public static listProjectListAjaxs(options?: Options) {
-    return (options?.client ?? client).get<
-      ListProjectListAjaxsResponse,
-      ListProjectListAjaxsError
-    >({
-      ...options,
-      url: '/project/ajax/list',
-    })
-  }
-
-  /**
-   * Return information of the requesting user for Ajax requests.
-   */
-  public static retrieveSodarUser(options?: Options) {
-    return (options?.client ?? client).get<
-      RetrieveSodarUserResponse,
-      RetrieveSodarUserError
-    >({
-      ...options,
-      url: '/project/ajax/user/current',
-    })
-  }
-
-  /**
-   * List all projects and categories for which the requesting user has access.
-   *
-   * **URL:** ``/project/api/list``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   *
-   * List of project details (see ``ProjectRetrieveAPIView``). For project finder
-   * role, only lists title and UUID of projects.
-   */
-  public static listProjects(options?: Options) {
-    return (options?.client ?? client).get<
-      ListProjectsResponse,
-      ListProjectsError
-    >({
-      ...options,
-      url: '/project/api/list',
-    })
-  }
-
-  /**
-   * Retrieve a project or category by its UUID.
-   *
-   * **URL:** ``/project/api/retrieve/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:**
-   *
-   * - ``description``: Project description (string)
-   * - ``parent``: Parent category UUID (string or null)
-   * - ``readme``: Project readme (string, supports markdown)
-   * - ``public_guest_access``: Guest access for all users (boolean)
-   * - ``roles``: Project role assignments (dict, assignment UUID as key)
-   * - ``sodar_uuid``: Project UUID (string)
-   * - ``title``: Project title (string)
-   * - ``type``: Project type (string, options: ``PROJECT`` or ``CATEGORY``)
-   */
-  public static retrieveProject(options: Options<RetrieveProjectData>) {
-    return (options?.client ?? client).get<
-      RetrieveProjectResponse,
-      RetrieveProjectError
-    >({
-      ...options,
-      url: '/project/api/retrieve/{project}',
-    })
-  }
-
-  /**
-   * List user invites for a project.
-   *
-   * **URL:** ``/project/api/invites/list/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of project invite details
-   */
-  public static retrieveProjectInvite(
-    options: Options<RetrieveProjectInviteData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectInviteResponse,
-      RetrieveProjectInviteError
-    >({
-      ...options,
-      url: '/project/api/invites/list/{project}',
-    })
-  }
-
-  /**
-   * API view for retrieving an app setting with the PROJECT or PROJECT_USER
-   * scope.
-   *
-   * **URL:** ``project/api/settings/retrieve/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-   * - ``setting_name``: Setting name (string)
-   * - ``user``: User UUID for a PROJECT_USER setting (string or None, optional)
-   */
-  public static retrieveAppSetting(options: Options<RetrieveAppSettingData>) {
-    return (options?.client ?? client).get<
-      RetrieveAppSettingResponse,
-      RetrieveAppSettingError
-    >({
-      ...options,
-      url: '/project/api/settings/retrieve/{project}',
-    })
-  }
-
-  /**
-   * API view for retrieving an app setting with the USER scope.
-   *
-   * **URL:** ``project/api/settings/retrieve/user``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-   * - ``setting_name``: Setting name (string)
-   */
-  public static retrieveAppSetting1(options?: Options) {
-    return (options?.client ?? client).get<
-      RetrieveAppSetting1Response,
-      RetrieveAppSetting1Error
-    >({
-      ...options,
-      url: '/project/api/settings/retrieve/user',
-    })
-  }
-
-  /**
-   * Return a list of all users on the site. Excludes system users, unless called
-   * with superuser access.
-   *
-   * **URL:** ``/project/api/users/list``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns**: List of serializers users (see ``CurrentUserRetrieveAPIView``)
-   */
-  public static listSodarUsers(options?: Options) {
-    return (options?.client ?? client).get<
-      ListSodarUsersResponse,
-      ListSodarUsersError
-    >({
-      ...options,
-      url: '/project/api/users/list',
-    })
-  }
-
-  /**
-   * Return information on the user making the request.
-   *
-   * **URL:** ``/project/api/users/current``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns**:
-   *
-   * For current user:
-   *
-   * - ``email``: Email address of the user (string)
-   * - ``is_superuser``: Superuser status (boolean)
-   * - ``name``: Full name of the user (string)
-   * - ``sodar_uuid``: User UUID (string)
-   * - ``username``: Username of the user (string)
-   */
-  public static retrieveSodarUser1(options?: Options) {
-    return (options?.client ?? client).get<
-      RetrieveSodarUser1Response,
-      RetrieveSodarUser1Error
-    >({
-      ...options,
-      url: '/project/api/users/current',
-    })
-  }
-
-  /**
-   * API view for retrieving remote projects from a source site
-   */
-  public static retrieveRemoteProjectGet(
-    options: Options<RetrieveRemoteProjectGetData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveRemoteProjectGetResponse,
-      RetrieveRemoteProjectGetError
-    >({
-      ...options,
-      url: '/project/api/remote/get/{secret}',
-    })
-  }
-
-  /**
-   * View to retrieve project list extra column data from the client
-   */
-  public static createProjectListColumnAjax(
-    options?: Options<CreateProjectListColumnAjaxData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectListColumnAjaxResponse,
-      CreateProjectListColumnAjaxError
-    >({
-      ...options,
-      url: '/project/ajax/list/columns',
-    })
-  }
-
-  /**
-   * View to retrieve project list role data from the client
-   */
-  public static createProjectListRoleAjax(
-    options?: Options<CreateProjectListRoleAjaxData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectListRoleAjaxResponse,
-      CreateProjectListRoleAjaxError
-    >({
-      ...options,
-      url: '/project/ajax/list/roles',
-    })
-  }
-
-  /**
-   * View to handle starring and unstarring a project
-   */
-  public static createProjectStarringAjax(
-    options: Options<CreateProjectStarringAjaxData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectStarringAjaxResponse,
-      CreateProjectStarringAjaxError
-    >({
-      ...options,
-      url: '/project/ajax/star/{project}',
-    })
-  }
-
-  /**
-   * Create a project or a category.
-   *
-   * **URL:** ``/project/api/create``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Parameters:**
-   *
-   * - ``title``: Project title (string)
-   * - ``type``: Project type (string, options: ``PROJECT`` or ``CATEGORY``)
-   * - ``parent``: Parent category UUID (string)
-   * - ``description``: Project description (string, optional)
-   * - ``readme``: Project readme (string, optional, supports markdown)
-   * - ``public_guest_access``: Guest access for all users (boolean)
-   * - ``owner``: User UUID of the project owner (string)
-   */
-  public static createProject(options?: Options<CreateProjectData>) {
-    return (options?.client ?? client).post<
-      CreateProjectResponse,
-      CreateProjectError
-    >({
-      ...options,
-      url: '/project/api/create',
-    })
-  }
-
-  /**
-   * Create a role assignment in a project.
-   *
-   * **URL:** ``/project/api/roles/create/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Parameters:**
-   *
-   * - ``role``: Desired role for user (string, e.g. "project contributor")
-   * - ``user``: User UUID (string)
-   */
-  public static createRoleAssignment(
-    options: Options<CreateRoleAssignmentData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateRoleAssignmentResponse,
-      CreateRoleAssignmentError
-    >({
-      ...options,
-      url: '/project/api/roles/create/{project}',
-    })
-  }
-
-  /**
-   * Handle ownership transfer in a POST request
-   */
-  public static createRoleAssignmentOwnerTransfer(
-    options: Options<CreateRoleAssignmentOwnerTransferData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateRoleAssignmentOwnerTransferResponse,
-      CreateRoleAssignmentOwnerTransferError
-    >({
-      ...options,
-      url: '/project/api/roles/owner-transfer/{project}',
-    })
-  }
-
-  /**
-   * Create a project invite.
-   *
-   * **URL:** ``/project/api/invites/create/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Parameters:**
-   *
-   * - ``email``: User email (string)
-   * - ``role``: Desired role for user (string, e.g. "project contributor")
-   */
-  public static createProjectInvite(options: Options<CreateProjectInviteData>) {
-    return (options?.client ?? client).post<
-      CreateProjectInviteResponse,
-      CreateProjectInviteError
-    >({
-      ...options,
-      url: '/project/api/invites/create/{project}',
-    })
-  }
-
-  /**
-   * Handle invite revoking in a POST request
-   */
-  public static createProjectInviteRevoke(
-    options: Options<CreateProjectInviteRevokeData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectInviteRevokeResponse,
-      CreateProjectInviteRevokeError
-    >({
-      ...options,
-      url: '/project/api/invites/revoke/{projectinvite}',
-    })
-  }
-
-  /**
-   * Handle invite resending in a POST request
-   */
-  public static createProjectInviteResend(
-    options: Options<CreateProjectInviteResendData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectInviteResendResponse,
-      CreateProjectInviteResendError
-    >({
-      ...options,
-      url: '/project/api/invites/resend/{projectinvite}',
-    })
-  }
-
-  /**
-   * API view for setting the value of an app setting with the PROJECT or
-   * PROJECT_USER scope.
-   *
-   * **URL:** ``project/api/settings/set/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Parameters:**
-   *
-   * - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-   * - ``setting_name``: Setting name (string)
-   * - ``value``: Setting value (string, may contain JSON for JSON settings)
-   * - ``user``: User UUID for a PROJECT_USER setting (string or None, optional)
-   */
-  public static createProjectSettingSet(
-    options: Options<CreateProjectSettingSetData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProjectSettingSetResponse,
-      CreateProjectSettingSetError
-    >({
-      ...options,
-      url: '/project/api/settings/set/{project}',
-    })
-  }
-
-  /**
-   * API view for setting the value of an app setting with the USER scope. Only
-   * allows the user to set the value of their own settings.
-   *
-   * **URL:** ``project/api/settings/set/user``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Parameters:**
-   *
-   * - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-   * - ``setting_name``: Setting name (string)
-   * - ``value``: Setting value (string, may contain JSON for JSON settings)
-   */
-  public static createUserSettingSet(
-    options?: Options<CreateUserSettingSetData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateUserSettingSetResponse,
-      CreateUserSettingSetError
-    >({
-      ...options,
-      url: '/project/api/settings/set/user',
-    })
-  }
-
-  /**
-   * Update the metadata of a project or a category.
-   *
-   * Note that the project owner can not be updated here. Instead, use the
-   * dedicated API view ``RoleAssignmentOwnerTransferAPIView``.
-   *
-   * The project type can not be updated once a project has been created. The
-   * parameter is still required for non-partial updates via the ``PUT`` method.
-   *
-   * **URL:** ``/project/api/update/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Parameters:**
-   *
-   * - ``title``: Project title (string)
-   * - ``type``: Project type (string, can not be modified)
-   * - ``parent``: Parent category UUID (string)
-   * - ``description``: Project description (string, optional)
-   * - ``readme``: Project readme (string, optional, supports markdown)
-   * - ``public_guest_access``: Guest access for all users (boolean)
-   */
-  public static updateProject(options: Options<UpdateProjectData>) {
-    return (options?.client ?? client).put<
-      UpdateProjectResponse,
-      UpdateProjectError
-    >({
-      ...options,
-      url: '/project/api/update/{project}',
-    })
-  }
-
-  /**
-   * Update the metadata of a project or a category.
-   *
-   * Note that the project owner can not be updated here. Instead, use the
-   * dedicated API view ``RoleAssignmentOwnerTransferAPIView``.
-   *
-   * The project type can not be updated once a project has been created. The
-   * parameter is still required for non-partial updates via the ``PUT`` method.
-   *
-   * **URL:** ``/project/api/update/{Project.sodar_uuid}``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Parameters:**
-   *
-   * - ``title``: Project title (string)
-   * - ``type``: Project type (string, can not be modified)
-   * - ``parent``: Parent category UUID (string)
-   * - ``description``: Project description (string, optional)
-   * - ``readme``: Project readme (string, optional, supports markdown)
-   * - ``public_guest_access``: Guest access for all users (boolean)
-   */
-  public static partialUpdateProject(
-    options: Options<PartialUpdateProjectData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateProjectResponse,
-      PartialUpdateProjectError
-    >({
-      ...options,
-      url: '/project/api/update/{project}',
-    })
-  }
-
-  /**
-   * Update the role assignment for a user in a project.
-   *
-   * The user can not be changed in this API view.
-   *
-   * **URL:** ``/project/api/roles/update/{RoleAssignment.sodar_uuid}``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Parameters:**
-   *
-   * - ``role``: Desired role for user (string, e.g. "project contributor")
-   * - ``user``: User UUID (string)
-   */
-  public static updateRoleAssignment(
-    options: Options<UpdateRoleAssignmentData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateRoleAssignmentResponse,
-      UpdateRoleAssignmentError
-    >({
-      ...options,
-      url: '/project/api/roles/update/{roleassignment}',
-    })
-  }
-
-  /**
-   * Update the role assignment for a user in a project.
-   *
-   * The user can not be changed in this API view.
-   *
-   * **URL:** ``/project/api/roles/update/{RoleAssignment.sodar_uuid}``
-   *
-   * **Methods:** ``PUT``, ``PATCH``
-   *
-   * **Parameters:**
-   *
-   * - ``role``: Desired role for user (string, e.g. "project contributor")
-   * - ``user``: User UUID (string)
-   */
-  public static partialUpdateRoleAssignment(
-    options: Options<PartialUpdateRoleAssignmentData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateRoleAssignmentResponse,
-      PartialUpdateRoleAssignmentError
-    >({
-      ...options,
-      url: '/project/api/roles/update/{roleassignment}',
-    })
-  }
-
-  /**
-   * Destroy a role assignment.
-   *
-   * The owner role can not be destroyed using this view.
-   *
-   * **URL:** ``/project/api/roles/destroy/{RoleAssignment.sodar_uuid}``
-   *
-   * **Methods:** ``DELETE``
-   */
-  public static destroyRoleAssignment(
-    options: Options<DestroyRoleAssignmentData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyRoleAssignmentResponse,
-      DestroyRoleAssignmentError
-    >({
-      ...options,
-      url: '/project/api/roles/destroy/{roleassignment}',
-    })
-  }
-}
-
-export class TimelineService {
-  /**
-   * Ajax view for retrieving event details for projects
-   */
-  public static retrieveProjectEventDetailAjax(
-    options: Options<RetrieveProjectEventDetailAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectEventDetailAjaxResponse,
-      RetrieveProjectEventDetailAjaxError
-    >({
-      ...options,
-      url: '/timeline/ajax/detail/{projectevent}',
-    })
-  }
-
-  /**
-   * Ajax view for retrieving event details for site-wide events
-   */
-  public static retrieveSiteEventDetailAjax(
-    options: Options<RetrieveSiteEventDetailAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSiteEventDetailAjaxResponse,
-      RetrieveSiteEventDetailAjaxError
-    >({
-      ...options,
-      url: '/timeline/ajax/detail/site/{projectevent}',
-    })
-  }
-
-  /**
-   * Ajax view for retrieving event extra data for projects
-   */
-  public static retrieveProjectEventExtraAjax(
-    options: Options<RetrieveProjectEventExtraAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectEventExtraAjaxResponse,
-      RetrieveProjectEventExtraAjaxError
-    >({
-      ...options,
-      url: '/timeline/ajax/extra/{projectevent}',
-    })
-  }
-
-  /**
-   * Ajax view for retrieving event extra data for site-wide events
-   */
-  public static retrieveSiteEventExtraAjax(
-    options: Options<RetrieveSiteEventExtraAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSiteEventExtraAjaxResponse,
-      RetrieveSiteEventExtraAjaxError
-    >({
-      ...options,
-      url: '/timeline/ajax/extra/site/{projectevent}',
-    })
-  }
-
-  /**
-   * Ajax view for retrieving event status extra data for events
-   */
-  public static retrieveEventStatusExtraAjax(
-    options: Options<RetrieveEventStatusExtraAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveEventStatusExtraAjaxResponse,
-      RetrieveEventStatusExtraAjaxError
-    >({
-      ...options,
-      url: '/timeline/ajax/extra/status/{eventstatus}',
-    })
-  }
-}
-
-export class AppAlertsService {
-  /**
-   * View to get app alert status for user
-   */
-  public static listAppAlertStatusAjaxs(options?: Options) {
-    return (options?.client ?? client).get<
-      ListAppAlertStatusAjaxsResponse,
-      ListAppAlertStatusAjaxsError
-    >({
-      ...options,
-      url: '/app_alerts/ajax/status',
-    })
-  }
-
-  /**
-   * View to handle app alert dismissal in UI
-   */
-  public static createAppAlertDismissAjax(
-    options: Options<CreateAppAlertDismissAjaxData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateAppAlertDismissAjaxResponse,
-      CreateAppAlertDismissAjaxError
-    >({
-      ...options,
-      url: '/app_alerts/ajax/dismiss/{appalert}',
-    })
-  }
-
-  /**
-   * View to handle app alert dismissal in UI
-   */
-  public static createAppAlertDismissAjax1(
-    options?: Options<CreateAppAlertDismissAjax1Data>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateAppAlertDismissAjax1Response,
-      CreateAppAlertDismissAjax1Error
-    >({
-      ...options,
-      url: '/app_alerts/ajax/dismiss/all',
-    })
-  }
-}
-
-export class CohortsService {
-  /**
-   * Retrieve permissions of current user in project.
-   *
-   * **URL:** ``/cohorts/ajax/user-permissions/{project.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of permissions that the user has in the project for the ``cohorts`` app.
-   */
-  public static retrieveProjectUserPermissionsAjax(
-    options: Options<RetrieveProjectUserPermissionsAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectUserPermissionsAjaxResponse,
-      RetrieveProjectUserPermissionsAjaxError
-    >({
-      ...options,
-      url: '/cohorts/ajax/user-permissions/{project}/',
-    })
-  }
-
-  /**
-   * List cohorts of a project or create a cohort in the project.
-   *
-   * **URL:** ``/cohorts/api/cohort/list-create/{project.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:** List of cohorts
-   */
-  public static retrieveCohort(options: Options<RetrieveCohortData>) {
-    return (options?.client ?? client).get<
-      RetrieveCohortResponse,
-      RetrieveCohortError
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/list-create/{project}/',
-    })
-  }
-
-  /**
-   * List cohorts of a project or create a cohort in the project.
-   *
-   * **URL:** ``/cohorts/api/cohort/list-create/{project.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``POST``
-   *
-   * **Returns:** List of cohorts
-   */
-  public static createCohort(options: Options<CreateCohortData>) {
-    return (options?.client ?? client).post<
-      CreateCohortResponse,
-      CreateCohortError
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/list-create/{project}/',
-    })
-  }
-
-  /**
-   * Retrieve, update destroy a given cohort.
-   *
-   * **URL:** ``/cohorts/api/cohort/retrieve-update-destroy/{cohort.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   *
-   * **Returns:** Cohort.
-   */
-  public static retrieveCohort1(options: Options<RetrieveCohort1Data>) {
-    return (options?.client ?? client).get<
-      RetrieveCohort1Response,
-      RetrieveCohort1Error
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/retrieve-update-destroy/{cohort}/',
-    })
-  }
-
-  /**
-   * Retrieve, update destroy a given cohort.
-   *
-   * **URL:** ``/cohorts/api/cohort/retrieve-update-destroy/{cohort.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   *
-   * **Returns:** Cohort.
-   */
-  public static updateCohort(options: Options<UpdateCohortData>) {
-    return (options?.client ?? client).put<
-      UpdateCohortResponse,
-      UpdateCohortError
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/retrieve-update-destroy/{cohort}/',
-    })
-  }
-
-  /**
-   * Retrieve, update destroy a given cohort.
-   *
-   * **URL:** ``/cohorts/api/cohort/retrieve-update-destroy/{cohort.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   *
-   * **Returns:** Cohort.
-   */
-  public static partialUpdateCohort(options: Options<PartialUpdateCohortData>) {
-    return (options?.client ?? client).patch<
-      PartialUpdateCohortResponse,
-      PartialUpdateCohortError
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/retrieve-update-destroy/{cohort}/',
-    })
-  }
-
-  /**
-   * Retrieve, update destroy a given cohort.
-   *
-   * **URL:** ``/cohorts/api/cohort/retrieve-update-destroy/{cohort.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   *
-   * **Returns:** Cohort.
-   */
-  public static destroyCohort(options: Options<DestroyCohortData>) {
-    return (options?.client ?? client).delete<
-      DestroyCohortResponse,
-      DestroyCohortError
-    >({
-      ...options,
-      url: '/cohorts/api/cohort/retrieve-update-destroy/{cohort}/',
-    })
-  }
-
-  /**
-   * List all cohortcase for a given cohort.
-   *
-   * **URL:** ``/cohorts/api/cohortcase/list/{cohort.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of CohortCase.
-   */
-  public static retrieveCohortCase(options: Options<RetrieveCohortCaseData>) {
-    return (options?.client ?? client).get<
-      RetrieveCohortCaseResponse,
-      RetrieveCohortCaseError
-    >({
-      ...options,
-      url: '/cohorts/api/cohortcase/list/{cohort}/',
-    })
-  }
-
-  /**
-   * List all accessible projects including cases for a user.
-   *
-   * **URL:** ``/cohorts/api/accessible-projects-cases/list/{cohort.sodar_uuid}/``
-   *
-   * **Methods:**: ``GET``
-   *
-   * **Returns:** List of project including cases.
-   */
-  public static retrieveProjectCases(
-    options: Options<RetrieveProjectCasesData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectCasesResponse,
-      RetrieveProjectCasesError
-    >({
-      ...options,
-      url: '/cohorts/api/accessible-projects-cases/list/{project}/',
-    })
-  }
-
-  /**
-   * Create cohortcase in the current project.
-   *
-   * **URL:** ``/cohorts/api/cohortcase/create/{project.sodar_uuid}/``
-   *
-   * **Methods:** ``POST``
-   *
-   * **Returns:** CohortCase.
-   */
-  public static createCohortCase(options: Options<CreateCohortCaseData>) {
-    return (options?.client ?? client).post<
-      CreateCohortCaseResponse,
-      CreateCohortCaseError
-    >({
-      ...options,
-      url: '/cohorts/api/cohortcase/create/{project}/',
-    })
-  }
-
-  /**
-   * Destroy a given cohortcase.
-   *
-   * **URL:** ``/cohorts/api/cohortcase/destroy/{cohortcase.sodar_uuid}/``
-   *
-   * **Methods:** ``DELETE``
-   *
-   * **Returns:** None
-   */
-  public static destroyCohortCase(options: Options<DestroyCohortCaseData>) {
-    return (options?.client ?? client).delete<
-      DestroyCohortCaseResponse,
-      DestroyCohortCaseError
-    >({
-      ...options,
-      url: '/cohorts/api/cohortcase/destroy/{cohortcase}/',
-    })
-  }
-}
-
-export class BeaconsiteService {
-  /**
-   * Implementation of the GA4GH info endpoint.
-   */
-  public static listBeaconInfoApis(options?: Options) {
-    return (options?.client ?? client).get<
-      ListBeaconInfoApisResponse,
-      ListBeaconInfoApisError
-    >({
-      ...options,
-      url: '/beaconsite/endpoint/',
-    })
-  }
-
-  /**
-   * Implementation of the GA4GH query endpoint.
-   */
-  public static listBeaconQueryApis(options?: Options) {
-    return (options?.client ?? client).get<
-      ListBeaconQueryApisResponse,
-      ListBeaconQueryApisError
-    >({
-      ...options,
-      url: '/beaconsite/endpoint/query/',
-    })
-  }
-
-  /**
-   * Implementation of the GA4GH query endpoint.
-   */
-  public static createBeaconQueryApi(
-    options?: Options<CreateBeaconQueryApiData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateBeaconQueryApiResponse,
-      CreateBeaconQueryApiError
-    >({
-      ...options,
-      url: '/beaconsite/endpoint/query/',
-    })
-  }
-}
-
-export class GenepanelsService {
-  /**
-   * List all ``GenePanelCategory`` entries with ``GenePanel``.
-   *
-   * **URL:** ``/genepanels/api/gene-panel-category``
-   *
-   * **Methods:** GET
-   *
-   * **Returns:**
-   */
-  public static listGenePanelCategorys(options?: Options) {
-    return (options?.client ?? client).get<
-      ListGenePanelCategorysResponse,
-      ListGenePanelCategorysError
-    >({
-      ...options,
-      url: '/genepanels/api/genepanel-category/list/',
-    })
-  }
-
-  /**
-   * Retrieve information about a gene panel.
-   *
-   * **URL:** ``/genepanels/api/lookup-genepanel/``
-   *
-   * **Methods:** GET
-   *
-   * **Returns:**
-   */
-  public static retrieveGenePanel(options?: Options) {
-    return (options?.client ?? client).get<
-      RetrieveGenePanelResponse,
-      RetrieveGenePanelError
-    >({
-      ...options,
-      url: '/genepanels/api/lookup-genepanel/',
-    })
-  }
-}
-
-export class CasesService {
-  /**
-   * Retrieve permissions of current user in project.
-   *
-   * **URL:** ``/cases/ajax/user-permissions/{project.sodar_uuid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of permissions that the user has in the project for the ``cases`` app.
-   */
-  public static retrieveProjectUserPermissionsAjax(
-    options: Options<RetrieveProjectUserPermissionsAjaxData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveProjectUserPermissionsAjaxResponse,
-      RetrieveProjectUserPermissionsAjaxError
-    >({
-      ...options,
-      url: '/cases/ajax/user-permissions/{project}/',
-    })
-  }
-
-  /**
-   * List all cases in the current project.
-   *
-   * **URL:** ``/cases/api/case/list/{project.sodar_uid}/``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Returns:** List of project details (see :py:class:`CaseRetrieveApiView`)
-   */
-  public static retrieveCaseSerializerNg(
-    options: Options<RetrieveCaseSerializerNgData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseSerializerNgResponse,
-      RetrieveCaseSerializerNgError
-    >({
-      ...options,
-      url: '/cases/api/case/list/{project}/',
-    })
-  }
-
-  /**
-   * Update a given case.
-   *
-   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
-   *
-   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
-   *
-   * **Returns:** Updated case details.
-   */
-  public static retrieveCaseSerializerNg1(
-    options: Options<RetrieveCaseSerializerNg1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseSerializerNg1Response,
-      RetrieveCaseSerializerNg1Error
-    >({
-      ...options,
-      url: '/cases/api/case/retrieve-update-destroy/{case}/',
-    })
-  }
-
-  /**
-   * Update a given case.
-   *
-   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
-   *
-   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
-   *
-   * **Returns:** Updated case details.
-   */
-  public static updateCaseSerializerNg(
-    options: Options<UpdateCaseSerializerNgData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateCaseSerializerNgResponse,
-      UpdateCaseSerializerNgError
-    >({
-      ...options,
-      url: '/cases/api/case/retrieve-update-destroy/{case}/',
-    })
-  }
-
-  /**
-   * Update a given case.
-   *
-   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
-   *
-   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
-   *
-   * **Returns:** Updated case details.
-   */
-  public static partialUpdateCaseSerializerNg(
-    options: Options<PartialUpdateCaseSerializerNgData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateCaseSerializerNgResponse,
-      PartialUpdateCaseSerializerNgError
-    >({
-      ...options,
-      url: '/cases/api/case/retrieve-update-destroy/{case}/',
-    })
-  }
-
-  /**
-   * Update a given case.
-   *
-   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
-   *
-   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
-   *
-   * **Returns:** Updated case details.
-   */
-  public static destroyCaseSerializerNg(
-    options: Options<DestroyCaseSerializerNgData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyCaseSerializerNgResponse,
-      DestroyCaseSerializerNgError
-    >({
-      ...options,
-      url: '/cases/api/case/retrieve-update-destroy/{case}/',
-    })
-  }
-
-  /**
-   * List/create case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/list-create/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``page`` - specify page to return (default/first is ``1``)
-   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-   *
-   * **Returns:**
-   *
-   * - ``count`` - number of total elements (``int``)
-   * - ``next`` - URL to next page (``str`` or ``null``)
-   * - ``previous`` - URL to next page (``str`` or ``null``)
-   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
-   */
-  public static retrieveCaseComment(options: Options<RetrieveCaseCommentData>) {
-    return (options?.client ?? client).get<
-      RetrieveCaseCommentResponse,
-      RetrieveCaseCommentError
-    >({
-      ...options,
-      url: '/cases/api/case-comment/list-create/{case}/',
-    })
-  }
-
-  /**
-   * List/create case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/list-create/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``page`` - specify page to return (default/first is ``1``)
-   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-   *
-   * **Returns:**
-   *
-   * - ``count`` - number of total elements (``int``)
-   * - ``next`` - URL to next page (``str`` or ``null``)
-   * - ``previous`` - URL to next page (``str`` or ``null``)
-   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
-   */
-  public static createCaseComment(options: Options<CreateCaseCommentData>) {
-    return (options?.client ?? client).post<
-      CreateCaseCommentResponse,
-      CreateCaseCommentError
-    >({
-      ...options,
-      url: '/cases/api/case-comment/list-create/{case}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static retrieveCaseComments(
-    options: Options<RetrieveCaseCommentsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCaseCommentsResponse,
-      RetrieveCaseCommentsError
-    >({
-      ...options,
-      url: '/cases/ajax/case-comment/retrieve-update-destroy/{casecomment}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static updateCaseComments(options: Options<UpdateCaseCommentsData>) {
-    return (options?.client ?? client).put<
-      UpdateCaseCommentsResponse,
-      UpdateCaseCommentsError
-    >({
-      ...options,
-      url: '/cases/ajax/case-comment/retrieve-update-destroy/{casecomment}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static partialUpdateCaseComments(
-    options: Options<PartialUpdateCaseCommentsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateCaseCommentsResponse,
-      PartialUpdateCaseCommentsError
-    >({
-      ...options,
-      url: '/cases/ajax/case-comment/retrieve-update-destroy/{casecomment}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static destroyCaseComments(options: Options<DestroyCaseCommentsData>) {
-    return (options?.client ?? client).delete<
-      DestroyCaseCommentsResponse,
-      DestroyCaseCommentsError
-    >({
-      ...options,
-      url: '/cases/ajax/case-comment/retrieve-update-destroy/{casecomment}/',
-    })
-  }
-
-  /**
-   * List/create case phenotype term annotations.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/list-create/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``page`` - specify page to return (default/first is ``1``)
-   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-   *
-   * **Returns:**
-   *
-   * - ``count`` - number of total elements (``int``)
-   * - ``next`` - URL to next page (``str`` or ``null``)
-   * - ``previous`` - URL to next page (``str`` or ``null``)
-   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
-   */
-  public static retrieveCasePhenotypeTerms(
-    options: Options<RetrieveCasePhenotypeTermsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveCasePhenotypeTermsResponse,
-      RetrieveCasePhenotypeTermsError
-    >({
-      ...options,
-      url: '/cases/api/case-phenotype-terms/list-create/{case}/',
-    })
-  }
-
-  /**
-   * List/create case phenotype term annotations.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/list-create/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   *
-   * **Parameters:**
-   *
-   * - ``page`` - specify page to return (default/first is ``1``)
-   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-   *
-   * **Returns:**
-   *
-   * - ``count`` - number of total elements (``int``)
-   * - ``next`` - URL to next page (``str`` or ``null``)
-   * - ``previous`` - URL to next page (``str`` or ``null``)
-   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
-   */
-  public static createCasePhenotypeTerms(
-    options: Options<CreateCasePhenotypeTermsData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateCasePhenotypeTermsResponse,
-      CreateCasePhenotypeTermsError
-    >({
-      ...options,
-      url: '/cases/api/case-phenotype-terms/list-create/{case}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+   * Implement the "create single case analysis on listing" logic.
    */
-  public static retrieveCasePhenotypeTerms1(
-    options: Options<RetrieveCasePhenotypeTerms1Data>,
+  public static casesAnalysisApiCaseanalysisList(
+    options: Options<CasesAnalysisApiCaseanalysisListData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveCasePhenotypeTerms1Response,
-      RetrieveCasePhenotypeTerms1Error
-    >({
-      ...options,
-      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static updateCasePhenotypeTerms(
-    options: Options<UpdateCasePhenotypeTermsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateCasePhenotypeTermsResponse,
-      UpdateCasePhenotypeTermsError
-    >({
-      ...options,
-      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static partialUpdateCasePhenotypeTerms(
-    options: Options<PartialUpdateCasePhenotypeTermsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateCasePhenotypeTermsResponse,
-      PartialUpdateCasePhenotypeTermsError
-    >({
-      ...options,
-      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
-    })
-  }
-
-  /**
-   * Retrieve, update, destroy case comments for the given case.
-   *
-   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
-   *
-   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
-   */
-  public static destroyCasePhenotypeTerms(
-    options: Options<DestroyCasePhenotypeTermsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyCasePhenotypeTermsResponse,
-      DestroyCasePhenotypeTermsError
+      CasesAnalysisApiCaseanalysisListResponse,
+      CasesAnalysisApiCaseanalysisListError
     >({
       ...options,
-      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
+      url: '/cases-analysis/api/caseanalysis/{case}/',
     })
   }
 
   /**
-   * List annotation release infos for a given case.
-   *
-   * **URL:** ``/cases/api/annotation-release-info/list/{case.sodar_uuid}``
+   * Allow listing and retrieval of ``CaseAnalysis`` records for a given case.
    *
-   * **Methods:** ``GET``
+   * As we only allow for one ``CaseAnalysis`` per case, we implicitely create one
+   * when listing.
    */
-  public static retrieveAnnotationReleaseInfo(
-    options: Options<RetrieveAnnotationReleaseInfoData>,
+  public static casesAnalysisApiCaseanalysisRetrieve(
+    options: Options<CasesAnalysisApiCaseanalysisRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveAnnotationReleaseInfoResponse,
-      RetrieveAnnotationReleaseInfoError
+      CasesAnalysisApiCaseanalysisRetrieveResponse,
+      CasesAnalysisApiCaseanalysisRetrieveError
     >({
       ...options,
-      url: '/cases/api/annotation-release-info/list/{case}/',
+      url: '/cases-analysis/api/caseanalysis/{case}/{caseanalysis}/',
     })
   }
 
   /**
-   * List SVannotation release infos for a given case.
+   * List the ``CaseAnalysisSession`` objects for the given case and current user.
    *
-   * **URL:** ``/cases/api/sv-annotation-release-info/list/{case.sodar_uuid}``
-   *
-   * **Methods:** ``GET``
-   */
-  public static retrieveSvAnnotationReleaseInfo(
-    options: Options<RetrieveSvAnnotationReleaseInfoData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveSvAnnotationReleaseInfoResponse,
-      RetrieveSvAnnotationReleaseInfoError
-    >({
-      ...options,
-      url: '/cases/api/sv-annotation-release-info/list/{case}/',
-    })
-  }
-}
-
-export class VarannosService {
-  /**
-   * DRF list-create API view the ``VarAnnoSet`` model.
-   */
-  public static retrieveVarAnnoSet(options: Options<RetrieveVarAnnoSetData>) {
-    return (options?.client ?? client).get<
-      RetrieveVarAnnoSetResponse,
-      RetrieveVarAnnoSetError
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/list-create/{project}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``VarAnnoSet`` model.
-   */
-  public static createVarAnnoSet(options: Options<CreateVarAnnoSetData>) {
-    return (options?.client ?? client).post<
-      CreateVarAnnoSetResponse,
-      CreateVarAnnoSetError
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/list-create/{project}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSet`` model.
-   */
-  public static retrieveVarAnnoSet1(options: Options<RetrieveVarAnnoSet1Data>) {
-    return (options?.client ?? client).get<
-      RetrieveVarAnnoSet1Response,
-      RetrieveVarAnnoSet1Error
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/retrieve-update-destroy/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSet`` model.
-   */
-  public static updateVarAnnoSet(options: Options<UpdateVarAnnoSetData>) {
-    return (options?.client ?? client).put<
-      UpdateVarAnnoSetResponse,
-      UpdateVarAnnoSetError
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/retrieve-update-destroy/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSet`` model.
-   */
-  public static partialUpdateVarAnnoSet(
-    options: Options<PartialUpdateVarAnnoSetData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateVarAnnoSetResponse,
-      PartialUpdateVarAnnoSetError
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/retrieve-update-destroy/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSet`` model.
-   */
-  public static destroyVarAnnoSet(options: Options<DestroyVarAnnoSetData>) {
-    return (options?.client ?? client).delete<
-      DestroyVarAnnoSetResponse,
-      DestroyVarAnnoSetError
-    >({
-      ...options,
-      url: '/varannos/api/varannoset/retrieve-update-destroy/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``VarAnnoSetEntry`` model.
-   */
-  public static retrieveVarAnnoSetEntry(
-    options: Options<RetrieveVarAnnoSetEntryData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveVarAnnoSetEntryResponse,
-      RetrieveVarAnnoSetEntryError
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/list-create/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``VarAnnoSetEntry`` model.
-   */
-  public static createVarAnnoSetEntry(
-    options: Options<CreateVarAnnoSetEntryData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateVarAnnoSetEntryResponse,
-      CreateVarAnnoSetEntryError
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/list-create/{varannoset}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSetEntry`` model.
-   */
-  public static retrieveVarAnnoSetEntry1(
-    options: Options<RetrieveVarAnnoSetEntry1Data>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveVarAnnoSetEntry1Response,
-      RetrieveVarAnnoSetEntry1Error
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/retrieve-update-destroy/{varannosetentry}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSetEntry`` model.
-   */
-  public static updateVarAnnoSetEntry(
-    options: Options<UpdateVarAnnoSetEntryData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateVarAnnoSetEntryResponse,
-      UpdateVarAnnoSetEntryError
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/retrieve-update-destroy/{varannosetentry}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSetEntry`` model.
-   */
-  public static partialUpdateVarAnnoSetEntry(
-    options: Options<PartialUpdateVarAnnoSetEntryData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateVarAnnoSetEntryResponse,
-      PartialUpdateVarAnnoSetEntryError
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/retrieve-update-destroy/{varannosetentry}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``VarAnnoSetEntry`` model.
-   */
-  public static destroyVarAnnoSetEntry(
-    options: Options<DestroyVarAnnoSetEntryData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyVarAnnoSetEntryResponse,
-      DestroyVarAnnoSetEntryError
-    >({
-      ...options,
-      url: '/varannos/api/varannosetentry/retrieve-update-destroy/{varannosetentry}/',
-    })
-  }
-}
-
-export class SeqmetaService {
-  /**
-   * DRF list-create API view the ``EnrichmentKit`` model.
-   */
-  public static listEnrichmentKits(options?: Options) {
-    return (options?.client ?? client).get<
-      ListEnrichmentKitsResponse,
-      ListEnrichmentKitsError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/list-create/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``EnrichmentKit`` model.
-   */
-  public static createEnrichmentKit(
-    options?: Options<CreateEnrichmentKitData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateEnrichmentKitResponse,
-      CreateEnrichmentKitError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/list-create/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
-   */
-  public static retrieveEnrichmentKit(
-    options: Options<RetrieveEnrichmentKitData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveEnrichmentKitResponse,
-      RetrieveEnrichmentKitError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
-   */
-  public static updateEnrichmentKit(options: Options<UpdateEnrichmentKitData>) {
-    return (options?.client ?? client).put<
-      UpdateEnrichmentKitResponse,
-      UpdateEnrichmentKitError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
-   */
-  public static partialUpdateEnrichmentKit(
-    options: Options<PartialUpdateEnrichmentKitData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateEnrichmentKitResponse,
-      PartialUpdateEnrichmentKitError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
-   */
-  public static destroyEnrichmentKit(
-    options: Options<DestroyEnrichmentKitData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyEnrichmentKitResponse,
-      DestroyEnrichmentKitError
-    >({
-      ...options,
-      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``TargetBedFile`` model.
+   * Implement the "create single case analysis session on listing" logic.
    */
-  public static retrieveTargetBedFile(
-    options: Options<RetrieveTargetBedFileData>,
+  public static casesAnalysisApiCaseanalysissessionList(
+    options: Options<CasesAnalysisApiCaseanalysissessionListData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveTargetBedFileResponse,
-      RetrieveTargetBedFileError
-    >({
-      ...options,
-      url: '/seqmeta/api/targetbedfile/list-create/{enrichmentkit}/',
-    })
-  }
-
-  /**
-   * DRF list-create API view the ``TargetBedFile`` model.
-   */
-  public static createTargetBedFile(options: Options<CreateTargetBedFileData>) {
-    return (options?.client ?? client).post<
-      CreateTargetBedFileResponse,
-      CreateTargetBedFileError
+      CasesAnalysisApiCaseanalysissessionListResponse,
+      CasesAnalysisApiCaseanalysissessionListError
     >({
       ...options,
-      url: '/seqmeta/api/targetbedfile/list-create/{enrichmentkit}/',
+      url: '/cases-analysis/api/caseanalysissession/{case}/',
     })
   }
 
   /**
-   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
+   * Allow retrieval only of ``CaseAnalysisSession`` record for current user.
    */
-  public static retrieveTargetBedFile1(
-    options: Options<RetrieveTargetBedFile1Data>,
+  public static casesAnalysisApiCaseanalysissessionRetrieve(
+    options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveTargetBedFile1Response,
-      RetrieveTargetBedFile1Error
-    >({
-      ...options,
-      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
-   */
-  public static updateTargetBedFile(options: Options<UpdateTargetBedFileData>) {
-    return (options?.client ?? client).put<
-      UpdateTargetBedFileResponse,
-      UpdateTargetBedFileError
-    >({
-      ...options,
-      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
-   */
-  public static partialUpdateTargetBedFile(
-    options: Options<PartialUpdateTargetBedFileData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateTargetBedFileResponse,
-      PartialUpdateTargetBedFileError
-    >({
-      ...options,
-      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
-    })
-  }
-
-  /**
-   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
-   */
-  public static destroyTargetBedFile(
-    options: Options<DestroyTargetBedFileData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyTargetBedFileResponse,
-      DestroyTargetBedFileError
+      CasesAnalysisApiCaseanalysissessionRetrieveResponse,
+      CasesAnalysisApiCaseanalysissessionRetrieveError
     >({
       ...options,
-      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
+      url: '/cases-analysis/api/caseanalysissession/{case}/{caseanalysissession}/',
     })
   }
 }
 
 export class CasesImportService {
-  public static retrieveCaseImportAction(
-    options: Options<RetrieveCaseImportActionData>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionListCreateList(
+    options: Options<CasesImportApiCaseImportActionListCreateListData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveCaseImportActionResponse,
-      RetrieveCaseImportActionError
+      CasesImportApiCaseImportActionListCreateListResponse,
+      CasesImportApiCaseImportActionListCreateListError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/list-create/{project}/',
     })
   }
 
-  public static createCaseImportAction(
-    options: Options<CreateCaseImportActionData>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionListCreateCreate(
+    options: Options<CasesImportApiCaseImportActionListCreateCreateData>,
   ) {
     return (options?.client ?? client).post<
-      CreateCaseImportActionResponse,
-      CreateCaseImportActionError
+      CasesImportApiCaseImportActionListCreateCreateResponse,
+      CasesImportApiCaseImportActionListCreateCreateError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/list-create/{project}/',
     })
   }
 
-  public static retrieveCaseImportAction1(
-    options: Options<RetrieveCaseImportAction1Data>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieve(
+    options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveCaseImportAction1Response,
-      RetrieveCaseImportAction1Error
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse,
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/',
     })
   }
 
-  public static updateCaseImportAction(
-    options: Options<UpdateCaseImportActionData>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionRetrieveUpdateDestroyUpdate(
+    options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData>,
   ) {
     return (options?.client ?? client).put<
-      UpdateCaseImportActionResponse,
-      UpdateCaseImportActionError
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse,
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/',
     })
   }
 
-  public static partialUpdateCaseImportAction(
-    options: Options<PartialUpdateCaseImportActionData>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdate(
+    options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData>,
   ) {
     return (options?.client ?? client).patch<
-      PartialUpdateCaseImportActionResponse,
-      PartialUpdateCaseImportActionError
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateResponse,
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/',
     })
   }
 
-  public static destroyCaseImportAction(
-    options: Options<DestroyCaseImportActionData>,
+  /**
+   * API view mixin for generic DRF API views with serializers, SODAR project
+   * context and permission checkin.
+   *
+   * Unless overriding ``permission_classes`` with their own implementation, the
+   * user MUST supply a ``permission_required`` attribute.
+   *
+   * Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
+   * compatible model name in lowercase).
+   *
+   * If the lookup is done via a foreign key, change the ``lookup_field``
+   * attribute of your class into ``foreignkey__sodar_uuid``, e.g.
+   * ``project__sodar_uuid`` for lists.
+   *
+   * If your object(s) don't have a direct ``project`` relation, update the
+   * ``queryset_project_field`` to point to the field, e.g.
+   * ``someothermodel__project``.
+   */
+  public static casesImportApiCaseImportActionRetrieveUpdateDestroyDestroy(
+    options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyData>,
   ) {
     return (options?.client ?? client).delete<
-      DestroyCaseImportActionResponse,
-      DestroyCaseImportActionError
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyResponse,
+      CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyError
     >({
       ...options,
       url: '/cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/',
@@ -4926,10 +649,12 @@ export class CasesQcService {
    *
    * **Returns:** serialized ``CaseQc`` if any, HTTP 404 if not found
    */
-  public static retrieveCaseQc(options: Options<RetrieveCaseQcData>) {
+  public static casesQcApiCaseqcRetrieveRetrieve(
+    options: Options<CasesQcApiCaseqcRetrieveRetrieveData>,
+  ) {
     return (options?.client ?? client).get<
-      RetrieveCaseQcResponse,
-      RetrieveCaseQcError
+      CasesQcApiCaseqcRetrieveRetrieveResponse,
+      CasesQcApiCaseqcRetrieveRetrieveError
     >({
       ...options,
       url: '/cases-qc/api/caseqc/retrieve/{case}/',
@@ -4945,12 +670,12 @@ export class CasesQcService {
    *
    * **Returns:** serialized ``CaseQc`` if any, HTTP 404 if not found
    */
-  public static retrieveVarfishStats(
-    options: Options<RetrieveVarfishStatsData>,
+  public static casesQcApiVarfishstatsRetrieveRetrieve(
+    options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveVarfishStatsResponse,
-      RetrieveVarfishStatsError
+      CasesQcApiVarfishstatsRetrieveRetrieveResponse,
+      CasesQcApiVarfishstatsRetrieveRetrieveError
     >({
       ...options,
       url: '/cases-qc/api/varfishstats/retrieve/{case}/',
@@ -4958,85 +683,1061 @@ export class CasesQcService {
   }
 }
 
-export class CasesAnalysisService {
+export class CasesService {
   /**
-   * List the ``CaseAnalysis`` objects for the given case.
+   * List annotation release infos for a given case.
    *
-   * Implement the "create single case analysis on listing" logic.
+   * **URL:** ``/cases/api/annotation-release-info/list/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
    */
-  public static listCaseAnalysis(options: Options<ListCaseAnalysisData>) {
+  public static casesApiAnnotationReleaseInfoListList(
+    options: Options<CasesApiAnnotationReleaseInfoListListData>,
+  ) {
     return (options?.client ?? client).get<
-      ListCaseAnalysisResponse,
-      ListCaseAnalysisError
+      CasesApiAnnotationReleaseInfoListListResponse,
+      CasesApiAnnotationReleaseInfoListListError
     >({
       ...options,
-      url: '/cases-analysis/api/caseanalysis/{case}/',
+      url: '/cases/api/annotation-release-info/list/{case}/',
     })
   }
 
   /**
-   * Allow listing and retrieval of ``CaseAnalysis`` records for a given case.
+   * List/create case comments for the given case.
    *
-   * As we only allow for one ``CaseAnalysis`` per case, we implicitely create one
-   * when listing.
+   * **URL:** ``/cases/api/case-comment/list-create/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
+   *
+   * **Parameters:**
+   *
+   * - ``page`` - specify page to return (default/first is ``1``)
+   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+   *
+   * **Returns:**
+   *
+   * - ``count`` - number of total elements (``int``)
+   * - ``next`` - URL to next page (``str`` or ``null``)
+   * - ``previous`` - URL to next page (``str`` or ``null``)
+   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
    */
-  public static retrieveCaseAnalysis(
-    options: Options<RetrieveCaseAnalysisData>,
+  public static casesApiCaseCommentListCreateList(
+    options: Options<CasesApiCaseCommentListCreateListData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveCaseAnalysisResponse,
-      RetrieveCaseAnalysisError
+      CasesApiCaseCommentListCreateListResponse,
+      CasesApiCaseCommentListCreateListError
     >({
       ...options,
-      url: '/cases-analysis/api/caseanalysis/{case}/{caseanalysis}/',
+      url: '/cases/api/case-comment/list-create/{case}/',
     })
   }
 
   /**
-   * List the ``CaseAnalysisSession`` objects for the given case and current user.
+   * List/create case comments for the given case.
    *
-   * Implement the "create single case analysis session on listing" logic.
+   * **URL:** ``/cases/api/case-comment/list-create/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
+   *
+   * **Parameters:**
+   *
+   * - ``page`` - specify page to return (default/first is ``1``)
+   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+   *
+   * **Returns:**
+   *
+   * - ``count`` - number of total elements (``int``)
+   * - ``next`` - URL to next page (``str`` or ``null``)
+   * - ``previous`` - URL to next page (``str`` or ``null``)
+   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
    */
-  public static listCaseAnalysisSessions(
-    options: Options<ListCaseAnalysisSessionsData>,
+  public static casesApiCaseCommentListCreateCreate(
+    options: Options<CasesApiCaseCommentListCreateCreateData>,
   ) {
-    return (options?.client ?? client).get<
-      ListCaseAnalysisSessionsResponse,
-      ListCaseAnalysisSessionsError
+    return (options?.client ?? client).post<
+      CasesApiCaseCommentListCreateCreateResponse,
+      CasesApiCaseCommentListCreateCreateError
     >({
       ...options,
-      url: '/cases-analysis/api/caseanalysissession/{case}/',
+      url: '/cases/api/case-comment/list-create/{case}/',
     })
   }
 
   /**
-   * Allow retrieval only of ``CaseAnalysisSession`` record for current user.
+   * List/create case phenotype term annotations.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/list-create/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
+   *
+   * **Parameters:**
+   *
+   * - ``page`` - specify page to return (default/first is ``1``)
+   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+   *
+   * **Returns:**
+   *
+   * - ``count`` - number of total elements (``int``)
+   * - ``next`` - URL to next page (``str`` or ``null``)
+   * - ``previous`` - URL to next page (``str`` or ``null``)
+   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
    */
-  public static retrieveCaseAnalysisSession(
-    options: Options<RetrieveCaseAnalysisSessionData>,
+  public static casesApiCasePhenotypeTermsListCreateList(
+    options: Options<CasesApiCasePhenotypeTermsListCreateListData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveCaseAnalysisSessionResponse,
-      RetrieveCaseAnalysisSessionError
+      CasesApiCasePhenotypeTermsListCreateListResponse,
+      CasesApiCasePhenotypeTermsListCreateListError
     >({
       ...options,
-      url: '/cases-analysis/api/caseanalysissession/{case}/{caseanalysissession}/',
+      url: '/cases/api/case-phenotype-terms/list-create/{case}/',
+    })
+  }
+
+  /**
+   * List/create case phenotype term annotations.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/list-create/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
+   *
+   * **Parameters:**
+   *
+   * - ``page`` - specify page to return (default/first is ``1``)
+   * - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+   *
+   * **Returns:**
+   *
+   * - ``count`` - number of total elements (``int``)
+   * - ``next`` - URL to next page (``str`` or ``null``)
+   * - ``previous`` - URL to next page (``str`` or ``null``)
+   * - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
+   */
+  public static casesApiCasePhenotypeTermsListCreateCreate(
+    options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      CasesApiCasePhenotypeTermsListCreateCreateResponse,
+      CasesApiCasePhenotypeTermsListCreateCreateError
+    >({
+      ...options,
+      url: '/cases/api/case-phenotype-terms/list-create/{case}/',
+    })
+  }
+
+  /**
+   * Retrieve, update, destroy case comments for the given case.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
+   *
+   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+   */
+  public static casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve(
+    options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveResponse,
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveError
+    >({
+      ...options,
+      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
+    })
+  }
+
+  /**
+   * Retrieve, update, destroy case comments for the given case.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
+   *
+   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+   */
+  public static casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdate(
+    options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse,
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError
+    >({
+      ...options,
+      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
+    })
+  }
+
+  /**
+   * Retrieve, update, destroy case comments for the given case.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
+   *
+   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+   */
+  public static casesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdate(
+    options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse,
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateError
+    >({
+      ...options,
+      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
+    })
+  }
+
+  /**
+   * Retrieve, update, destroy case comments for the given case.
+   *
+   * **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
+   *
+   * **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+   */
+  public static casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroy(
+    options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse,
+      CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyError
+    >({
+      ...options,
+      url: '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/',
+    })
+  }
+
+  /**
+   * List all cases in the current project.
+   *
+   * **URL:** ``/cases/api/case/list/{project.sodar_uid}/``
+   *
+   * **Methods:** ``GET``
+   *
+   * **Returns:** List of project details (see :py:class:`CaseRetrieveApiView`)
+   */
+  public static casesApiCaseListList(
+    options: Options<CasesApiCaseListListData>,
+  ) {
+    return (options?.client ?? client).get<
+      CasesApiCaseListListResponse,
+      CasesApiCaseListListError
+    >({
+      ...options,
+      url: '/cases/api/case/list/{project}/',
+    })
+  }
+
+  /**
+   * Update a given case.
+   *
+   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
+   *
+   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
+   *
+   * **Returns:** Updated case details.
+   */
+  public static casesApiCaseRetrieveUpdateDestroyRetrieve(
+    options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      CasesApiCaseRetrieveUpdateDestroyRetrieveResponse,
+      CasesApiCaseRetrieveUpdateDestroyRetrieveError
+    >({
+      ...options,
+      url: '/cases/api/case/retrieve-update-destroy/{case}/',
+    })
+  }
+
+  /**
+   * Update a given case.
+   *
+   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
+   *
+   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
+   *
+   * **Returns:** Updated case details.
+   */
+  public static casesApiCaseRetrieveUpdateDestroyUpdate(
+    options: Options<CasesApiCaseRetrieveUpdateDestroyUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      CasesApiCaseRetrieveUpdateDestroyUpdateResponse,
+      CasesApiCaseRetrieveUpdateDestroyUpdateError
+    >({
+      ...options,
+      url: '/cases/api/case/retrieve-update-destroy/{case}/',
+    })
+  }
+
+  /**
+   * Update a given case.
+   *
+   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
+   *
+   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
+   *
+   * **Returns:** Updated case details.
+   */
+  public static casesApiCaseRetrieveUpdateDestroyPartialUpdate(
+    options: Options<CasesApiCaseRetrieveUpdateDestroyPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse,
+      CasesApiCaseRetrieveUpdateDestroyPartialUpdateError
+    >({
+      ...options,
+      url: '/cases/api/case/retrieve-update-destroy/{case}/',
+    })
+  }
+
+  /**
+   * Update a given case.
+   *
+   * **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
+   *
+   * **Methods:** ``PATCH``, ``PUT``, ``DELETE``.
+   *
+   * **Returns:** Updated case details.
+   */
+  public static casesApiCaseRetrieveUpdateDestroyDestroy(
+    options: Options<CasesApiCaseRetrieveUpdateDestroyDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      CasesApiCaseRetrieveUpdateDestroyDestroyResponse,
+      CasesApiCaseRetrieveUpdateDestroyDestroyError
+    >({
+      ...options,
+      url: '/cases/api/case/retrieve-update-destroy/{case}/',
+    })
+  }
+
+  /**
+   * List SVannotation release infos for a given case.
+   *
+   * **URL:** ``/cases/api/sv-annotation-release-info/list/{case.sodar_uuid}``
+   *
+   * **Methods:** ``GET``
+   */
+  public static casesApiSvAnnotationReleaseInfoListList(
+    options: Options<CasesApiSvAnnotationReleaseInfoListListData>,
+  ) {
+    return (options?.client ?? client).get<
+      CasesApiSvAnnotationReleaseInfoListListResponse,
+      CasesApiSvAnnotationReleaseInfoListListError
+    >({
+      ...options,
+      url: '/cases/api/sv-annotation-release-info/list/{case}/',
+    })
+  }
+}
+
+export class GenepanelsService {
+  /**
+   * List all ``GenePanelCategory`` entries with ``GenePanel``.
+   *
+   * **URL:** ``/genepanels/api/gene-panel-category``
+   *
+   * **Methods:** GET
+   *
+   * **Returns:**
+   */
+  public static genepanelsApiGenepanelCategoryListList(options?: Options) {
+    return (options?.client ?? client).get<
+      GenepanelsApiGenepanelCategoryListListResponse,
+      GenepanelsApiGenepanelCategoryListListError
+    >({
+      ...options,
+      url: '/genepanels/api/genepanel-category/list/',
+    })
+  }
+
+  /**
+   * Retrieve information about a gene panel.
+   *
+   * **URL:** ``/genepanels/api/lookup-genepanel/``
+   *
+   * **Methods:** GET
+   *
+   * **Returns:**
+   */
+  public static genepanelsApiLookupGenepanelRetrieve(options?: Options) {
+    return (options?.client ?? client).get<
+      GenepanelsApiLookupGenepanelRetrieveResponse,
+      GenepanelsApiLookupGenepanelRetrieveError
+    >({
+      ...options,
+      url: '/genepanels/api/lookup-genepanel/',
+    })
+  }
+}
+
+export class SeqmetaService {
+  /**
+   * DRF list-create API view the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitListCreateList(options?: Options) {
+    return (options?.client ?? client).get<
+      SeqmetaApiEnrichmentkitListCreateListResponse,
+      SeqmetaApiEnrichmentkitListCreateListError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/list-create/',
+    })
+  }
+
+  /**
+   * DRF list-create API view the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitListCreateCreate(
+    options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqmetaApiEnrichmentkitListCreateCreateResponse,
+      SeqmetaApiEnrichmentkitListCreateCreateError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/list-create/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve(
+    options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveResponse,
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdate(
+    options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse,
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdate(
+    options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse,
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model.
+   */
+  public static seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroy(
+    options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse,
+      SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyError
+    >({
+      ...options,
+      url: '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF list-create API view the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileListCreateList(
+    options: Options<SeqmetaApiTargetbedfileListCreateListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqmetaApiTargetbedfileListCreateListResponse,
+      SeqmetaApiTargetbedfileListCreateListError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/list-create/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF list-create API view the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileListCreateCreate(
+    options: Options<SeqmetaApiTargetbedfileListCreateCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqmetaApiTargetbedfileListCreateCreateResponse,
+      SeqmetaApiTargetbedfileListCreateCreateError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/list-create/{enrichmentkit}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve(
+    options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveResponse,
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdate(
+    options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse,
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdate(
+    options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse,
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
+    })
+  }
+
+  /**
+   * DRF retrieve-update-destroy API view for the ``TargetBedFile`` model.
+   */
+  public static seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroy(
+    options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse,
+      SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError
+    >({
+      ...options,
+      url: '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/',
     })
   }
 }
 
 export class SeqvarsService {
   /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryList(
+    options: Options<SeqvarsApiPredefinedqueryListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiPredefinedqueryListResponse,
+      SeqvarsApiPredefinedqueryListError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryCreate(
+    options: Options<SeqvarsApiPredefinedqueryCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiPredefinedqueryCreateResponse,
+      SeqvarsApiPredefinedqueryCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryRetrieve(
+    options: Options<SeqvarsApiPredefinedqueryRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiPredefinedqueryRetrieveResponse,
+      SeqvarsApiPredefinedqueryRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryUpdate(
+    options: Options<SeqvarsApiPredefinedqueryUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiPredefinedqueryUpdateResponse,
+      SeqvarsApiPredefinedqueryUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryPartialUpdate(
+    options: Options<SeqvarsApiPredefinedqueryPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiPredefinedqueryPartialUpdateResponse,
+      SeqvarsApiPredefinedqueryPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``PredefinedQuery`` model.
+   */
+  public static seqvarsApiPredefinedqueryDestroy(
+    options: Options<SeqvarsApiPredefinedqueryDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiPredefinedqueryDestroyResponse,
+      SeqvarsApiPredefinedqueryDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryList(options: Options<SeqvarsApiQueryListData>) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQueryListResponse,
+      SeqvarsApiQueryListError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryCreate(
+    options: Options<SeqvarsApiQueryCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQueryCreateResponse,
+      SeqvarsApiQueryCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryRetrieve(
+    options: Options<SeqvarsApiQueryRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQueryRetrieveResponse,
+      SeqvarsApiQueryRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/{query}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryUpdate(
+    options: Options<SeqvarsApiQueryUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQueryUpdateResponse,
+      SeqvarsApiQueryUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/{query}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryPartialUpdate(
+    options: Options<SeqvarsApiQueryPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQueryPartialUpdateResponse,
+      SeqvarsApiQueryPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/{query}/',
+    })
+  }
+
+  /**
+   * Allow CRUD of the user's queries.
+   */
+  public static seqvarsApiQueryDestroy(
+    options: Options<SeqvarsApiQueryDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQueryDestroyResponse,
+      SeqvarsApiQueryDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/query/{session}/{query}/',
+    })
+  }
+
+  /**
+   * ViewSet for retrieving ``QueryExecution`` records.
+   */
+  public static seqvarsApiQueryexecutionList(
+    options: Options<SeqvarsApiQueryexecutionListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQueryexecutionListResponse,
+      SeqvarsApiQueryexecutionListError
+    >({
+      ...options,
+      url: '/seqvars/api/queryexecution/{query}/',
+    })
+  }
+
+  /**
+   * ViewSet for retrieving ``QueryExecution`` records.
+   */
+  public static seqvarsApiQueryexecutionRetrieve(
+    options: Options<SeqvarsApiQueryexecutionRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQueryexecutionRetrieveResponse,
+      SeqvarsApiQueryexecutionRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/queryexecution/{query}/{queryexecution}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarList(
+    options: Options<SeqvarsApiQuerypresetsclinvarListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsclinvarListResponse,
+      SeqvarsApiQuerypresetsclinvarListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarCreate(
+    options: Options<SeqvarsApiQuerypresetsclinvarCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetsclinvarCreateResponse,
+      SeqvarsApiQuerypresetsclinvarCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarRetrieve(
+    options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsclinvarRetrieveResponse,
+      SeqvarsApiQuerypresetsclinvarRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarUpdate(
+    options: Options<SeqvarsApiQuerypresetsclinvarUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetsclinvarUpdateResponse,
+      SeqvarsApiQuerypresetsclinvarUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsclinvarPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetsclinvarPartialUpdateResponse,
+      SeqvarsApiQuerypresetsclinvarPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsClinvar`` model.
+   */
+  public static seqvarsApiQuerypresetsclinvarDestroy(
+    options: Options<SeqvarsApiQuerypresetsclinvarDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetsclinvarDestroyResponse,
+      SeqvarsApiQuerypresetsclinvarDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsList(
+    options: Options<SeqvarsApiQuerypresetscolumnsListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetscolumnsListResponse,
+      SeqvarsApiQuerypresetscolumnsListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsCreate(
+    options: Options<SeqvarsApiQuerypresetscolumnsCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetscolumnsCreateResponse,
+      SeqvarsApiQuerypresetscolumnsCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsRetrieve(
+    options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetscolumnsRetrieveResponse,
+      SeqvarsApiQuerypresetscolumnsRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsUpdate(
+    options: Options<SeqvarsApiQuerypresetscolumnsUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetscolumnsUpdateResponse,
+      SeqvarsApiQuerypresetscolumnsUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetscolumnsPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetscolumnsPartialUpdateResponse,
+      SeqvarsApiQuerypresetscolumnsPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsColumns`` model.
+   */
+  public static seqvarsApiQuerypresetscolumnsDestroy(
+    options: Options<SeqvarsApiQuerypresetscolumnsDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetscolumnsDestroyResponse,
+      SeqvarsApiQuerypresetscolumnsDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequenceList(
+    options: Options<SeqvarsApiQuerypresetsconsequenceListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsconsequenceListResponse,
+      SeqvarsApiQuerypresetsconsequenceListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequenceCreate(
+    options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetsconsequenceCreateResponse,
+      SeqvarsApiQuerypresetsconsequenceCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequenceRetrieve(
+    options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsconsequenceRetrieveResponse,
+      SeqvarsApiQuerypresetsconsequenceRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequenceUpdate(
+    options: Options<SeqvarsApiQuerypresetsconsequenceUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetsconsequenceUpdateResponse,
+      SeqvarsApiQuerypresetsconsequenceUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequencePartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsconsequencePartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetsconsequencePartialUpdateResponse,
+      SeqvarsApiQuerypresetsconsequencePartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsConsequence`` model.
+   */
+  public static seqvarsApiQuerypresetsconsequenceDestroy(
+    options: Options<SeqvarsApiQuerypresetsconsequenceDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetsconsequenceDestroyResponse,
+      SeqvarsApiQuerypresetsconsequenceDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
+    })
+  }
+
+  /**
    * ViewSet for listing the factory defaults.
    *
    * This is a public view, no permissions are required.
    */
-  public static listQueryPresetsSetsFactoryDefaults(
-    options?: Options<ListQueryPresetsSetsFactoryDefaultsData>,
+  public static seqvarsApiQuerypresetsfactorydefaultsList(
+    options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>,
   ) {
     return (options?.client ?? client).get<
-      ListQueryPresetsSetsFactoryDefaultsResponse,
-      ListQueryPresetsSetsFactoryDefaultsError
+      SeqvarsApiQuerypresetsfactorydefaultsListResponse,
+      SeqvarsApiQuerypresetsfactorydefaultsListError
     >({
       ...options,
       url: '/seqvars/api/querypresetsfactorydefaults/',
@@ -5048,12 +1749,12 @@ export class SeqvarsService {
    *
    * This is a public view, no permissions are required.
    */
-  public static retrieveQueryPresetsSetsFactoryDefaults(
-    options: Options<RetrieveQueryPresetsSetsFactoryDefaultsData>,
+  public static seqvarsApiQuerypresetsfactorydefaultsRetrieve(
+    options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveQueryPresetsSetsFactoryDefaultsResponse,
-      RetrieveQueryPresetsSetsFactoryDefaultsError
+      SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse,
+      SeqvarsApiQuerypresetsfactorydefaultsRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querypresetsfactorydefaults/{querypresetsset}/',
@@ -5061,29 +1762,374 @@ export class SeqvarsService {
   }
 
   /**
-   * ViewSet for the ``QueryPresetsSet`` model.
+   * ViewSet for the ``QueryPresetsFrequency`` model.
    */
-  public static listQueryPresetsSets(
-    options: Options<ListQueryPresetsSetsData>,
+  public static seqvarsApiQuerypresetsfrequencyList(
+    options: Options<SeqvarsApiQuerypresetsfrequencyListData>,
   ) {
     return (options?.client ?? client).get<
-      ListQueryPresetsSetsResponse,
-      ListQueryPresetsSetsError
+      SeqvarsApiQuerypresetsfrequencyListResponse,
+      SeqvarsApiQuerypresetsfrequencyListError
     >({
       ...options,
-      url: '/seqvars/api/querypresetsset/{project}/',
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/',
     })
   }
 
   /**
-   * ViewSet for the ``QueryPresetsSet`` model.
+   * ViewSet for the ``QueryPresetsFrequency`` model.
    */
-  public static createQueryPresetsSet(
-    options: Options<CreateQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetsfrequencyCreate(
+    options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>,
   ) {
     return (options?.client ?? client).post<
-      CreateQueryPresetsSetResponse,
-      CreateQueryPresetsSetError
+      SeqvarsApiQuerypresetsfrequencyCreateResponse,
+      SeqvarsApiQuerypresetsfrequencyCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsFrequency`` model.
+   */
+  public static seqvarsApiQuerypresetsfrequencyRetrieve(
+    options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsfrequencyRetrieveResponse,
+      SeqvarsApiQuerypresetsfrequencyRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsFrequency`` model.
+   */
+  public static seqvarsApiQuerypresetsfrequencyUpdate(
+    options: Options<SeqvarsApiQuerypresetsfrequencyUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetsfrequencyUpdateResponse,
+      SeqvarsApiQuerypresetsfrequencyUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsFrequency`` model.
+   */
+  public static seqvarsApiQuerypresetsfrequencyPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsfrequencyPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse,
+      SeqvarsApiQuerypresetsfrequencyPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsFrequency`` model.
+   */
+  public static seqvarsApiQuerypresetsfrequencyDestroy(
+    options: Options<SeqvarsApiQuerypresetsfrequencyDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetsfrequencyDestroyResponse,
+      SeqvarsApiQuerypresetsfrequencyDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusList(
+    options: Options<SeqvarsApiQuerypresetslocusListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetslocusListResponse,
+      SeqvarsApiQuerypresetslocusListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusCreate(
+    options: Options<SeqvarsApiQuerypresetslocusCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetslocusCreateResponse,
+      SeqvarsApiQuerypresetslocusCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusRetrieve(
+    options: Options<SeqvarsApiQuerypresetslocusRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetslocusRetrieveResponse,
+      SeqvarsApiQuerypresetslocusRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusUpdate(
+    options: Options<SeqvarsApiQuerypresetslocusUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetslocusUpdateResponse,
+      SeqvarsApiQuerypresetslocusUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetslocusPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetslocusPartialUpdateResponse,
+      SeqvarsApiQuerypresetslocusPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsLocus`` model.
+   */
+  public static seqvarsApiQuerypresetslocusDestroy(
+    options: Options<SeqvarsApiQuerypresetslocusDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetslocusDestroyResponse,
+      SeqvarsApiQuerypresetslocusDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioList(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsphenotypeprioListResponse,
+      SeqvarsApiQuerypresetsphenotypeprioListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioCreate(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetsphenotypeprioCreateResponse,
+      SeqvarsApiQuerypresetsphenotypeprioCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioRetrieve(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse,
+      SeqvarsApiQuerypresetsphenotypeprioRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioUpdate(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetsphenotypeprioUpdateResponse,
+      SeqvarsApiQuerypresetsphenotypeprioUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse,
+      SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
+   */
+  public static seqvarsApiQuerypresetsphenotypeprioDestroy(
+    options: Options<SeqvarsApiQuerypresetsphenotypeprioDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetsphenotypeprioDestroyResponse,
+      SeqvarsApiQuerypresetsphenotypeprioDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityList(
+    options: Options<SeqvarsApiQuerypresetsqualityListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsqualityListResponse,
+      SeqvarsApiQuerypresetsqualityListError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityCreate(
+    options: Options<SeqvarsApiQuerypresetsqualityCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetsqualityCreateResponse,
+      SeqvarsApiQuerypresetsqualityCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityRetrieve(
+    options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetsqualityRetrieveResponse,
+      SeqvarsApiQuerypresetsqualityRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityUpdate(
+    options: Options<SeqvarsApiQuerypresetsqualityUpdateData>,
+  ) {
+    return (options?.client ?? client).put<
+      SeqvarsApiQuerypresetsqualityUpdateResponse,
+      SeqvarsApiQuerypresetsqualityUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsqualityPartialUpdateData>,
+  ) {
+    return (options?.client ?? client).patch<
+      SeqvarsApiQuerypresetsqualityPartialUpdateResponse,
+      SeqvarsApiQuerypresetsqualityPartialUpdateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsQuality`` model.
+   */
+  public static seqvarsApiQuerypresetsqualityDestroy(
+    options: Options<SeqvarsApiQuerypresetsqualityDestroyData>,
+  ) {
+    return (options?.client ?? client).delete<
+      SeqvarsApiQuerypresetsqualityDestroyResponse,
+      SeqvarsApiQuerypresetsqualityDestroyError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsSet`` model.
+   */
+  public static seqvarsApiQuerypresetssetList(
+    options: Options<SeqvarsApiQuerypresetssetListData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiQuerypresetssetListResponse,
+      SeqvarsApiQuerypresetssetListError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/',
@@ -5093,12 +2139,27 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSet`` model.
    */
-  public static retrieveQueryPresetsSet(
-    options: Options<RetrieveQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetssetCreate(
+    options: Options<SeqvarsApiQuerypresetssetCreateData>,
+  ) {
+    return (options?.client ?? client).post<
+      SeqvarsApiQuerypresetssetCreateResponse,
+      SeqvarsApiQuerypresetssetCreateError
+    >({
+      ...options,
+      url: '/seqvars/api/querypresetsset/{project}/',
+    })
+  }
+
+  /**
+   * ViewSet for the ``QueryPresetsSet`` model.
+   */
+  public static seqvarsApiQuerypresetssetRetrieve(
+    options: Options<SeqvarsApiQuerypresetssetRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveQueryPresetsSetResponse,
-      RetrieveQueryPresetsSetError
+      SeqvarsApiQuerypresetssetRetrieveResponse,
+      SeqvarsApiQuerypresetssetRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/{querypresetsset}/',
@@ -5108,12 +2169,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSet`` model.
    */
-  public static updateQueryPresetsSet(
-    options: Options<UpdateQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetssetUpdate(
+    options: Options<SeqvarsApiQuerypresetssetUpdateData>,
   ) {
     return (options?.client ?? client).put<
-      UpdateQueryPresetsSetResponse,
-      UpdateQueryPresetsSetError
+      SeqvarsApiQuerypresetssetUpdateResponse,
+      SeqvarsApiQuerypresetssetUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/{querypresetsset}/',
@@ -5123,12 +2184,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSet`` model.
    */
-  public static partialUpdateQueryPresetsSet(
-    options: Options<PartialUpdateQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetssetPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetssetPartialUpdateData>,
   ) {
     return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsSetResponse,
-      PartialUpdateQueryPresetsSetError
+      SeqvarsApiQuerypresetssetPartialUpdateResponse,
+      SeqvarsApiQuerypresetssetPartialUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/{querypresetsset}/',
@@ -5138,12 +2199,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSet`` model.
    */
-  public static destroyQueryPresetsSet(
-    options: Options<DestroyQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetssetDestroy(
+    options: Options<SeqvarsApiQuerypresetssetDestroyData>,
   ) {
     return (options?.client ?? client).delete<
-      DestroyQueryPresetsSetResponse,
-      DestroyQueryPresetsSetError
+      SeqvarsApiQuerypresetssetDestroyResponse,
+      SeqvarsApiQuerypresetssetDestroyError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/{querypresetsset}/',
@@ -5153,12 +2214,12 @@ export class SeqvarsService {
   /**
    * Copy from another presets set.
    */
-  public static copyFromQueryPresetsSet(
-    options: Options<CopyFromQueryPresetsSetData>,
+  public static seqvarsApiQuerypresetssetCopyFromRetrieve(
+    options: Options<SeqvarsApiQuerypresetssetCopyFromRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      CopyFromQueryPresetsSetResponse,
-      CopyFromQueryPresetsSetError
+      SeqvarsApiQuerypresetssetCopyFromRetrieveResponse,
+      SeqvarsApiQuerypresetssetCopyFromRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/',
@@ -5168,12 +2229,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static listQueryPresetsSetVersions(
-    options: Options<ListQueryPresetsSetVersionsData>,
+  public static seqvarsApiQuerypresetssetversionList(
+    options: Options<SeqvarsApiQuerypresetssetversionListData>,
   ) {
     return (options?.client ?? client).get<
-      ListQueryPresetsSetVersionsResponse,
-      ListQueryPresetsSetVersionsError
+      SeqvarsApiQuerypresetssetversionListResponse,
+      SeqvarsApiQuerypresetssetversionListError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/',
@@ -5183,12 +2244,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static createQueryPresetsSetVersion(
-    options: Options<CreateQueryPresetsSetVersionData>,
+  public static seqvarsApiQuerypresetssetversionCreate(
+    options: Options<SeqvarsApiQuerypresetssetversionCreateData>,
   ) {
     return (options?.client ?? client).post<
-      CreateQueryPresetsSetVersionResponse,
-      CreateQueryPresetsSetVersionError
+      SeqvarsApiQuerypresetssetversionCreateResponse,
+      SeqvarsApiQuerypresetssetversionCreateError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/',
@@ -5198,12 +2259,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static retrieveQueryPresetsSetVersionDetails(
-    options: Options<RetrieveQueryPresetsSetVersionDetailsData>,
+  public static seqvarsApiQuerypresetssetversionRetrieve(
+    options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveQueryPresetsSetVersionDetailsResponse,
-      RetrieveQueryPresetsSetVersionDetailsError
+      SeqvarsApiQuerypresetssetversionRetrieveResponse,
+      SeqvarsApiQuerypresetssetversionRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/',
@@ -5213,12 +2274,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static updateQueryPresetsSetVersion(
-    options: Options<UpdateQueryPresetsSetVersionData>,
+  public static seqvarsApiQuerypresetssetversionUpdate(
+    options: Options<SeqvarsApiQuerypresetssetversionUpdateData>,
   ) {
     return (options?.client ?? client).put<
-      UpdateQueryPresetsSetVersionResponse,
-      UpdateQueryPresetsSetVersionError
+      SeqvarsApiQuerypresetssetversionUpdateResponse,
+      SeqvarsApiQuerypresetssetversionUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/',
@@ -5228,12 +2289,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static partialUpdateQueryPresetsSetVersion(
-    options: Options<PartialUpdateQueryPresetsSetVersionData>,
+  public static seqvarsApiQuerypresetssetversionPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetssetversionPartialUpdateData>,
   ) {
     return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsSetVersionResponse,
-      PartialUpdateQueryPresetsSetVersionError
+      SeqvarsApiQuerypresetssetversionPartialUpdateResponse,
+      SeqvarsApiQuerypresetssetversionPartialUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/',
@@ -5243,477 +2304,27 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsSetVersion`` model.
    */
-  public static destroyQueryPresetsSetVersion(
-    options: Options<DestroyQueryPresetsSetVersionData>,
+  public static seqvarsApiQuerypresetssetversionDestroy(
+    options: Options<SeqvarsApiQuerypresetssetversionDestroyData>,
   ) {
     return (options?.client ?? client).delete<
-      DestroyQueryPresetsSetVersionResponse,
-      DestroyQueryPresetsSetVersionError
+      SeqvarsApiQuerypresetssetversionDestroyResponse,
+      SeqvarsApiQuerypresetssetversionDestroyError
     >({
       ...options,
       url: '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static listQueryPresetsQualitys(
-    options: Options<ListQueryPresetsQualitysData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsQualitysResponse,
-      ListQueryPresetsQualitysError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static createQueryPresetsQuality(
-    options: Options<CreateQueryPresetsQualityData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsQualityResponse,
-      CreateQueryPresetsQualityError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static retrieveQueryPresetsQuality(
-    options: Options<RetrieveQueryPresetsQualityData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsQualityResponse,
-      RetrieveQueryPresetsQualityError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static updateQueryPresetsQuality(
-    options: Options<UpdateQueryPresetsQualityData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsQualityResponse,
-      UpdateQueryPresetsQualityError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static partialUpdateQueryPresetsQuality(
-    options: Options<PartialUpdateQueryPresetsQualityData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsQualityResponse,
-      PartialUpdateQueryPresetsQualityError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsQuality`` model.
-   */
-  public static destroyQueryPresetsQuality(
-    options: Options<DestroyQueryPresetsQualityData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsQualityResponse,
-      DestroyQueryPresetsQualityError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static listQueryPresetsFrequencys(
-    options: Options<ListQueryPresetsFrequencysData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsFrequencysResponse,
-      ListQueryPresetsFrequencysError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static createQueryPresetsFrequency(
-    options: Options<CreateQueryPresetsFrequencyData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsFrequencyResponse,
-      CreateQueryPresetsFrequencyError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static retrieveQueryPresetsFrequency(
-    options: Options<RetrieveQueryPresetsFrequencyData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsFrequencyResponse,
-      RetrieveQueryPresetsFrequencyError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static updateQueryPresetsFrequency(
-    options: Options<UpdateQueryPresetsFrequencyData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsFrequencyResponse,
-      UpdateQueryPresetsFrequencyError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static partialUpdateQueryPresetsFrequency(
-    options: Options<PartialUpdateQueryPresetsFrequencyData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsFrequencyResponse,
-      PartialUpdateQueryPresetsFrequencyError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsFrequency`` model.
-   */
-  public static destroyQueryPresetsFrequency(
-    options: Options<DestroyQueryPresetsFrequencyData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsFrequencyResponse,
-      DestroyQueryPresetsFrequencyError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static listQueryPresetsConsequences(
-    options: Options<ListQueryPresetsConsequencesData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsConsequencesResponse,
-      ListQueryPresetsConsequencesError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static createQueryPresetsConsequence(
-    options: Options<CreateQueryPresetsConsequenceData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsConsequenceResponse,
-      CreateQueryPresetsConsequenceError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static retrieveQueryPresetsConsequence(
-    options: Options<RetrieveQueryPresetsConsequenceData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsConsequenceResponse,
-      RetrieveQueryPresetsConsequenceError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static updateQueryPresetsConsequence(
-    options: Options<UpdateQueryPresetsConsequenceData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsConsequenceResponse,
-      UpdateQueryPresetsConsequenceError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static partialUpdateQueryPresetsConsequence(
-    options: Options<PartialUpdateQueryPresetsConsequenceData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsConsequenceResponse,
-      PartialUpdateQueryPresetsConsequenceError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsConsequence`` model.
-   */
-  public static destroyQueryPresetsConsequence(
-    options: Options<DestroyQueryPresetsConsequenceData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsConsequenceResponse,
-      DestroyQueryPresetsConsequenceError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static listQueryPresetsLocus(
-    options: Options<ListQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsLocusResponse,
-      ListQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static createQueryPresetsLocus(
-    options: Options<CreateQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsLocusResponse,
-      CreateQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static retrieveQueryPresetsLocus(
-    options: Options<RetrieveQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsLocusResponse,
-      RetrieveQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static updateQueryPresetsLocus(
-    options: Options<UpdateQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsLocusResponse,
-      UpdateQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static partialUpdateQueryPresetsLocus(
-    options: Options<PartialUpdateQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsLocusResponse,
-      PartialUpdateQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsLocus`` model.
-   */
-  public static destroyQueryPresetsLocus(
-    options: Options<DestroyQueryPresetsLocusData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsLocusResponse,
-      DestroyQueryPresetsLocusError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static listQueryPresetsPhenotypePrios(
-    options: Options<ListQueryPresetsPhenotypePriosData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsPhenotypePriosResponse,
-      ListQueryPresetsPhenotypePriosError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static createQueryPresetsPhenotypePrio(
-    options: Options<CreateQueryPresetsPhenotypePrioData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsPhenotypePrioResponse,
-      CreateQueryPresetsPhenotypePrioError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static retrieveQueryPresetsPhenotypePrio(
-    options: Options<RetrieveQueryPresetsPhenotypePrioData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsPhenotypePrioResponse,
-      RetrieveQueryPresetsPhenotypePrioError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static updateQueryPresetsPhenotypePrio(
-    options: Options<UpdateQueryPresetsPhenotypePrioData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsPhenotypePrioResponse,
-      UpdateQueryPresetsPhenotypePrioError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static partialUpdateQueryPresetsPhenotypePrio(
-    options: Options<PartialUpdateQueryPresetsPhenotypePrioData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsPhenotypePrioResponse,
-      PartialUpdateQueryPresetsPhenotypePrioError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsPhenotypePrio`` model.
-   */
-  public static destroyQueryPresetsPhenotypePrio(
-    options: Options<DestroyQueryPresetsPhenotypePrioData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsPhenotypePrioResponse,
-      DestroyQueryPresetsPhenotypePrioError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/',
     })
   }
 
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static listQueryPresetsVariantPrios(
-    options: Options<ListQueryPresetsVariantPriosData>,
+  public static seqvarsApiQuerypresetsvariantprioList(
+    options: Options<SeqvarsApiQuerypresetsvariantprioListData>,
   ) {
     return (options?.client ?? client).get<
-      ListQueryPresetsVariantPriosResponse,
-      ListQueryPresetsVariantPriosError
+      SeqvarsApiQuerypresetsvariantprioListResponse,
+      SeqvarsApiQuerypresetsvariantprioListError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/',
@@ -5723,12 +2334,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static createQueryPresetsVariantPrio(
-    options: Options<CreateQueryPresetsVariantPrioData>,
+  public static seqvarsApiQuerypresetsvariantprioCreate(
+    options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>,
   ) {
     return (options?.client ?? client).post<
-      CreateQueryPresetsVariantPrioResponse,
-      CreateQueryPresetsVariantPrioError
+      SeqvarsApiQuerypresetsvariantprioCreateResponse,
+      SeqvarsApiQuerypresetsvariantprioCreateError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/',
@@ -5738,12 +2349,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static retrieveQueryPresetsVariantPrio(
-    options: Options<RetrieveQueryPresetsVariantPrioData>,
+  public static seqvarsApiQuerypresetsvariantprioRetrieve(
+    options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveQueryPresetsVariantPrioResponse,
-      RetrieveQueryPresetsVariantPrioError
+      SeqvarsApiQuerypresetsvariantprioRetrieveResponse,
+      SeqvarsApiQuerypresetsvariantprioRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/',
@@ -5753,12 +2364,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static updateQueryPresetsVariantPrio(
-    options: Options<UpdateQueryPresetsVariantPrioData>,
+  public static seqvarsApiQuerypresetsvariantprioUpdate(
+    options: Options<SeqvarsApiQuerypresetsvariantprioUpdateData>,
   ) {
     return (options?.client ?? client).put<
-      UpdateQueryPresetsVariantPrioResponse,
-      UpdateQueryPresetsVariantPrioError
+      SeqvarsApiQuerypresetsvariantprioUpdateResponse,
+      SeqvarsApiQuerypresetsvariantprioUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/',
@@ -5768,12 +2379,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static partialUpdateQueryPresetsVariantPrio(
-    options: Options<PartialUpdateQueryPresetsVariantPrioData>,
+  public static seqvarsApiQuerypresetsvariantprioPartialUpdate(
+    options: Options<SeqvarsApiQuerypresetsvariantprioPartialUpdateData>,
   ) {
     return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsVariantPrioResponse,
-      PartialUpdateQueryPresetsVariantPrioError
+      SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse,
+      SeqvarsApiQuerypresetsvariantprioPartialUpdateError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/',
@@ -5783,295 +2394,27 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QueryPresetsVariantPrio`` model.
    */
-  public static destroyQueryPresetsVariantPrio(
-    options: Options<DestroyQueryPresetsVariantPrioData>,
+  public static seqvarsApiQuerypresetsvariantprioDestroy(
+    options: Options<SeqvarsApiQuerypresetsvariantprioDestroyData>,
   ) {
     return (options?.client ?? client).delete<
-      DestroyQueryPresetsVariantPrioResponse,
-      DestroyQueryPresetsVariantPrioError
+      SeqvarsApiQuerypresetsvariantprioDestroyResponse,
+      SeqvarsApiQuerypresetsvariantprioDestroyError
     >({
       ...options,
       url: '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static listQueryPresetsClinvars(
-    options: Options<ListQueryPresetsClinvarsData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsClinvarsResponse,
-      ListQueryPresetsClinvarsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static createQueryPresetsClinvar(
-    options: Options<CreateQueryPresetsClinvarData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsClinvarResponse,
-      CreateQueryPresetsClinvarError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static retrieveQueryPresetsClinvar(
-    options: Options<RetrieveQueryPresetsClinvarData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsClinvarResponse,
-      RetrieveQueryPresetsClinvarError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static updateQueryPresetsClinvar(
-    options: Options<UpdateQueryPresetsClinvarData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsClinvarResponse,
-      UpdateQueryPresetsClinvarError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static partialUpdateQueryPresetsClinvar(
-    options: Options<PartialUpdateQueryPresetsClinvarData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsClinvarResponse,
-      PartialUpdateQueryPresetsClinvarError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsClinvar`` model.
-   */
-  public static destroyQueryPresetsClinvar(
-    options: Options<DestroyQueryPresetsClinvarData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsClinvarResponse,
-      DestroyQueryPresetsClinvarError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static listQueryPresetsColumns(
-    options: Options<ListQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListQueryPresetsColumnsResponse,
-      ListQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static createQueryPresetsColumns(
-    options: Options<CreateQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateQueryPresetsColumnsResponse,
-      CreateQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static retrieveQueryPresetsColumns(
-    options: Options<RetrieveQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryPresetsColumnsResponse,
-      RetrieveQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static updateQueryPresetsColumns(
-    options: Options<UpdateQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdateQueryPresetsColumnsResponse,
-      UpdateQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static partialUpdateQueryPresetsColumns(
-    options: Options<PartialUpdateQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryPresetsColumnsResponse,
-      PartialUpdateQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``QueryPresetsColumns`` model.
-   */
-  public static destroyQueryPresetsColumns(
-    options: Options<DestroyQueryPresetsColumnsData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyQueryPresetsColumnsResponse,
-      DestroyQueryPresetsColumnsError
-    >({
-      ...options,
-      url: '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static listPredefinedQuerys(
-    options: Options<ListPredefinedQuerysData>,
-  ) {
-    return (options?.client ?? client).get<
-      ListPredefinedQuerysResponse,
-      ListPredefinedQuerysError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static createPredefinedQuery(
-    options: Options<CreatePredefinedQueryData>,
-  ) {
-    return (options?.client ?? client).post<
-      CreatePredefinedQueryResponse,
-      CreatePredefinedQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static retrievePredefinedQuery(
-    options: Options<RetrievePredefinedQueryData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrievePredefinedQueryResponse,
-      RetrievePredefinedQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static updatePredefinedQuery(
-    options: Options<UpdatePredefinedQueryData>,
-  ) {
-    return (options?.client ?? client).put<
-      UpdatePredefinedQueryResponse,
-      UpdatePredefinedQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static partialUpdatePredefinedQuery(
-    options: Options<PartialUpdatePredefinedQueryData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdatePredefinedQueryResponse,
-      PartialUpdatePredefinedQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
-    })
-  }
-
-  /**
-   * ViewSet for the ``PredefinedQuery`` model.
-   */
-  public static destroyPredefinedQuery(
-    options: Options<DestroyPredefinedQueryData>,
-  ) {
-    return (options?.client ?? client).delete<
-      DestroyPredefinedQueryResponse,
-      DestroyPredefinedQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/',
     })
   }
 
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static listQuerySettings(options: Options<ListQuerySettingsData>) {
+  public static seqvarsApiQuerysettingsList(
+    options: Options<SeqvarsApiQuerysettingsListData>,
+  ) {
     return (options?.client ?? client).get<
-      ListQuerySettingsResponse,
-      ListQuerySettingsError
+      SeqvarsApiQuerysettingsListResponse,
+      SeqvarsApiQuerysettingsListError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/',
@@ -6081,12 +2424,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static createQuerySettingsDetails(
-    options: Options<CreateQuerySettingsDetailsData>,
+  public static seqvarsApiQuerysettingsCreate(
+    options: Options<SeqvarsApiQuerysettingsCreateData>,
   ) {
     return (options?.client ?? client).post<
-      CreateQuerySettingsDetailsResponse,
-      CreateQuerySettingsDetailsError
+      SeqvarsApiQuerysettingsCreateResponse,
+      SeqvarsApiQuerysettingsCreateError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/',
@@ -6096,12 +2439,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static retrieveQuerySettingsDetails(
-    options: Options<RetrieveQuerySettingsDetailsData>,
+  public static seqvarsApiQuerysettingsRetrieve(
+    options: Options<SeqvarsApiQuerysettingsRetrieveData>,
   ) {
     return (options?.client ?? client).get<
-      RetrieveQuerySettingsDetailsResponse,
-      RetrieveQuerySettingsDetailsError
+      SeqvarsApiQuerysettingsRetrieveResponse,
+      SeqvarsApiQuerysettingsRetrieveError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/{querysettings}/',
@@ -6111,12 +2454,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static updateQuerySettingsDetails(
-    options: Options<UpdateQuerySettingsDetailsData>,
+  public static seqvarsApiQuerysettingsUpdate(
+    options: Options<SeqvarsApiQuerysettingsUpdateData>,
   ) {
     return (options?.client ?? client).put<
-      UpdateQuerySettingsDetailsResponse,
-      UpdateQuerySettingsDetailsError
+      SeqvarsApiQuerysettingsUpdateResponse,
+      SeqvarsApiQuerysettingsUpdateError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/{querysettings}/',
@@ -6126,12 +2469,12 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static partialUpdateQuerySettingsDetails(
-    options: Options<PartialUpdateQuerySettingsDetailsData>,
+  public static seqvarsApiQuerysettingsPartialUpdate(
+    options: Options<SeqvarsApiQuerysettingsPartialUpdateData>,
   ) {
     return (options?.client ?? client).patch<
-      PartialUpdateQuerySettingsDetailsResponse,
-      PartialUpdateQuerySettingsDetailsError
+      SeqvarsApiQuerysettingsPartialUpdateResponse,
+      SeqvarsApiQuerysettingsPartialUpdateError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/{querysettings}/',
@@ -6141,160 +2484,27 @@ export class SeqvarsService {
   /**
    * ViewSet for the ``QuerySettings`` model.
    */
-  public static destroyQuerySettings(
-    options: Options<DestroyQuerySettingsData>,
+  public static seqvarsApiQuerysettingsDestroy(
+    options: Options<SeqvarsApiQuerysettingsDestroyData>,
   ) {
     return (options?.client ?? client).delete<
-      DestroyQuerySettingsResponse,
-      DestroyQuerySettingsError
+      SeqvarsApiQuerysettingsDestroyResponse,
+      SeqvarsApiQuerysettingsDestroyError
     >({
       ...options,
       url: '/seqvars/api/querysettings/{session}/{querysettings}/',
-    })
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static listQuerys(options: Options<ListQuerysData>) {
-    return (options?.client ?? client).get<ListQuerysResponse, ListQuerysError>(
-      {
-        ...options,
-        url: '/seqvars/api/query/{session}/',
-      },
-    )
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static createQueryDetails(options: Options<CreateQueryDetailsData>) {
-    return (options?.client ?? client).post<
-      CreateQueryDetailsResponse,
-      CreateQueryDetailsError
-    >({
-      ...options,
-      url: '/seqvars/api/query/{session}/',
-    })
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static retrieveQueryDetails(
-    options: Options<RetrieveQueryDetailsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryDetailsResponse,
-      RetrieveQueryDetailsError
-    >({
-      ...options,
-      url: '/seqvars/api/query/{session}/{query}/',
-    })
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static updateQueryDetails(options: Options<UpdateQueryDetailsData>) {
-    return (options?.client ?? client).put<
-      UpdateQueryDetailsResponse,
-      UpdateQueryDetailsError
-    >({
-      ...options,
-      url: '/seqvars/api/query/{session}/{query}/',
-    })
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static partialUpdateQueryDetails(
-    options: Options<PartialUpdateQueryDetailsData>,
-  ) {
-    return (options?.client ?? client).patch<
-      PartialUpdateQueryDetailsResponse,
-      PartialUpdateQueryDetailsError
-    >({
-      ...options,
-      url: '/seqvars/api/query/{session}/{query}/',
-    })
-  }
-
-  /**
-   * Allow CRUD of the user's queries.
-   */
-  public static destroyQuery(options: Options<DestroyQueryData>) {
-    return (options?.client ?? client).delete<
-      DestroyQueryResponse,
-      DestroyQueryError
-    >({
-      ...options,
-      url: '/seqvars/api/query/{session}/{query}/',
-    })
-  }
-
-  /**
-   * ViewSet for retrieving ``QueryExecution`` records.
-   */
-  public static listQueryExecutions(options: Options<ListQueryExecutionsData>) {
-    return (options?.client ?? client).get<
-      ListQueryExecutionsResponse,
-      ListQueryExecutionsError
-    >({
-      ...options,
-      url: '/seqvars/api/queryexecution/{query}/',
-    })
-  }
-
-  /**
-   * ViewSet for retrieving ``QueryExecution`` records.
-   */
-  public static retrieveQueryExecutionDetails(
-    options: Options<RetrieveQueryExecutionDetailsData>,
-  ) {
-    return (options?.client ?? client).get<
-      RetrieveQueryExecutionDetailsResponse,
-      RetrieveQueryExecutionDetailsError
-    >({
-      ...options,
-      url: '/seqvars/api/queryexecution/{query}/{queryexecution}/',
-    })
-  }
-
-  /**
-   * ViewSet for retrieving ``ResultSet`` records.
-   */
-  public static listResultSets(options: Options<ListResultSetsData>) {
-    return (options?.client ?? client).get<
-      ListResultSetsResponse,
-      ListResultSetsError
-    >({
-      ...options,
-      url: '/seqvars/api/resultset/{query}/',
-    })
-  }
-
-  /**
-   * ViewSet for retrieving ``ResultSet`` records.
-   */
-  public static retrieveResultSet(options: Options<RetrieveResultSetData>) {
-    return (options?.client ?? client).get<
-      RetrieveResultSetResponse,
-      RetrieveResultSetError
-    >({
-      ...options,
-      url: '/seqvars/api/resultset/{query}/{resultset}/',
     })
   }
 
   /**
    * ViewSet for retrieving ``ResultRow`` records.
    */
-  public static listResultRows(options: Options<ListResultRowsData>) {
+  public static seqvarsApiResultrowList(
+    options: Options<SeqvarsApiResultrowListData>,
+  ) {
     return (options?.client ?? client).get<
-      ListResultRowsResponse,
-      ListResultRowsError
+      SeqvarsApiResultrowListResponse,
+      SeqvarsApiResultrowListError
     >({
       ...options,
       url: '/seqvars/api/resultrow/{resultset}/',
@@ -6304,66 +2514,45 @@ export class SeqvarsService {
   /**
    * ViewSet for retrieving ``ResultRow`` records.
    */
-  public static retrieveResultRow(options: Options<RetrieveResultRowData>) {
+  public static seqvarsApiResultrowRetrieve(
+    options: Options<SeqvarsApiResultrowRetrieveData>,
+  ) {
     return (options?.client ?? client).get<
-      RetrieveResultRowResponse,
-      RetrieveResultRowError
+      SeqvarsApiResultrowRetrieveResponse,
+      SeqvarsApiResultrowRetrieveError
     >({
       ...options,
       url: '/seqvars/api/resultrow/{resultset}/{seqvarresultrow}/',
     })
   }
-}
-
-export class ApiService {
-  public static createLogin(options?: Options<CreateLoginData>) {
-    return (options?.client ?? client).post<
-      CreateLoginResponse,
-      CreateLoginError
-    >({
-      ...options,
-      url: '/api/auth/login/',
-    })
-  }
-
-  public static createLogout(options?: Options<CreateLogoutData>) {
-    return (options?.client ?? client).post<
-      CreateLogoutResponse,
-      CreateLogoutError
-    >({
-      ...options,
-      url: '/api/auth/logout/',
-    })
-  }
 
   /**
-   * Log the user out of all sessions
-   * I.E. deletes all auth tokens for the user
+   * ViewSet for retrieving ``ResultSet`` records.
    */
-  public static createLogoutAll(options?: Options<CreateLogoutAllData>) {
-    return (options?.client ?? client).post<
-      CreateLogoutAllResponse,
-      CreateLogoutAllError
-    >({
-      ...options,
-      url: '/api/auth/logoutall/',
-    })
-  }
-}
-
-export class AdminAlertsService {
-  /**
-   * AdminAlert acivation toggling Ajax view
-   */
-  public static createAdminAlertActiveToggleAjax(
-    options: Options<CreateAdminAlertActiveToggleAjaxData>,
+  public static seqvarsApiResultsetList(
+    options: Options<SeqvarsApiResultsetListData>,
   ) {
-    return (options?.client ?? client).post<
-      CreateAdminAlertActiveToggleAjaxResponse,
-      CreateAdminAlertActiveToggleAjaxError
+    return (options?.client ?? client).get<
+      SeqvarsApiResultsetListResponse,
+      SeqvarsApiResultsetListError
     >({
       ...options,
-      url: '/admin_alerts/ajax/active/toggle/{adminalert}',
+      url: '/seqvars/api/resultset/{query}/',
+    })
+  }
+
+  /**
+   * ViewSet for retrieving ``ResultSet`` records.
+   */
+  public static seqvarsApiResultsetRetrieve(
+    options: Options<SeqvarsApiResultsetRetrieveData>,
+  ) {
+    return (options?.client ?? client).get<
+      SeqvarsApiResultsetRetrieveResponse,
+      SeqvarsApiResultsetRetrieveError
+    >({
+      ...options,
+      url: '/seqvars/api/resultset/{query}/{resultset}/',
     })
   }
 }

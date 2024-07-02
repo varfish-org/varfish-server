@@ -1,7 +1,5 @@
 import sys
-
 from django.db import transaction
-from django_pydantic_field.rest_framework import AutoSchema
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
@@ -55,6 +53,8 @@ class CaseAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
         Currently, this will be at most one.
         """
         result = CaseAnalysis.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(case__sodar_uuid=self.kwargs["case"])
         return result
 
@@ -92,6 +92,8 @@ class CaseAnalysisSessionViewSet(viewsets.ReadOnlyModelViewSet):
         Currently, this will be at most one.
         """
         result = CaseAnalysisSession.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(
             caseanalysis__case__sodar_uuid=self.kwargs["case"],
             user=self.request.user,

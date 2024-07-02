@@ -684,6 +684,7 @@ SPECTACULAR_SETTINGS = {
         "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
         "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
         "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
+        "QueryExecutionStateEnum": "seqvars.models.QueryExecution.STATE_CHOICES",
     },
     # Sidecar Settings
     "SWAGGER_UI_DIST": "SIDECAR",

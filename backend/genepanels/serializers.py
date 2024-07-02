@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from genepanels.models import GenePanel, GenePanelCategory
@@ -44,6 +45,7 @@ class GenePanelCategorySerializer(serializers.ModelSerializer):
             "genepanel_set",
         )
 
+    @extend_schema_field(GenePanelSerializer)
     def get_genepanel_set(self, obj):
         """Corresponds to the ``genepanel_set`` field defined above."""
         return GenePanelSerializer(obj.genepanel_set.filter(state="active"), many=True).data

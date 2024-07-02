@@ -152,6 +152,8 @@ class ProjectContextBaseViewSet(BaseViewSet):
         assert self.serializer_class.Meta.model
 
         result = self.serializer_class.Meta.model.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
@@ -175,6 +177,8 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSet`` records for the given project."""
         result = QueryPresetsSet.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
@@ -268,6 +272,8 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
         result = QueryPresetsSetVersion.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(presetsset__sodar_uuid=self.kwargs["querypresetsset"])
         return result
 
@@ -295,6 +301,8 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         assert self.serializer_class.Meta.model
 
         result = self.serializer_class.Meta.model.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(presetssetversion__sodar_uuid=self.kwargs["querypresetssetversion"])
         return result
 
@@ -393,6 +401,8 @@ class QuerySettingsViewSet(BaseViewSet):
     def get_queryset(self):
         """Return queryset with all ``QuerySettings`` records for the given case."""
         result = QuerySettings.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(session__sodar_uuid=self.kwargs["session"])
         return result
 
@@ -433,6 +443,8 @@ class QueryViewSet(BaseViewSet):
         Currently, this will be at most one.
         """
         result = Query.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(
             session__sodar_uuid=self.kwargs["session"],
         )
@@ -465,6 +477,8 @@ class QueryExecutionViewSet(BaseReadOnlyViewSet):
     def get_queryset(self):
         """Return queryset with all ``QueryExecution`` records for the given query."""
         result = QueryExecution.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(
             query__sodar_uuid=self.kwargs["query"],
         )
@@ -482,6 +496,8 @@ class ResultSetViewSet(BaseReadOnlyViewSet):
     def get_queryset(self):
         """Return queryset with all ``ResultSet`` records for the given query."""
         result = ResultSet.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(
             queryexecution__query__sodar_uuid=self.kwargs["query"],
         )
@@ -507,6 +523,8 @@ class ResultRowViewSet(BaseReadOnlyViewSet):
     def get_queryset(self):
         """Return queryset with all ``ResultRow`` records for the given result set."""
         result = ResultRow.objects.all()
+        if sys.argv[:2] == ["manage.py", "spectacular"]:
+            return result   # short circuit in schema generation
         result = result.filter(
             resultset__sodar_uuid=self.kwargs["resultset"],
         )
