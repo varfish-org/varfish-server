@@ -91,6 +91,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
+    'drf_spectacular',
 ]
 
 # Apps specific for this project go here.
@@ -664,6 +665,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SPECTACULAR_SETTINGS = {
@@ -674,7 +676,7 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
-        "varfish.utils.spectacular_preprocess_hook",
+        "varfish.spectacular_utils.spectacular_preprocess_hook",
     ],
     # We add some explicit choices naming to work around warning.
     "ENUM_NAME_OVERRIDES": {

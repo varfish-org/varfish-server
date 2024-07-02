@@ -1,9 +1,8 @@
 import sys
-from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
-from django_pydantic_field.rest_framework import AutoSchema
+from drf_spectacular.openapi import AutoSchema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
@@ -115,8 +114,6 @@ class BaseViewSetMixin(VersioningViewSetMixin):
     lookup_field = "sodar_uuid"
     #: Use the app's standard pagination.
     pagination_class = StandardPagination
-    #: Enable generation of OpenAPI schemas for pydantic field.
-    schema = AutoSchema()
     #: Use the custom permission class.
     permission_classes = [QueryPresetsPermission]
 
@@ -236,7 +233,7 @@ class QueryPresetsFactoryDefaultsViewSet(VersioningViewSetMixin, viewsets.ReadOn
     pagination_class = StandardPagination
     #: Modify the schema operation ID to avoid name clashes with user-editable presets.
     schema = AutoSchema(
-        operation_id_base="QueryPresetsSetsFactoryDefaults"
+        # operation_id_base="QueryPresetsSetsFactoryDefaults"
     )
 
     def get_serializer_class(self):

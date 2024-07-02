@@ -5,7 +5,7 @@ import uuid as uuid_object
 import django
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
-from django_pydantic_field import SchemaField
+from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 import pydantic

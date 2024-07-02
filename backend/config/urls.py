@@ -12,7 +12,7 @@ import django_saml2_auth.views
 from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 def handler500(request, *args, **argv):
     if request.user and "User" in str(type(request.user)):
@@ -95,6 +95,21 @@ if settings.VARFISH_GEN2_ANALYSIS:
         url(r"^cases-analysis/", include("cases_analysis.urls")),
         url(r"^seqvars/", include("seqvars.urls")),
     ]
+
+# URL Patterns for DRF Spectacular
+# ------------------------------------------------------------------------------
+
+urlpatterns += [
+    # Schema
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # UI
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+]
 
 
 # URL Patterns for Proxies
