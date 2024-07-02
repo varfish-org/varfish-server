@@ -3,57 +3,57 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.models import (
-    PredefinedQuery,
-    Query,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    QuerySettings,
+    SeqvarsPredefinedQuery,
+    SeqvarsQuery,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsQuerySettings,
 )
 from seqvars.serializers import (
-    QueryColumnsConfigSerializer,
-    QuerySettingsClinvarSerializer,
-    QuerySettingsConsequenceSerializer,
-    QuerySettingsFrequencySerializer,
-    QuerySettingsGenotypeSerializer,
-    QuerySettingsLocusSerializer,
-    QuerySettingsPhenotypePrioSerializer,
-    QuerySettingsQualitySerializer,
-    QuerySettingsVariantPrioSerializer,
+    SeqvarsQueryColumnsConfigSerializer,
+    SeqvarsQuerySettingsClinvarSerializer,
+    SeqvarsQuerySettingsConsequenceSerializer,
+    SeqvarsQuerySettingsFrequencySerializer,
+    SeqvarsQuerySettingsGenotypeSerializer,
+    SeqvarsQuerySettingsLocusSerializer,
+    SeqvarsQuerySettingsPhenotypePrioSerializer,
+    SeqvarsQuerySettingsQualitySerializer,
+    SeqvarsQuerySettingsVariantPrioSerializer,
 )
 from seqvars.tests.factories import (
-    PredefinedQueryFactory,
-    QueryColumnsConfigFactory,
-    QueryExecutionFactory,
-    QueryFactory,
-    QueryPresetsClinvarFactory,
-    QueryPresetsColumnsFactory,
-    QueryPresetsConsequenceFactory,
-    QueryPresetsFrequencyFactory,
-    QueryPresetsLocusFactory,
-    QueryPresetsPhenotypePrioFactory,
-    QueryPresetsQualityFactory,
-    QueryPresetsSetFactory,
-    QueryPresetsSetVersionFactory,
-    QueryPresetsVariantPrioFactory,
-    QuerySettingsClinvarFactory,
-    QuerySettingsConsequenceFactory,
-    QuerySettingsFactory,
-    QuerySettingsFrequencyFactory,
-    QuerySettingsGenotypeFactory,
-    QuerySettingsLocusFactory,
-    QuerySettingsPhenotypePrioFactory,
-    QuerySettingsQualityFactory,
-    QuerySettingsVariantPrioFactory,
-    ResultRowFactory,
-    ResultSetFactory,
+    SeqvarsPredefinedQueryFactory,
+    SeqvarsQueryColumnsConfigFactory,
+    SeqvarsQueryExecutionFactory,
+    SeqvarsQueryFactory,
+    SeqvarsQueryPresetsClinvarFactory,
+    SeqvarsQueryPresetsColumnsFactory,
+    SeqvarsQueryPresetsConsequenceFactory,
+    SeqvarsQueryPresetsFrequencyFactory,
+    SeqvarsQueryPresetsLocusFactory,
+    SeqvarsQueryPresetsPhenotypePrioFactory,
+    SeqvarsQueryPresetsQualityFactory,
+    SeqvarsQueryPresetsSetFactory,
+    SeqvarsQueryPresetsSetVersionFactory,
+    SeqvarsQueryPresetsVariantPrioFactory,
+    SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsConsequenceFactory,
+    SeqvarsQuerySettingsFactory,
+    SeqvarsQuerySettingsFrequencyFactory,
+    SeqvarsQuerySettingsGenotypeFactory,
+    SeqvarsQuerySettingsLocusFactory,
+    SeqvarsQuerySettingsPhenotypePrioFactory,
+    SeqvarsQuerySettingsQualityFactory,
+    SeqvarsQuerySettingsVariantPrioFactory,
+    SeqvarsResultRowFactory,
+    SeqvarsResultSetFactory,
 )
 from variants.tests.factories import CaseFactory
 
@@ -62,7 +62,7 @@ class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
 
     def test_list(self):
         url = reverse(
@@ -104,7 +104,7 @@ class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
         querypresetsset_uuid = self.querypresetsset.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsSet.objects.exclude(sodar_uuid=querypresetsset_uuid):
+            for obj in SeqvarsQueryPresetsSet.objects.exclude(sodar_uuid=querypresetsset_uuid):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -190,8 +190,8 @@ class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
         querypresetsset_uuid = self.querypresetsset.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsSet.objects.filter(sodar_uuid=querypresetsset_uuid):
-                self.querypresetsset = QueryPresetsSetFactory(
+            if not SeqvarsQueryPresetsSet.objects.filter(sodar_uuid=querypresetsset_uuid):
+                self.querypresetsset = SeqvarsQueryPresetsSetFactory(
                     sodar_uuid=querypresetsset_uuid,
                     project=self.project,
                 )
@@ -205,8 +205,10 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
 
     def test_list(self):
         url = reverse(
@@ -247,7 +249,7 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
         querypresetssetversion_uuid = self.querypresetssetversion.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsSetVersion.objects.exclude(
+            for obj in SeqvarsQueryPresetsSetVersion.objects.exclude(
                 sodar_uuid=querypresetssetversion_uuid
             ):
                 obj.delete()
@@ -335,8 +337,10 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
         querypresetssetversion_uuid = self.querypresetssetversion.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsSetVersion.objects.filter(sodar_uuid=querypresetssetversion_uuid):
-                self.querypresetssetversion = QueryPresetsSetVersionFactory(
+            if not SeqvarsQueryPresetsSetVersion.objects.filter(
+                sodar_uuid=querypresetssetversion_uuid
+            ):
+                self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
                     sodar_uuid=querypresetssetversion_uuid, presetsset=self.querypresetsset
                 )
 
@@ -349,9 +353,11 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -395,7 +401,9 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         querypresetsfrequency_uuid = self.querypresetsfrequency.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsFrequency.objects.exclude(sodar_uuid=querypresetsfrequency_uuid):
+            for obj in SeqvarsQueryPresetsFrequency.objects.exclude(
+                sodar_uuid=querypresetsfrequency_uuid
+            ):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -481,8 +489,10 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         querypresetsfrequency_uuid = self.querypresetsfrequency.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsFrequency.objects.filter(sodar_uuid=querypresetsfrequency_uuid):
-                self.querypresetsfrequency = QueryPresetsFrequencyFactory(
+            if not SeqvarsQueryPresetsFrequency.objects.filter(
+                sodar_uuid=querypresetsfrequency_uuid
+            ):
+                self.querypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
                     sodar_uuid=querypresetsfrequency_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -496,9 +506,11 @@ class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsquality = QueryPresetsQualityFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsquality = SeqvarsQueryPresetsQualityFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -542,7 +554,9 @@ class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
         querypresetsquality_uuid = self.querypresetsquality.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsQuality.objects.exclude(sodar_uuid=querypresetsquality_uuid):
+            for obj in SeqvarsQueryPresetsQuality.objects.exclude(
+                sodar_uuid=querypresetsquality_uuid
+            ):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -628,8 +642,8 @@ class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
         querypresetsquality_uuid = self.querypresetsquality.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsQuality.objects.filter(sodar_uuid=querypresetsquality_uuid):
-                self.querypresetsquality = QueryPresetsQualityFactory(
+            if not SeqvarsQueryPresetsQuality.objects.filter(sodar_uuid=querypresetsquality_uuid):
+                self.querypresetsquality = SeqvarsQueryPresetsQualityFactory(
                     sodar_uuid=querypresetsquality_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -643,9 +657,11 @@ class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsconsequence = QueryPresetsConsequenceFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -689,7 +705,7 @@ class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
         querypresetsconsequence_uuid = self.querypresetsconsequence.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsConsequence.objects.exclude(
+            for obj in SeqvarsQueryPresetsConsequence.objects.exclude(
                 sodar_uuid=querypresetsconsequence_uuid
             ):
                 obj.delete()
@@ -777,8 +793,10 @@ class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
         querypresetsconsequence_uuid = self.querypresetsconsequence.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsConsequence.objects.filter(sodar_uuid=querypresetsconsequence_uuid):
-                self.querypresetsconsequence = QueryPresetsConsequenceFactory(
+            if not SeqvarsQueryPresetsConsequence.objects.filter(
+                sodar_uuid=querypresetsconsequence_uuid
+            ):
+                self.querypresetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
                     sodar_uuid=querypresetsconsequence_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -792,9 +810,11 @@ class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetslocus = QueryPresetsLocusFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetslocus = SeqvarsQueryPresetsLocusFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -838,7 +858,7 @@ class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
         querypresetslocus_uuid = self.querypresetslocus.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsLocus.objects.exclude(sodar_uuid=querypresetslocus_uuid):
+            for obj in SeqvarsQueryPresetsLocus.objects.exclude(sodar_uuid=querypresetslocus_uuid):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -924,8 +944,8 @@ class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
         querypresetslocus_uuid = self.querypresetslocus.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsLocus.objects.filter(sodar_uuid=querypresetslocus_uuid):
-                self.querypresetslocus = QueryPresetsLocusFactory(
+            if not SeqvarsQueryPresetsLocus.objects.filter(sodar_uuid=querypresetslocus_uuid):
+                self.querypresetslocus = SeqvarsQueryPresetsLocusFactory(
                     sodar_uuid=querypresetslocus_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -939,9 +959,11 @@ class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -985,7 +1007,7 @@ class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
         querypresetsphenotypeprio_uuid = self.querypresetsphenotypeprio.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsPhenotypePrio.objects.exclude(
+            for obj in SeqvarsQueryPresetsPhenotypePrio.objects.exclude(
                 sodar_uuid=querypresetsphenotypeprio_uuid
             ):
                 obj.delete()
@@ -1073,10 +1095,10 @@ class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
         querypresetsphenotypeprio_uuid = self.querypresetsphenotypeprio.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsPhenotypePrio.objects.filter(
+            if not SeqvarsQueryPresetsPhenotypePrio.objects.filter(
                 sodar_uuid=querypresetsphenotypeprio_uuid
             ):
-                self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+                self.querypresetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
                     sodar_uuid=querypresetsphenotypeprio_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -1090,9 +1112,11 @@ class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsvariantprio = QueryPresetsVariantPrioFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -1136,7 +1160,7 @@ class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
         querypresetsvariantprio_uuid = self.querypresetsvariantprio.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsVariantPrio.objects.exclude(
+            for obj in SeqvarsQueryPresetsVariantPrio.objects.exclude(
                 sodar_uuid=querypresetsvariantprio_uuid
             ):
                 obj.delete()
@@ -1224,8 +1248,10 @@ class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
         querypresetsvariantprio_uuid = self.querypresetsvariantprio.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsVariantPrio.objects.filter(sodar_uuid=querypresetsvariantprio_uuid):
-                self.querypresetsvariantprio = QueryPresetsVariantPrioFactory(
+            if not SeqvarsQueryPresetsVariantPrio.objects.filter(
+                sodar_uuid=querypresetsvariantprio_uuid
+            ):
+                self.querypresetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
                     sodar_uuid=querypresetsvariantprio_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -1239,9 +1265,11 @@ class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetscolumns = QueryPresetsColumnsFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetscolumns = SeqvarsQueryPresetsColumnsFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -1285,7 +1313,9 @@ class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
         querypresetscolumns_uuid = self.querypresetscolumns.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsColumns.objects.exclude(sodar_uuid=querypresetscolumns_uuid):
+            for obj in SeqvarsQueryPresetsColumns.objects.exclude(
+                sodar_uuid=querypresetscolumns_uuid
+            ):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -1371,8 +1401,8 @@ class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
         querypresetscolumns_uuid = self.querypresetscolumns.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsColumns.objects.filter(sodar_uuid=querypresetscolumns_uuid):
-                self.querypresetscolumns = QueryPresetsColumnsFactory(
+            if not SeqvarsQueryPresetsColumns.objects.filter(sodar_uuid=querypresetscolumns_uuid):
+                self.querypresetscolumns = SeqvarsQueryPresetsColumnsFactory(
                     sodar_uuid=querypresetscolumns_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -1386,9 +1416,11 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsclinvar = QueryPresetsClinvarFactory(
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.querypresetsclinvar = SeqvarsQueryPresetsClinvarFactory(
             presetssetversion=self.querypresetssetversion
         )
 
@@ -1432,7 +1464,9 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
         querypresetsclinvar_uuid = self.querypresetsclinvar.sodar_uuid
 
         def cleanup():
-            for obj in QueryPresetsClinvar.objects.exclude(sodar_uuid=querypresetsclinvar_uuid):
+            for obj in SeqvarsQueryPresetsClinvar.objects.exclude(
+                sodar_uuid=querypresetsclinvar_uuid
+            ):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -1518,8 +1552,8 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
         querypresetsclinvar_uuid = self.querypresetsclinvar.sodar_uuid
 
         def cleanup():
-            if not QueryPresetsClinvar.objects.filter(sodar_uuid=querypresetsclinvar_uuid):
-                self.querypresetsclinvar = QueryPresetsClinvarFactory(
+            if not SeqvarsQueryPresetsClinvar.objects.filter(sodar_uuid=querypresetsclinvar_uuid):
+                self.querypresetsclinvar = SeqvarsQueryPresetsClinvarFactory(
                     sodar_uuid=querypresetsclinvar_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -1533,9 +1567,13 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
 
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.querypresetssetversion)
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
+        self.predefinedquery = SeqvarsPredefinedQueryFactory(
+            presetssetversion=self.querypresetssetversion
+        )
 
     def test_list(self):
         url = reverse(
@@ -1577,7 +1615,7 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
         predefinedquery_uuid = self.predefinedquery.sodar_uuid
 
         def cleanup():
-            for obj in PredefinedQuery.objects.exclude(sodar_uuid=predefinedquery_uuid):
+            for obj in SeqvarsPredefinedQuery.objects.exclude(sodar_uuid=predefinedquery_uuid):
                 obj.delete()
 
         self.assert_response(url, good_users, 201, method="POST", data=data, cleanup_method=cleanup)
@@ -1663,8 +1701,8 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
         predefinedquery_uuid = self.predefinedquery.sodar_uuid
 
         def cleanup():
-            if not PredefinedQuery.objects.filter(sodar_uuid=predefinedquery_uuid):
-                self.predefinedquery = PredefinedQueryFactory(
+            if not SeqvarsPredefinedQuery.objects.filter(sodar_uuid=predefinedquery_uuid):
+                self.predefinedquery = SeqvarsPredefinedQueryFactory(
                     sodar_uuid=predefinedquery_uuid,
                     presetssetversion=self.querypresetssetversion,
                 )
@@ -1681,7 +1719,7 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.querysettings = QuerySettingsFactory(session=self.session)
+        self.querysettings = SeqvarsQuerySettingsFactory(session=self.session)
 
     def test_list(self):
         url = reverse(
@@ -1720,36 +1758,36 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
 
         data = {
-            "genotype": QuerySettingsGenotypeSerializer(
-                QuerySettingsGenotypeFactory.build(querysettings=None)
+            "genotype": SeqvarsQuerySettingsGenotypeSerializer(
+                SeqvarsQuerySettingsGenotypeFactory.build(querysettings=None)
             ).data,
-            "quality": QuerySettingsQualitySerializer(
-                QuerySettingsQualityFactory.build(querysettings=None)
+            "quality": SeqvarsQuerySettingsQualitySerializer(
+                SeqvarsQuerySettingsQualityFactory.build(querysettings=None)
             ).data,
-            "consequence": QuerySettingsConsequenceSerializer(
-                QuerySettingsConsequenceFactory.build(querysettings=None)
+            "consequence": SeqvarsQuerySettingsConsequenceSerializer(
+                SeqvarsQuerySettingsConsequenceFactory.build(querysettings=None)
             ).data,
-            "locus": QuerySettingsLocusSerializer(
-                QuerySettingsLocusFactory.build(querysettings=None)
+            "locus": SeqvarsQuerySettingsLocusSerializer(
+                SeqvarsQuerySettingsLocusFactory.build(querysettings=None)
             ).data,
-            "frequency": QuerySettingsFrequencySerializer(
-                QuerySettingsFrequencyFactory.build(querysettings=None)
+            "frequency": SeqvarsQuerySettingsFrequencySerializer(
+                SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
             ).data,
-            "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
-                QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+            "phenotypeprio": SeqvarsQuerySettingsPhenotypePrioSerializer(
+                SeqvarsQuerySettingsPhenotypePrioFactory.build(querysettings=None)
             ).data,
-            "variantprio": QuerySettingsVariantPrioSerializer(
-                QuerySettingsVariantPrioFactory.build(querysettings=None)
+            "variantprio": SeqvarsQuerySettingsVariantPrioSerializer(
+                SeqvarsQuerySettingsVariantPrioFactory.build(querysettings=None)
             ).data,
-            "clinvar": QuerySettingsClinvarSerializer(
-                QuerySettingsClinvarFactory.build(querysettings=None)
+            "clinvar": SeqvarsQuerySettingsClinvarSerializer(
+                SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
             ).data,
         }
 
         querysettings_uuid = self.querysettings.sodar_uuid
 
         def cleanup():
-            for obj in QuerySettings.objects.exclude(sodar_uuid=querysettings_uuid):
+            for obj in SeqvarsQuerySettings.objects.exclude(sodar_uuid=querysettings_uuid):
                 obj.delete()
 
         self.assert_response(
@@ -1861,8 +1899,8 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         querysettings_uuid = self.querysettings.sodar_uuid
 
         def cleanup():
-            if not QuerySettings.objects.filter(sodar_uuid=querysettings_uuid):
-                self.querysettings = QuerySettingsFactory(
+            if not SeqvarsQuerySettings.objects.filter(sodar_uuid=querysettings_uuid):
+                self.querysettings = SeqvarsQuerySettingsFactory(
                     sodar_uuid=querysettings_uuid,
                     session=self.session,
                 )
@@ -1879,7 +1917,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.query = QueryFactory(session=self.session)
+        self.query = SeqvarsQueryFactory(session=self.session)
 
     def test_list(self):
         url = reverse(
@@ -1920,42 +1958,42 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         data = {
             "label": "test label",
             "settings": {
-                "genotype": QuerySettingsGenotypeSerializer(
-                    QuerySettingsGenotypeFactory.build(querysettings=None)
+                "genotype": SeqvarsQuerySettingsGenotypeSerializer(
+                    SeqvarsQuerySettingsGenotypeFactory.build(querysettings=None)
                 ).data,
-                "quality": QuerySettingsQualitySerializer(
-                    QuerySettingsQualityFactory.build(querysettings=None)
+                "quality": SeqvarsQuerySettingsQualitySerializer(
+                    SeqvarsQuerySettingsQualityFactory.build(querysettings=None)
                 ).data,
-                "consequence": QuerySettingsConsequenceSerializer(
-                    QuerySettingsConsequenceFactory.build(querysettings=None)
+                "consequence": SeqvarsQuerySettingsConsequenceSerializer(
+                    SeqvarsQuerySettingsConsequenceFactory.build(querysettings=None)
                 ).data,
-                "locus": QuerySettingsLocusSerializer(
-                    QuerySettingsLocusFactory.build(querysettings=None)
+                "locus": SeqvarsQuerySettingsLocusSerializer(
+                    SeqvarsQuerySettingsLocusFactory.build(querysettings=None)
                 ).data,
-                "frequency": QuerySettingsFrequencySerializer(
-                    QuerySettingsFrequencyFactory.build(querysettings=None)
+                "frequency": SeqvarsQuerySettingsFrequencySerializer(
+                    SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
                 ).data,
-                "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
-                    QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+                "phenotypeprio": SeqvarsQuerySettingsPhenotypePrioSerializer(
+                    SeqvarsQuerySettingsPhenotypePrioFactory.build(querysettings=None)
                 ).data,
-                "variantprio": QuerySettingsVariantPrioSerializer(
-                    QuerySettingsVariantPrioFactory.build(querysettings=None)
+                "variantprio": SeqvarsQuerySettingsVariantPrioSerializer(
+                    SeqvarsQuerySettingsVariantPrioFactory.build(querysettings=None)
                 ).data,
-                "clinvar": QuerySettingsClinvarSerializer(
-                    QuerySettingsClinvarFactory.build(querysettings=None)
+                "clinvar": SeqvarsQuerySettingsClinvarSerializer(
+                    SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
                 ).data,
             },
-            "columnsconfig": QueryColumnsConfigSerializer(
-                QueryColumnsConfigFactory.build(query=None)
+            "columnsconfig": SeqvarsQueryColumnsConfigSerializer(
+                SeqvarsQueryColumnsConfigFactory.build(query=None)
             ).data,
         }
 
         query_uuid = self.query.sodar_uuid
 
         def cleanup():
-            for obj in Query.objects.exclude(settings__sodar_uuid=query_uuid):
+            for obj in SeqvarsQuery.objects.exclude(settings__sodar_uuid=query_uuid):
                 obj.delete()
-            for obj in QuerySettings.objects.exclude(sodar_uuid=query_uuid):
+            for obj in SeqvarsQuerySettings.objects.exclude(sodar_uuid=query_uuid):
                 obj.delete()
 
         self.assert_response(
@@ -2067,8 +2105,8 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         query_uuid = self.query.sodar_uuid
 
         def cleanup():
-            if not Query.objects.filter(sodar_uuid=query_uuid):
-                self.query = QueryFactory(
+            if not SeqvarsQuery.objects.filter(sodar_uuid=query_uuid):
+                self.query = SeqvarsQueryFactory(
                     sodar_uuid=query_uuid,
                     session=self.session,
                 )
@@ -2085,8 +2123,8 @@ class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
 
     def test_list(self):
         url = reverse(
@@ -2139,9 +2177,9 @@ class TestResultSetViewSet(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
-        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
+        self.resultset = SeqvarsResultSetFactory(queryexecution=self.queryexecution)
 
     def test_list(self):
         url = reverse(
@@ -2194,10 +2232,10 @@ class TestResultRowViewSet(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
-        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
-        self.seqvarresultrow = ResultRowFactory(resultset=self.resultset)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
+        self.resultset = SeqvarsResultSetFactory(queryexecution=self.queryexecution)
+        self.seqvarresultrow = SeqvarsResultRowFactory(resultset=self.resultset)
 
     def test_list(self):
         url = reverse(

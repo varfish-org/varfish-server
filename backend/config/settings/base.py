@@ -91,7 +91,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
-    'drf_spectacular',
+    "drf_spectacular",
 ]
 
 # Apps specific for this project go here.
@@ -665,7 +665,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SPECTACULAR_SETTINGS = {

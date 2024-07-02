@@ -10,9 +10,10 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
 
 def handler500(request, *args, **argv):
     if request.user and "User" in str(type(request.user)):

@@ -18,7 +18,7 @@ from variants.models.projectroles import Project
 User = get_user_model()
 
 
-class FrequencySettingsBase(models.Model):
+class SeqvarsFrequencySettingsBase(models.Model):
     """Abstract model for storing frequency-related settings."""
 
     gnomad_exomes_enabled = models.BooleanField(default=False, null=False, blank=False)
@@ -48,7 +48,7 @@ class FrequencySettingsBase(models.Model):
         abstract = True
 
 
-class VariantTypeChoice(str, Enum):
+class SeqvarsVariantTypeChoice(str, Enum):
     """The type of a variant."""
 
     #: Single nucleotide variant.
@@ -61,7 +61,7 @@ class VariantTypeChoice(str, Enum):
     COMPLEX_SUBSTITUTION = "complex_substitution"
 
 
-class TranscriptTypeChoice(str, Enum):
+class SeqvarsTranscriptTypeChoice(str, Enum):
     """The type of a transcript."""
 
     #: Coding transcript.
@@ -70,7 +70,7 @@ class TranscriptTypeChoice(str, Enum):
     NON_CODING = "non_coding"
 
 
-class VariantConsequenceChoice(str, Enum):
+class SeqvarsVariantConsequenceChoice(str, Enum):
     """The variant consequence."""
 
     # high impact
@@ -172,15 +172,15 @@ class VariantConsequenceChoice(str, Enum):
     FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT = "5_prime_UTR_variant-intron_variant"
 
 
-class ConsequenceSettingsBase(models.Model):
+class SeqvarsConsequenceSettingsBase(models.Model):
     """Abstract model for storing consequence-related settings."""
 
     #: The variant types.
-    variant_types = SchemaField(schema=list[VariantTypeChoice], default=list)
+    variant_types = SchemaField(schema=list[SeqvarsVariantTypeChoice], default=list)
     #: The transcript types.
-    transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
+    transcript_types = SchemaField(schema=list[SeqvarsTranscriptTypeChoice], default=list)
     #: The variant consequences.
-    variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+    variant_consequences = SchemaField(schema=list[SeqvarsVariantConsequenceChoice], default=list)
     #: Maximal distance to next exon.
     max_distance_to_exon = models.IntegerField(null=True, blank=True)
 
@@ -243,7 +243,7 @@ class GenomeRegion(pydantic.BaseModel):
     range: typing.Optional[OneBasedRange] = None
 
 
-class LocusSettingsBase(models.Model):
+class SeqvarsLocusSettingsBase(models.Model):
     """Abstract model for storing locus-related settings."""
 
     #: Optional list of gene symbols to filter for.
@@ -275,7 +275,7 @@ class TermPresence(pydantic.BaseModel):
     excluded: typing.Optional[bool] = None
 
 
-class PhenotypePrioSettingsBase(models.Model):
+class SeqvarsPhenotypePrioSettingsBase(models.Model):
     """Abstract model for storing phenotype priorization--related settings."""
 
     #: Whether to enable phenotype-based priorization.
@@ -289,7 +289,7 @@ class PhenotypePrioSettingsBase(models.Model):
         abstract = True
 
 
-class VariantPrioService(pydantic.BaseModel):
+class SeqvarsPrioService(pydantic.BaseModel):
     """Representation of a variant pathogenicity service."""
 
     #: The name of the service.
@@ -298,7 +298,7 @@ class VariantPrioService(pydantic.BaseModel):
     version: str
 
 
-class VariantPrioSettingsBase(models.Model):
+class SeqvarsVariantPrioSettingsBase(models.Model):
     """Abstract model for storing variant priorization--related settings.
 
     Note that this refers to external APIs that provide variant pathogenicity scores
@@ -308,7 +308,7 @@ class VariantPrioSettingsBase(models.Model):
     #: Whether to enable variant-based priorization.
     variant_prio_enabled = models.BooleanField(default=False, null=False, blank=False)
     #: The enabled services.
-    services = SchemaField(schema=list[VariantPrioService], default=list)
+    services = SchemaField(schema=list[SeqvarsPrioService], default=list)
 
     class Meta:
         abstract = True
@@ -329,7 +329,7 @@ class ClinvarGermlineAggregateDescription(str, Enum):
     BENIGN = "benign"
 
 
-class ClinvarSettingsBase(models.Model):
+class SeqvarsClinvarSettingsBase(models.Model):
     """Abstract model for storing clinvar-related settings."""
 
     #: Whether to require presence in ClinVar priorization.
@@ -345,7 +345,7 @@ class ClinvarSettingsBase(models.Model):
         abstract = True
 
 
-class ColumnConfig(pydantic.BaseModel):
+class SeqvarsColumnConfig(pydantic.BaseModel):
     """Configuration for a single column in the result table."""
 
     #: The column name.
@@ -360,11 +360,11 @@ class ColumnConfig(pydantic.BaseModel):
     visible: bool
 
 
-class ColumnsSettingsBase(models.Model):
+class SeqvarsColumnsSettingsBase(models.Model):
     """Abstract model for storing column-related settings."""
 
     #: List of columns with their widths.
-    column_settings = SchemaField(schema=list[ColumnConfig], default=list)
+    column_settings = SchemaField(schema=list[SeqvarsColumnConfig], default=list)
 
     class Meta:
         abstract = True
@@ -399,7 +399,7 @@ class LabeledSortableBaseModel(BaseModel):
         abstract = True
 
 
-class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
+class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     """Configured presets for a given project.
 
     We inherit from ``ClusterableModel`` so we can create presets sets and owned version /
@@ -408,20 +408,20 @@ class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
 
     #: The owning ``Project``.
     project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="seqvarpresetsset", null=True, blank=True
+        Project, on_delete=models.CASCADE, related_name="seqvarspresetsset", null=True, blank=True
     )
 
     @transaction.atomic
-    def clone_with_latest_version(self) -> "QueryPresetsSet":
+    def clone_with_latest_version(self) -> "SeqvarsQueryPresetsSet":
         # Get label of presets set to create.
         for i in range(1, 100):
             label = f"{self.label} (copy {i})"
-            if not QueryPresetsSet.objects.filter(project=self.project, label=label).exists():
+            if not SeqvarsQueryPresetsSet.objects.filter(project=self.project, label=label).exists():
                 break
         # Compute rank.
-        rank = QueryPresetsSet.objects.filter(project=self.project).count() + 1
+        rank = SeqvarsQueryPresetsSet.objects.filter(project=self.project).count() + 1
 
-        result = QueryPresetsSet.objects.create(
+        result = SeqvarsQueryPresetsSet.objects.create(
             label=label,
             rank=rank,
             description=self.description,
@@ -432,10 +432,10 @@ class QueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
         return result
 
     def __str__(self):
-        return f"QueryPresetsSet '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsSet '{self.sodar_uuid}'"
 
 
-class QueryPresetsSetVersion(BaseModel, ClusterableModel):
+class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
     """One version of query presets set.
 
     It is assumed that there is at most one active version and at most one draft version.
@@ -455,7 +455,7 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
     )
 
     #: The owning ``QueryPresetsSet``.
-    presetsset = ParentalKey(QueryPresetsSet, on_delete=models.CASCADE, related_name="versions")
+    presetsset = ParentalKey(SeqvarsQueryPresetsSet, on_delete=models.CASCADE, related_name="versions")
     #: The major version.
     version_major = models.IntegerField(default=1)
     #: The minor version.
@@ -471,8 +471,8 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
     )
 
     @transaction.atomic
-    def clone_with_presetsset(self, presetsset: QueryPresetsSet) -> "QueryPresetsSetVersion":
-        result = QueryPresetsSetVersion.objects.create(
+    def clone_with_presetsset(self, presetsset: SeqvarsQueryPresetsSet) -> "SeqvarsQueryPresetsSetVersion":
+        result = SeqvarsQueryPresetsSetVersion.objects.create(
             presetsset=presetsset,
             version_major=1,
             version_minor=0,
@@ -481,15 +481,15 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
 
         old_uuid_to_new_obj = {}
         for key in (
-            "querypresetsfrequency_set",
-            "querypresetsvariantprio_set",
-            "querypresetsclinvar_set",
-            "querypresetscolumns_set",
-            "querypresetslocus_set",
-            "querypresetsconsequence_set",
-            "querypresetsquality_set",
-            "querypresetsphenotypeprio_set",
-            "predefinedquery_set",
+            "seqvarsquerypresetsfrequency_set",
+            "seqvarsquerypresetsvariantprio_set",
+            "seqvarsquerypresetsclinvar_set",
+            "seqvarsquerypresetscolumns_set",
+            "seqvarsquerypresetslocus_set",
+            "seqvarsquerypresetsconsequence_set",
+            "seqvarsquerypresetsquality_set",
+            "seqvarsquerypresetsphenotypeprio_set",
+            "seqvarspredefinedquery_set",
         ):
             for obj in getattr(self, key, []).all():
                 obj.pk = None
@@ -502,24 +502,24 @@ class QueryPresetsSetVersion(BaseModel, ClusterableModel):
         return result
 
     def __str__(self):
-        return f"QueryPresetsSetVersion '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsSetVersion '{self.sodar_uuid}'"
 
     class Meta:
         unique_together = [("presetsset", "version_major", "version_minor")]
         ordering = ["-version_major", "-version_minor"]
 
 
-class QueryPresetsBase(LabeledSortableBaseModel):
+class SeqvarsQueryPresetsBase(LabeledSortableBaseModel):
     """Base presets."""
 
     #: The owning ``QueryPresetsSetVersion``.
-    presetssetversion = ParentalKey(QueryPresetsSetVersion, on_delete=models.CASCADE)
+    presetssetversion = ParentalKey(SeqvarsQueryPresetsSetVersion, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
-class QueryPresetsQuality(QueryPresetsBase):
+class SeqvarsQueryPresetsQuality(SeqvarsQueryPresetsBase):
     """Presets for quality settings within a ``QueryPresetsSetVersion``.
 
     This is copied into ``QuerySettingsQuality.sample_quality_filters`` for
@@ -542,59 +542,59 @@ class QueryPresetsQuality(QueryPresetsBase):
     max_ad = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"QueryPresetsQuality '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsQuality '{self.sodar_uuid}'"
 
 
-class QueryPresetsFrequency(FrequencySettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQueryPresetsBase):
     """Presets for frequency settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsFrequency '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsFrequency '{self.sodar_uuid}'"
 
 
-class QueryPresetsConsequence(ConsequenceSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsConsequence(SeqvarsConsequenceSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for consequence-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsConsequence '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsConsequence '{self.sodar_uuid}'"
 
 
-class QueryPresetsLocus(LocusSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsLocus(SeqvarsLocusSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for locus-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsLocus '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsLocus '{self.sodar_uuid}'"
 
 
-class QueryPresetsPhenotypePrio(PhenotypePrioSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsPhenotypePrio(SeqvarsPhenotypePrioSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsPhenotypePrio '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsPhenotypePrio '{self.sodar_uuid}'"
 
 
-class QueryPresetsVariantPrio(VariantPrioSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsVariantPrio(SeqvarsVariantPrioSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for variant pathogenicity--related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsVariantPrio '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsVariantPrio '{self.sodar_uuid}'"
 
 
-class QueryPresetsClinvar(ClinvarSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsClinvar(SeqvarsClinvarSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for clinvar-related settings within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsClinvar '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsClinvar '{self.sodar_uuid}'"
 
 
-class QueryPresetsColumns(ColumnsSettingsBase, QueryPresetsBase):
+class SeqvarsQueryPresetsColumns(SeqvarsColumnsSettingsBase, SeqvarsQueryPresetsBase):
     """Presets for columns presets within a ``QueryPresetsSetVersion``."""
 
     def __str__(self):
-        return f"QueryPresetsColumns '{self.sodar_uuid}'"
+        return f"SeqvarsQueryPresetsColumns '{self.sodar_uuid}'"
 
 
-class GenotypePresetChoice(str, Enum):
+class SeqvarsGenotypePresetChoice(str, Enum):
     """Presets value for the chosen genotype."""
 
     #: No restriction on genotypes.
@@ -615,58 +615,58 @@ class GenotypePresetChoice(str, Enum):
     AFFECTED_CARRIERS = "affected_carriers"
 
 
-class GenotypePresets(pydantic.BaseModel):
+class SeqvarsGenotypePresets(pydantic.BaseModel):
     """Configuration for a single column in the result table."""
 
     #: The genotype prests choice.
-    choice: typing.Optional[GenotypePresetChoice] = None
+    choice: typing.Optional[SeqvarsGenotypePresetChoice] = None
 
 
-class PredefinedQuery(QueryPresetsBase):
+class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
     """A choice of presets from a ``PresetsSet`` in each category."""
 
     #: Whether this predefined query shall be run as part of an SOP.
     included_in_sop = models.BooleanField(default=False, null=False, blank=False)
 
     #: The chosen genotype presets.
-    genotype = SchemaField(schema=typing.Optional[GenotypePresets], default=GenotypePresets())
+    genotype = SchemaField(schema=typing.Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets())
 
     #: The chosen quality presets.
     quality = models.ForeignKey(
-        QueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen frequency presets.
     frequency = models.ForeignKey(
-        QueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen consequence presets.
     consequence = models.ForeignKey(
-        QueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen locus presets.
-    locus = models.ForeignKey(QueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True)
+    locus = models.ForeignKey(SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True)
     #: The chosen phenotype priorization presets.
     phenotypeprio = models.ForeignKey(
-        QueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen variant priorization presets.
     variantprio = models.ForeignKey(
-        QueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen clinvar presets.
     clinvar = models.ForeignKey(
-        QueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen columns presets.
     columns = models.ForeignKey(
-        QueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def __str__(self):
-        return f"PredefinedQuery '{self.sodar_uuid}'"
+        return f"SeqvarsPredefinedQuery '{self.sodar_uuid}'"
 
 
-class QuerySettings(BaseModel):
+class SeqvarsQuerySettings(BaseModel):
     """The query settings for a case."""
 
     #: The owning ``CaseAnalysisSession``.
@@ -677,21 +677,21 @@ class QuerySettings(BaseModel):
     #: This information is used for computing differences between the presets and the
     #: effective query settings.
     presetssetversion = models.ForeignKey(
-        QueryPresetsSetVersion, on_delete=models.PROTECT, null=True, blank=True
+        SeqvarsQueryPresetsSetVersion, on_delete=models.PROTECT, null=True, blank=True
     )
 
     def __str__(self):
-        return f"QuerySettings '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettings '{self.sodar_uuid}'"
 
 
-class QuerySettingsCategoryBase(BaseModel):
+class SeqvarsQuerySettingsCategoryBase(BaseModel):
     """Base class for concrete category query settings."""
 
     class Meta:
         abstract = True
 
 
-class GenotypeChoice(str, Enum):
+class SeqvarsGenotypeChoice(str, Enum):
     """Store genotype choice of a ``SampleGenotype``."""
 
     #: Any.
@@ -718,31 +718,31 @@ class GenotypeChoice(str, Enum):
         return list(map(lambda c: c.value, cls))
 
 
-class SampleGenotypeChoice(pydantic.BaseModel):
+class SeqvarsSampleGenotypeChoice(pydantic.BaseModel):
     """Store the genotype of a sample."""
 
     #: The sample identifier.
     sample: str
     #: The genotype.
-    genotype: GenotypeChoice
+    genotype: SeqvarsGenotypeChoice
 
 
-class QuerySettingsGenotype(QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample genotype filtration."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="genotype"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="genotype"
     )
 
     #: Per-sample genotype choice.
-    sample_genotype_choices = SchemaField(schema=list[SampleGenotypeChoice], default=list)
+    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
 
     def __str__(self):
-        return f"QuerySettingsGenotype '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsGenotype '{self.sodar_uuid}'"
 
 
-class SampleQualityFilter(pydantic.BaseModel):
+class SeqvarsSampleQualityFilter(pydantic.BaseModel):
     """Stores per-sample quality filter settings for a particular query."""
 
     #: Name of the sample.
@@ -764,94 +764,94 @@ class SampleQualityFilter(pydantic.BaseModel):
     max_ad: typing.Optional[int] = None
 
 
-class QuerySettingsQuality(QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample quality filtration."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="quality"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="quality"
     )
 
     #: Per-sample quality settings.
-    sample_quality_filters = SchemaField(schema=list[SampleQualityFilter], default=list)
+    sample_quality_filters = SchemaField(schema=list[SeqvarsSampleQualityFilter], default=list)
 
     def __str__(self):
-        return f"QuerySettingsQuality '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsQuality '{self.sodar_uuid}'"
 
 
-class QuerySettingsConsequence(ConsequenceSettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsConsequence(SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Presets for consequence-related settings within a ``QuerySettingsSet``."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="consequence"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="consequence"
     )
 
     def __str__(self):
-        return f"QuerySettingsConsequence '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsConsequence '{self.sodar_uuid}'"
 
 
-class QuerySettingsLocus(LocusSettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsLocus(SeqvarsLocusSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Presets for locus-related settings within a ``QuerySettingsSet``."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="locus"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="locus"
     )
 
     def __str__(self):
-        return f"QuerySettingsLocus '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsLocus '{self.sodar_uuid}'"
 
 
-class QuerySettingsFrequency(FrequencySettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Query settings in the frequency category."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="frequency"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="frequency"
     )
 
     def __str__(self):
-        return f"QuerySettingsFrequency '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsFrequency '{self.sodar_uuid}'"
 
 
-class QuerySettingsPhenotypePrio(PhenotypePrioSettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsPhenotypePrio(SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="phenotypeprio"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="phenotypeprio"
     )
 
     def __str__(self):
-        return f"QuerySettingsPhenotypePrio '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsPhenotypePrio '{self.sodar_uuid}'"
 
 
-class QuerySettingsVariantPrio(VariantPrioSettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsVariantPrio(SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Query settings in the variant priorization category."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="variantprio"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="variantprio"
     )
 
     def __str__(self):
-        return f"QuerySettingsVariantPrio '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsVariantPrio '{self.sodar_uuid}'"
 
 
-class QuerySettingsClinvar(ClinvarSettingsBase, QuerySettingsCategoryBase):
+class SeqvarsQuerySettingsClinvar(SeqvarsClinvarSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Query settings in the variant priorization category."""
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
-        QuerySettings, on_delete=models.CASCADE, related_name="clinvar"
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="clinvar"
     )
 
     def __str__(self):
-        return f"QuerySettingsClinvar '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsClinvar '{self.sodar_uuid}'"
 
 
-class QueryColumnsConfig(ColumnsSettingsBase, BaseModel):
+class SeqvarsQueryColumnsConfig(SeqvarsColumnsSettingsBase, BaseModel):
     """Per-query (not execution) configuration of columns.
 
     This will be copied over from the presets to the query and not the query
@@ -860,10 +860,10 @@ class QueryColumnsConfig(ColumnsSettingsBase, BaseModel):
     """
 
     def __str__(self):
-        return f"QueryColumnsConfig '{self.sodar_uuid}'"
+        return f"SeqvarsQueryColumnsConfig '{self.sodar_uuid}'"
 
 
-class Query(BaseModel):
+class SeqvarsQuery(BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
 
     #: An integer rank for manual sorting in UI.
@@ -874,9 +874,9 @@ class Query(BaseModel):
     #: Owning/containing session.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Query settings to be edited in the next query execution.
-    settings = models.OneToOneField(QuerySettings, on_delete=models.PROTECT)
+    settings = models.OneToOneField(SeqvarsQuerySettings, on_delete=models.PROTECT)
     #: The columns configuration of the query.
-    columnsconfig = models.OneToOneField(QueryColumnsConfig, on_delete=models.PROTECT)
+    columnsconfig = models.OneToOneField(SeqvarsQueryColumnsConfig, on_delete=models.PROTECT)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -886,10 +886,10 @@ class Query(BaseModel):
             return None
 
     def __str__(self):
-        return f"Query '{self.sodar_uuid}'"
+        return f"SeqvarsQuery '{self.sodar_uuid}'"
 
 
-class QueryExecution(BaseModel):
+class SeqvarsQueryExecution(BaseModel):
     """Hold the state, query settings, and results for running one seqvar query."""
 
     #: Initial status.
@@ -926,9 +926,9 @@ class QueryExecution(BaseModel):
     elapsed_seconds = models.FloatField(null=True)
 
     #: The owning/containing query.
-    query = models.ForeignKey(Query, on_delete=models.CASCADE)
+    query = models.ForeignKey(SeqvarsQuery, on_delete=models.CASCADE)
     #: Effective query settings of execution.
-    querysettings = models.ForeignKey(QuerySettings, on_delete=models.PROTECT)
+    querysettings = models.ForeignKey(SeqvarsQuerySettings, on_delete=models.PROTECT)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -938,7 +938,7 @@ class QueryExecution(BaseModel):
             return None
 
     def __str__(self):
-        return f"QueryExecution '{self.sodar_uuid}'"
+        return f"SeqvarsQueryExecution '{self.sodar_uuid}'"
 
 
 class DataSourceInfo(pydantic.BaseModel):
@@ -957,11 +957,11 @@ class DataSourceInfos(pydantic.BaseModel):
     infos: list[DataSourceInfo]
 
 
-class ResultSet(BaseModel):
+class SeqvarsResultSet(BaseModel):
     """Store result rows and version information about the query."""
 
     #: The owning query execution.
-    queryexecution = models.ForeignKey(QueryExecution, on_delete=models.CASCADE)
+    queryexecution = models.ForeignKey(SeqvarsQueryExecution, on_delete=models.CASCADE)
     #: The number of rows in the result.
     result_row_count = models.IntegerField(null=False, blank=False)
     #: Information about the data sources and versions used in the query, backed by
@@ -979,24 +979,24 @@ class ResultSet(BaseModel):
         return f"/seqvars/api/resultset/{self.case.sodar_uuid}/{self.sodar_uuid}/"
 
     def __str__(self):
-        return f"ResultSet '{self.sodar_uuid}'"
+        return f"SeqvarsResultSet '{self.sodar_uuid}'"
 
 
-class ResultRowPayload(pydantic.BaseModel):
+class SeqvarsResultRowPayload(pydantic.BaseModel):
     """Payload for one result row of a seqvar query."""
 
     # TODO: implement me / infer from protobuf schema
     foo: int
 
 
-class ResultRow(models.Model):
+class SeqvarsResultRow(models.Model):
     """One entry in the result set."""
 
     #: UUID used in URLs.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
 
     #: The owning result set.
-    resultset = models.ForeignKey(ResultSet, on_delete=models.CASCADE)
+    resultset = models.ForeignKey(SeqvarsResultSet, on_delete=models.CASCADE)
 
     #: Genome build
     release = models.CharField(max_length=32)
@@ -1015,10 +1015,10 @@ class ResultRow(models.Model):
 
     #: The payload of the result row, backed by pydantic model
     #: ``ResultRowPayload``.
-    payload = SchemaField(schema=typing.Optional[ResultRowPayload])
+    payload = SchemaField(schema=typing.Optional[SeqvarsResultRowPayload])
 
     def __str__(self):
         return (
-            f"ResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
+            f"SeqvarsResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
             f"{self.start}-{self.reference}-{self.alternative}'"
         )

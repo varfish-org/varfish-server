@@ -13,41 +13,41 @@ from rest_framework.response import Response
 
 from cases_analysis.models import CaseAnalysisSession
 from seqvars.factory_defaults import (
-    create_presetsset_short_read_exome_legacy,
-    create_presetsset_short_read_exome_modern,
-    create_presetsset_short_read_genome,
+    create_seqvarspresetsset_short_read_exome_legacy,
+    create_seqvarspresetsset_short_read_exome_modern,
+    create_seqvarspresetsset_short_read_genome,
 )
 from seqvars.models import (
-    Query,
-    QueryExecution,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QuerySettings,
-    ResultRow,
-    ResultSet,
+    SeqvarsQuery,
+    SeqvarsQueryExecution,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQuerySettings,
+    SeqvarsResultRow,
+    SeqvarsResultSet,
 )
 from seqvars.serializers import (
-    PredefinedQuerySerializer,
-    QueryDetailsSerializer,
-    QueryExecutionDetailsSerializer,
-    QueryExecutionSerializer,
-    QueryPresetsClinvarSerializer,
-    QueryPresetsColumnsSerializer,
-    QueryPresetsConsequenceSerializer,
-    QueryPresetsFrequencySerializer,
-    QueryPresetsLocusSerializer,
-    QueryPresetsPhenotypePrioSerializer,
-    QueryPresetsQualitySerializer,
-    QueryPresetsSetDetailsSerializer,
-    QueryPresetsSetSerializer,
-    QueryPresetsSetVersionDetailsSerializer,
-    QueryPresetsSetVersionSerializer,
-    QueryPresetsVariantPrioSerializer,
-    QuerySerializer,
-    QuerySettingsDetailsSerializer,
-    QuerySettingsSerializer,
-    ResultRowSerializer,
-    ResultSetSerializer,
+    SeqvarsPredefinedQuerySerializer,
+    SeqvarsQueryDetailsSerializer,
+    SeqvarsQueryExecutionDetailsSerializer,
+    SeqvarsQueryExecutionSerializer,
+    SeqvarsQueryPresetsClinvarSerializer,
+    SeqvarsQueryPresetsColumnsSerializer,
+    SeqvarsQueryPresetsConsequenceSerializer,
+    SeqvarsQueryPresetsFrequencySerializer,
+    SeqvarsQueryPresetsLocusSerializer,
+    SeqvarsQueryPresetsPhenotypePrioSerializer,
+    SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetDetailsSerializer,
+    SeqvarsQueryPresetsSetSerializer,
+    SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    SeqvarsQueryPresetsSetVersionSerializer,
+    SeqvarsQueryPresetsVariantPrioSerializer,
+    SeqvarsQuerySerializer,
+    SeqvarsQuerySettingsDetailsSerializer,
+    SeqvarsQuerySettingsSerializer,
+    SeqvarsResultRowSerializer,
+    SeqvarsResultSetSerializer,
 )
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models.case import Case
@@ -68,22 +68,24 @@ def get_project(kwargs):
         project = get_object_or_404(Project.objects.all(), sodar_uuid=kwargs["project"])
     elif "querypresetssetversion" in kwargs:
         querypresetssetversion = get_object_or_404(
-            QueryPresetsSetVersion.objects.all(), sodar_uuid=kwargs["querypresetssetversion"]
+            SeqvarsQueryPresetsSetVersion.objects.all(), sodar_uuid=kwargs["querypresetssetversion"]
         )
         project = querypresetssetversion.presetsset.project
     elif "querypresetsset" in kwargs:
         querypresetsset = get_object_or_404(
-            QueryPresetsSet.objects.all(), sodar_uuid=kwargs["querypresetsset"]
+            SeqvarsQueryPresetsSet.objects.all(), sodar_uuid=kwargs["querypresetsset"]
         )
         project = querypresetsset.project
     elif "session" in kwargs:
         session = get_object_or_404(CaseAnalysisSession.objects.all(), sodar_uuid=kwargs["session"])
         project = session.caseanalysis.case.project
     elif "query" in kwargs:
-        query = get_object_or_404(Query.objects.all(), sodar_uuid=kwargs["query"])
+        query = get_object_or_404(SeqvarsQuery.objects.all(), sodar_uuid=kwargs["query"])
         project = query.session.caseanalysis.case.project
     elif "resultset" in kwargs:
-        resultset = get_object_or_404(ResultSet.objects.all(), sodar_uuid=kwargs["resultset"])
+        resultset = get_object_or_404(
+            SeqvarsResultSet.objects.all(), sodar_uuid=kwargs["resultset"]
+        )
         project = resultset.queryexecution.query.session.caseanalysis.case.project
     elif "case" in kwargs:
         case = get_object_or_404(Case.objects.all(), sodar_uuid=kwargs["case"])
@@ -93,12 +95,13 @@ def get_project(kwargs):
     return project
 
 
-class QueryPresetsPermission(SODARAPIProjectPermission):
+class SeqvarsQueryPresetsPermission(SODARAPIProjectPermission):
     """Permission class that obtains the project from the ``lookup_kwarg`` parameter in URL."""
 
     def get_project(self, request=None, kwargs=None):
         _ = request
         return get_project(kwargs)
+
 
 class VersioningViewSetMixin:
     """Mixin for renderer and versioning."""
@@ -115,7 +118,7 @@ class BaseViewSetMixin(VersioningViewSetMixin):
     #: Use the app's standard pagination.
     pagination_class = StandardPagination
     #: Use the custom permission class.
-    permission_classes = [QueryPresetsPermission]
+    permission_classes = [SeqvarsQueryPresetsPermission]
 
     def get_permission_required(self):
         """Return the permission required for the current action."""
@@ -153,7 +156,7 @@ class ProjectContextBaseViewSet(BaseViewSet):
 
         result = self.serializer_class.Meta.model.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
@@ -166,19 +169,19 @@ class ProjectContextBaseViewSet(BaseViewSet):
         return context
 
 
-class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
+class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``QueryPresetsSet`` model."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "querypresetsset"
     #: The default serializer class to use.
-    serializer_class = QueryPresetsSetSerializer
+    serializer_class = SeqvarsQueryPresetsSetSerializer
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSet`` records for the given project."""
-        result = QueryPresetsSet.objects.all()
+        result = SeqvarsQueryPresetsSet.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
@@ -190,9 +193,9 @@ class QueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
             source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
         except ObjectDoesNotExist:
             for value in (
-                create_presetsset_short_read_genome(),
-                create_presetsset_short_read_exome_modern(),
-                create_presetsset_short_read_exome_legacy(),
+                create_seqvarspresetsset_short_read_genome(),
+                create_seqvarspresetsset_short_read_exome_modern(),
+                create_seqvarspresetsset_short_read_exome_legacy(),
             ):
                 if str(value.sodar_uuid) == kwargs["sodar_uuid"]:
                     source = value
@@ -223,7 +226,9 @@ class FakeQueryPresetsSetQuerySet(FakeQuerySet):
             return super().get(*args, **kwargs)
 
 
-class QueryPresetsFactoryDefaultsViewSet(VersioningViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class SeqvarsQueryPresetsFactoryDefaultsViewSet(
+    VersioningViewSetMixin, viewsets.ReadOnlyModelViewSet
+):
     """ViewSet for listing the factory defaults.
 
     This is a public view, no permissions are required.
@@ -243,37 +248,37 @@ class QueryPresetsFactoryDefaultsViewSet(VersioningViewSetMixin, viewsets.ReadOn
     def get_serializer_class(self):
         """Allow overriding serializer class based on action."""
         if self.action == "retrieve":
-            return QueryPresetsSetDetailsSerializer
+            return SeqvarsQueryPresetsSetDetailsSerializer
         else:
-            return QueryPresetsSetSerializer
+            return SeqvarsQueryPresetsSetSerializer
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
         return FakeQueryPresetsSetQuerySet(
-            model=QueryPresetsSetVersion,
+            model=SeqvarsQueryPresetsSetVersion,
             results=[
-                create_presetsset_short_read_genome(),
-                create_presetsset_short_read_exome_modern(),
-                create_presetsset_short_read_exome_legacy(),
+                create_seqvarspresetsset_short_read_genome(),
+                create_seqvarspresetsset_short_read_exome_modern(),
+                create_seqvarspresetsset_short_read_exome_legacy(),
             ],
         )
 
 
-class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
+class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``QueryPresetsSetVersion`` model."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "querypresetssetversion"
     #: The default serializer class to use.
-    serializer_class = QueryPresetsSetVersionSerializer
+    serializer_class = SeqvarsQueryPresetsSetVersionSerializer
     #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": QueryPresetsSetVersionDetailsSerializer}
+    action_serializers = {"retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer}
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
-        result = QueryPresetsSetVersion.objects.all()
+        result = SeqvarsQueryPresetsSetVersion.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(presetsset__sodar_uuid=self.kwargs["querypresetsset"])
         return result
 
@@ -282,7 +287,7 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["presetsset"] = QueryPresetsSet.objects.get(
+        context["presetsset"] = SeqvarsQueryPresetsSet.objects.get(
             sodar_uuid=self.kwargs["querypresetsset"]
         )
         context["project"] = context["presetsset"].project
@@ -291,7 +296,7 @@ class QueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):
         return context
 
 
-class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
+class SeqvarsCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
     """ViewSet for the ``QueryPresets<*>ViewSet`` models."""
 
     def get_queryset(self):
@@ -302,7 +307,7 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
 
         result = self.serializer_class.Meta.model.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(presetssetversion__sodar_uuid=self.kwargs["querypresetssetversion"])
         return result
 
@@ -311,7 +316,7 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         context = super().get_serializer_context()
         if sys.argv[1:2] == ["generateschema"]:  # bail out for schema generation
             return context
-        context["presetssetversion"] = QueryPresetsSetVersion.objects.get(
+        context["presetssetversion"] = SeqvarsQueryPresetsSetVersion.objects.get(
             sodar_uuid=self.kwargs["querypresetssetversion"]
         )
         context["presetsset"] = context["presetssetversion"].presetsset
@@ -319,90 +324,90 @@ class SeqvarCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
         return context
 
 
-class QueryPresetsQualityViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsQualityViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsQuality`` model."""
 
     lookup_url_kwarg = "querypresetsquality"
-    serializer_class = QueryPresetsQualitySerializer
+    serializer_class = SeqvarsQueryPresetsQualitySerializer
 
 
-class QueryPresetsConsequenceViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsConsequenceViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsConsequence`` model."""
 
     lookup_url_kwarg = "querypresetsconsequence"
-    serializer_class = QueryPresetsConsequenceSerializer
+    serializer_class = SeqvarsQueryPresetsConsequenceSerializer
 
 
-class QueryPresetsFrequencyViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsFrequencyViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsFrequency`` model."""
 
     lookup_url_kwarg = "querypresetsfrequency"
-    serializer_class = QueryPresetsFrequencySerializer
+    serializer_class = SeqvarsQueryPresetsFrequencySerializer
 
 
-class QueryPresetsLocusViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsLocusViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsLocus`` model."""
 
     lookup_url_kwarg = "querypresetslocus"
-    serializer_class = QueryPresetsLocusSerializer
+    serializer_class = SeqvarsQueryPresetsLocusSerializer
 
 
-class QueryPresetsPhenotypePrioViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsPhenotypePrioViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsPhenotypePrio`` model."""
 
     lookup_url_kwarg = "querypresetsphenotypeprio"
-    serializer_class = QueryPresetsPhenotypePrioSerializer
+    serializer_class = SeqvarsQueryPresetsPhenotypePrioSerializer
 
 
-class QueryPresetsVariantPrioViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsVariantPrioViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsVariantPrio`` model."""
 
     lookup_url_kwarg = "querypresetsvariantprio"
-    serializer_class = QueryPresetsVariantPrioSerializer
+    serializer_class = SeqvarsQueryPresetsVariantPrioSerializer
 
 
-class QueryPresetsColumnsViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsColumnsViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsColumns`` model."""
 
     lookup_url_kwarg = "querypresetscolumns"
-    serializer_class = QueryPresetsColumnsSerializer
+    serializer_class = SeqvarsQueryPresetsColumnsSerializer
 
 
-class QueryPresetsClinvarViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsQueryPresetsClinvarViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``QueryPresetsClinvar`` model."""
 
     lookup_url_kwarg = "querypresetsclinvar"
-    serializer_class = QueryPresetsClinvarSerializer
+    serializer_class = SeqvarsQueryPresetsClinvarSerializer
 
 
-class PredefinedQueryViewSet(SeqvarCategoryPresetsViewSetBase):
+class SeqvarsPredefinedQueryViewSet(SeqvarsCategoryPresetsViewSetBase):
     """ViewSet for the ``PredefinedQuery`` model."""
 
     lookup_url_kwarg = "predefinedquery"
-    serializer_class = PredefinedQuerySerializer
+    serializer_class = SeqvarsPredefinedQuerySerializer
 
 
-class QuerySettingsViewSet(BaseViewSet):
+class SeqvarsQuerySettingsViewSet(BaseViewSet):
     """ViewSet for the ``QuerySettings`` model."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "querysettings"
     #: The default serializer class to use.
-    serializer_class = QuerySettingsSerializer
+    serializer_class = SeqvarsQuerySettingsSerializer
     #: Override ``create`` and ``*-detail`` serializer to render all presets.
     action_serializers = {
-        "create": QuerySettingsDetailsSerializer,
-        "retrieve": QuerySettingsDetailsSerializer,
-        "update": QuerySettingsDetailsSerializer,
-        "partial_update": QuerySettingsDetailsSerializer,
-        "delete": QuerySettingsDetailsSerializer,
+        "create": SeqvarsQuerySettingsDetailsSerializer,
+        "retrieve": SeqvarsQuerySettingsDetailsSerializer,
+        "update": SeqvarsQuerySettingsDetailsSerializer,
+        "partial_update": SeqvarsQuerySettingsDetailsSerializer,
+        "delete": SeqvarsQuerySettingsDetailsSerializer,
     }
 
     def get_queryset(self):
         """Return queryset with all ``QuerySettings`` records for the given case."""
-        result = QuerySettings.objects.all()
+        result = SeqvarsQuerySettings.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(session__sodar_uuid=self.kwargs["session"])
         return result
 
@@ -418,7 +423,7 @@ class QuerySettingsViewSet(BaseViewSet):
         return context
 
 
-class QueryViewSet(BaseViewSet):
+class SeqvarsQueryViewSet(BaseViewSet):
     """Allow CRUD of the user's queries."""
 
     # TODO XXX XXX ADD LAUNCH ACTION XXX XXX TODO
@@ -426,14 +431,14 @@ class QueryViewSet(BaseViewSet):
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "query"
     #: The default serializer class to use.
-    serializer_class = QuerySerializer
+    serializer_class = SeqvarsQuerySerializer
     #: Override ``create`` and ``*-detail`` serializer to render all presets.
     action_serializers = {
-        "create": QueryDetailsSerializer,
-        "retrieve": QueryDetailsSerializer,
-        "update": QueryDetailsSerializer,
-        "partial_update": QueryDetailsSerializer,
-        "delete": QueryDetailsSerializer,
+        "create": SeqvarsQueryDetailsSerializer,
+        "retrieve": SeqvarsQueryDetailsSerializer,
+        "update": SeqvarsQueryDetailsSerializer,
+        "partial_update": SeqvarsQueryDetailsSerializer,
+        "delete": SeqvarsQueryDetailsSerializer,
     }
 
     def get_queryset(self):
@@ -442,9 +447,9 @@ class QueryViewSet(BaseViewSet):
 
         Currently, this will be at most one.
         """
-        result = Query.objects.all()
+        result = SeqvarsQuery.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(
             session__sodar_uuid=self.kwargs["session"],
         )
@@ -462,69 +467,69 @@ class QueryViewSet(BaseViewSet):
         return context
 
 
-class QueryExecutionViewSet(BaseReadOnlyViewSet):
+class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
     """ViewSet for retrieving ``QueryExecution`` records."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "queryexecution"
     #: The default serializer class to use.
-    serializer_class = QueryExecutionSerializer
+    serializer_class = SeqvarsQueryExecutionSerializer
     #: Override ``retrieve`` serializer to render all presets.
     action_serializers = {
-        "retrieve": QueryExecutionDetailsSerializer,
+        "retrieve": SeqvarsQueryExecutionDetailsSerializer,
     }
 
     def get_queryset(self):
         """Return queryset with all ``QueryExecution`` records for the given query."""
-        result = QueryExecution.objects.all()
+        result = SeqvarsQueryExecution.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(
             query__sodar_uuid=self.kwargs["query"],
         )
         return result
 
 
-class ResultSetViewSet(BaseReadOnlyViewSet):
+class SeqvarsResultSetViewSet(BaseReadOnlyViewSet):
     """ViewSet for retrieving ``ResultSet`` records."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "resultset"
     #: The default serializer class to use.
-    serializer_class = ResultSetSerializer
+    serializer_class = SeqvarsResultSetSerializer
 
     def get_queryset(self):
         """Return queryset with all ``ResultSet`` records for the given query."""
-        result = ResultSet.objects.all()
+        result = SeqvarsResultSet.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(
             queryexecution__query__sodar_uuid=self.kwargs["query"],
         )
         return result
 
 
-class ResultRowPagination(StandardPagination):
+class SeqvarsResultRowPagination(StandardPagination):
     """Cursor navigation for result rows."""
 
     ordering = ["-chromosome_no", "start"]
 
 
-class ResultRowViewSet(BaseReadOnlyViewSet):
+class SeqvarsResultRowViewSet(BaseReadOnlyViewSet):
     """ViewSet for retrieving ``ResultRow`` records."""
 
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "seqvarresultrow"
     #: The default serializer class to use.
-    serializer_class = ResultRowSerializer
+    serializer_class = SeqvarsResultRowSerializer
     #: Override pagination as rows do not have ``date_created``.
-    pagination_class = ResultRowPagination
+    pagination_class = SeqvarsResultRowPagination
 
     def get_queryset(self):
         """Return queryset with all ``ResultRow`` records for the given result set."""
-        result = ResultRow.objects.all()
+        result = SeqvarsResultRow.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(
             resultset__sodar_uuid=self.kwargs["resultset"],
         )

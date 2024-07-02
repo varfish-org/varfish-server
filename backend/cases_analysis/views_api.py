@@ -1,4 +1,5 @@
 import sys
+
 from django.db import transaction
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import viewsets
@@ -54,7 +55,7 @@ class CaseAnalysisViewSet(viewsets.ReadOnlyModelViewSet):
         """
         result = CaseAnalysis.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(case__sodar_uuid=self.kwargs["case"])
         return result
 
@@ -93,7 +94,7 @@ class CaseAnalysisSessionViewSet(viewsets.ReadOnlyModelViewSet):
         """
         result = CaseAnalysisSession.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
-            return result   # short circuit in schema generation
+            return result  # short circuit in schema generation
         result = result.filter(
             caseanalysis__case__sodar_uuid=self.kwargs["case"],
             user=self.request.user,
