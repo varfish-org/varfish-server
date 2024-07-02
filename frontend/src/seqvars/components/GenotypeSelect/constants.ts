@@ -28,9 +28,9 @@ export const GENOTYPE_PRESETS = {
     mother: new Set([HET_ALT]), // TODO recess parent?
   },
   X_RECESSIVE: {
-    index: new Set([HOM_ALT]),
+    index: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
     father: new Set([WILD_TYPE]),
-    mother: new Set([HET_ALT]),
+    mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
   },
   AFFECTED_CARRIERS: {
     index: new Set([HET_ALT, HOM_ALT]),
@@ -38,7 +38,7 @@ export const GENOTYPE_PRESETS = {
     mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
   },
   ANY: {
-    index: new Set([HET_ALT, HOM_ALT]),
+    index: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
     father: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
     mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
   },
