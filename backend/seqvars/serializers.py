@@ -615,42 +615,42 @@ class SeqvarsQueryPresetsSetVersionDetailsSerializer(SeqvarsQueryPresetsSetVersi
     presetsset = SeqvarsQueryPresetsSetSerializer(read_only=True)
 
     #: Serialize all quality presets.
-    querypresetsquality_set = SeqvarsQueryPresetsQualitySerializer(many=True, read_only=True)
+    seqvarsquerypresetsquality_set = SeqvarsQueryPresetsQualitySerializer(many=True, read_only=True)
     #: Serialize all frequency presets.
-    querypresetsfrequency_set = SeqvarsQueryPresetsFrequencySerializer(many=True, read_only=True)
+    seqvarsquerypresetsfrequency_set = SeqvarsQueryPresetsFrequencySerializer(many=True, read_only=True)
     #: Serialize all consequence presets.
-    querypresetsconsequence_set = SeqvarsQueryPresetsConsequenceSerializer(
+    seqvarsquerypresetsconsequence_set = SeqvarsQueryPresetsConsequenceSerializer(
         many=True, read_only=True
     )
     #: Serialize all locus presets.
-    querypresetslocus_set = SeqvarsQueryPresetsLocusSerializer(many=True, read_only=True)
+    seqvarsquerypresetslocus_set = SeqvarsQueryPresetsLocusSerializer(many=True, read_only=True)
     #: Serialize all phenotype prio presets.
-    querypresetsphenotypeprio_set = SeqvarsQueryPresetsPhenotypePrioSerializer(
+    seqvarsquerypresetsphenotypeprio_set = SeqvarsQueryPresetsPhenotypePrioSerializer(
         many=True, read_only=True
     )
     #: Serialize all variant prio presets.
-    querypresetsvariantprio_set = SeqvarsQueryPresetsVariantPrioSerializer(
+    seqvarsquerypresetsvariantprio_set = SeqvarsQueryPresetsVariantPrioSerializer(
         many=True, read_only=True
     )
     #: Serialize all clinvar presets.
-    querypresetsclinvar_set = SeqvarsQueryPresetsClinvarSerializer(many=True, read_only=True)
+    seqvarsquerypresetsclinvar_set = SeqvarsQueryPresetsClinvarSerializer(many=True, read_only=True)
     #: Serialize all columns presets.
-    querypresetscolumns_set = SeqvarsQueryPresetsColumnsSerializer(many=True, read_only=True)
+    seqvarsquerypresetscolumns_set = SeqvarsQueryPresetsColumnsSerializer(many=True, read_only=True)
     #: Serialize all predefined queries.
-    predefinedquery_set = SeqvarsPredefinedQuerySerializer(many=True, read_only=True)
+    seqvarspredefinedquery_set = SeqvarsPredefinedQuerySerializer(many=True, read_only=True)
 
     class Meta:
         model = SeqvarsQueryPresetsSetVersionSerializer.Meta.model
         fields = SeqvarsQueryPresetsSetVersionSerializer.Meta.fields + [
-            "querypresetsquality_set",
-            "querypresetsfrequency_set",
-            "querypresetsconsequence_set",
-            "querypresetslocus_set",
-            "querypresetsphenotypeprio_set",
-            "querypresetsvariantprio_set",
-            "querypresetsclinvar_set",
-            "querypresetscolumns_set",
-            "predefinedquery_set",
+            "seqvarsquerypresetsquality_set",
+            "seqvarsquerypresetsfrequency_set",
+            "seqvarsquerypresetsconsequence_set",
+            "seqvarsquerypresetslocus_set",
+            "seqvarsquerypresetsphenotypeprio_set",
+            "seqvarsquerypresetsvariantprio_set",
+            "seqvarsquerypresetsclinvar_set",
+            "seqvarsquerypresetscolumns_set",
+            "seqvarspredefinedquery_set",
         ]
         read_only_fields = fields
 

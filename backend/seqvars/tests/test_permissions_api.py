@@ -1984,7 +1984,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
                 ).data,
             },
             "columnsconfig": SeqvarsQueryColumnsConfigSerializer(
-                SeqvarsQueryColumnsConfigFactory.build(query=None)
+                SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
             ).data,
         }
 

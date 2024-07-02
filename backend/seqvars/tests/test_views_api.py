@@ -1819,7 +1819,7 @@ class TestQueryViewSet(ApiViewTestBase):
             ).data
 
             columnsconfig = SeqvarsQueryColumnsConfigSerializer(
-                SeqvarsQueryColumnsConfigFactory.build(query=None)
+                SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
             ).data
 
             response = self.client.post(
