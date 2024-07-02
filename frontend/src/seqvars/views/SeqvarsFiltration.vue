@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import {
   Affected,
+  GenotypeState,
+  PedigreeMember,
   SexAssignedAtBirth,
 } from '@/seqvars/components/GenotypeSelect/types'
 import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
@@ -11,26 +13,35 @@ import { Query } from '@/seqvars/components/QueryList/types'
 import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
 
 const queries = ref<Query[]>([])
+const selectedQueryIndex = ref<number | null>(null)
+const selectedQuery = computed({
+  get() {
+    return selectedQueryIndex.value == null
+      ? null
+      : queries.value[selectedQueryIndex.value]
+  },
+  set(newValue) {
+    if (selectedQueryIndex.value == null || newValue == null) {
+      return
+    }
+    queries.value[selectedQueryIndex.value] = newValue
+  },
+})
 
-const pedigreeMembers = ref([
+const pedigreeMembers = ref<PedigreeMember[]>([
   {
-    name: 'index II',
+    name: 'index',
     affected: Affected.AFFECTED,
     sexAssignedAtBirth: SexAssignedAtBirth.UNDEFINED,
   },
   {
-    name: 'father I',
+    name: 'father',
     affected: Affected.UNDEFINED,
     sexAssignedAtBirth: SexAssignedAtBirth.MALE,
   },
   {
-    name: 'mother I',
+    name: 'mother',
     affected: Affected.AFFECTED,
-    sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
-  },
-  {
-    name: 'sibling',
-    affected: Affected.UNAFFECTED,
     sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
   },
 ])
@@ -38,7 +49,14 @@ const pedigreeMembers = ref([
 
 <template>
   <div style="height: 100vh; display: flex" class="bg-bg">
-    <div style="width: 100%; max-width: 370px; height: 100%; overflow-y: auto">
+    <div
+      style="
+        padding-right: 8px;
+        min-width: 250px;
+        height: 100%;
+        overflow-y: auto;
+      "
+    >
       <div
         class="text-ui-control-text"
         style="
@@ -51,51 +69,59 @@ const pedigreeMembers = ref([
         NA12878
       </div>
       <div
-        style="
-          border-right: 1px solid #e9e9e9;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        "
+        style="height: 100%; display: flex; flex-direction: column; gap: 8px"
       >
         <QueryList
           v-if="queries.length > 0"
-          :queries="
-            queries.map((query, i) => {
-              const sameLabelQueriesBefore = queries
-                .slice(0, i)
-                .filter((q) => q.label === query.label).length
-              return {
-                ...query,
-                label:
-                  query.label +
-                  (sameLabelQueriesBefore == 0
-                    ? ''
-                    : ` (${sameLabelQueriesBefore})`),
-              }
-            })
-          "
-          @remove-query="(index) => (queries = queries.toSpliced(index, 1))"
+          :queries="queries"
+          :selected-index="selectedQueryIndex"
+          @select="(index) => (selectedQueryIndex = index)"
+          @remove-query="(index) => queries.splice(index, 1)"
         />
 
         <QuickPresetsList
-          :presets="[
-            { label: 'de-novo' },
-            { label: 'dominant' },
-            { label: 'homozygous recessive' },
-            { label: 'compound recessive' },
-          ]"
+          :value="selectedQuery?.preset"
           @add-query="
-            (label) =>
-              (queries = [
-                ...queries,
-                { label, isRunning: false, isModified: false },
-              ])
+            (preset) =>
+              queries.push({
+                preset,
+                value: {
+                  genotype: Object.fromEntries(
+                    (['father', 'mother', 'index'] as const).map((name) => [
+                      name,
+                      { mode: preset.genotype[name], checked: true },
+                    ]),
+                  ) as GenotypeState,
+                },
+                isRunning: false,
+              })
+          "
+          @update:value="
+            (preset) => {
+              if (!selectedQuery) return
+
+              selectedQuery = {
+                preset,
+                value: {
+                  genotype: Object.fromEntries(
+                    Object.entries(preset.genotype).map(([name, mode]) => [
+                      name,
+                      { checked: true, mode },
+                    ]),
+                  ) as GenotypeState,
+                },
+                isRunning: false,
+              }
+            }
           "
         />
 
-        <GenotypeSelect :pedigree-members="pedigreeMembers" />
+        <template v-if="selectedQuery">
+          <GenotypeSelect
+            v-model="selectedQuery.value.genotype"
+            :pedigree-members="pedigreeMembers"
+          />
+        </template>
       </div>
     </div>
     <div>TODO</div>

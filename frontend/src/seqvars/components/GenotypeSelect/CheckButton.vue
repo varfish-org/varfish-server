@@ -16,7 +16,7 @@ const model = defineModel<boolean>({ default: false })
 
 <style scoped>
 .root {
-  padding: 5px 12px;
+  padding: 2px 4px;
   height: fit-content;
   min-width: auto;
   color: black !important;

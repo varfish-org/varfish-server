@@ -1,54 +1,68 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { defineEmits } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
+import { doesValueMatchGenotypePreset } from '@/seqvars/components/GenotypeSelect/utils'
 import Item from '@/seqvars/components/Item.vue'
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import SexAffectedIcon from './SexAffectedIcon'
-import { GENOTYPE_LABELS } from './constants'
-import { PedigreeMember } from './types'
+import { GENOTYPE_PRESETS } from './constants'
+import { GenotypeState, Pedigree, PedigreeMember } from './types'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
-const membersInheritanceMode = ref(pedigreeMembers.map(() => new Set()))
-
-watch(pedigreeMembers, () => {
-  membersInheritanceMode.value = pedigreeMembers.map(
-    (_, i) => membersInheritanceMode.value.at(i) ?? new Set(),
-  )
-})
+const model = defineModel<GenotypeState>({ required: true })
+defineEmits(['changePreset'])
 </script>
 
 <template>
   <CollapsibleGroup title="Genotype">
-    <div style="width: 100%; display: flex; flex-direction: column; gap: 16px">
-      <div style="width: 100%; display: flex; flex-direction: column">
+    <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
+      <div
+        role="listbox"
+        style="width: 100%; display: flex; flex-direction: column"
+      >
         <Item
-          v-for="[key, label] in Object.entries(GENOTYPE_LABELS)"
+          v-for="[key, preset] in Object.entries(GENOTYPE_PRESETS)"
           :key="key"
-          >{{ label }}</Item
+          :selected="doesValueMatchGenotypePreset(model, preset)"
+          @click="
+            () => {
+              for (const [name, mode] of Object.entries(preset)) {
+                model[name as Pedigree] = { checked: true, mode }
+              }
+            }
+          "
+          >{{
+            key == 'ANY' ? 'any mode' : key.toLowerCase().split('_').join(' ')
+          }}</Item
         >
       </div>
 
       <div
         class="bg-inactive-ui-element"
-        style="margin: 4px 0; width: 100%; height: 1px"
+        style="width: 100%; height: 1px"
       ></div>
 
       <div
         v-for="(member, index) in pedigreeMembers"
-        :key="member.name"
+        :key="index"
         style="display: flex; flex-direction: row; align-items: start; gap: 4px"
       >
-        <input :id="member.name" type="checkbox" style="margin-top: 6px" />
+        <input
+          :id="member.name"
+          v-model="model[member.name].checked"
+          type="checkbox"
+          style="margin-top: 6px"
+        />
         <div style="display: flex; flex-direction: column">
           <label
             :for="member.name"
             style="
-              margin-bottom: 4px;
+              margin-bottom: 0;
               display: flex;
               align-items: center;
-              gap: 4px;
+              gap: 8px;
             "
             ><span>{{ member.name }}</span>
 
@@ -57,7 +71,7 @@ watch(pedigreeMembers, () => {
               :affected="member.affected"
             />
           </label>
-          <InheritanceModeControls v-model="membersInheritanceMode[index]" />
+          <InheritanceModeControls v-model="model[member.name].mode" />
         </div>
       </div>
     </div>

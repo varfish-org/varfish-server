@@ -23,7 +23,7 @@ const isOpen = ref(true)
       ></v-icon>
       <div class="group-title">{{ props.title }}</div>
     </summary>
-    <div style="margin-top: 4px; display: flex">
+    <div style="display: flex">
       <button type="button" class="side-toggle" @click="isOpen = !isOpen">
         <div class="indicator"></div>
       </button>

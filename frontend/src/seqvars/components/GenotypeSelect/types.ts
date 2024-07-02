@@ -1,14 +1,3 @@
-export enum GenotypeChoice {
-  DE_NOVO = 'de novo',
-  DOMINANT = 'dominant',
-  HOMOZYGOUS_RECESSIVE = 'homozygous recessive',
-  COMPOUND_RECESSIVE = 'compound recessive',
-  RECESSIVE = 'recessive',
-  X_RECESSIVE = 'x recessive',
-  AFFECTED_CARRIERS = 'affected carriers',
-  ANY = 'any',
-}
-
 export enum SexAssignedAtBirth {
   UNDEFINED = 'undefined',
   MALE = 'male',
@@ -21,8 +10,10 @@ export enum Affected {
   AFFECTED = 'affected',
 }
 
+export type Pedigree = 'index' | 'father' | 'mother'
+
 export interface PedigreeMember {
-  name: string
+  name: Pedigree
   sexAssignedAtBirth: SexAssignedAtBirth
   affected: Affected
 }
@@ -35,3 +26,12 @@ export enum InheritanceMode {
 }
 
 export type InheritanceModeSet = Set<InheritanceMode>
+
+export type PedigreeInheritanceMode = Record<Pedigree, InheritanceModeSet>
+
+export type GenotypePresets = Record<string, PedigreeInheritanceMode>
+
+export type GenotypeState = Record<
+  Pedigree,
+  { checked: boolean; mode: Set<InheritanceMode> }
+>

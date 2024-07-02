@@ -20,10 +20,13 @@ const ICONS: Record<SexAssignedAtBirth, [IconFC, IconFC]> = {
 export default defineComponent<{ sex: SexAssignedAtBirth; affected: Affected }>(
   ({ sex, affected }) => {
     return () =>
-      h(
-        ICONS[sex][affected == Affected.UNAFFECTED ? 0 : 1],
-        affected == Affected.UNDEFINED ? { style: { color: 'gray' } } : {},
-      )
+      h(ICONS[sex][affected == Affected.UNAFFECTED ? 0 : 1], {
+        style: {
+          'font-size': '0.6em',
+          ...(affected == Affected.UNDEFINED ? { color: 'gray' } : {}),
+        },
+      })
   },
+  // eslint-disable-next-line vue/require-prop-types
   { props: ['sex', 'affected'] },
 )

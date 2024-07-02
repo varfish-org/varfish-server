@@ -5,11 +5,11 @@ const props = withDefaults(defineProps<{ selected?: boolean }>(), {
 </script>
 
 <template>
-  <div class="root">
-    <button type="button" class="item" :aria-selected="props.selected">
+  <div class="root" :aria-selected="props.selected">
+    <button type="button" class="item">
       <slot />
     </button>
-    <div>
+    <div style="display: flex; align-items: center">
       <slot name="extra"></slot>
     </div>
   </div>
@@ -30,10 +30,8 @@ const props = withDefaults(defineProps<{ selected?: boolean }>(), {
 }
 
 button.item {
-  padding-top: 2px;
-  padding-bottom: 6px;
-  padding-left: 4px;
-  padding-right: 4px;
+  padding: 2px;
+  padding-bottom: 3px;
   width: 100%;
   box-sizing: border-box;
 

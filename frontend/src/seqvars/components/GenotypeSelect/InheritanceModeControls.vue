@@ -10,7 +10,7 @@ const ANY_ITEMS_WITH_LABELS = [
   [InheritanceMode.HOM_ALT, '1/1'],
 ] satisfies [InheritanceMode, string][]
 
-const emit = defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue'])
 const model = defineModel<InheritanceModeSet>({ default: new Set() })
 
 const isAnySelected = computed(() =>
@@ -18,13 +18,11 @@ const isAnySelected = computed(() =>
 )
 
 const toggleModel = (key: InheritanceMode) => {
-  const newModel = new Set(model.value)
   if (model.value.has(key)) {
-    newModel.delete(key)
+    model.value.delete(key)
   } else {
-    newModel.add(key)
+    model.value.add(key)
   }
-  emit('update:modelValue', newModel)
 }
 </script>
 
