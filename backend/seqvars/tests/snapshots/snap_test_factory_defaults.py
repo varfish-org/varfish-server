@@ -17,7 +17,15 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
         {
             "date_created": "2024-07-01T00:00:00Z",
             "date_modified": "2024-07-01T00:00:00Z",
-            "predefinedquery_set": [
+            "presetsset": {
+                "date_created": "2024-07-01T00:00:00Z",
+                "date_modified": "2024-07-01T00:00:00Z",
+                "description": "Settings for short-read exome sequencing with relaxed quality presets.  These settings are aimed at 'legacy' WES sequencing where a target coverage of >=20x cannot be achieved for a considerable portion of the exome.",
+                "label": "short-read exome sequencing (legacy)",
+                "rank": 3,
+                "sodar_uuid": "41f60be0-7cef-4aa3-aaed-cf4a4599a084",
+            },
+            "seqvarspredefinedquery_set": [
                 {
                     "clinvar": "8b13d606-dbd0-4158-9fcf-0a28076cb2db",
                     "columns": "de09623d-f1df-4cea-a6b7-c6720cbd2ff2",
@@ -209,15 +217,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "variantprio": "8deb93bd-7499-411a-9598-827324b80cdb",
                 },
             ],
-            "presetsset": {
-                "date_created": "2024-07-01T00:00:00Z",
-                "date_modified": "2024-07-01T00:00:00Z",
-                "description": "Settings for short-read exome sequencing with relaxed quality presets.  These settings are aimed at 'legacy' WES sequencing where a target coverage of >=20x cannot be achieved for a considerable portion of the exome.",
-                "label": "short-read exome sequencing (legacy)",
-                "rank": 3,
-                "sodar_uuid": "41f60be0-7cef-4aa3-aaed-cf4a4599a084",
-            },
-            "querypresetsclinvar_set": [
+            "seqvarsquerypresetsclinvar_set": [
                 {
                     "allow_conflicting_interpretations": False,
                     "clinvar_germline_aggregate_description": [],
@@ -271,7 +271,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "sodar_uuid": "478e2c06-9f45-4a49-8291-d9fa2ed08d07",
                 },
             ],
-            "querypresetscolumns_set": [
+            "seqvarsquerypresetscolumns_set": [
                 {
                     "column_settings": [],
                     "date_created": "2024-07-01T00:00:00Z",
@@ -283,7 +283,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "sodar_uuid": "de09623d-f1df-4cea-a6b7-c6720cbd2ff2",
                 }
             ],
-            "querypresetsconsequence_set": [
+            "seqvarsquerypresetsconsequence_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -452,7 +452,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
                 },
             ],
-            "querypresetsfrequency_set": [
+            "seqvarsquerypresetsfrequency_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -622,7 +622,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "sodar_uuid": "35bd1a58-4b35-42ba-ac8c-f78b9f9565c0",
                 },
             ],
-            "querypresetslocus_set": [
+            "seqvarsquerypresetslocus_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -759,7 +759,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "sodar_uuid": "9ef59cf2-bb67-4969-a1ce-ffb5de1e716f",
                 },
             ],
-            "querypresetsphenotypeprio_set": [
+            "seqvarsquerypresetsphenotypeprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -773,7 +773,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "terms": [],
                 }
             ],
-            "querypresetsquality_set": [
+            "seqvarsquerypresetsquality_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -839,7 +839,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "sodar_uuid": "110edc17-9ffb-4863-a62d-3f4c09274947",
                 },
             ],
-            "querypresetsvariantprio_set": [
+            "seqvarsquerypresetsvariantprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -894,7 +894,15 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
         {
             "date_created": "2024-07-01T00:00:00Z",
             "date_modified": "2024-07-01T00:00:00Z",
-            "predefinedquery_set": [
+            "presetsset": {
+                "date_created": "2024-07-01T00:00:00Z",
+                "date_modified": "2024-07-01T00:00:00Z",
+                "description": "Settings for short-read exome sequencing with strict quality presets.  These settings are aimed at 'modern' WES sequencing where a target coverage of >=20x can be achieved for >=99% of the exome.",
+                "label": "short-read exome sequencing (modern)",
+                "rank": 2,
+                "sodar_uuid": "b39cfd4b-8abe-4d78-8520-10116895cea8",
+            },
+            "seqvarspredefinedquery_set": [
                 {
                     "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
                     "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6",
@@ -1086,15 +1094,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
                 },
             ],
-            "presetsset": {
-                "date_created": "2024-07-01T00:00:00Z",
-                "date_modified": "2024-07-01T00:00:00Z",
-                "description": "Settings for short-read exome sequencing with strict quality presets.  These settings are aimed at 'modern' WES sequencing where a target coverage of >=20x can be achieved for >=99% of the exome.",
-                "label": "short-read exome sequencing (modern)",
-                "rank": 2,
-                "sodar_uuid": "b39cfd4b-8abe-4d78-8520-10116895cea8",
-            },
-            "querypresetsclinvar_set": [
+            "seqvarsquerypresetsclinvar_set": [
                 {
                     "allow_conflicting_interpretations": False,
                     "clinvar_germline_aggregate_description": [],
@@ -1148,7 +1148,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "sodar_uuid": "5c66c458-1c8c-457b-a78f-5a8532f4bdb0",
                 },
             ],
-            "querypresetscolumns_set": [
+            "seqvarsquerypresetscolumns_set": [
                 {
                     "column_settings": [],
                     "date_created": "2024-07-01T00:00:00Z",
@@ -1160,7 +1160,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "sodar_uuid": "394aa1da-d68a-4f2d-9cc2-5c505712caa6",
                 }
             ],
-            "querypresetsconsequence_set": [
+            "seqvarsquerypresetsconsequence_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1329,7 +1329,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
                 },
             ],
-            "querypresetsfrequency_set": [
+            "seqvarsquerypresetsfrequency_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1499,7 +1499,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "sodar_uuid": "fe56b1e5-74a0-4625-bbc3-6d973bb70669",
                 },
             ],
-            "querypresetslocus_set": [
+            "seqvarsquerypresetslocus_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1636,7 +1636,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "sodar_uuid": "ae0b60fd-d113-4b9a-b5e8-04cfac78b489",
                 },
             ],
-            "querypresetsphenotypeprio_set": [
+            "seqvarsquerypresetsphenotypeprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1650,7 +1650,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "terms": [],
                 }
             ],
-            "querypresetsquality_set": [
+            "seqvarsquerypresetsquality_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1716,7 +1716,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "sodar_uuid": "a24eb80d-b189-4370-8d90-437bfd4f6854",
                 },
             ],
-            "querypresetsvariantprio_set": [
+            "seqvarsquerypresetsvariantprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -1771,7 +1771,15 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
         {
             "date_created": "2024-07-01T00:00:00Z",
             "date_modified": "2024-07-01T00:00:00Z",
-            "predefinedquery_set": [
+            "presetsset": {
+                "date_created": "2024-07-01T00:00:00Z",
+                "date_modified": "2024-07-01T00:00:00Z",
+                "description": "Settings for short-read genome sequencing with strict quality presets.  These settings are aimed at WGS sequencing with at least 30x coverage.",
+                "label": "short-read genome sequencing",
+                "rank": 1,
+                "sodar_uuid": "c33f4584-b23b-41d8-893c-d01609de8895",
+            },
+            "seqvarspredefinedquery_set": [
                 {
                     "clinvar": "e63ce18b-7eb3-4bc1-8c08-97ce1d0159fd",
                     "columns": "a51c6d2a-208d-47e3-9bad-d3cc1569f64b",
@@ -1963,15 +1971,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "variantprio": "ba711a18-5e38-49ff-84a3-f94497668966",
                 },
             ],
-            "presetsset": {
-                "date_created": "2024-07-01T00:00:00Z",
-                "date_modified": "2024-07-01T00:00:00Z",
-                "description": "Settings for short-read genome sequencing with strict quality presets.  These settings are aimed at WGS sequencing with at least 30x coverage.",
-                "label": "short-read genome sequencing",
-                "rank": 1,
-                "sodar_uuid": "c33f4584-b23b-41d8-893c-d01609de8895",
-            },
-            "querypresetsclinvar_set": [
+            "seqvarsquerypresetsclinvar_set": [
                 {
                     "allow_conflicting_interpretations": False,
                     "clinvar_germline_aggregate_description": [],
@@ -2025,7 +2025,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "sodar_uuid": "c60e43ae-9a13-44ff-aa38-7a4ef7702500",
                 },
             ],
-            "querypresetscolumns_set": [
+            "seqvarsquerypresetscolumns_set": [
                 {
                     "column_settings": [],
                     "date_created": "2024-07-01T00:00:00Z",
@@ -2037,7 +2037,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "sodar_uuid": "a51c6d2a-208d-47e3-9bad-d3cc1569f64b",
                 }
             ],
-            "querypresetsconsequence_set": [
+            "seqvarsquerypresetsconsequence_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -2206,7 +2206,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
                 },
             ],
-            "querypresetsfrequency_set": [
+            "seqvarsquerypresetsfrequency_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -2376,7 +2376,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "sodar_uuid": "1484cf3f-d92e-4a26-a057-b0de2ab49ae1",
                 },
             ],
-            "querypresetslocus_set": [
+            "seqvarsquerypresetslocus_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -2513,7 +2513,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "sodar_uuid": "d0469667-db0e-4e65-bcfc-bc361a60e033",
                 },
             ],
-            "querypresetsphenotypeprio_set": [
+            "seqvarsquerypresetsphenotypeprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -2527,7 +2527,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "terms": [],
                 }
             ],
-            "querypresetsquality_set": [
+            "seqvarsquerypresetsquality_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",
@@ -2593,7 +2593,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "sodar_uuid": "f275418c-da2f-466e-9fdf-e1685f53f26c",
                 },
             ],
-            "querypresetsvariantprio_set": [
+            "seqvarsquerypresetsvariantprio_set": [
                 {
                     "date_created": "2024-07-01T00:00:00Z",
                     "date_modified": "2024-07-01T00:00:00Z",

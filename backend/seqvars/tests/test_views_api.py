@@ -3,82 +3,85 @@ from typing import Any
 from django.urls import reverse
 from freezegun import freeze_time
 from parameterized import parameterized
+from snapshottest.unittest import TestCase as TestCaseSnapshot
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
+from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
 from seqvars.models import (
-    PredefinedQuery,
-    Query,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    QuerySettings,
-    QuerySettingsFrequency,
+    SeqvarsPredefinedQuery,
+    SeqvarsQuery,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsQuerySettings,
+    SeqvarsQuerySettingsFrequency,
 )
 from seqvars.serializers import (
-    PredefinedQuerySerializer,
-    QueryColumnsConfigSerializer,
-    QueryDetailsSerializer,
-    QueryExecutionDetailsSerializer,
-    QueryExecutionSerializer,
-    QueryPresetsClinvarSerializer,
-    QueryPresetsColumnsSerializer,
-    QueryPresetsConsequenceSerializer,
-    QueryPresetsFrequencySerializer,
-    QueryPresetsLocusSerializer,
-    QueryPresetsPhenotypePrioSerializer,
-    QueryPresetsQualitySerializer,
-    QueryPresetsSetSerializer,
-    QueryPresetsSetVersionDetailsSerializer,
-    QueryPresetsSetVersionSerializer,
-    QueryPresetsVariantPrioSerializer,
-    QuerySerializer,
-    QuerySettingsClinvarSerializer,
-    QuerySettingsConsequenceSerializer,
-    QuerySettingsDetailsSerializer,
-    QuerySettingsFrequencySerializer,
-    QuerySettingsGenotypeSerializer,
-    QuerySettingsLocusSerializer,
-    QuerySettingsPhenotypePrioSerializer,
-    QuerySettingsQualitySerializer,
-    QuerySettingsSerializer,
-    QuerySettingsVariantPrioSerializer,
-    ResultRowSerializer,
-    ResultSetSerializer,
+    SeqvarsPredefinedQuerySerializer,
+    SeqvarsQueryColumnsConfigSerializer,
+    SeqvarsQueryDetailsSerializer,
+    SeqvarsQueryExecutionDetailsSerializer,
+    SeqvarsQueryExecutionSerializer,
+    SeqvarsQueryPresetsClinvarSerializer,
+    SeqvarsQueryPresetsColumnsSerializer,
+    SeqvarsQueryPresetsConsequenceSerializer,
+    SeqvarsQueryPresetsFrequencySerializer,
+    SeqvarsQueryPresetsLocusSerializer,
+    SeqvarsQueryPresetsPhenotypePrioSerializer,
+    SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetSerializer,
+    SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    SeqvarsQueryPresetsSetVersionSerializer,
+    SeqvarsQueryPresetsVariantPrioSerializer,
+    SeqvarsQuerySerializer,
+    SeqvarsQuerySettingsClinvarSerializer,
+    SeqvarsQuerySettingsConsequenceSerializer,
+    SeqvarsQuerySettingsDetailsSerializer,
+    SeqvarsQuerySettingsFrequencySerializer,
+    SeqvarsQuerySettingsGenotypeSerializer,
+    SeqvarsQuerySettingsLocusSerializer,
+    SeqvarsQuerySettingsPhenotypePrioSerializer,
+    SeqvarsQuerySettingsQualitySerializer,
+    SeqvarsQuerySettingsSerializer,
+    SeqvarsQuerySettingsVariantPrioSerializer,
+    SeqvarsResultRowSerializer,
+    SeqvarsResultSetSerializer,
 )
 from seqvars.tests.factories import (
-    PredefinedQueryFactory,
-    QueryColumnsConfigFactory,
-    QueryExecutionFactory,
-    QueryFactory,
-    QueryPresetsClinvarFactory,
-    QueryPresetsColumnsFactory,
-    QueryPresetsConsequenceFactory,
-    QueryPresetsFrequencyFactory,
-    QueryPresetsLocusFactory,
-    QueryPresetsPhenotypePrioFactory,
-    QueryPresetsQualityFactory,
-    QueryPresetsSetFactory,
-    QueryPresetsSetVersionFactory,
-    QueryPresetsVariantPrioFactory,
-    QuerySettingsClinvarFactory,
-    QuerySettingsConsequenceFactory,
-    QuerySettingsFactory,
-    QuerySettingsFrequencyFactory,
-    QuerySettingsGenotypeFactory,
-    QuerySettingsLocusFactory,
-    QuerySettingsPhenotypePrioFactory,
-    QuerySettingsQualityFactory,
-    QuerySettingsVariantPrioFactory,
-    ResultRowFactory,
-    ResultSetFactory,
+    SeqvarsPredefinedQueryFactory,
+    SeqvarsQueryColumnsConfigFactory,
+    SeqvarsQueryExecutionFactory,
+    SeqvarsQueryFactory,
+    SeqvarsQueryPresetsClinvarFactory,
+    SeqvarsQueryPresetsColumnsFactory,
+    SeqvarsQueryPresetsConsequenceFactory,
+    SeqvarsQueryPresetsFrequencyFactory,
+    SeqvarsQueryPresetsLocusFactory,
+    SeqvarsQueryPresetsPhenotypePrioFactory,
+    SeqvarsQueryPresetsQualityFactory,
+    SeqvarsQueryPresetsSetFactory,
+    SeqvarsQueryPresetsSetVersionFactory,
+    SeqvarsQueryPresetsVariantPrioFactory,
+    SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsConsequenceFactory,
+    SeqvarsQuerySettingsFactory,
+    SeqvarsQuerySettingsFrequencyFactory,
+    SeqvarsQuerySettingsGenotypeFactory,
+    SeqvarsQuerySettingsLocusFactory,
+    SeqvarsQuerySettingsPhenotypePrioFactory,
+    SeqvarsQuerySettingsQualityFactory,
+    SeqvarsQuerySettingsVariantPrioFactory,
+    SeqvarsResultRowFactory,
+    SeqvarsResultSetFactory,
 )
+from seqvars.tests.test_factory_defaults import canonicalize_dicts
 from variants.tests.factories import CaseFactory
 from variants.tests.helpers import ApiViewTestBase
 
@@ -87,7 +90,7 @@ from variants.tests.helpers import ApiViewTestBase
 class TestQueryPresetsSetViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -98,7 +101,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetSerializer(self.querypresetsset).data
+        result_json = SeqvarsQueryPresetsSetSerializer(self.querypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(
             response.json(),
@@ -116,7 +119,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
         ]
     )
     def test_create(self, data_override: dict[str, Any]):
-        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -126,7 +129,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
                 data={**{"rank": 1, "label": "test"}, **data_override},
             )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(QueryPresetsSet.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -140,7 +143,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetSerializer(self.querypresetsset).data
+        result_json = SeqvarsQueryPresetsSetSerializer(self.querypresetsset).data
         result_json["project"] = str(result_json["project"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -196,7 +199,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.querypresetsset, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -211,15 +214,38 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsSet.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 0)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestQueryPresetsFactoryDefaultsViewSet(TestCaseSnapshot, ApiViewTestBase):
+    def test_list(self):
+        response = self.client.get(
+            reverse("seqvars:api-querypresetsfactorydefaults-list"),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertMatchSnapshot(canonicalize_dicts(response.json()))
+
+    def test_retrieve(self):
+        record_genome = create_seqvarspresetsset_short_read_genome()
+        response = self.client.get(
+            reverse(
+                "seqvars:api-querypresetsfactorydefaults-detail",
+                kwargs={"querypresetsset": record_genome.sodar_uuid},
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertMatchSnapshot(canonicalize_dicts(response.json()))
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory(project=self.project)
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
+        self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.querypresetsset
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -230,7 +256,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetVersionSerializer(self.querypresetssetversion).data
+        result_json = SeqvarsQueryPresetsSetVersionSerializer(self.querypresetssetversion).data
         result_json["presetsset"] = str(result_json["presetsset"])
         self.assertDictEqual(
             response.json(),
@@ -248,7 +274,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
         ]
     )
     def test_create(self, data_override: dict[str, Any]):
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -259,13 +285,13 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
                     **{
                         "version_major": 1,
                         "version_minor": self.querypresetssetversion.version_minor + 1,
-                        "status": QueryPresetsSetVersion.STATUS_ACTIVE,
+                        "status": SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
                     },
                     **data_override,
                 },
             )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -279,7 +305,9 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsSetVersionDetailsSerializer(self.querypresetssetversion).data
+        result_json = SeqvarsQueryPresetsSetVersionDetailsSerializer(
+            self.querypresetssetversion
+        ).data
         result_json["presetsset"] = dict(result_json["presetsset"])
         result_json["presetsset"]["project"] = str(result_json["presetsset"]["project"])
         self.assertDictEqual(response.json(), result_json)
@@ -335,7 +363,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.querypresetssetversion, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -350,16 +378,18 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsQualityViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsquality = QueryPresetsQualityFactory(presetssetversion=self.presetssetversion)
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsquality = SeqvarsQueryPresetsQualityFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -372,7 +402,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsQualitySerializer(self.presetsquality).data
+        result_json = SeqvarsQueryPresetsQualitySerializer(self.presetsquality).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -384,7 +414,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -396,7 +426,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsQuality.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -410,7 +440,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsQualitySerializer(self.presetsquality).data
+        result_json = SeqvarsQueryPresetsQualitySerializer(self.presetsquality).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -466,7 +496,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsquality, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -481,16 +511,16 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsQuality.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsconsequence = QueryPresetsConsequenceFactory(
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
             presetssetversion=self.presetssetversion
         )
 
@@ -505,7 +535,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
+        result_json = SeqvarsQueryPresetsConsequenceSerializer(self.presetsconsequence).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -517,7 +547,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -529,7 +559,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -543,7 +573,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsConsequenceSerializer(self.presetsconsequence).data
+        result_json = SeqvarsQueryPresetsConsequenceSerializer(self.presetsconsequence).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -599,7 +629,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsconsequence, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -614,16 +644,16 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsfrequency = QueryPresetsFrequencyFactory(
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
             presetssetversion=self.presetssetversion
         )
 
@@ -638,7 +668,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
+        result_json = SeqvarsQueryPresetsFrequencySerializer(self.presetsfrequency).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -650,7 +680,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -662,7 +692,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -676,7 +706,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsFrequencySerializer(self.presetsfrequency).data
+        result_json = SeqvarsQueryPresetsFrequencySerializer(self.presetsfrequency).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -732,7 +762,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsfrequency, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -747,16 +777,18 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsLocusViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetslocus = QueryPresetsLocusFactory(presetssetversion=self.presetssetversion)
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetslocus = SeqvarsQueryPresetsLocusFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -769,7 +801,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsLocusSerializer(self.presetslocus).data
+        result_json = SeqvarsQueryPresetsLocusSerializer(self.presetslocus).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -781,7 +813,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -793,7 +825,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsLocus.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -807,7 +839,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsLocusSerializer(self.presetslocus).data
+        result_json = SeqvarsQueryPresetsLocusSerializer(self.presetslocus).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -863,7 +895,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetslocus, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -878,16 +910,16 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsLocus.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsphenotypeprio = QueryPresetsPhenotypePrioFactory(
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
             presetssetversion=self.presetssetversion
         )
 
@@ -902,7 +934,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
+        result_json = SeqvarsQueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -914,7 +946,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -926,7 +958,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -940,7 +972,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
+        result_json = SeqvarsQueryPresetsPhenotypePrioSerializer(self.presetsphenotypeprio).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -996,7 +1028,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsphenotypeprio, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1011,16 +1043,16 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsvariantprio = QueryPresetsVariantPrioFactory(
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
             presetssetversion=self.presetssetversion
         )
 
@@ -1035,7 +1067,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
+        result_json = SeqvarsQueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -1047,7 +1079,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -1059,7 +1091,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1073,7 +1105,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
+        result_json = SeqvarsQueryPresetsVariantPrioSerializer(self.presetsvariantprio).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -1129,7 +1161,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsvariantprio, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1144,16 +1176,18 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetscolumns = QueryPresetsColumnsFactory(presetssetversion=self.presetssetversion)
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetscolumns = SeqvarsQueryPresetsColumnsFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1166,7 +1200,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
+        result_json = SeqvarsQueryPresetsColumnsSerializer(self.presetscolumns).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -1178,7 +1212,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsColumns.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -1190,7 +1224,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsColumns.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1204,7 +1238,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsColumnsSerializer(self.presetscolumns).data
+        result_json = SeqvarsQueryPresetsColumnsSerializer(self.presetscolumns).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -1260,7 +1294,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetscolumns, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsColumns.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1275,16 +1309,18 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsColumns.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.presetsclinvar = QueryPresetsClinvarFactory(presetssetversion=self.presetssetversion)
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetsclinvar = SeqvarsQueryPresetsClinvarFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1297,7 +1333,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
+        result_json = SeqvarsQueryPresetsClinvarSerializer(self.presetsclinvar).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -1309,7 +1345,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -1321,7 +1357,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 2)
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1335,7 +1371,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryPresetsClinvarSerializer(self.presetsclinvar).data
+        result_json = SeqvarsQueryPresetsClinvarSerializer(self.presetsclinvar).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -1391,7 +1427,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.presetsclinvar, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1406,16 +1442,18 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
 class PredefinedQueryViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
-        self.presetsset = QueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = QueryPresetsSetVersionFactory(presetsset=self.presetsset)
-        self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.presetssetversion)
+        self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.predefinedquery = SeqvarsPredefinedQueryFactory(
+            presetssetversion=self.presetssetversion
+        )
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1428,7 +1466,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = PredefinedQuerySerializer(self.predefinedquery).data
+        result_json = SeqvarsPredefinedQuerySerializer(self.predefinedquery).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(
             response.json(),
@@ -1440,7 +1478,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(PredefinedQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -1452,7 +1490,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
                 data={"rank": 1, "label": "test"},
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(PredefinedQuery.objects.count(), 2)
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1466,7 +1504,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = PredefinedQuerySerializer(self.predefinedquery).data
+        result_json = SeqvarsPredefinedQuerySerializer(self.predefinedquery).data
         result_json["presetssetversion"] = str(result_json["presetssetversion"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -1522,7 +1560,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
             self.assertEqual(getattr(self.predefinedquery, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(PredefinedQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1537,7 +1575,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(PredefinedQuery.objects.count(), 0)
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -1547,7 +1585,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
         self.case = CaseFactory(project=self.project)
         self.caseanalysis = CaseAnalysisFactory(case=self.case)
         self.session = CaseAnalysisSessionFactory(caseanalysis=self.caseanalysis)
-        self.querysettings = QuerySettingsFactory(session=self.session)
+        self.querysettings = SeqvarsQuerySettingsFactory(session=self.session)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1560,7 +1598,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QuerySettingsSerializer(self.querysettings).data
+        result_json = SeqvarsQuerySettingsSerializer(self.querysettings).data
         result_json["session"] = str(result_json["session"])
         self.assertDictEqual(
             response.json(),
@@ -1572,8 +1610,8 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(QuerySettings.objects.count(), 1)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
@@ -1583,36 +1621,36 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                     },
                 ),
                 data={
-                    "genotype": QuerySettingsGenotypeSerializer(
-                        QuerySettingsGenotypeFactory.build(querysettings=None)
+                    "genotype": SeqvarsQuerySettingsGenotypeSerializer(
+                        SeqvarsQuerySettingsGenotypeFactory.build(querysettings=None)
                     ).data,
-                    "quality": QuerySettingsQualitySerializer(
-                        QuerySettingsQualityFactory.build(querysettings=None)
+                    "quality": SeqvarsQuerySettingsQualitySerializer(
+                        SeqvarsQuerySettingsQualityFactory.build(querysettings=None)
                     ).data,
-                    "consequence": QuerySettingsConsequenceSerializer(
-                        QuerySettingsConsequenceFactory.build(querysettings=None)
+                    "consequence": SeqvarsQuerySettingsConsequenceSerializer(
+                        SeqvarsQuerySettingsConsequenceFactory.build(querysettings=None)
                     ).data,
-                    "locus": QuerySettingsLocusSerializer(
-                        QuerySettingsLocusFactory.build(querysettings=None)
+                    "locus": SeqvarsQuerySettingsLocusSerializer(
+                        SeqvarsQuerySettingsLocusFactory.build(querysettings=None)
                     ).data,
-                    "frequency": QuerySettingsFrequencySerializer(
-                        QuerySettingsFrequencyFactory.build(querysettings=None)
+                    "frequency": SeqvarsQuerySettingsFrequencySerializer(
+                        SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
                     ).data,
-                    "phenotypeprio": QuerySettingsPhenotypePrioSerializer(
-                        QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+                    "phenotypeprio": SeqvarsQuerySettingsPhenotypePrioSerializer(
+                        SeqvarsQuerySettingsPhenotypePrioFactory.build(querysettings=None)
                     ).data,
-                    "variantprio": QuerySettingsVariantPrioSerializer(
-                        QuerySettingsVariantPrioFactory.build(querysettings=None)
+                    "variantprio": SeqvarsQuerySettingsVariantPrioSerializer(
+                        SeqvarsQuerySettingsVariantPrioFactory.build(querysettings=None)
                     ).data,
-                    "clinvar": QuerySettingsClinvarSerializer(
-                        QuerySettingsClinvarFactory.build(querysettings=None)
+                    "clinvar": SeqvarsQuerySettingsClinvarSerializer(
+                        SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
                     ).data,
                 },
                 format="json",
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(QuerySettings.objects.count(), 2)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1626,7 +1664,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QuerySettingsDetailsSerializer(self.querysettings).data
+        result_json = SeqvarsQuerySettingsDetailsSerializer(self.querysettings).data
         result_json["session"] = str(result_json["session"])
         self.assertDictEqual(response.json(), result_json)
 
@@ -1694,7 +1732,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                 self.assertEqual(getattr(self.querysettings, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(QuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1709,7 +1747,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(QuerySettings.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -1721,7 +1759,7 @@ class TestQueryViewSet(ApiViewTestBase):
         self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.query = QueryFactory(session=self.session)
+        self.query = SeqvarsQueryFactory(session=self.session)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1734,7 +1772,7 @@ class TestQueryViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QuerySerializer(self.query).data
+        result_json = SeqvarsQuerySerializer(self.query).data
         self.assertDictEqual(
             response.json(),
             {
@@ -1745,43 +1783,43 @@ class TestQueryViewSet(ApiViewTestBase):
         )
 
     def test_create(self):
-        self.assertEqual(Query.objects.count(), 1)
-        self.assertEqual(QuerySettings.objects.count(), 1)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
-            settings = QuerySettingsSerializer(
-                QuerySettingsFactory.build(),
+            settings = SeqvarsQuerySettingsSerializer(
+                SeqvarsQuerySettingsFactory.build(),
             ).data
-            settings["frequency"] = QuerySettingsFrequencySerializer(
-                QuerySettingsFrequencyFactory.build(querysettings=None)
+            settings["frequency"] = SeqvarsQuerySettingsFrequencySerializer(
+                SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
-            settings["genotype"] = QuerySettingsGenotypeSerializer(
-                QuerySettingsGenotypeFactory.build(querysettings=None)
+            settings["genotype"] = SeqvarsQuerySettingsGenotypeSerializer(
+                SeqvarsQuerySettingsGenotypeFactory.build(querysettings=None)
             ).data
-            settings["quality"] = QuerySettingsQualitySerializer(
-                QuerySettingsQualityFactory.build(querysettings=None)
+            settings["quality"] = SeqvarsQuerySettingsQualitySerializer(
+                SeqvarsQuerySettingsQualityFactory.build(querysettings=None)
             ).data
-            settings["consequence"] = QuerySettingsConsequenceSerializer(
-                QuerySettingsConsequenceFactory.build(querysettings=None)
+            settings["consequence"] = SeqvarsQuerySettingsConsequenceSerializer(
+                SeqvarsQuerySettingsConsequenceFactory.build(querysettings=None)
             ).data
-            settings["locus"] = QuerySettingsLocusSerializer(
-                QuerySettingsLocusFactory.build(querysettings=None)
+            settings["locus"] = SeqvarsQuerySettingsLocusSerializer(
+                SeqvarsQuerySettingsLocusFactory.build(querysettings=None)
             ).data
-            settings["frequency"] = QuerySettingsFrequencySerializer(
-                QuerySettingsFrequencyFactory.build(querysettings=None)
+            settings["frequency"] = SeqvarsQuerySettingsFrequencySerializer(
+                SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
             ).data
-            settings["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
-                QuerySettingsPhenotypePrioFactory.build(querysettings=None)
+            settings["phenotypeprio"] = SeqvarsQuerySettingsPhenotypePrioSerializer(
+                SeqvarsQuerySettingsPhenotypePrioFactory.build(querysettings=None)
             ).data
-            settings["variantprio"] = QuerySettingsVariantPrioSerializer(
-                QuerySettingsVariantPrioFactory.build(querysettings=None)
+            settings["variantprio"] = SeqvarsQuerySettingsVariantPrioSerializer(
+                SeqvarsQuerySettingsVariantPrioFactory.build(querysettings=None)
             ).data
-            settings["clinvar"] = QuerySettingsClinvarSerializer(
-                QuerySettingsClinvarFactory.build(querysettings=None)
+            settings["clinvar"] = SeqvarsQuerySettingsClinvarSerializer(
+                SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
             ).data
 
-            columnsconfig = QueryColumnsConfigSerializer(
-                QueryColumnsConfigFactory.build(query=None)
+            columnsconfig = SeqvarsQueryColumnsConfigSerializer(
+                SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
             ).data
 
             response = self.client.post(
@@ -1799,9 +1837,9 @@ class TestQueryViewSet(ApiViewTestBase):
                 format="json",
             )
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertEqual(Query.objects.count(), 2)
-        self.assertEqual(QuerySettings.objects.count(), 2)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 2)
+        self.assertEqual(SeqvarsQuery.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 2)
 
     def test_retrieve_existing(self):
         with self.login(self.superuser):
@@ -1815,7 +1853,7 @@ class TestQueryViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryDetailsSerializer(self.query).data
+        result_json = SeqvarsQueryDetailsSerializer(self.query).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
@@ -1923,7 +1961,7 @@ class TestQueryViewSet(ApiViewTestBase):
                 self.assertEqual(getattr(self.query, key), value, f"key={key}")
 
     def test_delete(self):
-        self.assertEqual(Query.objects.count(), 1)
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
 
         with self.login(self.superuser):
             response = self.client.delete(
@@ -1938,7 +1976,7 @@ class TestQueryViewSet(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 204)
 
-        self.assertEqual(Query.objects.count(), 0)
+        self.assertEqual(SeqvarsQuery.objects.count(), 0)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -1950,8 +1988,8 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
         self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -1964,7 +2002,7 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryExecutionSerializer(self.queryexecution).data
+        result_json = SeqvarsQueryExecutionSerializer(self.queryexecution).data
         self.assertDictEqual(
             response.json(),
             {
@@ -1986,7 +2024,7 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = QueryExecutionDetailsSerializer(self.queryexecution).data
+        result_json = SeqvarsQueryExecutionDetailsSerializer(self.queryexecution).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
@@ -2021,9 +2059,9 @@ class TestResultSetViewSet(ApiViewTestBase):
         self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
-        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
+        self.resultset = SeqvarsResultSetFactory(queryexecution=self.queryexecution)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -2036,7 +2074,7 @@ class TestResultSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = ResultSetSerializer(self.resultset).data
+        result_json = SeqvarsResultSetSerializer(self.resultset).data
         self.assertDictEqual(
             response.json(),
             {
@@ -2058,7 +2096,7 @@ class TestResultSetViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = ResultSetSerializer(self.resultset).data
+        result_json = SeqvarsResultSetSerializer(self.resultset).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(
@@ -2093,10 +2131,10 @@ class TestResultRowViewSet(ApiViewTestBase):
         self.session = CaseAnalysisSessionFactory(
             caseanalysis=self.caseanalysis, user=self.superuser
         )
-        self.query = QueryFactory(session=self.session)
-        self.queryexecution = QueryExecutionFactory(query=self.query)
-        self.resultset = ResultSetFactory(queryexecution=self.queryexecution)
-        self.seqvarresultrow = ResultRowFactory(resultset=self.resultset)
+        self.query = SeqvarsQueryFactory(session=self.session)
+        self.queryexecution = SeqvarsQueryExecutionFactory(query=self.query)
+        self.resultset = SeqvarsResultSetFactory(queryexecution=self.queryexecution)
+        self.seqvarresultrow = SeqvarsResultRowFactory(resultset=self.resultset)
 
     def test_list(self):
         with self.login(self.superuser):
@@ -2109,7 +2147,7 @@ class TestResultRowViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = ResultRowSerializer(self.seqvarresultrow).data
+        result_json = SeqvarsResultRowSerializer(self.seqvarresultrow).data
         self.assertDictEqual(
             response.json(),
             {
@@ -2131,7 +2169,7 @@ class TestResultRowViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 200)
-        result_json = ResultRowSerializer(self.seqvarresultrow).data
+        result_json = SeqvarsResultRowSerializer(self.seqvarresultrow).data
         self.assertDictEqual(response.json(), result_json)
 
     @parameterized.expand(

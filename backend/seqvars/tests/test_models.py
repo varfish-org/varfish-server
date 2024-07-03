@@ -3,66 +3,66 @@
 from freezegun import freeze_time
 from test_plus.test import TestCase
 
-from seqvars.factory_defaults import create_presetsset_short_read_genome
+from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
 from seqvars.models import (
-    GenotypeChoice,
-    PredefinedQuery,
-    Query,
-    QueryColumnsConfig,
-    QueryExecution,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    QuerySettings,
-    QuerySettingsClinvar,
-    QuerySettingsConsequence,
-    QuerySettingsFrequency,
-    QuerySettingsGenotype,
-    QuerySettingsLocus,
-    QuerySettingsPhenotypePrio,
-    QuerySettingsQuality,
-    QuerySettingsVariantPrio,
-    ResultRow,
-    ResultSet,
+    SeqvarsGenotypeChoice,
+    SeqvarsPredefinedQuery,
+    SeqvarsQuery,
+    SeqvarsQueryColumnsConfig,
+    SeqvarsQueryExecution,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsQuerySettings,
+    SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsConsequence,
+    SeqvarsQuerySettingsFrequency,
+    SeqvarsQuerySettingsGenotype,
+    SeqvarsQuerySettingsLocus,
+    SeqvarsQuerySettingsPhenotypePrio,
+    SeqvarsQuerySettingsQuality,
+    SeqvarsQuerySettingsVariantPrio,
+    SeqvarsResultRow,
+    SeqvarsResultSet,
 )
 from seqvars.tests.factories import (
-    PredefinedQueryFactory,
-    QueryColumnsConfigFactory,
-    QueryExecutionFactory,
-    QueryFactory,
-    QueryPresetsClinvarFactory,
-    QueryPresetsColumnsFactory,
-    QueryPresetsConsequenceFactory,
-    QueryPresetsFrequencyFactory,
-    QueryPresetsLocusFactory,
-    QueryPresetsPhenotypePrioFactory,
-    QueryPresetsQualityFactory,
-    QueryPresetsSetFactory,
-    QueryPresetsSetVersionFactory,
-    QueryPresetsVariantPrioFactory,
-    QuerySettingsClinvarFactory,
-    QuerySettingsConsequenceFactory,
-    QuerySettingsFactory,
-    QuerySettingsFrequencyFactory,
-    QuerySettingsGenotypeFactory,
-    QuerySettingsLocusFactory,
-    QuerySettingsPhenotypePrioFactory,
-    QuerySettingsQualityFactory,
-    QuerySettingsVariantPrioFactory,
-    ResultRowFactory,
-    ResultSetFactory,
     SampleGenotypeChoiceFactory,
+    SeqvarsPredefinedQueryFactory,
+    SeqvarsQueryColumnsConfigFactory,
+    SeqvarsQueryExecutionFactory,
+    SeqvarsQueryFactory,
+    SeqvarsQueryPresetsClinvarFactory,
+    SeqvarsQueryPresetsColumnsFactory,
+    SeqvarsQueryPresetsConsequenceFactory,
+    SeqvarsQueryPresetsFrequencyFactory,
+    SeqvarsQueryPresetsLocusFactory,
+    SeqvarsQueryPresetsPhenotypePrioFactory,
+    SeqvarsQueryPresetsQualityFactory,
+    SeqvarsQueryPresetsSetFactory,
+    SeqvarsQueryPresetsSetVersionFactory,
+    SeqvarsQueryPresetsVariantPrioFactory,
+    SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsConsequenceFactory,
+    SeqvarsQuerySettingsFactory,
+    SeqvarsQuerySettingsFrequencyFactory,
+    SeqvarsQuerySettingsGenotypeFactory,
+    SeqvarsQuerySettingsLocusFactory,
+    SeqvarsQuerySettingsPhenotypePrioFactory,
+    SeqvarsQuerySettingsQualityFactory,
+    SeqvarsQuerySettingsVariantPrioFactory,
+    SeqvarsResultRowFactory,
+    SeqvarsResultSetFactory,
 )
 
 
-class TestCaseGenotypeChoice(TestCase):
+class TestSeqvarsCaseGenotypeChoice(TestCase):
 
     def test_values(self):
         self.assertEqual(
@@ -77,426 +77,426 @@ class TestCaseGenotypeChoice(TestCase):
                 "recessive_index",
                 "recessive_parent",
             ],
-            GenotypeChoice.values(),
+            SeqvarsGenotypeChoice.values(),
         )
 
 
-class TestSampleGenotypeChoice(TestCase):
+class TestSeqvarsSampleGenotypeChoice(TestCase):
 
     def test_values(self):
         SampleGenotypeChoiceFactory()
 
 
-class TestQueryPresetsSet(TestCase):
+class TestSeqvarsQueryPresetsSet(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsSet.objects.count(), 0)
-        QueryPresetsSetFactory()
-        self.assertEqual(QueryPresetsSet.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 0)
+        SeqvarsQueryPresetsSetFactory()
+        self.assertEqual(SeqvarsQueryPresetsSet.objects.count(), 1)
 
     def test_str(self):
-        querypresetsset = QueryPresetsSetFactory()
+        querypresetsset = SeqvarsQueryPresetsSetFactory()
         self.assertEqual(
-            f"QueryPresetsSet '{querypresetsset.sodar_uuid}'",
+            f"SeqvarsQueryPresetsSet '{querypresetsset.sodar_uuid}'",
             querypresetsset.__str__(),
         )
 
     def test_clone_from_db(self):
-        querypresetsset = QueryPresetsSetFactory()
+        querypresetsset = SeqvarsQueryPresetsSetFactory()
         querypresetsset.clone_with_latest_version()
 
     def test_clone_factory_default(self):
-        querypresetset = create_presetsset_short_read_genome()
+        querypresetset = create_seqvarspresetsset_short_read_genome()
         querypresetset.clone_with_latest_version()
 
 
-class TestQueryPresetsSetVersion(TestCase):
+class TestSeqvarsQueryPresetsSetVersion(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 0)
-        QueryPresetsSetVersionFactory()
-        self.assertEqual(QueryPresetsSetVersion.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 0)
+        SeqvarsQueryPresetsSetVersionFactory()
+        self.assertEqual(SeqvarsQueryPresetsSetVersion.objects.count(), 1)
 
     def test_str(self):
-        querypresetssetversion = QueryPresetsSetVersionFactory()
+        querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory()
         self.assertEqual(
-            f"QueryPresetsSetVersion '{querypresetssetversion.sodar_uuid}'",
+            f"SeqvarsQueryPresetsSetVersion '{querypresetssetversion.sodar_uuid}'",
             querypresetssetversion.__str__(),
         )
 
 
-class TestQueryPresetsQuality(TestCase):
+class TestSeqvarsQueryPresetsQuality(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsQuality.objects.count(), 0)
-        QueryPresetsQualityFactory()
-        self.assertEqual(QueryPresetsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 0)
+        SeqvarsQueryPresetsQualityFactory()
+        self.assertEqual(SeqvarsQueryPresetsQuality.objects.count(), 1)
 
     def test_str(self):
-        querypresetsquality = QueryPresetsQualityFactory()
+        querypresetsquality = SeqvarsQueryPresetsQualityFactory()
         self.assertEqual(
-            f"QueryPresetsQuality '{querypresetsquality.sodar_uuid}'",
+            f"SeqvarsQueryPresetsQuality '{querypresetsquality.sodar_uuid}'",
             querypresetsquality.__str__(),
         )
 
 
-class TestQueryPresetsFrequency(TestCase):
+class TestSeqvarsQueryPresetsFrequency(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 0)
-        QueryPresetsFrequencyFactory()
-        self.assertEqual(QueryPresetsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 0)
+        SeqvarsQueryPresetsFrequencyFactory()
+        self.assertEqual(SeqvarsQueryPresetsFrequency.objects.count(), 1)
 
     def test_str(self):
-        querypresetsfrequency = QueryPresetsFrequencyFactory()
+        querypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory()
         self.assertEqual(
-            f"QueryPresetsFrequency '{querypresetsfrequency.sodar_uuid}'",
+            f"SeqvarsQueryPresetsFrequency '{querypresetsfrequency.sodar_uuid}'",
             querypresetsfrequency.__str__(),
         )
 
 
-class TestQueryPresetsConsequence(TestCase):
+class TestSeqvarsQueryPresetsConsequence(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 0)
-        QueryPresetsConsequenceFactory()
-        self.assertEqual(QueryPresetsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 0)
+        SeqvarsQueryPresetsConsequenceFactory()
+        self.assertEqual(SeqvarsQueryPresetsConsequence.objects.count(), 1)
 
     def test_str(self):
-        querypresetsconsequence = QueryPresetsConsequenceFactory()
+        querypresetsconsequence = SeqvarsQueryPresetsConsequenceFactory()
         self.assertEqual(
-            f"QueryPresetsConsequence '{querypresetsconsequence.sodar_uuid}'",
+            f"SeqvarsQueryPresetsConsequence '{querypresetsconsequence.sodar_uuid}'",
             querypresetsconsequence.__str__(),
         )
 
 
-class TestQueryPresetsLocus(TestCase):
+class TestSeqvarsQueryPresetsLocus(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsLocus.objects.count(), 0)
-        QueryPresetsLocusFactory()
-        self.assertEqual(QueryPresetsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 0)
+        SeqvarsQueryPresetsLocusFactory()
+        self.assertEqual(SeqvarsQueryPresetsLocus.objects.count(), 1)
 
     def test_str(self):
-        querypresetslocus = QueryPresetsLocusFactory()
+        querypresetslocus = SeqvarsQueryPresetsLocusFactory()
         self.assertEqual(
-            f"QueryPresetsLocus '{querypresetslocus.sodar_uuid}'",
+            f"SeqvarsQueryPresetsLocus '{querypresetslocus.sodar_uuid}'",
             querypresetslocus.__str__(),
         )
 
 
-class TestQueryPresetsPhenotypePrio(TestCase):
+class TestSeqvarsQueryPresetsPhenotypePrio(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 0)
-        QueryPresetsPhenotypePrioFactory()
-        self.assertEqual(QueryPresetsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 0)
+        SeqvarsQueryPresetsPhenotypePrioFactory()
+        self.assertEqual(SeqvarsQueryPresetsPhenotypePrio.objects.count(), 1)
 
     def test_str(self):
-        querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory()
+        querypresetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory()
         self.assertEqual(
-            f"QueryPresetsPhenotypePrio '{querypresetsphenotypeprio.sodar_uuid}'",
+            f"SeqvarsQueryPresetsPhenotypePrio '{querypresetsphenotypeprio.sodar_uuid}'",
             querypresetsphenotypeprio.__str__(),
         )
 
 
-class TestQueryPresetsVariantPrio(TestCase):
+class TestSeqvarsQueryPresetsVariantPrio(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 0)
-        QueryPresetsVariantPrioFactory()
-        self.assertEqual(QueryPresetsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 0)
+        SeqvarsQueryPresetsVariantPrioFactory()
+        self.assertEqual(SeqvarsQueryPresetsVariantPrio.objects.count(), 1)
 
     def test_str(self):
-        querypresetsvariantprio = QueryPresetsVariantPrioFactory()
+        querypresetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory()
         self.assertEqual(
-            f"QueryPresetsVariantPrio '{querypresetsvariantprio.sodar_uuid}'",
+            f"SeqvarsQueryPresetsVariantPrio '{querypresetsvariantprio.sodar_uuid}'",
             querypresetsvariantprio.__str__(),
         )
 
 
-class TestQueryPresetsClinvar(TestCase):
+class TestSeqvarsQueryPresetsClinvar(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 0)
-        QueryPresetsClinvarFactory()
-        self.assertEqual(QueryPresetsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 0)
+        SeqvarsQueryPresetsClinvarFactory()
+        self.assertEqual(SeqvarsQueryPresetsClinvar.objects.count(), 1)
 
     def test_str(self):
-        querypresetsclinvar = QueryPresetsClinvarFactory()
+        querypresetsclinvar = SeqvarsQueryPresetsClinvarFactory()
         self.assertEqual(
-            f"QueryPresetsClinvar '{querypresetsclinvar.sodar_uuid}'",
+            f"SeqvarsQueryPresetsClinvar '{querypresetsclinvar.sodar_uuid}'",
             querypresetsclinvar.__str__(),
         )
 
 
-class TestQueryPresetsColumns(TestCase):
+class TestSeqvarsQueryPresetsColumns(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryPresetsColumns.objects.count(), 0)
-        QueryPresetsColumnsFactory()
-        self.assertEqual(QueryPresetsColumns.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 0)
+        SeqvarsQueryPresetsColumnsFactory()
+        self.assertEqual(SeqvarsQueryPresetsColumns.objects.count(), 1)
 
     def test_str(self):
-        querypresetscolumns = QueryPresetsColumnsFactory()
+        querypresetscolumns = SeqvarsQueryPresetsColumnsFactory()
         self.assertEqual(
-            f"QueryPresetsColumns '{querypresetscolumns.sodar_uuid}'",
+            f"SeqvarsQueryPresetsColumns '{querypresetscolumns.sodar_uuid}'",
             querypresetscolumns.__str__(),
         )
 
 
-class TestQuerySettings(TestCase):
+class TestSeqvarsQuerySettings(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettings.objects.count(), 0)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 0)
-        QuerySettingsFactory()
-        self.assertEqual(QuerySettings.objects.count(), 1)
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
+        SeqvarsQuerySettingsFactory()
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
 
     def test_str(self):
-        querysettings = QuerySettingsFactory()
+        querysettings = SeqvarsQuerySettingsFactory()
         self.assertEqual(
-            f"QuerySettings '{querysettings.sodar_uuid}'",
+            f"SeqvarsQuerySettings '{querysettings.sodar_uuid}'",
             querysettings.__str__(),
         )
 
 
-class TestQuerySettingsGenotype(TestCase):
+class TestSeqvarsQuerySettingsGenotype(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsGenotype.objects.count(), 0)
-        QuerySettingsGenotypeFactory()
-        self.assertEqual(QuerySettingsGenotype.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 0)
+        SeqvarsQuerySettingsGenotypeFactory()
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 1)
 
     def test_str(self):
-        genotype = QuerySettingsGenotypeFactory()
+        genotype = SeqvarsQuerySettingsGenotypeFactory()
         self.assertEqual(
-            f"QuerySettingsGenotype '{genotype.sodar_uuid}'",
+            f"SeqvarsQuerySettingsGenotype '{genotype.sodar_uuid}'",
             genotype.__str__(),
         )
 
 
-class TestQuerySettingsQuality(TestCase):
+class TestSeqvarsQuerySettingsQuality(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsQuality.objects.count(), 0)
-        QuerySettingsQualityFactory()
-        self.assertEqual(QuerySettingsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
+        SeqvarsQuerySettingsQualityFactory()
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
 
     def test_str(self):
-        quality = QuerySettingsQualityFactory()
+        quality = SeqvarsQuerySettingsQualityFactory()
         self.assertEqual(
-            f"QuerySettingsQuality '{quality.sodar_uuid}'",
+            f"SeqvarsQuerySettingsQuality '{quality.sodar_uuid}'",
             quality.__str__(),
         )
 
 
-class TestQuerySettingsFrequency(TestCase):
+class TestSeqvarsQuerySettingsFrequency(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 0)
-        QuerySettingsFrequencyFactory()
-        self.assertEqual(QuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
+        SeqvarsQuerySettingsFrequencyFactory()
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
 
     def test_str(self):
-        frequency = QuerySettingsFrequencyFactory()
+        frequency = SeqvarsQuerySettingsFrequencyFactory()
         self.assertEqual(
-            f"QuerySettingsFrequency '{frequency.sodar_uuid}'",
+            f"SeqvarsQuerySettingsFrequency '{frequency.sodar_uuid}'",
             frequency.__str__(),
         )
 
 
-class TestQuerySettingsConsequence(TestCase):
+class TestSeqvarsQuerySettingsConsequence(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsConsequence.objects.count(), 0)
-        QuerySettingsConsequenceFactory()
-        self.assertEqual(QuerySettingsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 0)
+        SeqvarsQuerySettingsConsequenceFactory()
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 1)
 
     def test_str(self):
-        consequence = QuerySettingsConsequenceFactory()
+        consequence = SeqvarsQuerySettingsConsequenceFactory()
         self.assertEqual(
-            f"QuerySettingsConsequence '{consequence.sodar_uuid}'",
+            f"SeqvarsQuerySettingsConsequence '{consequence.sodar_uuid}'",
             consequence.__str__(),
         )
 
 
-class TestQuerySettingsLocus(TestCase):
+class TestSeqvarsQuerySettingsLocus(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsLocus.objects.count(), 0)
-        QuerySettingsLocusFactory()
-        self.assertEqual(QuerySettingsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 0)
+        SeqvarsQuerySettingsLocusFactory()
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 1)
 
     def test_str(self):
-        locus = QuerySettingsLocusFactory()
+        locus = SeqvarsQuerySettingsLocusFactory()
         self.assertEqual(
-            f"QuerySettingsLocus '{locus.sodar_uuid}'",
+            f"SeqvarsQuerySettingsLocus '{locus.sodar_uuid}'",
             locus.__str__(),
         )
 
 
-class TestQuerySettingsPhenotypePrio(TestCase):
+class TestSeqvarsQuerySettingsPhenotypePrio(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsPhenotypePrio.objects.count(), 0)
-        QuerySettingsPhenotypePrioFactory()
-        self.assertEqual(QuerySettingsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
+        SeqvarsQuerySettingsPhenotypePrioFactory()
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
 
     def test_str(self):
-        phenotypeprio = QuerySettingsPhenotypePrioFactory()
+        phenotypeprio = SeqvarsQuerySettingsPhenotypePrioFactory()
         self.assertEqual(
-            f"QuerySettingsPhenotypePrio '{phenotypeprio.sodar_uuid}'",
+            f"SeqvarsQuerySettingsPhenotypePrio '{phenotypeprio.sodar_uuid}'",
             phenotypeprio.__str__(),
         )
 
 
-class TestQuerySettingsVariantPrio(TestCase):
+class TestSeqvarsQuerySettingsVariantPrio(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsVariantPrio.objects.count(), 0)
-        QuerySettingsVariantPrioFactory()
-        self.assertEqual(QuerySettingsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 0)
+        SeqvarsQuerySettingsVariantPrioFactory()
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 1)
 
     def test_str(self):
-        variantprio = QuerySettingsVariantPrioFactory()
+        variantprio = SeqvarsQuerySettingsVariantPrioFactory()
         self.assertEqual(
-            f"QuerySettingsVariantPrio '{variantprio.sodar_uuid}'",
+            f"SeqvarsQuerySettingsVariantPrio '{variantprio.sodar_uuid}'",
             variantprio.__str__(),
         )
 
 
-class TestQuerySettingsClinvar(TestCase):
+class TestSeqvarsQuerySettingsClinvar(TestCase):
 
     def test_create(self):
-        self.assertEqual(QuerySettingsClinvar.objects.count(), 0)
-        QuerySettingsClinvarFactory()
-        self.assertEqual(QuerySettingsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
+        SeqvarsQuerySettingsClinvarFactory()
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
 
     def test_str(self):
-        clinvar = QuerySettingsClinvarFactory()
+        clinvar = SeqvarsQuerySettingsClinvarFactory()
         self.assertEqual(
-            f"QuerySettingsClinvar '{clinvar.sodar_uuid}'",
+            f"SeqvarsQuerySettingsClinvar '{clinvar.sodar_uuid}'",
             clinvar.__str__(),
         )
 
 
-class TestPredefinedQuery(TestCase):
+class TestSeqvarsPredefinedQuery(TestCase):
 
     def test_create(self):
-        self.assertEqual(PredefinedQuery.objects.count(), 0)
-        PredefinedQueryFactory()
-        self.assertEqual(PredefinedQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 0)
+        SeqvarsPredefinedQueryFactory()
+        self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 1)
 
     def test_str(self):
-        clinvar = PredefinedQueryFactory()
+        clinvar = SeqvarsPredefinedQueryFactory()
         self.assertEqual(
-            f"PredefinedQuery '{clinvar.sodar_uuid}'",
+            f"SeqvarsPredefinedQuery '{clinvar.sodar_uuid}'",
             clinvar.__str__(),
         )
 
 
-class TestQuery(TestCase):
+class TestSeqvarsQuery(TestCase):
 
     def test_create(self):
-        self.assertEqual(Query.objects.count(), 0)
-        QueryFactory()
-        self.assertEqual(Query.objects.count(), 1)
+        self.assertEqual(SeqvarsQuery.objects.count(), 0)
+        SeqvarsQueryFactory()
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
 
     def test_property_case(self):
-        query = QueryFactory()
+        query = SeqvarsQueryFactory()
         self.assertEqual(
             query.session.caseanalysis.case.pk,
             query.case.pk,
         )
 
     def test_str(self):
-        query = QueryFactory()
+        query = SeqvarsQueryFactory()
         self.assertEqual(
-            f"Query '{query.sodar_uuid}'",
+            f"SeqvarsQuery '{query.sodar_uuid}'",
             query.__str__(),
         )
 
 
-class TestQueryColumnsConfig(TestCase):
+class TestSeqvarsQueryColumnsConfig(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryColumnsConfig.objects.count(), 0)
-        QueryColumnsConfigFactory()
-        self.assertEqual(QueryColumnsConfig.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
+        SeqvarsQueryColumnsConfigFactory()
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
 
     def test_str(self):
-        columnsconfig = QueryColumnsConfigFactory()
+        columnsconfig = SeqvarsQueryColumnsConfigFactory()
         self.assertEqual(
-            f"QueryColumnsConfig '{columnsconfig.sodar_uuid}'",
+            f"SeqvarsQueryColumnsConfig '{columnsconfig.sodar_uuid}'",
             columnsconfig.__str__(),
         )
 
 
-class TestQueryExecution(TestCase):
+class TestSeqvarsQueryExecution(TestCase):
 
     def test_create(self):
-        self.assertEqual(QueryExecution.objects.count(), 0)
-        QueryExecutionFactory()
-        self.assertEqual(QueryExecution.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 0)
+        SeqvarsQueryExecutionFactory()
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 1)
 
     def test_property_case(self):
-        queryexecution = QueryExecutionFactory()
+        queryexecution = SeqvarsQueryExecutionFactory()
         self.assertEqual(
             queryexecution.query.session.caseanalysis.case.pk,
             queryexecution.case.pk,
         )
 
     def test_str(self):
-        queryexecution = QueryExecutionFactory()
+        queryexecution = SeqvarsQueryExecutionFactory()
         self.assertEqual(
-            f"QueryExecution '{queryexecution.sodar_uuid}'",
+            f"SeqvarsQueryExecution '{queryexecution.sodar_uuid}'",
             queryexecution.__str__(),
         )
 
 
-class TestResultSet(TestCase):
+class TestSeqvarsResultSet(TestCase):
 
     def test_create(self):
-        self.assertEqual(ResultSet.objects.count(), 0)
-        ResultSetFactory()
-        self.assertEqual(ResultSet.objects.count(), 1)
+        self.assertEqual(SeqvarsResultSet.objects.count(), 0)
+        SeqvarsResultSetFactory()
+        self.assertEqual(SeqvarsResultSet.objects.count(), 1)
 
     def test_property_case(self):
-        resultset = ResultSetFactory()
+        resultset = SeqvarsResultSetFactory()
         self.assertEqual(
             resultset.queryexecution.query.session.caseanalysis.case.pk,
             resultset.case.pk,
         )
 
     def test_get_absolute_url(self):
-        resultset = ResultSetFactory()
+        resultset = SeqvarsResultSetFactory()
         self.assertEqual(
             (f"/seqvars/api/resultset/{resultset.case.sodar_uuid}/" f"{resultset.sodar_uuid}/"),
             resultset.get_absolute_url(),
         )
 
     def test_str(self):
-        resultset = ResultSetFactory()
+        resultset = SeqvarsResultSetFactory()
         self.assertEqual(
-            f"ResultSet '{resultset.sodar_uuid}'",
+            f"SeqvarsResultSet '{resultset.sodar_uuid}'",
             resultset.__str__(),
         )
 
 
-class TestResultRow(TestCase):
+class TestSeqvarsResultRow(TestCase):
 
     def test_create(self):
-        self.assertEqual(ResultRow.objects.count(), 0)
-        ResultRowFactory()
-        self.assertEqual(ResultRow.objects.count(), 1)
+        self.assertEqual(SeqvarsResultRow.objects.count(), 0)
+        SeqvarsResultRowFactory()
+        self.assertEqual(SeqvarsResultRow.objects.count(), 1)
 
     def test_str(self):
-        seqvarresultrow = ResultRowFactory()
+        seqvarresultrow = SeqvarsResultRowFactory()
         self.assertEqual(
             (
-                f"ResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.release}-"
+                f"SeqvarsResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.release}-"
                 f"{seqvarresultrow.chromosome}-{seqvarresultrow.start}-"
                 f"{seqvarresultrow.reference}-{seqvarresultrow.alternative}'"
             ),

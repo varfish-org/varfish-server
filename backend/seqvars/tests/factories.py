@@ -6,47 +6,47 @@ import factory
 from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
-    ColumnConfig,
     DataSourceInfo,
     DataSourceInfos,
     Gene,
     GenePanel,
     GenePanelSource,
-    GenotypeChoice,
-    PredefinedQuery,
-    Query,
-    QueryColumnsConfig,
-    QueryExecution,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    QuerySettings,
-    QuerySettingsClinvar,
-    QuerySettingsConsequence,
-    QuerySettingsFrequency,
-    QuerySettingsGenotype,
-    QuerySettingsLocus,
-    QuerySettingsPhenotypePrio,
-    QuerySettingsQuality,
-    QuerySettingsVariantPrio,
-    ResultRow,
-    ResultRowPayload,
-    ResultSet,
-    SampleGenotypeChoice,
-    SampleQualityFilter,
+    SeqvarsColumnConfig,
+    SeqvarsGenotypeChoice,
+    SeqvarsPredefinedQuery,
+    SeqvarsPrioService,
+    SeqvarsQuery,
+    SeqvarsQueryColumnsConfig,
+    SeqvarsQueryExecution,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsQuerySettings,
+    SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsConsequence,
+    SeqvarsQuerySettingsFrequency,
+    SeqvarsQuerySettingsGenotype,
+    SeqvarsQuerySettingsLocus,
+    SeqvarsQuerySettingsPhenotypePrio,
+    SeqvarsQuerySettingsQuality,
+    SeqvarsQuerySettingsVariantPrio,
+    SeqvarsResultRow,
+    SeqvarsResultRowPayload,
+    SeqvarsResultSet,
+    SeqvarsSampleGenotypeChoice,
+    SeqvarsSampleQualityFilter,
+    SeqvarsTranscriptTypeChoice,
+    SeqvarsVariantConsequenceChoice,
+    SeqvarsVariantTypeChoice,
     Term,
     TermPresence,
-    TranscriptTypeChoice,
-    VariantConsequenceChoice,
-    VariantPrioService,
-    VariantTypeChoice,
 )
 from variants.tests.factories import ProjectFactory
 
@@ -57,15 +57,15 @@ class SampleGenotypeChoiceFactory(factory.Factory):
 
     @factory.lazy_attribute_sequence
     def genotype(self, n: int):
-        values = GenotypeChoice.values()
-        return GenotypeChoice(values[n % len(values)])
+        values = SeqvarsGenotypeChoice.values()
+        return SeqvarsGenotypeChoice(values[n % len(values)])
 
     class Meta:
-        model = SampleGenotypeChoice
+        model = SeqvarsSampleGenotypeChoice
 
 
 class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
-    sample_genotypes = factory.Faker("pydantic_field", schema=[SampleGenotypeChoice])
+    sample_genotypes = factory.Faker("pydantic_field", schema=[SeqvarsSampleGenotypeChoice])
 
     @factory.lazy_attribute
     def sample_genotypes(self):
@@ -106,9 +106,9 @@ class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
 
 class ConsequenceSettingsBaseFactory(factory.django.DjangoModelFactory):
 
-    variant_types = [VariantTypeChoice.SNV]
-    transcript_types = [TranscriptTypeChoice.CODING]
-    variant_consequences = [VariantConsequenceChoice.MISSENSE_VARIANT]
+    variant_types = [SeqvarsVariantTypeChoice.SNV]
+    transcript_types = [SeqvarsTranscriptTypeChoice.CODING]
+    variant_consequences = [SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT]
     max_distance_to_exon = 50
 
     class Meta:
@@ -155,7 +155,7 @@ class PhenotypePrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 class VariantPrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     variant_prio_enabled = False
-    services = [VariantPrioService(name="MutationTaster", version="2021")]
+    services = [SeqvarsPrioService(name="MutationTaster", version="2021")]
 
     class Meta:
         abstract = True
@@ -177,7 +177,7 @@ class ClinvarSettingsBaseFactory(factory.django.DjangoModelFactory):
 class ColumnsSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     column_settings = [
-        ColumnConfig(
+        SeqvarsColumnConfig(
             name="chromosome",
             label="Chromosome",
             width=300,
@@ -207,34 +207,34 @@ class LabeledSortableBaseFactory(BaseModelFactory):
         abstract = True
 
 
-class QueryPresetsSetFactory(LabeledSortableBaseFactory):
+class SeqvarsQueryPresetsSetFactory(LabeledSortableBaseFactory):
 
     project = factory.SubFactory(ProjectFactory)
 
     class Meta:
-        model = QueryPresetsSet
+        model = SeqvarsQueryPresetsSet
 
 
-class QueryPresetsSetVersionFactory(BaseModelFactory):
+class SeqvarsQueryPresetsSetVersionFactory(BaseModelFactory):
 
-    presetsset = factory.SubFactory(QueryPresetsSetFactory)
+    presetsset = factory.SubFactory(SeqvarsQueryPresetsSetFactory)
     version_major = 1
     version_minor = 0
-    status = QueryPresetsSetVersion.STATUS_ACTIVE
+    status = SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE
 
     class Meta:
-        model = QueryPresetsSetVersion
+        model = SeqvarsQueryPresetsSetVersion
 
 
 class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
 
-    presetssetversion = factory.SubFactory(QueryPresetsSetVersionFactory)
+    presetssetversion = factory.SubFactory(SeqvarsQueryPresetsSetVersionFactory)
 
     class Meta:
         abstract = True
 
 
-class QueryPresetsQualityFactory(QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsQualityFactory(QueryPresetsBaseFactory):
 
     filter_active = True
     min_dp_het = 10
@@ -244,213 +244,219 @@ class QueryPresetsQualityFactory(QueryPresetsBaseFactory):
     min_ad = 3
 
     class Meta:
-        model = QueryPresetsQuality
+        model = SeqvarsQueryPresetsQuality
 
 
-class QueryPresetsFrequencyFactory(FrequencySettingsBaseFactory, QueryPresetsBaseFactory):
-
-    class Meta:
-        model = QueryPresetsFrequency
-
-
-class QueryPresetsConsequenceFactory(ConsequenceSettingsBaseFactory, QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsFrequencyFactory(FrequencySettingsBaseFactory, QueryPresetsBaseFactory):
 
     class Meta:
-        model = QueryPresetsConsequence
+        model = SeqvarsQueryPresetsFrequency
 
 
-class QueryPresetsLocusFactory(LocusSettingsBaseFactory, QueryPresetsBaseFactory):
-
-    class Meta:
-        model = QueryPresetsLocus
-
-
-class QueryPresetsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsConsequenceFactory(
+    ConsequenceSettingsBaseFactory, QueryPresetsBaseFactory
+):
 
     class Meta:
-        model = QueryPresetsPhenotypePrio
+        model = SeqvarsQueryPresetsConsequence
 
 
-class QueryPresetsVariantPrioFactory(VariantPrioSettingsBaseFactory, QueryPresetsBaseFactory):
-
-    class Meta:
-        model = QueryPresetsVariantPrio
-
-
-class QueryPresetsClinvarFactory(ClinvarSettingsBaseFactory, QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsLocusFactory(LocusSettingsBaseFactory, QueryPresetsBaseFactory):
 
     class Meta:
-        model = QueryPresetsClinvar
+        model = SeqvarsQueryPresetsLocus
 
 
-class QueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsPhenotypePrioFactory(
+    PhenotypePrioSettingsBaseFactory, QueryPresetsBaseFactory
+):
 
     class Meta:
-        model = QueryPresetsColumns
+        model = SeqvarsQueryPresetsPhenotypePrio
 
 
-class PredefinedQueryFactory(QueryPresetsBaseFactory):
+class SeqvarsQueryPresetsVariantPrioFactory(
+    VariantPrioSettingsBaseFactory, QueryPresetsBaseFactory
+):
+
+    class Meta:
+        model = SeqvarsQueryPresetsVariantPrio
+
+
+class SeqvarsQueryPresetsClinvarFactory(ClinvarSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = SeqvarsQueryPresetsClinvar
+
+
+class SeqvarsQueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresetsBaseFactory):
+
+    class Meta:
+        model = SeqvarsQueryPresetsColumns
+
+
+class SeqvarsPredefinedQueryFactory(QueryPresetsBaseFactory):
 
     included_in_sop = False
 
     class Meta:
-        model = PredefinedQuery
+        model = SeqvarsPredefinedQuery
 
 
-class QuerySettingsFactory(BaseModelFactory):
+class SeqvarsQuerySettingsFactory(BaseModelFactory):
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
     genotype = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsGenotypeFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsGenotypeFactory",
         factory_related_name="querysettings",
     )
     quality = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsQualityFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsQualityFactory",
         factory_related_name="querysettings",
     )
     consequence = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsConsequenceFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsConsequenceFactory",
         factory_related_name="querysettings",
     )
     locus = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsLocusFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsLocusFactory",
         factory_related_name="querysettings",
     )
     frequency = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsFrequencyFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsFrequencyFactory",
         factory_related_name="querysettings",
     )
     phenotypeprio = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsPhenotypePrioFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsPhenotypePrioFactory",
         factory_related_name="querysettings",
     )
     variantprio = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsVariantPrioFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsVariantPrioFactory",
         factory_related_name="querysettings",
     )
     clinvar = factory.RelatedFactory(
-        "seqvars.tests.factories.QuerySettingsClinvarFactory",
+        "seqvars.tests.factories.SeqvarsQuerySettingsClinvarFactory",
         factory_related_name="querysettings",
     )
 
     class Meta:
-        model = QuerySettings
+        model = SeqvarsQuerySettings
 
 
-class QuerySettingsGenotypeFactory(BaseModelFactory):
+class SeqvarsQuerySettingsGenotypeFactory(BaseModelFactory):
 
     # We pass in genotype=None to prevent creation of a second
     # ``QuerySettingsGenotype``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, genotype=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, genotype=None)
 
     sample_genotype_choices = [SampleGenotypeChoiceFactory()]
 
     class Meta:
-        model = QuerySettingsGenotype
+        model = SeqvarsQuerySettingsGenotype
 
 
-class QuerySettingsQualityFactory(BaseModelFactory):
+class SeqvarsQuerySettingsQualityFactory(BaseModelFactory):
 
     # We pass in quality=None to prevent creation of a second
     # ``QuerySettingsQuality``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, quality=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, quality=None)
     sample_quality_filters = [
-        SampleQualityFilter(
+        SeqvarsSampleQualityFilter(
             sample="index",
         )
     ]
 
     class Meta:
-        model = QuerySettingsQuality
+        model = SeqvarsQuerySettingsQuality
 
 
-class QuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsFrequencyFactory(FrequencySettingsBaseFactory, BaseModelFactory):
 
     # We pass in frequency=None to prevent creation of a second
     # ``QuerySettingsFrequency``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, frequency=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, frequency=None)
 
     class Meta:
-        model = QuerySettingsFrequency
+        model = SeqvarsQuerySettingsFrequency
 
 
-class QuerySettingsConsequenceFactory(ConsequenceSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsConsequenceFactory(ConsequenceSettingsBaseFactory, BaseModelFactory):
 
     # We pass in consequence=None to prevent creation of a second
     # ``QuerySettingsConsequence``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, consequence=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, consequence=None)
 
     class Meta:
-        model = QuerySettingsConsequence
+        model = SeqvarsQuerySettingsConsequence
 
 
-class QuerySettingsLocusFactory(LocusSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsLocusFactory(LocusSettingsBaseFactory, BaseModelFactory):
 
     # We pass in locus=None to prevent creation of a second
     # ``QuerySettingsLocus``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, locus=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, locus=None)
 
     class Meta:
-        model = QuerySettingsLocus
+        model = SeqvarsQuerySettingsLocus
 
 
-class QuerySettingsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsPhenotypePrioFactory(PhenotypePrioSettingsBaseFactory, BaseModelFactory):
 
     # We pass in phenotypeprio=None to prevent creation of a second
     # ``QuerySettingsPhenotypePrio``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, phenotypeprio=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, phenotypeprio=None)
 
     class Meta:
-        model = QuerySettingsPhenotypePrio
+        model = SeqvarsQuerySettingsPhenotypePrio
 
 
-class QuerySettingsVariantPrioFactory(VariantPrioSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsVariantPrioFactory(VariantPrioSettingsBaseFactory, BaseModelFactory):
 
     # We pass in variantprio=None to prevent creation of a second
     # ``QuerySettingsVariantPrio``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, variantprio=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, variantprio=None)
 
     class Meta:
-        model = QuerySettingsVariantPrio
+        model = SeqvarsQuerySettingsVariantPrio
 
 
-class QuerySettingsClinvarFactory(ClinvarSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQuerySettingsClinvarFactory(ClinvarSettingsBaseFactory, BaseModelFactory):
 
     # We pass in clinvar=None to prevent creation of a second
     # ``QuerySettingsClinvar``.
-    querysettings = factory.SubFactory(QuerySettingsFactory, clinvar=None)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, clinvar=None)
 
     class Meta:
-        model = QuerySettingsClinvar
+        model = SeqvarsQuerySettingsClinvar
 
 
-class QueryFactory(BaseModelFactory):
+class SeqvarsQueryFactory(BaseModelFactory):
 
     rank = 1
     label = factory.Sequence(lambda n: f"query-{n}")
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
-    settings = factory.SubFactory(QuerySettingsFactory)
-    columnsconfig = factory.SubFactory("seqvars.tests.factories.QueryColumnsConfigFactory")
+    settings = factory.SubFactory(SeqvarsQuerySettingsFactory)
+    columnsconfig = factory.SubFactory("seqvars.tests.factories.SeqvarsQueryColumnsConfigFactory")
 
     class Meta:
-        model = Query
+        model = SeqvarsQuery
 
 
-class QueryColumnsConfigFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
+class SeqvarsQueryColumnsConfigFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
 
     class Meta:
-        model = QueryColumnsConfig
+        model = SeqvarsQueryColumnsConfig
 
 
-class QueryExecutionFactory(BaseModelFactory):
+class SeqvarsQueryExecutionFactory(BaseModelFactory):
 
-    state = QueryExecution.STATE_DONE
+    state = SeqvarsQueryExecution.STATE_DONE
     start_time = factory.LazyFunction(django.utils.timezone.now)
     end_time = factory.LazyFunction(django.utils.timezone.now)
     # elapsed_seconds: see @factory.lazy_attribute below
-    query = factory.SubFactory(QueryFactory)
-    querysettings = factory.SubFactory(QuerySettingsFactory)
+    query = factory.SubFactory(SeqvarsQueryFactory)
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory)
 
     @factory.lazy_attribute
     def elapsed_seconds(self):
@@ -460,12 +466,12 @@ class QueryExecutionFactory(BaseModelFactory):
             return None
 
     class Meta:
-        model = QueryExecution
+        model = SeqvarsQueryExecution
 
 
-class ResultSetFactory(BaseModelFactory):
+class SeqvarsResultSetFactory(BaseModelFactory):
 
-    queryexecution = factory.SubFactory(QueryExecutionFactory)
+    queryexecution = factory.SubFactory(SeqvarsQueryExecutionFactory)
     result_row_count = 2
     # datasource_infos: see @factory.lazy_attribute below
 
@@ -481,14 +487,14 @@ class ResultSetFactory(BaseModelFactory):
         )
 
     class Meta:
-        model = ResultSet
+        model = SeqvarsResultSet
 
 
-class ResultRowFactory(factory.django.DjangoModelFactory):
+class SeqvarsResultRowFactory(factory.django.DjangoModelFactory):
 
     sodar_uuid = factory.Faker("uuid4")
 
-    resultset = factory.SubFactory(ResultSetFactory)
+    resultset = factory.SubFactory(SeqvarsResultSetFactory)
 
     release = "GRCh38"
     chromosome = factory.Sequence(lambda n: f"chr{n % 22}")
@@ -500,7 +506,7 @@ class ResultRowFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def payload(self):
-        return ResultRowPayload(foo=42)
+        return SeqvarsResultRowPayload(foo=42)
 
     class Meta:
-        model = ResultRow
+        model = SeqvarsResultRow

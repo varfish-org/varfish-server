@@ -59,6 +59,7 @@ rich = "*"
 drf-writable-nested = "*"
 django-modelcluster = "*"
 faker = "*"
+drf-spectacular = {extras = ["sidecar"], version = "*"}
 
 [dev-packages]
 # packages for testing

@@ -3,74 +3,74 @@ from freezegun import freeze_time
 from test_plus import TestCase
 
 from seqvars.serializers import (
-    PredefinedQuerySerializer,
-    QueryColumnsConfigSerializer,
-    QueryDetailsSerializer,
-    QueryExecutionDetailsSerializer,
-    QueryExecutionSerializer,
-    QueryPresetsClinvarSerializer,
-    QueryPresetsColumnsSerializer,
-    QueryPresetsConsequenceSerializer,
-    QueryPresetsFrequencySerializer,
-    QueryPresetsLocusSerializer,
-    QueryPresetsPhenotypePrioSerializer,
-    QueryPresetsQualitySerializer,
-    QueryPresetsSetDetailsSerializer,
-    QueryPresetsSetSerializer,
-    QueryPresetsSetVersionDetailsSerializer,
-    QueryPresetsSetVersionSerializer,
-    QueryPresetsVariantPrioSerializer,
-    QuerySerializer,
-    QuerySettingsClinvarSerializer,
-    QuerySettingsConsequenceSerializer,
-    QuerySettingsDetailsSerializer,
-    QuerySettingsFrequencySerializer,
-    QuerySettingsGenotypeSerializer,
-    QuerySettingsLocusSerializer,
-    QuerySettingsPhenotypePrioSerializer,
-    QuerySettingsQualitySerializer,
-    QuerySettingsSerializer,
-    QuerySettingsVariantPrioSerializer,
-    ResultRowSerializer,
-    ResultSetSerializer,
+    SeqvarsPredefinedQuerySerializer,
+    SeqvarsQueryColumnsConfigSerializer,
+    SeqvarsQueryDetailsSerializer,
+    SeqvarsQueryExecutionDetailsSerializer,
+    SeqvarsQueryExecutionSerializer,
+    SeqvarsQueryPresetsClinvarSerializer,
+    SeqvarsQueryPresetsColumnsSerializer,
+    SeqvarsQueryPresetsConsequenceSerializer,
+    SeqvarsQueryPresetsFrequencySerializer,
+    SeqvarsQueryPresetsLocusSerializer,
+    SeqvarsQueryPresetsPhenotypePrioSerializer,
+    SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetDetailsSerializer,
+    SeqvarsQueryPresetsSetSerializer,
+    SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    SeqvarsQueryPresetsSetVersionSerializer,
+    SeqvarsQueryPresetsVariantPrioSerializer,
+    SeqvarsQuerySerializer,
+    SeqvarsQuerySettingsClinvarSerializer,
+    SeqvarsQuerySettingsConsequenceSerializer,
+    SeqvarsQuerySettingsDetailsSerializer,
+    SeqvarsQuerySettingsFrequencySerializer,
+    SeqvarsQuerySettingsGenotypeSerializer,
+    SeqvarsQuerySettingsLocusSerializer,
+    SeqvarsQuerySettingsPhenotypePrioSerializer,
+    SeqvarsQuerySettingsQualitySerializer,
+    SeqvarsQuerySettingsSerializer,
+    SeqvarsQuerySettingsVariantPrioSerializer,
+    SeqvarsResultRowSerializer,
+    SeqvarsResultSetSerializer,
 )
 from seqvars.tests.factories import (
-    PredefinedQueryFactory,
-    QueryColumnsConfigFactory,
-    QueryExecutionFactory,
-    QueryFactory,
-    QueryPresetsClinvarFactory,
-    QueryPresetsColumnsFactory,
-    QueryPresetsConsequenceFactory,
-    QueryPresetsFrequencyFactory,
-    QueryPresetsLocusFactory,
-    QueryPresetsPhenotypePrioFactory,
-    QueryPresetsQualityFactory,
-    QueryPresetsSetFactory,
-    QueryPresetsSetVersionFactory,
-    QueryPresetsVariantPrioFactory,
-    QuerySettingsClinvarFactory,
-    QuerySettingsConsequenceFactory,
-    QuerySettingsFactory,
-    QuerySettingsFrequencyFactory,
-    QuerySettingsGenotypeFactory,
-    QuerySettingsLocusFactory,
-    QuerySettingsPhenotypePrioFactory,
-    QuerySettingsQualityFactory,
-    QuerySettingsVariantPrioFactory,
-    ResultRowFactory,
-    ResultSetFactory,
+    SeqvarsPredefinedQueryFactory,
+    SeqvarsQueryColumnsConfigFactory,
+    SeqvarsQueryExecutionFactory,
+    SeqvarsQueryFactory,
+    SeqvarsQueryPresetsClinvarFactory,
+    SeqvarsQueryPresetsColumnsFactory,
+    SeqvarsQueryPresetsConsequenceFactory,
+    SeqvarsQueryPresetsFrequencyFactory,
+    SeqvarsQueryPresetsLocusFactory,
+    SeqvarsQueryPresetsPhenotypePrioFactory,
+    SeqvarsQueryPresetsQualityFactory,
+    SeqvarsQueryPresetsSetFactory,
+    SeqvarsQueryPresetsSetVersionFactory,
+    SeqvarsQueryPresetsVariantPrioFactory,
+    SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsConsequenceFactory,
+    SeqvarsQuerySettingsFactory,
+    SeqvarsQuerySettingsFrequencyFactory,
+    SeqvarsQuerySettingsGenotypeFactory,
+    SeqvarsQuerySettingsLocusFactory,
+    SeqvarsQuerySettingsPhenotypePrioFactory,
+    SeqvarsQuerySettingsQualityFactory,
+    SeqvarsQuerySettingsVariantPrioFactory,
+    SeqvarsResultRowFactory,
+    SeqvarsResultSetFactory,
 )
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsQualitySerializer(TestCase):
+class TestSeqvarsQueryPresetsQualitySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsquality = QueryPresetsQualityFactory()
+        self.seqvarsquerypresetsquality = SeqvarsQueryPresetsQualityFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsQualitySerializer(self.querypresetsquality)
+        serializer = SeqvarsQueryPresetsQualitySerializer(self.seqvarsquerypresetsquality)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -92,11 +92,11 @@ class TestQueryPresetsQualitySerializer(TestCase):
             "max_ad",
         ]
         expected = model_to_dict(
-            self.querypresetsquality,
+            self.seqvarsquerypresetsquality,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsquality.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = self.seqvarsquerypresetsquality.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -107,13 +107,13 @@ class TestQueryPresetsQualitySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsFrequencySerializer(TestCase):
+class TestSeqvarsQueryPresetsFrequencySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory()
+        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsFrequencySerializer(self.querypresetsfrequency)
+        serializer = SeqvarsQueryPresetsFrequencySerializer(self.seqvarsquerypresetsfrequency)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -147,11 +147,13 @@ class TestQueryPresetsFrequencySerializer(TestCase):
             "inhouse_hemizygous",
         ]
         expected = model_to_dict(
-            self.querypresetsfrequency,
+            self.seqvarsquerypresetsfrequency,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsfrequency.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = (
+            self.seqvarsquerypresetsfrequency.presetssetversion.sodar_uuid
+        )
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -162,13 +164,13 @@ class TestQueryPresetsFrequencySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsConsequenceSerializer(TestCase):
+class TestSeqvarsQueryPresetsConsequenceSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsconsequence = QueryPresetsConsequenceFactory()
+        self.seqvarsquerypresetsconsequence = SeqvarsQueryPresetsConsequenceFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsConsequenceSerializer(self.querypresetsconsequence)
+        serializer = SeqvarsQueryPresetsConsequenceSerializer(self.seqvarsquerypresetsconsequence)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -187,11 +189,13 @@ class TestQueryPresetsConsequenceSerializer(TestCase):
             "max_distance_to_exon",
         ]
         expected = model_to_dict(
-            self.querypresetsconsequence,
+            self.seqvarsquerypresetsconsequence,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsconsequence.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = (
+            self.seqvarsquerypresetsconsequence.presetssetversion.sodar_uuid
+        )
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -206,13 +210,13 @@ class TestQueryPresetsConsequenceSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsLocusSerializer(TestCase):
+class TestSeqvarsQueryPresetsLocusSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetslocus = QueryPresetsLocusFactory()
+        self.seqvarsquerypresetslocus = SeqvarsQueryPresetsLocusFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsLocusSerializer(self.querypresetslocus)
+        serializer = SeqvarsQueryPresetsLocusSerializer(self.seqvarsquerypresetslocus)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -230,11 +234,11 @@ class TestQueryPresetsLocusSerializer(TestCase):
             "genome_regions",
         ]
         expected = model_to_dict(
-            self.querypresetslocus,
+            self.seqvarsquerypresetslocus,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetslocus.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = self.seqvarsquerypresetslocus.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -248,13 +252,15 @@ class TestQueryPresetsLocusSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsPhenotypePrioSerializer(TestCase):
+class TestSeqvarsQueryPresetsPhenotypePrioSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsphenotypeprio = QueryPresetsPhenotypePrioFactory()
+        self.seqvarsquerypresetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsPhenotypePrioSerializer(self.querypresetsphenotypeprio)
+        serializer = SeqvarsQueryPresetsPhenotypePrioSerializer(
+            self.seqvarsquerypresetsphenotypeprio
+        )
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -272,11 +278,13 @@ class TestQueryPresetsPhenotypePrioSerializer(TestCase):
             "terms",
         ]
         expected = model_to_dict(
-            self.querypresetsphenotypeprio,
+            self.seqvarsquerypresetsphenotypeprio,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsphenotypeprio.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = (
+            self.seqvarsquerypresetsphenotypeprio.presetssetversion.sodar_uuid
+        )
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -289,13 +297,13 @@ class TestQueryPresetsPhenotypePrioSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsVariantPrioSerializer(TestCase):
+class TestSeqvarsQueryPresetsVariantPrioSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsvariantprio = QueryPresetsVariantPrioFactory()
+        self.seqvarsquerypresetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsVariantPrioSerializer(self.querypresetsvariantprio)
+        serializer = SeqvarsQueryPresetsVariantPrioSerializer(self.seqvarsquerypresetsvariantprio)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -312,11 +320,13 @@ class TestQueryPresetsVariantPrioSerializer(TestCase):
             "services",
         ]
         expected = model_to_dict(
-            self.querypresetsvariantprio,
+            self.seqvarsquerypresetsvariantprio,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsvariantprio.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = (
+            self.seqvarsquerypresetsvariantprio.presetssetversion.sodar_uuid
+        )
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -329,13 +339,13 @@ class TestQueryPresetsVariantPrioSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsClinvarSerializer(TestCase):
+class TestSeqvarsQueryPresetsClinvarSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsclinvar = QueryPresetsClinvarFactory()
+        self.seqvarsquerypresetsclinvar = SeqvarsQueryPresetsClinvarFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsClinvarSerializer(self.querypresetsclinvar)
+        serializer = SeqvarsQueryPresetsClinvarSerializer(self.seqvarsquerypresetsclinvar)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -353,11 +363,11 @@ class TestQueryPresetsClinvarSerializer(TestCase):
             "allow_conflicting_interpretations",
         ]
         expected = model_to_dict(
-            self.querypresetsclinvar,
+            self.seqvarsquerypresetsclinvar,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetsclinvar.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = self.seqvarsquerypresetsclinvar.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -372,13 +382,13 @@ class TestQueryPresetsClinvarSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsColumnsSerializer(TestCase):
+class TestSeqvarsQueryPresetsColumnsSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetscolumns = QueryPresetsColumnsFactory()
+        self.seqvarsquerypresetscolumns = SeqvarsQueryPresetsColumnsFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsColumnsSerializer(self.querypresetscolumns)
+        serializer = SeqvarsQueryPresetsColumnsSerializer(self.seqvarsquerypresetscolumns)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -394,11 +404,11 @@ class TestQueryPresetsColumnsSerializer(TestCase):
             "column_settings",
         ]
         expected = model_to_dict(
-            self.querypresetscolumns,
+            self.seqvarsquerypresetscolumns,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.querypresetscolumns.presetssetversion.sodar_uuid
+        expected["presetssetversion"] = self.seqvarsquerypresetscolumns.presetssetversion.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -413,39 +423,43 @@ class TestQueryPresetsColumnsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestPredefinedQuerySerializer(TestCase):
+class TestSeqvarsPredefinedQuerySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory()
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.predefinedquery = PredefinedQueryFactory(presetssetversion=self.querypresetssetversion)
-        self.predefinedquery.quality = QueryPresetsQualityFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarsquerypresetsset = SeqvarsQueryPresetsSetFactory()
+        self.seqvarsquerypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.seqvarsquerypresetsset
         )
-        self.predefinedquery.frequency = QueryPresetsFrequencyFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery = SeqvarsPredefinedQueryFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.consequence = QueryPresetsConsequenceFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.quality = SeqvarsQueryPresetsQualityFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.locus = QueryPresetsLocusFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.frequency = SeqvarsQueryPresetsFrequencyFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.phenotypeprio = QueryPresetsPhenotypePrioFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.consequence = SeqvarsQueryPresetsConsequenceFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.variantprio = QueryPresetsVariantPrioFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.locus = SeqvarsQueryPresetsLocusFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.clinvar = QueryPresetsClinvarFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.phenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
-        self.predefinedquery.columns = QueryPresetsColumnsFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarspredefinedquery.variantprio = SeqvarsQueryPresetsVariantPrioFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
+        )
+        self.seqvarspredefinedquery.clinvar = SeqvarsQueryPresetsClinvarFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
+        )
+        self.seqvarspredefinedquery.columns = SeqvarsQueryPresetsColumnsFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
 
     def test_serialize_existing(self):
-        serializer = PredefinedQuerySerializer(self.predefinedquery)
+        serializer = SeqvarsPredefinedQuerySerializer(self.seqvarspredefinedquery)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -470,21 +484,21 @@ class TestPredefinedQuerySerializer(TestCase):
             "columns",
         ]
         expected = model_to_dict(
-            self.predefinedquery,
+            self.seqvarspredefinedquery,
             fields=fields,
         )
         # Map the pydantic fields to their JSON value.
         expected["genotype"] = expected["genotype"].model_dump(mode="json")
         # We replace the related objects with their UUIDs.
-        expected["presetssetversion"] = self.predefinedquery.presetssetversion.sodar_uuid
-        expected["quality"] = self.predefinedquery.quality.sodar_uuid
-        expected["frequency"] = self.predefinedquery.frequency.sodar_uuid
-        expected["consequence"] = self.predefinedquery.consequence.sodar_uuid
-        expected["locus"] = self.predefinedquery.locus.sodar_uuid
-        expected["phenotypeprio"] = self.predefinedquery.phenotypeprio.sodar_uuid
-        expected["variantprio"] = self.predefinedquery.variantprio.sodar_uuid
-        expected["clinvar"] = self.predefinedquery.clinvar.sodar_uuid
-        expected["columns"] = self.predefinedquery.columns.sodar_uuid
+        expected["presetssetversion"] = self.seqvarspredefinedquery.presetssetversion.sodar_uuid
+        expected["quality"] = self.seqvarspredefinedquery.quality.sodar_uuid
+        expected["frequency"] = self.seqvarspredefinedquery.frequency.sodar_uuid
+        expected["consequence"] = self.seqvarspredefinedquery.consequence.sodar_uuid
+        expected["locus"] = self.seqvarspredefinedquery.locus.sodar_uuid
+        expected["phenotypeprio"] = self.seqvarspredefinedquery.phenotypeprio.sodar_uuid
+        expected["variantprio"] = self.seqvarspredefinedquery.variantprio.sodar_uuid
+        expected["clinvar"] = self.seqvarspredefinedquery.clinvar.sodar_uuid
+        expected["columns"] = self.seqvarspredefinedquery.columns.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -495,13 +509,13 @@ class TestPredefinedQuerySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetSerializer(TestCase):
+class TestSeqvarsQueryPresetsSetSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory()
+        self.seqvarsquerypresetsset = SeqvarsQueryPresetsSetFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetSerializer(self.querypresetsset)
+        serializer = SeqvarsQueryPresetsSetSerializer(self.seqvarsquerypresetsset)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -515,11 +529,11 @@ class TestQueryPresetsSetSerializer(TestCase):
             "project",
         ]
         expected = model_to_dict(
-            self.querypresetsset,
+            self.seqvarsquerypresetsset,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["project"] = self.querypresetsset.project.sodar_uuid
+        expected["project"] = self.seqvarsquerypresetsset.project.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -530,17 +544,19 @@ class TestQueryPresetsSetSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetDetailsSerializer(TestCase):
+class TestSeqvarsQueryPresetsSetDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.querypresetsset = QueryPresetsSetFactory()
-        self.querypresetssetversion = QueryPresetsSetVersionFactory(presetsset=self.querypresetsset)
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarsquerypresetsset = SeqvarsQueryPresetsSetFactory()
+        self.seqvarsquerypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.seqvarsquerypresetsset
+        )
+        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetDetailsSerializer(self.querypresetsset)
+        serializer = SeqvarsQueryPresetsSetDetailsSerializer(self.seqvarsquerypresetsset)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -555,11 +571,11 @@ class TestQueryPresetsSetDetailsSerializer(TestCase):
             "versions",
         ]
         expected = model_to_dict(
-            self.querypresetsset,
+            self.seqvarsquerypresetsset,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["project"] = self.querypresetsset.project.sodar_uuid
+        expected["project"] = self.seqvarsquerypresetsset.project.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -567,8 +583,8 @@ class TestQueryPresetsSetDetailsSerializer(TestCase):
         # Update the deeply nested related objects.
         expected["versions"] = list(
             map(
-                lambda elem: dict(QueryPresetsSetVersionDetailsSerializer(elem).data),
-                self.querypresetsset.versions.all(),
+                lambda elem: dict(SeqvarsQueryPresetsSetVersionDetailsSerializer(elem).data),
+                self.seqvarsquerypresetsset.versions.all(),
             )
         )
 
@@ -577,17 +593,17 @@ class TestQueryPresetsSetDetailsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetVersionSerializer(TestCase):
+class TestSeqvarsQueryPresetsSetVersionSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querypresetssetversion = QueryPresetsSetVersionFactory()
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarsquerypresetssetversion = SeqvarsQueryPresetsSetVersionFactory()
+        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetVersionSerializer(self.querypresetssetversion)
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(self.seqvarsquerypresetssetversion)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -601,11 +617,11 @@ class TestQueryPresetsSetVersionSerializer(TestCase):
             "signed_off_by",
         ]
         expected = model_to_dict(
-            self.querypresetssetversion,
+            self.seqvarsquerypresetssetversion,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.querypresetssetversion.presetsset.sodar_uuid
+        expected["presetsset"] = self.seqvarsquerypresetssetversion.presetsset.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -616,17 +632,19 @@ class TestQueryPresetsSetVersionSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryPresetsSetVersionDetailsSerializer(TestCase):
+class TestSeqvarsQueryPresetsSetVersionDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querypresetssetversion = QueryPresetsSetVersionFactory()
-        self.querypresetsfrequency = QueryPresetsFrequencyFactory(
-            presetssetversion=self.querypresetssetversion
+        self.seqvarsquerypresetssetversion = SeqvarsQueryPresetsSetVersionFactory()
+        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
+            presetssetversion=self.seqvarsquerypresetssetversion
         )
 
     def test_serialize_existing(self):
-        serializer = QueryPresetsSetVersionDetailsSerializer(self.querypresetssetversion)
+        serializer = SeqvarsQueryPresetsSetVersionDetailsSerializer(
+            self.seqvarsquerypresetssetversion
+        )
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -639,36 +657,36 @@ class TestQueryPresetsSetVersionDetailsSerializer(TestCase):
             "status",
             "signed_off_by",
             # (only in details serializer)
-            "querypresetsfrequency_set",
-            "querypresetsvariantprio_set",
-            "querypresetsclinvar_set",
-            "querypresetscolumns_set",
-            "querypresetslocus_set",
-            "querypresetsconsequence_set",
-            "querypresetsquality_set",
-            "querypresetsphenotypeprio_set",
-            "predefinedquery_set",
+            "seqvarsquerypresetsfrequency_set",
+            "seqvarsquerypresetsvariantprio_set",
+            "seqvarsquerypresetsclinvar_set",
+            "seqvarsquerypresetscolumns_set",
+            "seqvarsquerypresetslocus_set",
+            "seqvarsquerypresetsconsequence_set",
+            "seqvarsquerypresetsquality_set",
+            "seqvarsquerypresetsphenotypeprio_set",
+            "seqvarspredefinedquery_set",
         ]
         expected = model_to_dict(
-            self.querypresetssetversion,
+            self.seqvarsquerypresetssetversion,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
         expected["presetsset"] = dict(
-            QueryPresetsSetSerializer(self.querypresetssetversion.presetsset).data
+            SeqvarsQueryPresetsSetSerializer(self.seqvarsquerypresetssetversion.presetsset).data
         )
-        # We add the missing "querypresetsfrequency_set".
-        expected["querypresetsfrequency_set"] = [
-            QueryPresetsFrequencySerializer(self.querypresetsfrequency).data
+        # We add the missing "seqvarsquerypresetsfrequency_set".
+        expected["seqvarsquerypresetsfrequency_set"] = [
+            SeqvarsQueryPresetsFrequencySerializer(self.seqvarsquerypresetsfrequency).data
         ]
-        expected["querypresetsvariantprio_set"] = []
-        expected["querypresetsclinvar_set"] = []
-        expected["querypresetscolumns_set"] = []
-        expected["querypresetslocus_set"] = []
-        expected["querypresetsconsequence_set"] = []
-        expected["querypresetsquality_set"] = []
-        expected["querypresetsphenotypeprio_set"] = []
-        expected["predefinedquery_set"] = []
+        expected["seqvarsquerypresetsvariantprio_set"] = []
+        expected["seqvarsquerypresetsclinvar_set"] = []
+        expected["seqvarsquerypresetscolumns_set"] = []
+        expected["seqvarsquerypresetslocus_set"] = []
+        expected["seqvarsquerypresetsconsequence_set"] = []
+        expected["seqvarsquerypresetsquality_set"] = []
+        expected["seqvarsquerypresetsphenotypeprio_set"] = []
+        expected["seqvarspredefinedquery_set"] = []
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -679,14 +697,14 @@ class TestQueryPresetsSetVersionDetailsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsSerializer(TestCase):
+class TestSeqvarsQuerySettingsSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querysettings = QuerySettingsFactory()
+        self.querysettings = SeqvarsQuerySettingsFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsSerializer(self.querysettings)
+        serializer = SeqvarsQuerySettingsSerializer(self.querysettings)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -729,14 +747,14 @@ class TestQuerySettingsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsDetailsSerializer(TestCase):
+class TestSeqvarsQuerySettingsDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.querysettings = QuerySettingsFactory()
+        self.querysettings = SeqvarsQuerySettingsFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsDetailsSerializer(self.querysettings)
+        serializer = SeqvarsQuerySettingsDetailsSerializer(self.querysettings)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -766,33 +784,37 @@ class TestQuerySettingsDetailsSerializer(TestCase):
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
         # The same is true for the related one-to-one fields.
-        expected["genotype"] = QuerySettingsGenotypeSerializer(self.querysettings.genotype).data
-        expected["quality"] = QuerySettingsQualitySerializer(self.querysettings.quality).data
-        expected["consequence"] = QuerySettingsConsequenceSerializer(
+        expected["genotype"] = SeqvarsQuerySettingsGenotypeSerializer(
+            self.querysettings.genotype
+        ).data
+        expected["quality"] = SeqvarsQuerySettingsQualitySerializer(self.querysettings.quality).data
+        expected["consequence"] = SeqvarsQuerySettingsConsequenceSerializer(
             self.querysettings.consequence
         ).data
-        expected["locus"] = QuerySettingsLocusSerializer(self.querysettings.locus).data
-        expected["frequency"] = QuerySettingsFrequencySerializer(self.querysettings.frequency).data
-        expected["phenotypeprio"] = QuerySettingsPhenotypePrioSerializer(
+        expected["locus"] = SeqvarsQuerySettingsLocusSerializer(self.querysettings.locus).data
+        expected["frequency"] = SeqvarsQuerySettingsFrequencySerializer(
+            self.querysettings.frequency
+        ).data
+        expected["phenotypeprio"] = SeqvarsQuerySettingsPhenotypePrioSerializer(
             self.querysettings.phenotypeprio
         ).data
-        expected["variantprio"] = QuerySettingsVariantPrioSerializer(
+        expected["variantprio"] = SeqvarsQuerySettingsVariantPrioSerializer(
             self.querysettings.variantprio
         ).data
-        expected["clinvar"] = QuerySettingsClinvarSerializer(self.querysettings.clinvar).data
+        expected["clinvar"] = SeqvarsQuerySettingsClinvarSerializer(self.querysettings.clinvar).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsGenotypeSerializer(TestCase):
+class TestSeqvarsQuerySettingsGenotypeSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.genotype = QuerySettingsGenotypeFactory()
+        self.genotype = SeqvarsQuerySettingsGenotypeFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsGenotypeSerializer(self.genotype)
+        serializer = SeqvarsQuerySettingsGenotypeSerializer(self.genotype)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -823,13 +845,13 @@ class TestQuerySettingsGenotypeSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsQualitySerializer(TestCase):
+class TestSeqvarsQuerySettingsQualitySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.quality = QuerySettingsQualityFactory()
+        self.quality = SeqvarsQuerySettingsQualityFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsQualitySerializer(self.quality)
+        serializer = SeqvarsQuerySettingsQualitySerializer(self.quality)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -860,13 +882,13 @@ class TestQuerySettingsQualitySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsConsequenceSerializer(TestCase):
+class TestSeqvarsQuerySettingsConsequenceSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.consequence = QuerySettingsConsequenceFactory()
+        self.consequence = SeqvarsQuerySettingsConsequenceFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsConsequenceSerializer(self.consequence)
+        serializer = SeqvarsQuerySettingsConsequenceSerializer(self.consequence)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -896,13 +918,13 @@ class TestQuerySettingsConsequenceSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsLocusSerializer(TestCase):
+class TestSeqvarsQuerySettingsLocusSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.locus = QuerySettingsLocusFactory()
+        self.locus = SeqvarsQuerySettingsLocusFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsLocusSerializer(self.locus)
+        serializer = SeqvarsQuerySettingsLocusSerializer(self.locus)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -935,13 +957,13 @@ class TestQuerySettingsLocusSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsFrequencySerializer(TestCase):
+class TestSeqvarsQuerySettingsFrequencySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.frequency = QuerySettingsFrequencyFactory()
+        self.frequency = SeqvarsQuerySettingsFrequencyFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsFrequencySerializer(self.frequency)
+        serializer = SeqvarsQuerySettingsFrequencySerializer(self.frequency)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -986,13 +1008,13 @@ class TestQuerySettingsFrequencySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsPhenotypePrioSerializer(TestCase):
+class TestSeqvarsQuerySettingsPhenotypePrioSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.phenotypeprio = QuerySettingsPhenotypePrioFactory()
+        self.phenotypeprio = SeqvarsQuerySettingsPhenotypePrioFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsPhenotypePrioSerializer(self.phenotypeprio)
+        serializer = SeqvarsQuerySettingsPhenotypePrioSerializer(self.phenotypeprio)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1023,13 +1045,13 @@ class TestQuerySettingsPhenotypePrioSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsVariantPrioSerializer(TestCase):
+class TestSeqvarsQuerySettingsVariantPrioSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.variantprio = QuerySettingsVariantPrioFactory()
+        self.variantprio = SeqvarsQuerySettingsVariantPrioFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsVariantPrioSerializer(self.variantprio)
+        serializer = SeqvarsQuerySettingsVariantPrioSerializer(self.variantprio)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1059,13 +1081,13 @@ class TestQuerySettingsVariantPrioSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySettingsClinvarSerializer(TestCase):
+class TestSeqvarsQuerySettingsClinvarSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.clinvar = QuerySettingsClinvarFactory()
+        self.clinvar = SeqvarsQuerySettingsClinvarFactory()
 
     def test_serialize_existing(self):
-        serializer = QuerySettingsClinvarSerializer(self.clinvar)
+        serializer = SeqvarsQuerySettingsClinvarSerializer(self.clinvar)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1094,15 +1116,15 @@ class TestQuerySettingsClinvarSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQuerySerializer(TestCase):
+class TestSeqvarsQuerySerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.query = QueryFactory()
-        self.columnsconfig = QueryColumnsConfigFactory(query=self.query)
+        self.query = SeqvarsQueryFactory()
+        self.columnsconfig = SeqvarsQueryColumnsConfigFactory(seqvarsquery=self.query)
         self.query.refresh_from_db()
 
     def test_serialize_existing(self):
-        serializer = QuerySerializer(self.query)
+        serializer = SeqvarsQuerySerializer(self.query)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1134,15 +1156,15 @@ class TestQuerySerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryDetailsSerializer(TestCase):
+class TestSeqvarsQueryDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.query = QueryFactory()
-        self.columnsconfig = QueryColumnsConfigFactory(query=self.query)
+        self.query = SeqvarsQueryFactory()
+        self.columnsconfig = SeqvarsQueryColumnsConfigFactory(seqvarsquery=self.query)
         self.query.refresh_from_db()
 
     def test_serialize_existing(self):
-        serializer = QueryDetailsSerializer(self.query)
+        serializer = SeqvarsQueryDetailsSerializer(self.query)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1167,21 +1189,23 @@ class TestQueryDetailsSerializer(TestCase):
         expected["date_created"] = "2012-01-14T12:00:01Z"
         expected["date_modified"] = "2012-01-14T12:00:01Z"
         # The same is true for settings.
-        expected["settings"] = QuerySettingsDetailsSerializer(self.query.settings).data
-        expected["columnsconfig"] = QueryColumnsConfigSerializer(self.query.columnsconfig).data
+        expected["settings"] = SeqvarsQuerySettingsDetailsSerializer(self.query.settings).data
+        expected["columnsconfig"] = SeqvarsQueryColumnsConfigSerializer(
+            self.query.columnsconfig
+        ).data
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryExecutionSerializer(TestCase):
+class TestSeqvarsQueryExecutionSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.queryexecution = QueryExecutionFactory()
+        self.queryexecution = SeqvarsQueryExecutionFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryExecutionSerializer(self.queryexecution)
+        serializer = SeqvarsQueryExecutionSerializer(self.queryexecution)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1218,13 +1242,13 @@ class TestQueryExecutionSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestQueryExecutionDetailsSerializer(TestCase):
+class TestSeqvarsQueryExecutionDetailsSerializer(TestCase):
     def setUp(self):
         super().setUp()
-        self.queryexecution = QueryExecutionFactory()
+        self.queryexecution = SeqvarsQueryExecutionFactory()
 
     def test_serialize_existing(self):
-        serializer = QueryExecutionDetailsSerializer(self.queryexecution)
+        serializer = SeqvarsQueryExecutionDetailsSerializer(self.queryexecution)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1247,7 +1271,7 @@ class TestQueryExecutionDetailsSerializer(TestCase):
         expected["query"] = self.queryexecution.query.sodar_uuid
         # We render the query settings as a dictionary.
         expected["querysettings"] = dict(
-            QuerySettingsDetailsSerializer(self.queryexecution.querysettings).data
+            SeqvarsQuerySettingsDetailsSerializer(self.queryexecution.querysettings).data
         )
         expected["querysettings"]["frequency"] = dict(expected["querysettings"]["frequency"])
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
@@ -1268,14 +1292,14 @@ class TestQueryExecutionDetailsSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestResultSetSerializer(TestCase):
+class TestSeqvarsResultSetSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.resultset = ResultSetFactory()
+        self.resultset = SeqvarsResultSetFactory()
 
     def test_serialize_existing(self):
-        serializer = ResultSetSerializer(self.resultset)
+        serializer = SeqvarsResultSetSerializer(self.resultset)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -1303,14 +1327,14 @@ class TestResultSetSerializer(TestCase):
 
 
 @freeze_time("2012-01-14 12:00:01")
-class TestResultRowSerializer(TestCase):
+class TestSeqvarsResultRowSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.seqvarresultrow = ResultRowFactory()
+        self.seqvarresultrow = SeqvarsResultRowFactory()
 
     def test_serialize_existing(self):
-        serializer = ResultRowSerializer(self.seqvarresultrow)
+        serializer = SeqvarsResultRowSerializer(self.seqvarresultrow)
         fields = [
             "sodar_uuid",
             "resultset",

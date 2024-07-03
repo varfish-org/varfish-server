@@ -91,6 +91,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_httpsignature",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
+    "drf_spectacular",
 ]
 
 # Apps specific for this project go here.
@@ -664,6 +665,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -674,7 +676,7 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
-        "varfish.utils.spectacular_preprocess_hook",
+        "varfish.spectacular_utils.spectacular_preprocess_hook",
     ],
     # We add some explicit choices naming to work around warning.
     "ENUM_NAME_OVERRIDES": {
@@ -682,6 +684,8 @@ SPECTACULAR_SETTINGS = {
         "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
         "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
         "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
+        "SeqvarsQueryExecutionStateEnum": "seqvars.models.SeqvarsQueryExecution.STATE_CHOICES",
+        "SeqvarsQueryPresetsSetVersionStatusEnum": "seqvars.models.SeqvarsQueryPresetsSetVersion.STATUS_CHOICES",
     },
     # Sidecar Settings
     "SWAGGER_UI_DIST": "SIDECAR",
@@ -747,6 +751,9 @@ def set_logging(level):
 
 LOGGING_DEBUG = env.bool("LOGGING_DEBUG", False)
 LOGGING = set_logging("DEBUG" if (DEBUG or LOGGING_DEBUG) else "INFO")
+
+# Propagate exceptions to log.
+DEBUG_PROPAGATE_EXCEPTIONS = DEV
 
 # LDAP configuration
 # ------------------------------------------------------------------------------

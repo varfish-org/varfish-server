@@ -2,6 +2,9 @@
 # strict mode (`-euo pipefail`).
 SHELL := bash -x -euo pipefail
 
+# Bump the memory limit for Node.js to 32 GB.
+NODE_OPTIONS := "--max-old-space-size=32768"
+
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
@@ -60,7 +63,7 @@ ci: \
 
 .PHONY: build
 build:
-	NODE_OPTIONS="--max-old-space-size=32768" MODE=development npm run build
+	MODE=development npm run build
 
 .PHONY: serve
 serve:
@@ -72,10 +75,9 @@ serve-public:
 
 .PHONY: openapi-ts
 openapi-ts:
-	mkdir -p src/varfish/api
-	npx openapi-typescript \
-		../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
-		-o src/varfish/api/varfish.d.ts
+	mkdir -p ext/varfish-api/src
+	rm -rf ext/varfish-api/src/lib
+	npx @hey-api/openapi-ts
 
 .PHONY: openapi
 openapi: openapi-ts format lint

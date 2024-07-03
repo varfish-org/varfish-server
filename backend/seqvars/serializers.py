@@ -7,53 +7,53 @@ from rest_framework import serializers
 
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
-    ClinvarSettingsBase,
-    ColumnConfig,
-    ColumnsSettingsBase,
-    ConsequenceSettingsBase,
     DataSourceInfos,
-    FrequencySettingsBase,
     Gene,
     GenePanel,
     GenomeRegion,
-    GenotypePresets,
-    LocusSettingsBase,
-    PhenotypePrioSettingsBase,
-    PredefinedQuery,
-    Query,
-    QueryColumnsConfig,
-    QueryExecution,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    QuerySettings,
-    QuerySettingsCategoryBase,
-    QuerySettingsClinvar,
-    QuerySettingsConsequence,
-    QuerySettingsFrequency,
-    QuerySettingsGenotype,
-    QuerySettingsLocus,
-    QuerySettingsPhenotypePrio,
-    QuerySettingsQuality,
-    QuerySettingsVariantPrio,
-    ResultRow,
-    ResultRowPayload,
-    ResultSet,
-    SampleGenotypeChoice,
-    SampleQualityFilter,
+    SeqvarsClinvarSettingsBase,
+    SeqvarsColumnConfig,
+    SeqvarsColumnsSettingsBase,
+    SeqvarsConsequenceSettingsBase,
+    SeqvarsFrequencySettingsBase,
+    SeqvarsGenotypePresets,
+    SeqvarsLocusSettingsBase,
+    SeqvarsPhenotypePrioSettingsBase,
+    SeqvarsPredefinedQuery,
+    SeqvarsPrioService,
+    SeqvarsQuery,
+    SeqvarsQueryColumnsConfig,
+    SeqvarsQueryExecution,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsQuerySettings,
+    SeqvarsQuerySettingsCategoryBase,
+    SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsConsequence,
+    SeqvarsQuerySettingsFrequency,
+    SeqvarsQuerySettingsGenotype,
+    SeqvarsQuerySettingsLocus,
+    SeqvarsQuerySettingsPhenotypePrio,
+    SeqvarsQuerySettingsQuality,
+    SeqvarsQuerySettingsVariantPrio,
+    SeqvarsResultRow,
+    SeqvarsResultRowPayload,
+    SeqvarsResultSet,
+    SeqvarsSampleGenotypeChoice,
+    SeqvarsSampleQualityFilter,
+    SeqvarsTranscriptTypeChoice,
+    SeqvarsVariantConsequenceChoice,
+    SeqvarsVariantPrioSettingsBase,
+    SeqvarsVariantTypeChoice,
     TermPresence,
-    TranscriptTypeChoice,
-    VariantConsequenceChoice,
-    VariantPrioService,
-    VariantPrioSettingsBase,
-    VariantTypeChoice,
 )
 
 
@@ -101,7 +101,7 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     inhouse_hemizygous = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
-        model = FrequencySettingsBase
+        model = SeqvarsFrequencySettingsBase
         fields = [
             "gnomad_exomes_enabled",
             "gnomad_exomes_frequency",
@@ -131,13 +131,13 @@ class ConsequenceSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    variant_types = SchemaField(schema=list[VariantTypeChoice], default=list)
-    transcript_types = SchemaField(schema=list[TranscriptTypeChoice], default=list)
-    variant_consequences = SchemaField(schema=list[VariantConsequenceChoice], default=list)
+    variant_types = SchemaField(schema=list[SeqvarsVariantTypeChoice], default=list)
+    transcript_types = SchemaField(schema=list[SeqvarsTranscriptTypeChoice], default=list)
+    variant_consequences = SchemaField(schema=list[SeqvarsVariantConsequenceChoice], default=list)
     max_distance_to_exon = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
-        model = ConsequenceSettingsBase
+        model = SeqvarsConsequenceSettingsBase
         fields = [
             "variant_types",
             "transcript_types",
@@ -157,7 +157,7 @@ class LocusSettingsBaseSerializer(serializers.ModelSerializer):
     genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
 
     class Meta:
-        model = LocusSettingsBase
+        model = SeqvarsLocusSettingsBase
         fields = [
             "genes",
             "gene_panels",
@@ -178,7 +178,7 @@ class PhenotypePrioSettingsBaseSerializer(serializers.ModelSerializer):
     terms = SchemaField(schema=list[TermPresence], default=list)
 
     class Meta:
-        model = PhenotypePrioSettingsBase
+        model = SeqvarsPhenotypePrioSettingsBase
         fields = [
             "phenotype_prio_enabled",
             "phenotype_prio_algorithm",
@@ -193,10 +193,10 @@ class VariantPrioSettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     variant_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
-    services = SchemaField(schema=list[VariantPrioService], default=list)
+    services = SchemaField(schema=list[SeqvarsPrioService], default=list)
 
     class Meta:
-        model = VariantPrioSettingsBase
+        model = SeqvarsVariantPrioSettingsBase
         fields = [
             "variant_prio_enabled",
             "services",
@@ -216,7 +216,7 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
     allow_conflicting_interpretations = serializers.BooleanField(default=False, allow_null=False)
 
     class Meta:
-        model = ClinvarSettingsBase
+        model = SeqvarsClinvarSettingsBase
         fields = [
             "clinvar_presence_required",
             "clinvar_germline_aggregate_description",
@@ -230,10 +230,10 @@ class ColumnsSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    column_settings = SchemaField(schema=list[ColumnConfig], default=list)
+    column_settings = SchemaField(schema=list[SeqvarsColumnConfig], default=list)
 
     class Meta:
-        model = ColumnsSettingsBase
+        model = SeqvarsColumnsSettingsBase
         fields = [
             "column_settings",
         ]
@@ -298,7 +298,7 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
         read_only_fields = fields
 
 
-class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
+class SeqvarsQueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     """Serializer for ``QueryPresetsQuality``.
 
     Not used directly but used as base class.
@@ -320,7 +320,7 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
     max_ad = serializers.IntegerField(allow_null=True, required=False)
 
     class Meta:
-        model = QueryPresetsQuality
+        model = SeqvarsQueryPresetsQuality
         fields = QueryPresetsBaseSerializer.Meta.fields + [
             "filter_active",
             "min_dp_het",
@@ -333,21 +333,23 @@ class QueryPresetsQualitySerializer(QueryPresetsBaseSerializer):
         read_only_fields = fields
 
 
-class QueryPresetsFrequencySerializer(FrequencySettingsBaseSerializer, QueryPresetsBaseSerializer):
+class SeqvarsQueryPresetsFrequencySerializer(
+    FrequencySettingsBaseSerializer, QueryPresetsBaseSerializer
+):
     """Serializer for ``QueryPresetsFrequency``.
 
     Not used directly but used as base class.
     """
 
     class Meta:
-        model = QueryPresetsFrequency
+        model = SeqvarsQueryPresetsFrequency
         fields = (
             FrequencySettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QueryPresetsConsequenceSerializer(
+class SeqvarsQueryPresetsConsequenceSerializer(
     ConsequenceSettingsBaseSerializer, QueryPresetsBaseSerializer
 ):
     """Serializer for ``QueryPresetsConsequence``.
@@ -356,26 +358,26 @@ class QueryPresetsConsequenceSerializer(
     """
 
     class Meta:
-        model = QueryPresetsConsequence
+        model = SeqvarsQueryPresetsConsequence
         fields = (
             ConsequenceSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QueryPresetsLocusSerializer(LocusSettingsBaseSerializer, QueryPresetsBaseSerializer):
+class SeqvarsQueryPresetsLocusSerializer(LocusSettingsBaseSerializer, QueryPresetsBaseSerializer):
     """Serializer for ``QueryPresetsLocus``.
 
     Not used directly but used as base class.
     """
 
     class Meta:
-        model = QueryPresetsLocus
+        model = SeqvarsQueryPresetsLocus
         fields = LocusSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
-class QueryPresetsPhenotypePrioSerializer(
+class SeqvarsQueryPresetsPhenotypePrioSerializer(
     PhenotypePrioSettingsBaseSerializer, QueryPresetsBaseSerializer
 ):
     """Serializer for ``QueryPresetsPhenotypePrio``.
@@ -384,14 +386,14 @@ class QueryPresetsPhenotypePrioSerializer(
     """
 
     class Meta:
-        model = QueryPresetsPhenotypePrio
+        model = SeqvarsQueryPresetsPhenotypePrio
         fields = (
             PhenotypePrioSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QueryPresetsVariantPrioSerializer(
+class SeqvarsQueryPresetsVariantPrioSerializer(
     VariantPrioSettingsBaseSerializer, QueryPresetsBaseSerializer
 ):
     """Serializer for ``QueryPresetsVariantPrio``.
@@ -400,96 +402,102 @@ class QueryPresetsVariantPrioSerializer(
     """
 
     class Meta:
-        model = QueryPresetsVariantPrio
+        model = SeqvarsQueryPresetsVariantPrio
         fields = (
             VariantPrioSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QueryPresetsClinvarSerializer(ClinvarSettingsBaseSerializer, QueryPresetsBaseSerializer):
+class SeqvarsQueryPresetsClinvarSerializer(
+    ClinvarSettingsBaseSerializer, QueryPresetsBaseSerializer
+):
     """Serializer for ``QueryPresetsClinvar``.
 
     Not used directly but used as base class.
     """
 
     class Meta:
-        model = QueryPresetsClinvar
+        model = SeqvarsQueryPresetsClinvar
         fields = ClinvarSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
-class QueryPresetsColumnsSerializer(ColumnsSettingsBaseSerializer, QueryPresetsBaseSerializer):
+class SeqvarsQueryPresetsColumnsSerializer(
+    ColumnsSettingsBaseSerializer, QueryPresetsBaseSerializer
+):
     """Serializer for ``QueryPresetsColumns``.
 
     Not used directly but used as base class.
     """
 
     class Meta:
-        model = QueryPresetsColumns
+        model = SeqvarsQueryPresetsColumns
         fields = ColumnsSettingsBaseSerializer.Meta.fields + QueryPresetsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
-class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
+class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
     """Serializer for ``PredefinedQuery``."""
 
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
-    genotype = SchemaField(schema=Optional[GenotypePresets], default=GenotypePresets())
+    genotype = SchemaField(
+        schema=Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets()
+    )
 
     quality = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsQuality.objects.all(),
+        queryset=SeqvarsQueryPresetsQuality.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     frequency = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsFrequency.objects.all(),
+        queryset=SeqvarsQueryPresetsFrequency.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     consequence = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsConsequence.objects.all(),
+        queryset=SeqvarsQueryPresetsConsequence.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     locus = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsLocus.objects.all(),
+        queryset=SeqvarsQueryPresetsLocus.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     phenotypeprio = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsPhenotypePrio.objects.all(),
+        queryset=SeqvarsQueryPresetsPhenotypePrio.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     variantprio = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsVariantPrio.objects.all(),
+        queryset=SeqvarsQueryPresetsVariantPrio.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     clinvar = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsClinvar.objects.all(),
+        queryset=SeqvarsQueryPresetsClinvar.objects.all(),
         required=False,
         allow_null=True,
         default=None,
     )
     columns = serializers.SlugRelatedField(
         slug_field="sodar_uuid",
-        queryset=QueryPresetsColumns.objects.all(),
+        queryset=SeqvarsQueryPresetsColumns.objects.all(),
         required=False,
         allow_null=True,
         default=None,
@@ -519,7 +527,7 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
         return result
 
     class Meta:
-        model = PredefinedQuery
+        model = SeqvarsPredefinedQuery
         fields = QueryPresetsBaseSerializer.Meta.fields + [
             "included_in_sop",
             "genotype",
@@ -535,7 +543,7 @@ class PredefinedQuerySerializer(QueryPresetsBaseSerializer):
         read_only_fields = QueryPresetsBaseSerializer.Meta.read_only_fields
 
 
-class QueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
+class SeqvarsQueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
     """Serializer for ``QueryPresetsSet``."""
 
     #: Serialize ``project`` as its ``sodar_uuid``.
@@ -548,14 +556,14 @@ class QueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
         return attrs
 
     class Meta:
-        model = QueryPresetsSet
+        model = SeqvarsQueryPresetsSet
         fields = LabeledSortableBaseModelSerializer.Meta.fields + [
             "project",
         ]
         read_only_fields = fields
 
 
-class QueryPresetsSetVersionSerializer(BaseModelSerializer):
+class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
     """Serializer for ``QueryPresetsSetVersion``."""
 
     #: Serialize ``presetsset`` as its ``sodar_uuid``.
@@ -572,7 +580,7 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
         default=0,
     )
     status = serializers.CharField(
-        required=False, allow_null=False, default=QueryPresetsSetVersion.STATUS_DRAFT
+        required=False, allow_null=False, default=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
     )
     signed_off_by = SODARUserSerializer(read_only=True)
 
@@ -585,7 +593,7 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
         return attrs
 
     class Meta:
-        model = QueryPresetsSetVersion
+        model = SeqvarsQueryPresetsSetVersion
         fields = BaseModelSerializer.Meta.fields + [
             "presetsset",
             "version_major",
@@ -596,7 +604,7 @@ class QueryPresetsSetVersionSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
+class SeqvarsQueryPresetsSetVersionDetailsSerializer(SeqvarsQueryPresetsSetVersionSerializer):
     """Serializer for ``QueryPresetsSetVersion`` (for ``*-detail``).
 
     When retrieving the details of a seqvar query preset set version, we also render the
@@ -604,58 +612,66 @@ class QueryPresetsSetVersionDetailsSerializer(QueryPresetsSetVersionSerializer):
     """
 
     #: Serialize ``presetsset`` in full.
-    presetsset = QueryPresetsSetSerializer(read_only=True)
+    presetsset = SeqvarsQueryPresetsSetSerializer(read_only=True)
 
     #: Serialize all quality presets.
-    querypresetsquality_set = QueryPresetsQualitySerializer(many=True, read_only=True)
+    seqvarsquerypresetsquality_set = SeqvarsQueryPresetsQualitySerializer(many=True, read_only=True)
     #: Serialize all frequency presets.
-    querypresetsfrequency_set = QueryPresetsFrequencySerializer(many=True, read_only=True)
+    seqvarsquerypresetsfrequency_set = SeqvarsQueryPresetsFrequencySerializer(
+        many=True, read_only=True
+    )
     #: Serialize all consequence presets.
-    querypresetsconsequence_set = QueryPresetsConsequenceSerializer(many=True, read_only=True)
+    seqvarsquerypresetsconsequence_set = SeqvarsQueryPresetsConsequenceSerializer(
+        many=True, read_only=True
+    )
     #: Serialize all locus presets.
-    querypresetslocus_set = QueryPresetsLocusSerializer(many=True, read_only=True)
+    seqvarsquerypresetslocus_set = SeqvarsQueryPresetsLocusSerializer(many=True, read_only=True)
     #: Serialize all phenotype prio presets.
-    querypresetsphenotypeprio_set = QueryPresetsPhenotypePrioSerializer(many=True, read_only=True)
+    seqvarsquerypresetsphenotypeprio_set = SeqvarsQueryPresetsPhenotypePrioSerializer(
+        many=True, read_only=True
+    )
     #: Serialize all variant prio presets.
-    querypresetsvariantprio_set = QueryPresetsVariantPrioSerializer(many=True, read_only=True)
+    seqvarsquerypresetsvariantprio_set = SeqvarsQueryPresetsVariantPrioSerializer(
+        many=True, read_only=True
+    )
     #: Serialize all clinvar presets.
-    querypresetsclinvar_set = QueryPresetsClinvarSerializer(many=True, read_only=True)
+    seqvarsquerypresetsclinvar_set = SeqvarsQueryPresetsClinvarSerializer(many=True, read_only=True)
     #: Serialize all columns presets.
-    querypresetscolumns_set = QueryPresetsColumnsSerializer(many=True, read_only=True)
+    seqvarsquerypresetscolumns_set = SeqvarsQueryPresetsColumnsSerializer(many=True, read_only=True)
     #: Serialize all predefined queries.
-    predefinedquery_set = PredefinedQuerySerializer(many=True, read_only=True)
+    seqvarspredefinedquery_set = SeqvarsPredefinedQuerySerializer(many=True, read_only=True)
 
     class Meta:
-        model = QueryPresetsSetVersionSerializer.Meta.model
-        fields = QueryPresetsSetVersionSerializer.Meta.fields + [
-            "querypresetsquality_set",
-            "querypresetsfrequency_set",
-            "querypresetsconsequence_set",
-            "querypresetslocus_set",
-            "querypresetsphenotypeprio_set",
-            "querypresetsvariantprio_set",
-            "querypresetsclinvar_set",
-            "querypresetscolumns_set",
-            "predefinedquery_set",
+        model = SeqvarsQueryPresetsSetVersionSerializer.Meta.model
+        fields = SeqvarsQueryPresetsSetVersionSerializer.Meta.fields + [
+            "seqvarsquerypresetsquality_set",
+            "seqvarsquerypresetsfrequency_set",
+            "seqvarsquerypresetsconsequence_set",
+            "seqvarsquerypresetslocus_set",
+            "seqvarsquerypresetsphenotypeprio_set",
+            "seqvarsquerypresetsvariantprio_set",
+            "seqvarsquerypresetsclinvar_set",
+            "seqvarsquerypresetscolumns_set",
+            "seqvarspredefinedquery_set",
         ]
         read_only_fields = fields
 
 
-class QueryPresetsSetDetailsSerializer(QueryPresetsSetSerializer):
+class SeqvarsQueryPresetsSetDetailsSerializer(SeqvarsQueryPresetsSetSerializer):
     """Serializer for ``QueryPresetsSet`` that renders all nested versions."""
 
     #: Serialize all versions of the presets set.
-    versions = QueryPresetsSetVersionDetailsSerializer(many=True, read_only=True)
+    versions = SeqvarsQueryPresetsSetVersionDetailsSerializer(many=True, read_only=True)
 
     class Meta:
-        model = QueryPresetsSet
-        fields = QueryPresetsSetSerializer.Meta.fields + [
+        model = SeqvarsQueryPresetsSet
+        fields = SeqvarsQueryPresetsSetSerializer.Meta.fields + [
             "versions",
         ]
         read_only_fields = fields
 
 
-class QuerySettingsBaseSerializer(BaseModelSerializer):
+class SeqvarsQuerySettingsBaseSerializer(BaseModelSerializer):
     """Serializer for ``QuerySettings``."""
 
     #: Serialize ``querysettings`` as its ``sodar_uuid``.
@@ -668,105 +684,117 @@ class QuerySettingsBaseSerializer(BaseModelSerializer):
         return attrs
 
     class Meta:
-        model = QuerySettingsCategoryBase
+        model = SeqvarsQuerySettingsCategoryBase
         fields = BaseModelSerializer.Meta.fields + ["querysettings"]
         read_only_fields = fields
 
 
-class QuerySettingsGenotypeSerializer(QuerySettingsBaseSerializer):
+class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsGenotype``."""
 
-    sample_genotype_choices = SchemaField(schema=list[SampleGenotypeChoice], default=list)
+    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
 
     class Meta:
-        model = QuerySettingsGenotype
-        fields = QuerySettingsBaseSerializer.Meta.fields + ["sample_genotype_choices"]
+        model = SeqvarsQuerySettingsGenotype
+        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + ["sample_genotype_choices"]
         read_only_fields = fields
 
 
-class QuerySettingsQualitySerializer(QuerySettingsBaseSerializer):
+class SeqvarsQuerySettingsQualitySerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsQuality``."""
 
-    sample_quality_filters = SchemaField(schema=list[SampleQualityFilter], default=list)
+    sample_quality_filters = SchemaField(schema=list[SeqvarsSampleQualityFilter], default=list)
 
     class Meta:
-        model = QuerySettingsQuality
-        fields = QuerySettingsBaseSerializer.Meta.fields + ["sample_quality_filters"]
+        model = SeqvarsQuerySettingsQuality
+        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + ["sample_quality_filters"]
         read_only_fields = fields
 
 
-class QuerySettingsConsequenceSerializer(
-    ConsequenceSettingsBaseSerializer, QuerySettingsBaseSerializer
+class SeqvarsQuerySettingsConsequenceSerializer(
+    ConsequenceSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
 ):
     """Serializer for ``QuerySettingsConsequence``."""
 
     class Meta:
-        model = QuerySettingsConsequence
+        model = SeqvarsQuerySettingsConsequence
         fields = (
-            ConsequenceSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+            ConsequenceSettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QuerySettingsLocusSerializer(LocusSettingsBaseSerializer, QuerySettingsBaseSerializer):
+class SeqvarsQuerySettingsLocusSerializer(
+    LocusSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
+):
     """Serializer for ``QuerySettingsLocus``."""
 
     class Meta:
-        model = QuerySettingsLocus
-        fields = LocusSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+        model = SeqvarsQuerySettingsLocus
+        fields = (
+            LocusSettingsBaseSerializer.Meta.fields + SeqvarsQuerySettingsBaseSerializer.Meta.fields
+        )
         read_only_fields = fields
 
 
-class QuerySettingsFrequencySerializer(
-    FrequencySettingsBaseSerializer, QuerySettingsBaseSerializer
+class SeqvarsQuerySettingsFrequencySerializer(
+    FrequencySettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
 ):
     """Serializer for ``QuerySettingsFrequency``."""
 
     class Meta:
-        model = QuerySettingsFrequency
+        model = SeqvarsQuerySettingsFrequency
         fields = (
-            FrequencySettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+            FrequencySettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QuerySettingsPhenotypePrioSerializer(
-    PhenotypePrioSettingsBaseSerializer, QuerySettingsBaseSerializer
+class SeqvarsQuerySettingsPhenotypePrioSerializer(
+    PhenotypePrioSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
 ):
     """Serializer for ``QuerySettingsPhenotypePrio``."""
 
     class Meta:
-        model = QuerySettingsPhenotypePrio
+        model = SeqvarsQuerySettingsPhenotypePrio
         fields = (
             PhenotypePrioSettingsBaseSerializer.Meta.fields
-            + QuerySettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QuerySettingsVariantPrioSerializer(
-    VariantPrioSettingsBaseSerializer, QuerySettingsBaseSerializer
+class SeqvarsQuerySettingsVariantPrioSerializer(
+    VariantPrioSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
 ):
     """Serializer for ``QuerySettingsVariantPrio``."""
 
     class Meta:
-        model = QuerySettingsVariantPrio
+        model = SeqvarsQuerySettingsVariantPrio
         fields = (
-            VariantPrioSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+            VariantPrioSettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
         )
         read_only_fields = fields
 
 
-class QuerySettingsClinvarSerializer(ClinvarSettingsBaseSerializer, QuerySettingsBaseSerializer):
+class SeqvarsQuerySettingsClinvarSerializer(
+    ClinvarSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
+):
     """Serializer for ``QuerySettingsClinvar``."""
 
     class Meta:
-        model = QuerySettingsClinvar
-        fields = ClinvarSettingsBaseSerializer.Meta.fields + QuerySettingsBaseSerializer.Meta.fields
+        model = SeqvarsQuerySettingsClinvar
+        fields = (
+            ClinvarSettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
+        )
         read_only_fields = fields
 
 
-class QuerySettingsSerializer(BaseModelSerializer):
+class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     """Serializer for ``QuerySettings``."""
 
     #: Serialize ``session`` as its ``sodar_uuid``.
@@ -799,7 +827,7 @@ class QuerySettingsSerializer(BaseModelSerializer):
         return attrs
 
     class Meta:
-        model = QuerySettings
+        model = SeqvarsQuerySettings
         fields = BaseModelSerializer.Meta.fields + [
             "session",
             "presetssetversion",
@@ -815,7 +843,9 @@ class QuerySettingsSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedModelSerializer):
+class SeqvarsQuerySettingsDetailsSerializer(
+    SeqvarsQuerySettingsSerializer, WritableNestedModelSerializer
+):
     """Serializer for ``QuerySettings`` (for ``*-detail``).
 
     For retrieve, update, or delete operations, we also render the nested
@@ -823,25 +853,25 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
     """
 
     #: Nested serialization of the genotype settings.
-    genotype = QuerySettingsGenotypeSerializer()
+    genotype = SeqvarsQuerySettingsGenotypeSerializer()
     #: Nested serialization of the quality settings.
-    quality = QuerySettingsQualitySerializer()
+    quality = SeqvarsQuerySettingsQualitySerializer()
     #: Nested serialization of the consequence settings.
-    consequence = QuerySettingsConsequenceSerializer()
+    consequence = SeqvarsQuerySettingsConsequenceSerializer()
     #: Nested serialization of the locus settings.
-    locus = QuerySettingsLocusSerializer()
+    locus = SeqvarsQuerySettingsLocusSerializer()
     #: Nested serialization of the frequency settings.
-    frequency = QuerySettingsFrequencySerializer()
+    frequency = SeqvarsQuerySettingsFrequencySerializer()
     #: Nested serialization of the phenotype prio settings.
-    phenotypeprio = QuerySettingsPhenotypePrioSerializer()
+    phenotypeprio = SeqvarsQuerySettingsPhenotypePrioSerializer()
     #: Nested serialization of the variant prio settings.
-    variantprio = QuerySettingsVariantPrioSerializer()
+    variantprio = SeqvarsQuerySettingsVariantPrioSerializer()
     #: Nested serialization of the clinvar settings.
-    clinvar = QuerySettingsClinvarSerializer()
+    clinvar = SeqvarsQuerySettingsClinvarSerializer()
 
     class Meta:
-        model = QuerySettingsSerializer.Meta.model
-        fields = QuerySettingsSerializer.Meta.fields + [
+        model = SeqvarsQuerySettingsSerializer.Meta.model
+        fields = SeqvarsQuerySettingsSerializer.Meta.fields + [
             "genotype",
             "quality",
             "consequence",
@@ -854,7 +884,7 @@ class QuerySettingsDetailsSerializer(QuerySettingsSerializer, WritableNestedMode
         read_only_fields = fields
 
 
-class QueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseModelSerializer):
+class SeqvarsQueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseModelSerializer):
     """Serializer for ``QueryColumnsConfig``."""
 
     def validate(self, attrs):
@@ -864,12 +894,12 @@ class QueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseModelSeria
         return attrs
 
     class Meta:
-        model = QueryColumnsConfig
+        model = SeqvarsQueryColumnsConfig
         fields = BaseModelSerializer.Meta.fields + ColumnsSettingsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
-class QuerySerializer(BaseModelSerializer):
+class SeqvarsQuerySerializer(BaseModelSerializer):
     """Serializer for ``Query``."""
 
     rank = serializers.IntegerField(default=1, initial=1)
@@ -889,7 +919,7 @@ class QuerySerializer(BaseModelSerializer):
         return attrs
 
     class Meta:
-        model = Query
+        model = SeqvarsQuery
         fields = BaseModelSerializer.Meta.fields + [
             "rank",
             "label",
@@ -900,7 +930,7 @@ class QuerySerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class QueryDetailsSerializer(QuerySerializer, WritableNestedModelSerializer):
+class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, WritableNestedModelSerializer):
     """Serializer for ``Query`` (for ``*-detail``).
 
     For retrieve, update, or delete operations, we also render the nested query settings
@@ -908,17 +938,17 @@ class QueryDetailsSerializer(QuerySerializer, WritableNestedModelSerializer):
     """
 
     #: For the details serializer, we use a nested details serializer.
-    settings = QuerySettingsDetailsSerializer()
+    settings = SeqvarsQuerySettingsDetailsSerializer()
     #: Render the columns configuration here.
-    columnsconfig = QueryColumnsConfigSerializer()
+    columnsconfig = SeqvarsQueryColumnsConfigSerializer()
 
     class Meta:
-        model = Query
-        fields = QuerySerializer.Meta.fields
+        model = SeqvarsQuery
+        fields = SeqvarsQuerySerializer.Meta.fields
         read_only_fields = fields
 
 
-class QueryExecutionSerializer(BaseModelSerializer):
+class SeqvarsQueryExecutionSerializer(BaseModelSerializer):
     """Serializer for ``QueryExecution``."""
 
     #: Serialize ``query`` as its ``sodar_uuid``.
@@ -927,7 +957,7 @@ class QueryExecutionSerializer(BaseModelSerializer):
     querysettings = serializers.ReadOnlyField(source="querysettings.sodar_uuid")
 
     class Meta:
-        model = QueryExecution
+        model = SeqvarsQueryExecution
         fields = BaseModelSerializer.Meta.fields + [
             "state",
             "complete_percent",
@@ -940,19 +970,19 @@ class QueryExecutionSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class QueryExecutionDetailsSerializer(QueryExecutionSerializer):
+class SeqvarsQueryExecutionDetailsSerializer(SeqvarsQueryExecutionSerializer):
     """Serializer for ``QueryExecution``."""
 
     #: For the details, serialize ``querysettings`` fully.
-    querysettings = QuerySettingsDetailsSerializer()
+    querysettings = SeqvarsQuerySettingsDetailsSerializer()
 
     class Meta:
-        model = QueryExecution
-        fields = QueryExecutionSerializer.Meta.fields
+        model = SeqvarsQueryExecution
+        fields = SeqvarsQueryExecutionSerializer.Meta.fields
         read_only_fields = fields
 
 
-class ResultSetSerializer(BaseModelSerializer):
+class SeqvarsResultSetSerializer(BaseModelSerializer):
     """Serializer for ``ResultSet``."""
 
     #: Explicitely provide django-pydantic-field schema for ``datasource_infos``.
@@ -961,7 +991,7 @@ class ResultSetSerializer(BaseModelSerializer):
     queryexecution = serializers.ReadOnlyField(source="queryexecution.sodar_uuid")
 
     class Meta:
-        model = ResultSet
+        model = SeqvarsResultSet
         fields = BaseModelSerializer.Meta.fields + [
             "queryexecution",
             "datasource_infos",
@@ -969,16 +999,16 @@ class ResultSetSerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class ResultRowSerializer(serializers.ModelSerializer):
+class SeqvarsResultRowSerializer(serializers.ModelSerializer):
     """Serializer for ``ResultRow``."""
 
     #: Serialize ``resultset`` as its ``sodar_uuid``.
     resultset = serializers.ReadOnlyField(source="resultset.sodar_uuid")
     #: Explicitely provide django-pydantic-field schema for ``payload``.
-    payload = SchemaField(schema=ResultRowPayload)
+    payload = SchemaField(schema=SeqvarsResultRowPayload)
 
     class Meta:
-        model = ResultRow
+        model = SeqvarsResultRow
         fields = [
             "sodar_uuid",
             "resultset",

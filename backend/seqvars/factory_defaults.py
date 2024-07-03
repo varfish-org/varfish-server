@@ -12,24 +12,24 @@ from faker import Faker
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
     GenomeRegion,
-    GenotypePresetChoice,
-    GenotypePresets,
     LabeledSortableBaseModel,
-    PredefinedQuery,
-    QueryPresetsClinvar,
-    QueryPresetsColumns,
-    QueryPresetsConsequence,
-    QueryPresetsFrequency,
-    QueryPresetsLocus,
-    QueryPresetsPhenotypePrio,
-    QueryPresetsQuality,
-    QueryPresetsSet,
-    QueryPresetsSetVersion,
-    QueryPresetsVariantPrio,
-    TranscriptTypeChoice,
-    VariantConsequenceChoice,
-    VariantPrioService,
-    VariantTypeChoice,
+    SeqvarsGenotypePresetChoice,
+    SeqvarsGenotypePresets,
+    SeqvarsPredefinedQuery,
+    SeqvarsPrioService,
+    SeqvarsQueryPresetsClinvar,
+    SeqvarsQueryPresetsColumns,
+    SeqvarsQueryPresetsConsequence,
+    SeqvarsQueryPresetsFrequency,
+    SeqvarsQueryPresetsLocus,
+    SeqvarsQueryPresetsPhenotypePrio,
+    SeqvarsQueryPresetsQuality,
+    SeqvarsQueryPresetsSet,
+    SeqvarsQueryPresetsSetVersion,
+    SeqvarsQueryPresetsVariantPrio,
+    SeqvarsTranscriptTypeChoice,
+    SeqvarsVariantConsequenceChoice,
+    SeqvarsVariantTypeChoice,
 )
 
 #: DateTime for version 1.0 of the factory defaults.
@@ -38,9 +38,9 @@ TIME_VERSION_1_0 = parse_datetime("2024-07-01T00:00:00Z")
 FAKER_SEED = 42
 
 
-def create_querypresetsquality_short_read(faker: Faker) -> list[QueryPresetsQuality]:
+def create_seqvarsquerypresetsquality_short_read(faker: Faker) -> list[SeqvarsQueryPresetsQuality]:
     return [
-        QueryPresetsQuality(
+        SeqvarsQueryPresetsQuality(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -53,7 +53,7 @@ def create_querypresetsquality_short_read(faker: Faker) -> list[QueryPresetsQual
             min_gq=30,
             min_ad=3,
         ),
-        QueryPresetsQuality(
+        SeqvarsQueryPresetsQuality(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -66,7 +66,7 @@ def create_querypresetsquality_short_read(faker: Faker) -> list[QueryPresetsQual
             min_gq=10,
             min_ad=3,
         ),
-        QueryPresetsQuality(
+        SeqvarsQueryPresetsQuality(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -79,7 +79,7 @@ def create_querypresetsquality_short_read(faker: Faker) -> list[QueryPresetsQual
             min_gq=10,
             min_ad=2,
         ),
-        QueryPresetsQuality(
+        SeqvarsQueryPresetsQuality(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -90,86 +90,86 @@ def create_querypresetsquality_short_read(faker: Faker) -> list[QueryPresetsQual
     ]
 
 
-def create_querypresetsconsequence(faker: Faker) -> list[QueryPresetsConsequence]:
+def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPresetsConsequence]:
     return [
-        QueryPresetsConsequence(
+        SeqvarsQueryPresetsConsequence(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="any",
             variant_types=[
-                VariantTypeChoice.SNV,
-                VariantTypeChoice.INDEL,
-                VariantTypeChoice.MNV,
-                VariantTypeChoice.COMPLEX_SUBSTITUTION,
+                SeqvarsVariantTypeChoice.SNV,
+                SeqvarsVariantTypeChoice.INDEL,
+                SeqvarsVariantTypeChoice.MNV,
+                SeqvarsVariantTypeChoice.COMPLEX_SUBSTITUTION,
             ],
             transcript_types=[
-                TranscriptTypeChoice.CODING,
-                TranscriptTypeChoice.NON_CODING,
+                SeqvarsTranscriptTypeChoice.CODING,
+                SeqvarsTranscriptTypeChoice.NON_CODING,
             ],
             variant_consequences=[
                 # high impact
-                VariantConsequenceChoice.FRAMESHIFT_VARIANT,
-                VariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
-                VariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
-                VariantConsequenceChoice.SPLICE_DONOR_VARIANT,
-                VariantConsequenceChoice.START_LOST,
-                VariantConsequenceChoice.STOP_GAINED,
-                VariantConsequenceChoice.STOP_LOST,
+                SeqvarsVariantConsequenceChoice.FRAMESHIFT_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_DONOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_LOST,
+                SeqvarsVariantConsequenceChoice.STOP_GAINED,
+                SeqvarsVariantConsequenceChoice.STOP_LOST,
                 # moderate impact
-                VariantConsequenceChoice.THREE_PRIME_UTR_TRUNCATION,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_TRUNCATION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.MISSENSE_VARIANT,
-                VariantConsequenceChoice.SPLICE_REGION_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_TRUNCATION,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_TRUNCATION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_REGION_VARIANT,
                 # low impact
-                VariantConsequenceChoice.INITIATOR_CODON_VARIANT,
-                VariantConsequenceChoice.START_RETAINED,
-                VariantConsequenceChoice.STOP_RETAINED_VARIANT,
-                VariantConsequenceChoice.SYNONYMOUS_VARIANT,
+                SeqvarsVariantConsequenceChoice.INITIATOR_CODON_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_RETAINED,
+                SeqvarsVariantConsequenceChoice.STOP_RETAINED_VARIANT,
+                SeqvarsVariantConsequenceChoice.SYNONYMOUS_VARIANT,
                 # modifiers
-                VariantConsequenceChoice.DOWNSTREAM_GENE_VARIANT,
-                VariantConsequenceChoice.INTRON_VARIANT,
-                VariantConsequenceChoice.NON_CODING_TRANSCRIPT_EXON_VARIANT,
-                VariantConsequenceChoice.NON_CODING_TRANSCRIPT_INTRON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT,
-                VariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
-                VariantConsequenceChoice.UPSTREAM_GENE_VARIANT,
-                VariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_EXON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_EXON_VARIANT,
-                VariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_INTRON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.DOWNSTREAM_GENE_VARIANT,
+                SeqvarsVariantConsequenceChoice.INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.NON_CODING_TRANSCRIPT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.NON_CODING_TRANSCRIPT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT,
+                SeqvarsVariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
+                SeqvarsVariantConsequenceChoice.UPSTREAM_GENE_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT,
             ],
             max_distance_to_exon=None,
         ),
-        QueryPresetsConsequence(
+        SeqvarsQueryPresetsConsequence(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=2,
             label="null variant",
             variant_types=[
-                VariantTypeChoice.SNV,
-                VariantTypeChoice.INDEL,
-                VariantTypeChoice.MNV,
-                VariantTypeChoice.COMPLEX_SUBSTITUTION,
+                SeqvarsVariantTypeChoice.SNV,
+                SeqvarsVariantTypeChoice.INDEL,
+                SeqvarsVariantTypeChoice.MNV,
+                SeqvarsVariantTypeChoice.COMPLEX_SUBSTITUTION,
             ],
             transcript_types=[
-                TranscriptTypeChoice.CODING,
+                SeqvarsTranscriptTypeChoice.CODING,
             ],
             variant_consequences=[
                 # high impact
-                VariantConsequenceChoice.FRAMESHIFT_VARIANT,
-                VariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
-                VariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
-                VariantConsequenceChoice.SPLICE_DONOR_VARIANT,
-                VariantConsequenceChoice.START_LOST,
-                VariantConsequenceChoice.STOP_GAINED,
-                VariantConsequenceChoice.STOP_LOST,
+                SeqvarsVariantConsequenceChoice.FRAMESHIFT_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_DONOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_LOST,
+                SeqvarsVariantConsequenceChoice.STOP_GAINED,
+                SeqvarsVariantConsequenceChoice.STOP_LOST,
                 # # moderate impact
                 # VariantConsequenceChoice.THREE_PRIME_UTR_TRUNCATION,
                 # VariantConsequenceChoice.FIVE_PRIME_UTR_TRUNCATION,
@@ -199,37 +199,37 @@ def create_querypresetsconsequence(faker: Faker) -> list[QueryPresetsConsequence
             ],
             max_distance_to_exon=None,
         ),
-        QueryPresetsConsequence(
+        SeqvarsQueryPresetsConsequence(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=3,
             label="AA change + splicing",
             variant_types=[
-                VariantTypeChoice.SNV,
-                VariantTypeChoice.INDEL,
-                VariantTypeChoice.MNV,
-                VariantTypeChoice.COMPLEX_SUBSTITUTION,
+                SeqvarsVariantTypeChoice.SNV,
+                SeqvarsVariantTypeChoice.INDEL,
+                SeqvarsVariantTypeChoice.MNV,
+                SeqvarsVariantTypeChoice.COMPLEX_SUBSTITUTION,
             ],
             transcript_types=[
-                TranscriptTypeChoice.CODING,
+                SeqvarsTranscriptTypeChoice.CODING,
             ],
             variant_consequences=[
                 # high impact
-                VariantConsequenceChoice.FRAMESHIFT_VARIANT,
-                VariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
-                VariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
-                VariantConsequenceChoice.SPLICE_DONOR_VARIANT,
-                VariantConsequenceChoice.START_LOST,
-                VariantConsequenceChoice.STOP_GAINED,
-                VariantConsequenceChoice.STOP_LOST,
+                SeqvarsVariantConsequenceChoice.FRAMESHIFT_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_DONOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_LOST,
+                SeqvarsVariantConsequenceChoice.STOP_GAINED,
+                SeqvarsVariantConsequenceChoice.STOP_LOST,
                 # moderate impact
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.MISSENSE_VARIANT,
-                VariantConsequenceChoice.SPLICE_REGION_VARIANT,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_REGION_VARIANT,
                 # # low impact
                 # VariantConsequenceChoice.INITIATOR_CODON_VARIANT,
                 # VariantConsequenceChoice.START_RETAINED,
@@ -250,50 +250,50 @@ def create_querypresetsconsequence(faker: Faker) -> list[QueryPresetsConsequence
             ],
             max_distance_to_exon=None,
         ),
-        QueryPresetsConsequence(
+        SeqvarsQueryPresetsConsequence(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=4,
             label="all coding + deep intronic",
             variant_types=[
-                VariantTypeChoice.SNV,
-                VariantTypeChoice.INDEL,
-                VariantTypeChoice.MNV,
-                VariantTypeChoice.COMPLEX_SUBSTITUTION,
+                SeqvarsVariantTypeChoice.SNV,
+                SeqvarsVariantTypeChoice.INDEL,
+                SeqvarsVariantTypeChoice.MNV,
+                SeqvarsVariantTypeChoice.COMPLEX_SUBSTITUTION,
             ],
             transcript_types=[
-                TranscriptTypeChoice.CODING,
-                TranscriptTypeChoice.NON_CODING,
+                SeqvarsTranscriptTypeChoice.CODING,
+                SeqvarsTranscriptTypeChoice.NON_CODING,
             ],
             variant_consequences=[
                 # high impact
-                VariantConsequenceChoice.FRAMESHIFT_VARIANT,
-                VariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
-                VariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
-                VariantConsequenceChoice.SPLICE_DONOR_VARIANT,
-                VariantConsequenceChoice.START_LOST,
-                VariantConsequenceChoice.STOP_GAINED,
-                VariantConsequenceChoice.STOP_LOST,
+                SeqvarsVariantConsequenceChoice.FRAMESHIFT_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_DONOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_LOST,
+                SeqvarsVariantConsequenceChoice.STOP_GAINED,
+                SeqvarsVariantConsequenceChoice.STOP_LOST,
                 # moderate impact
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.MISSENSE_VARIANT,
-                VariantConsequenceChoice.SPLICE_REGION_VARIANT,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_REGION_VARIANT,
                 # low impact
-                VariantConsequenceChoice.INITIATOR_CODON_VARIANT,
-                VariantConsequenceChoice.START_RETAINED,
-                VariantConsequenceChoice.STOP_RETAINED_VARIANT,
-                VariantConsequenceChoice.SYNONYMOUS_VARIANT,
+                SeqvarsVariantConsequenceChoice.INITIATOR_CODON_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_RETAINED,
+                SeqvarsVariantConsequenceChoice.STOP_RETAINED_VARIANT,
+                SeqvarsVariantConsequenceChoice.SYNONYMOUS_VARIANT,
                 # modifiers
                 # VariantConsequenceChoice.DOWNSTREAM_GENE_VARIANT,
-                VariantConsequenceChoice.INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.INTRON_VARIANT,
                 # VariantConsequenceChoice.NON_CODING_TRANSCRIPT_EXON_VARIANT,
                 # VariantConsequenceChoice.NON_CODING_TRANSCRIPT_INTRON_VARIANT,
                 # VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT,
-                VariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
+                SeqvarsVariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
                 # VariantConsequenceChoice.UPSTREAM_GENE_VARIANT,
                 # VariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_EXON_VARIANT,
                 # VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_EXON_VARIANT,
@@ -302,73 +302,73 @@ def create_querypresetsconsequence(faker: Faker) -> list[QueryPresetsConsequence
             ],
             max_distance_to_exon=None,
         ),
-        QueryPresetsConsequence(
+        SeqvarsQueryPresetsConsequence(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=5,
             label="whole transcript",
             variant_types=[
-                VariantTypeChoice.SNV,
-                VariantTypeChoice.INDEL,
-                VariantTypeChoice.MNV,
-                VariantTypeChoice.COMPLEX_SUBSTITUTION,
+                SeqvarsVariantTypeChoice.SNV,
+                SeqvarsVariantTypeChoice.INDEL,
+                SeqvarsVariantTypeChoice.MNV,
+                SeqvarsVariantTypeChoice.COMPLEX_SUBSTITUTION,
             ],
             transcript_types=[
-                TranscriptTypeChoice.CODING,
-                TranscriptTypeChoice.NON_CODING,
+                SeqvarsTranscriptTypeChoice.CODING,
+                SeqvarsTranscriptTypeChoice.NON_CODING,
             ],
             variant_consequences=[
                 # high impact
-                VariantConsequenceChoice.FRAMESHIFT_VARIANT,
-                VariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
-                VariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
-                VariantConsequenceChoice.SPLICE_DONOR_VARIANT,
-                VariantConsequenceChoice.START_LOST,
-                VariantConsequenceChoice.STOP_GAINED,
-                VariantConsequenceChoice.STOP_LOST,
+                SeqvarsVariantConsequenceChoice.FRAMESHIFT_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_ACCEPTOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_DONOR_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_LOST,
+                SeqvarsVariantConsequenceChoice.STOP_GAINED,
+                SeqvarsVariantConsequenceChoice.STOP_LOST,
                 # moderate impact
-                VariantConsequenceChoice.THREE_PRIME_UTR_TRUNCATION,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_TRUNCATION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
-                VariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
-                VariantConsequenceChoice.MISSENSE_VARIANT,
-                VariantConsequenceChoice.SPLICE_REGION_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_TRUNCATION,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_TRUNCATION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
+                SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
+                SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.SPLICE_REGION_VARIANT,
                 # low impact
-                VariantConsequenceChoice.INITIATOR_CODON_VARIANT,
-                VariantConsequenceChoice.START_RETAINED,
-                VariantConsequenceChoice.STOP_RETAINED_VARIANT,
-                VariantConsequenceChoice.SYNONYMOUS_VARIANT,
+                SeqvarsVariantConsequenceChoice.INITIATOR_CODON_VARIANT,
+                SeqvarsVariantConsequenceChoice.START_RETAINED,
+                SeqvarsVariantConsequenceChoice.STOP_RETAINED_VARIANT,
+                SeqvarsVariantConsequenceChoice.SYNONYMOUS_VARIANT,
                 # modifiers
                 # VariantConsequenceChoice.DOWNSTREAM_GENE_VARIANT,
-                VariantConsequenceChoice.INTRON_VARIANT,
-                VariantConsequenceChoice.NON_CODING_TRANSCRIPT_EXON_VARIANT,
-                VariantConsequenceChoice.NON_CODING_TRANSCRIPT_INTRON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT,
-                VariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
+                SeqvarsVariantConsequenceChoice.INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.NON_CODING_TRANSCRIPT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.NON_CODING_TRANSCRIPT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT,
+                SeqvarsVariantConsequenceChoice.CODING_SEQUENCE_VARIANT,
                 # VariantConsequenceChoice.UPSTREAM_GENE_VARIANT,
-                VariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_EXON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_EXON_VARIANT,
-                VariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_INTRON_VARIANT,
-                VariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_EXON_VARIANT,
+                SeqvarsVariantConsequenceChoice.THREE_PRIME_UTR_VARIANT_INTRON_VARIANT,
+                SeqvarsVariantConsequenceChoice.FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT,
             ],
             max_distance_to_exon=None,
         ),
     ]
 
 
-def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
+def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsConsequence]:
     return [
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="whole genome",
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -380,7 +380,7 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
                 GenomeRegion(chromosome="Y"),
             ],
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -388,7 +388,7 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
             label="autosomes",
             genome_regions=[GenomeRegion(chromosome=str(no)) for no in range(1, 23)],
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -399,7 +399,7 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
                 GenomeRegion(chromosome="Y"),
             ],
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -409,7 +409,7 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
                 GenomeRegion(chromosome="X"),
             ],
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -419,7 +419,7 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
                 GenomeRegion(chromosome="Y"),
             ],
         ),
-        QueryPresetsLocus(
+        SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -432,9 +432,9 @@ def create_querypresetslocus(faker: Faker) -> list[QueryPresetsConsequence]:
     ]
 
 
-def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
+def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPresetsFrequency]:
     return [
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -460,7 +460,7 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
             inhouse_heterozygous=None,
             inhouse_hemizygous=None,
         ),
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -486,7 +486,7 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
             inhouse_heterozygous=None,
             inhouse_hemizygous=None,
         ),
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -512,7 +512,7 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
             inhouse_heterozygous=None,
             inhouse_hemizygous=None,
         ),
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -538,7 +538,7 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
             inhouse_heterozygous=None,
             inhouse_hemizygous=None,
         ),
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -564,7 +564,7 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
             inhouse_heterozygous=None,
             inhouse_hemizygous=None,
         ),
-        QueryPresetsFrequency(
+        SeqvarsQueryPresetsFrequency(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -593,9 +593,9 @@ def create_querypresetsfrequency(faker: Faker) -> list[QueryPresetsFrequency]:
     ]
 
 
-def create_querypresetsphenotypeprio(faker: Faker) -> list[QueryPresetsPhenotypePrio]:
+def create_seqvarsquerypresetsphenotypeprio(faker: Faker) -> list[SeqvarsQueryPresetsPhenotypePrio]:
     return [
-        QueryPresetsPhenotypePrio(
+        SeqvarsQueryPresetsPhenotypePrio(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -607,9 +607,9 @@ def create_querypresetsphenotypeprio(faker: Faker) -> list[QueryPresetsPhenotype
     ]
 
 
-def create_querypresetsvariantprio(faker: Faker) -> list[QueryPresetsVariantPrio]:
+def create_seqvarsquerypresetsvariantprio(faker: Faker) -> list[SeqvarsQueryPresetsVariantPrio]:
     return [
-        QueryPresetsVariantPrio(
+        SeqvarsQueryPresetsVariantPrio(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -617,7 +617,7 @@ def create_querypresetsvariantprio(faker: Faker) -> list[QueryPresetsVariantPrio
             label="disabled",
             variant_prio_enabled=False,
         ),
-        QueryPresetsVariantPrio(
+        SeqvarsQueryPresetsVariantPrio(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -625,10 +625,10 @@ def create_querypresetsvariantprio(faker: Faker) -> list[QueryPresetsVariantPrio
             label="CADD",
             variant_prio_enabled=False,
             services=[
-                VariantPrioService(name="cadd", version="1.6"),
+                SeqvarsPrioService(name="cadd", version="1.6"),
             ],
         ),
-        QueryPresetsVariantPrio(
+        SeqvarsQueryPresetsVariantPrio(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -636,15 +636,15 @@ def create_querypresetsvariantprio(faker: Faker) -> list[QueryPresetsVariantPrio
             label="MutationTaster",
             variant_prio_enabled=False,
             services=[
-                VariantPrioService(name="mutationtaster", version="2021"),
+                SeqvarsPrioService(name="mutationtaster", version="2021"),
             ],
         ),
     ]
 
 
-def create_querypresetsclinvar(faker: Faker) -> list[QueryPresetsClinvar]:
+def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsClinvar]:
     return [
-        QueryPresetsClinvar(
+        SeqvarsQueryPresetsClinvar(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -652,7 +652,7 @@ def create_querypresetsclinvar(faker: Faker) -> list[QueryPresetsClinvar]:
             label="disabled",
             clinvar_presence_required=False,
         ),
-        QueryPresetsClinvar(
+        SeqvarsQueryPresetsClinvar(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -664,7 +664,7 @@ def create_querypresetsclinvar(faker: Faker) -> list[QueryPresetsClinvar]:
                 ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
             ],
         ),
-        QueryPresetsClinvar(
+        SeqvarsQueryPresetsClinvar(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -677,7 +677,7 @@ def create_querypresetsclinvar(faker: Faker) -> list[QueryPresetsClinvar]:
             ],
             allow_conflicting_interpretations=True,
         ),
-        QueryPresetsClinvar(
+        SeqvarsQueryPresetsClinvar(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -694,9 +694,9 @@ def create_querypresetsclinvar(faker: Faker) -> list[QueryPresetsClinvar]:
     ]
 
 
-def create_querypresetscolumns(faker: Faker) -> list[QueryPresetsColumns]:
+def create_seqvarsquerypresetscolumns(faker: Faker) -> list[SeqvarsQueryPresetsColumns]:
     return [
-        QueryPresetsColumns(
+        SeqvarsQueryPresetsColumns(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
@@ -706,290 +706,320 @@ def create_querypresetscolumns(faker: Faker) -> list[QueryPresetsColumns]:
     ]
 
 
-def create_predefined_queries(
-    querypresetsversion: QueryPresetsSetVersion, faker: Faker
-) -> list[PredefinedQuery]:
+def create_seqvarspredefined_queries(
+    querypresetsversion: SeqvarsQueryPresetsSetVersion, faker: Faker
+) -> list[SeqvarsPredefinedQuery]:
     def pick_by_label(label: str, queryset: models.QuerySet) -> LabeledSortableBaseModel:
         return next(filter(lambda q: q.label == label, queryset.all()))
 
     return [
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="defaults",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.ANY,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.ANY,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "dominant strict", querypresetsversion.querypresetsfrequency_set
+                "dominant strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=2,
             label="de novo",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.DE_NOVO,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.DE_NOVO,
             ),
-            quality=pick_by_label("super strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label(
+                "super strict", querypresetsversion.seqvarsquerypresetsquality_set
+            ),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "dominant strict", querypresetsversion.querypresetsfrequency_set
+                "dominant strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=3,
             label="dominant",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.DOMINANT,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.DOMINANT,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "dominant strict", querypresetsversion.querypresetsfrequency_set
+                "dominant strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=4,
             label="homozygous recessive",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.HOMOZYGOUS_RECESSIVE,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.HOMOZYGOUS_RECESSIVE,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "recessive strict", querypresetsversion.querypresetsfrequency_set
+                "recessive strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=5,
             label="compound heterozygous",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "recessive strict", querypresetsversion.querypresetsfrequency_set
+                "recessive strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=6,
             label="recessive",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.RECESSIVE,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.RECESSIVE,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "recessive strict", querypresetsversion.querypresetsfrequency_set
+                "recessive strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=7,
             label="X recessive",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.X_RECESSIVE,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.X_RECESSIVE,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
             consequence=pick_by_label(
-                "AA change + splicing", querypresetsversion.querypresetsconsequence_set
+                "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
-            locus=pick_by_label("X chromosome", querypresetsversion.querypresetslocus_set),
+            locus=pick_by_label("X chromosome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "recessive strict", querypresetsversion.querypresetsfrequency_set
+                "recessive strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=8,
             label="ClinVar pathogenic",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.AFFECTED_CARRIERS,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
-            quality=pick_by_label("any", querypresetsversion.querypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
-            frequency=pick_by_label("any", querypresetsversion.querypresetsfrequency_set),
+            quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
+            frequency=pick_by_label("any", querypresetsversion.seqvarsquerypresetsfrequency_set),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label(
-                "Clinvar P/LP +conflicting", querypresetsversion.querypresetsclinvar_set
+                "Clinvar P/LP +conflicting", querypresetsversion.seqvarsquerypresetsclinvar_set
             ),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=9,
             label="mitochondrial",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.AFFECTED_CARRIERS,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
-            quality=pick_by_label("strict", querypresetsversion.querypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
-            locus=pick_by_label("MT genome", querypresetsversion.querypresetslocus_set),
+            quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
+            locus=pick_by_label("MT genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
-                "dominant strict", querypresetsversion.querypresetsfrequency_set
+                "dominant strict", querypresetsversion.seqvarsquerypresetsfrequency_set
             ),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
-        PredefinedQuery(
+        SeqvarsPredefinedQuery(
             sodar_uuid=faker.uuid4(),
             date_created=TIME_VERSION_1_0,
             date_modified=TIME_VERSION_1_0,
             rank=10,
             label="whole genome",
-            genotype=GenotypePresets(
-                choice=GenotypePresetChoice.ANY,
+            genotype=SeqvarsGenotypePresets(
+                choice=SeqvarsGenotypePresetChoice.ANY,
             ),
-            quality=pick_by_label("any", querypresetsversion.querypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.querypresetsconsequence_set),
-            locus=pick_by_label("whole genome", querypresetsversion.querypresetslocus_set),
-            frequency=pick_by_label("any", querypresetsversion.querypresetsfrequency_set),
+            quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
+            locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
+            frequency=pick_by_label("any", querypresetsversion.seqvarsquerypresetsfrequency_set),
             phenotypeprio=pick_by_label(
-                "disabled", querypresetsversion.querypresetsphenotypeprio_set
+                "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.querypresetsvariantprio_set),
-            clinvar=pick_by_label("disabled", querypresetsversion.querypresetsclinvar_set),
-            columns=pick_by_label("defaults", querypresetsversion.querypresetscolumns_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
+            clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
+            columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
     ]
 
 
-def create_presetsset_version_short_read_genome_1_0(
-    presetsset: QueryPresetsSet, faker: Faker
-) -> QueryPresetsSetVersion:
-    result = QueryPresetsSetVersion(
+def create_seqvarspresetsset_version_short_read_genome_1_0(
+    presetsset: SeqvarsQueryPresetsSet, faker: Faker
+) -> SeqvarsQueryPresetsSetVersion:
+    result = SeqvarsQueryPresetsSetVersion(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
         presetsset=presetsset,
         version_major=1,
         version_minor=0,
-        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        status=SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    version_1_0 = QueryPresetsSetVersion(
+    version_1_0 = SeqvarsQueryPresetsSetVersion(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
         version_major=1,
         version_minor=0,
-        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        status=SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
-    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
+    version_1_0.seqvarsquerypresetsquality_set = create_seqvarsquerypresetsquality_short_read(faker)
+    version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
+    version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
+    version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
+    version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
+    version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
+    version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
     result.versions = [version_1_0]
     return result
 
 
-def create_presetsset_short_read_genome(rank: int = 1) -> QueryPresetsSet:
+def create_seqvarspresetsset_short_read_genome(rank: int = 1) -> SeqvarsQueryPresetsSet:
     """Create presets set with versions for short-read genome sequencing.
 
     :param rank: Rank of the presets set, also used for offsetting the seed for UUID generation.
     """
     faker = Faker()
     faker.seed_instance(FAKER_SEED + rank)
-    result = QueryPresetsSet(
+    result = SeqvarsQueryPresetsSet(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
@@ -1001,36 +1031,38 @@ def create_presetsset_short_read_genome(rank: int = 1) -> QueryPresetsSet:
             "least 30x coverage."
         ),
     )
-    version_1_0 = QueryPresetsSetVersion(
+    version_1_0 = SeqvarsQueryPresetsSetVersion(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
         version_major=1,
         version_minor=0,
-        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        status=SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
-    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
-    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
+    version_1_0.seqvarsquerypresetsquality_set = create_seqvarsquerypresetsquality_short_read(faker)
+    version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
+    version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
+    version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
+    version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
+    version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
+    version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
+    version_1_0.seqvarspredefinedquery_set = create_seqvarspredefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result
 
 
-def create_presetsset_short_read_exome_modern(rank: int = 2) -> QueryPresetsSet:
+def create_seqvarspresetsset_short_read_exome_modern(rank: int = 2) -> SeqvarsQueryPresetsSet:
     """Create presets set with versions for short-read exome sequencing.
 
     :param rank: Rank of the presets set, also used for offsetting the seed for UUID generation.
     """
     faker = Faker()
     faker.seed_instance(FAKER_SEED + rank)
-    result = QueryPresetsSet(
+    result = SeqvarsQueryPresetsSet(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
@@ -1043,36 +1075,38 @@ def create_presetsset_short_read_exome_modern(rank: int = 2) -> QueryPresetsSet:
             "the exome."
         ),
     )
-    version_1_0 = QueryPresetsSetVersion(
+    version_1_0 = SeqvarsQueryPresetsSetVersion(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
         version_major=1,
         version_minor=0,
-        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        status=SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
-    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
-    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
+    version_1_0.seqvarsquerypresetsquality_set = create_seqvarsquerypresetsquality_short_read(faker)
+    version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
+    version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
+    version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
+    version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
+    version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
+    version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
+    version_1_0.seqvarspredefinedquery_set = create_seqvarspredefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result
 
 
-def create_presetsset_short_read_exome_legacy(rank: int = 3) -> QueryPresetsSet:
+def create_seqvarspresetsset_short_read_exome_legacy(rank: int = 3) -> SeqvarsQueryPresetsSet:
     """Create presets set with versions for short-read exome sequencing.
 
     :param rank: Rank of the presets set, also used for offsetting the seed for UUID generation.
     """
     faker = Faker()
     faker.seed_instance(FAKER_SEED + rank)
-    result = QueryPresetsSet(
+    result = SeqvarsQueryPresetsSet(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
@@ -1085,23 +1119,25 @@ def create_presetsset_short_read_exome_legacy(rank: int = 3) -> QueryPresetsSet:
             "considerable portion of the exome."
         ),
     )
-    version_1_0 = QueryPresetsSetVersion(
+    version_1_0 = SeqvarsQueryPresetsSetVersion(
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
         version_major=1,
         version_minor=0,
-        status=QueryPresetsSetVersion.STATUS_ACTIVE,
+        status=SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
         signed_off_by=None,
     )
-    version_1_0.querypresetsquality_set = create_querypresetsquality_short_read(faker)
-    version_1_0.querypresetsconsequence_set = create_querypresetsconsequence(faker)
-    version_1_0.querypresetslocus_set = create_querypresetslocus(faker)
-    version_1_0.querypresetsfrequency_set = create_querypresetsfrequency(faker)
-    version_1_0.querypresetsphenotypeprio_set = create_querypresetsphenotypeprio(faker)
-    version_1_0.querypresetsvariantprio_set = create_querypresetsvariantprio(faker)
-    version_1_0.querypresetsclinvar_set = create_querypresetsclinvar(faker)
-    version_1_0.querypresetscolumns_set = create_querypresetscolumns(faker)
-    version_1_0.predefinedquery_set = create_predefined_queries(version_1_0, faker)
+    version_1_0.seqvarsquerypresetsquality_set = create_seqvarsquerypresetsquality_short_read(faker)
+    version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
+    version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
+    version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
+    version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
+    version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
+    version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
+    version_1_0.seqvarspredefinedquery_set = create_seqvarspredefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result

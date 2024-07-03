@@ -1,6 +1,7 @@
 /components.d.ts
 
 !/src
+!/ext/varfish-api/src/lib
 /static
 /webpack-stats.json
 

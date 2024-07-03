@@ -8,11 +8,11 @@ from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
 
 from seqvars.factory_defaults import (
-    create_presetsset_short_read_exome_legacy,
-    create_presetsset_short_read_exome_modern,
-    create_presetsset_short_read_genome,
+    create_seqvarspresetsset_short_read_exome_legacy,
+    create_seqvarspresetsset_short_read_exome_modern,
+    create_seqvarspresetsset_short_read_genome,
 )
-from seqvars.serializers import QueryPresetsSetDetailsSerializer
+from seqvars.serializers import SeqvarsQueryPresetsSetDetailsSerializer
 
 
 def canonicalize_dicts(arg: dict) -> dict:
@@ -32,16 +32,16 @@ def canonicalize_dicts(arg: dict) -> dict:
 
 class CreatePresetsSetTest(TestCaseSnapshot, TestCase):
     def test_create_presetsset_short_read_exome_legacy(self):
-        presetsset = create_presetsset_short_read_exome_legacy()
-        result = QueryPresetsSetDetailsSerializer(presetsset).data
+        presetsset = create_seqvarspresetsset_short_read_exome_legacy()
+        result = SeqvarsQueryPresetsSetDetailsSerializer(presetsset).data
         self.assertMatchSnapshot(canonicalize_dicts(result))
 
     def test_create_presetsset_short_read_exome_modern(self):
-        presetsset = create_presetsset_short_read_exome_modern()
-        result = QueryPresetsSetDetailsSerializer(presetsset).data
+        presetsset = create_seqvarspresetsset_short_read_exome_modern()
+        result = SeqvarsQueryPresetsSetDetailsSerializer(presetsset).data
         self.assertMatchSnapshot(canonicalize_dicts(result))
 
     def test_create_presetsset_short_read_genome(self):
-        presetsset = create_presetsset_short_read_genome()
-        result = QueryPresetsSetDetailsSerializer(presetsset).data
+        presetsset = create_seqvarspresetsset_short_read_genome()
+        result = SeqvarsQueryPresetsSetDetailsSerializer(presetsset).data
         self.assertMatchSnapshot(canonicalize_dicts(result))
