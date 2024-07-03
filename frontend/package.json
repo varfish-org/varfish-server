@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "vite build --emptyOutDir",
-    "test:unit": "vitest run --coverage",
+    "test:unit": "vitest run",
     "test:unit:nocov": "vitest run",
     "lint": "eslint . --fix --max-warnings 0",
     "type-check": "vue-tsc --noEmit --composite false",
