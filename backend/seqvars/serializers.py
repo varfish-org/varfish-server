@@ -7,19 +7,18 @@ from rest_framework import serializers
 
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
-    SeqvarsClinvarSettingsBase,
-    SeqvarsColumnsSettingsBase,
-    SeqvarsConsequenceSettingsBase,
     DataSourceInfos,
-    SeqvarsFrequencySettingsBase,
     Gene,
     GenePanel,
     GenomeRegion,
+    SeqvarsClinvarSettingsBase,
+    SeqvarsColumnConfig,
+    SeqvarsColumnsSettingsBase,
+    SeqvarsConsequenceSettingsBase,
+    SeqvarsFrequencySettingsBase,
+    SeqvarsGenotypePresets,
     SeqvarsLocusSettingsBase,
     SeqvarsPhenotypePrioSettingsBase,
-    SeqvarsQuerySettingsCategoryBase,
-    SeqvarsColumnConfig,
-    SeqvarsGenotypePresets,
     SeqvarsPredefinedQuery,
     SeqvarsPrioService,
     SeqvarsQuery,
@@ -36,6 +35,7 @@ from seqvars.models import (
     SeqvarsQueryPresetsSetVersion,
     SeqvarsQueryPresetsVariantPrio,
     SeqvarsQuerySettings,
+    SeqvarsQuerySettingsCategoryBase,
     SeqvarsQuerySettingsClinvar,
     SeqvarsQuerySettingsConsequence,
     SeqvarsQuerySettingsFrequency,
@@ -49,11 +49,11 @@ from seqvars.models import (
     SeqvarsResultSet,
     SeqvarsSampleGenotypeChoice,
     SeqvarsSampleQualityFilter,
-    TermPresence,
     SeqvarsTranscriptTypeChoice,
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantPrioSettingsBase,
     SeqvarsVariantTypeChoice,
+    TermPresence,
 )
 
 
@@ -617,7 +617,9 @@ class SeqvarsQueryPresetsSetVersionDetailsSerializer(SeqvarsQueryPresetsSetVersi
     #: Serialize all quality presets.
     seqvarsquerypresetsquality_set = SeqvarsQueryPresetsQualitySerializer(many=True, read_only=True)
     #: Serialize all frequency presets.
-    seqvarsquerypresetsfrequency_set = SeqvarsQueryPresetsFrequencySerializer(many=True, read_only=True)
+    seqvarsquerypresetsfrequency_set = SeqvarsQueryPresetsFrequencySerializer(
+        many=True, read_only=True
+    )
     #: Serialize all consequence presets.
     seqvarsquerypresetsconsequence_set = SeqvarsQueryPresetsConsequenceSerializer(
         many=True, read_only=True

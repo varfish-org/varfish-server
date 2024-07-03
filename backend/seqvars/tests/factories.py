@@ -11,8 +11,8 @@ from seqvars.models import (
     Gene,
     GenePanel,
     GenePanelSource,
-    SeqvarsGenotypeChoice,
     SeqvarsColumnConfig,
+    SeqvarsGenotypeChoice,
     SeqvarsPredefinedQuery,
     SeqvarsPrioService,
     SeqvarsQuery,
@@ -42,11 +42,11 @@ from seqvars.models import (
     SeqvarsResultSet,
     SeqvarsSampleGenotypeChoice,
     SeqvarsSampleQualityFilter,
-    Term,
-    TermPresence,
     SeqvarsTranscriptTypeChoice,
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantTypeChoice,
+    Term,
+    TermPresence,
 )
 from variants.tests.factories import ProjectFactory
 

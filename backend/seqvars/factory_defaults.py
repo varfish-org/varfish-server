@@ -12,8 +12,8 @@ from faker import Faker
 from seqvars.models import (
     ClinvarGermlineAggregateDescription,
     GenomeRegion,
-    SeqvarsGenotypePresetChoice,
     LabeledSortableBaseModel,
+    SeqvarsGenotypePresetChoice,
     SeqvarsGenotypePresets,
     SeqvarsPredefinedQuery,
     SeqvarsPrioService,
@@ -733,7 +733,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -746,7 +748,9 @@ def create_seqvarspredefined_queries(
             genotype=SeqvarsGenotypePresets(
                 choice=SeqvarsGenotypePresetChoice.DE_NOVO,
             ),
-            quality=pick_by_label("super strict", querypresetsversion.seqvarsquerypresetsquality_set),
+            quality=pick_by_label(
+                "super strict", querypresetsversion.seqvarsquerypresetsquality_set
+            ),
             consequence=pick_by_label(
                 "AA change + splicing", querypresetsversion.seqvarsquerypresetsconsequence_set
             ),
@@ -757,7 +761,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -781,7 +787,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -805,7 +813,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -829,7 +839,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -853,7 +865,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -877,7 +891,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -891,13 +907,17 @@ def create_seqvarspredefined_queries(
                 choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
             quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.seqvarsquerypresetsconsequence_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
             locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label("any", querypresetsversion.seqvarsquerypresetsfrequency_set),
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label(
                 "Clinvar P/LP +conflicting", querypresetsversion.seqvarsquerypresetsclinvar_set
             ),
@@ -913,7 +933,9 @@ def create_seqvarspredefined_queries(
                 choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.seqvarsquerypresetsconsequence_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
             locus=pick_by_label("MT genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label(
                 "dominant strict", querypresetsversion.seqvarsquerypresetsfrequency_set
@@ -921,7 +943,9 @@ def create_seqvarspredefined_queries(
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -935,13 +959,17 @@ def create_seqvarspredefined_queries(
                 choice=SeqvarsGenotypePresetChoice.ANY,
             ),
             quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),
-            consequence=pick_by_label("any", querypresetsversion.seqvarsquerypresetsconsequence_set),
+            consequence=pick_by_label(
+                "any", querypresetsversion.seqvarsquerypresetsconsequence_set
+            ),
             locus=pick_by_label("whole genome", querypresetsversion.seqvarsquerypresetslocus_set),
             frequency=pick_by_label("any", querypresetsversion.seqvarsquerypresetsfrequency_set),
             phenotypeprio=pick_by_label(
                 "disabled", querypresetsversion.seqvarsquerypresetsphenotypeprio_set
             ),
-            variantprio=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set),
+            variantprio=pick_by_label(
+                "disabled", querypresetsversion.seqvarsquerypresetsvariantprio_set
+            ),
             clinvar=pick_by_label("disabled", querypresetsversion.seqvarsquerypresetsclinvar_set),
             columns=pick_by_label("defaults", querypresetsversion.seqvarsquerypresetscolumns_set),
         ),
@@ -974,7 +1002,9 @@ def create_seqvarspresetsset_version_short_read_genome_1_0(
     version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
     version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
     version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
-    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
     version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
     version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
     version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
@@ -1014,7 +1044,9 @@ def create_seqvarspresetsset_short_read_genome(rank: int = 1) -> SeqvarsQueryPre
     version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
     version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
     version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
-    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
     version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
     version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
     version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
@@ -1056,7 +1088,9 @@ def create_seqvarspresetsset_short_read_exome_modern(rank: int = 2) -> SeqvarsQu
     version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
     version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
     version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
-    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
     version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
     version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
     version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)
@@ -1098,7 +1132,9 @@ def create_seqvarspresetsset_short_read_exome_legacy(rank: int = 3) -> SeqvarsQu
     version_1_0.seqvarsquerypresetsconsequence_set = create_seqvarsquerypresetsconsequence(faker)
     version_1_0.seqvarsquerypresetslocus_set = create_seqvarsquerypresetslocus(faker)
     version_1_0.seqvarsquerypresetsfrequency_set = create_seqvarsquerypresetsfrequency(faker)
-    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(faker)
+    version_1_0.seqvarsquerypresetsphenotypeprio_set = create_seqvarsquerypresetsphenotypeprio(
+        faker
+    )
     version_1_0.seqvarsquerypresetsvariantprio_set = create_seqvarsquerypresetsvariantprio(faker)
     version_1_0.seqvarsquerypresetsclinvar_set = create_seqvarsquerypresetsclinvar(faker)
     version_1_0.seqvarsquerypresetscolumns_set = create_seqvarsquerypresetscolumns(faker)

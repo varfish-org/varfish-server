@@ -408,6 +408,82 @@ export const $BcftoolsStatsTstvRecordList = {
   },
 } as const
 
+export const $CaseAnalysis = {
+  type: 'object',
+  description: 'Serializer for ``CaseAnalysis``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    case: {
+      type: 'string',
+      format: 'uuid',
+      description: 'Case SODAR UUID',
+      readOnly: true,
+    },
+  },
+  required: ['case', 'date_created', 'date_modified', 'sodar_uuid'],
+} as const
+
+export const $CaseAnalysisSession = {
+  type: 'object',
+  description: 'Serializer for ``CaseAnalysisSession``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    caseanalysis: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    case: {
+      type: 'string',
+      format: 'uuid',
+      description: 'Case SODAR UUID',
+      readOnly: true,
+    },
+    user: {
+      type: 'string',
+      format: 'uuid',
+      description: 'User SODAR UUID',
+      readOnly: true,
+    },
+  },
+  required: [
+    'case',
+    'caseanalysis',
+    'date_created',
+    'date_modified',
+    'sodar_uuid',
+    'user',
+  ],
+} as const
+
 export const $CaseComment = {
   type: 'object',
   description: 'Serializer for ``CaseComments``.',
@@ -1012,6 +1088,22 @@ export const $CaseStatusEnum = {
 * \`closed-unsolved\` - closed as unsolved
 * \`closed-uncertain\` - closed as uncertain
 * \`closed-solved\` - closed as solved`,
+} as const
+
+export const $ClinvarGermlineAggregateDescriptionList = {
+  type: 'array',
+  title: 'ClinvarGermlineAggregateDescriptionList',
+  items: {
+    type: 'string',
+    title: 'ClinvarGermlineAggregateDescription',
+    enum: [
+      'pathogenic',
+      'likely_pathogenic',
+      'uncertain_significance',
+      'likely_benign',
+      'benign',
+    ],
+  },
 } as const
 
 export const $CraminoChromNormalizedCountsRecordList = {
@@ -2170,6 +2262,63 @@ export const $EnrichmentKit = {
   ],
 } as const
 
+export const $GeneList = {
+  type: 'array',
+  title: 'GeneList',
+  items: {
+    description: 'Representation of a gene to query for.',
+    properties: {
+      hgnc_id: {
+        title: 'Hgnc Id',
+        type: 'string',
+      },
+      symbol: {
+        title: 'Symbol',
+        type: 'string',
+      },
+      name: {
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Name',
+      },
+      entrez_id: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Entrez Id',
+      },
+      ensembl_id: {
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Ensembl Id',
+      },
+    },
+    required: ['hgnc_id', 'symbol'],
+    title: 'Gene',
+    type: 'object',
+  },
+} as const
+
 export const $GenePanel = {
   type: 'object',
   description: 'Serializer that serializes ``GenePanel``.',
@@ -2255,12 +2404,75 @@ export const $GenePanelCategory = {
   required: ['description', 'genepanel_set', 'title'],
 } as const
 
+export const $GenePanelList = {
+  type: 'array',
+  title: 'GenePanelList',
+  items: {
+    description: 'Representation of a gene panel to use in the query.',
+    properties: {
+      source: {
+        $ref: '#/components/schemas/GenePanelSource',
+      },
+      panel_id: {
+        title: 'Panel Id',
+        type: 'string',
+      },
+      name: {
+        title: 'Name',
+        type: 'string',
+      },
+      version: {
+        title: 'Version',
+        type: 'string',
+      },
+    },
+    required: ['source', 'panel_id', 'name', 'version'],
+    title: 'GenePanel',
+    type: 'object',
+  },
+} as const
+
+export const $GenePanelSource = {
+  description: 'The source of a gene panel.',
+  enum: ['panelapp', 'internal'],
+  title: 'GenePanelSource',
+  type: 'string',
+} as const
+
 export const $GenePanelStateEnum = {
   enum: ['draft', 'active', 'retired'],
   type: 'string',
   description: `* \`draft\` - draft
 * \`active\` - active
 * \`retired\` - retired`,
+} as const
+
+export const $GenomeRegionList = {
+  type: 'array',
+  title: 'GenomeRegionList',
+  items: {
+    description: 'Representation of a genomic region to query for.',
+    properties: {
+      chromosome: {
+        title: 'Chromosome',
+        type: 'string',
+      },
+      range: {
+        anyOf: [
+          {
+            $ref: '#/components/schemas/OneBasedRange',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+      },
+    },
+    required: ['chromosome'],
+    title: 'GenomeRegion',
+    type: 'object',
+  },
 } as const
 
 export const $GenomeReleaseEnum = {
@@ -2398,6 +2610,63 @@ export const $NullEnum = {
   enum: [null],
 } as const
 
+export const $OneBasedRange = {
+  description: 'Representation of a 1-based range.',
+  properties: {
+    start: {
+      title: 'Start',
+      type: 'integer',
+    },
+    end: {
+      title: 'End',
+      type: 'integer',
+    },
+  },
+  required: ['start', 'end'],
+  title: 'OneBasedRange',
+  type: 'object',
+} as const
+
+export const $PaginatedCaseAnalysisList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/CaseAnalysis',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedCaseAnalysisSessionList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/CaseAnalysisSession',
+      },
+    },
+  },
+} as const
+
 export const $PaginatedCaseImportActionList = {
   type: 'object',
   properties: {
@@ -2449,6 +2718,326 @@ export const $PaginatedCaseSerializerNgList = {
       type: 'array',
       items: {
         $ref: '#/components/schemas/CaseSerializerNg',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsPredefinedQueryList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsPredefinedQuery',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryExecutionList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryExecution',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQuery',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsClinvarList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsColumnsList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsColumns',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsConsequenceList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsFrequencyList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsLocusList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsLocus',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsQualityList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsQuality',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsSetList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsSet',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsSetVersionList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQueryPresetsVariantPrioList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsQuerySettingsList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQuerySettings',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsResultRowList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsResultRow',
+      },
+    },
+  },
+} as const
+
+export const $PaginatedSeqvarsResultSetList = {
+  type: 'object',
+  properties: {
+    next: {
+      type: 'string',
+      nullable: true,
+    },
+    previous: {
+      type: 'string',
+      nullable: true,
+    },
+    results: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsResultSet',
       },
     },
   },
@@ -2737,6 +3326,780 @@ export const $PatchedEnrichmentKit = {
   },
 } as const
 
+export const $PatchedSeqvarsPredefinedQuery = {
+  type: 'object',
+  description: 'Serializer for ``PredefinedQuery``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    included_in_sop: {
+      type: 'boolean',
+      default: false,
+    },
+    genotype: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SchemaField',
+        },
+      ],
+      default: {
+        choice: null,
+      },
+    },
+    quality: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    frequency: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    consequence: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    locus: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    phenotypeprio: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    variantprio: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    clinvar: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    columns: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryDetails = {
+  type: 'object',
+  description: `Serializer for \`\`Query\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested query settings
+in detail.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    settings: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsDetails',
+    },
+    columnsconfig: {
+      $ref: '#/components/schemas/SeqvarsQueryColumnsConfig',
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsClinvar = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsClinvar\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    clinvar_presence_required: {
+      type: 'boolean',
+      default: false,
+    },
+    clinvar_germline_aggregate_description: {
+      $ref: '#/components/schemas/ClinvarGermlineAggregateDescriptionList',
+    },
+    allow_conflicting_interpretations: {
+      type: 'boolean',
+      default: false,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsColumns = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsColumns\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    column_settings: {
+      $ref: '#/components/schemas/SeqvarsColumnConfigList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsConsequence = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsConsequence\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    variant_types: {
+      $ref: '#/components/schemas/SeqvarsVariantTypeChoiceList',
+    },
+    transcript_types: {
+      $ref: '#/components/schemas/SeqvarsTranscriptTypeChoiceList',
+    },
+    variant_consequences: {
+      $ref: '#/components/schemas/SeqvarsVariantConsequenceChoiceList',
+    },
+    max_distance_to_exon: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsFrequency = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsFrequency\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    gnomad_exomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_exomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_exomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    gnomad_genomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_genomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_genomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    helixmtdb_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    helixmtdb_heteroplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_homoplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    inhouse_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    inhouse_carriers: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_hemizygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsLocus = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsLocus\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    genes: {
+      $ref: '#/components/schemas/GeneList',
+    },
+    gene_panels: {
+      $ref: '#/components/schemas/GenePanelList',
+    },
+    genome_regions: {
+      $ref: '#/components/schemas/GenomeRegionList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsPhenotypePrio = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsPhenotypePrio\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    phenotype_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    phenotype_prio_algorithm: {
+      type: 'string',
+      nullable: true,
+      maxLength: 128,
+    },
+    terms: {
+      $ref: '#/components/schemas/TermPresenceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsQuality = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsQuality\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    filter_active: {
+      type: 'boolean',
+      default: false,
+    },
+    min_dp_het: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_dp_hom: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_ab_het: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    min_gq: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_ad: {
+      type: 'integer',
+      nullable: true,
+    },
+    max_ad: {
+      type: 'integer',
+      nullable: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsSet = {
+  type: 'object',
+  description: 'Serializer for ``QueryPresetsSet``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    project: {
+      type: 'string',
+      format: 'uuid',
+      description: 'Project SODAR UUID',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsSetVersion = {
+  type: 'object',
+  description: 'Serializer for ``QueryPresetsSetVersion``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    presetsset: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    version_major: {
+      type: 'integer',
+      default: 1,
+    },
+    version_minor: {
+      type: 'integer',
+      default: 0,
+    },
+    status: {
+      type: 'string',
+      default: 'draft',
+    },
+    signed_off_by: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SODARUser',
+        },
+      ],
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQueryPresetsVariantPrio = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsVariantPrio\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    variant_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    services: {
+      $ref: '#/components/schemas/SeqvarsPrioServiceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+} as const
+
+export const $PatchedSeqvarsQuerySettingsDetails = {
+  type: 'object',
+  description: `Serializer for \`\`QuerySettings\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested
+owned category settings.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    genotype: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype',
+    },
+    quality: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsQuality',
+    },
+    consequence: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsConsequence',
+    },
+    locus: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsLocus',
+    },
+    frequency: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsFrequency',
+    },
+    phenotypeprio: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsPhenotypePrio',
+    },
+    variantprio: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrio',
+    },
+    clinvar: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsClinvar',
+    },
+  },
+} as const
+
 export const $PatchedTargetBedFile = {
   type: 'object',
   description: 'Serializer for ``TargetBedFile``.',
@@ -2861,6 +4224,42 @@ export const $RegionVariantStats = {
   ],
   title: 'RegionVariantStats',
   type: 'object',
+} as const
+
+export const $SODARUser = {
+  type: 'object',
+  description: 'Serializer for the user model used in SODAR Core based sites',
+  properties: {
+    username: {
+      type: 'string',
+      description:
+        'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+      pattern: '^[\\w.@+-]+$',
+      maxLength: 150,
+    },
+    name: {
+      type: 'string',
+      title: 'Name of User',
+      maxLength: 255,
+    },
+    email: {
+      type: 'string',
+      format: 'email',
+      title: 'Email address',
+      maxLength: 254,
+    },
+    is_superuser: {
+      type: 'boolean',
+      title: 'Superuser status',
+      description:
+        'Designates that this user has all permissions without explicitly assigning them.',
+    },
+    sodar_uuid: {
+      type: 'string',
+      readOnly: true,
+    },
+  },
+  required: ['sodar_uuid', 'username'],
 } as const
 
 export const $SampleAlignmentStatsList = {
@@ -3713,6 +5112,2102 @@ export const $SchemaField = {
   type: 'object',
 } as const
 
+export const $SeqvarsColumnConfigList = {
+  type: 'array',
+  title: 'SeqvarsColumnConfigList',
+  items: {
+    description: 'Configuration for a single column in the result table.',
+    properties: {
+      name: {
+        title: 'Name',
+        type: 'string',
+      },
+      label: {
+        title: 'Label',
+        type: 'string',
+      },
+      description: {
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Description',
+      },
+      width: {
+        title: 'Width',
+        type: 'integer',
+      },
+      visible: {
+        title: 'Visible',
+        type: 'boolean',
+      },
+    },
+    required: ['name', 'label', 'width', 'visible'],
+    title: 'SeqvarsColumnConfig',
+    type: 'object',
+  },
+} as const
+
+export const $SeqvarsGenotypeChoice = {
+  description: 'Store genotype choice of a ``SampleGenotype``.',
+  enum: [
+    'any',
+    'ref',
+    'het',
+    'hom',
+    'non-hom',
+    'variant',
+    'comphet_index',
+    'recessive_index',
+    'recessive_parent',
+  ],
+  title: 'SeqvarsGenotypeChoice',
+  type: 'string',
+} as const
+
+export const $SeqvarsPredefinedQuery = {
+  type: 'object',
+  description: 'Serializer for ``PredefinedQuery``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    included_in_sop: {
+      type: 'boolean',
+      default: false,
+    },
+    genotype: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SchemaField',
+        },
+      ],
+      default: {
+        choice: null,
+      },
+    },
+    quality: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    frequency: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    consequence: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    locus: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    phenotypeprio: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    variantprio: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    clinvar: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+    columns: {
+      type: 'string',
+      format: 'uuid',
+      nullable: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsPrioServiceList = {
+  type: 'array',
+  title: 'SeqvarsPrioServiceList',
+  items: {
+    description: 'Representation of a variant pathogenicity service.',
+    properties: {
+      name: {
+        title: 'Name',
+        type: 'string',
+      },
+      version: {
+        title: 'Version',
+        type: 'string',
+      },
+    },
+    required: ['name', 'version'],
+    title: 'SeqvarsPrioService',
+    type: 'object',
+  },
+} as const
+
+export const $SeqvarsQuery = {
+  type: 'object',
+  description: 'Serializer for ``Query``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    settings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    columnsconfig: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'columnsconfig',
+    'date_created',
+    'date_modified',
+    'label',
+    'session',
+    'settings',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryColumnsConfig = {
+  type: 'object',
+  description: 'Serializer for ``QueryColumnsConfig``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    column_settings: {
+      $ref: '#/components/schemas/SeqvarsColumnConfigList',
+    },
+  },
+  required: ['date_created', 'date_modified', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQueryDetails = {
+  type: 'object',
+  description: `Serializer for \`\`Query\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested query settings
+in detail.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    settings: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsDetails',
+    },
+    columnsconfig: {
+      $ref: '#/components/schemas/SeqvarsQueryColumnsConfig',
+    },
+  },
+  required: [
+    'columnsconfig',
+    'date_created',
+    'date_modified',
+    'label',
+    'session',
+    'settings',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryExecution = {
+  type: 'object',
+  description: 'Serializer for ``QueryExecution``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    state: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SeqvarsQueryExecutionStateEnum',
+        },
+      ],
+      readOnly: true,
+    },
+    complete_percent: {
+      type: 'integer',
+      readOnly: true,
+      nullable: true,
+    },
+    start_time: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+      nullable: true,
+    },
+    end_time: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+      nullable: true,
+    },
+    elapsed_seconds: {
+      type: 'number',
+      format: 'double',
+      readOnly: true,
+      nullable: true,
+    },
+    query: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'complete_percent',
+    'date_created',
+    'date_modified',
+    'elapsed_seconds',
+    'end_time',
+    'query',
+    'querysettings',
+    'sodar_uuid',
+    'start_time',
+    'state',
+  ],
+} as const
+
+export const $SeqvarsQueryExecutionDetails = {
+  type: 'object',
+  description: 'Serializer for ``QueryExecution``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    state: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SeqvarsQueryExecutionStateEnum',
+        },
+      ],
+      readOnly: true,
+    },
+    complete_percent: {
+      type: 'integer',
+      readOnly: true,
+      nullable: true,
+    },
+    start_time: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+      nullable: true,
+    },
+    end_time: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+      nullable: true,
+    },
+    elapsed_seconds: {
+      type: 'number',
+      format: 'double',
+      readOnly: true,
+      nullable: true,
+    },
+    query: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    querysettings: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsDetails',
+    },
+  },
+  required: [
+    'complete_percent',
+    'date_created',
+    'date_modified',
+    'elapsed_seconds',
+    'end_time',
+    'query',
+    'querysettings',
+    'sodar_uuid',
+    'start_time',
+    'state',
+  ],
+} as const
+
+export const $SeqvarsQueryExecutionStateEnum = {
+  enum: ['initial', 'queued', 'running', 'failed', 'canceled', 'done'],
+  type: 'string',
+  description: `* \`initial\` - initial
+* \`queued\` - queued
+* \`running\` - running
+* \`failed\` - failed
+* \`canceled\` - canceled
+* \`done\` - done`,
+} as const
+
+export const $SeqvarsQueryPresetsClinvar = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsClinvar\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    clinvar_presence_required: {
+      type: 'boolean',
+      default: false,
+    },
+    clinvar_germline_aggregate_description: {
+      $ref: '#/components/schemas/ClinvarGermlineAggregateDescriptionList',
+    },
+    allow_conflicting_interpretations: {
+      type: 'boolean',
+      default: false,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsColumns = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsColumns\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    column_settings: {
+      $ref: '#/components/schemas/SeqvarsColumnConfigList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsConsequence = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsConsequence\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    variant_types: {
+      $ref: '#/components/schemas/SeqvarsVariantTypeChoiceList',
+    },
+    transcript_types: {
+      $ref: '#/components/schemas/SeqvarsTranscriptTypeChoiceList',
+    },
+    variant_consequences: {
+      $ref: '#/components/schemas/SeqvarsVariantConsequenceChoiceList',
+    },
+    max_distance_to_exon: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsFrequency = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsFrequency\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    gnomad_exomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_exomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_exomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    gnomad_genomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_genomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_genomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    helixmtdb_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    helixmtdb_heteroplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_homoplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    inhouse_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    inhouse_carriers: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_hemizygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsLocus = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsLocus\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    genes: {
+      $ref: '#/components/schemas/GeneList',
+    },
+    gene_panels: {
+      $ref: '#/components/schemas/GenePanelList',
+    },
+    genome_regions: {
+      $ref: '#/components/schemas/GenomeRegionList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsPhenotypePrio = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsPhenotypePrio\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    phenotype_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    phenotype_prio_algorithm: {
+      type: 'string',
+      nullable: true,
+      maxLength: 128,
+    },
+    terms: {
+      $ref: '#/components/schemas/TermPresenceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsQuality = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsQuality\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    filter_active: {
+      type: 'boolean',
+      default: false,
+    },
+    min_dp_het: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_dp_hom: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_ab_het: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    min_gq: {
+      type: 'integer',
+      nullable: true,
+    },
+    min_ad: {
+      type: 'integer',
+      nullable: true,
+    },
+    max_ad: {
+      type: 'integer',
+      nullable: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsSet = {
+  type: 'object',
+  description: 'Serializer for ``QueryPresetsSet``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    project: {
+      type: 'string',
+      format: 'uuid',
+      description: 'Project SODAR UUID',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'label', 'project', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQueryPresetsSetDetails = {
+  type: 'object',
+  description:
+    'Serializer for ``QueryPresetsSet`` that renders all nested versions.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    project: {
+      type: 'string',
+      format: 'uuid',
+      description: 'Project SODAR UUID',
+      readOnly: true,
+    },
+    versions: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails',
+      },
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'project',
+    'sodar_uuid',
+    'versions',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsSetVersion = {
+  type: 'object',
+  description: 'Serializer for ``QueryPresetsSetVersion``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    presetsset: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    version_major: {
+      type: 'integer',
+      default: 1,
+    },
+    version_minor: {
+      type: 'integer',
+      default: 0,
+    },
+    status: {
+      type: 'string',
+      default: 'draft',
+    },
+    signed_off_by: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SODARUser',
+        },
+      ],
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'presetsset',
+    'signed_off_by',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsSetVersionDetails = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsSetVersion\`\` (for \`\`*-detail\`\`).
+
+When retrieving the details of a seqvar query preset set version, we also render the
+owned records as well as the presetsset.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    presetsset: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SeqvarsQueryPresetsSet',
+        },
+      ],
+      readOnly: true,
+    },
+    version_major: {
+      type: 'integer',
+      default: 1,
+    },
+    version_minor: {
+      type: 'integer',
+      default: 0,
+    },
+    status: {
+      type: 'string',
+      default: 'draft',
+    },
+    signed_off_by: {
+      allOf: [
+        {
+          $ref: '#/components/schemas/SODARUser',
+        },
+      ],
+      readOnly: true,
+    },
+    seqvarsquerypresetsquality_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsQuality',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetsfrequency_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetsconsequence_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetslocus_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsLocus',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetsphenotypeprio_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetsvariantprio_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetsclinvar_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar',
+      },
+      readOnly: true,
+    },
+    seqvarsquerypresetscolumns_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsQueryPresetsColumns',
+      },
+      readOnly: true,
+    },
+    seqvarspredefinedquery_set: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/SeqvarsPredefinedQuery',
+      },
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'presetsset',
+    'seqvarspredefinedquery_set',
+    'seqvarsquerypresetsclinvar_set',
+    'seqvarsquerypresetscolumns_set',
+    'seqvarsquerypresetsconsequence_set',
+    'seqvarsquerypresetsfrequency_set',
+    'seqvarsquerypresetslocus_set',
+    'seqvarsquerypresetsphenotypeprio_set',
+    'seqvarsquerypresetsquality_set',
+    'seqvarsquerypresetsvariantprio_set',
+    'signed_off_by',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQueryPresetsVariantPrio = {
+  type: 'object',
+  description: `Serializer for \`\`QueryPresetsVariantPrio\`\`.
+
+Not used directly but used as base class.`,
+  properties: {
+    variant_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    services: {
+      $ref: '#/components/schemas/SeqvarsPrioServiceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    rank: {
+      type: 'integer',
+      default: 1,
+    },
+    label: {
+      type: 'string',
+      maxLength: 128,
+    },
+    description: {
+      type: 'string',
+      nullable: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'date_created',
+    'date_modified',
+    'label',
+    'presetssetversion',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsQuerySettings = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettings``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    genotype: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    quality: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    consequence: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    locus: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    frequency: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    phenotypeprio: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    variantprio: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    clinvar: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: [
+    'clinvar',
+    'consequence',
+    'date_created',
+    'date_modified',
+    'frequency',
+    'genotype',
+    'locus',
+    'phenotypeprio',
+    'presetssetversion',
+    'quality',
+    'session',
+    'sodar_uuid',
+    'variantprio',
+  ],
+} as const
+
+export const $SeqvarsQuerySettingsClinvar = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsClinvar``.',
+  properties: {
+    clinvar_presence_required: {
+      type: 'boolean',
+      default: false,
+    },
+    clinvar_germline_aggregate_description: {
+      $ref: '#/components/schemas/ClinvarGermlineAggregateDescriptionList',
+    },
+    allow_conflicting_interpretations: {
+      type: 'boolean',
+      default: false,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsConsequence = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsConsequence``.',
+  properties: {
+    variant_types: {
+      $ref: '#/components/schemas/SeqvarsVariantTypeChoiceList',
+    },
+    transcript_types: {
+      $ref: '#/components/schemas/SeqvarsTranscriptTypeChoiceList',
+    },
+    variant_consequences: {
+      $ref: '#/components/schemas/SeqvarsVariantConsequenceChoiceList',
+    },
+    max_distance_to_exon: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsDetails = {
+  type: 'object',
+  description: `Serializer for \`\`QuerySettings\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested
+owned category settings.`,
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    session: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    presetssetversion: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    genotype: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype',
+    },
+    quality: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsQuality',
+    },
+    consequence: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsConsequence',
+    },
+    locus: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsLocus',
+    },
+    frequency: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsFrequency',
+    },
+    phenotypeprio: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsPhenotypePrio',
+    },
+    variantprio: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrio',
+    },
+    clinvar: {
+      $ref: '#/components/schemas/SeqvarsQuerySettingsClinvar',
+    },
+  },
+  required: [
+    'clinvar',
+    'consequence',
+    'date_created',
+    'date_modified',
+    'frequency',
+    'genotype',
+    'locus',
+    'phenotypeprio',
+    'presetssetversion',
+    'quality',
+    'session',
+    'sodar_uuid',
+    'variantprio',
+  ],
+} as const
+
+export const $SeqvarsQuerySettingsFrequency = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsFrequency``.',
+  properties: {
+    gnomad_exomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_exomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_exomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_exomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    gnomad_genomes_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    gnomad_genomes_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    gnomad_genomes_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    gnomad_genomes_hemizygous: {
+      type: 'boolean',
+      nullable: true,
+    },
+    helixmtdb_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    helixmtdb_heteroplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_homoplasmic: {
+      type: 'integer',
+      nullable: true,
+    },
+    helixmtdb_frequency: {
+      type: 'number',
+      format: 'double',
+      nullable: true,
+    },
+    inhouse_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    inhouse_carriers: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_homozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_heterozygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    inhouse_hemizygous: {
+      type: 'integer',
+      nullable: true,
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsGenotype = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsGenotype``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    sample_genotype_choices: {
+      $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList',
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsLocus = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsLocus``.',
+  properties: {
+    genes: {
+      $ref: '#/components/schemas/GeneList',
+    },
+    gene_panels: {
+      $ref: '#/components/schemas/GenePanelList',
+    },
+    genome_regions: {
+      $ref: '#/components/schemas/GenomeRegionList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsPhenotypePrio = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsPhenotypePrio``.',
+  properties: {
+    phenotype_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    phenotype_prio_algorithm: {
+      type: 'string',
+      nullable: true,
+      maxLength: 128,
+    },
+    terms: {
+      $ref: '#/components/schemas/TermPresenceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsQuality = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsQuality``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    sample_quality_filters: {
+      $ref: '#/components/schemas/SeqvarsSampleQualityFilterList',
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsQuerySettingsVariantPrio = {
+  type: 'object',
+  description: 'Serializer for ``QuerySettingsVariantPrio``.',
+  properties: {
+    variant_prio_enabled: {
+      type: 'boolean',
+      default: false,
+    },
+    services: {
+      $ref: '#/components/schemas/SeqvarsPrioServiceList',
+    },
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    querysettings: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+  },
+  required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid'],
+} as const
+
+export const $SeqvarsResultRow = {
+  type: 'object',
+  description: 'Serializer for ``ResultRow``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    resultset: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    release: {
+      type: 'string',
+      readOnly: true,
+    },
+    chromosome: {
+      type: 'string',
+      readOnly: true,
+    },
+    chromosome_no: {
+      type: 'integer',
+      readOnly: true,
+    },
+    start: {
+      type: 'integer',
+      readOnly: true,
+    },
+    stop: {
+      type: 'integer',
+      readOnly: true,
+    },
+    reference: {
+      type: 'string',
+      readOnly: true,
+    },
+    alternative: {
+      type: 'string',
+      readOnly: true,
+    },
+    payload: {
+      $ref: '#/components/schemas/SchemaField',
+    },
+  },
+  required: [
+    'alternative',
+    'chromosome',
+    'chromosome_no',
+    'payload',
+    'reference',
+    'release',
+    'resultset',
+    'sodar_uuid',
+    'start',
+    'stop',
+  ],
+} as const
+
+export const $SeqvarsResultSet = {
+  type: 'object',
+  description: 'Serializer for ``ResultSet``.',
+  properties: {
+    sodar_uuid: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    date_created: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    date_modified: {
+      type: 'string',
+      format: 'date-time',
+      readOnly: true,
+    },
+    queryexecution: {
+      type: 'string',
+      format: 'uuid',
+      readOnly: true,
+    },
+    datasource_infos: {
+      $ref: '#/components/schemas/SchemaField',
+    },
+  },
+  required: [
+    'datasource_infos',
+    'date_created',
+    'date_modified',
+    'queryexecution',
+    'sodar_uuid',
+  ],
+} as const
+
+export const $SeqvarsSampleGenotypeChoiceList = {
+  type: 'array',
+  title: 'SeqvarsSampleGenotypeChoiceList',
+  items: {
+    description: 'Store the genotype of a sample.',
+    properties: {
+      sample: {
+        title: 'Sample',
+        type: 'string',
+      },
+      genotype: {
+        $ref: '#/components/schemas/SeqvarsGenotypeChoice',
+      },
+    },
+    required: ['sample', 'genotype'],
+    title: 'SeqvarsSampleGenotypeChoice',
+    type: 'object',
+  },
+} as const
+
+export const $SeqvarsSampleQualityFilterList = {
+  type: 'array',
+  title: 'SeqvarsSampleQualityFilterList',
+  items: {
+    description:
+      'Stores per-sample quality filter settings for a particular query.',
+    properties: {
+      sample: {
+        title: 'Sample',
+        type: 'string',
+      },
+      filter_active: {
+        default: false,
+        title: 'Filter Active',
+        type: 'boolean',
+      },
+      min_dp_het: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Min Dp Het',
+      },
+      min_dp_hom: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Min Dp Hom',
+      },
+      min_ab_het: {
+        anyOf: [
+          {
+            type: 'number',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Min Ab Het',
+      },
+      min_gq: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Min Gq',
+      },
+      min_ad: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Min Ad',
+      },
+      max_ad: {
+        anyOf: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Max Ad',
+      },
+    },
+    required: ['sample'],
+    title: 'SeqvarsSampleQualityFilter',
+    type: 'object',
+  },
+} as const
+
+export const $SeqvarsTranscriptTypeChoiceList = {
+  type: 'array',
+  title: 'SeqvarsTranscriptTypeChoiceList',
+  items: {
+    type: 'string',
+    title: 'SeqvarsTranscriptTypeChoice',
+    enum: ['coding', 'non_coding'],
+  },
+} as const
+
+export const $SeqvarsVariantConsequenceChoiceList = {
+  type: 'array',
+  title: 'SeqvarsVariantConsequenceChoiceList',
+  items: {
+    type: 'string',
+    title: 'SeqvarsVariantConsequenceChoice',
+    enum: [
+      'frameshift_variant',
+      'rare_amino_acid_variant',
+      'splice_acceptor_variant',
+      'splice_donor_variant',
+      'start_lost',
+      'stop_gained',
+      'stop_lost',
+      '3_prime_UTR_truncation',
+      '5_prime_UTR_truncation',
+      'conservative_inframe_deletion',
+      'conservative_inframe_insertion',
+      'disruptive_inframe_deletion',
+      'disruptive_inframe_insertion',
+      'missense_variant',
+      'splice_region_variant',
+      'initiator_codon_variant',
+      'start_retained',
+      'stop_retained_variant',
+      'synonymous_variant',
+      'downstream_gene_variant',
+      'intron_variant',
+      'non_coding_transcript_exon_variant',
+      'non_coding_transcript_intron_variant',
+      '5_prime_UTR_variant',
+      'coding_sequence_variant',
+      'upstream_gene_variant',
+      '3_prime_UTR_variant-exon_variant',
+      '5_prime_UTR_variant-exon_variant',
+      '3_prime_UTR_variant-intron_variant',
+      '5_prime_UTR_variant-intron_variant',
+    ],
+  },
+} as const
+
+export const $SeqvarsVariantTypeChoiceList = {
+  type: 'array',
+  title: 'SeqvarsVariantTypeChoiceList',
+  items: {
+    type: 'string',
+    title: 'SeqvarsVariantTypeChoice',
+    enum: ['snv', 'indel', 'mnv', 'complex_substitution'],
+  },
+} as const
+
 export const $SvAnnotationReleaseInfo = {
   type: 'object',
   description: 'Base serializer for any SODAR model with a sodar_uuid field',
@@ -3789,6 +7284,59 @@ export const $TargetBedFile = {
     'file_uri',
     'sodar_uuid',
   ],
+} as const
+
+export const $Term = {
+  description: 'Representation of a condition (phenotype / disease) term.',
+  properties: {
+    term_id: {
+      title: 'Term Id',
+      type: 'string',
+    },
+    label: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Label',
+    },
+  },
+  required: ['term_id', 'label'],
+  title: 'Term',
+  type: 'object',
+} as const
+
+export const $TermPresenceList = {
+  type: 'array',
+  title: 'TermPresenceList',
+  items: {
+    description:
+      'Representation of a term with optional presence (default is not excluded).',
+    properties: {
+      term: {
+        $ref: '#/components/schemas/Term',
+      },
+      excluded: {
+        anyOf: [
+          {
+            type: 'boolean',
+          },
+          {
+            type: 'null',
+          },
+        ],
+        default: null,
+        title: 'Excluded',
+      },
+    },
+    required: ['term'],
+    title: 'TermPresence',
+    type: 'object',
+  },
 } as const
 
 export const $VarfishStats = {

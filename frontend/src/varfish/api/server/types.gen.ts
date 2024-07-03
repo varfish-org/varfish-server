@@ -99,6 +99,37 @@ export type BcftoolsStatsTstvRecordList = Array<{
 }>
 
 /**
+ * Serializer for ``CaseAnalysis``.
+ */
+export type CaseAnalysis = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  /**
+   * Case SODAR UUID
+   */
+  readonly case: string
+}
+
+/**
+ * Serializer for ``CaseAnalysisSession``.
+ */
+export type CaseAnalysisSession = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly caseanalysis: string
+  /**
+   * Case SODAR UUID
+   */
+  readonly case: string
+  /**
+   * User SODAR UUID
+   */
+  readonly user: string
+}
+
+/**
  * Serializer for ``CaseComments``.
  */
 export type CaseComment = {
@@ -300,6 +331,14 @@ export type CaseStatusEnum =
   | 'closed-unsolved'
   | 'closed-uncertain'
   | 'closed-solved'
+
+export type ClinvarGermlineAggregateDescriptionList = Array<
+  | 'pathogenic'
+  | 'likely_pathogenic'
+  | 'uncertain_significance'
+  | 'likely_benign'
+  | 'benign'
+>
 
 export type CraminoChromNormalizedCountsRecordList = Array<{
   chrom_name: string
@@ -615,6 +654,14 @@ export type EnrichmentKit = {
   description?: string | null
 }
 
+export type GeneList = Array<{
+  hgnc_id: string
+  symbol: string
+  name?: string | null
+  entrez_id?: number | null
+  ensembl_id?: string | null
+}>
+
 /**
  * Serializer that serializes ``GenePanel``.
  */
@@ -664,12 +711,29 @@ export type GenePanelCategory = {
   readonly genepanel_set: GenePanel
 }
 
+export type GenePanelList = Array<{
+  source: GenePanelSource
+  panel_id: string
+  name: string
+  version: string
+}>
+
+/**
+ * The source of a gene panel.
+ */
+export type GenePanelSource = 'panelapp' | 'internal'
+
 /**
  * * `draft` - draft
  * * `active` - active
  * * `retired` - retired
  */
 export type GenePanelStateEnum = 'draft' | 'active' | 'retired'
+
+export type GenomeRegionList = Array<{
+  chromosome: string
+  range?: OneBasedRange | null
+}>
 
 /**
  * * `grch37` - GRCh37
@@ -707,6 +771,26 @@ export type NgsbitsMappingqcRecordList = Array<{
 
 export type NullEnum = unknown
 
+/**
+ * Representation of a 1-based range.
+ */
+export type OneBasedRange = {
+  start: number
+  end: number
+}
+
+export type PaginatedCaseAnalysisList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<CaseAnalysis>
+}
+
+export type PaginatedCaseAnalysisSessionList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<CaseAnalysisSession>
+}
+
 export type PaginatedCaseImportActionList = {
   count?: number
   next?: string | null
@@ -719,6 +803,102 @@ export type PaginatedCaseSerializerNgList = {
   next?: string | null
   previous?: string | null
   results?: Array<CaseSerializerNg>
+}
+
+export type PaginatedSeqvarsPredefinedQueryList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsPredefinedQuery>
+}
+
+export type PaginatedSeqvarsQueryExecutionList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryExecution>
+}
+
+export type PaginatedSeqvarsQueryList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQuery>
+}
+
+export type PaginatedSeqvarsQueryPresetsClinvarList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsClinvar>
+}
+
+export type PaginatedSeqvarsQueryPresetsColumnsList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsColumns>
+}
+
+export type PaginatedSeqvarsQueryPresetsConsequenceList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsConsequence>
+}
+
+export type PaginatedSeqvarsQueryPresetsFrequencyList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsFrequency>
+}
+
+export type PaginatedSeqvarsQueryPresetsLocusList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsLocus>
+}
+
+export type PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsPhenotypePrio>
+}
+
+export type PaginatedSeqvarsQueryPresetsQualityList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsQuality>
+}
+
+export type PaginatedSeqvarsQueryPresetsSetList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsSet>
+}
+
+export type PaginatedSeqvarsQueryPresetsSetVersionList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsSetVersion>
+}
+
+export type PaginatedSeqvarsQueryPresetsVariantPrioList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQueryPresetsVariantPrio>
+}
+
+export type PaginatedSeqvarsQuerySettingsList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsQuerySettings>
+}
+
+export type PaginatedSeqvarsResultRowList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsResultRow>
+}
+
+export type PaginatedSeqvarsResultSetList = {
+  next?: string | null
+  previous?: string | null
+  results?: Array<SeqvarsResultSet>
 }
 
 /**
@@ -850,6 +1030,260 @@ export type PatchedEnrichmentKit = {
 }
 
 /**
+ * Serializer for ``PredefinedQuery``.
+ */
+export type PatchedSeqvarsPredefinedQuery = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+  included_in_sop?: boolean
+  genotype?: SchemaField
+  quality?: string | null
+  frequency?: string | null
+  consequence?: string | null
+  locus?: string | null
+  phenotypeprio?: string | null
+  variantprio?: string | null
+  clinvar?: string | null
+  columns?: string | null
+}
+
+/**
+ * Serializer for ``Query`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested query settings
+ * in detail.
+ */
+export type PatchedSeqvarsQueryDetails = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  readonly session?: string
+  settings?: SeqvarsQuerySettingsDetails
+  columnsconfig?: SeqvarsQueryColumnsConfig
+}
+
+/**
+ * Serializer for ``QueryPresetsClinvar``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsClinvar = {
+  clinvar_presence_required?: boolean
+  clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList
+  allow_conflicting_interpretations?: boolean
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsColumns``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsColumns = {
+  column_settings?: SeqvarsColumnConfigList
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsConsequence``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsConsequence = {
+  variant_types?: SeqvarsVariantTypeChoiceList
+  transcript_types?: SeqvarsTranscriptTypeChoiceList
+  variant_consequences?: SeqvarsVariantConsequenceChoiceList
+  max_distance_to_exon?: number | null
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsFrequency``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsFrequency = {
+  gnomad_exomes_enabled?: boolean
+  gnomad_exomes_frequency?: number | null
+  gnomad_exomes_homozygous?: number | null
+  gnomad_exomes_heterozygous?: number | null
+  gnomad_exomes_hemizygous?: boolean | null
+  gnomad_genomes_enabled?: boolean
+  gnomad_genomes_frequency?: number | null
+  gnomad_genomes_homozygous?: number | null
+  gnomad_genomes_heterozygous?: number | null
+  gnomad_genomes_hemizygous?: boolean | null
+  helixmtdb_enabled?: boolean
+  helixmtdb_heteroplasmic?: number | null
+  helixmtdb_homoplasmic?: number | null
+  helixmtdb_frequency?: number | null
+  inhouse_enabled?: boolean
+  inhouse_carriers?: number | null
+  inhouse_homozygous?: number | null
+  inhouse_heterozygous?: number | null
+  inhouse_hemizygous?: number | null
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsLocus``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsLocus = {
+  genes?: GeneList
+  gene_panels?: GenePanelList
+  genome_regions?: GenomeRegionList
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsPhenotypePrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsPhenotypePrio = {
+  phenotype_prio_enabled?: boolean
+  phenotype_prio_algorithm?: string | null
+  terms?: TermPresenceList
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsQuality``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsQuality = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+  filter_active?: boolean
+  min_dp_het?: number | null
+  min_dp_hom?: number | null
+  min_ab_het?: number | null
+  min_gq?: number | null
+  min_ad?: number | null
+  max_ad?: number | null
+}
+
+/**
+ * Serializer for ``QueryPresetsSet``.
+ */
+export type PatchedSeqvarsQueryPresetsSet = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  /**
+   * Project SODAR UUID
+   */
+  readonly project?: string
+}
+
+/**
+ * Serializer for ``QueryPresetsSetVersion``.
+ */
+export type PatchedSeqvarsQueryPresetsSetVersion = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  readonly presetsset?: string
+  version_major?: number
+  version_minor?: number
+  status?: string
+  readonly signed_off_by?: SODARUser
+}
+
+/**
+ * Serializer for ``QueryPresetsVariantPrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type PatchedSeqvarsQueryPresetsVariantPrio = {
+  variant_prio_enabled?: boolean
+  services?: SeqvarsPrioServiceList
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  rank?: number
+  label?: string
+  description?: string | null
+  readonly presetssetversion?: string
+}
+
+/**
+ * Serializer for ``QuerySettings`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested
+ * owned category settings.
+ */
+export type PatchedSeqvarsQuerySettingsDetails = {
+  readonly sodar_uuid?: string
+  readonly date_created?: string
+  readonly date_modified?: string
+  readonly session?: string
+  readonly presetssetversion?: string
+  genotype?: SeqvarsQuerySettingsGenotype
+  quality?: SeqvarsQuerySettingsQuality
+  consequence?: SeqvarsQuerySettingsConsequence
+  locus?: SeqvarsQuerySettingsLocus
+  frequency?: SeqvarsQuerySettingsFrequency
+  phenotypeprio?: SeqvarsQuerySettingsPhenotypePrio
+  variantprio?: SeqvarsQuerySettingsVariantPrio
+  clinvar?: SeqvarsQuerySettingsClinvar
+}
+
+/**
  * Serializer for ``TargetBedFile``.
  */
 export type PatchedTargetBedFile = {
@@ -899,6 +1333,23 @@ export type RegionVariantStats = {
   transition_count: number
   transversion_count: number
   tstv_ratio: number
+}
+
+/**
+ * Serializer for the user model used in SODAR Core based sites
+ */
+export type SODARUser = {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
+  username: string
+  name?: string
+  email?: string
+  /**
+   * Designates that this user has all permissions without explicitly assigning them.
+   */
+  is_superuser?: boolean
+  readonly sodar_uuid: string
 }
 
 export type SampleAlignmentStatsList = Array<{
@@ -1092,6 +1543,619 @@ export type SchemaField = {
   with_mate_mapped_to_different_chr_mapq5?: number
 }
 
+export type SeqvarsColumnConfigList = Array<{
+  name: string
+  label: string
+  description?: string | null
+  width: number
+  visible: boolean
+}>
+
+/**
+ * Store genotype choice of a ``SampleGenotype``.
+ */
+export type SeqvarsGenotypeChoice =
+  | 'any'
+  | 'ref'
+  | 'het'
+  | 'hom'
+  | 'non-hom'
+  | 'variant'
+  | 'comphet_index'
+  | 'recessive_index'
+  | 'recessive_parent'
+
+/**
+ * Serializer for ``PredefinedQuery``.
+ */
+export type SeqvarsPredefinedQuery = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+  included_in_sop?: boolean
+  genotype?: SchemaField
+  quality?: string | null
+  frequency?: string | null
+  consequence?: string | null
+  locus?: string | null
+  phenotypeprio?: string | null
+  variantprio?: string | null
+  clinvar?: string | null
+  columns?: string | null
+}
+
+export type SeqvarsPrioServiceList = Array<{
+  name: string
+  version: string
+}>
+
+/**
+ * Serializer for ``Query``.
+ */
+export type SeqvarsQuery = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  readonly session: string
+  readonly settings: string
+  readonly columnsconfig: string
+}
+
+/**
+ * Serializer for ``QueryColumnsConfig``.
+ */
+export type SeqvarsQueryColumnsConfig = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  column_settings?: SeqvarsColumnConfigList
+}
+
+/**
+ * Serializer for ``Query`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested query settings
+ * in detail.
+ */
+export type SeqvarsQueryDetails = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  readonly session: string
+  settings: SeqvarsQuerySettingsDetails
+  columnsconfig: SeqvarsQueryColumnsConfig
+}
+
+/**
+ * Serializer for ``QueryExecution``.
+ */
+export type SeqvarsQueryExecution = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly state: SeqvarsQueryExecutionStateEnum
+  readonly complete_percent: number | null
+  readonly start_time: string | null
+  readonly end_time: string | null
+  readonly elapsed_seconds: number | null
+  readonly query: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QueryExecution``.
+ */
+export type SeqvarsQueryExecutionDetails = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly state: SeqvarsQueryExecutionStateEnum
+  readonly complete_percent: number | null
+  readonly start_time: string | null
+  readonly end_time: string | null
+  readonly elapsed_seconds: number | null
+  readonly query: string
+  querysettings: SeqvarsQuerySettingsDetails
+}
+
+/**
+ * * `initial` - initial
+ * * `queued` - queued
+ * * `running` - running
+ * * `failed` - failed
+ * * `canceled` - canceled
+ * * `done` - done
+ */
+export type SeqvarsQueryExecutionStateEnum =
+  | 'initial'
+  | 'queued'
+  | 'running'
+  | 'failed'
+  | 'canceled'
+  | 'done'
+
+/**
+ * Serializer for ``QueryPresetsClinvar``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsClinvar = {
+  clinvar_presence_required?: boolean
+  clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList
+  allow_conflicting_interpretations?: boolean
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsColumns``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsColumns = {
+  column_settings?: SeqvarsColumnConfigList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsConsequence``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsConsequence = {
+  variant_types?: SeqvarsVariantTypeChoiceList
+  transcript_types?: SeqvarsTranscriptTypeChoiceList
+  variant_consequences?: SeqvarsVariantConsequenceChoiceList
+  max_distance_to_exon?: number | null
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsFrequency``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsFrequency = {
+  gnomad_exomes_enabled?: boolean
+  gnomad_exomes_frequency?: number | null
+  gnomad_exomes_homozygous?: number | null
+  gnomad_exomes_heterozygous?: number | null
+  gnomad_exomes_hemizygous?: boolean | null
+  gnomad_genomes_enabled?: boolean
+  gnomad_genomes_frequency?: number | null
+  gnomad_genomes_homozygous?: number | null
+  gnomad_genomes_heterozygous?: number | null
+  gnomad_genomes_hemizygous?: boolean | null
+  helixmtdb_enabled?: boolean
+  helixmtdb_heteroplasmic?: number | null
+  helixmtdb_homoplasmic?: number | null
+  helixmtdb_frequency?: number | null
+  inhouse_enabled?: boolean
+  inhouse_carriers?: number | null
+  inhouse_homozygous?: number | null
+  inhouse_heterozygous?: number | null
+  inhouse_hemizygous?: number | null
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsLocus``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsLocus = {
+  genes?: GeneList
+  gene_panels?: GenePanelList
+  genome_regions?: GenomeRegionList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsPhenotypePrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsPhenotypePrio = {
+  phenotype_prio_enabled?: boolean
+  phenotype_prio_algorithm?: string | null
+  terms?: TermPresenceList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QueryPresetsQuality``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsQuality = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+  filter_active?: boolean
+  min_dp_het?: number | null
+  min_dp_hom?: number | null
+  min_ab_het?: number | null
+  min_gq?: number | null
+  min_ad?: number | null
+  max_ad?: number | null
+}
+
+/**
+ * Serializer for ``QueryPresetsSet``.
+ */
+export type SeqvarsQueryPresetsSet = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  /**
+   * Project SODAR UUID
+   */
+  readonly project: string
+}
+
+/**
+ * Serializer for ``QueryPresetsSet`` that renders all nested versions.
+ */
+export type SeqvarsQueryPresetsSetDetails = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  /**
+   * Project SODAR UUID
+   */
+  readonly project: string
+  readonly versions: Array<SeqvarsQueryPresetsSetVersionDetails>
+}
+
+/**
+ * Serializer for ``QueryPresetsSetVersion``.
+ */
+export type SeqvarsQueryPresetsSetVersion = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly presetsset: string
+  version_major?: number
+  version_minor?: number
+  status?: string
+  readonly signed_off_by: SODARUser
+}
+
+/**
+ * Serializer for ``QueryPresetsSetVersion`` (for ``*-detail``).
+ *
+ * When retrieving the details of a seqvar query preset set version, we also render the
+ * owned records as well as the presetsset.
+ */
+export type SeqvarsQueryPresetsSetVersionDetails = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly presetsset: SeqvarsQueryPresetsSet
+  version_major?: number
+  version_minor?: number
+  status?: string
+  readonly signed_off_by: SODARUser
+  readonly seqvarsquerypresetsquality_set: Array<SeqvarsQueryPresetsQuality>
+  readonly seqvarsquerypresetsfrequency_set: Array<SeqvarsQueryPresetsFrequency>
+  readonly seqvarsquerypresetsconsequence_set: Array<SeqvarsQueryPresetsConsequence>
+  readonly seqvarsquerypresetslocus_set: Array<SeqvarsQueryPresetsLocus>
+  readonly seqvarsquerypresetsphenotypeprio_set: Array<SeqvarsQueryPresetsPhenotypePrio>
+  readonly seqvarsquerypresetsvariantprio_set: Array<SeqvarsQueryPresetsVariantPrio>
+  readonly seqvarsquerypresetsclinvar_set: Array<SeqvarsQueryPresetsClinvar>
+  readonly seqvarsquerypresetscolumns_set: Array<SeqvarsQueryPresetsColumns>
+  readonly seqvarspredefinedquery_set: Array<SeqvarsPredefinedQuery>
+}
+
+/**
+ * Serializer for ``QueryPresetsVariantPrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsVariantPrio = {
+  variant_prio_enabled?: boolean
+  services?: SeqvarsPrioServiceList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  rank?: number
+  label: string
+  description?: string | null
+  readonly presetssetversion: string
+}
+
+/**
+ * Serializer for ``QuerySettings``.
+ */
+export type SeqvarsQuerySettings = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly session: string
+  readonly presetssetversion: string
+  readonly genotype: string
+  readonly quality: string
+  readonly consequence: string
+  readonly locus: string
+  readonly frequency: string
+  readonly phenotypeprio: string
+  readonly variantprio: string
+  readonly clinvar: string
+}
+
+/**
+ * Serializer for ``QuerySettingsClinvar``.
+ */
+export type SeqvarsQuerySettingsClinvar = {
+  clinvar_presence_required?: boolean
+  clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList
+  allow_conflicting_interpretations?: boolean
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QuerySettingsConsequence``.
+ */
+export type SeqvarsQuerySettingsConsequence = {
+  variant_types?: SeqvarsVariantTypeChoiceList
+  transcript_types?: SeqvarsTranscriptTypeChoiceList
+  variant_consequences?: SeqvarsVariantConsequenceChoiceList
+  max_distance_to_exon?: number | null
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QuerySettings`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested
+ * owned category settings.
+ */
+export type SeqvarsQuerySettingsDetails = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly session: string
+  readonly presetssetversion: string
+  genotype: SeqvarsQuerySettingsGenotype
+  quality: SeqvarsQuerySettingsQuality
+  consequence: SeqvarsQuerySettingsConsequence
+  locus: SeqvarsQuerySettingsLocus
+  frequency: SeqvarsQuerySettingsFrequency
+  phenotypeprio: SeqvarsQuerySettingsPhenotypePrio
+  variantprio: SeqvarsQuerySettingsVariantPrio
+  clinvar: SeqvarsQuerySettingsClinvar
+}
+
+/**
+ * Serializer for ``QuerySettingsFrequency``.
+ */
+export type SeqvarsQuerySettingsFrequency = {
+  gnomad_exomes_enabled?: boolean
+  gnomad_exomes_frequency?: number | null
+  gnomad_exomes_homozygous?: number | null
+  gnomad_exomes_heterozygous?: number | null
+  gnomad_exomes_hemizygous?: boolean | null
+  gnomad_genomes_enabled?: boolean
+  gnomad_genomes_frequency?: number | null
+  gnomad_genomes_homozygous?: number | null
+  gnomad_genomes_heterozygous?: number | null
+  gnomad_genomes_hemizygous?: boolean | null
+  helixmtdb_enabled?: boolean
+  helixmtdb_heteroplasmic?: number | null
+  helixmtdb_homoplasmic?: number | null
+  helixmtdb_frequency?: number | null
+  inhouse_enabled?: boolean
+  inhouse_carriers?: number | null
+  inhouse_homozygous?: number | null
+  inhouse_heterozygous?: number | null
+  inhouse_hemizygous?: number | null
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QuerySettingsGenotype``.
+ */
+export type SeqvarsQuerySettingsGenotype = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+  sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList
+}
+
+/**
+ * Serializer for ``QuerySettingsLocus``.
+ */
+export type SeqvarsQuerySettingsLocus = {
+  genes?: GeneList
+  gene_panels?: GenePanelList
+  genome_regions?: GenomeRegionList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QuerySettingsPhenotypePrio``.
+ */
+export type SeqvarsQuerySettingsPhenotypePrio = {
+  phenotype_prio_enabled?: boolean
+  phenotype_prio_algorithm?: string | null
+  terms?: TermPresenceList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``QuerySettingsQuality``.
+ */
+export type SeqvarsQuerySettingsQuality = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+  sample_quality_filters?: SeqvarsSampleQualityFilterList
+}
+
+/**
+ * Serializer for ``QuerySettingsVariantPrio``.
+ */
+export type SeqvarsQuerySettingsVariantPrio = {
+  variant_prio_enabled?: boolean
+  services?: SeqvarsPrioServiceList
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly querysettings: string
+}
+
+/**
+ * Serializer for ``ResultRow``.
+ */
+export type SeqvarsResultRow = {
+  readonly sodar_uuid: string
+  readonly resultset: string
+  readonly release: string
+  readonly chromosome: string
+  readonly chromosome_no: number
+  readonly start: number
+  readonly stop: number
+  readonly reference: string
+  readonly alternative: string
+  payload: SchemaField
+}
+
+/**
+ * Serializer for ``ResultSet``.
+ */
+export type SeqvarsResultSet = {
+  readonly sodar_uuid: string
+  readonly date_created: string
+  readonly date_modified: string
+  readonly queryexecution: string
+  datasource_infos: SchemaField
+}
+
+export type SeqvarsSampleGenotypeChoiceList = Array<{
+  sample: string
+  genotype: SeqvarsGenotypeChoice
+}>
+
+export type SeqvarsSampleQualityFilterList = Array<{
+  sample: string
+  filter_active?: boolean
+  min_dp_het?: number | null
+  min_dp_hom?: number | null
+  min_ab_het?: number | null
+  min_gq?: number | null
+  min_ad?: number | null
+  max_ad?: number | null
+}>
+
+export type SeqvarsTranscriptTypeChoiceList = Array<'coding' | 'non_coding'>
+
+export type SeqvarsVariantConsequenceChoiceList = Array<
+  | 'frameshift_variant'
+  | 'rare_amino_acid_variant'
+  | 'splice_acceptor_variant'
+  | 'splice_donor_variant'
+  | 'start_lost'
+  | 'stop_gained'
+  | 'stop_lost'
+  | '3_prime_UTR_truncation'
+  | '5_prime_UTR_truncation'
+  | 'conservative_inframe_deletion'
+  | 'conservative_inframe_insertion'
+  | 'disruptive_inframe_deletion'
+  | 'disruptive_inframe_insertion'
+  | 'missense_variant'
+  | 'splice_region_variant'
+  | 'initiator_codon_variant'
+  | 'start_retained'
+  | 'stop_retained_variant'
+  | 'synonymous_variant'
+  | 'downstream_gene_variant'
+  | 'intron_variant'
+  | 'non_coding_transcript_exon_variant'
+  | 'non_coding_transcript_intron_variant'
+  | '5_prime_UTR_variant'
+  | 'coding_sequence_variant'
+  | 'upstream_gene_variant'
+  | '3_prime_UTR_variant-exon_variant'
+  | '5_prime_UTR_variant-exon_variant'
+  | '3_prime_UTR_variant-intron_variant'
+  | '5_prime_UTR_variant-intron_variant'
+>
+
+export type SeqvarsVariantTypeChoiceList = Array<
+  'snv' | 'indel' | 'mnv' | 'complex_substitution'
+>
+
 /**
  * Base serializer for any SODAR model with a sodar_uuid field
  */
@@ -1133,6 +2197,19 @@ export type TargetBedFile = {
 }
 
 /**
+ * Representation of a condition (phenotype / disease) term.
+ */
+export type Term = {
+  term_id: string
+  label: string | null
+}
+
+export type TermPresenceList = Array<{
+  term: Term
+  excluded?: boolean | null
+}>
+
+/**
  * Serializer for common-denominator stats objects
  */
 export type VarfishStats = {
@@ -1144,6 +2221,70 @@ export type VarfishStats = {
 }
 
 export type strList = Array<string>
+
+export type CasesAnalysisApiCaseanalysisListData = {
+  path: {
+    case: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type CasesAnalysisApiCaseanalysisListResponse = PaginatedCaseAnalysisList
+
+export type CasesAnalysisApiCaseanalysisListError = unknown
+
+export type CasesAnalysisApiCaseanalysisRetrieveData = {
+  path: {
+    case: string
+    caseanalysis: string
+  }
+}
+
+export type CasesAnalysisApiCaseanalysisRetrieveResponse = CaseAnalysis
+
+export type CasesAnalysisApiCaseanalysisRetrieveError = unknown
+
+export type CasesAnalysisApiCaseanalysissessionListData = {
+  path: {
+    case: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type CasesAnalysisApiCaseanalysissessionListResponse =
+  PaginatedCaseAnalysisSessionList
+
+export type CasesAnalysisApiCaseanalysissessionListError = unknown
+
+export type CasesAnalysisApiCaseanalysissessionRetrieveData = {
+  path: {
+    case: string
+    caseanalysissession: string
+  }
+}
+
+export type CasesAnalysisApiCaseanalysissessionRetrieveResponse =
+  CaseAnalysisSession
+
+export type CasesAnalysisApiCaseanalysissessionRetrieveError = unknown
 
 export type CasesImportApiCaseImportActionListCreateListData = {
   path: {
@@ -1561,7 +2702,1226 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse = void
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError = unknown
 
+export type SeqvarsApiPredefinedqueryListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiPredefinedqueryListResponse =
+  PaginatedSeqvarsPredefinedQueryList
+
+export type SeqvarsApiPredefinedqueryListError = unknown
+
+export type SeqvarsApiPredefinedqueryCreateData = {
+  body: SeqvarsPredefinedQuery
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiPredefinedqueryCreateResponse = SeqvarsPredefinedQuery
+
+export type SeqvarsApiPredefinedqueryCreateError = unknown
+
+export type SeqvarsApiPredefinedqueryRetrieveData = {
+  path: {
+    predefinedquery: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiPredefinedqueryRetrieveResponse = SeqvarsPredefinedQuery
+
+export type SeqvarsApiPredefinedqueryRetrieveError = unknown
+
+export type SeqvarsApiPredefinedqueryUpdateData = {
+  body: SeqvarsPredefinedQuery
+  path: {
+    predefinedquery: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiPredefinedqueryUpdateResponse = SeqvarsPredefinedQuery
+
+export type SeqvarsApiPredefinedqueryUpdateError = unknown
+
+export type SeqvarsApiPredefinedqueryPartialUpdateData = {
+  body?: PatchedSeqvarsPredefinedQuery
+  path: {
+    predefinedquery: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiPredefinedqueryPartialUpdateResponse =
+  SeqvarsPredefinedQuery
+
+export type SeqvarsApiPredefinedqueryPartialUpdateError = unknown
+
+export type SeqvarsApiPredefinedqueryDestroyData = {
+  path: {
+    predefinedquery: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiPredefinedqueryDestroyResponse = void
+
+export type SeqvarsApiPredefinedqueryDestroyError = unknown
+
+export type SeqvarsApiQueryListData = {
+  path: {
+    session: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQueryListResponse = PaginatedSeqvarsQueryList
+
+export type SeqvarsApiQueryListError = unknown
+
+export type SeqvarsApiQueryCreateData = {
+  body: SeqvarsQueryDetails
+  path: {
+    session: string
+  }
+}
+
+export type SeqvarsApiQueryCreateResponse = SeqvarsQueryDetails
+
+export type SeqvarsApiQueryCreateError = unknown
+
+export type SeqvarsApiQueryRetrieveData = {
+  path: {
+    query: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQueryRetrieveResponse = SeqvarsQueryDetails
+
+export type SeqvarsApiQueryRetrieveError = unknown
+
+export type SeqvarsApiQueryUpdateData = {
+  body: SeqvarsQueryDetails
+  path: {
+    query: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQueryUpdateResponse = SeqvarsQueryDetails
+
+export type SeqvarsApiQueryUpdateError = unknown
+
+export type SeqvarsApiQueryPartialUpdateData = {
+  body?: PatchedSeqvarsQueryDetails
+  path: {
+    query: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQueryPartialUpdateResponse = SeqvarsQueryDetails
+
+export type SeqvarsApiQueryPartialUpdateError = unknown
+
+export type SeqvarsApiQueryDestroyData = {
+  path: {
+    query: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQueryDestroyResponse = void
+
+export type SeqvarsApiQueryDestroyError = unknown
+
+export type SeqvarsApiQueryexecutionListData = {
+  path: {
+    query: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQueryexecutionListResponse =
+  PaginatedSeqvarsQueryExecutionList
+
+export type SeqvarsApiQueryexecutionListError = unknown
+
+export type SeqvarsApiQueryexecutionRetrieveData = {
+  path: {
+    query: string
+    queryexecution: string
+  }
+}
+
+export type SeqvarsApiQueryexecutionRetrieveResponse =
+  SeqvarsQueryExecutionDetails
+
+export type SeqvarsApiQueryexecutionRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarListResponse =
+  PaginatedSeqvarsQueryPresetsClinvarList
+
+export type SeqvarsApiQuerypresetsclinvarListError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarCreateData = {
+  body: SeqvarsQueryPresetsClinvar
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarCreateResponse =
+  SeqvarsQueryPresetsClinvar
+
+export type SeqvarsApiQuerypresetsclinvarCreateError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarRetrieveData = {
+  path: {
+    querypresetsclinvar: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarRetrieveResponse =
+  SeqvarsQueryPresetsClinvar
+
+export type SeqvarsApiQuerypresetsclinvarRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarUpdateData = {
+  body: SeqvarsQueryPresetsClinvar
+  path: {
+    querypresetsclinvar: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarUpdateResponse =
+  SeqvarsQueryPresetsClinvar
+
+export type SeqvarsApiQuerypresetsclinvarUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsClinvar
+  path: {
+    querypresetsclinvar: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarPartialUpdateResponse =
+  SeqvarsQueryPresetsClinvar
+
+export type SeqvarsApiQuerypresetsclinvarPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsclinvarDestroyData = {
+  path: {
+    querypresetsclinvar: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsclinvarDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsclinvarDestroyError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsListResponse =
+  PaginatedSeqvarsQueryPresetsColumnsList
+
+export type SeqvarsApiQuerypresetscolumnsListError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsCreateData = {
+  body: SeqvarsQueryPresetsColumns
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsCreateResponse =
+  SeqvarsQueryPresetsColumns
+
+export type SeqvarsApiQuerypresetscolumnsCreateError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsRetrieveData = {
+  path: {
+    querypresetscolumns: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsRetrieveResponse =
+  SeqvarsQueryPresetsColumns
+
+export type SeqvarsApiQuerypresetscolumnsRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsUpdateData = {
+  body: SeqvarsQueryPresetsColumns
+  path: {
+    querypresetscolumns: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsUpdateResponse =
+  SeqvarsQueryPresetsColumns
+
+export type SeqvarsApiQuerypresetscolumnsUpdateError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsColumns
+  path: {
+    querypresetscolumns: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsPartialUpdateResponse =
+  SeqvarsQueryPresetsColumns
+
+export type SeqvarsApiQuerypresetscolumnsPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetscolumnsDestroyData = {
+  path: {
+    querypresetscolumns: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetscolumnsDestroyResponse = void
+
+export type SeqvarsApiQuerypresetscolumnsDestroyError = unknown
+
+export type SeqvarsApiQuerypresetsconsequenceListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequenceListResponse =
+  PaginatedSeqvarsQueryPresetsConsequenceList
+
+export type SeqvarsApiQuerypresetsconsequenceListError = unknown
+
+export type SeqvarsApiQuerypresetsconsequenceCreateData = {
+  body: SeqvarsQueryPresetsConsequence
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequenceCreateResponse =
+  SeqvarsQueryPresetsConsequence
+
+export type SeqvarsApiQuerypresetsconsequenceCreateError = unknown
+
+export type SeqvarsApiQuerypresetsconsequenceRetrieveData = {
+  path: {
+    querypresetsconsequence: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequenceRetrieveResponse =
+  SeqvarsQueryPresetsConsequence
+
+export type SeqvarsApiQuerypresetsconsequenceRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsconsequenceUpdateData = {
+  body: SeqvarsQueryPresetsConsequence
+  path: {
+    querypresetsconsequence: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequenceUpdateResponse =
+  SeqvarsQueryPresetsConsequence
+
+export type SeqvarsApiQuerypresetsconsequenceUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsconsequencePartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsConsequence
+  path: {
+    querypresetsconsequence: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequencePartialUpdateResponse =
+  SeqvarsQueryPresetsConsequence
+
+export type SeqvarsApiQuerypresetsconsequencePartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsconsequenceDestroyData = {
+  path: {
+    querypresetsconsequence: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsconsequenceDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsconsequenceDestroyError = unknown
+
+export type SeqvarsApiQuerypresetsfactorydefaultsListData = {
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsfactorydefaultsListResponse =
+  PaginatedSeqvarsQueryPresetsSetList
+
+export type SeqvarsApiQuerypresetsfactorydefaultsListError = unknown
+
+export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveData = {
+  path: {
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse =
+  SeqvarsQueryPresetsSetDetails
+
+export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyListResponse =
+  PaginatedSeqvarsQueryPresetsFrequencyList
+
+export type SeqvarsApiQuerypresetsfrequencyListError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyCreateData = {
+  body: SeqvarsQueryPresetsFrequency
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyCreateResponse =
+  SeqvarsQueryPresetsFrequency
+
+export type SeqvarsApiQuerypresetsfrequencyCreateError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyRetrieveData = {
+  path: {
+    querypresetsfrequency: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyRetrieveResponse =
+  SeqvarsQueryPresetsFrequency
+
+export type SeqvarsApiQuerypresetsfrequencyRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyUpdateData = {
+  body: SeqvarsQueryPresetsFrequency
+  path: {
+    querypresetsfrequency: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyUpdateResponse =
+  SeqvarsQueryPresetsFrequency
+
+export type SeqvarsApiQuerypresetsfrequencyUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsFrequency
+  path: {
+    querypresetsfrequency: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse =
+  SeqvarsQueryPresetsFrequency
+
+export type SeqvarsApiQuerypresetsfrequencyPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsfrequencyDestroyData = {
+  path: {
+    querypresetsfrequency: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsfrequencyDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsfrequencyDestroyError = unknown
+
+export type SeqvarsApiQuerypresetslocusListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusListResponse =
+  PaginatedSeqvarsQueryPresetsLocusList
+
+export type SeqvarsApiQuerypresetslocusListError = unknown
+
+export type SeqvarsApiQuerypresetslocusCreateData = {
+  body: SeqvarsQueryPresetsLocus
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusCreateResponse = SeqvarsQueryPresetsLocus
+
+export type SeqvarsApiQuerypresetslocusCreateError = unknown
+
+export type SeqvarsApiQuerypresetslocusRetrieveData = {
+  path: {
+    querypresetslocus: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusRetrieveResponse =
+  SeqvarsQueryPresetsLocus
+
+export type SeqvarsApiQuerypresetslocusRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetslocusUpdateData = {
+  body: SeqvarsQueryPresetsLocus
+  path: {
+    querypresetslocus: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusUpdateResponse = SeqvarsQueryPresetsLocus
+
+export type SeqvarsApiQuerypresetslocusUpdateError = unknown
+
+export type SeqvarsApiQuerypresetslocusPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsLocus
+  path: {
+    querypresetslocus: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusPartialUpdateResponse =
+  SeqvarsQueryPresetsLocus
+
+export type SeqvarsApiQuerypresetslocusPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetslocusDestroyData = {
+  path: {
+    querypresetslocus: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetslocusDestroyResponse = void
+
+export type SeqvarsApiQuerypresetslocusDestroyError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioListResponse =
+  PaginatedSeqvarsQueryPresetsPhenotypePrioList
+
+export type SeqvarsApiQuerypresetsphenotypeprioListError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioCreateData = {
+  body: SeqvarsQueryPresetsPhenotypePrio
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioCreateResponse =
+  SeqvarsQueryPresetsPhenotypePrio
+
+export type SeqvarsApiQuerypresetsphenotypeprioCreateError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioRetrieveData = {
+  path: {
+    querypresetsphenotypeprio: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse =
+  SeqvarsQueryPresetsPhenotypePrio
+
+export type SeqvarsApiQuerypresetsphenotypeprioRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioUpdateData = {
+  body: SeqvarsQueryPresetsPhenotypePrio
+  path: {
+    querypresetsphenotypeprio: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioUpdateResponse =
+  SeqvarsQueryPresetsPhenotypePrio
+
+export type SeqvarsApiQuerypresetsphenotypeprioUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsPhenotypePrio
+  path: {
+    querypresetsphenotypeprio: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse =
+  SeqvarsQueryPresetsPhenotypePrio
+
+export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsphenotypeprioDestroyData = {
+  path: {
+    querypresetsphenotypeprio: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsphenotypeprioDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsphenotypeprioDestroyError = unknown
+
+export type SeqvarsApiQuerypresetsqualityListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityListResponse =
+  PaginatedSeqvarsQueryPresetsQualityList
+
+export type SeqvarsApiQuerypresetsqualityListError = unknown
+
+export type SeqvarsApiQuerypresetsqualityCreateData = {
+  body: SeqvarsQueryPresetsQuality
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityCreateResponse =
+  SeqvarsQueryPresetsQuality
+
+export type SeqvarsApiQuerypresetsqualityCreateError = unknown
+
+export type SeqvarsApiQuerypresetsqualityRetrieveData = {
+  path: {
+    querypresetsquality: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityRetrieveResponse =
+  SeqvarsQueryPresetsQuality
+
+export type SeqvarsApiQuerypresetsqualityRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsqualityUpdateData = {
+  body: SeqvarsQueryPresetsQuality
+  path: {
+    querypresetsquality: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityUpdateResponse =
+  SeqvarsQueryPresetsQuality
+
+export type SeqvarsApiQuerypresetsqualityUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsqualityPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsQuality
+  path: {
+    querypresetsquality: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityPartialUpdateResponse =
+  SeqvarsQueryPresetsQuality
+
+export type SeqvarsApiQuerypresetsqualityPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsqualityDestroyData = {
+  path: {
+    querypresetsquality: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsqualityDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsqualityDestroyError = unknown
+
+export type SeqvarsApiQuerypresetssetListData = {
+  path: {
+    project: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetssetListResponse =
+  PaginatedSeqvarsQueryPresetsSetList
+
+export type SeqvarsApiQuerypresetssetListError = unknown
+
+export type SeqvarsApiQuerypresetssetCreateData = {
+  body: SeqvarsQueryPresetsSet
+  path: {
+    project: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetCreateResponse = SeqvarsQueryPresetsSet
+
+export type SeqvarsApiQuerypresetssetCreateError = unknown
+
+export type SeqvarsApiQuerypresetssetRetrieveData = {
+  path: {
+    project: string
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetRetrieveResponse = SeqvarsQueryPresetsSet
+
+export type SeqvarsApiQuerypresetssetRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetssetUpdateData = {
+  body: SeqvarsQueryPresetsSet
+  path: {
+    project: string
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetUpdateResponse = SeqvarsQueryPresetsSet
+
+export type SeqvarsApiQuerypresetssetUpdateError = unknown
+
+export type SeqvarsApiQuerypresetssetPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsSet
+  path: {
+    project: string
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetPartialUpdateResponse =
+  SeqvarsQueryPresetsSet
+
+export type SeqvarsApiQuerypresetssetPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetssetDestroyData = {
+  path: {
+    project: string
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetDestroyResponse = void
+
+export type SeqvarsApiQuerypresetssetDestroyError = unknown
+
+export type SeqvarsApiQuerypresetssetCopyFromRetrieveData = {
+  path: {
+    project: string
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetCopyFromRetrieveResponse =
+  SeqvarsQueryPresetsSet
+
+export type SeqvarsApiQuerypresetssetCopyFromRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetssetversionListData = {
+  path: {
+    querypresetsset: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionListResponse =
+  PaginatedSeqvarsQueryPresetsSetVersionList
+
+export type SeqvarsApiQuerypresetssetversionListError = unknown
+
+export type SeqvarsApiQuerypresetssetversionCreateData = {
+  body?: SeqvarsQueryPresetsSetVersion
+  path: {
+    querypresetsset: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionCreateResponse =
+  SeqvarsQueryPresetsSetVersion
+
+export type SeqvarsApiQuerypresetssetversionCreateError = unknown
+
+export type SeqvarsApiQuerypresetssetversionRetrieveData = {
+  path: {
+    querypresetsset: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionRetrieveResponse =
+  SeqvarsQueryPresetsSetVersionDetails
+
+export type SeqvarsApiQuerypresetssetversionRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetssetversionUpdateData = {
+  body?: SeqvarsQueryPresetsSetVersion
+  path: {
+    querypresetsset: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionUpdateResponse =
+  SeqvarsQueryPresetsSetVersion
+
+export type SeqvarsApiQuerypresetssetversionUpdateError = unknown
+
+export type SeqvarsApiQuerypresetssetversionPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsSetVersion
+  path: {
+    querypresetsset: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionPartialUpdateResponse =
+  SeqvarsQueryPresetsSetVersion
+
+export type SeqvarsApiQuerypresetssetversionPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetssetversionDestroyData = {
+  path: {
+    querypresetsset: string
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetssetversionDestroyResponse = void
+
+export type SeqvarsApiQuerypresetssetversionDestroyError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioListData = {
+  path: {
+    querypresetssetversion: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioListResponse =
+  PaginatedSeqvarsQueryPresetsVariantPrioList
+
+export type SeqvarsApiQuerypresetsvariantprioListError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioCreateData = {
+  body: SeqvarsQueryPresetsVariantPrio
+  path: {
+    querypresetssetversion: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioCreateResponse =
+  SeqvarsQueryPresetsVariantPrio
+
+export type SeqvarsApiQuerypresetsvariantprioCreateError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioRetrieveData = {
+  path: {
+    querypresetssetversion: string
+    querypresetsvariantprio: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioRetrieveResponse =
+  SeqvarsQueryPresetsVariantPrio
+
+export type SeqvarsApiQuerypresetsvariantprioRetrieveError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioUpdateData = {
+  body: SeqvarsQueryPresetsVariantPrio
+  path: {
+    querypresetssetversion: string
+    querypresetsvariantprio: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioUpdateResponse =
+  SeqvarsQueryPresetsVariantPrio
+
+export type SeqvarsApiQuerypresetsvariantprioUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioPartialUpdateData = {
+  body?: PatchedSeqvarsQueryPresetsVariantPrio
+  path: {
+    querypresetssetversion: string
+    querypresetsvariantprio: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse =
+  SeqvarsQueryPresetsVariantPrio
+
+export type SeqvarsApiQuerypresetsvariantprioPartialUpdateError = unknown
+
+export type SeqvarsApiQuerypresetsvariantprioDestroyData = {
+  path: {
+    querypresetssetversion: string
+    querypresetsvariantprio: string
+  }
+}
+
+export type SeqvarsApiQuerypresetsvariantprioDestroyResponse = void
+
+export type SeqvarsApiQuerypresetsvariantprioDestroyError = unknown
+
+export type SeqvarsApiQuerysettingsListData = {
+  path: {
+    session: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiQuerysettingsListResponse =
+  PaginatedSeqvarsQuerySettingsList
+
+export type SeqvarsApiQuerysettingsListError = unknown
+
+export type SeqvarsApiQuerysettingsCreateData = {
+  body: SeqvarsQuerySettingsDetails
+  path: {
+    session: string
+  }
+}
+
+export type SeqvarsApiQuerysettingsCreateResponse = SeqvarsQuerySettingsDetails
+
+export type SeqvarsApiQuerysettingsCreateError = unknown
+
+export type SeqvarsApiQuerysettingsRetrieveData = {
+  path: {
+    querysettings: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQuerysettingsRetrieveResponse =
+  SeqvarsQuerySettingsDetails
+
+export type SeqvarsApiQuerysettingsRetrieveError = unknown
+
+export type SeqvarsApiQuerysettingsUpdateData = {
+  body: SeqvarsQuerySettingsDetails
+  path: {
+    querysettings: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQuerysettingsUpdateResponse = SeqvarsQuerySettingsDetails
+
+export type SeqvarsApiQuerysettingsUpdateError = unknown
+
+export type SeqvarsApiQuerysettingsPartialUpdateData = {
+  body?: PatchedSeqvarsQuerySettingsDetails
+  path: {
+    querysettings: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQuerysettingsPartialUpdateResponse =
+  SeqvarsQuerySettingsDetails
+
+export type SeqvarsApiQuerysettingsPartialUpdateError = unknown
+
+export type SeqvarsApiQuerysettingsDestroyData = {
+  path: {
+    querysettings: string
+    session: string
+  }
+}
+
+export type SeqvarsApiQuerysettingsDestroyResponse = void
+
+export type SeqvarsApiQuerysettingsDestroyError = unknown
+
+export type SeqvarsApiResultrowListData = {
+  path: {
+    resultset: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiResultrowListResponse = PaginatedSeqvarsResultRowList
+
+export type SeqvarsApiResultrowListError = unknown
+
+export type SeqvarsApiResultrowRetrieveData = {
+  path: {
+    resultset: string
+    seqvarresultrow: string
+  }
+}
+
+export type SeqvarsApiResultrowRetrieveResponse = SeqvarsResultRow
+
+export type SeqvarsApiResultrowRetrieveError = unknown
+
+export type SeqvarsApiResultsetListData = {
+  path: {
+    query: string
+  }
+  query?: {
+    /**
+     * The pagination cursor value.
+     */
+    cursor?: string
+    /**
+     * Number of results to return per page.
+     */
+    page_size?: number
+  }
+}
+
+export type SeqvarsApiResultsetListResponse = PaginatedSeqvarsResultSetList
+
+export type SeqvarsApiResultsetListError = unknown
+
+export type SeqvarsApiResultsetRetrieveData = {
+  path: {
+    query: string
+    resultset: string
+  }
+}
+
+export type SeqvarsApiResultsetRetrieveResponse = SeqvarsResultSet
+
+export type SeqvarsApiResultsetRetrieveError = unknown
+
 export type $OpenApiTs = {
+  '/cases-analysis/api/caseanalysis/{case}/': {
+    get: {
+      req: CasesAnalysisApiCaseanalysisListData
+      res: {
+        '200': PaginatedCaseAnalysisList
+      }
+    }
+  }
+  '/cases-analysis/api/caseanalysis/{case}/{caseanalysis}/': {
+    get: {
+      req: CasesAnalysisApiCaseanalysisRetrieveData
+      res: {
+        '200': CaseAnalysis
+      }
+    }
+  }
+  '/cases-analysis/api/caseanalysissession/{case}/': {
+    get: {
+      req: CasesAnalysisApiCaseanalysissessionListData
+      res: {
+        '200': PaginatedCaseAnalysisSessionList
+      }
+    }
+  }
+  '/cases-analysis/api/caseanalysissession/{case}/{caseanalysissession}/': {
+    get: {
+      req: CasesAnalysisApiCaseanalysissessionRetrieveData
+      res: {
+        '200': CaseAnalysisSession
+      }
+    }
+  }
   '/cases-import/api/case-import-action/list-create/{project}/': {
     get: {
       req: CasesImportApiCaseImportActionListCreateListData
@@ -1827,6 +4187,637 @@ export type $OpenApiTs = {
          * No response body
          */
         '204': void
+      }
+    }
+  }
+  '/seqvars/api/predefinedquery/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiPredefinedqueryListData
+      res: {
+        '200': PaginatedSeqvarsPredefinedQueryList
+      }
+    }
+    post: {
+      req: SeqvarsApiPredefinedqueryCreateData
+      res: {
+        '201': SeqvarsPredefinedQuery
+      }
+    }
+  }
+  '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/': {
+    get: {
+      req: SeqvarsApiPredefinedqueryRetrieveData
+      res: {
+        '200': SeqvarsPredefinedQuery
+      }
+    }
+    put: {
+      req: SeqvarsApiPredefinedqueryUpdateData
+      res: {
+        '200': SeqvarsPredefinedQuery
+      }
+    }
+    patch: {
+      req: SeqvarsApiPredefinedqueryPartialUpdateData
+      res: {
+        '200': SeqvarsPredefinedQuery
+      }
+    }
+    delete: {
+      req: SeqvarsApiPredefinedqueryDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/query/{session}/': {
+    get: {
+      req: SeqvarsApiQueryListData
+      res: {
+        '200': PaginatedSeqvarsQueryList
+      }
+    }
+    post: {
+      req: SeqvarsApiQueryCreateData
+      res: {
+        '201': SeqvarsQueryDetails
+      }
+    }
+  }
+  '/seqvars/api/query/{session}/{query}/': {
+    get: {
+      req: SeqvarsApiQueryRetrieveData
+      res: {
+        '200': SeqvarsQueryDetails
+      }
+    }
+    put: {
+      req: SeqvarsApiQueryUpdateData
+      res: {
+        '200': SeqvarsQueryDetails
+      }
+    }
+    patch: {
+      req: SeqvarsApiQueryPartialUpdateData
+      res: {
+        '200': SeqvarsQueryDetails
+      }
+    }
+    delete: {
+      req: SeqvarsApiQueryDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/queryexecution/{query}/': {
+    get: {
+      req: SeqvarsApiQueryexecutionListData
+      res: {
+        '200': PaginatedSeqvarsQueryExecutionList
+      }
+    }
+  }
+  '/seqvars/api/queryexecution/{query}/{queryexecution}/': {
+    get: {
+      req: SeqvarsApiQueryexecutionRetrieveData
+      res: {
+        '200': SeqvarsQueryExecutionDetails
+      }
+    }
+  }
+  '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsclinvarListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsClinvarList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsclinvarCreateData
+      res: {
+        '201': SeqvarsQueryPresetsClinvar
+      }
+    }
+  }
+  '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsclinvarRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsClinvar
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsclinvarUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsClinvar
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsclinvarPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsClinvar
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsclinvarDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetscolumns/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetscolumnsListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsColumnsList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetscolumnsCreateData
+      res: {
+        '201': SeqvarsQueryPresetsColumns
+      }
+    }
+  }
+  '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/': {
+    get: {
+      req: SeqvarsApiQuerypresetscolumnsRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsColumns
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetscolumnsUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsColumns
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetscolumnsPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsColumns
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetscolumnsDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsconsequenceListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsConsequenceList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsconsequenceCreateData
+      res: {
+        '201': SeqvarsQueryPresetsConsequence
+      }
+    }
+  }
+  '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsconsequenceRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsConsequence
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsconsequenceUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsConsequence
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsconsequencePartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsConsequence
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsconsequenceDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsfactorydefaults/': {
+    get: {
+      req: SeqvarsApiQuerypresetsfactorydefaultsListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsSetList
+      }
+    }
+  }
+  '/seqvars/api/querypresetsfactorydefaults/{querypresetsset}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsfactorydefaultsRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsSetDetails
+      }
+    }
+  }
+  '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsfrequencyListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsFrequencyList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsfrequencyCreateData
+      res: {
+        '201': SeqvarsQueryPresetsFrequency
+      }
+    }
+  }
+  '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsfrequencyRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsFrequency
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsfrequencyUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsFrequency
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsfrequencyPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsFrequency
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsfrequencyDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetslocus/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetslocusListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsLocusList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetslocusCreateData
+      res: {
+        '201': SeqvarsQueryPresetsLocus
+      }
+    }
+  }
+  '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/': {
+    get: {
+      req: SeqvarsApiQuerypresetslocusRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsLocus
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetslocusUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsLocus
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetslocusPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsLocus
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetslocusDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsphenotypeprioListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsPhenotypePrioList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsphenotypeprioCreateData
+      res: {
+        '201': SeqvarsQueryPresetsPhenotypePrio
+      }
+    }
+  }
+  '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsphenotypeprioRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsPhenotypePrio
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsphenotypeprioUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsPhenotypePrio
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsPhenotypePrio
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsphenotypeprioDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsquality/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsqualityListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsQualityList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsqualityCreateData
+      res: {
+        '201': SeqvarsQueryPresetsQuality
+      }
+    }
+  }
+  '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsqualityRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsQuality
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsqualityUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsQuality
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsqualityPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsQuality
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsqualityDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsset/{project}/': {
+    get: {
+      req: SeqvarsApiQuerypresetssetListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsSetList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetssetCreateData
+      res: {
+        '201': SeqvarsQueryPresetsSet
+      }
+    }
+  }
+  '/seqvars/api/querypresetsset/{project}/{querypresetsset}/': {
+    get: {
+      req: SeqvarsApiQuerypresetssetRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsSet
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetssetUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsSet
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetssetPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsSet
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetssetDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/': {
+    get: {
+      req: SeqvarsApiQuerypresetssetCopyFromRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsSet
+      }
+    }
+  }
+  '/seqvars/api/querypresetssetversion/{querypresetsset}/': {
+    get: {
+      req: SeqvarsApiQuerypresetssetversionListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsSetVersionList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetssetversionCreateData
+      res: {
+        '201': SeqvarsQueryPresetsSetVersion
+      }
+    }
+  }
+  '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetssetversionRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsSetVersionDetails
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetssetversionUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsSetVersion
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetssetversionPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsSetVersion
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetssetversionDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsvariantprioListData
+      res: {
+        '200': PaginatedSeqvarsQueryPresetsVariantPrioList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerypresetsvariantprioCreateData
+      res: {
+        '201': SeqvarsQueryPresetsVariantPrio
+      }
+    }
+  }
+  '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/': {
+    get: {
+      req: SeqvarsApiQuerypresetsvariantprioRetrieveData
+      res: {
+        '200': SeqvarsQueryPresetsVariantPrio
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerypresetsvariantprioUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsVariantPrio
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerypresetsvariantprioPartialUpdateData
+      res: {
+        '200': SeqvarsQueryPresetsVariantPrio
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerypresetsvariantprioDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/querysettings/{session}/': {
+    get: {
+      req: SeqvarsApiQuerysettingsListData
+      res: {
+        '200': PaginatedSeqvarsQuerySettingsList
+      }
+    }
+    post: {
+      req: SeqvarsApiQuerysettingsCreateData
+      res: {
+        '201': SeqvarsQuerySettingsDetails
+      }
+    }
+  }
+  '/seqvars/api/querysettings/{session}/{querysettings}/': {
+    get: {
+      req: SeqvarsApiQuerysettingsRetrieveData
+      res: {
+        '200': SeqvarsQuerySettingsDetails
+      }
+    }
+    put: {
+      req: SeqvarsApiQuerysettingsUpdateData
+      res: {
+        '200': SeqvarsQuerySettingsDetails
+      }
+    }
+    patch: {
+      req: SeqvarsApiQuerysettingsPartialUpdateData
+      res: {
+        '200': SeqvarsQuerySettingsDetails
+      }
+    }
+    delete: {
+      req: SeqvarsApiQuerysettingsDestroyData
+      res: {
+        /**
+         * No response body
+         */
+        '204': void
+      }
+    }
+  }
+  '/seqvars/api/resultrow/{resultset}/': {
+    get: {
+      req: SeqvarsApiResultrowListData
+      res: {
+        '200': PaginatedSeqvarsResultRowList
+      }
+    }
+  }
+  '/seqvars/api/resultrow/{resultset}/{seqvarresultrow}/': {
+    get: {
+      req: SeqvarsApiResultrowRetrieveData
+      res: {
+        '200': SeqvarsResultRow
+      }
+    }
+  }
+  '/seqvars/api/resultset/{query}/': {
+    get: {
+      req: SeqvarsApiResultsetListData
+      res: {
+        '200': PaginatedSeqvarsResultSetList
+      }
+    }
+  }
+  '/seqvars/api/resultset/{query}/{resultset}/': {
+    get: {
+      req: SeqvarsApiResultsetRetrieveData
+      res: {
+        '200': SeqvarsResultSet
       }
     }
   }

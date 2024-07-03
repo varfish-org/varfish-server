@@ -26,10 +26,6 @@ class DjangoPydanticFieldFix(OpenApiSerializerExtension):
             return super().get_name(auto_schema, direction)
 
     def map_serializer(self, auto_schema, direction):
-        if getattr(self.target.schema, "__name__", None) == "VariantTypeChoice":
-            import pdb
-
-            pdb.set_trace
         if typing.get_origin(self.target.schema) is list:
             inner_type = typing.get_args(self.target.schema)[0]
             if inner_type is str:
@@ -73,10 +69,6 @@ class DjangoPydanticFieldFix(OpenApiSerializerExtension):
             schema = model_json_schema(
                 self.target.schema, ref_template="#/components/schemas/{model}"
             )
-
-        # print("\n---SCHEMA--\n")
-        # import json; print(json.dumps(schema, indent=2))
-        # print("\n---SCHEMA--\n")
 
         # pull out potential sub-schemas and put them into component section
         for sub_name, sub_schema in schema.pop("$defs", {}).items():

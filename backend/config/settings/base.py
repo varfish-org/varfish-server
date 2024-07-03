@@ -684,7 +684,7 @@ SPECTACULAR_SETTINGS = {
         "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
         "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
         "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
-        "QueryExecutionStateEnum": "seqvars.models.QueryExecution.STATE_CHOICES",
+        "SeqvarsQueryExecutionStateEnum": "seqvars.models.SeqvarsQueryExecution.STATE_CHOICES",
     },
     # Sidecar Settings
     "SWAGGER_UI_DIST": "SIDECAR",
@@ -750,6 +750,9 @@ def set_logging(level):
 
 LOGGING_DEBUG = env.bool("LOGGING_DEBUG", False)
 LOGGING = set_logging("DEBUG" if (DEBUG or LOGGING_DEBUG) else "INFO")
+
+# Propagate exceptions to log.
+DEBUG_PROPAGATE_EXCEPTIONS = DEV
 
 # LDAP configuration
 # ------------------------------------------------------------------------------

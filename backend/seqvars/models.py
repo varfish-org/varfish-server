@@ -416,7 +416,9 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
         # Get label of presets set to create.
         for i in range(1, 100):
             label = f"{self.label} (copy {i})"
-            if not SeqvarsQueryPresetsSet.objects.filter(project=self.project, label=label).exists():
+            if not SeqvarsQueryPresetsSet.objects.filter(
+                project=self.project, label=label
+            ).exists():
                 break
         # Compute rank.
         rank = SeqvarsQueryPresetsSet.objects.filter(project=self.project).count() + 1
@@ -455,7 +457,9 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
     )
 
     #: The owning ``QueryPresetsSet``.
-    presetsset = ParentalKey(SeqvarsQueryPresetsSet, on_delete=models.CASCADE, related_name="versions")
+    presetsset = ParentalKey(
+        SeqvarsQueryPresetsSet, on_delete=models.CASCADE, related_name="versions"
+    )
     #: The major version.
     version_major = models.IntegerField(default=1)
     #: The minor version.
@@ -471,7 +475,9 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
     )
 
     @transaction.atomic
-    def clone_with_presetsset(self, presetsset: SeqvarsQueryPresetsSet) -> "SeqvarsQueryPresetsSetVersion":
+    def clone_with_presetsset(
+        self, presetsset: SeqvarsQueryPresetsSet
+    ) -> "SeqvarsQueryPresetsSetVersion":
         result = SeqvarsQueryPresetsSetVersion.objects.create(
             presetsset=presetsset,
             version_major=1,
@@ -629,7 +635,9 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
     included_in_sop = models.BooleanField(default=False, null=False, blank=False)
 
     #: The chosen genotype presets.
-    genotype = SchemaField(schema=typing.Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets())
+    genotype = SchemaField(
+        schema=typing.Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets()
+    )
 
     #: The chosen quality presets.
     quality = models.ForeignKey(
@@ -644,7 +652,9 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
         SeqvarsQueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
     )
     #: The chosen locus presets.
-    locus = models.ForeignKey(SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True)
+    locus = models.ForeignKey(
+        SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True
+    )
     #: The chosen phenotype priorization presets.
     phenotypeprio = models.ForeignKey(
         SeqvarsQueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
@@ -779,7 +789,9 @@ class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
         return f"SeqvarsQuerySettingsQuality '{self.sodar_uuid}'"
 
 
-class SeqvarsQuerySettingsConsequence(SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsConsequence(
+    SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Presets for consequence-related settings within a ``QuerySettingsSet``."""
 
     #: The owning ``QuerySettings``.
@@ -815,7 +827,9 @@ class SeqvarsQuerySettingsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQuerySe
         return f"SeqvarsQuerySettingsFrequency '{self.sodar_uuid}'"
 
 
-class SeqvarsQuerySettingsPhenotypePrio(SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsPhenotypePrio(
+    SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
 
     #: The owning ``QuerySettings``.
@@ -827,7 +841,9 @@ class SeqvarsQuerySettingsPhenotypePrio(SeqvarsPhenotypePrioSettingsBase, Seqvar
         return f"SeqvarsQuerySettingsPhenotypePrio '{self.sodar_uuid}'"
 
 
-class SeqvarsQuerySettingsVariantPrio(SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsVariantPrio(
+    SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Query settings in the variant priorization category."""
 
     #: The owning ``QuerySettings``.
