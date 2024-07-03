@@ -45,7 +45,6 @@ describe('useCohortsStore', () => {
     expect(cohortsStore.storeState).toBe(State.Initial)
     expect(cohortsStore.serverInteractions).toBe(0)
     expect(cohortsStore.project).toBe(null)
-    expect(cohortsStore.csrfToken).toBe(null)
     expect(cohortsStore.projectsCases).toStrictEqual([])
     expect(cohortsStore.showInlineHelp).toBe(false)
     expect(cohortsStore.complexityMode).toBe('simple')
@@ -72,7 +71,6 @@ describe('useCohortsStore', () => {
       createCohortCaseResponses[1],
     )
     cohortsStore.storeState = StoreState.active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const payload = {
@@ -118,7 +116,6 @@ describe('useCohortsStore', () => {
     cohortsApi.createCohortCase.mockResolvedValue(createCohortCaseResponses)
 
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const updateCases = [
@@ -169,7 +166,6 @@ describe('useCohortsStore', () => {
   test('destroyCohort()', async () => {
     cohortsApi.destroyCohort.mockResolvedValue(createCohortResponse)
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     await cohortsStore.destroyCohort(cohortUuid)
@@ -182,7 +178,6 @@ describe('useCohortsStore', () => {
     cohortsApi.listCohort.mockResolvedValue(listCohortResponse)
 
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const tableServerOptions = {

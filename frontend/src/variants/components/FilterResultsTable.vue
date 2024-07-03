@@ -1,4 +1,5 @@
 <script setup>
+import $ from 'jquery'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -28,6 +29,7 @@ import {
   DisplayColumns,
 } from '@/variants/enums'
 import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /**
  * The component's props.
@@ -50,6 +52,7 @@ const emit = defineEmits([
 /**
  * Setup stores before mounting the component.
  */
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
@@ -509,7 +512,7 @@ const loadFromServer = async () => {
     return row
   }
 
-  const variantClient = new VariantClient(variantResultSetStore.csrfToken)
+  const variantClient = new VariantClient(ctxStore.csrfToken)
 
   tableLoading.value = true
   if (variantResultSetStore.resultSetUuid) {
@@ -1041,4 +1044,8 @@ watch(
   border-bottom-left-radius: 0;
   margin-left: 0;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

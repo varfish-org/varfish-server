@@ -1,4 +1,5 @@
 <script setup>
+import $ from 'jquery'
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -9,6 +10,7 @@ import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { updateUserSetting } from '@/varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@/variants/enums'
 
@@ -17,14 +19,13 @@ import FilterForm from '@/variants/components/FilterForm.vue'
 import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 
 const props = defineProps({
+  /** The project UUID. */
+  projectUuid: String,
   /** The case UUID. */
   caseUuid: String,
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
+const ctxStore = useCtxStore()
 
 const router = useRouter()
 
@@ -64,7 +65,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== undefined && newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -77,7 +78,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -118,34 +119,28 @@ const refreshStores = async () => {
   variantResultSetStore.$reset()
 
   await caseDetailsStore.initialize(
-    appContext.csrf_token,
-    appContext.project?.sodar_uuid,
+    props.projectUuid,
     props.caseUuid,
   )
 
   Promise.all([
     variantQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
+      props.projectUuid,
       props.caseUuid,
-      appContext,
     ),
     variantFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantAcmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    variantResultSetStore.initialize(appContext.csrf_token),
+    variantResultSetStore.initialize(),
   ]).then(async () => {
     await variantResultSetStore.loadResultSetViaQuery(
       variantQueryStore.queryUuid,

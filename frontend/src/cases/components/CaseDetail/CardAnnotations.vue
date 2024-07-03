@@ -70,7 +70,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2">
+    <h5 class="card-header p-2 pl-2 ml-0 mr-0">
       <i-mdi-bookmark-multiple />
       Flag &amp; Comment Summary
     </h5>
@@ -157,3 +157,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
     </ul>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

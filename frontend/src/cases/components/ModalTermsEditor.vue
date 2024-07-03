@@ -190,3 +190,7 @@ defineExpose({ show, hide })
     </template>
   </ModalBase>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

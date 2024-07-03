@@ -22,6 +22,7 @@ import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucva
 import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
 import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
 import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
@@ -49,20 +50,18 @@ import { StoreState } from '@bihealth/reev-frontend-lib/stores'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
 
 const props = defineProps<{
+  /** Project UUID. */
+  projectUuid: string
   /** UUID of the result row to display. */
   resultRowUuid?: string
   /** Identifier of the selected section. */
   selectedSection?: string
 }>()
 
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document
-    .getElementById('sodar-ss-app-context')
-    ?.getAttribute('app-context') ?? '{}',
-)
-
 // Store-related
+
+/** Application context. */
+const ctxStore = useCtxStore()
 
 /** Information about the strucvar, used to fetch information on load. */
 const strucvarInfoStore = useStrucvarInfoStore()
@@ -107,14 +106,13 @@ const loadGeneToStore = async (hgncId: string) => {
 /** Refresh the stores. */
 const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
-    await svResultSetStore.initialize(appContext.csrf_token)
+    await svResultSetStore.initialize()
     await svResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
     if (!svResultSetStore.caseUuid) {
       throw new Error('caseUuid not set')
     }
     await caseDetailsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       svResultSetStore.caseUuid,
     )
     let strucvar: Strucvar
@@ -137,21 +135,9 @@ const refreshStores = async () => {
     }
     await Promise.all([
       strucvarInfoStore.initialize(strucvar),
-      svFlagsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
-      svCommentsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
-      svDetailsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
+      svFlagsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
+      svCommentsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
+      svDetailsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
     ])
     await svDetailsStore.fetchSvDetails(svResultSetStore.resultRow)
   }
@@ -326,11 +312,10 @@ watch(
               </div>
               <div id="strucvar-acmgrating" class="mt-3">
                 <AcmgRatingCard
-                  :project-uuid="appContext.project?.sodar_uuid"
+                  :project-uuid="props.projectUuid"
                   :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                   :strucvar="strucvarInfoStore.strucvar"
                   :result-row-uuid="props.resultRowUuid ?? ''"
-                  :csrf-token="appContext.csrf_token"
                 />
               </div>
               <div id="strucvar-genomebrowser">

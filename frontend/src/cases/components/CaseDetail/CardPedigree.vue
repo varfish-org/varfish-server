@@ -18,7 +18,7 @@ const caseDetailsStore = useCaseDetailsStore()
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <div class="row card-header p-2 pl-2">
+    <div class="row card-header p-2 pl-0 ml-0 mr-0">
       <h5 class="col-auto ml-0 mr-0 mb-0">
         <i-mdi-family-tree />
         Pedigree
@@ -81,3 +81,7 @@ const caseDetailsStore = useCaseDetailsStore()
     </table>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

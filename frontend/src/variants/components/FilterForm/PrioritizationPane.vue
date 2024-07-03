@@ -5,7 +5,6 @@ import { declareWrapper } from '@/variants/helpers'
 import { useVuelidate } from '@vuelidate/core'
 
 const props = defineProps({
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   filtrationComplexityMode: String,
   exomiserEnabled: Boolean,
@@ -157,3 +156,7 @@ defineExpose({ v$ })
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

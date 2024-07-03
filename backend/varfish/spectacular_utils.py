@@ -1,19 +1,18 @@
 from enum import Enum
 import typing
 
-from drf_spectacular.drainage import set_override, warn
-from drf_spectacular.extensions import OpenApiSerializerExtension
-from drf_spectacular.plumbing import ResolvedComponent, build_basic_type
-from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.drainage import set_override
+from drf_spectacular.extensions import OpenApiSerializerFieldExtension
+from drf_spectacular.plumbing import ResolvedComponent
 from pydantic.json_schema import model_json_schema
 
 
-class DjangoPydanticFieldFix(OpenApiSerializerExtension):
+class DjangoPydanticFieldFix(OpenApiSerializerFieldExtension):
 
     target_class = "django_pydantic_field.v2.rest_framework.fields.SchemaField"
     match_subclasses = True
 
-    def get_name(self, auto_schema, direction):
+    def get_name(self):
         # due to the fact that it is complicated to pull out every field member BaseModel class
         # of the entry model, we simply use the class name as string for object. This hack may
         # create false positive warnings, so turn it off. However, this may suppress correct
@@ -23,9 +22,15 @@ class DjangoPydanticFieldFix(OpenApiSerializerExtension):
             inner_type = typing.get_args(self.target.schema)[0]
             return f"{inner_type.__name__}List"
         else:
-            return super().get_name(auto_schema, direction)
+            return super().get_name()
 
-    def map_serializer(self, auto_schema, direction):
+    def map_serializer_field(self, auto_schema, direction):
+        _ = direction
+        print(
+            self.target.schema,
+            typing.get_origin(self.target.schema),
+            typing.get_args(self.target.schema),
+        )
         if typing.get_origin(self.target.schema) is list:
             inner_type = typing.get_args(self.target.schema)[0]
             if inner_type is str:
@@ -59,6 +64,12 @@ class DjangoPydanticFieldFix(OpenApiSerializerExtension):
                     "items": inner_schema,
                 }
                 schema.update({"$defs": inner_schema_defs})
+        elif (  # typing.Optional
+            typing.get_origin(self.target.schema) is typing.Union
+            and len(typing.get_args(self.target.schema)) == 2
+            and typing.get_args(self.target.schema)[1] is type(None)
+        ):
+            pass
         elif issubclass(self.target.schema, Enum):
             return {
                 "type": "string",
@@ -90,7 +101,6 @@ def spectacular_preprocess_hook(endpoints):
         "/beaconsite/",
         "/cohorts/",
         "/importer/",
-        "/project/",
         "/svs/",
         "/varannos/",
         "/variants/",

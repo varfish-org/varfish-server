@@ -182,10 +182,7 @@ const handleEditClicked = async () => {
 /** Initialize store on first mount. */
 onMounted(async () => {
   await caseListStore.initializeRes
-  await queryPresetsStore.initialize(
-    caseListStore.csrfToken,
-    caseListStore.projectUuid,
-  )
+  await queryPresetsStore.initialize(caseListStore.projectUuid)
 })
 
 /** Return list of presets sets in a null/undefined safe manner. */
@@ -282,3 +279,7 @@ const presetSetModel = computed({
     <Overlay v-if="overlayShow" :message="overlayMessage" />
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

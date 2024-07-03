@@ -59,14 +59,14 @@ export const useCohortsStore = defineStore('cohorts', () => {
   /** Total count of cohorts across pagination. */
   const cohortCount = ref(0)
 
-  /** Initialize the store using the given application context. */
-  const initialize = async (appContext$) => {
+  /** Initialize the store using the given CSRF token and project UUID. */
+  const initialize = async (csrfToken$, projectUuid$) => {
     if (storeState.value !== 'initial') {
       // only once
       return initializeRes.value
     }
-    project.value = appContext$.project
-    csrfToken.value = appContext$.csrf_token
+    project.value = projectUuid$
+    csrfToken.value = csrfToken$
 
     storeState.value = StoreState.initializing
     serverInteractions.value += 1

@@ -8,7 +8,7 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/static/vueapp/',
+  base: '/',
   build: {
     // generate .vite/manifest.json
     manifest: true,
@@ -17,10 +17,14 @@ export default defineConfig({
     // overwrite default .html entry
     outDir: '../backend/varfish/static/vueapp',
     rollupOptions: {
+      external: ['jquery'],
       input: {
         cases: resolve(__dirname, './src/cases/main.ts'),
         cohorts: resolve(__dirname, './src/cohorts/main.js'),
       },
+      output: {
+        jquery: "$"
+      }
     },
     target: 'es2020',
   },
@@ -59,7 +63,17 @@ export default defineConfig({
     },
   },
   server: {
-    origin: "http://127.0.0.1:3000"
+    origin: "http://127.0.0.1:3000",
+    // The SPA lives at "/-/" and the index.html is served from Django.
+    // vite serves some stuff from other prefixes. The remaining requests are
+    // proxied to the backend.
+    proxy: {
+      '^\/(?!(-|@|src|node_modules|ext|favicon.ico)).*': {
+        target: 'http://localhost:8000',
+        changeOrigin: false,
+        secure: false,
+      }
+    }
   },
   test: {
     coverage: {
@@ -70,11 +84,9 @@ export default defineConfig({
     },
     environment: 'happy-dom',
     include: [
-      './tests/clinvarexport/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/variants/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/svs/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cases/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      './tests/cases_qc/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cohorts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './src/**/*.spec.ts',
     ],

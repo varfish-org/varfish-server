@@ -5,6 +5,7 @@
 
 import { computed, onMounted, ref } from 'vue'
 import Multiselect from '@vueform/multiselect'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 import TokenizingTextarea from '@/variants/components/TokenizingTextarea.vue'
 
@@ -13,8 +14,6 @@ const props = defineProps({
   filtrationComplexityMode: String,
   /** The query settings to operate on. */
   querySettings: Object,
-  /** CSRF token for querying the API. */
-  csrfToken: String,
   /** API endpoint for querying genes. */
   lookupGeneApiEndpoint: {
     type: String,
@@ -25,6 +24,8 @@ const props = defineProps({
     default: '/genepanels/api/lookup-genepanel/',
   },
 })
+
+const ctxStore = useCtxStore()
 
 const emit = defineEmits(['update:querySettings'])
 
@@ -149,7 +150,7 @@ const validateGeneBatch = async (tokenBatch, typ) => {
         const response = await fetch(url, {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          'X-CSRFToken': props.csrfToken,
+          'X-CSRFToken': ctxStore.csrfToken,
         })
         if (response.status === 404) {
           return { identifier: token.slice(10), state: 'not_found' }
@@ -168,7 +169,7 @@ const validateGeneBatch = async (tokenBatch, typ) => {
     const response = await fetch(url, {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'X-CSRFToken': props.csrfToken,
+      'X-CSRFToken': ctxStore.csrfToken,
     })
     if (response.status === 404) {
       return false // not found
@@ -293,6 +294,7 @@ defineExpose({
         v-show="listType === 'genomic_region'"
         id="genomic-region-section"
         class="form-group"
+        v-if="props.querySettings !== null && props.querySettings !== undefined"
       >
         <TokenizingTextarea
           ref="genomicRegionTextareaRef"
@@ -310,6 +312,7 @@ defineExpose({
         v-show="listType === 'gene_allowlist'"
         id="gene-allowlist-section"
         class="form-group"
+        v-if="props.querySettings !== null && props.querySettings !== undefined"
       >
         <div class="form-inline" style="width: 800px">
           <label for="genomicsEnglandPanelApp">GE PanelApp</label>
@@ -402,3 +405,7 @@ defineExpose({
 </template>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

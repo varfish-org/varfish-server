@@ -448,3 +448,7 @@ mark.error {
   padding: 0.375rem 0.75rem !important;
 }
 </style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

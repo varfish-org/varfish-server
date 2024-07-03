@@ -13,6 +13,7 @@ import { VariantClient } from '@/variants/api/variantClient'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of SmallVariantFlags type; to be defined later. */
 type SmallVariantFlags = any
@@ -20,13 +21,13 @@ type SmallVariantFlags = any
 export const useVariantFlagsStore = defineStore('variantFlags', () => {
   // store dependencies
 
+  /** The ctx store */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -83,25 +84,18 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -116,7 +110,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     $reset()
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -124,9 +117,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       variantClient.listFlags(caseUuid.value).then((flags) => {
@@ -174,9 +165,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       return
     }
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Throw error if case UUID has not been set.
     if (!caseUuid.value || !caseUuid$) {
@@ -222,9 +211,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       throw new Error('projectUuid not set')
     }
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     projectWideVariantFlags.value = []
     storeState.state = State.Fetching
@@ -255,9 +242,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     payload: SmallVariantFlags,
     resultRowUuid: string,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -302,9 +287,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   const updateFlags = async (
     payload: SmallVariantFlags,
   ): Promise<SmallVariantFlags> => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     if (!flags.value) {
       console.warn('Trying to update flags with flags.value being falsy')
@@ -339,9 +322,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
    * Delete current flags.
    */
   const deleteFlags = async () => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     if (!flags.value) {
       console.warn('Trying to delete flags with flags.value being falsy')
@@ -423,7 +404,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     storeState.serverInteractions = 0
     storeState.message = null
 
-    csrfToken.value = null
     caseUuid.value = null
     projectUuid.value = null
     seqvar.value = null
@@ -434,7 +414,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

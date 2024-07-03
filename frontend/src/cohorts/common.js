@@ -1,3 +1,4 @@
+import $ from 'jquery'
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
 import { StoreState } from '@/varfish/storeUtils'
 import { updateUserSetting } from '@/varfish/userSettings'

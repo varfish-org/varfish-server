@@ -189,4 +189,6 @@ onMounted(() => initSelectedCriteriaDef())
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

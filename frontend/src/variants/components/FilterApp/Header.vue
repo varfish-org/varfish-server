@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
@@ -10,7 +10,7 @@ import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMa
 
 const router = useRouter()
 
-const caseListStore = useCaseListStore()
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantQueryStore = useVariantQueryStore()
 
@@ -44,7 +44,7 @@ const updatePresetSetLoading = async () => {
       presetSource.value = 'Project Default Setting'
     }
   }
-  const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+  const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
   presetSetLoading.value = true
   await queryPresetsClient
     .retrievePresetSet(uuid)

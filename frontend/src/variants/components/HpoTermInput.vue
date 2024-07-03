@@ -12,8 +12,6 @@ import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 const vigunoClient = new VigunoClient()
 
 const props = defineProps({
-  // eslint-disable-next-line vue/require-default-prop
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   modelValue: {
     type: Array,

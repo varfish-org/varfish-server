@@ -40,3 +40,7 @@ const caseDetailsStore = useCaseDetailsStore()
     </table>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

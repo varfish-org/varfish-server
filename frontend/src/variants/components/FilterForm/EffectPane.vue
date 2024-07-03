@@ -96,13 +96,21 @@ for (const name of Object.keys(effectGroups)) {
 const formState = {
   maxExonDist: computed({
     get() {
-      return props.querySettings.max_exon_dist
+      if (props.querySettings !== null && props.querySettings !== undefined) {
+        return props.querySettings.max_exon_dist
+      } else {
+        return null
+      }
     },
     set(newValue) {
       if (newValue === '') {
         newValue = null
+      } else if (
+        props.querySettings !== null &&
+        props.querySettings !== undefined
+      ) {
+        props.querySettings.max_exon_dist = newValue
       }
-      props.querySettings.max_exon_dist = newValue
     },
   }),
 }
@@ -130,7 +138,11 @@ defineExpose({
 </script>
 
 <template>
-  <div style="position: relative" class="mr-2 mt-2">
+  <div
+    style="position: relative"
+    class="mr-2 mt-2"
+    v-if="props.querySettings !== null && props.querySettings !== undefined"
+  >
     <small
       v-if="props.filtrationComplexityMode != 'advanced'"
       class="alert alert-info"
@@ -377,3 +389,7 @@ defineExpose({
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

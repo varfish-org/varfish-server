@@ -281,7 +281,6 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.querySettings.patho_enabled
               "
               v-model:patho-score="variantQueryStore.querySettings.patho_score"
-              :csrf-token="variantQueryStore.csrfToken"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "

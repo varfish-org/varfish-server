@@ -15,7 +15,7 @@ const interpretations = [
 </script>
 
 <template>
-  <div class="row">
+  <div class="row" v-if="querySettings !== null && querySettings !== undefined">
     <div class="col-lg-6 col-md-12">
       <div
         v-if="props.showFiltrationInlineHelp"
@@ -218,3 +218,7 @@ const interpretations = [
   <!--    </div>-->
   <!--  </div>-->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -1,4 +1,5 @@
 <script setup>
+import $ from 'jquery'
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -15,19 +16,18 @@ import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 const props = defineProps({
+  /** The project UUID. */
+  projectUuid: String,
   /** The case UUID. */
   caseUuid: String,
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
 const router = useRouter()
 
+const ctxStore = useCtxStore()
 const svQueryStore = useSvQueryStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
@@ -64,7 +64,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -77,7 +77,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -114,33 +114,32 @@ const refreshStores = async () => {
   svQueryStore.$reset()
 
   await caseDetailsStore.initialize(
-    appContext.csrf_token,
-    appContext.project?.sodar_uuid,
+    ctxStore.csrfToken,
+    props.projectUuid,
     props.caseUuid,
   )
   Promise.all([
     svFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      ctxStore.csrfToken,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     svCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      ctxStore.csrfToken,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     svQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
+      ctxStore.csrfToken,
+      props.projectUuid,
       props.caseUuid,
-      appContext,
     ),
     svAcmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      ctxStore.csrfToken,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svResultSetStore.initialize(appContext.csrf_token),
+    svResultSetStore.initialize(ctxStore.csrfToken),
   ]).then(async () => {
     await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
   })

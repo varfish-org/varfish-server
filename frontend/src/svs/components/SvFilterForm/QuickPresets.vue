@@ -3,8 +3,10 @@ import isEqual from 'fast-deep-equal'
 import { onMounted, computed, ref } from 'vue'
 import { copy } from '@/varfish/helpers'
 import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { randomString } from '@/varfish/common'
 
+const ctxStore = useCtxStore()
 const svQueryStore = useSvQueryStore()
 
 /** The props for this component. */
@@ -44,7 +46,7 @@ const updatePresetSetLoading = async () => {
       presetSource.value = 'Project Default Setting'
     }
   }
-  const queryPresetsClient = new QueryPresetsClient(caseDetailsStore.csrfToken)
+  const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
   presetSetLoading.value = true
   await queryPresetsClient
     .retrievePresetSet(uuid)
@@ -586,3 +588,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

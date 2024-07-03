@@ -6,6 +6,7 @@ import { apiQueryStateToQueryState, QueryStates } from '@/variants/enums'
 import { copy } from '@/variants/helpers'
 import { previousQueryDetailsToQuerySettings } from '@/variants/stores/variantQuery.funcs'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
 import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
@@ -187,6 +188,8 @@ const FETCH_LOOP_ALLOW_FAILURES = 10 // up to 10 failures
 export const useVariantQueryStore = defineStore('variantQuery', () => {
   // store dependencies
 
+  /** The ctx store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
   /** The variantResultSet store */
@@ -279,9 +282,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (queryUuid, failuresSeen = 0) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -333,9 +334,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
       { query_settings: copy(querySettings.value) },
@@ -364,9 +363,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Generate the files for download.
    */
   const generateDownloadResults = async (fileType) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     await variantClient
       .generateDownloadResults(fileType, queryUuid.value)
       .then((response) => {
@@ -417,9 +414,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     fileType,
     failuresSeen = 0,
   ) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
     try {
@@ -520,7 +515,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
     // (copy appContext values)
-    umdPredictorApiToken.value = appContext.umd_predictor_api_token
+    umdPredictorApiToken.value = ctxStore.userAndGlobalSettings.user_settings.umd_predictor_api_token
     ga4ghBeaconNetworkWidgetEnabled.value =
       appContext.ga4gh_beacon_network_widget_enabled
     exomiserEnabled.value = appContext.exomiser_enabled
@@ -532,9 +527,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
     // trigger the loading of any previous results.
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       // 1. fetch default settings

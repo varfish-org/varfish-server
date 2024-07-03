@@ -3,15 +3,15 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useSvQueryStore } from '@/svs/stores/svQuery'
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCtxStore } from '@/varfish/stores/ctx'
 // TODO: change to sv presets
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 const router = useRouter()
 
-const caseListStore = useCaseListStore()
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const svQueryStore = useSvQueryStore()
 
@@ -32,7 +32,7 @@ watch(
     if (!newValue) {
       return // short circuit in case of factory defaults
     }
-    const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
     presetSetLoading.value = true
     try {
       const presetSet = await queryPresetsClient.retrievePresetSet(newValue)
@@ -151,4 +151,8 @@ watch(
     transform: rotate(360deg);
   }
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

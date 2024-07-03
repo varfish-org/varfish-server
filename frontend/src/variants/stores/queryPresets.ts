@@ -12,6 +12,7 @@ import { ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 // type FrequencyPresets = any
 // type ImpactPresets = any
@@ -74,13 +75,13 @@ export const Category = new Map<string, CategoryEntry>([
 export const useQueryPresetsStore = defineStore('queryPresets', () => {
   // store dependencies
 
+  /** The ctx store. */
+  const ctxStore = useCtxStore()
   /** The caseListStore */
   const caseListStore = useCaseListStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** The project UUID. */
   const projectUuid = ref<string | null>(null)
   /** The current application state. */
@@ -99,18 +100,16 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
   /**
    * Initialize the store for a given project.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project to load.
    * @param forceReload Whether to force reload.
    * @returns Promise for when the store is done initializing.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseListStore.initialize(csrfToken$, projectUuid$, forceReload)
+    await caseListStore.initialize(projectUuid$, forceReload)
 
     // Initialize only once for each project.
     if (
@@ -124,16 +123,13 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     $reset()
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
 
     // Start fetching.
     storeState.value.state = State.Fetching
     storeState.value.serverInteractions += 1
 
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     initializeRes.value = queryPresetsClient
       .listPresetSet(projectUuid.value)
@@ -155,9 +151,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Clone the factory preset set in the current project. */
   const cloneFactoryPresetSet = async (label: string): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     storeState.value.message = 'Cloning factory defaults...'
     const oldState = storeState.value.state
@@ -190,9 +184,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     label: string,
   ): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     storeState.value.message = 'Cloning preset set...'
     const oldState = storeState.value.state
@@ -222,9 +214,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Revert the given presetSet to the server value. */
   const revertPresetSet = async (presetSetUuid: string): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     storeState.value.message = 'Loading preset set from server...'
     const oldState = storeState.value.state
@@ -256,9 +246,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     label: string,
     default_presetset: boolean,
   ): Promise<PresetSet> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     storeState.value.message = 'Updating preset set...'
     const oldState = storeState.value.state
@@ -288,9 +276,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   /** Destroy the given presetSet. */
   const destroyPresetSet = async (presetSetUuid: string): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     storeState.value.message = 'Deleting preset set...'
     const oldState = storeState.value.state
@@ -319,9 +305,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     payload: T,
   ): Promise<T | undefined> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     const cat = Category.get(category)
     if (!cat) {
@@ -363,9 +347,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetsUuid: string,
     label: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     const cat = Category.get(category)
     if (!cat) {
@@ -406,9 +388,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     presetUuid: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     const cat = Category.get(category)
     if (!cat) {
@@ -452,9 +432,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetsUuid: string,
     presetsObj: T,
   ): Promise<T> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     const cat = Category.get(category)
     if (!cat) {
@@ -498,9 +476,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
     presetSetUuid: string,
     presetsUuid: string,
   ): Promise<any> => {
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     const cat = Category.get(category)
     if (!cat) {
@@ -562,7 +538,6 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
   }
 
   const $reset = () => {
-    csrfToken.value = null
     projectUuid.value = null
     storeState.value.state = State.Initial
     presetSets.value = {}
@@ -571,7 +546,6 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     storeState,
     presetSets,

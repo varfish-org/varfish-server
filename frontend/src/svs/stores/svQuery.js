@@ -279,7 +279,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
-   * @param appContext An application context object with more information.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
@@ -287,7 +286,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     csrfToken$,
     projectUuid$,
     caseUuid$,
-    appContext,
     forceReload = false,
   ) => {
     // Initialize store dependencies.
@@ -314,8 +312,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
-    // (copy appContext values -- none at the moment)
-    const _ = appContext
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1

@@ -43,7 +43,7 @@ const badgeStatusColor = computed(() => {
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <div class="row card-header p-2 pl-2">
+    <div class="row card-header p-2 pl-2 ml-0 mr-0">
       <h5 class="col-auto ml-0 mr-0 mb-0">
         <i-mdi-card-account-details-outline />
         Case Details
@@ -170,3 +170,7 @@ const badgeStatusColor = computed(() => {
     </ul>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

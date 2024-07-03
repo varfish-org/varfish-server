@@ -17,6 +17,36 @@ export type AnnotationReleaseInfo = {
     readonly release: string;
 };
 
+/**
+ * Serializer for the AppSetting model. Should only be used for read and list
+ * views. The sodar_uuid is not provided, as interacting with database objects
+ * directly is not the intended way to set/get app settings.
+ */
+export type AppSetting = {
+    readonly app_name: string;
+    /**
+     * Project SODAR UUID
+     */
+    readonly project: string;
+    readonly user: SODARUser;
+    /**
+     * Name of the setting
+     */
+    readonly name: string;
+    /**
+     * Type of the setting
+     */
+    readonly type: string;
+    /**
+     * Value of the setting
+     */
+    readonly value: string | null;
+    /**
+     * Setting visibility in forms
+     */
+    readonly user_modifiable: boolean;
+};
+
 export type BcftoolsStatsAfRecordList = Array<{
     af: number;
     snps: number;
@@ -1015,6 +1045,59 @@ export type PatchedEnrichmentKit = {
 };
 
 /**
+ * Serializer for the Project model
+ */
+export type PatchedProject = {
+    /**
+     * Project title
+     */
+    title?: string;
+    /**
+     * Type of project ("CATEGORY", "PROJECT")
+     *
+     * * `CATEGORY` - Category
+     * * `PROJECT` - Project
+     */
+    type?: TypeEnum;
+    /**
+     * Project SODAR UUID
+     */
+    parent?: string | null;
+    /**
+     * Short project description
+     */
+    description?: string | null;
+    readme?: string;
+    /**
+     * Allow public guest access for the project, also including unauthenticated users if allowed on the site
+     */
+    public_guest_access?: boolean;
+    readonly archive?: boolean;
+    owner?: string;
+    readonly roles?: Array<RoleAssignmentNestedList>;
+    readonly sodar_uuid?: string;
+};
+
+/**
+ * Serializer for the RoleAssignment model
+ */
+export type PatchedRoleAssignment = {
+    /**
+     * Project SODAR UUID
+     */
+    readonly project?: string;
+    /**
+     * Name of role
+     */
+    role?: string;
+    /**
+     * User SODAR UUID
+     */
+    user?: string;
+    readonly sodar_uuid?: string;
+};
+
+/**
  * Serializer for ``PredefinedQuery``.
  */
 export type PatchedSeqvarsPredefinedQuery = {
@@ -1299,6 +1382,72 @@ export type PatchedTargetBedFile = {
 };
 
 /**
+ * Serializer for the Project model
+ */
+export type Project = {
+    /**
+     * Project title
+     */
+    title: string;
+    /**
+     * Type of project ("CATEGORY", "PROJECT")
+     *
+     * * `CATEGORY` - Category
+     * * `PROJECT` - Project
+     */
+    type?: TypeEnum;
+    /**
+     * Project SODAR UUID
+     */
+    parent: string | null;
+    /**
+     * Short project description
+     */
+    description?: string | null;
+    readme?: string;
+    /**
+     * Allow public guest access for the project, also including unauthenticated users if allowed on the site
+     */
+    public_guest_access?: boolean;
+    readonly archive: boolean;
+    owner?: string;
+    readonly roles: Array<RoleAssignmentNestedList>;
+    readonly sodar_uuid: string;
+};
+
+/**
+ * Serializer for the ProjectInvite model
+ */
+export type ProjectInvite = {
+    /**
+     * Email address of the person to be invited
+     */
+    email: string;
+    /**
+     * Project SODAR UUID
+     */
+    readonly project: string;
+    /**
+     * Name of role
+     */
+    role: string;
+    readonly issuer: SODARUser;
+    /**
+     * DateTime of invite creation
+     */
+    readonly date_created: string;
+    /**
+     * Expiration of invite as DateTime
+     */
+    readonly date_expire: string;
+    /**
+     * Message to be included in the invite email (optional)
+     */
+    message?: string;
+    readonly sodar_uuid: string;
+};
+
+/**
  * Per-region QC stats for alignment.
  */
 export type RegionCoverageStats = {
@@ -1318,6 +1467,37 @@ export type RegionVariantStats = {
     transition_count: number;
     transversion_count: number;
     tstv_ratio: number;
+};
+
+/**
+ * Serializer for the RoleAssignment model
+ */
+export type RoleAssignment = {
+    /**
+     * Project SODAR UUID
+     */
+    readonly project: string;
+    /**
+     * Name of role
+     */
+    role: string;
+    /**
+     * User SODAR UUID
+     */
+    user: string;
+    readonly sodar_uuid: string;
+};
+
+/**
+ * Nested list serializer for the RoleAssignment model.
+ */
+export type RoleAssignmentNestedList = {
+    /**
+     * Name of role
+     */
+    role: string;
+    readonly user: SODARUser;
+    readonly sodar_uuid: string;
 };
 
 /**
@@ -2147,6 +2327,20 @@ export type TermPresenceList = Array<{
 }>;
 
 /**
+ * * `CATEGORY` - Category
+ * * `PROJECT` - Project
+ */
+export type TypeEnum = 'CATEGORY' | 'PROJECT';
+
+/**
+ * Serializer for ``UserAndGlobalSettingsSerializer``.
+ */
+export type UserAndGlobalSettings = {
+    user_settings: SchemaField;
+    global_settings: SchemaField;
+};
+
+/**
  * Serializer for common-denominator stats objects
  */
 export type VarfishStats = {
@@ -2480,6 +2674,10 @@ export type CasesApiSvAnnotationReleaseInfoListListResponse = Array<SvAnnotation
 
 export type CasesApiSvAnnotationReleaseInfoListListError = unknown;
 
+export type CasesApiUserAndGlobalSettingsRetrieveResponse = UserAndGlobalSettings;
+
+export type CasesApiUserAndGlobalSettingsRetrieveError = unknown;
+
 export type GenepanelsApiGenepanelCategoryListListResponse = Array<GenePanelCategory>;
 
 export type GenepanelsApiGenepanelCategoryListListError = unknown;
@@ -2487,6 +2685,190 @@ export type GenepanelsApiGenepanelCategoryListListError = unknown;
 export type GenepanelsApiLookupGenepanelRetrieveResponse = GenePanel;
 
 export type GenepanelsApiLookupGenepanelRetrieveError = unknown;
+
+export type ProjectApiCreateCreateData = {
+    body: Project;
+};
+
+export type ProjectApiCreateCreateResponse = Project;
+
+export type ProjectApiCreateCreateError = unknown;
+
+export type ProjectApiInvitesCreateCreateData = {
+    body: ProjectInvite;
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiInvitesCreateCreateResponse = ProjectInvite;
+
+export type ProjectApiInvitesCreateCreateError = unknown;
+
+export type ProjectApiInvitesListListData = {
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiInvitesListListResponse = Array<ProjectInvite>;
+
+export type ProjectApiInvitesListListError = unknown;
+
+export type ProjectApiInvitesResendCreateData = {
+    path: {
+        projectinvite: string;
+    };
+};
+
+export type ProjectApiInvitesResendCreateResponse = unknown;
+
+export type ProjectApiInvitesResendCreateError = unknown;
+
+export type ProjectApiInvitesRevokeCreateData = {
+    path: {
+        projectinvite: string;
+    };
+};
+
+export type ProjectApiInvitesRevokeCreateResponse = unknown;
+
+export type ProjectApiInvitesRevokeCreateError = unknown;
+
+export type ProjectApiListRetrieveResponse = unknown;
+
+export type ProjectApiListRetrieveError = unknown;
+
+export type ProjectApiRemoteGetRetrieveData = {
+    path: {
+        secret: string;
+    };
+};
+
+export type ProjectApiRemoteGetRetrieveResponse = unknown;
+
+export type ProjectApiRemoteGetRetrieveError = unknown;
+
+export type ProjectApiRetrieveRetrieveData = {
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiRetrieveRetrieveResponse = Project;
+
+export type ProjectApiRetrieveRetrieveError = unknown;
+
+export type ProjectApiRolesCreateCreateData = {
+    body: RoleAssignment;
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiRolesCreateCreateResponse = RoleAssignment;
+
+export type ProjectApiRolesCreateCreateError = unknown;
+
+export type ProjectApiRolesDestroyDestroyData = {
+    path: {
+        roleassignment: string;
+    };
+};
+
+export type ProjectApiRolesDestroyDestroyResponse = void;
+
+export type ProjectApiRolesDestroyDestroyError = unknown;
+
+export type ProjectApiRolesOwnerTransferCreateData = {
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiRolesOwnerTransferCreateResponse = unknown;
+
+export type ProjectApiRolesOwnerTransferCreateError = unknown;
+
+export type ProjectApiRolesUpdateUpdateData = {
+    body: RoleAssignment;
+    path: {
+        roleassignment: string;
+    };
+};
+
+export type ProjectApiRolesUpdateUpdateResponse = RoleAssignment;
+
+export type ProjectApiRolesUpdateUpdateError = unknown;
+
+export type ProjectApiRolesUpdatePartialUpdateData = {
+    body?: PatchedRoleAssignment;
+    path: {
+        roleassignment: string;
+    };
+};
+
+export type ProjectApiRolesUpdatePartialUpdateResponse = RoleAssignment;
+
+export type ProjectApiRolesUpdatePartialUpdateError = unknown;
+
+export type ProjectApiSettingsRetrieveRetrieveData = {
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiSettingsRetrieveRetrieveResponse = AppSetting;
+
+export type ProjectApiSettingsRetrieveRetrieveError = unknown;
+
+export type ProjectApiSettingsRetrieveUserRetrieveResponse = AppSetting;
+
+export type ProjectApiSettingsRetrieveUserRetrieveError = unknown;
+
+export type ProjectApiSettingsSetCreateData = {
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiSettingsSetCreateResponse = unknown;
+
+export type ProjectApiSettingsSetCreateError = unknown;
+
+export type ProjectApiSettingsSetUserCreateResponse = unknown;
+
+export type ProjectApiSettingsSetUserCreateError = unknown;
+
+export type ProjectApiUpdateUpdateData = {
+    body: Project;
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiUpdateUpdateResponse = Project;
+
+export type ProjectApiUpdateUpdateError = unknown;
+
+export type ProjectApiUpdatePartialUpdateData = {
+    body?: PatchedProject;
+    path: {
+        project: string;
+    };
+};
+
+export type ProjectApiUpdatePartialUpdateResponse = Project;
+
+export type ProjectApiUpdatePartialUpdateError = unknown;
+
+export type ProjectApiUsersCurrentRetrieveResponse = SODARUser;
+
+export type ProjectApiUsersCurrentRetrieveError = unknown;
+
+export type ProjectApiUsersListListResponse = Array<SODARUser>;
+
+export type ProjectApiUsersListListError = unknown;
 
 export type SeqmetaApiEnrichmentkitListCreateListResponse = Array<EnrichmentKit>;
 
@@ -3939,6 +4321,13 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/cases/api/user-and-global-settings/': {
+        get: {
+            res: {
+                '200': UserAndGlobalSettings;
+            };
+        };
+    };
     '/genepanels/api/genepanel-category/list/': {
         get: {
             res: {
@@ -3950,6 +4339,189 @@ export type $OpenApiTs = {
         get: {
             res: {
                 '200': GenePanel;
+            };
+        };
+    };
+    '/project/api/create': {
+        post: {
+            req: ProjectApiCreateCreateData;
+            res: {
+                '201': Project;
+            };
+        };
+    };
+    '/project/api/invites/create/{project}': {
+        post: {
+            req: ProjectApiInvitesCreateCreateData;
+            res: {
+                '201': ProjectInvite;
+            };
+        };
+    };
+    '/project/api/invites/list/{project}': {
+        get: {
+            req: ProjectApiInvitesListListData;
+            res: {
+                '200': Array<ProjectInvite>;
+            };
+        };
+    };
+    '/project/api/invites/resend/{projectinvite}': {
+        post: {
+            req: ProjectApiInvitesResendCreateData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/invites/revoke/{projectinvite}': {
+        post: {
+            req: ProjectApiInvitesRevokeCreateData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/list': {
+        get: {
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/remote/get/{secret}': {
+        get: {
+            req: ProjectApiRemoteGetRetrieveData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/retrieve/{project}': {
+        get: {
+            req: ProjectApiRetrieveRetrieveData;
+            res: {
+                '200': Project;
+            };
+        };
+    };
+    '/project/api/roles/create/{project}': {
+        post: {
+            req: ProjectApiRolesCreateCreateData;
+            res: {
+                '201': RoleAssignment;
+            };
+        };
+    };
+    '/project/api/roles/destroy/{roleassignment}': {
+        delete: {
+            req: ProjectApiRolesDestroyDestroyData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '204': void;
+            };
+        };
+    };
+    '/project/api/roles/owner-transfer/{project}': {
+        post: {
+            req: ProjectApiRolesOwnerTransferCreateData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/roles/update/{roleassignment}': {
+        put: {
+            req: ProjectApiRolesUpdateUpdateData;
+            res: {
+                '200': RoleAssignment;
+            };
+        };
+        patch: {
+            req: ProjectApiRolesUpdatePartialUpdateData;
+            res: {
+                '200': RoleAssignment;
+            };
+        };
+    };
+    '/project/api/settings/retrieve/{project}': {
+        get: {
+            req: ProjectApiSettingsRetrieveRetrieveData;
+            res: {
+                '200': AppSetting;
+            };
+        };
+    };
+    '/project/api/settings/retrieve/user': {
+        get: {
+            res: {
+                '200': AppSetting;
+            };
+        };
+    };
+    '/project/api/settings/set/{project}': {
+        post: {
+            req: ProjectApiSettingsSetCreateData;
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/settings/set/user': {
+        post: {
+            res: {
+                /**
+                 * No response body
+                 */
+                '200': unknown;
+            };
+        };
+    };
+    '/project/api/update/{project}': {
+        put: {
+            req: ProjectApiUpdateUpdateData;
+            res: {
+                '200': Project;
+            };
+        };
+        patch: {
+            req: ProjectApiUpdatePartialUpdateData;
+            res: {
+                '200': Project;
+            };
+        };
+    };
+    '/project/api/users/current': {
+        get: {
+            res: {
+                '200': SODARUser;
+            };
+        };
+    };
+    '/project/api/users/list': {
+        get: {
+            res: {
+                '200': Array<SODARUser>;
             };
         };
     };

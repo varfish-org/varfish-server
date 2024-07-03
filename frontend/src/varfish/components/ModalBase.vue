@@ -3,6 +3,8 @@
  */
 
 import { ref } from 'vue'
+import $ from 'jquery'
+import 'bootstrap/dist/js/bootstrap.bundle'
 
 /** Define the props. */
 const props = defineProps({
@@ -71,3 +73,7 @@ defineExpose({ show, hide })
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

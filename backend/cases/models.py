@@ -3,6 +3,8 @@ import typing
 import uuid as uuid_object
 
 from django.db import models
+from django_pydantic_field import SchemaField
+import pydantic
 
 from seqmeta.models import EnrichmentKit
 from variants.models import Case
@@ -204,3 +206,44 @@ def write_id_mapping_json(
         fp=outputf,
         indent=2,
     )
+
+
+class ExtraAnnoFieldInfo(pydantic.BaseModel):
+    """Description of an extra annotation field."""
+
+    #: The field name.
+    field: int
+    #: The field label.
+    label: str
+
+
+class UserSettings(pydantic.BaseModel):
+    """Transient information about user settings."""
+
+    #: Whether the UMD Predictor token has been set by the user.
+    umd_predictor_api_token: typing.Optional[str]
+    #: Whether the GA4GH beacon widget is enabled by the user.
+    ga4gh_beacon_network_widget_enabled: bool = False
+
+
+class GlobalSettings(pydantic.BaseModel):
+    """Transient information about global settings."""
+
+    #: Whether Exomiser is enabled.
+    exomiser_enabled: bool = False
+    #: Whether CADD is enabled.
+    cadd_enabled: bool = False
+    #: Extra annotation field description.
+    extra_anno_fields: typing.List[ExtraAnnoFieldInfo]
+
+
+class UserAndGlobalSettings(models.Model):
+    """Transient information about user and global settings."""
+
+    #: The user settings.
+    user_settings = SchemaField(schema=UserSettings)
+    #: The global settings.
+    global_settings = SchemaField(schema=GlobalSettings)
+
+    class Meta:
+        managed = False
