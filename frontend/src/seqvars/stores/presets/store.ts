@@ -1,7 +1,3 @@
-/**
- * Store for the seqvars query presets.
- */
-
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
@@ -42,22 +38,20 @@ export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
    *
    * @param projectUuid$ The UUID of the project to load the presets for.
    * @param forceReload$ Whether to force a reload of the data even if the projectUuuid is the same.
-   * @returns
    */
   const initialize = async (
     projectUuid$: string,
     forceReload$: boolean = false,
   ) => {
-    console.log('initializing .... ...')
     // Do not reinitialize if the project is the same unless forced.
     if (projectUuid$ === projectUuid.value && !forceReload$) {
       return
     }
 
     $reset()
+    projectUuid.value = projectUuid$
 
     storeState.state = State.Fetching
-    projectUuid.value = projectUuid$
     try {
       storeState.serverInteractions += 1
       await Promise.all([loadPresets(), loadFactoryDefaultsPresets()])
@@ -92,6 +86,7 @@ export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
       if (response.data && response.data.results) {
         for (const presetSet of response.data.results) {
           tmpPresetsSet.push(presetSet)
+          presetSets.set(presetSet.sodar_uuid, presetSet)
         }
 
         if (response.data.next) {
@@ -167,6 +162,7 @@ export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
         for (const presetSet of response.data.results) {
           factoryDefaultPresetSetUuids.push(presetSet.sodar_uuid)
           tmpPresetsSet.push(presetSet)
+          presetSets.set(presetSet.sodar_uuid, presetSet)
         }
 
         if (response.data.next) {
@@ -220,6 +216,9 @@ export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
     storeState.message = null
 
     projectUuid.value = undefined
+    factoryDefaultPresetSetUuids.splice(0, factoryDefaultPresetSetUuids.length)
+    presetSets.clear()
+    presetSetVersions.clear()
   }
 
   return {

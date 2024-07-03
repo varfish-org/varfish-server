@@ -13,6 +13,8 @@ import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { overlayShow, overlayMessage } from '@/cases/common'
 import { useSeqvarPresetsStore } from '@/seqvars/stores/presets'
+import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
+import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { useRouter } from 'vue-router'
 
 import ModalSelect from '@/varfish/components/ModalSelect.vue'
@@ -54,6 +56,8 @@ const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
 
 const seqvarPresetsStore = useSeqvarPresetsStore()
+const caseAnalysisStore = useCaseAnalysisStore()
+const seqvarsQueryStore = useSeqvarsQueryStore()
 
 // Routing-related.
 
@@ -66,7 +70,24 @@ const refreshStores = async () => {
     props?.caseUuid
   ) {
     await Promise.all([
-      seqvarPresetsStore.initialize(appContext.project.sodar_uuid),
+      (async () => {
+        // We currently load this mostly for demonstration purposes in this place.
+        // It really belongs to the seqvars query view.
+        await Promise.all([
+          seqvarPresetsStore.initialize(appContext.project.sodar_uuid),
+          caseAnalysisStore.initialize(
+            appContext.project.sodar_uuid,
+            props.caseUuid,
+          ),
+        ])
+        await seqvarsQueryStore.initialize(
+          appContext.project.sodar_uuid,
+          props.caseUuid,
+          caseAnalysisStore.currentAnalysis.sodar_uuid,
+          caseAnalysisStore.currentSession.sodar_uuid,
+          seqvarPresetsStore.presetSets.values().next().sodar_uuid,
+        )
+      })(),
       caseDetailsStore
         .initialize(
           appContext.csrf_token,
