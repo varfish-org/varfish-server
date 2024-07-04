@@ -1,10 +1,28 @@
-import { areSetsEqual } from '@/seqvars/utils'
-import { GenotypeModel, Pedigree, PedigreeInheritanceMode } from './types'
+import isEqual from 'fast-deep-equal/es6'
+import {
+  GENOTYPE_PRESETS,
+  GenotypeModel,
+  GenotypePresetKey,
+  Pedigree,
+  PedigreeModel,
+} from './constants'
 
-export const doesValueMatchGenotypePreset = (
+export const getGenotypeValueFromPreset = (
+  key: GenotypePresetKey,
+): GenotypeModel => ({
+  preset: key,
+  value: Object.fromEntries(
+    Object.entries(GENOTYPE_PRESETS[key]).map(([name, mode]) => [
+      name,
+      { checked: true, mode },
+    ]),
+  ) as PedigreeModel,
+})
+
+export const matchesGenotypePreset = (
   value: GenotypeModel,
-  preset: PedigreeInheritanceMode,
+  presetKey: GenotypePresetKey,
 ) =>
-  Object.entries(preset).every(([name, mode]) =>
-    areSetsEqual(mode, value[name as Pedigree].mode),
+  Object.entries(GENOTYPE_PRESETS[presetKey]).every(([name, mode]) =>
+    isEqual(mode, value.value[name as Pedigree].mode),
   )

@@ -1,5 +1,5 @@
 import { FrequencyModel } from '@/seqvars/components/FrequencySelect/constants'
-import { GenotypeModel } from '@/seqvars/components/GenotypeSelect/types'
+import { GenotypeModel } from '@/seqvars/components/GenotypeSelect/constants'
 import { QuickPreset } from '@/seqvars/components/QuickPresetsList/types'
 
 export type Query = {

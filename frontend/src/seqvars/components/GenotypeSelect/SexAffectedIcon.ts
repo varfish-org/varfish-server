@@ -7,7 +7,7 @@ import IconDiamondFill from '~icons/bi/diamond-fill'
 import IconSquare from '~icons/bi/square'
 import IconSquareFill from '~icons/bi/square-fill'
 
-import { Affected, SexAssignedAtBirth } from './types'
+import { Affected, SexAssignedAtBirth } from './constants'
 
 type IconFC = FunctionalComponent<SVGAttributes>
 

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import { doesValueMatchGenotypePreset } from '@/seqvars/components/GenotypeSelect/utils'
+import { matchesGenotypePreset } from '@/seqvars/components/GenotypeSelect/utils'
 import Item from '@/seqvars/components/Item.vue'
 import ItemButton from '@/seqvars/components/ItemButton.vue'
 import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import type { Query } from './types'
+import { GENOTYPE_PRESETS } from '../GenotypeSelect/constants'
+import { matchesFrequencyPreset } from '../FrequencySelect/utils'
 
 const { queries, selectedIndex } = defineProps<{
   queries: Query[]
@@ -38,7 +40,10 @@ let count: number
         <template #extra>
           <ModifiedIcon
             v-if="
-              !doesValueMatchGenotypePreset(value.genotype, preset.genotype)
+              !(
+                matchesGenotypePreset(value.genotype, preset.genotype) &&
+                matchesFrequencyPreset(value.frequency, preset.frequency)
+              )
             "
           />
           <ItemButton @click="$emit('removeQuery', index)"

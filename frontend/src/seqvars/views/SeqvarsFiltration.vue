@@ -8,12 +8,13 @@ import {
   GenotypeModel,
   PedigreeMember,
   SexAssignedAtBirth,
-} from '@/seqvars/components/GenotypeSelect/types'
+} from '@/seqvars/components/GenotypeSelect/constants'
 import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
 import { Query } from '@/seqvars/components/QueryList/types'
 import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
 import { QuickPreset } from '@/seqvars/components/QuickPresetsList/types'
 import { getFrequencyValueFromPreset } from '../components/FrequencySelect/utils'
+import { getGenotypeValueFromPreset } from '../components/GenotypeSelect/utils'
 
 const queries = ref<Query[]>([])
 const selectedQueryIndex = ref<number | null>(null)
@@ -52,12 +53,7 @@ const pedigreeMembers = ref<PedigreeMember[]>([
 const getQueryFromPreset = (preset: QuickPreset): Query => ({
   preset,
   value: {
-    genotype: Object.fromEntries(
-      Object.entries(preset.genotype).map(([name, mode]) => [
-        name,
-        { checked: true, mode },
-      ]),
-    ) as GenotypeModel,
+    genotype: getGenotypeValueFromPreset(preset.genotype),
     frequency: getFrequencyValueFromPreset(preset.frequency),
   },
   isRunning: false,

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import CheckButton from './CheckButton.vue'
-import { InheritanceMode, InheritanceModeSet } from './types'
+import { InheritanceMode, InheritanceModeSet } from './constants'
 
 const ANY_ITEMS_WITH_LABELS = [
   [InheritanceMode.WILD_TYPE, '0/0'],
@@ -10,7 +10,7 @@ const ANY_ITEMS_WITH_LABELS = [
   [InheritanceMode.HOM_ALT, '1/1'],
 ] satisfies [InheritanceMode, string][]
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue'])
 const model = defineModel<InheritanceModeSet>({ default: new Set() })
 
 const isAnySelected = computed(() =>
@@ -18,11 +18,13 @@ const isAnySelected = computed(() =>
 )
 
 const toggleModel = (key: InheritanceMode) => {
+  const newModel = new Set(model.value)
   if (model.value.has(key)) {
-    model.value.delete(key)
+    newModel.delete(key)
   } else {
-    model.value.add(key)
+    newModel.add(key)
   }
+  emit('update:modelValue', newModel)
 }
 </script>
 

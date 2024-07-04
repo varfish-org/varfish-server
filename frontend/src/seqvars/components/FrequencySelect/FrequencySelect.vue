@@ -2,13 +2,14 @@
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
+import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import FrequencyControls from './FrequencyControls.vue'
 import {
   FREQUENCY_PRESETS,
   FrequencyModel,
   FrequencyPresetKey,
 } from './constants'
-import { getFrequencyValueFromPreset } from './utils'
+import { getFrequencyValueFromPreset, matchesFrequencyPreset } from './utils'
 
 const model = defineModel<FrequencyModel>({ required: true })
 </script>
@@ -21,15 +22,18 @@ const model = defineModel<FrequencyModel>({ required: true })
         style="width: 100%; display: flex; flex-direction: column"
       >
         <Item
-          v-for="key in Object.keys(FREQUENCY_PRESETS)"
+          v-for="key in Object.keys(FREQUENCY_PRESETS) as FrequencyPresetKey[]"
           :key="key"
           :selected="key === model.preset"
-          @click="
-            () =>
-              (model = getFrequencyValueFromPreset(key as FrequencyPresetKey))
-          "
-          >{{ key }}</Item
+          @click="() => (model = getFrequencyValueFromPreset(key))"
         >
+          <template #default>{{ key }}</template>
+          <template #extra>
+            <ModifiedIcon
+              v-if="
+                model.preset == key && !matchesFrequencyPreset(model, key)
+              " /></template
+        ></Item>
       </div>
 
       <Hr />

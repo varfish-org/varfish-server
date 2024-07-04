@@ -11,7 +11,7 @@ export const FREQUENCY_DB_K_SIZES = {
 
 export type FrequencyDB = keyof typeof FREQUENCY_DB_K_SIZES
 
-type FrequencyDB_Numbers = {
+export type FrequencyDB_Numbers = {
   freq: number
   het: number
   hom: number

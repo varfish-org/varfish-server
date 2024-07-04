@@ -44,25 +44,61 @@ const model = defineModel<FrequencyDB_Values>({ required: true })
       </label>
 
       <Input
-        v-model="model[name].numbers.freq"
+        :model-value="model[name].numbers.freq"
         style="grid-column: 2; margin-right: 8px; width: 52px"
+        @update:model-value="
+          (value) => {
+            if (typeof value == 'number') {
+              model[name].numbers.freq = value
+            } else {
+              delete model[name].numbers.freq
+            }
+          }
+        "
       >
         <template #after>%</template></Input
       >
       <Input
-        v-model="model[name].numbers.het"
+        :model-value="model[name].numbers.het"
         type="number"
         style="width: 42px"
+        @update:model-value="
+          (value) => {
+            if (typeof value == 'number') {
+              model[name].numbers.het = value
+            } else {
+              delete model[name].numbers.het
+            }
+          }
+        "
       />
       <Input
-        v-model="model[name].numbers.hom"
+        :model-value="model[name].numbers.hom"
         type="number"
         style="width: 42px"
+        @update:model-value="
+          (value) => {
+            if (typeof value == 'number') {
+              model[name].numbers.hom = value
+            } else {
+              delete model[name].numbers.hom
+            }
+          }
+        "
       />
       <Input
-        v-model="model[name].numbers.hemi"
+        :model-value="model[name].numbers.hemi"
         type="number"
         style="width: 42px"
+        @update:model-value="
+          (value) => {
+            if (typeof value == 'number') {
+              model[name].numbers.hemi = value
+            } else {
+              delete model[name].numbers.hemi
+            }
+          }
+        "
       />
     </template>
   </div>

@@ -1,8 +1,8 @@
-import { PedigreeInheritanceMode } from '@/seqvars/components/GenotypeSelect/types'
+import { GenotypePresetKey } from '@/seqvars/components/GenotypeSelect/constants'
 import { FrequencyPresetKey } from '@/seqvars/components/FrequencySelect/constants'
 
 export type QuickPreset = {
   label: string
-  genotype: PedigreeInheritanceMode
+  genotype: GenotypePresetKey
   frequency: FrequencyPresetKey
 }

@@ -2,13 +2,21 @@
 import { defineEmits } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import { doesValueMatchGenotypePreset } from '@/seqvars/components/GenotypeSelect/utils'
+import {
+  matchesGenotypePreset,
+  getGenotypeValueFromPreset,
+} from '@/seqvars/components/GenotypeSelect/utils'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
+import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import SexAffectedIcon from './SexAffectedIcon'
-import { GENOTYPE_PRESETS } from './constants'
-import { GenotypeModel, Pedigree, PedigreeMember } from './types'
+import {
+  GENOTYPE_PRESETS,
+  GenotypeModel,
+  GenotypePresetKey,
+  PedigreeMember,
+} from './constants'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
@@ -24,20 +32,24 @@ defineEmits(['changePreset'])
         style="width: 100%; display: flex; flex-direction: column"
       >
         <Item
-          v-for="[key, preset] in Object.entries(GENOTYPE_PRESETS)"
+          v-for="key in Object.keys(GENOTYPE_PRESETS)"
           :key="key"
-          :selected="doesValueMatchGenotypePreset(model, preset)"
+          :selected="model.preset == key"
           @click="
             () => {
-              for (const [name, mode] of Object.entries(preset)) {
-                model[name as Pedigree] = { checked: true, mode }
-              }
+              model = getGenotypeValueFromPreset(key as GenotypePresetKey)
             }
           "
-          >{{
-            key == 'ANY' ? 'any mode' : key.toLowerCase().split('_').join(' ')
-          }}</Item
         >
+          <template #default>{{
+            key == 'ANY' ? 'any mode' : key.toLowerCase().split('_').join(' ')
+          }}</template>
+          <template #extra>
+            <ModifiedIcon
+              v-if="model.preset == key && !matchesGenotypePreset(model, key)"
+            />
+          </template>
+        </Item>
       </div>
 
       <Hr />
@@ -49,7 +61,7 @@ defineEmits(['changePreset'])
       >
         <input
           :id="member.name"
-          v-model="model[member.name].checked"
+          v-model="model.value[member.name].checked"
           type="checkbox"
           style="margin-top: 6px"
         />
@@ -69,7 +81,7 @@ defineEmits(['changePreset'])
               :affected="member.affected"
             />
           </label>
-          <InheritanceModeControls v-model="model[member.name].mode" />
+          <InheritanceModeControls v-model="model.value[member.name].mode" />
         </div>
       </div>
     </div>
