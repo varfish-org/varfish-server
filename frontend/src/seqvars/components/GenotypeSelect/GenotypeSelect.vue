@@ -3,15 +3,16 @@ import { defineEmits } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import { doesValueMatchGenotypePreset } from '@/seqvars/components/GenotypeSelect/utils'
+import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import SexAffectedIcon from './SexAffectedIcon'
 import { GENOTYPE_PRESETS } from './constants'
-import { GenotypeState, Pedigree, PedigreeMember } from './types'
+import { GenotypeModel, Pedigree, PedigreeMember } from './types'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
-const model = defineModel<GenotypeState>({ required: true })
+const model = defineModel<GenotypeModel>({ required: true })
 defineEmits(['changePreset'])
 </script>
 
@@ -39,10 +40,7 @@ defineEmits(['changePreset'])
         >
       </div>
 
-      <div
-        class="bg-inactive-ui-element"
-        style="width: 100%; height: 1px"
-      ></div>
+      <Hr />
 
       <div
         v-for="(member, index) in pedigreeMembers"

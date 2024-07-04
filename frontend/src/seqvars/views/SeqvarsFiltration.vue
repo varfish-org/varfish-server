@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
+import FrequencySelect from '@/seqvars/components/FrequencySelect/FrequencySelect.vue'
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import {
   Affected,
-  GenotypeState,
+  GenotypeModel,
   PedigreeMember,
   SexAssignedAtBirth,
 } from '@/seqvars/components/GenotypeSelect/types'
 import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
 import { Query } from '@/seqvars/components/QueryList/types'
 import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
+import { QuickPreset } from '@/seqvars/components/QuickPresetsList/types'
+import { getFrequencyValueFromPreset } from '../components/FrequencySelect/utils'
 
 const queries = ref<Query[]>([])
 const selectedQueryIndex = ref<number | null>(null)
@@ -45,6 +48,20 @@ const pedigreeMembers = ref<PedigreeMember[]>([
     sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
   },
 ])
+
+const getQueryFromPreset = (preset: QuickPreset): Query => ({
+  preset,
+  value: {
+    genotype: Object.fromEntries(
+      Object.entries(preset.genotype).map(([name, mode]) => [
+        name,
+        { checked: true, mode },
+      ]),
+    ) as GenotypeModel,
+    frequency: getFrequencyValueFromPreset(preset.frequency),
+  },
+  isRunning: false,
+})
 </script>
 
 <template>
@@ -81,36 +98,11 @@ const pedigreeMembers = ref<PedigreeMember[]>([
 
         <QuickPresetsList
           :value="selectedQuery?.preset"
-          @add-query="
-            (preset) =>
-              queries.push({
-                preset,
-                value: {
-                  genotype: Object.fromEntries(
-                    (['father', 'mother', 'index'] as const).map((name) => [
-                      name,
-                      { mode: preset.genotype[name], checked: true },
-                    ]),
-                  ) as GenotypeState,
-                },
-                isRunning: false,
-              })
-          "
+          @add-query="(preset) => queries.push(getQueryFromPreset(preset))"
           @update:value="
             (preset) => {
-              if (!selectedQuery) return
-
-              selectedQuery = {
-                preset,
-                value: {
-                  genotype: Object.fromEntries(
-                    Object.entries(preset.genotype).map(([name, mode]) => [
-                      name,
-                      { checked: true, mode },
-                    ]),
-                  ) as GenotypeState,
-                },
-                isRunning: false,
+              if (selectedQuery) {
+                selectedQuery = getQueryFromPreset(preset)
               }
             }
           "
@@ -121,6 +113,8 @@ const pedigreeMembers = ref<PedigreeMember[]>([
             v-model="selectedQuery.value.genotype"
             :pedigree-members="pedigreeMembers"
           />
+
+          <FrequencySelect v-model="selectedQuery.value.frequency" />
         </template>
       </div>
     </div>

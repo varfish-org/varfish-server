@@ -31,7 +31,7 @@ export type PedigreeInheritanceMode = Record<Pedigree, InheritanceModeSet>
 
 export type GenotypePresets = Record<string, PedigreeInheritanceMode>
 
-export type GenotypeState = Record<
+export type GenotypeModel = Record<
   Pedigree,
   { checked: boolean; mode: Set<InheritanceMode> }
 >

@@ -1,8 +1,8 @@
 import { areSetsEqual } from '@/seqvars/utils'
-import { GenotypeState, Pedigree, PedigreeInheritanceMode } from './types'
+import { GenotypeModel, Pedigree, PedigreeInheritanceMode } from './types'
 
 export const doesValueMatchGenotypePreset = (
-  value: GenotypeState,
+  value: GenotypeModel,
   preset: PedigreeInheritanceMode,
 ) =>
   Object.entries(preset).every(([name, mode]) =>
