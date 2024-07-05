@@ -9,6 +9,7 @@ const model = defineModel<FrequencyDB_Values>({ required: true })
 <template>
   <div
     style="
+      width: fit-content;
       display: grid;
       grid-template-columns: 1fr auto auto auto auto;
       gap: 4px;

@@ -1,7 +1,8 @@
-import { ref } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { ref } from 'vue'
 
 import FrequencyControls from './FrequencyControls.vue'
+import { getFrequencyValueFromPreset } from './utils'
 
 const meta: Meta<typeof FrequencyControls> = {
   title: 'Seqvars / Frequency Controls',
@@ -16,8 +17,9 @@ export const Example: Story = {
   render: () => ({
     components: { FrequencyControls },
     setup() {
-      const model = ref(new Set())
-      const updateModel = (value: Set<string>) => (model.value = value)
+      const model = ref(getFrequencyValueFromPreset('dominant relaxed').values)
+      console.log(model.value)
+      const updateModel = (value: typeof model.value) => (model.value = value)
       return { model, updateModel }
     },
     template:
