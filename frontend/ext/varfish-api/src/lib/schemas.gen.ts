@@ -2021,6 +2021,23 @@ export const $EnrichmentKit = {
     required: ['date_created', 'date_modified', 'identifier', 'sodar_uuid', 'title']
 } as const;
 
+export const $ExtraAnnoFieldInfo = {
+    description: 'Description of an extra annotation field.',
+    properties: {
+        field: {
+            title: 'Field',
+            type: 'integer'
+        },
+        label: {
+            title: 'Label',
+            type: 'string'
+        }
+    },
+    required: ['field', 'label'],
+    title: 'ExtraAnnoFieldInfo',
+    type: 'object'
+} as const;
+
 export const $GeneList = {
     type: 'array',
     items: {
@@ -6903,10 +6920,53 @@ export const $UserAndGlobalSettings = {
     description: 'Serializer for ``UserAndGlobalSettingsSerializer``.',
     properties: {
         user_settings: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'Transient information about user settings.',
+            properties: {
+                umd_predictor_api_token: {
+                    anyOf: [
+                        {
+                            type: 'string'
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ],
+                    title: 'Umd Predictor Api Token'
+                },
+                ga4gh_beacon_network_widget_enabled: {
+                    default: false,
+                    title: 'Ga4Gh Beacon Network Widget Enabled',
+                    type: 'boolean'
+                }
+            },
+            required: ['umd_predictor_api_token'],
+            title: 'UserSettings',
+            type: 'object'
         },
         global_settings: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'Transient information about global settings.',
+            properties: {
+                exomiser_enabled: {
+                    default: false,
+                    title: 'Exomiser Enabled',
+                    type: 'boolean'
+                },
+                cadd_enabled: {
+                    default: false,
+                    title: 'Cadd Enabled',
+                    type: 'boolean'
+                },
+                extra_anno_fields: {
+                    items: {
+                        '$ref': '#/components/schemas/ExtraAnnoFieldInfo'
+                    },
+                    title: 'Extra Anno Fields',
+                    type: 'array'
+                }
+            },
+            required: ['extra_anno_fields'],
+            title: 'GlobalSettings',
+            type: 'object'
         }
     },
     required: ['global_settings', 'user_settings']

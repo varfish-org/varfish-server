@@ -324,3 +324,7 @@ onMounted(async () => {
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

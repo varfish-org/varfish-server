@@ -16,7 +16,6 @@ const props = defineProps<{
   currentTab: string
 }>()
 
-
 const caseListStore = useCaseListStore()
 
 // Whether to hide the navigation bar; component state.
@@ -42,22 +41,31 @@ const userHasPerms = (perm: string) =>
       <v-list-subheader class="text-uppercase">
         Case Overview
       </v-list-subheader>
-      <v-list-item prepend-icon="mdi-account" :to="{
-        name: 'case-detail-overview',
-        params: { project: projectUuid, case: caseUuid },
-      }">
+      <v-list-item
+        prepend-icon="mdi-account"
+        :to="{
+          name: 'case-detail-overview',
+          params: { project: projectUuid, case: caseUuid },
+        }"
+      >
         Overview
       </v-list-item>
-      <v-list-item prepend-icon="mdi-chart-multiple" :to="{
-        name: 'case-detail-qc',
-        params: { project: projectUuid, case: caseUuid },
-      }">
+      <v-list-item
+        prepend-icon="mdi-chart-multiple"
+        :to="{
+          name: 'case-detail-qc',
+          params: { project: projectUuid, case: caseUuid },
+        }"
+      >
         Quality Control
       </v-list-item>
-      <v-list-item prepend-icon="mdi-bookmark-multiple" :to="{
-        name: 'case-detail-annotation',
-        params: { project: projectUuid, case: caseUuid },
-      }">
+      <v-list-item
+        prepend-icon="mdi-bookmark-multiple"
+        :to="{
+          name: 'case-detail-annotation',
+          params: { project: projectUuid, case: caseUuid },
+        }"
+      >
         Variant Annotation
       </v-list-item>
 

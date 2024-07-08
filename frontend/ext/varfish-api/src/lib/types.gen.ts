@@ -677,6 +677,14 @@ export type EnrichmentKit = {
     description?: string | null;
 };
 
+/**
+ * Description of an extra annotation field.
+ */
+export type ExtraAnnoFieldInfo = {
+    field: number;
+    label: string;
+};
+
 export type GeneList = Array<{
     hgnc_id: string;
     symbol: string;
@@ -2330,8 +2338,21 @@ export type TypeEnum = 'CATEGORY' | 'PROJECT';
  * Serializer for ``UserAndGlobalSettingsSerializer``.
  */
 export type UserAndGlobalSettings = {
-    user_settings: SchemaField;
-    global_settings: SchemaField;
+    /**
+     * Transient information about user settings.
+     */
+    user_settings: {
+        umd_predictor_api_token: string | null;
+        ga4gh_beacon_network_widget_enabled?: boolean;
+    };
+    /**
+     * Transient information about global settings.
+     */
+    global_settings: {
+        exomiser_enabled?: boolean;
+        cadd_enabled?: boolean;
+        extra_anno_fields: Array<ExtraAnnoFieldInfo>;
+    };
 };
 
 /**

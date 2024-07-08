@@ -14,7 +14,6 @@ import { useCtxStore } from '@/varfish/stores/ctx'
 import { updateUserSetting } from '@/varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import Header from '@/variants/components/FilterApp/Header.vue'
 import FilterForm from '@/variants/components/FilterForm.vue'
 import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 
@@ -50,14 +49,7 @@ const showDetails = async (event) => {
 }
 
 /** Whether the form is visible. */
-const formVisible = ref(true)
-/** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
+const filterFormVisible = defineModel('filterFormVisible', {type: Boolean, default: true})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -118,16 +110,10 @@ const refreshStores = async () => {
   variantAcmgRatingStore.$reset()
   variantResultSetStore.$reset()
 
-  await caseDetailsStore.initialize(
-    props.projectUuid,
-    props.caseUuid,
-  )
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
 
-  Promise.all([
-    variantQueryStore.initialize(
-      props.projectUuid,
-      props.caseUuid,
-    ),
+  await Promise.all([
+    variantQueryStore.initialize(props.projectUuid, props.caseUuid),
     variantFlagsStore.initialize(
       props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
@@ -141,11 +127,12 @@ const refreshStores = async () => {
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantResultSetStore.initialize(),
-  ]).then(async () => {
+  ])
+  if (variantQueryStore.queryUuid) {
     await variantResultSetStore.loadResultSetViaQuery(
       variantQueryStore.queryUuid,
     )
-  })
+  }
 }
 
 // Initialize (=refresh) stores when mounted.
@@ -161,13 +148,10 @@ watch(
 <template>
   <div
     v-if="variantQueryStore.storeState.state === State.Active"
-    class="d-flex flex-column h-100"
+    class="d-flex flex-column h-100 mx-3"
   >
-    <!-- title etc. -->
-    <Header :form-visible="formVisible" @toggle-form="toggleForm()" />
-
     <!-- query form -->
-    <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
+    <div v-if="filterFormVisible" class="container-fluid sodar-page-container pt-0">
       <div
         v-if="variantQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -278,4 +262,6 @@ watch(
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

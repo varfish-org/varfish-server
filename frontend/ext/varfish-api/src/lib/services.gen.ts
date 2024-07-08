@@ -515,6 +515,8 @@ export class CasesService {
     
     /**
      * Retrieve user and global settings.
+     *
+     * Also, send the CSRF token as a response token.
      */
     public static casesApiUserAndGlobalSettingsRetrieve(options?: Options) {
         return (options?.client ?? client).get<CasesApiUserAndGlobalSettingsRetrieveResponse, CasesApiUserAndGlobalSettingsRetrieveError>({

@@ -23,7 +23,7 @@
       {% endfor %}
       <tr>
         <td class="bg-faded" colspan="9">
-          <a href="{% url 'cases:entrypoint' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
+          <a href="/-/cases/{{ project.sodar_uuid }}" class="btn btn-secondary btn-small">
             <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> See list of all cases
           </a>
         </td>

@@ -412,3 +412,7 @@ footer.sodar-footer,
   display: none;
 }
 </style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -256,3 +256,7 @@ onMounted(() => {
 </style>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

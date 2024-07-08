@@ -180,3 +180,7 @@ const displayColumnsWrapper = computed({
   color: #343a40;
 }
 </style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

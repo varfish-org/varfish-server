@@ -35,7 +35,7 @@ const updatePresetSetLoading = async () => {
   let uuid
   if (
     !props.case?.presetset &&
-    variantQueryStore?.defaultPresetSetUuid === undefined
+    !variantQueryStore?.defaultPresetSetUuid
   ) {
     presetSetLabel.value = 'Factory Defaults'
     presetSource.value = 'Factory Defaults'
@@ -44,7 +44,7 @@ const updatePresetSetLoading = async () => {
     if (props.case?.presetset) {
       uuid = caseDetailsStore.caseObj.presetset
       presetSource.value = 'Individual Case Setting'
-    } else if (variantQueryStore?.defaultPresetSetUuid !== undefined) {
+    } else if (variantQueryStore?.defaultPresetSetUuid) {
       uuid = variantQueryStore.defaultPresetSetUuid
       presetSource.value = 'Project Default Setting'
     }

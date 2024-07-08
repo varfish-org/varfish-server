@@ -536,22 +536,16 @@ onMounted(() => {
 <template>
   <h2>
     Case
-    <small v-if="caseDetailsStore.caseObj" class="text-muted">{{ caseDetailsStore.caseObj.name }}</small>
+    <small v-if="caseDetailsStore.caseObj" class="text-muted">{{
+      caseDetailsStore.caseObj.name
+    }}</small>
     <small v-else>NO CASE</small>
     &mdash;
     <span>
-      <template v-if="currentTab == 'overview'">
-        Overview
-      </template>
-      <template v-else-if="currentTab == 'qc'">
-        Quality Control
-      </template>
-      <template v-else-if="currentTab == 'annotation'">
-        Annotation
-      </template>
-      <template v-else>
-        UNKNOWN TAB
-      </template>
+      <template v-if="currentTab == 'overview'"> Overview </template>
+      <template v-else-if="currentTab == 'qc'"> Quality Control </template>
+      <template v-else-if="currentTab == 'annotation'"> Annotation </template>
+      <template v-else> UNKNOWN TAB </template>
     </span>
   </h2>
   <div
@@ -567,9 +561,7 @@ onMounted(() => {
       @update-case-comment-click="handleUpdateCaseCommentClicked"
       @delete-case-comment-click="handleDeleteCaseCommentClicked"
       @edit-pedigree-click="handleEditPedigreeClicked"
-      @update-case-phenotype-terms-click="
-        handleUpdateCasePhenotypeTermsClicked
-      "
+      @update-case-phenotype-terms-click="handleUpdateCasePhenotypeTermsClicked"
     />
     <Overlay v-if="overlayShow" :message="overlayMessage" />
   </div>
