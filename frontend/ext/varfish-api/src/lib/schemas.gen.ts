@@ -35,7 +35,6 @@ export const $AnnotationReleaseInfo = {
 
 export const $BcftoolsStatsAfRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsAfRecordList',
     items: {
         description: `A Record from the \`\`AF\`\` (non-reference allele frequency) lines in \`\`bcftools stats\`\`
 output.`,
@@ -81,7 +80,6 @@ output.`,
 
 export const $BcftoolsStatsDpRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsDpRecordList',
     items: {
         description: 'A Record from the ``DP`` (AF) lines in ``bcftools stats`` output.',
         properties: {
@@ -114,7 +112,6 @@ export const $BcftoolsStatsDpRecordList = {
 
 export const $BcftoolsStatsIddRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsIddRecordList',
     items: {
         description: 'A Record from the ``IDD`` (indel distribution) lines in ``bcftools stats`` output.',
         properties: {
@@ -201,7 +198,6 @@ export const $BcftoolsStatsMetrics = {
 
 export const $BcftoolsStatsQualRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsQualRecordList',
     items: {
         description: 'A Record from the ``QUAL`` (quality) lines in ``bcftools stats`` output.',
         properties: {
@@ -241,7 +237,6 @@ export const $BcftoolsStatsQualRecordList = {
 
 export const $BcftoolsStatsSisRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsSisRecordList',
     items: {
         description: 'A Record from the ``SiS`` (singleton stats) lines in ``bcftools stats`` output.',
         properties: {
@@ -282,7 +277,6 @@ export const $BcftoolsStatsSisRecordList = {
 
 export const $BcftoolsStatsSnRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsSnRecordList',
     items: {
         description: 'A Record from the ``SN`` lines in ``bcftools stats`` output.',
         properties: {
@@ -316,7 +310,6 @@ export const $BcftoolsStatsSnRecordList = {
 
 export const $BcftoolsStatsStRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsStRecordList',
     items: {
         description: 'A Record from the ``ST`` (substitution types) lines in ``bcftools stats`` output.',
         properties: {
@@ -337,7 +330,6 @@ export const $BcftoolsStatsStRecordList = {
 
 export const $BcftoolsStatsTstvRecordList = {
     type: 'array',
-    title: 'BcftoolsStatsTstvRecordList',
     items: {
         description: 'A Record from the ``TSTV`` lines in ``bcftools stats`` output.',
         properties: {
@@ -971,7 +963,6 @@ export const $CaseStatusEnum = {
 
 export const $ClinvarGermlineAggregateDescriptionList = {
     type: 'array',
-    title: 'ClinvarGermlineAggregateDescriptionList',
     items: {
         type: 'string',
         title: 'ClinvarGermlineAggregateDescription',
@@ -981,7 +972,6 @@ export const $ClinvarGermlineAggregateDescriptionList = {
 
 export const $CraminoChromNormalizedCountsRecordList = {
     type: 'array',
-    title: 'CraminoChromNormalizedCountsRecordList',
     items: {
         description: 'Store one chrom/normalized read counts record from Cramino output.',
         properties: {
@@ -1039,7 +1029,6 @@ export const $CraminoMetrics = {
 
 export const $CraminoSummaryRecordList = {
     type: 'array',
-    title: 'CraminoSummaryRecordList',
     items: {
         description: 'Store a summary record from the cramino output file.',
         properties: {
@@ -1066,6 +1055,23 @@ export const $CraminoSummaryRecordList = {
         title: 'CraminoSummaryRecord',
         type: 'object'
     }
+} as const;
+
+export const $DataSourceInfo = {
+    description: 'Describes the version version of a given datasource.',
+    properties: {
+        name: {
+            title: 'Name',
+            type: 'string'
+        },
+        version: {
+            title: 'Version',
+            type: 'string'
+        }
+    },
+    required: ['name', 'version'],
+    title: 'DataSourceInfo',
+    type: 'object'
 } as const;
 
 export const $DetailedAlignmentCounts = {
@@ -1478,7 +1484,6 @@ export const $DragenRohMetrics = {
 
 export const $DragenStyleCoverageList = {
     type: 'array',
-    title: 'DragenStyleCoverageList',
     items: {
         description: 'Pydantic model for Dragen-style coverage metric entries',
         properties: {
@@ -1503,7 +1508,6 @@ export const $DragenStyleCoverageList = {
 
 export const $DragenStyleMetricList = {
     type: 'array',
-    title: 'DragenStyleMetricList',
     items: {
         description: 'Pydantic model for Dragen-style quality control metric entries',
         properties: {
@@ -1970,7 +1974,6 @@ export const $EnrichmentKit = {
 
 export const $GeneList = {
     type: 'array',
-    title: 'GeneList',
     items: {
         description: 'Representation of a gene to query for.',
         properties: {
@@ -2103,7 +2106,6 @@ export const $GenePanelCategory = {
 
 export const $GenePanelList = {
     type: 'array',
-    title: 'GenePanelList',
     items: {
         description: 'Representation of a gene panel to use in the query.',
         properties: {
@@ -2146,7 +2148,6 @@ export const $GenePanelStateEnum = {
 
 export const $GenomeRegionList = {
     type: 'array',
-    title: 'GenomeRegionList',
     items: {
         description: 'Representation of a genomic region to query for.',
         properties: {
@@ -2258,7 +2259,6 @@ export const $NgsbitsMappingqcMetrics = {
 
 export const $NgsbitsMappingqcRecordList = {
     type: 'array',
-    title: 'NgsbitsMappingqcRecordList',
     items: {
         description: "One entry in the output of ngs-bits' MappingQC.",
         properties: {
@@ -3050,11 +3050,7 @@ export const $PatchedSeqvarsPredefinedQuery = {
             default: false
         },
         genotype: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SchemaField'
-                }
-            ],
+            oneOf: [],
             default: {
                 choice: null
             }
@@ -3937,7 +3933,6 @@ export const $SODARUser = {
 
 export const $SampleAlignmentStatsList = {
     type: 'array',
-    title: 'SampleAlignmentStatsList',
     items: {
         description: 'Per-sample QC stats for alignment.',
         properties: {
@@ -3985,7 +3980,6 @@ export const $SampleAlignmentStatsList = {
 
 export const $SampleReadStatsList = {
     type: 'array',
-    title: 'SampleReadStatsList',
     items: {
         description: 'Per-sample QC stats for reads.',
         properties: {
@@ -4047,7 +4041,6 @@ export const $SampleReadStatsList = {
 
 export const $SampleSeqvarStatsList = {
     type: 'array',
-    title: 'SampleSeqvarStatsList',
     items: {
         description: 'Per-sample QC stats for sequence variants.',
         properties: {
@@ -4074,7 +4067,6 @@ export const $SampleSeqvarStatsList = {
 
 export const $SampleStrucvarStatsList = {
     type: 'array',
-    title: 'SampleStrucvarStatsList',
     items: {
         description: 'Per-sample QC stats for structural variants.',
         properties: {
@@ -4123,10 +4115,178 @@ export const $SamtoolsFlagstatMetrics = {
             readOnly: true
         },
         qc_pass: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'A record for the ``flagstat`` lines in ``samtools stats`` output.',
+            properties: {
+                total: {
+                    default: 0,
+                    title: 'Total',
+                    type: 'integer'
+                },
+                primary: {
+                    default: 0,
+                    title: 'Primary',
+                    type: 'integer'
+                },
+                secondary: {
+                    default: 0,
+                    title: 'Secondary',
+                    type: 'integer'
+                },
+                supplementary: {
+                    default: 0,
+                    title: 'Supplementary',
+                    type: 'integer'
+                },
+                duplicates: {
+                    default: 0,
+                    title: 'Duplicates',
+                    type: 'integer'
+                },
+                duplicates_primary: {
+                    default: 0,
+                    title: 'Duplicates Primary',
+                    type: 'integer'
+                },
+                mapped: {
+                    default: 0,
+                    title: 'Mapped',
+                    type: 'integer'
+                },
+                mapped_primary: {
+                    default: 0,
+                    title: 'Mapped Primary',
+                    type: 'integer'
+                },
+                paired: {
+                    default: 0,
+                    title: 'Paired',
+                    type: 'integer'
+                },
+                fragment_first: {
+                    default: 0,
+                    title: 'Fragment First',
+                    type: 'integer'
+                },
+                fragment_last: {
+                    default: 0,
+                    title: 'Fragment Last',
+                    type: 'integer'
+                },
+                properly_paired: {
+                    default: 0,
+                    title: 'Properly Paired',
+                    type: 'integer'
+                },
+                with_itself_and_mate_mapped: {
+                    default: 0,
+                    title: 'With Itself And Mate Mapped',
+                    type: 'integer'
+                },
+                singletons: {
+                    default: 0,
+                    title: 'Singletons',
+                    type: 'integer'
+                },
+                with_mate_mapped_to_different_chr: {
+                    default: 0,
+                    title: 'With Mate Mapped To Different Chr',
+                    type: 'integer'
+                },
+                with_mate_mapped_to_different_chr_mapq5: {
+                    default: 0,
+                    title: 'With Mate Mapped To Different Chr Mapq5',
+                    type: 'integer'
+                }
+            },
+            title: 'SamtoolsFlagstatRecord',
+            type: 'object'
         },
         qc_fail: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'A record for the ``flagstat`` lines in ``samtools stats`` output.',
+            properties: {
+                total: {
+                    default: 0,
+                    title: 'Total',
+                    type: 'integer'
+                },
+                primary: {
+                    default: 0,
+                    title: 'Primary',
+                    type: 'integer'
+                },
+                secondary: {
+                    default: 0,
+                    title: 'Secondary',
+                    type: 'integer'
+                },
+                supplementary: {
+                    default: 0,
+                    title: 'Supplementary',
+                    type: 'integer'
+                },
+                duplicates: {
+                    default: 0,
+                    title: 'Duplicates',
+                    type: 'integer'
+                },
+                duplicates_primary: {
+                    default: 0,
+                    title: 'Duplicates Primary',
+                    type: 'integer'
+                },
+                mapped: {
+                    default: 0,
+                    title: 'Mapped',
+                    type: 'integer'
+                },
+                mapped_primary: {
+                    default: 0,
+                    title: 'Mapped Primary',
+                    type: 'integer'
+                },
+                paired: {
+                    default: 0,
+                    title: 'Paired',
+                    type: 'integer'
+                },
+                fragment_first: {
+                    default: 0,
+                    title: 'Fragment First',
+                    type: 'integer'
+                },
+                fragment_last: {
+                    default: 0,
+                    title: 'Fragment Last',
+                    type: 'integer'
+                },
+                properly_paired: {
+                    default: 0,
+                    title: 'Properly Paired',
+                    type: 'integer'
+                },
+                with_itself_and_mate_mapped: {
+                    default: 0,
+                    title: 'With Itself And Mate Mapped',
+                    type: 'integer'
+                },
+                singletons: {
+                    default: 0,
+                    title: 'Singletons',
+                    type: 'integer'
+                },
+                with_mate_mapped_to_different_chr: {
+                    default: 0,
+                    title: 'With Mate Mapped To Different Chr',
+                    type: 'integer'
+                },
+                with_mate_mapped_to_different_chr_mapq5: {
+                    default: 0,
+                    title: 'With Mate Mapped To Different Chr Mapq5',
+                    type: 'integer'
+                }
+            },
+            title: 'SamtoolsFlagstatRecord',
+            type: 'object'
         },
         date_created: {
             type: 'string',
@@ -4182,7 +4342,6 @@ export const $SamtoolsIdxstatsMetrics = {
 
 export const $SamtoolsIdxstatsRecordList = {
     type: 'array',
-    title: 'SamtoolsIdxstatsRecordList',
     items: {
         description: 'A record for the lines in ``samtools idxstats`` output.',
         properties: {
@@ -4211,7 +4370,6 @@ export const $SamtoolsIdxstatsRecordList = {
 
 export const $SamtoolsStatsBasePercentagesRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsBasePercentagesRecordList',
     items: {
         description: `A Record from the \`\`GCC\`\`, \`\`GCT\`\`, \`\`FBC\`\`, and \`\`LBC\`\` lines in \`\`samtools stats\`\`
 output.`,
@@ -4236,7 +4394,6 @@ output.`,
 
 export const $SamtoolsStatsChkRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsChkRecordList',
     items: {
         description: 'A Record from the ``CHK`` lines in ``samtools stats`` output.',
         properties: {
@@ -4261,7 +4418,6 @@ export const $SamtoolsStatsChkRecordList = {
 
 export const $SamtoolsStatsFqRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsFqRecordList',
     items: {
         description: 'A Record from the ``FFQ`` and ``LFQ`` lines in ``samtools stats`` output.',
         properties: {
@@ -4285,7 +4441,6 @@ export const $SamtoolsStatsFqRecordList = {
 
 export const $SamtoolsStatsGcRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsGcRecordList',
     items: {
         description: 'A Record from the ``GCF`` and ``GCL`` lines in ``samtools stats`` output.',
         properties: {
@@ -4306,7 +4461,6 @@ export const $SamtoolsStatsGcRecordList = {
 
 export const $SamtoolsStatsGcdRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsGcdRecordList',
     items: {
         description: 'A record for the ``GCD`` lines in ``samtools stats`` output.',
         properties: {
@@ -4347,7 +4501,6 @@ export const $SamtoolsStatsGcdRecordList = {
 
 export const $SamtoolsStatsHistoRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsHistoRecordList',
     items: {
         description: `A record for a value/count pair.
 
@@ -4370,7 +4523,6 @@ Used for \`\`MAPQ\`\`, \`\`ID\`\`, \`\`COV\`\``,
 
 export const $SamtoolsStatsIcRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsIcRecordList',
     items: {
         description: 'A record for the ``IC`` lines in ``samtools stats`` output.',
         properties: {
@@ -4403,7 +4555,6 @@ export const $SamtoolsStatsIcRecordList = {
 
 export const $SamtoolsStatsIdRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsIdRecordList',
     items: {
         description: 'A record for the ``ID`` lines in ``samtools stats`` output.',
         properties: {
@@ -4428,7 +4579,6 @@ export const $SamtoolsStatsIdRecordList = {
 
 export const $SamtoolsStatsIsRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsIsRecordList',
     items: {
         description: 'Records for the ``IS`` records.',
         properties: {
@@ -4528,7 +4678,6 @@ export const $SamtoolsStatsMainMetrics = {
 
 export const $SamtoolsStatsSnRecordList = {
     type: 'array',
-    title: 'SamtoolsStatsSnRecordList',
     items: {
         description: 'A Record from the ``SN`` lines in ``samtools stats`` output.',
         properties: {
@@ -4612,97 +4761,8 @@ export const $SamtoolsStatsSupplementaryMetrics = {
     required: ['caseqc', 'date_created', 'date_modified', 'gcc', 'gcf', 'gcl', 'gct', 'ic', 'mapq', 'rl', 'sample', 'sodar_uuid']
 } as const;
 
-export const $SchemaField = {
-    description: 'A record for the ``flagstat`` lines in ``samtools stats`` output.',
-    properties: {
-        total: {
-            default: 0,
-            title: 'Total',
-            type: 'integer'
-        },
-        primary: {
-            default: 0,
-            title: 'Primary',
-            type: 'integer'
-        },
-        secondary: {
-            default: 0,
-            title: 'Secondary',
-            type: 'integer'
-        },
-        supplementary: {
-            default: 0,
-            title: 'Supplementary',
-            type: 'integer'
-        },
-        duplicates: {
-            default: 0,
-            title: 'Duplicates',
-            type: 'integer'
-        },
-        duplicates_primary: {
-            default: 0,
-            title: 'Duplicates Primary',
-            type: 'integer'
-        },
-        mapped: {
-            default: 0,
-            title: 'Mapped',
-            type: 'integer'
-        },
-        mapped_primary: {
-            default: 0,
-            title: 'Mapped Primary',
-            type: 'integer'
-        },
-        paired: {
-            default: 0,
-            title: 'Paired',
-            type: 'integer'
-        },
-        fragment_first: {
-            default: 0,
-            title: 'Fragment First',
-            type: 'integer'
-        },
-        fragment_last: {
-            default: 0,
-            title: 'Fragment Last',
-            type: 'integer'
-        },
-        properly_paired: {
-            default: 0,
-            title: 'Properly Paired',
-            type: 'integer'
-        },
-        with_itself_and_mate_mapped: {
-            default: 0,
-            title: 'With Itself And Mate Mapped',
-            type: 'integer'
-        },
-        singletons: {
-            default: 0,
-            title: 'Singletons',
-            type: 'integer'
-        },
-        with_mate_mapped_to_different_chr: {
-            default: 0,
-            title: 'With Mate Mapped To Different Chr',
-            type: 'integer'
-        },
-        with_mate_mapped_to_different_chr_mapq5: {
-            default: 0,
-            title: 'With Mate Mapped To Different Chr Mapq5',
-            type: 'integer'
-        }
-    },
-    title: 'SamtoolsFlagstatRecord',
-    type: 'object'
-} as const;
-
 export const $SeqvarsColumnConfigList = {
     type: 'array',
-    title: 'SeqvarsColumnConfigList',
     items: {
         description: 'Configuration for a single column in the result table.',
         properties: {
@@ -4789,11 +4849,7 @@ export const $SeqvarsPredefinedQuery = {
             default: false
         },
         genotype: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SchemaField'
-                }
-            ],
+            oneOf: [],
             default: {
                 choice: null
             }
@@ -4844,7 +4900,6 @@ export const $SeqvarsPredefinedQuery = {
 
 export const $SeqvarsPrioServiceList = {
     type: 'array',
-    title: 'SeqvarsPrioServiceList',
     items: {
         description: 'Representation of a variant pathogenicity service.',
         properties: {
@@ -6407,7 +6462,16 @@ export const $SeqvarsResultRow = {
             readOnly: true
         },
         payload: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'Payload for one result row of a seqvar query.',
+            properties: {
+                foo: {
+                    title: 'Foo',
+                    type: 'integer'
+                }
+            },
+            required: ['foo'],
+            title: 'SeqvarsResultRowPayload',
+            type: 'object'
         }
     },
     required: ['alternative', 'chromosome', 'chromosome_no', 'payload', 'reference', 'release', 'resultset', 'sodar_uuid', 'start', 'stop']
@@ -6438,7 +6502,19 @@ export const $SeqvarsResultSet = {
             readOnly: true
         },
         datasource_infos: {
-            '$ref': '#/components/schemas/SchemaField'
+            description: 'Container for ``DataSourceInfo`` records.',
+            properties: {
+                infos: {
+                    items: {
+                        '$ref': '#/components/schemas/DataSourceInfo'
+                    },
+                    title: 'Infos',
+                    type: 'array'
+                }
+            },
+            required: ['infos'],
+            title: 'DataSourceInfos',
+            type: 'object'
         }
     },
     required: ['datasource_infos', 'date_created', 'date_modified', 'queryexecution', 'sodar_uuid']
@@ -6446,7 +6522,6 @@ export const $SeqvarsResultSet = {
 
 export const $SeqvarsSampleGenotypeChoiceList = {
     type: 'array',
-    title: 'SeqvarsSampleGenotypeChoiceList',
     items: {
         description: 'Store the genotype of a sample.',
         properties: {
@@ -6466,7 +6541,6 @@ export const $SeqvarsSampleGenotypeChoiceList = {
 
 export const $SeqvarsSampleQualityFilterList = {
     type: 'array',
-    title: 'SeqvarsSampleQualityFilterList',
     items: {
         description: 'Stores per-sample quality filter settings for a particular query.',
         properties: {
@@ -6560,7 +6634,6 @@ export const $SeqvarsSampleQualityFilterList = {
 
 export const $SeqvarsTranscriptTypeChoiceList = {
     type: 'array',
-    title: 'SeqvarsTranscriptTypeChoiceList',
     items: {
         type: 'string',
         title: 'SeqvarsTranscriptTypeChoice',
@@ -6570,7 +6643,6 @@ export const $SeqvarsTranscriptTypeChoiceList = {
 
 export const $SeqvarsVariantConsequenceChoiceList = {
     type: 'array',
-    title: 'SeqvarsVariantConsequenceChoiceList',
     items: {
         type: 'string',
         title: 'SeqvarsVariantConsequenceChoice',
@@ -6580,7 +6652,6 @@ export const $SeqvarsVariantConsequenceChoiceList = {
 
 export const $SeqvarsVariantTypeChoiceList = {
     type: 'array',
-    title: 'SeqvarsVariantTypeChoiceList',
     items: {
         type: 'string',
         title: 'SeqvarsVariantTypeChoice',
@@ -6686,7 +6757,6 @@ export const $Term = {
 
 export const $TermPresenceList = {
     type: 'array',
-    title: 'TermPresenceList',
     items: {
         description: 'Representation of a term with optional presence (default is not excluded).',
         properties: {
@@ -6738,6 +6808,6 @@ export const $VarfishStats = {
 export const $strList = {
     type: 'array',
     items: {
-        type: 'string'
+        type: 'number'
     }
 } as const;
