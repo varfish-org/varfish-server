@@ -1121,25 +1121,11 @@ export type PatchedSeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid?: string;
     readonly date_created?: string;
     readonly date_modified?: string;
@@ -1737,25 +1723,11 @@ export type SeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -1985,25 +1957,11 @@ export type SeqvarsQuerySettingsDetails = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;

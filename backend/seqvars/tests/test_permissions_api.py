@@ -1849,7 +1849,7 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
                 "querysettings": self.querysettings.sodar_uuid,
             },
         )
-        data = {"frequency": {"gnomad_genomes_enabled": True}}
+        data = {"frequency": {"gnomad_genomes": {"enabled": True}}}
         good_users = [
             self.superuser,
             self.user_contributor,

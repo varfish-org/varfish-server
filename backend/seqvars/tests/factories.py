@@ -11,6 +11,10 @@ from seqvars.models import (
     Gene,
     GenePanel,
     GenePanelSource,
+    GnomadMitochondrialFrequencySettings,
+    GnomadNuclearFrequencySettings,
+    HelixmtDbFrequencySettings,
+    InhouseFrequencySettings,
     SeqvarsColumnConfig,
     SeqvarsGenotypeChoice,
     SeqvarsPredefinedQuery,
@@ -75,30 +79,73 @@ class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
         abstract = True
 
 
+class GnomadNuclearFrequencySettingsFactory(factory.Factory):
+
+    enabled = False
+    homozygous = None
+    heterozygous = None
+    hemizygous = None
+    frequency = None
+
+    class Meta:
+        model = GnomadNuclearFrequencySettings
+
+
+class GnomadMitochondrialFrequencySettingsFactory(factory.Factory):
+
+    enabled = False
+    heteroplasmic = None
+    homoplasmic = None
+    frequency = None
+
+    class Meta:
+        model = GnomadMitochondrialFrequencySettings
+
+
+class HelixMtDbFrequencySettingsFactory(factory.Factory):
+
+    enabled: bool = False
+    heteroplasmic = None
+    homoplasmic = None
+    frequency = None
+
+    class Meta:
+        model = HelixmtDbFrequencySettings
+
+
+class InhouseFrequencySettingsFactory(factory.Factory):
+
+    enabled = False
+    heterozygous = None
+    homozygous = None
+    hemizygous = None
+    carriers = None
+
+    class Meta:
+        model = InhouseFrequencySettings
+
+
 class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
 
-    gnomad_exomes_enabled = False
-    gnomad_exomes_frequency = None
-    gnomad_exomes_homozygous = None
-    gnomad_exomes_heterozygous = None
-    gnomad_exomes_hemizygous = None
+    @factory.lazy_attribute
+    def gnomad_exomes(self):
+        return GnomadNuclearFrequencySettingsFactory()
 
-    gnomad_genomes_enabled = False
-    gnomad_genomes_frequency = None
-    gnomad_genomes_homozygous = None
-    gnomad_genomes_heterozygous = None
-    gnomad_genomes_hemizygous = None
+    @factory.lazy_attribute
+    def gnomad_genomes(self):
+        return GnomadNuclearFrequencySettingsFactory()
 
-    helixmtdb_enabled = False
-    helixmtdb_heteroplasmic = None
-    helixmtdb_homoplasmic = None
-    helixmtdb_frequency = None
+    @factory.lazy_attribute
+    def gnomad_mitochondrial(self):
+        return GnomadMitochondrialFrequencySettingsFactory()
 
-    inhouse_enabled = False
-    inhouse_carriers = None
-    inhouse_homozygous = None
-    inhouse_heterozygous = None
-    inhouse_hemizygous = None
+    @factory.lazy_attribute
+    def helixmtdb(self):
+        return HelixMtDbFrequencySettingsFactory()
+
+    @factory.lazy_attribute
+    def inhouse(self):
+        return InhouseFrequencySettingsFactory()
 
     class Meta:
         abstract = True
