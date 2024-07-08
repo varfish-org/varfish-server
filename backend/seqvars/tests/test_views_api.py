@@ -1970,7 +1970,9 @@ class TestQueryViewSet(ApiViewTestBase):
                         for key3, value3 in value2.items():
                             value_actual = getattr(getattr(getattr(self.query, key), key2), key3)
                             if hasattr(value_actual, "model_dump"):
-                                value_actual = value_actual.model_dump(mode="json", exclude_none=True)
+                                value_actual = value_actual.model_dump(
+                                    mode="json", exclude_none=True
+                                )
                             self.assertEqual(
                                 value_actual,
                                 value3,
