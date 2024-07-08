@@ -1692,7 +1692,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"frequency": {"gnomad_genomes_enabled": True}}],
+            [{"frequency": {"gnomad_genomes": {"enabled": True}}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
@@ -1723,8 +1723,11 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
         for key, value in data.items():
             if isinstance(value, dict):
                 for subkey, subvalue in value.items():
+                    value_actual = getattr(getattr(self.querysettings, key), subkey)
+                    if hasattr(value_actual, "model_dump"):
+                        value_actual = value_actual.model_dump(mode="json", exclude_none=True)
                     self.assertEqual(
-                        getattr(getattr(self.querysettings, key), subkey),
+                        value_actual,
                         subvalue,
                         f"key={key}, subkey={subkey}",
                     )
@@ -1880,7 +1883,7 @@ class TestQueryViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"settings": {"frequency": {"gnomad_genomes_enabled": True}}}],
+            [{"settings": {"frequency": {"gnomad_genomes": {"enabled": True}}}}],
         ]
     )
     def test_patch(self, data: dict[str, Any]):
@@ -1896,7 +1899,15 @@ class TestQueryViewSet(ApiViewTestBase):
         ]
         for key in keys:
             if not key in data["settings"]:
-                data["settings"][key] = {}
+                if key == "frequency":
+                    data["settings"][key] = {
+                        "gnomad_genomes": {},
+                        "gnomad_exomes": {},
+                        "gnomad_mitochondrial": {},
+                        "helixmtdb": {},
+                    }
+                else:
+                    data["settings"][key] = {}
 
         self.query.refresh_from_db()
         for key, value in data.items():
@@ -1909,11 +1920,22 @@ class TestQueryViewSet(ApiViewTestBase):
                 for key2, value2 in value.items():
                     if isinstance(value2, dict):
                         for key3, value3 in value2.items():
-                            self.assertNotEqual(
-                                getattr(getattr(getattr(self.query, key), key2), key3),
-                                value3,
-                                f"key={key}, key2={key2}, key3={key3}",
-                            )
+                            if isinstance(value3, dict):
+                                for key4, value4 in value3.items():
+                                    self.assertNotEqual(
+                                        getattr(
+                                            getattr(getattr(getattr(self.query, key), key2), key3),
+                                            key4,
+                                        ),
+                                        value4,
+                                        f"key={key}, key2={key2}, key3={key3}, key4={key4}",
+                                    )
+                            else:
+                                self.assertNotEqual(
+                                    getattr(getattr(getattr(self.query, key), key2), key3),
+                                    value3,
+                                    f"key={key}, key2={key2}, key3={key3}",
+                                )
                     else:
                         self.assertNotEqual(
                             getattr(getattr(self.query, key), key2),
@@ -1946,8 +1968,13 @@ class TestQueryViewSet(ApiViewTestBase):
                 for key2, value2 in value.items():
                     if isinstance(value2, dict):
                         for key3, value3 in value2.items():
+                            value_actual = getattr(getattr(getattr(self.query, key), key2), key3)
+                            if hasattr(value_actual, "model_dump"):
+                                value_actual = value_actual.model_dump(
+                                    mode="json", exclude_none=True
+                                )
                             self.assertEqual(
-                                getattr(getattr(getattr(self.query, key), key2), key3),
+                                value_actual,
                                 value3,
                                 f"key={key}, key2={key2}, key3={key3}",
                             )

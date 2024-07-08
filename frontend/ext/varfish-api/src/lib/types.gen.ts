@@ -379,6 +379,14 @@ export type CraminoSummaryRecordList = Array<{
 }>;
 
 /**
+ * Describes the version version of a given datasource.
+ */
+export type DataSourceInfo = {
+    name: string;
+    version: string;
+};
+
+/**
  * Detailed alignment counts
  */
 export type DetailedAlignmentCounts = {
@@ -1109,7 +1117,7 @@ export type PatchedSeqvarsPredefinedQuery = {
     description?: string | null;
     readonly presetssetversion?: string;
     included_in_sop?: boolean;
-    genotype?: SchemaField;
+    genotype?: unknown;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1196,25 +1204,11 @@ export type PatchedSeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid?: string;
     readonly date_created?: string;
     readonly date_modified?: string;
@@ -1556,8 +1550,48 @@ export type SampleStrucvarStatsList = Array<{
 export type SamtoolsFlagstatMetrics = {
     readonly sodar_uuid: string;
     readonly caseqc: string;
-    qc_pass: SchemaField;
-    qc_fail: SchemaField;
+    /**
+     * A record for the ``flagstat`` lines in ``samtools stats`` output.
+     */
+    qc_pass: {
+        total?: number;
+        primary?: number;
+        secondary?: number;
+        supplementary?: number;
+        duplicates?: number;
+        duplicates_primary?: number;
+        mapped?: number;
+        mapped_primary?: number;
+        paired?: number;
+        fragment_first?: number;
+        fragment_last?: number;
+        properly_paired?: number;
+        with_itself_and_mate_mapped?: number;
+        singletons?: number;
+        with_mate_mapped_to_different_chr?: number;
+        with_mate_mapped_to_different_chr_mapq5?: number;
+    };
+    /**
+     * A record for the ``flagstat`` lines in ``samtools stats`` output.
+     */
+    qc_fail: {
+        total?: number;
+        primary?: number;
+        secondary?: number;
+        supplementary?: number;
+        duplicates?: number;
+        duplicates_primary?: number;
+        mapped?: number;
+        mapped_primary?: number;
+        paired?: number;
+        fragment_first?: number;
+        fragment_last?: number;
+        properly_paired?: number;
+        with_itself_and_mate_mapped?: number;
+        singletons?: number;
+        with_mate_mapped_to_different_chr?: number;
+        with_mate_mapped_to_different_chr_mapq5?: number;
+    };
     readonly date_created: string;
     readonly date_modified: string;
     sample: string;
@@ -1686,28 +1720,6 @@ export type SamtoolsStatsSupplementaryMetrics = {
     sample: string;
 };
 
-/**
- * A record for the ``flagstat`` lines in ``samtools stats`` output.
- */
-export type SchemaField = {
-    total?: number;
-    primary?: number;
-    secondary?: number;
-    supplementary?: number;
-    duplicates?: number;
-    duplicates_primary?: number;
-    mapped?: number;
-    mapped_primary?: number;
-    paired?: number;
-    fragment_first?: number;
-    fragment_last?: number;
-    properly_paired?: number;
-    with_itself_and_mate_mapped?: number;
-    singletons?: number;
-    with_mate_mapped_to_different_chr?: number;
-    with_mate_mapped_to_different_chr_mapq5?: number;
-};
-
 export type SeqvarsColumnConfigList = Array<{
     name: string;
     label: string;
@@ -1733,7 +1745,7 @@ export type SeqvarsPredefinedQuery = {
     description?: string | null;
     readonly presetssetversion: string;
     included_in_sop?: boolean;
-    genotype?: SchemaField;
+    genotype?: unknown;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1891,25 +1903,11 @@ export type SeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2139,25 +2137,11 @@ export type SeqvarsQuerySettingsDetails = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequency = {
-    gnomad_exomes_enabled?: boolean;
-    gnomad_exomes_frequency?: number | null;
-    gnomad_exomes_homozygous?: number | null;
-    gnomad_exomes_heterozygous?: number | null;
-    gnomad_exomes_hemizygous?: boolean | null;
-    gnomad_genomes_enabled?: boolean;
-    gnomad_genomes_frequency?: number | null;
-    gnomad_genomes_homozygous?: number | null;
-    gnomad_genomes_heterozygous?: number | null;
-    gnomad_genomes_hemizygous?: boolean | null;
-    helixmtdb_enabled?: boolean;
-    helixmtdb_heteroplasmic?: number | null;
-    helixmtdb_homoplasmic?: number | null;
-    helixmtdb_frequency?: number | null;
-    inhouse_enabled?: boolean;
-    inhouse_carriers?: number | null;
-    inhouse_homozygous?: number | null;
-    inhouse_heterozygous?: number | null;
-    inhouse_hemizygous?: number | null;
+    gnomad_exomes?: unknown;
+    gnomad_genomes?: unknown;
+    gnomad_mitochondrial?: unknown;
+    helixmtdb?: unknown;
+    inhouse?: unknown;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2237,7 +2221,12 @@ export type SeqvarsResultRow = {
     readonly stop: number;
     readonly reference: string;
     readonly alternative: string;
-    payload: SchemaField;
+    /**
+     * Payload for one result row of a seqvar query.
+     */
+    payload: {
+        foo: number;
+    };
 };
 
 /**
@@ -2248,7 +2237,12 @@ export type SeqvarsResultSet = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly queryexecution: string;
-    datasource_infos: SchemaField;
+    /**
+     * Container for ``DataSourceInfo`` records.
+     */
+    datasource_infos: {
+        infos: Array<DataSourceInfo>;
+    };
 };
 
 export type SeqvarsSampleGenotypeChoiceList = Array<{
@@ -2351,7 +2345,7 @@ export type VarfishStats = {
     strucvarstats: SampleStrucvarStatsList;
 };
 
-export type strList = Array<(string)>;
+export type strList = Array<(number)>;
 
 export type CasesAnalysisApiCaseanalysisListData = {
     path: {

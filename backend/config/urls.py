@@ -88,14 +88,9 @@ urlpatterns += [
     url(r"^seqmeta/", include("seqmeta.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
+    url(r"^cases-analysis/", include("cases_analysis.urls")),
+    url(r"^seqvars/", include("seqvars.urls")),
 ]
-
-# Explicitely require v2 analysis endpoints to be enabled.
-if settings.VARFISH_GEN2_ANALYSIS:
-    urlpatterns += [
-        url(r"^cases-analysis/", include("cases_analysis.urls")),
-        url(r"^seqvars/", include("seqvars.urls")),
-    ]
 
 # URL Patterns for DRF Spectacular
 # ------------------------------------------------------------------------------

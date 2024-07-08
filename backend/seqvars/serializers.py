@@ -11,6 +11,10 @@ from seqvars.models import (
     Gene,
     GenePanel,
     GenomeRegion,
+    GnomadMitochondrialFrequencySettings,
+    GnomadNuclearFrequencySettings,
+    HelixmtDbFrequencySettings,
+    InhouseFrequencySettings,
     SeqvarsClinvarSettingsBase,
     SeqvarsColumnConfig,
     SeqvarsColumnsSettingsBase,
@@ -63,65 +67,28 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    gnomad_exomes_enabled = serializers.BooleanField(required=False, default=False)
-    gnomad_exomes_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
-    gnomad_exomes_homozygous = serializers.IntegerField(
-        required=False, allow_null=True, default=None
+    gnomad_exomes = SchemaField(
+        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
     )
-    gnomad_exomes_heterozygous = serializers.IntegerField(
-        required=False, allow_null=True, default=None
+    gnomad_genomes = SchemaField(
+        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
     )
-    gnomad_exomes_hemizygous = serializers.BooleanField(
-        required=False, allow_null=True, default=None
+    gnomad_mitochondrial = SchemaField(
+        schema=Optional[GnomadMitochondrialFrequencySettings], allow_null=True, default=None
     )
-
-    gnomad_genomes_enabled = serializers.BooleanField(required=False, default=False)
-    gnomad_genomes_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
-    gnomad_genomes_homozygous = serializers.IntegerField(
-        required=False, allow_null=True, default=None
+    helixmtdb = SchemaField(
+        schema=Optional[HelixmtDbFrequencySettings], allow_null=True, default=None
     )
-    gnomad_genomes_heterozygous = serializers.IntegerField(
-        required=False, allow_null=True, default=None
-    )
-    gnomad_genomes_hemizygous = serializers.BooleanField(
-        required=False, allow_null=True, default=None
-    )
-
-    helixmtdb_enabled = serializers.BooleanField(required=False, default=False)
-    helixmtdb_heteroplasmic = serializers.IntegerField(
-        required=False, allow_null=True, default=None
-    )
-    helixmtdb_homoplasmic = serializers.IntegerField(required=False, allow_null=True, default=None)
-    helixmtdb_frequency = serializers.FloatField(required=False, allow_null=True, default=None)
-
-    inhouse_enabled = serializers.BooleanField(required=False, default=False)
-    inhouse_carriers = serializers.IntegerField(required=False, allow_null=True, default=None)
-    inhouse_homozygous = serializers.IntegerField(required=False, allow_null=True, default=None)
-    inhouse_heterozygous = serializers.IntegerField(required=False, allow_null=True, default=None)
-    inhouse_hemizygous = serializers.IntegerField(required=False, allow_null=True, default=None)
+    inhouse = SchemaField(schema=Optional[InhouseFrequencySettings], allow_null=True, default=None)
 
     class Meta:
         model = SeqvarsFrequencySettingsBase
         fields = [
-            "gnomad_exomes_enabled",
-            "gnomad_exomes_frequency",
-            "gnomad_exomes_homozygous",
-            "gnomad_exomes_heterozygous",
-            "gnomad_exomes_hemizygous",
-            "gnomad_genomes_enabled",
-            "gnomad_genomes_frequency",
-            "gnomad_genomes_homozygous",
-            "gnomad_genomes_heterozygous",
-            "gnomad_genomes_hemizygous",
-            "helixmtdb_enabled",
-            "helixmtdb_heteroplasmic",
-            "helixmtdb_homoplasmic",
-            "helixmtdb_frequency",
-            "inhouse_enabled",
-            "inhouse_carriers",
-            "inhouse_homozygous",
-            "inhouse_heterozygous",
-            "inhouse_hemizygous",
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
         ]
 
 

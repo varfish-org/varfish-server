@@ -5267,7 +5267,6 @@ components:
       - value
     BcftoolsStatsAfRecordList:
       type: array
-      title: BcftoolsStatsAfRecordList
       items:
         description: |-
           A Record from the ``AF`` (non-reference allele frequency) lines in ``bcftools stats``
@@ -5310,7 +5309,6 @@ components:
         type: object
     BcftoolsStatsDpRecordList:
       type: array
-      title: BcftoolsStatsDpRecordList
       items:
         description: A Record from the ``DP`` (AF) lines in ``bcftools stats`` output.
         properties:
@@ -5339,7 +5337,6 @@ components:
         type: object
     BcftoolsStatsIddRecordList:
       type: array
-      title: BcftoolsStatsIddRecordList
       items:
         description: A Record from the ``IDD`` (indel distribution) lines in ``bcftools
           stats`` output.
@@ -5415,7 +5412,6 @@ components:
       - tstv
     BcftoolsStatsQualRecordList:
       type: array
-      title: BcftoolsStatsQualRecordList
       items:
         description: A Record from the ``QUAL`` (quality) lines in ``bcftools stats``
           output.
@@ -5447,7 +5443,6 @@ components:
         type: object
     BcftoolsStatsSisRecordList:
       type: array
-      title: BcftoolsStatsSisRecordList
       items:
         description: A Record from the ``SiS`` (singleton stats) lines in ``bcftools
           stats`` output.
@@ -5485,7 +5480,6 @@ components:
         type: object
     BcftoolsStatsSnRecordList:
       type: array
-      title: BcftoolsStatsSnRecordList
       items:
         description: A Record from the ``SN`` lines in ``bcftools stats`` output.
         properties:
@@ -5506,7 +5500,6 @@ components:
         type: object
     BcftoolsStatsStRecordList:
       type: array
-      title: BcftoolsStatsStRecordList
       items:
         description: A Record from the ``ST`` (substitution types) lines in ``bcftools
           stats`` output.
@@ -5524,7 +5517,6 @@ components:
         type: object
     BcftoolsStatsTstvRecordList:
       type: array
-      title: BcftoolsStatsTstvRecordList
       items:
         description: A Record from the ``TSTV`` lines in ``bcftools stats`` output.
         properties:
@@ -6085,7 +6077,6 @@ components:
         * `closed-solved` - closed as solved
     ClinvarGermlineAggregateDescriptionList:
       type: array
-      title: ClinvarGermlineAggregateDescriptionList
       items:
         type: string
         title: ClinvarGermlineAggregateDescription
@@ -6097,7 +6088,6 @@ components:
         - benign
     CraminoChromNormalizedCountsRecordList:
       type: array
-      title: CraminoChromNormalizedCountsRecordList
       items:
         description: Store one chrom/normalized read counts record from Cramino output.
         properties:
@@ -6148,7 +6138,6 @@ components:
       - summary
     CraminoSummaryRecordList:
       type: array
-      title: CraminoSummaryRecordList
       items:
         description: Store a summary record from the cramino output file.
         properties:
@@ -6166,6 +6155,20 @@ components:
         - value
         title: CraminoSummaryRecord
         type: object
+    DataSourceInfo:
+      description: Describes the version version of a given datasource.
+      properties:
+        name:
+          title: Name
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - name
+      - version
+      title: DataSourceInfo
+      type: object
     DetailedAlignmentCounts:
       description: Detailed alignment counts
       properties:
@@ -6540,7 +6543,6 @@ components:
       - sodar_uuid
     DragenStyleCoverageList:
       type: array
-      title: DragenStyleCoverageList
       items:
         description: Pydantic model for Dragen-style coverage metric entries
         properties:
@@ -6561,7 +6563,6 @@ components:
         type: object
     DragenStyleMetricList:
       type: array
-      title: DragenStyleMetricList
       items:
         description: Pydantic model for Dragen-style quality control metric entries
         properties:
@@ -6956,7 +6957,6 @@ components:
       - title
     GeneList:
       type: array
-      title: GeneList
       items:
         description: Representation of a gene to query for.
         properties:
@@ -7057,7 +7057,6 @@ components:
       - title
     GenePanelList:
       type: array
-      title: GenePanelList
       items:
         description: Representation of a gene panel to use in the query.
         properties:
@@ -7098,7 +7097,6 @@ components:
         * `retired` - retired
     GenomeRegionList:
       type: array
-      title: GenomeRegionList
       items:
         description: Representation of a genomic region to query for.
         properties:
@@ -7188,7 +7186,6 @@ components:
       - sodar_uuid
     NgsbitsMappingqcRecordList:
       type: array
-      title: NgsbitsMappingqcRecordList
       items:
         description: One entry in the output of ngs-bits' MappingQC.
         properties:
@@ -7799,8 +7796,7 @@ components:
           type: boolean
           default: false
         genotype:
-          allOf:
-          - $ref: '#/components/schemas/SchemaField'
+          oneOf: []
           default:
             choice: null
         quality:
@@ -7991,66 +7987,16 @@ components:
 
         Not used directly but used as base class.
       properties:
-        gnomad_exomes_enabled:
-          type: boolean
-          default: false
-        gnomad_exomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_exomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_hemizygous:
-          type: boolean
-          nullable: true
-        gnomad_genomes_enabled:
-          type: boolean
-          default: false
-        gnomad_genomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_genomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_hemizygous:
-          type: boolean
-          nullable: true
-        helixmtdb_enabled:
-          type: boolean
-          default: false
-        helixmtdb_heteroplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_homoplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_frequency:
-          type: number
-          format: double
-          nullable: true
-        inhouse_enabled:
-          type: boolean
-          default: false
-        inhouse_carriers:
-          type: integer
-          nullable: true
-        inhouse_homozygous:
-          type: integer
-          nullable: true
-        inhouse_heterozygous:
-          type: integer
-          nullable: true
-        inhouse_hemizygous:
-          type: integer
-          nullable: true
+        gnomad_exomes:
+          oneOf: []
+        gnomad_genomes:
+          oneOf: []
+        gnomad_mitochondrial:
+          oneOf: []
+        helixmtdb:
+          oneOf: []
+        inhouse:
+          oneOf: []
         sodar_uuid:
           type: string
           format: uuid
@@ -8618,7 +8564,6 @@ components:
       - username
     SampleAlignmentStatsList:
       type: array
-      title: SampleAlignmentStatsList
       items:
         description: Per-sample QC stats for alignment.
         properties:
@@ -8654,7 +8599,6 @@ components:
         type: object
     SampleReadStatsList:
       type: array
-      title: SampleReadStatsList
       items:
         description: Per-sample QC stats for reads.
         properties:
@@ -8700,7 +8644,6 @@ components:
         type: object
     SampleSeqvarStatsList:
       type: array
-      title: SampleSeqvarStatsList
       items:
         description: Per-sample QC stats for sequence variants.
         properties:
@@ -8722,7 +8665,6 @@ components:
         type: object
     SampleStrucvarStatsList:
       type: array
-      title: SampleStrucvarStatsList
       items:
         description: Per-sample QC stats for structural variants.
         properties:
@@ -8765,9 +8707,143 @@ components:
           format: uuid
           readOnly: true
         qc_pass:
-          $ref: '#/components/schemas/SchemaField'
+          description: A record for the ``flagstat`` lines in ``samtools stats`` output.
+          properties:
+            total:
+              default: 0
+              title: Total
+              type: integer
+            primary:
+              default: 0
+              title: Primary
+              type: integer
+            secondary:
+              default: 0
+              title: Secondary
+              type: integer
+            supplementary:
+              default: 0
+              title: Supplementary
+              type: integer
+            duplicates:
+              default: 0
+              title: Duplicates
+              type: integer
+            duplicates_primary:
+              default: 0
+              title: Duplicates Primary
+              type: integer
+            mapped:
+              default: 0
+              title: Mapped
+              type: integer
+            mapped_primary:
+              default: 0
+              title: Mapped Primary
+              type: integer
+            paired:
+              default: 0
+              title: Paired
+              type: integer
+            fragment_first:
+              default: 0
+              title: Fragment First
+              type: integer
+            fragment_last:
+              default: 0
+              title: Fragment Last
+              type: integer
+            properly_paired:
+              default: 0
+              title: Properly Paired
+              type: integer
+            with_itself_and_mate_mapped:
+              default: 0
+              title: With Itself And Mate Mapped
+              type: integer
+            singletons:
+              default: 0
+              title: Singletons
+              type: integer
+            with_mate_mapped_to_different_chr:
+              default: 0
+              title: With Mate Mapped To Different Chr
+              type: integer
+            with_mate_mapped_to_different_chr_mapq5:
+              default: 0
+              title: With Mate Mapped To Different Chr Mapq5
+              type: integer
+          title: SamtoolsFlagstatRecord
+          type: object
         qc_fail:
-          $ref: '#/components/schemas/SchemaField'
+          description: A record for the ``flagstat`` lines in ``samtools stats`` output.
+          properties:
+            total:
+              default: 0
+              title: Total
+              type: integer
+            primary:
+              default: 0
+              title: Primary
+              type: integer
+            secondary:
+              default: 0
+              title: Secondary
+              type: integer
+            supplementary:
+              default: 0
+              title: Supplementary
+              type: integer
+            duplicates:
+              default: 0
+              title: Duplicates
+              type: integer
+            duplicates_primary:
+              default: 0
+              title: Duplicates Primary
+              type: integer
+            mapped:
+              default: 0
+              title: Mapped
+              type: integer
+            mapped_primary:
+              default: 0
+              title: Mapped Primary
+              type: integer
+            paired:
+              default: 0
+              title: Paired
+              type: integer
+            fragment_first:
+              default: 0
+              title: Fragment First
+              type: integer
+            fragment_last:
+              default: 0
+              title: Fragment Last
+              type: integer
+            properly_paired:
+              default: 0
+              title: Properly Paired
+              type: integer
+            with_itself_and_mate_mapped:
+              default: 0
+              title: With Itself And Mate Mapped
+              type: integer
+            singletons:
+              default: 0
+              title: Singletons
+              type: integer
+            with_mate_mapped_to_different_chr:
+              default: 0
+              title: With Mate Mapped To Different Chr
+              type: integer
+            with_mate_mapped_to_different_chr_mapq5:
+              default: 0
+              title: With Mate Mapped To Different Chr Mapq5
+              type: integer
+          title: SamtoolsFlagstatRecord
+          type: object
         date_created:
           type: string
           format: date-time
@@ -8820,7 +8896,6 @@ components:
       - sodar_uuid
     SamtoolsIdxstatsRecordList:
       type: array
-      title: SamtoolsIdxstatsRecordList
       items:
         description: A record for the lines in ``samtools idxstats`` output.
         properties:
@@ -8845,7 +8920,6 @@ components:
         type: object
     SamtoolsStatsBasePercentagesRecordList:
       type: array
-      title: SamtoolsStatsBasePercentagesRecordList
       items:
         description: |-
           A Record from the ``GCC``, ``GCT``, ``FBC``, and ``LBC`` lines in ``samtools stats``
@@ -8866,7 +8940,6 @@ components:
         type: object
     SamtoolsStatsChkRecordList:
       type: array
-      title: SamtoolsStatsChkRecordList
       items:
         description: A Record from the ``CHK`` lines in ``samtools stats`` output.
         properties:
@@ -8887,7 +8960,6 @@ components:
         type: object
     SamtoolsStatsFqRecordList:
       type: array
-      title: SamtoolsStatsFqRecordList
       items:
         description: A Record from the ``FFQ`` and ``LFQ`` lines in ``samtools stats``
           output.
@@ -8907,7 +8979,6 @@ components:
         type: object
     SamtoolsStatsGcRecordList:
       type: array
-      title: SamtoolsStatsGcRecordList
       items:
         description: A Record from the ``GCF`` and ``GCL`` lines in ``samtools stats``
           output.
@@ -8925,7 +8996,6 @@ components:
         type: object
     SamtoolsStatsGcdRecordList:
       type: array
-      title: SamtoolsStatsGcdRecordList
       items:
         description: A record for the ``GCD`` lines in ``samtools stats`` output.
         properties:
@@ -8962,7 +9032,6 @@ components:
         type: object
     SamtoolsStatsHistoRecordList:
       type: array
-      title: SamtoolsStatsHistoRecordList
       items:
         description: |-
           A record for a value/count pair.
@@ -8982,7 +9051,6 @@ components:
         type: object
     SamtoolsStatsIcRecordList:
       type: array
-      title: SamtoolsStatsIcRecordList
       items:
         description: A record for the ``IC`` lines in ``samtools stats`` output.
         properties:
@@ -9011,7 +9079,6 @@ components:
         type: object
     SamtoolsStatsIdRecordList:
       type: array
-      title: SamtoolsStatsIdRecordList
       items:
         description: A record for the ``ID`` lines in ``samtools stats`` output.
         properties:
@@ -9032,7 +9099,6 @@ components:
         type: object
     SamtoolsStatsIsRecordList:
       type: array
-      title: SamtoolsStatsIsRecordList
       items:
         description: Records for the ``IS`` records.
         properties:
@@ -9125,7 +9191,6 @@ components:
       - sodar_uuid
     SamtoolsStatsSnRecordList:
       type: array
-      title: SamtoolsStatsSnRecordList
       items:
         description: A Record from the ``SN`` lines in ``samtools stats`` output.
         properties:
@@ -9193,78 +9258,8 @@ components:
       - rl
       - sample
       - sodar_uuid
-    SchemaField:
-      description: A record for the ``flagstat`` lines in ``samtools stats`` output.
-      properties:
-        total:
-          default: 0
-          title: Total
-          type: integer
-        primary:
-          default: 0
-          title: Primary
-          type: integer
-        secondary:
-          default: 0
-          title: Secondary
-          type: integer
-        supplementary:
-          default: 0
-          title: Supplementary
-          type: integer
-        duplicates:
-          default: 0
-          title: Duplicates
-          type: integer
-        duplicates_primary:
-          default: 0
-          title: Duplicates Primary
-          type: integer
-        mapped:
-          default: 0
-          title: Mapped
-          type: integer
-        mapped_primary:
-          default: 0
-          title: Mapped Primary
-          type: integer
-        paired:
-          default: 0
-          title: Paired
-          type: integer
-        fragment_first:
-          default: 0
-          title: Fragment First
-          type: integer
-        fragment_last:
-          default: 0
-          title: Fragment Last
-          type: integer
-        properly_paired:
-          default: 0
-          title: Properly Paired
-          type: integer
-        with_itself_and_mate_mapped:
-          default: 0
-          title: With Itself And Mate Mapped
-          type: integer
-        singletons:
-          default: 0
-          title: Singletons
-          type: integer
-        with_mate_mapped_to_different_chr:
-          default: 0
-          title: With Mate Mapped To Different Chr
-          type: integer
-        with_mate_mapped_to_different_chr_mapq5:
-          default: 0
-          title: With Mate Mapped To Different Chr Mapq5
-          type: integer
-      title: SamtoolsFlagstatRecord
-      type: object
     SeqvarsColumnConfigList:
       type: array
-      title: SeqvarsColumnConfigList
       items:
         description: Configuration for a single column in the result table.
         properties:
@@ -9340,8 +9335,7 @@ components:
           type: boolean
           default: false
         genotype:
-          allOf:
-          - $ref: '#/components/schemas/SchemaField'
+          oneOf: []
           default:
             choice: null
         quality:
@@ -9384,7 +9378,6 @@ components:
       - sodar_uuid
     SeqvarsPrioServiceList:
       type: array
-      title: SeqvarsPrioServiceList
       items:
         description: Representation of a variant pathogenicity service.
         properties:
@@ -9775,66 +9768,16 @@ components:
 
         Not used directly but used as base class.
       properties:
-        gnomad_exomes_enabled:
-          type: boolean
-          default: false
-        gnomad_exomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_exomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_hemizygous:
-          type: boolean
-          nullable: true
-        gnomad_genomes_enabled:
-          type: boolean
-          default: false
-        gnomad_genomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_genomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_hemizygous:
-          type: boolean
-          nullable: true
-        helixmtdb_enabled:
-          type: boolean
-          default: false
-        helixmtdb_heteroplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_homoplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_frequency:
-          type: number
-          format: double
-          nullable: true
-        inhouse_enabled:
-          type: boolean
-          default: false
-        inhouse_carriers:
-          type: integer
-          nullable: true
-        inhouse_homozygous:
-          type: integer
-          nullable: true
-        inhouse_heterozygous:
-          type: integer
-          nullable: true
-        inhouse_hemizygous:
-          type: integer
-          nullable: true
+        gnomad_exomes:
+          oneOf: []
+        gnomad_genomes:
+          oneOf: []
+        gnomad_mitochondrial:
+          oneOf: []
+        helixmtdb:
+          oneOf: []
+        inhouse:
+          oneOf: []
         sodar_uuid:
           type: string
           format: uuid
@@ -10473,66 +10416,16 @@ components:
       type: object
       description: Serializer for ``QuerySettingsFrequency``.
       properties:
-        gnomad_exomes_enabled:
-          type: boolean
-          default: false
-        gnomad_exomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_exomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_exomes_hemizygous:
-          type: boolean
-          nullable: true
-        gnomad_genomes_enabled:
-          type: boolean
-          default: false
-        gnomad_genomes_frequency:
-          type: number
-          format: double
-          nullable: true
-        gnomad_genomes_homozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_heterozygous:
-          type: integer
-          nullable: true
-        gnomad_genomes_hemizygous:
-          type: boolean
-          nullable: true
-        helixmtdb_enabled:
-          type: boolean
-          default: false
-        helixmtdb_heteroplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_homoplasmic:
-          type: integer
-          nullable: true
-        helixmtdb_frequency:
-          type: number
-          format: double
-          nullable: true
-        inhouse_enabled:
-          type: boolean
-          default: false
-        inhouse_carriers:
-          type: integer
-          nullable: true
-        inhouse_homozygous:
-          type: integer
-          nullable: true
-        inhouse_heterozygous:
-          type: integer
-          nullable: true
-        inhouse_hemizygous:
-          type: integer
-          nullable: true
+        gnomad_exomes:
+          oneOf: []
+        gnomad_genomes:
+          oneOf: []
+        gnomad_mitochondrial:
+          oneOf: []
+        helixmtdb:
+          oneOf: []
+        inhouse:
+          oneOf: []
         sodar_uuid:
           type: string
           format: uuid
@@ -10737,7 +10630,15 @@ components:
           type: string
           readOnly: true
         payload:
-          $ref: '#/components/schemas/SchemaField'
+          description: Payload for one result row of a seqvar query.
+          properties:
+            foo:
+              title: Foo
+              type: integer
+          required:
+          - foo
+          title: SeqvarsResultRowPayload
+          type: object
       required:
       - alternative
       - chromosome
@@ -10770,7 +10671,17 @@ components:
           format: uuid
           readOnly: true
         datasource_infos:
-          $ref: '#/components/schemas/SchemaField'
+          description: Container for ``DataSourceInfo`` records.
+          properties:
+            infos:
+              items:
+                $ref: '#/components/schemas/DataSourceInfo'
+              title: Infos
+              type: array
+          required:
+          - infos
+          title: DataSourceInfos
+          type: object
       required:
       - datasource_infos
       - date_created
@@ -10779,7 +10690,6 @@ components:
       - sodar_uuid
     SeqvarsSampleGenotypeChoiceList:
       type: array
-      title: SeqvarsSampleGenotypeChoiceList
       items:
         description: Store the genotype of a sample.
         properties:
@@ -10795,7 +10705,6 @@ components:
         type: object
     SeqvarsSampleQualityFilterList:
       type: array
-      title: SeqvarsSampleQualityFilterList
       items:
         description: Stores per-sample quality filter settings for a particular query.
         properties:
@@ -10848,7 +10757,6 @@ components:
         type: object
     SeqvarsTranscriptTypeChoiceList:
       type: array
-      title: SeqvarsTranscriptTypeChoiceList
       items:
         type: string
         title: SeqvarsTranscriptTypeChoice
@@ -10857,7 +10765,6 @@ components:
         - non_coding
     SeqvarsVariantConsequenceChoiceList:
       type: array
-      title: SeqvarsVariantConsequenceChoiceList
       items:
         type: string
         title: SeqvarsVariantConsequenceChoice
@@ -10894,7 +10801,6 @@ components:
         - 5_prime_UTR_variant-intron_variant
     SeqvarsVariantTypeChoiceList:
       type: array
-      title: SeqvarsVariantTypeChoiceList
       items:
         type: string
         title: SeqvarsVariantTypeChoice
@@ -10984,7 +10890,6 @@ components:
       type: object
     TermPresenceList:
       type: array
-      title: TermPresenceList
       items:
         description: Representation of a term with optional presence (default is not
           excluded).
@@ -11043,7 +10948,7 @@ components:
     strList:
       type: array
       items:
-        type: string
+        type: number
   securitySchemes:
     basicAuth:
       type: http
