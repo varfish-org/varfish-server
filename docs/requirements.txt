@@ -21,7 +21,7 @@ black==24.4.2
 botocore==1.34.69
 cattrs==23.2.3
 celery==5.2.7
-certifi==2024.2.2
+certifi==2024.7.4
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
@@ -59,7 +59,7 @@ django-saml2-auth-ai==2.1.6
 django-sodar-core==0.13.4
 django-su==1.0.0
 django-test-plus==2.2.3
-djangorestframework==3.14.0
+djangorestframework==3.15.2
 djangorestframework-httpsignature==1.0.0
 djproxy==2.3.6
 docopt==0.6.2
