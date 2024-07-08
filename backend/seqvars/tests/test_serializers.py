@@ -126,25 +126,11 @@ class TestSeqvarsQueryPresetsFrequencySerializer(TestCase):
             # QueryPresetsBase
             "presetssetversion",
             # FrequencySettingsBase
-            "gnomad_exomes_enabled",
-            "gnomad_exomes_frequency",
-            "gnomad_exomes_homozygous",
-            "gnomad_exomes_heterozygous",
-            "gnomad_exomes_hemizygous",
-            "gnomad_genomes_enabled",
-            "gnomad_genomes_frequency",
-            "gnomad_genomes_homozygous",
-            "gnomad_genomes_heterozygous",
-            "gnomad_genomes_hemizygous",
-            "helixmtdb_enabled",
-            "helixmtdb_heteroplasmic",
-            "helixmtdb_homoplasmic",
-            "helixmtdb_frequency",
-            "inhouse_enabled",
-            "inhouse_carriers",
-            "inhouse_homozygous",
-            "inhouse_heterozygous",
-            "inhouse_hemizygous",
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
         ]
         expected = model_to_dict(
             self.seqvarsquerypresetsfrequency,
@@ -154,6 +140,14 @@ class TestSeqvarsQueryPresetsFrequencySerializer(TestCase):
         expected["presetssetversion"] = (
             self.seqvarsquerypresetsfrequency.presetssetversion.sodar_uuid
         )
+        for key in [
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
+        ]:
+            expected[key] = expected[key].model_dump(mode="json")
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -972,25 +966,11 @@ class TestSeqvarsQuerySettingsFrequencySerializer(TestCase):
             # QuerySettingsBase
             "querysettings",
             # FrequencySettingsBase
-            "gnomad_exomes_enabled",
-            "gnomad_exomes_frequency",
-            "gnomad_exomes_homozygous",
-            "gnomad_exomes_heterozygous",
-            "gnomad_exomes_hemizygous",
-            "gnomad_genomes_enabled",
-            "gnomad_genomes_frequency",
-            "gnomad_genomes_homozygous",
-            "gnomad_genomes_heterozygous",
-            "gnomad_genomes_hemizygous",
-            "helixmtdb_enabled",
-            "helixmtdb_heteroplasmic",
-            "helixmtdb_homoplasmic",
-            "helixmtdb_frequency",
-            "inhouse_enabled",
-            "inhouse_carriers",
-            "inhouse_homozygous",
-            "inhouse_heterozygous",
-            "inhouse_hemizygous",
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
         ]
         expected = model_to_dict(
             self.frequency,
@@ -998,6 +978,14 @@ class TestSeqvarsQuerySettingsFrequencySerializer(TestCase):
         )
         # We replace the related objects with their UUIDs.
         expected["querysettings"] = self.frequency.querysettings.sodar_uuid
+        for key in [
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
+        ]:
+            expected[key] = expected[key].model_dump(mode="json")
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"

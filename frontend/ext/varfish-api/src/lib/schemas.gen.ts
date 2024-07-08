@@ -3298,84 +3298,20 @@ export const $PatchedSeqvarsQueryPresetsFrequency = {
 
 Not used directly but used as base class.`,
     properties: {
-        gnomad_exomes_enabled: {
-            type: 'boolean',
-            default: false
+        gnomad_exomes: {
+            oneOf: []
         },
-        gnomad_exomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
+        gnomad_genomes: {
+            oneOf: []
         },
-        gnomad_exomes_homozygous: {
-            type: 'integer',
-            nullable: true
+        gnomad_mitochondrial: {
+            oneOf: []
         },
-        gnomad_exomes_heterozygous: {
-            type: 'integer',
-            nullable: true
+        helixmtdb: {
+            oneOf: []
         },
-        gnomad_exomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        gnomad_genomes_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        gnomad_genomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        gnomad_genomes_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        helixmtdb_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        helixmtdb_heteroplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_homoplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        inhouse_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        inhouse_carriers: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_hemizygous: {
-            type: 'integer',
-            nullable: true
+        inhouse: {
+            oneOf: []
         },
         sodar_uuid: {
             type: 'string',
@@ -5331,84 +5267,20 @@ export const $SeqvarsQueryPresetsFrequency = {
 
 Not used directly but used as base class.`,
     properties: {
-        gnomad_exomes_enabled: {
-            type: 'boolean',
-            default: false
+        gnomad_exomes: {
+            oneOf: []
         },
-        gnomad_exomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
+        gnomad_genomes: {
+            oneOf: []
         },
-        gnomad_exomes_homozygous: {
-            type: 'integer',
-            nullable: true
+        gnomad_mitochondrial: {
+            oneOf: []
         },
-        gnomad_exomes_heterozygous: {
-            type: 'integer',
-            nullable: true
+        helixmtdb: {
+            oneOf: []
         },
-        gnomad_exomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        gnomad_genomes_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        gnomad_genomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        gnomad_genomes_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        helixmtdb_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        helixmtdb_heteroplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_homoplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        inhouse_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        inhouse_carriers: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_hemizygous: {
-            type: 'integer',
-            nullable: true
+        inhouse: {
+            oneOf: []
         },
         sodar_uuid: {
             type: 'string',
@@ -6142,84 +6014,20 @@ export const $SeqvarsQuerySettingsFrequency = {
     type: 'object',
     description: 'Serializer for ``QuerySettingsFrequency``.',
     properties: {
-        gnomad_exomes_enabled: {
-            type: 'boolean',
-            default: false
+        gnomad_exomes: {
+            oneOf: []
         },
-        gnomad_exomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
+        gnomad_genomes: {
+            oneOf: []
         },
-        gnomad_exomes_homozygous: {
-            type: 'integer',
-            nullable: true
+        gnomad_mitochondrial: {
+            oneOf: []
         },
-        gnomad_exomes_heterozygous: {
-            type: 'integer',
-            nullable: true
+        helixmtdb: {
+            oneOf: []
         },
-        gnomad_exomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        gnomad_genomes_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        gnomad_genomes_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        gnomad_genomes_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        gnomad_genomes_hemizygous: {
-            type: 'boolean',
-            nullable: true
-        },
-        helixmtdb_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        helixmtdb_heteroplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_homoplasmic: {
-            type: 'integer',
-            nullable: true
-        },
-        helixmtdb_frequency: {
-            type: 'number',
-            format: 'double',
-            nullable: true
-        },
-        inhouse_enabled: {
-            type: 'boolean',
-            default: false
-        },
-        inhouse_carriers: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_homozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_heterozygous: {
-            type: 'integer',
-            nullable: true
-        },
-        inhouse_hemizygous: {
-            type: 'integer',
-            nullable: true
+        inhouse: {
+            oneOf: []
         },
         sodar_uuid: {
             type: 'string',
