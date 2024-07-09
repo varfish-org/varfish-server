@@ -35,14 +35,13 @@ const fetchTermLabels = async (terms) => {
   for (const term of terms || allTerms.value) {
     if (!termLabels[term]) {
       let results
-      if (query.startsWith('HP:')) {
+      if (term.startsWith('HP:')) {
         results = await vigunoClient.resolveHpoTermById(term)
-      } else if (query.startsWith('OMIM:')) {
-        results = await vigunoClient.resolveOmimTermById(term)
-      } else {
-        results = await vigunoClient.queryHpoTermsByName(term)
+      } else if (term.startsWith('OMIM:')) {
+        const term2 = term.replace('OMIM:', '')
+        results = await vigunoClient.resolveOmimTermById(term2)
       }
-      if (results.length) {
+      if (results.result.length) {
         termLabels[term] = results[0].label
       }
     }
