@@ -25,7 +25,9 @@ defineEmits<{
       >
         <template #default>{{ preset.label }}</template>
         <template #extra
-          ><ItemButton @click="$emit('addQuery', preset)"
+          ><ItemButton
+            :aria-label="`Create query based on ${preset.label}`"
+            @click="$emit('addQuery', preset)"
             ><i-bi-filter style="font-size: 0.9em" /></ItemButton
         ></template>
       </Item>

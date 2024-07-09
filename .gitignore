@@ -334,3 +334,7 @@ Session.vim
 tags
 
 .DS_Store
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
