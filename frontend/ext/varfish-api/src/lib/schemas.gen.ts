@@ -3050,7 +3050,29 @@ export const $PatchedSeqvarsPredefinedQuery = {
             default: false
         },
         genotype: {
-            oneOf: [],
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ],
             default: {
                 choice: null
             }
@@ -3299,19 +3321,315 @@ export const $PatchedSeqvarsQueryPresetsFrequency = {
 Not used directly but used as base class.`,
     properties: {
         gnomad_exomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_genomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_mitochondrial: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadMitochondrialFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         helixmtdb: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for HelixMtDb frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'HelixmtDbFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         inhouse: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for in-house frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        carriers: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Carriers'
+                        }
+                    },
+                    title: 'InhouseFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         sodar_uuid: {
             type: 'string',
@@ -4744,6 +5062,13 @@ export const $SeqvarsGenotypeChoice = {
     type: 'string'
 } as const;
 
+export const $SeqvarsGenotypePresetChoice = {
+    description: 'Presets value for the chosen genotype.',
+    enum: ['any', 'de_novo', 'dominant', 'homozygous_recessive', 'compound_heterozygous_recessive', 'recessive', 'x_recessive', 'affected_carriers'],
+    title: 'SeqvarsGenotypePresetChoice',
+    type: 'string'
+} as const;
+
 export const $SeqvarsPredefinedQuery = {
     type: 'object',
     description: 'Serializer for ``PredefinedQuery``.',
@@ -4785,7 +5110,29 @@ export const $SeqvarsPredefinedQuery = {
             default: false
         },
         genotype: {
-            oneOf: [],
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ],
             default: {
                 choice: null
             }
@@ -5268,19 +5615,315 @@ export const $SeqvarsQueryPresetsFrequency = {
 Not used directly but used as base class.`,
     properties: {
         gnomad_exomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_genomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_mitochondrial: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadMitochondrialFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         helixmtdb: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for HelixMtDb frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'HelixmtDbFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         inhouse: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for in-house frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        carriers: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Carriers'
+                        }
+                    },
+                    title: 'InhouseFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         sodar_uuid: {
             type: 'string',
@@ -6015,19 +6658,315 @@ export const $SeqvarsQuerySettingsFrequency = {
     description: 'Serializer for ``QuerySettingsFrequency``.',
     properties: {
         gnomad_exomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_genomes: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         gnomad_mitochondrial: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadMitochondrialFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         helixmtdb: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for HelixMtDb frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'HelixmtDbFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         inhouse: {
-            oneOf: []
+            oneOf: [
+                {
+                    description: 'Settings for in-house frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        carriers: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Carriers'
+                        }
+                    },
+                    title: 'InhouseFrequencySettings',
+                    type: 'object'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         sodar_uuid: {
             type: 'string',
