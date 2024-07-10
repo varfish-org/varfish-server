@@ -26,6 +26,11 @@ export default defineConfig(({ mode }) => {
           cases: resolve(__dirname, './src/cases/main.ts'),
           cohorts: resolve(__dirname, './src/cohorts/main.js'),
         },
+        output: {
+          globals: {
+            jquery: 'window.$'
+          }
+        }
       },
       target: 'es2020',
     },
