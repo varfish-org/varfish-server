@@ -22,14 +22,10 @@ export default defineConfig(({ mode }) => {
       // overwrite default .html entry
       outDir: '../backend/varfish/static/vueapp',
       rollupOptions: {
-        external: ['jquery'],
         input: {
           cases: resolve(__dirname, './src/cases/main.ts'),
           cohorts: resolve(__dirname, './src/cohorts/main.js'),
         },
-        output: {
-          jquery: "$"
-        }
       },
       target: 'es2020',
     },
