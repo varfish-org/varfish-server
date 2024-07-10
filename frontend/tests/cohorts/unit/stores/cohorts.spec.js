@@ -1,6 +1,7 @@
 import { uuidv4 } from '@/cohorts/helpers'
 import cohortsApi from '@/cohorts/api/cohorts'
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { State, StoreState } from '@/varfish/storeUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -32,6 +33,9 @@ describe('useCohortsStore', () => {
 
     setActivePinia(createPinia())
     cohortsStore = useCohortsStore()
+    const ctxStore = useCtxStore()
+    ctxStore.csrfToken = csrfToken
+
     uuidv4.mockReturnValue('cohortcase-fake-uuid')
     uuidv4.mockReturnValueOnce('cohortcase3-fake-uuid')
     uuidv4.mockReturnValueOnce('cohortcase4-fake-uuid')

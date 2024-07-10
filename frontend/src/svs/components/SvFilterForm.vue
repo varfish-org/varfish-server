@@ -407,9 +407,6 @@ const onSubmitCancelButtonClicked = () => {
   </form>
 </template>
 
-<style>
-footer.sodar-footer,
-.sodar-sub-navbar-container {
-  display: none;
-}
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

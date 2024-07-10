@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { SodarUser } from './types'
 import {
@@ -48,15 +48,12 @@ export const useCtxStore = defineStore('ctx', () => {
   /**
    * Initialize the store with CSRF token and project UUID.
    *
-   * @param csrfToken$ The CSRF token.
    * @param force Whether to force re-initialization.
    */
-  const initialize = async (csrfToken$: string, force: boolean = false) => {
+  const initialize = async (force: boolean = false) => {
     if (csrfToken.value !== '' && !force) {
       return
     }
-
-    csrfToken.value = csrfToken$
 
     setupCsrfToken()
     await Promise.all([loadUser(), loadUserAndGlobalSettings()])

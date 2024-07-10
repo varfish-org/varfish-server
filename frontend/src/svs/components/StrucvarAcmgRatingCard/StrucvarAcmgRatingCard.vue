@@ -129,11 +129,7 @@ watch(
   async () => {
     if (strucvar.value && props.projectUuid && props.caseUuid) {
       if (acmgRatingStore.storeState.state !== State.Active) {
-        await acmgRatingStore.initialize(
-          ctxStore.csrfToken,
-          props.projectUuid,
-          props.caseUuid,
-        )
+        await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
       }
       acmgRatingStore.setStrucvar(strucvar.value)
       resetAcmgRatingToStore()
@@ -142,11 +138,7 @@ watch(
 )
 onMounted(async () => {
   if (strucvar.value && props.projectUuid && props.caseUuid) {
-    await acmgRatingStore.initialize(
-      ctxStore.csrfToken,
-      props.projectUuid,
-      props.caseUuid,
-    )
+    await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
     acmgRatingStore.setStrucvar(strucvar.value)
     resetAcmgRatingToStore()
   }

@@ -46,7 +46,6 @@ const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantQueryStore = useVariantQueryStore()
 
-
 /** Whether the preset set is loading. */
 const presetSetLoading = ref<boolean>(false)
 /** The current preset set (if caseDetailsStore.caseObj.presetset !== null / factory presets). */
@@ -57,7 +56,8 @@ const presetSetUuid = ref<string | null>(null)
 const updatePresetSetLoading = async () => {
   if (
     !caseDetailsStore?.caseObj?.presetset &&
-    (variantQueryStore?.defaultPresetSetUuid === undefined || variantQueryStore?.defaultPresetSetUuid === null)
+    (variantQueryStore?.defaultPresetSetUuid === undefined ||
+      variantQueryStore?.defaultPresetSetUuid === null)
   ) {
     presetSetUuid.value = null
     presetSource.value = 'Factory Defaults'
@@ -66,7 +66,10 @@ const updatePresetSetLoading = async () => {
     if (caseDetailsStore?.caseObj?.presetset) {
       presetSetUuid.value = caseDetailsStore.caseObj.presetset
       presetSource.value = 'Individual Case Setting'
-    } else if (variantQueryStore?.defaultPresetSetUuid !== undefined && variantQueryStore?.defaultPresetSetUuid !== null) {
+    } else if (
+      variantQueryStore?.defaultPresetSetUuid !== undefined &&
+      variantQueryStore?.defaultPresetSetUuid !== null
+    ) {
       presetSetUuid.value = variantQueryStore.defaultPresetSetUuid
       presetSource.value = 'Project Default Setting'
     }
@@ -100,7 +103,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-app id="case-list">
+  <v-app id="seqvar-filter-legacy">
     <TheAppBar v-model:navbar-hidden="navbarHidden" />
     <TheNavBar :navbar-hidden="navbarHidden">
       <v-list-item
@@ -122,30 +125,48 @@ onMounted(() => {
           params: { case: caseUuid },
         }"
       >
-        Filter SVs
+        Go To SV Filtration
       </v-list-item>
       <v-list-subheader class="text-uppercase">
         Analysis Info
       </v-list-subheader>
-      <v-list-item prepend-icon="mdi-button-cursor" @click="filterFormVisible = !filterFormVisible">
+      <v-list-item
+        prepend-icon="mdi-button-cursor"
+        @click="filterFormVisible = !filterFormVisible"
+      >
         Toggle Form
       </v-list-item>
-      <v-list-item prepend-icon="mdi-card-text-outline" @click="logsVisible = !logsVisible">
+      <v-list-item
+        prepend-icon="mdi-card-text-outline"
+        @click="logsVisible = !logsVisible"
+      >
         Toggle Logs
       </v-list-item>
-      <v-list-item prepend-icon="mdi-factory" link v-if="!presetSetUuid">
+      <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
         Filter: Defaults
       </v-list-item>
-      <v-list-item prepend-icon="mdi-filter-settings" v-else lines="two" :title="presetSetLabel ?? undefined" :subtitle="presetSource ?? undefined" :to="{
-        name: 'case-list-query-presets-non-factory',
-        params: {
-          project: projectUuid,
-          presetSet: presetSetUuid!,
-        }
-      }" />
+      <v-list-item
+        v-else
+        prepend-icon="mdi-filter-settings"
+        lines="two"
+        :title="presetSetLabel ?? undefined"
+        :subtitle="presetSource ?? undefined"
+        :to="{
+          name: 'case-list-query-presets-non-factory',
+          params: {
+            project: projectUuid,
+            presetSet: presetSetUuid!,
+          },
+        }"
+      />
     </TheNavBar>
     <v-main>
-      <FilterApp :project-uuid="props.projectUuid" :case-uuid="props.caseUuid" v-model:filter-form-visible="filterFormVisible" v-model:query-logs-visible="logsVisible" />
+      <FilterApp
+        v-model:filter-form-visible="filterFormVisible"
+        v-model:query-logs-visible="logsVisible"
+        :project-uuid="props.projectUuid"
+        :case-uuid="props.caseUuid"
+      />
     </v-main>
   </v-app>
 </template>

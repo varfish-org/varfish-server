@@ -172,7 +172,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (svQueryUuid, failuresSeen = 0) => {
-    const svClient = new SvClient(ctxStore.csrfToken ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -225,7 +225,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const svClient = new SvClient(ctxStore.csrfToken ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     const convert = (key, value) => {
       if (
@@ -282,17 +282,9 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
-  const initialize = async (
-    projectUuid$,
-    caseUuid$,
-    forceReload = false,
-  ) => {
+  const initialize = async (projectUuid$, caseUuid$, forceReload = false) => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -307,14 +299,13 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     $reset() // clear to avoid artifacts
 
     // Set simple properties.
-    ctxStore.csrfToken = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(ctxStore.csrfToken ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
@@ -381,7 +372,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
 
     showFiltrationInlineHelp.value = false
     filtrationComplexityMode.value = 'simple'
-    ctxStore.csrfToken = null
     caseUuid.value = null
     querySettingsPresets.value = null
     querySettings.value = null

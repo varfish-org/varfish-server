@@ -9,7 +9,7 @@ const navbarHidden = defineModel('navbarHidden', {
 
 <template>
   <v-app-bar color="primary" density="compact">
-    <template v-slot:prepend>
+    <template #prepend>
       <v-app-bar-nav-icon
         @click="navbarHidden = !navbarHidden"
       ></v-app-bar-nav-icon>

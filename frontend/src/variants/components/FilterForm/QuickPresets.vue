@@ -33,10 +33,7 @@ const presetSetLabel = ref(null)
 
 const updatePresetSetLoading = async () => {
   let uuid
-  if (
-    !props.case?.presetset &&
-    !variantQueryStore?.defaultPresetSetUuid
-  ) {
+  if (!props.case?.presetset && !variantQueryStore?.defaultPresetSetUuid) {
     presetSetLabel.value = 'Factory Defaults'
     presetSource.value = 'Factory Defaults'
     return // short circuit in case of factory defaults

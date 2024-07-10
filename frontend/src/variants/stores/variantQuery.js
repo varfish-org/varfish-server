@@ -479,17 +479,9 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
-  const initialize = async (
-    projectUuid$,
-    caseUuid$,
-    forceReload = false,
-  ) => {
+  const initialize = async (projectUuid$, caseUuid$, forceReload = false) => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -513,7 +505,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       ctxStore.userAndGlobalSettings.user_settings.ga4gh_beacon_network_widget_enabled
     exomiserEnabled.value =
       ctxStore.userAndGlobalSettings.global_settings.exomiser_enabled
-    caddEnabled.value = ctxStore.userAndGlobalSettings.global_settings.cadd_enabled
+    caddEnabled.value =
+      ctxStore.userAndGlobalSettings.global_settings.cadd_enabled
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1

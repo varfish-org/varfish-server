@@ -1,5 +1,5 @@
 import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
-import SvFilterApp from '@/svs/components/SvFilterApp.vue'
+import StrucvarFilterLegacy from '@/svs/views/StrucvarFilterLegacy/StrucvarFilterLegacy.vue'
 import { useHistoryStore } from '@/varfish/stores/history'
 import SeqvarFilterLegacy from '@/variants/views/SeqvarFilterLegacy/SeqvarFilterLegacy.vue'
 import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
@@ -118,7 +118,7 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'svs-filter',
     path: '/-/cases/:project/svs/filter/:case',
-    component: SvFilterApp,
+    component: StrucvarFilterLegacy,
     props: (route: RouteLocationNormalized) => ({
       projectUuid: route.params.project,
       caseUuid: route.params.case,
@@ -158,7 +158,7 @@ router.beforeEach(
   (to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded) => {
     // Ensure that the CSRF token is set.
     const ctxStore = useCtxStore()
-    ctxStore.initialize('dummy-csrf-token-for-now')
+    ctxStore.initialize()
 
     // Push history element, initial will be swallowed by store.
     const historyStore = useHistoryStore()

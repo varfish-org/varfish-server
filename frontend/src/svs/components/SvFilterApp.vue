@@ -10,7 +10,6 @@ import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { updateUserSetting } from '@/varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import SvFilterAppHeader from '@/svs/components/SvFilterApp/Header.vue'
 import SvFilterForm from '@/svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
@@ -36,9 +35,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 
 const showDetails = async (event) => {
-  svQueryStore.lastPosition = document.querySelector(
-    'div#sodar-app-container',
-  ).scrollTop
+  svQueryStore.lastPosition = document.querySelector('div#app').scrollTop
   router.push({
     name: 'strucvar-details',
     params: {
@@ -49,20 +46,26 @@ const showDetails = async (event) => {
 }
 
 /** Whether the form is visible. */
-const formVisible = ref(true)
+const filterFormVisible = defineModel('filterFormVisible', {
+  type: Boolean,
+  default: true,
+})
 /** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
+const queryLogsVisible = defineModel('queryLogsVisible', {
+  type: Boolean,
+  default: true,
+})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
   () => svQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (
+      newValue !== undefined &&
+      newValue !== null &&
+      newValue !== oldValue &&
+      ctxStore.csrfToken
+    ) {
       updateUserSetting(
         ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
@@ -75,7 +78,12 @@ watch(
 watch(
   () => svQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
-    if (newValue !== null && newValue !== oldValue) {
+    if (
+      newValue !== null &&
+      newValue !== undefined &&
+      newValue !== oldValue &&
+      ctxStore.csrfToken
+    ) {
       updateUserSetting(
         ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
@@ -113,35 +121,26 @@ const refreshStores = async () => {
   // Reset all stores to avoid artifacts.
   svQueryStore.$reset()
 
-  await caseDetailsStore.initialize(
-    ctxStore.csrfToken,
-    props.projectUuid,
-    props.caseUuid,
-  )
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
   Promise.all([
     svFlagsStore.initialize(
-      ctxStore.csrfToken,
       props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     svCommentsStore.initialize(
-      ctxStore.csrfToken,
       props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svQueryStore.initialize(
-      ctxStore.csrfToken,
-      props.projectUuid,
-      props.caseUuid,
-    ),
+    svQueryStore.initialize(props.projectUuid, props.caseUuid),
     svAcmgRatingStore.initialize(
-      ctxStore.csrfToken,
       props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svResultSetStore.initialize(ctxStore.csrfToken),
+    svResultSetStore.initialize(),
   ]).then(async () => {
-    await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    if (svQueryStore.queryUuid) {
+      await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    }
   })
 }
 
@@ -160,14 +159,11 @@ watch(
     v-if="svQueryStore.storeState.state === State.Active"
     class="d-flex flex-column h-100"
   >
-    <!-- title etc. -->
-    <SvFilterAppHeader
-      :form-visible="formVisible"
-      @toggle-form="toggleForm()"
-    />
-
     <!-- query form -->
-    <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
+    <div
+      v-if="filterFormVisible"
+      class="container-fluid sodar-page-container pt-0"
+    >
       <div
         v-if="svQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -206,6 +202,9 @@ watch(
       v-if="svQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
+      <pre v-show="queryLogsVisible">{{
+        svQueryStore.queryLogs?.join('\n')
+      }}</pre>
       <SvFilterResultsTable @variant-selected="showDetails" />
     </div>
     <div
@@ -223,15 +222,7 @@ watch(
       <strong class="pl-2"
         >{{ QueryStateToText[svQueryStore.queryState] }} ...</strong
       >
-      <button
-        class="ml-3 btn btn-sm btn-info"
-        @click="queryLogsVisible = !queryLogsVisible"
-      >
-        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
-      </button>
-      <pre v-show="queryLogsVisible">{{
-        svQueryStore.queryLogs?.join('\n')
-      }}</pre>
+      <pre>{{ svQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
@@ -271,4 +262,6 @@ watch(
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -1,4 +1,5 @@
 <script setup>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import $ from 'jquery'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
@@ -554,8 +555,10 @@ const extraAnnoFields = computed(
 
 const scrollToLastPosition = () => {
   if (variantQueryStore.lastPosition) {
-    document.querySelector('div#sodar-app-container').scrollTop =
-      variantQueryStore.lastPosition
+    const elem = document.querySelector('div#app')
+    if (elem) {
+      elem.scrollTop = variantQueryStore.lastPosition
+    }
   }
 }
 

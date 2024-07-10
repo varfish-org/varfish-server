@@ -1,6 +1,6 @@
 <script setup>
 import $ from 'jquery'
-import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
+import { watch, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { State } from '@/varfish/storeUtils'
@@ -36,9 +36,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
-  variantQueryStore.lastPosition = document.querySelector(
-    'div#app',
-  ).scrollTop
+  variantQueryStore.lastPosition = document.querySelector('div#app').scrollTop
   router.push({
     name: 'seqvar-details',
     params: {
@@ -49,9 +47,15 @@ const showDetails = async (event) => {
 }
 
 /** Whether the form is visible. */
-const filterFormVisible = defineModel('filterFormVisible', {type: Boolean, default: true})
+const filterFormVisible = defineModel('filterFormVisible', {
+  type: Boolean,
+  default: true,
+})
 /** Whether the query logs are visible. */
-const queryLogsVisible = defineModel('queryLogsVisible', {type: Boolean, default: true})
+const queryLogsVisible = defineModel('queryLogsVisible', {
+  type: Boolean,
+  default: true,
+})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -153,7 +157,10 @@ watch(
     class="d-flex flex-column h-100 mx-3"
   >
     <!-- query form -->
-    <div v-if="filterFormVisible" class="container-fluid sodar-page-container pt-0">
+    <div
+      v-if="filterFormVisible"
+      class="container-fluid sodar-page-container pt-0"
+    >
       <div
         v-if="variantQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -220,9 +227,7 @@ watch(
       <strong class="pl-2"
         >{{ QueryStateToText[variantQueryStore.queryState] }} ...</strong
       >
-      <pre>{{
-        variantQueryStore.queryLogs?.join('\n')
-      }}</pre>
+      <pre>{{ variantQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>

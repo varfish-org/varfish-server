@@ -32,8 +32,10 @@ const showVariantDetails = (sodarUuid, section) => {
 
 const scrollToLastPosition = () => {
   if (svQueryStore.lastPosition) {
-    document.querySelector('div#sodar-app-container').scrollTop =
-      svQueryStore.lastPosition
+    const elem = document.querySelector('div#app')
+    if (elem) {
+      elem.scrollTop = svQueryStore.lastPosition
+    }
   }
 }
 
