@@ -18,31 +18,68 @@ from variants.models.projectroles import Project
 User = get_user_model()
 
 
+class GnomadNuclearFrequencySettings(pydantic.BaseModel):
+    """Settings for gnomAD nuclear frequency filtering."""
+
+    enabled: bool = False
+    homozygous: int | None = None
+    heterozygous: int | None = None
+    hemizygous: int | None = None
+    frequency: float | None = None
+
+
+class GnomadMitochondrialFrequencySettings(pydantic.BaseModel):
+    """Settings for gnomAD mitochondrial frequency filtering."""
+
+    enabled: bool = False
+    heteroplasmic: int | None = None
+    homoplasmic: int | None = None
+    frequency: float | None = None
+
+
+class HelixmtDbFrequencySettings(pydantic.BaseModel):
+    """Settings for HelixMtDb frequency filtering."""
+
+    enabled: bool = False
+    heteroplasmic: int | None = None
+    homoplasmic: int | None = None
+    frequency: float | None = None
+
+
+class InhouseFrequencySettings(pydantic.BaseModel):
+    """Settings for in-house frequency filtering."""
+
+    enabled: bool = False
+    heterozygous: int | None = None
+    homozygous: int | None = None
+    hemizygous: int | None = None
+    carriers: int | None = None
+
+
 class SeqvarsFrequencySettingsBase(models.Model):
     """Abstract model for storing frequency-related settings."""
 
-    gnomad_exomes_enabled = models.BooleanField(default=False, null=False, blank=False)
-    gnomad_exomes_frequency = models.FloatField(null=True, blank=True)
-    gnomad_exomes_homozygous = models.IntegerField(null=True, blank=True)
-    gnomad_exomes_heterozygous = models.IntegerField(null=True, blank=True)
-    gnomad_exomes_hemizygous = models.IntegerField(null=True, blank=True)
-
-    gnomad_genomes_enabled = models.BooleanField(default=False, null=False, blank=False)
-    gnomad_genomes_frequency = models.FloatField(null=True, blank=True)
-    gnomad_genomes_homozygous = models.IntegerField(null=True, blank=True)
-    gnomad_genomes_heterozygous = models.IntegerField(null=True, blank=True)
-    gnomad_genomes_hemizygous = models.IntegerField(null=True, blank=True)
-
-    helixmtdb_enabled = models.BooleanField(default=False, null=False, blank=False)
-    helixmtdb_heteroplasmic = models.IntegerField(null=True, blank=True)
-    helixmtdb_homoplasmic = models.IntegerField(null=True, blank=True)
-    helixmtdb_frequency = models.FloatField(null=True, blank=True)
-
-    inhouse_enabled = models.BooleanField(default=False, null=False, blank=False)
-    inhouse_carriers = models.IntegerField(null=True, blank=True)
-    inhouse_homozygous = models.IntegerField(null=True, blank=True)
-    inhouse_heterozygous = models.IntegerField(null=True, blank=True)
-    inhouse_hemizygous = models.IntegerField(null=True, blank=True)
+    gnomad_exomes = SchemaField(
+        schema=typing.Optional[GnomadNuclearFrequencySettings],
+        blank=True,
+        null=True,
+        default=None,
+    )
+    gnomad_genomes = SchemaField(
+        schema=typing.Optional[GnomadNuclearFrequencySettings], blank=True, null=True, default=None
+    )
+    gnomad_mitochondrial = SchemaField(
+        schema=typing.Optional[GnomadMitochondrialFrequencySettings],
+        blank=True,
+        null=True,
+        default=None,
+    )
+    helixmtdb = SchemaField(
+        schema=typing.Optional[HelixmtDbFrequencySettings], blank=True, null=True, default=None
+    )
+    inhouse = SchemaField(
+        schema=typing.Optional[InhouseFrequencySettings], blank=True, null=True, default=None
+    )
 
     class Meta:
         abstract = True
