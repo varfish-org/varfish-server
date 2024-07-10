@@ -52,6 +52,8 @@ ENV PYTHONFAULTHANDLER 1
 ENV DEBIAN_FRONTEND noninteractive
 ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
 
+ENV SERVE_FRONTEND 1
+
 WORKDIR /usr/src/app
 
 # Add postgres 12 repository

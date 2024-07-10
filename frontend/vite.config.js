@@ -8,7 +8,7 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',
+  base: '/static/vueapp/',
   build: {
     // generate .vite/manifest.json
     manifest: true,
@@ -18,13 +18,7 @@ export default defineConfig({
     outDir: '../backend/varfish/static/vueapp',
     rollupOptions: {
       external: ['jquery'],
-      input: {
-        cases: resolve(__dirname, './src/cases/main.ts'),
-        cohorts: resolve(__dirname, './src/cohorts/main.js'),
-      },
-      output: {
-        jquery: "$"
-      }
+      input: resolve(__dirname, './index.html'),
     },
     target: 'es2020',
   },

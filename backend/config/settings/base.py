@@ -172,6 +172,9 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # is whether DEV is active.
 DEV = env.bool("DEV", DEBUG)
 
+# Whether to serve the frontend as static files.
+SERVE_FRONTEND = env.bool("SERVE_FRONTEND", not DEV)
+
 # GENERAL VARFISH SETTINGS
 # ------------------------------------------------------------------------------
 # Query timeout in seconds, "0" to disable.
