@@ -37,7 +37,7 @@ const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
   variantQueryStore.lastPosition = document.querySelector(
-    'div#sodar-app-container',
+    'div#app',
   ).scrollTop
   router.push({
     name: 'seqvar-details',
@@ -50,6 +50,8 @@ const showDetails = async (event) => {
 
 /** Whether the form is visible. */
 const filterFormVisible = defineModel('filterFormVisible', {type: Boolean, default: true})
+/** Whether the query logs are visible. */
+const queryLogsVisible = defineModel('queryLogsVisible', {type: Boolean, default: true})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -190,6 +192,9 @@ watch(
       v-if="variantQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
+      <pre v-show="queryLogsVisible">{{
+        variantQueryStore.queryLogs?.join('\n')
+      }}</pre>
       <FilterResultsTable
         :patho-enabled="
           variantQueryStore.previousQueryDetails.query_settings.patho_enabled
@@ -215,13 +220,7 @@ watch(
       <strong class="pl-2"
         >{{ QueryStateToText[variantQueryStore.queryState] }} ...</strong
       >
-      <button
-        class="ml-3 btn btn-sm btn-info"
-        @click="queryLogsVisible = !queryLogsVisible"
-      >
-        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
-      </button>
-      <pre v-show="queryLogsVisible">{{
+      <pre>{{
         variantQueryStore.queryLogs?.join('\n')
       }}</pre>
     </div>

@@ -153,7 +153,6 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
         )
       }
     }
-    console.log('done loading seqvar queries')
   }
 
   /**
@@ -174,7 +173,6 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
         }
       }
     }
-    console.log('done loading seqvar query executions')
   }
 
   /**

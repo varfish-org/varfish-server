@@ -26,6 +26,7 @@ const projectStore = useProjectStore()
 const navbarHidden = ref<boolean>(false)
 
 const filterFormVisible = ref<boolean>(true)
+const logsVisible = ref<boolean>(false)
 
 // Initialize case list store on mount.
 onMounted(() => {
@@ -129,10 +130,13 @@ onMounted(() => {
       <v-list-item prepend-icon="mdi-button-cursor" @click="filterFormVisible = !filterFormVisible">
         Toggle Form
       </v-list-item>
+      <v-list-item prepend-icon="mdi-card-text-outline" @click="logsVisible = !logsVisible">
+        Toggle Logs
+      </v-list-item>
       <v-list-item prepend-icon="mdi-factory" link v-if="!presetSetUuid">
         Filter: Defaults
       </v-list-item>
-      <v-list-item prepend-icon="mdi-filter-settings" v-else lines="2" :title="presetSetLabel" :subtitle="presetSource" :to="{
+      <v-list-item prepend-icon="mdi-filter-settings" v-else lines="two" :title="presetSetLabel ?? undefined" :subtitle="presetSource ?? undefined" :to="{
         name: 'case-list-query-presets-non-factory',
         params: {
           project: projectUuid,
@@ -141,7 +145,7 @@ onMounted(() => {
       }" />
     </TheNavBar>
     <v-main>
-      <FilterApp :project-uuid="props.projectUuid" :case-uuid="props.caseUuid" v-model:filter-form-visible="filterFormVisible" />
+      <FilterApp :project-uuid="props.projectUuid" :case-uuid="props.caseUuid" v-model:filter-form-visible="filterFormVisible" v-model:query-logs-visible="logsVisible" />
     </v-main>
   </v-app>
 </template>

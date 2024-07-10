@@ -581,9 +581,6 @@ onMounted(async () => {
     await loadFromServer()
     scrollToLastPosition()
   }
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  })
 })
 
 watch(
@@ -914,8 +911,6 @@ watch(
           <div class="btn-group btn-group-sm">
             <div
               title="Flags the variant as an artifact by setting visually negative and summary negative flags."
-              data-toggle="tooltip"
-              data-placement="left"
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               role="button"
@@ -1044,10 +1039,6 @@ watch(
   border-bottom-left-radius: 0;
   margin-left: 0;
 }
-</style>
-
-<style scoped>
-@import 'bootstrap/dist/css/bootstrap.css';
 </style>
 
 <style scoped>
