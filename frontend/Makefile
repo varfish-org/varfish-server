@@ -39,7 +39,7 @@ lint:
 
 .PHONY: test
 test:
-	npm run -- test:unit --run
+	NODE_OPTIONS=${NODE_OPTIONS} npm run -- test:unit --run
 
 # Tests in the CI are forced into a single thread as the worker only has
 # two cores only and some tests run into timeouts otherwise.
@@ -63,15 +63,15 @@ ci: \
 
 .PHONY: build
 build:
-	MODE=development npm run build
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run build
 
 .PHONY: serve
 serve:
-	MODE=development npm run serve
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run serve
 
 .PHONY: serve-public
 serve-public:
-	MODE=development npm run serve-public
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run serve-public
 
 .PHONY: openapi-ts
 openapi-ts:

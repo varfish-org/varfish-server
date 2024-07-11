@@ -1125,7 +1125,9 @@ export type PatchedSeqvarsPredefinedQuery = {
     description?: string | null;
     readonly presetssetversion?: string;
     included_in_sop?: boolean;
-    genotype?: unknown;
+    genotype?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | number;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1212,11 +1214,39 @@ export type PatchedSeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsFrequency = {
-    gnomad_exomes?: unknown;
-    gnomad_genomes?: unknown;
-    gnomad_mitochondrial?: unknown;
-    helixmtdb?: unknown;
-    inhouse?: unknown;
+    gnomad_exomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_genomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_mitochondrial?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    helixmtdb?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    inhouse?: {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    carriers?: number | null;
+} | number;
     readonly sodar_uuid?: string;
     readonly date_created?: string;
     readonly date_modified?: string;
@@ -1742,6 +1772,11 @@ export type SeqvarsColumnConfigList = Array<{
 export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non-hom' | 'variant' | 'comphet_index' | 'recessive_index' | 'recessive_parent';
 
 /**
+ * Presets value for the chosen genotype.
+ */
+export type SeqvarsGenotypePresetChoice = 'any' | 'de_novo' | 'dominant' | 'homozygous_recessive' | 'compound_heterozygous_recessive' | 'recessive' | 'x_recessive' | 'affected_carriers';
+
+/**
  * Serializer for ``PredefinedQuery``.
  */
 export type SeqvarsPredefinedQuery = {
@@ -1753,7 +1788,9 @@ export type SeqvarsPredefinedQuery = {
     description?: string | null;
     readonly presetssetversion: string;
     included_in_sop?: boolean;
-    genotype?: unknown;
+    genotype?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | number;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1911,11 +1948,39 @@ export type SeqvarsQueryPresetsConsequence = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequency = {
-    gnomad_exomes?: unknown;
-    gnomad_genomes?: unknown;
-    gnomad_mitochondrial?: unknown;
-    helixmtdb?: unknown;
-    inhouse?: unknown;
+    gnomad_exomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_genomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_mitochondrial?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    helixmtdb?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    inhouse?: {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    carriers?: number | null;
+} | number;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2145,11 +2210,39 @@ export type SeqvarsQuerySettingsDetails = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequency = {
-    gnomad_exomes?: unknown;
-    gnomad_genomes?: unknown;
-    gnomad_mitochondrial?: unknown;
-    helixmtdb?: unknown;
-    inhouse?: unknown;
+    gnomad_exomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_genomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | number;
+    gnomad_mitochondrial?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    helixmtdb?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | number;
+    inhouse?: {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    carriers?: number | null;
+} | number;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;

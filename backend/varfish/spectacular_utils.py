@@ -30,7 +30,6 @@ def pydantic_to_json_schema(schema_arg: typing.Any) -> typing.Dict[str, typing.A
             "enum": [e.value for e in schema_arg],
         }
     elif typing.get_origin(schema_arg) is typing.Union:  # is typing.Optional[X]
-        schema_arg = typing.get_args(schema_arg)[0]
         one_ofs = [pydantic_to_json_schema(arg_inner) for arg_inner in typing.get_args(schema_arg)]
         defs = {}
         for one_of in one_ofs:
