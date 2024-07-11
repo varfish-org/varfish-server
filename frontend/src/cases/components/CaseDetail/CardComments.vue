@@ -43,7 +43,7 @@ const userHasPerm = (casecomment, action) => {
             : 0
         }})
       </h5>
-      <div class="btn-group ml-auto">
+      <div class="btn-group ml-auto pr-3">
         <a
           class="btn btn-sm btn-primary"
           href="#"

@@ -92,7 +92,7 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
-      <div class="card-header">
+      <div class="card-header border-bottom-0">
         <SvFilterFormQuickPresets
           :show-filtration-inline-help="svQueryStore.showFiltrationInlineHelp"
           :quick-presets="svQueryStore.quickPresets"
@@ -101,7 +101,7 @@ const onSubmitCancelButtonClicked = () => {
           :case="caseDetailsStore.caseObj"
         />
       </div>
-      <div class="card-header row border-bottom-1 pt-1 pr-1">
+      <div class="card-header border-bottom-0 pt-0">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a

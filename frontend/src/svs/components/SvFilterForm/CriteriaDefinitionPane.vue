@@ -82,101 +82,93 @@ onMounted(() => initSelectedCriteriaDef())
     You can define filter criteria in this pane. These can then be used in the
     &quot;Matches&quot; pane.
   </div>
-  <div class="row pb-2 mt-2">
-    <div class="col pl-2">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text"> Genotype Criteria Definition </span>
-        </div>
-        <select v-model="selectedCriteriaDefNo" class="custom-select">
-          <option v-for="(label, key) in criteriaDefLabels" :value="key">
-            {{ label }}
-          </option>
-        </select>
-      </div>
+  <div class="input-group p-2">
+    <div class="input-group-prepend">
+      <span class="input-group-text"> Genotype Criteria Definition </span>
     </div>
+    <select v-model="selectedCriteriaDefNo" class="custom-select">
+      <option v-for="(label, key) in criteriaDefLabels" :value="key">
+        {{ label }}
+      </option>
+    </select>
   </div>
-  <div class="row pb-2">
-    <div class="col pl-2">
-      comment {{ selectedCriteriaDef.comment ?? '-' }}
-      <br />
-      select_sv_min_size {{ selectedCriteriaDef.select_sv_min_size ?? '-' }}
-      <br />
-      select_sv_max_size {{ selectedCriteriaDef.select_sv_max_size ?? '-' }}
-      <br />
-      select_sv_sub_type {{ selectedCriteriaDef.select_sv_sub_type ?? '-' }}
-    </div>
+  <div class="p-2">
+    comment {{ selectedCriteriaDef.comment ?? '-' }}
+    <br />
+    select_sv_min_size {{ selectedCriteriaDef.select_sv_min_size ?? '-' }}
+    <br />
+    select_sv_max_size {{ selectedCriteriaDef.select_sv_max_size ?? '-' }}
+    <br />
+    select_sv_sub_type {{ selectedCriteriaDef.select_sv_sub_type ?? '-' }}
   </div>
-  <div class="row pb-2">
-    <div class="col pl-2">
-      max_brk_segdup {{ selectedCriteriaDef.max_brk_segdup ?? '-' }}
-      <br />
-      max_brk_repeat {{ selectedCriteriaDef.max_brk_repeat ?? '-' }}
-      <br />
-      max_brk_segduprepeat {{ selectedCriteriaDef.max_brk_segduprepeat ?? '-' }}
-      <br />
-      gt_one_of {{ selectedCriteriaDef.gt_one_of ?? '-' }}
-      <br />
-      min_gq {{ selectedCriteriaDef.min_gq ?? '-' }}
-      <br />
-      min_pr_cov {{ selectedCriteriaDef.min_pr_cov ?? '-' }}
-      <br />
-      max_pr_cov {{ selectedCriteriaDef.max_pr_cov ?? '-' }}
-      <br />
-      min_pr_ref {{ selectedCriteriaDef.min_pr_ref ?? '-' }}
-      <br />
-      max_pr_ref {{ selectedCriteriaDef.max_pr_ref ?? '-' }}
-      <br />
-      min_pr_var {{ selectedCriteriaDef.min_pr_var ?? '-' }}
-      <br />
-      max_pr_var {{ selectedCriteriaDef.max_pr_var ?? '-' }}
-      <br />
-      min_sr_cov {{ selectedCriteriaDef.min_sr_cov ?? '-' }}
-      <br />
-      max_sr_cov {{ selectedCriteriaDef.max_sr_cov ?? '-' }}
-      <br />
-      min_sr_ref {{ selectedCriteriaDef.min_sr_ref ?? '-' }}
-      <br />
-      max_sr_ref {{ selectedCriteriaDef.max_sr_ref ?? '-' }}
-      <br />
-      min_sr_var {{ selectedCriteriaDef.min_sr_var ?? '-' }}
-      <br />
-      max_sr_var {{ selectedCriteriaDef.max_sr_var ?? '-' }}
-      <br />
-      min_srpr_cov {{ selectedCriteriaDef.min_srpr_cov ?? '-' }}
-      <br />
-      max_srpr_cov {{ selectedCriteriaDef.max_srpr_cov ?? '-' }}
-      <br />
-      min_srpr_ref {{ selectedCriteriaDef.min_srpr_ref ?? '-' }}
-      <br />
-      max_srpr_ref {{ selectedCriteriaDef.max_srpr_ref ?? '-' }}
-      <br />
-      min_srpr_var {{ selectedCriteriaDef.min_srpr_var ?? '-' }}
-      <br />
-      max_srpr_var {{ selectedCriteriaDef.max_srpr_var ?? '-' }}
-      <br />
-      min_rd_dev {{ selectedCriteriaDef.min_rd_dev ?? '-' }}
-      <br />
-      max_rd_dev {{ selectedCriteriaDef.max_rd_dev ?? '-' }}
-      <br />
-      min_amq {{ selectedCriteriaDef.min_amq ?? '-' }}
-      <br />
-      max_amq {{ selectedCriteriaDef.max_amq ?? '-' }}
-      <br />
-      missing_gt_ok {{ selectedCriteriaDef.missing_gt_ok ?? '-' }}
-      <br />
-      missing_gq_ok {{ selectedCriteriaDef.missing_gq_ok ?? '-' }}
-      <br />
-      missing_pr_ok {{ selectedCriteriaDef.missing_pr_ok ?? '-' }}
-      <br />
-      missing_sr_ok {{ selectedCriteriaDef.missing_sr_ok ?? '-' }}
-      <br />
-      missing_srpr_ok {{ selectedCriteriaDef.missing_srpr_ok ?? '-' }}
-      <br />
-      missing_rd_dev_ok {{ selectedCriteriaDef.missing_rd_dev_ok ?? '-' }}
-      <br />
-      missing_amq_ok {{ selectedCriteriaDef.missing_amq_ok ?? '-' }}
-    </div>
+  <div class="p-2">
+    max_brk_segdup {{ selectedCriteriaDef.max_brk_segdup ?? '-' }}
+    <br />
+    max_brk_repeat {{ selectedCriteriaDef.max_brk_repeat ?? '-' }}
+    <br />
+    max_brk_segduprepeat {{ selectedCriteriaDef.max_brk_segduprepeat ?? '-' }}
+    <br />
+    gt_one_of {{ selectedCriteriaDef.gt_one_of ?? '-' }}
+    <br />
+    min_gq {{ selectedCriteriaDef.min_gq ?? '-' }}
+    <br />
+    min_pr_cov {{ selectedCriteriaDef.min_pr_cov ?? '-' }}
+    <br />
+    max_pr_cov {{ selectedCriteriaDef.max_pr_cov ?? '-' }}
+    <br />
+    min_pr_ref {{ selectedCriteriaDef.min_pr_ref ?? '-' }}
+    <br />
+    max_pr_ref {{ selectedCriteriaDef.max_pr_ref ?? '-' }}
+    <br />
+    min_pr_var {{ selectedCriteriaDef.min_pr_var ?? '-' }}
+    <br />
+    max_pr_var {{ selectedCriteriaDef.max_pr_var ?? '-' }}
+    <br />
+    min_sr_cov {{ selectedCriteriaDef.min_sr_cov ?? '-' }}
+    <br />
+    max_sr_cov {{ selectedCriteriaDef.max_sr_cov ?? '-' }}
+    <br />
+    min_sr_ref {{ selectedCriteriaDef.min_sr_ref ?? '-' }}
+    <br />
+    max_sr_ref {{ selectedCriteriaDef.max_sr_ref ?? '-' }}
+    <br />
+    min_sr_var {{ selectedCriteriaDef.min_sr_var ?? '-' }}
+    <br />
+    max_sr_var {{ selectedCriteriaDef.max_sr_var ?? '-' }}
+    <br />
+    min_srpr_cov {{ selectedCriteriaDef.min_srpr_cov ?? '-' }}
+    <br />
+    max_srpr_cov {{ selectedCriteriaDef.max_srpr_cov ?? '-' }}
+    <br />
+    min_srpr_ref {{ selectedCriteriaDef.min_srpr_ref ?? '-' }}
+    <br />
+    max_srpr_ref {{ selectedCriteriaDef.max_srpr_ref ?? '-' }}
+    <br />
+    min_srpr_var {{ selectedCriteriaDef.min_srpr_var ?? '-' }}
+    <br />
+    max_srpr_var {{ selectedCriteriaDef.max_srpr_var ?? '-' }}
+    <br />
+    min_rd_dev {{ selectedCriteriaDef.min_rd_dev ?? '-' }}
+    <br />
+    max_rd_dev {{ selectedCriteriaDef.max_rd_dev ?? '-' }}
+    <br />
+    min_amq {{ selectedCriteriaDef.min_amq ?? '-' }}
+    <br />
+    max_amq {{ selectedCriteriaDef.max_amq ?? '-' }}
+    <br />
+    missing_gt_ok {{ selectedCriteriaDef.missing_gt_ok ?? '-' }}
+    <br />
+    missing_gq_ok {{ selectedCriteriaDef.missing_gq_ok ?? '-' }}
+    <br />
+    missing_pr_ok {{ selectedCriteriaDef.missing_pr_ok ?? '-' }}
+    <br />
+    missing_sr_ok {{ selectedCriteriaDef.missing_sr_ok ?? '-' }}
+    <br />
+    missing_srpr_ok {{ selectedCriteriaDef.missing_srpr_ok ?? '-' }}
+    <br />
+    missing_rd_dev_ok {{ selectedCriteriaDef.missing_rd_dev_ok ?? '-' }}
+    <br />
+    missing_amq_ok {{ selectedCriteriaDef.missing_amq_ok ?? '-' }}
   </div>
   <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
     <span class="text-nowrap">

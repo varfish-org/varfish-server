@@ -166,8 +166,8 @@ defineExpose({
     </div>
 
     <!-- Row 1: Variant Types, Transcript Types, Distance to next Exon -->
-    <div class="row">
-      <div class="col-lg-3 col-md-6 mt-2">
+    <div class="row p-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Variant Types</h5>
         <div
           v-if="props.showFiltrationInlineHelp"
@@ -206,7 +206,7 @@ defineExpose({
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 mt-2 mb-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Transcript Type</h5>
         <div
           v-if="props.showFiltrationInlineHelp"
@@ -246,7 +246,7 @@ defineExpose({
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 mt-2 mb-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Distance to next Exon</h5>
 
         <div
@@ -295,8 +295,8 @@ defineExpose({
       </div>
     </div>
     <!-- Row 2: Effect Groups -->
-    <div class="row border-top mt-2">
-      <div class="col-12 pt-2 mb-2">
+    <div class="row p-2">
+      <div class="col-12">
         <h5>Effect Groups</h5>
 
         <div
@@ -334,11 +334,8 @@ defineExpose({
       </div>
     </div>
     <!-- Row 3: Detailed Effects -->
-    <div
-      v-if="props.filtrationComplexityMode === 'advanced'"
-      class="row border-top mt-2"
-    >
-      <div class="col-12 spt-2 mb-2 mt-2">
+    <div v-if="props.filtrationComplexityMode === 'advanced'" class="row p-2">
+      <div class="col-12">
         <h5 class="mb-0">Detailed Effects</h5>
         <div
           v-if="props.showFiltrationInlineHelp"

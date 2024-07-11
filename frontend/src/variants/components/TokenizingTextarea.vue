@@ -164,7 +164,17 @@ const highlightTokens = (tokenListBatch) => {
 }
 
 const highlightToken = (token) => {
-  return `<mark class="${htmlTokens.value[token]}">${token}</mark>`
+  switch (htmlTokens.value[token]) {
+    case 'good':
+      return `<mark style="border-radius: 2px; color: transparent; background-color: #71a57199">${token}</mark>`
+    case 'waiting':
+      return `<mark style="border-radius: 2px; color: transparent; background-color: rgba(80, 76, 76, 0.6)">${token}</mark>`
+    case 'bad':
+      return `<mark style="border-radius: 2px; color: transparent; background-color: #ff676799">${token}</mark>`
+    case 'error':
+    default:
+      return `<mark style="border-radius: 2px; color: transparent; background-color: red">${token}</mark>`
+  }
 }
 
 const _runUpdateBackdrop = () => {
@@ -339,17 +349,17 @@ defineExpose({
       <strong>Invalid input:</strong>
       {{ invalidTokens.join(', ') }}
     </div>
-    <div class="row mt-2">
-      <div class="btn btn-sm btn-outline-secondary" @click="resetTextarea()">
-        <i-fa-solid-eraser />
-        <span class="ml-2">Clear Gene List</span>
-      </div>
+    <div class="btn btn-sm btn-outline-secondary" @click="resetTextarea()">
+      <i-fa-solid-eraser />
+      <span class="ml-2">Clear Input Field</span>
     </div>
   </div>
   <!-- eslint-enable -->
 </template>
 
-<style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+
 .textarea-backdrop {
   position: absolute;
   z-index: 1;
@@ -400,30 +410,6 @@ textarea.textarea-highlighted:focus {
   padding: 0px !important;
 }
 
-mark.good {
-  border-radius: 2px;
-  color: transparent;
-  background-color: #71a57199;
-}
-
-mark.bad {
-  border-radius: 2px;
-  color: transparent;
-  background-color: #ff676799;
-}
-
-mark.waiting {
-  border-radius: 2px;
-  color: transparent;
-  background-color: rgba(80, 76, 76, 0.6);
-}
-
-mark.error {
-  border-radius: 2px;
-  color: transparent;
-  background-color: red;
-}
-
 .spin {
   animation-name: spin;
   animation-duration: 2000ms;
@@ -438,17 +424,11 @@ mark.error {
     transform: rotate(360deg);
   }
 }
-</style>
 
-<style scoped>
 .form-control.is-invalid,
 .pass,
 .confirmpass:invalid {
   background-image: none !important;
   padding: 0.375rem 0.75rem !important;
 }
-</style>
-
-<style scoped>
-@import 'bootstrap/dist/css/bootstrap.css';
 </style>

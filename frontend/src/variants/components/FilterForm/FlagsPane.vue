@@ -16,7 +16,7 @@ const props = defineProps({
 <template>
   <div
     style="position: relative"
-    class="mr-2 mt-2"
+    class="p-2"
     v-if="querySettings !== null && querySettings !== undefined"
   >
     <div

@@ -157,12 +157,12 @@ watch(
 <template>
   <div
     v-if="svQueryStore.storeState.state === State.Active"
-    class="d-flex flex-column h-100"
+    class="d-flex flex-column h-100 mx-3"
   >
     <!-- query form -->
     <div
       v-if="filterFormVisible"
-      class="container-fluid sodar-page-container pt-0"
+      class="container-fluid sodar-page-container p-0 mb-2"
     >
       <div
         v-if="svQueryStore.showFiltrationInlineHelp"
@@ -256,7 +256,7 @@ watch(
       </div>
     </div>
   </div>
-  <div v-else class="alert alert-info">
+  <div v-else class="alert alert-info m-3">
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>

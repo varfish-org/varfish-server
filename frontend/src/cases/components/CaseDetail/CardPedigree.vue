@@ -18,12 +18,13 @@ const caseDetailsStore = useCaseDetailsStore()
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <div class="row card-header p-2 pl-0 ml-0 mr-0">
-      <h5 class="col-auto ml-0 mr-0 mb-0">
-        <i-mdi-family-tree />
-        Pedigree
-      </h5>
-      <div v-if="userHasPerms('cases.update_case')" class="btn-group ml-auto">
+    <h5 class="card-header p-2">
+      <i-mdi-family-tree />
+      Pedigree
+      <div
+        v-if="userHasPerms('cases.update_case')"
+        class="btn-group float-right"
+      >
         <a
           class="btn btn-sm btn-primary"
           href="#"
@@ -33,7 +34,7 @@ const caseDetailsStore = useCaseDetailsStore()
           Edit Pedigree
         </a>
       </div>
-    </div>
+    </h5>
     <table class="table table-striped table-hover">
       <thead>
         <tr>

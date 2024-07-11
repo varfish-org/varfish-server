@@ -90,21 +90,19 @@ const userHasPerms = (perm) =>
     class="card mb-3 varfish-case-list-card flex-grow-1"
     style="overflow-y: auto !important; max-height: 300px"
   >
-    <div class="row card-header p-2 pl-2">
-      <h5 class="col-auto">
-        <i-mdi-file-tree />
-        Phenotype and Disease Terms
-      </h5>
-      <div v-if="fetchingTerms" class="col-auto ml-auto">
+    <h5 class="card-header p-2">
+      <i-mdi-file-tree />
+      Phenotype and Disease Terms
+      <div v-if="fetchingTerms" class="col-auto float-right">
         <i-fa-solid-circle-notch class="spin" />
       </div>
-    </div>
+    </h5>
     <ul id="case-term-list" class="list-group list-group-flush list">
       <template v-if="caseDetailsStore.caseObj">
         <li
           v-for="member in caseDetailsStore.caseObj.pedigree"
           :key="`member-${member.name}`"
-          class="list-group-item list-item row"
+          class="list-group-item list-item pl-2"
         >
           <strong>{{ displayName(member.name) }}</strong>
           <template v-if="userHasPerms('cases.update_case')">

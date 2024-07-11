@@ -70,12 +70,12 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2 ml-0 mr-0">
+    <h5 class="card-header p-2">
       <i-mdi-bookmark-multiple />
       Flag &amp; Comment Summary
     </h5>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <div class="col-3 text-nowrap">
             <strong> ACMG-Classified Variants </strong>
@@ -94,7 +94,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
           </div>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <div class="col-3 text-nowrap">
             <strong> Flagged Variants </strong>
@@ -115,7 +115,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
           </div>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <div class="col-3 text-nowrap">
             <strong> Commented Variants </strong>
@@ -125,7 +125,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
           </div>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <div class="col-3 text-nowrap">
             <strong> Flagged SVs </strong>
@@ -144,7 +144,7 @@ const svAnnoCountByFlag = buildComputedAnnoCountByFlag(svFlagsStore.caseFlags)
           </div>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <div class="col-3 text-nowrap">
             <strong> Commented SVs </strong>

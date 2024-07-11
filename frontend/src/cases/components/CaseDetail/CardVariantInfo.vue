@@ -6,7 +6,7 @@ const caseDetailsStore = useCaseDetailsStore()
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2">
+    <h5 class="card-header p-2">
       <i-mdi-information />
       Small Variant Annotation
     </h5>
