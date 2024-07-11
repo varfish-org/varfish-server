@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
-import { useSeqvarPresetsStore } from '@/seqvars/stores/presets'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQuery,
   SeqvarsQueryColumnsConfig,
@@ -15,7 +15,7 @@ import { client } from '@/cases/plugins/heyApi'
  * Store for the seqvars queries.
  */
 export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
-  const seqvarPresetsStore = useSeqvarPresetsStore()
+  const seqvarPresetsStore = useSeqvarsPresetsStore()
 
   /** The current store state. */
   const storeState = reactive<StoreState>(new StoreState())

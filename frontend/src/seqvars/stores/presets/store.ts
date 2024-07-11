@@ -18,7 +18,7 @@ import { client } from '@/cases/plugins/heyApi'
  * between the builtin and the custom ones, the UUIDs of the builtin preset sets are
  * stored in `factoryDefaultPresetSetUuids`.
  */
-export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
+export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   /** The current store state. */
   const storeState = reactive<StoreState>(new StoreState())
 
@@ -40,11 +40,15 @@ export const useSeqvarPresetsStore = defineStore('seqvarPresets', () => {
    * @param forceReload$ Whether to force a reload of the data even if the projectUuuid is the same.
    */
   const initialize = async (
-    projectUuid$: string,
+    projectUuid$?: string,
     forceReload$: boolean = false,
   ) => {
     // Do not reinitialize if the project is the same unless forced.
-    if (projectUuid$ === projectUuid.value && !forceReload$) {
+    if (
+      (projectUuid$ === projectUuid.value ||
+        storeState.state === State.Fetching) &&
+      !forceReload$
+    ) {
       return
     }
 

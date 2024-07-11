@@ -1,48 +1,49 @@
 <script setup lang="ts">
-import { watch, onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
-import CaseListTable from '@/cases/components/CaseListTable/CaseListTable.vue'
-import CaseListQc from '@/cases/components/CaseListQc/CaseListQc.vue'
-import { Tab } from './types'
-import QueryPresets from '@/variants/components/QueryPresets.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import PresetsEditor from '@/seqvars/components/PresetsEditor/PresetsEditor.vue'
 
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { useProjectStore } from '@/cases/stores/project/store'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 
 const props = defineProps<{
   /** The project UUID. */
   projectUuid?: string
-  /** Identifier of the current tab. */
-  currentTab?: Tab
   /** Identifier of the current preset set. */
   presetSet?: string
 }>()
 
-const caseListStore = useCaseListStore()
 const projectStore = useProjectStore()
+const seqvarsPresetsStore = useSeqvarsPresetsStore()
 
 // Whether to hide the navigation bar; component state.
 const navbarHidden = ref<boolean>(false)
 
+/** (Re-)initialize the stores. */
+const initializeStores = async () => {
+  await Promise.all([
+    projectStore.initialize(props.projectUuid),
+    seqvarsPresetsStore.initialize(props.projectUuid),
+  ])
+}
+
 // Initialize case list store on mount.
-onMounted(() => {
-  caseListStore.initialize(props.projectUuid)
-  projectStore.initialize(props.projectUuid)
+onMounted(async () => {
+  await initializeStores()
 })
 // Re-initialize case list store when the project changes.
 watch(
   () => props.projectUuid,
-  (newValue) => {
-    caseListStore.initialize(newValue)
-    projectStore.initialize(newValue)
+  async () => {
+    await initializeStores()
   },
 )
 </script>
 
 <template>
-  <v-app id="case-list">
+  <v-app id="seqvars-presets-sets">
     <TheAppBar v-model:navbar-hidden="navbarHidden" />
     <TheNavBar :navbar-hidden="navbarHidden">
       <v-list-item
@@ -91,21 +92,10 @@ watch(
         Query Presets (NEW)
       </v-list-item>
     </TheNavBar>
-    <div class="pa-3">
-      <v-main>
-        <div v-if="props.currentTab === Tab.CASE_LIST">
-          <CaseListTable :project-uuid="projectUuid" />
-        </div>
-        <div v-else-if="props.currentTab === Tab.QUALITY_CONTROL">
-          <CaseListQc />
-        </div>
-        <div v-else-if="props.currentTab === Tab.QUERY_PRESETS">
-          <QueryPresets :preset-set="presetSet" />
-        </div>
-        <div v-else>
-          <v-alert type="error">Unknown tab: {{ props.currentTab }}</v-alert>
-        </div>
-      </v-main>
-    </div>
+    <v-main>
+      <v-container class="py-2 px-6" fluid>
+        <PresetsEditor :project-uuid="projectUuid" :preset-set="presetSet" />
+      </v-container>
+    </v-main>
   </v-app>
 </template>

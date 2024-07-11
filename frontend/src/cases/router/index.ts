@@ -13,9 +13,12 @@ import {
 import { nextTick } from 'vue'
 import { useCtxStore } from '@/varfish/stores/ctx/store'
 import { Tab as CaseListTab } from '@/cases/views/CaseList/types'
+import QueryPresets from '@/variants/components/QueryPresets.vue'
 
 const CaseDetail = () => import('@/cases/views/CaseDetail/CaseDetail.vue')
 const CaseList = () => import('@/cases/views/CaseList/CaseList.vue')
+const SeqvarsPresetSets = () =>
+  import('@/seqvars/views/PresetSets/PresetSets.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -53,6 +56,15 @@ const routes: RouteRecordRaw[] = [
     props: (route: RouteLocationNormalized) => ({
       projectUuid: route.params.project,
       currentTab: 'case-list-query-presets',
+      presetSet: route.params.presetSet,
+    }),
+  },
+  {
+    name: 'seqvars-query-presets',
+    path: '/-/seqvars/:project/query-presets/:presetSet?',
+    component: SeqvarsPresetSets,
+    props: (route: RouteLocationNormalized) => ({
+      projectUuid: route.params.project,
       presetSet: route.params.presetSet,
     }),
   },
