@@ -59,7 +59,10 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
     storeState.state = State.Fetching
     try {
       storeState.serverInteractions += 1
-      await Promise.all([loadCaseAnalyses(), loadCaseAnalysisSessions()])
+      // NB: we currently load analyses and sessions sequentially because they
+      // run in transactions but not without locks and either might fail.
+      await loadCaseAnalyses()
+      await loadCaseAnalysisSessions()
     } catch (e) {
       console.log('error', e)
       storeState.state = State.Error
