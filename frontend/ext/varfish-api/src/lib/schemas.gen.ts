@@ -3072,10 +3072,7 @@ export const $PatchedSeqvarsPredefinedQuery = {
                 {
                     type: 'null'
                 }
-            ],
-            default: {
-                choice: null
-            }
+            ]
         },
         quality: {
             type: 'string',
@@ -4010,6 +4007,66 @@ owned category settings.`,
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
         },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
@@ -5137,10 +5194,7 @@ export const $SeqvarsPredefinedQuery = {
                 {
                     type: 'null'
                 }
-            ],
-            default: {
-                choice: null
-            }
+            ]
         },
         quality: {
             type: 'string',
@@ -6479,6 +6533,73 @@ export const $SeqvarsQuerySettings = {
             format: 'uuid',
             readOnly: true
         },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
         genotype: {
             type: 'string',
             format: 'uuid',
@@ -6520,7 +6641,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'clinvarpresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -6639,6 +6760,66 @@ owned category settings.`,
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
         },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'

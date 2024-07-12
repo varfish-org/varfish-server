@@ -1283,6 +1283,16 @@ export type PatchedSeqvarsQuerySettingsDetails = {
     readonly session?: string;
     readonly presetssetversion?: string;
     readonly predefinedquery?: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    qualitypresets?: string | null;
+    consequencepresets?: string | null;
+    locuspresets?: string | null;
+    frequencypresets?: string | null;
+    phenotypepriopresets?: string | null;
+    variantpriopresets?: string | null;
+    clinvarpresets?: string | null;
     genotype?: SeqvarsQuerySettingsGenotype;
     quality?: SeqvarsQuerySettingsQuality;
     consequence?: SeqvarsQuerySettingsConsequence;
@@ -1961,6 +1971,16 @@ export type SeqvarsQuerySettings = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    readonly qualitypresets: string | null;
+    readonly consequencepresets: string | null;
+    readonly locuspresets: string | null;
+    readonly frequencypresets: string | null;
+    readonly phenotypepriopresets: string | null;
+    readonly variantpriopresets: string | null;
+    readonly clinvarpresets: string | null;
     readonly genotype: string;
     readonly quality: string;
     readonly consequence: string;
@@ -2011,6 +2031,16 @@ export type SeqvarsQuerySettingsDetails = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    qualitypresets?: string | null;
+    consequencepresets?: string | null;
+    locuspresets?: string | null;
+    frequencypresets?: string | null;
+    phenotypepriopresets?: string | null;
+    variantpriopresets?: string | null;
+    clinvarpresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotype;
     quality: SeqvarsQuerySettingsQuality;
     consequence: SeqvarsQuerySettingsConsequence;

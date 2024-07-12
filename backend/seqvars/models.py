@@ -672,7 +672,10 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
 
     #: The chosen genotype presets.
     genotype = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets()
+        schema=typing.Optional[SeqvarsGenotypePresets],
+        default=SeqvarsGenotypePresets(),
+        null=True,
+        blank=True,
     )
 
     #: The chosen quality presets.
@@ -729,6 +732,46 @@ class SeqvarsQuerySettings(BaseModel):
     #: The predefined query that this ``QuerySettings`` is based on.
     predefinedquery = models.ForeignKey(
         SeqvarsPredefinedQuery, on_delete=models.PROTECT, null=True, blank=True
+    )
+
+    #: The chosen genotype presets.
+    genotypepresets = SchemaField(
+        schema=typing.Optional[SeqvarsGenotypePresets],
+        default=SeqvarsGenotypePresets(),
+        null=True,
+        blank=True,
+    )
+    #: The chosen quality presets.
+    qualitypresets = models.ForeignKey(
+        SeqvarsQueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen frequency presets.
+    frequencypresets = models.ForeignKey(
+        SeqvarsQueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen consequence presets.
+    consequencepresets = models.ForeignKey(
+        SeqvarsQueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen locus presets.
+    locuspresets = models.ForeignKey(
+        SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen phenotype priorization presets.
+    phenotypepriopresets = models.ForeignKey(
+        SeqvarsQueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen variant priorization presets.
+    variantpriopresets = models.ForeignKey(
+        SeqvarsQueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen clinvar presets.
+    clinvarpresets = models.ForeignKey(
+        SeqvarsQueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen columns presets.
+    columnspresets = models.ForeignKey(
+        SeqvarsQueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def __str__(self):
