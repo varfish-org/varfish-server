@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
-  SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
+import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { VCardItem } from 'vuetify/lib/components/index.mjs'
 
 /** Props used in this component. */
 const props = defineProps<{
@@ -165,47 +164,52 @@ watch(
 </script>
 
 <template>
-  <v-sheet class="pa-3">
-    <v-skeleton-loader
-      loading
-      type="heading,paragraph"
-      v-if="!selectedPresetSetVersion?.presetsset"
-    />
-    <div v-else>
-      <h3 class="pb-3">
-        {{ selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED' }}
-        {{
-          `v${selectedPresetSetVersion?.version_major ?? 'X'}` +
-          `.${selectedPresetSetVersion?.version_minor ?? 'Y'}`
-        }}
-      </h3>
-      {{ selectedCategory }}
-      {{ selectedPreset }}
-      <v-row no-gutters class="d-flex flex-nowrap">
-        <v-col cols="3">
-          <v-expansion-panels
-            mandatory
-            v-model="selectedCategory"
-            :flat="false"
-            density="compact"
+  <v-skeleton-loader
+    loading
+    type="heading,paragraph"
+    class="pt-3"
+    v-if="!selectedPresetSetVersion?.presetsset"
+  />
+  <div class="pt-3" v-else>
+    <h3 class="pb-3">
+      Presets: &raquo;{{ selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED' }}
+      {{
+        `v${selectedPresetSetVersion?.version_major ?? 'X'}` +
+        `.${selectedPresetSetVersion?.version_minor ?? 'Y'}`
+      }}&laquo;
+    </h3>
+
+    <v-row class="d-flex flex-nowrap">
+      <v-col cols="3">
+        <v-expansion-panels
+          mandatory
+          v-model="selectedCategory"
+          :flat="false"
+          density="compact"
+        >
+          <v-expansion-panel
+            v-for="item in categories"
+            :key="item.category"
+            :title="item.label"
+            :value="item.category"
           >
-            <v-expansion-panel
-              v-for="item in categories"
-              :key="item.category"
-              :title="item.label"
-              :value="item.category"
-            >
-              <v-expansion-panel-text>
-                <PresetsList
-                  v-model="selectedPreset[item.category]"
-                  :items="item.items"
-                />
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-col>
-        <v-col cols="9"> y </v-col>
-      </v-row>
-    </div>
-  </v-sheet>
+            <v-expansion-panel-text>
+              <PresetsList
+                v-model="selectedPreset[item.category]"
+                :items="item.items"
+              />
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+      <v-col cols="9">
+        <v-sheet class="pa-3">
+          <div v-if="selectedCategory === Category.QUALITY">
+            <CategoryPresetsQualityEditor v-model:model-value="" />
+          </div>
+          <v-alert :title="`Invalid category ${selectedCategory}`" color="error" v-else />
+        </v-sheet>
+      </v-col>
+    </v-row>
+  </div>
 </template>
