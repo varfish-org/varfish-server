@@ -1,3 +1,4 @@
+import typing
 from typing import Optional
 
 from django_pydantic_field.rest_framework import SchemaField
@@ -410,7 +411,10 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
     genotype = SchemaField(
-        schema=Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets()
+        schema=Optional[SeqvarsGenotypePresets],
+        required=False,
+        allow_null=True,
+        default=None,
     )
 
     quality = serializers.SlugRelatedField(
@@ -772,6 +776,42 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     #: Serialize ``predefinedquery`` as its ``sodar_uuid``.
     predefinedquery = serializers.ReadOnlyField(source="predefinedquery.sodar_uuid")
 
+    #: Serialize ``genotypepresets`` as its ``sodar_uuid``.
+    genotypepresets = SchemaField(
+        schema=typing.Optional[SeqvarsGenotypePresets],
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    #: Serialize ``qualitypresets`` as its ``sodar_uuid``.
+    qualitypresets = serializers.ReadOnlyField(
+        source="qualitypresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``consequencepresets`` as its ``sodar_uuid``.
+    consequencepresets = serializers.ReadOnlyField(
+        source="consequencepresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``locuspresets`` as its ``sodar_uuid``.
+    locuspresets = serializers.ReadOnlyField(
+        source="locuspresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``frequencypresets`` as its ``sodar_uuid``.
+    frequencypresets = serializers.ReadOnlyField(
+        source="frequencypresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``phenotypepriopresets`` as its ``sodar_uuid``.
+    phenotypepriopresets = serializers.ReadOnlyField(
+        source="phenotypepriopresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``variantpriopresets`` as its ``sodar_uuid``.
+    variantpriopresets = serializers.ReadOnlyField(
+        source="variantpriopresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``clinvarpresets`` as its ``sodar_uuid``.
+    clinvarpresets = serializers.ReadOnlyField(
+        source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+
     #: Serialize ``genotype`` as its ``sodar_uuid``.
     genotype = serializers.ReadOnlyField(source="genotype.sodar_uuid")
     #: Serialize ``quality`` as its ``sodar_uuid``.
@@ -801,6 +841,14 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
             "session",
             "presetssetversion",
             "predefinedquery",
+            "genotypepresets",
+            "qualitypresets",
+            "consequencepresets",
+            "locuspresets",
+            "frequencypresets",
+            "phenotypepriopresets",
+            "variantpriopresets",
+            "clinvarpresets",
             "genotype",
             "quality",
             "consequence",
@@ -822,6 +870,35 @@ class SeqvarsQuerySettingsDetailsSerializer(
     owned category settings.
     """
 
+    #: Serialize ``qualitypresets`` as its ``sodar_uuid``.
+    qualitypresets = serializers.UUIDField(
+        source="qualitypresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``consequencepresets`` as its ``sodar_uuid``.
+    consequencepresets = serializers.UUIDField(
+        source="consequencepresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``locuspresets`` as its ``sodar_uuid``.
+    locuspresets = serializers.UUIDField(
+        source="locuspresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``frequencypresets`` as its ``sodar_uuid``.
+    frequencypresets = serializers.UUIDField(
+        source="frequencypresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``phenotypepriopresets`` as its ``sodar_uuid``.
+    phenotypepriopresets = serializers.UUIDField(
+        source="phenotypepriopresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``variantpriopresets`` as its ``sodar_uuid``.
+    variantpriopresets = serializers.UUIDField(
+        source="variantpriopresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``clinvarpresets`` as its ``sodar_uuid``.
+    clinvarpresets = serializers.UUIDField(
+        source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+
     #: Nested serialization of the genotype settings.
     genotype = SeqvarsQuerySettingsGenotypeSerializer()
     #: Nested serialization of the quality settings.
@@ -838,6 +915,54 @@ class SeqvarsQuerySettingsDetailsSerializer(
     variantprio = SeqvarsQuerySettingsVariantPrioSerializer()
     #: Nested serialization of the clinvar settings.
     clinvar = SeqvarsQuerySettingsClinvarSerializer()
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        if "qualitypresets" in data:
+            qualitypresets_uuid = data.pop("qualitypresets")["sodar_uuid"]
+            if qualitypresets_uuid:
+                data["qualitypresets"] = SeqvarsQueryPresetsQuality.objects.get(
+                    sodar_uuid=qualitypresets_uuid
+                )
+        if "consequencepresets" in data:
+            consequencepresets_uuid = data.pop("consequencepresets")["sodar_uuid"]
+            if consequencepresets_uuid:
+                data["consequencepresets"] = SeqvarsQueryPresetsConsequence.objects.get(
+                    sodar_uuid=consequencepresets_uuid
+                )
+        if "locuspresets" in data:
+            locuspresets_uuid = data.pop("locuspresets")["sodar_uuid"]
+            if locuspresets_uuid:
+                data["locuspresets"] = SeqvarsQueryPresetsLocus.objects.get(
+                    sodar_uuid=locuspresets_uuid
+                )
+        if "frequencypresets" in data:
+            frequencypresets_uuid = data.pop("frequencypresets")["sodar_uuid"]
+            if frequencypresets_uuid:
+                data["frequencypresets"] = SeqvarsQueryPresetsFrequency.objects.get(
+                    sodar_uuid=frequencypresets_uuid
+                )
+        if "phenotypepriopresets" in data:
+            phenotypepriopresets_uuid = data.pop("phenotypepriopresets")["sodar_uuid"]
+            if phenotypepriopresets_uuid:
+                data["phenotypepriopresets"] = SeqvarsQueryPresetsPhenotypePrio.objects.get(
+                    sodar_uuid=phenotypepriopresets_uuid
+                )
+        if "variantpriopresets" in data:
+            variantpriopresets_uuid = data.pop("variantpriopresets")["sodar_uuid"]
+            if variantpriopresets_uuid:
+                data["variantpriopresets"] = SeqvarsQueryPresetsVariantPrio.objects.get(
+                    sodar_uuid=variantpriopresets_uuid
+                )
+        if "clinvarpresets" in data:
+            clinvarpresets_uuid = data.pop("clinvarpresets")["sodar_uuid"]
+            if clinvarpresets_uuid:
+                data["clinvarpresets"] = SeqvarsQueryPresetsClinvar.objects.get(
+                    sodar_uuid=clinvarpresets_uuid
+                )
+
+        return data
 
     class Meta:
         model = SeqvarsQuerySettingsSerializer.Meta.model
