@@ -43,56 +43,56 @@ watch(
 
 <template>
   <v-app id="case-list">
-    <TheAppBar v-model:navbar-hidden="navbarHidden" />
-    <TheNavBar :navbar-hidden="navbarHidden">
-      <v-list-item
-        prepend-icon="mdi-arrow-left"
-        :href="`/project/${projectStore.projectUuid}`"
-      >
-        Back to Project
-      </v-list-item>
-      <v-list-subheader class="text-uppercase">
-        Project Overview
-      </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-format-list-bulleted-square"
-        :to="{
-          name: 'case-list',
-          params: { project: projectStore.projectUuid },
-        }"
-      >
-        Case List
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-chart-multiple"
-        :to="{
-          name: 'case-list-qc',
-          params: { project: projectStore.projectUuid },
-        }"
-      >
-        Quality Control
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-filter-settings"
-        :to="{
-          name: 'case-list-query-presets',
-          params: { project: projectStore.projectUuid },
-        }"
-      >
-        Query Presets
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-numeric-2-box-multiple-outline"
-        :to="{
-          name: 'seqvars-query-presets',
-          params: { project: projectStore.projectUuid },
-        }"
-      >
-        Query Presets (NEW)
-      </v-list-item>
-    </TheNavBar>
-    <div class="pa-3">
-      <v-main>
+    <v-main>
+      <TheAppBar v-model:navbar-hidden="navbarHidden" />
+      <TheNavBar :navbar-hidden="navbarHidden">
+        <v-list-item
+          prepend-icon="mdi-arrow-left"
+          :href="`/project/${projectStore.projectUuid}`"
+        >
+          Back to Project
+        </v-list-item>
+        <v-list-subheader class="text-uppercase">
+          Project Overview
+        </v-list-subheader>
+        <v-list-item
+          prepend-icon="mdi-format-list-bulleted-square"
+          :to="{
+            name: 'case-list',
+            params: { project: projectStore.projectUuid },
+          }"
+        >
+          Case List
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-chart-multiple"
+          :to="{
+            name: 'case-list-qc',
+            params: { project: projectStore.projectUuid },
+          }"
+        >
+          Quality Control
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-filter-settings"
+          :to="{
+            name: 'case-list-query-presets',
+            params: { project: projectStore.projectUuid },
+          }"
+        >
+          Query Presets
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-numeric-2-box-multiple-outline"
+          :to="{
+            name: 'seqvars-query-presets',
+            params: { project: projectStore.projectUuid },
+          }"
+        >
+          Query Presets (NEW)
+        </v-list-item>
+      </TheNavBar>
+      <div class="pa-3">
         <div v-if="props.currentTab === Tab.CASE_LIST">
           <CaseListTable :project-uuid="projectUuid" />
         </div>
@@ -105,7 +105,7 @@ watch(
         <div v-else>
           <v-alert type="error">Unknown tab: {{ props.currentTab }}</v-alert>
         </div>
-      </v-main>
-    </div>
+      </div>
+    </v-main>
   </v-app>
 </template>

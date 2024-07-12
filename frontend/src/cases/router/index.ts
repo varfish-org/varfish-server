@@ -61,11 +61,12 @@ const routes: RouteRecordRaw[] = [
   },
   {
     name: 'seqvars-query-presets',
-    path: '/-/seqvars/:project/query-presets/:presetSet?',
+    path: '/-/seqvars/:project/query-presets/:presetSet?/:presetSetVersion?',
     component: SeqvarsPresetSets,
     props: (route: RouteLocationNormalized) => ({
       projectUuid: route.params.project,
       presetSet: route.params.presetSet,
+      presetSetVersion: route.params.presetSetVersion,
     }),
   },
   {

@@ -104,63 +104,63 @@ onMounted(() => {
 
 <template>
   <v-app id="seqvar-filter-legacy">
-    <TheAppBar v-model:navbar-hidden="navbarHidden" />
-    <TheNavBar :navbar-hidden="navbarHidden">
-      <v-list-item
-        prepend-icon="mdi-arrow-left"
-        :to="{
-          name: 'case-detail-overview',
-          params: { project: projectUuid, case: caseUuid },
-        }"
-      >
-        Back to Case
-      </v-list-item>
-      <v-list-subheader class="text-uppercase">
-        Variant Analysis
-      </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-filter-variant"
-        :to="{
-          name: 'svs-filter',
-          params: { case: caseUuid },
-        }"
-      >
-        Go To SV Filtration
-      </v-list-item>
-      <v-list-subheader class="text-uppercase">
-        Analysis Info
-      </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-button-cursor"
-        @click="filterFormVisible = !filterFormVisible"
-      >
-        Toggle Form
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-card-text-outline"
-        @click="logsVisible = !logsVisible"
-      >
-        Toggle Logs
-      </v-list-item>
-      <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
-        Filter: Defaults
-      </v-list-item>
-      <v-list-item
-        v-else
-        prepend-icon="mdi-filter-settings"
-        lines="two"
-        :title="presetSetLabel ?? undefined"
-        :subtitle="presetSource ?? undefined"
-        :to="{
-          name: 'case-list-query-presets-non-factory',
-          params: {
-            project: projectUuid,
-            presetSet: presetSetUuid!,
-          },
-        }"
-      />
-    </TheNavBar>
     <v-main>
+      <TheAppBar v-model:navbar-hidden="navbarHidden" />
+      <TheNavBar :navbar-hidden="navbarHidden">
+        <v-list-item
+          prepend-icon="mdi-arrow-left"
+          :to="{
+            name: 'case-detail-overview',
+            params: { project: projectUuid, case: caseUuid },
+          }"
+        >
+          Back to Case
+        </v-list-item>
+        <v-list-subheader class="text-uppercase">
+          Variant Analysis
+        </v-list-subheader>
+        <v-list-item
+          prepend-icon="mdi-filter-variant"
+          :to="{
+            name: 'svs-filter',
+            params: { case: caseUuid },
+          }"
+        >
+          Go To SV Filtration
+        </v-list-item>
+        <v-list-subheader class="text-uppercase">
+          Analysis Info
+        </v-list-subheader>
+        <v-list-item
+          prepend-icon="mdi-button-cursor"
+          @click="filterFormVisible = !filterFormVisible"
+        >
+          Toggle Form
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-card-text-outline"
+          @click="logsVisible = !logsVisible"
+        >
+          Toggle Logs
+        </v-list-item>
+        <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
+          Filter: Defaults
+        </v-list-item>
+        <v-list-item
+          v-else
+          prepend-icon="mdi-filter-settings"
+          lines="two"
+          :title="presetSetLabel ?? undefined"
+          :subtitle="presetSource ?? undefined"
+          :to="{
+            name: 'case-list-query-presets-non-factory',
+            params: {
+              project: projectUuid,
+              presetSet: presetSetUuid!,
+            },
+          }"
+        />
+      </TheNavBar>
       <FilterApp
         v-model:filter-form-visible="filterFormVisible"
         v-model:query-logs-visible="logsVisible"

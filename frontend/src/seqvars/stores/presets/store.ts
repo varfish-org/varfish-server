@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import {
   SeqvarsQueryPresetsSet,
@@ -32,6 +32,23 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   const presetSetVersions = reactive<
     Map<string, SeqvarsQueryPresetsSetVersionDetails>
   >(new Map())
+  /** The latest active preset set version for each preset set; to be used by filtration. */
+  const activePresetSetVersions = computed<
+    Map<string, SeqvarsQueryPresetsSetVersionDetails>
+  >(() => {
+    const seenPresetSets = new Set<string>()
+    const result = new Map<string, SeqvarsQueryPresetsSetVersionDetails>()
+    for (const [uuid, version] of presetSetVersions) {
+      if (
+        !seenPresetSets.has(version.presetsset.sodar_uuid) &&
+        version.status === 'ACTIVE'
+      ) {
+        result.set(uuid, version)
+        seenPresetSets.add(version.presetsset.sodar_uuid)
+      }
+    }
+    return result
+  })
 
   /**
    * Initialize the store.
@@ -104,12 +121,14 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
       }
     } while (cursor !== undefined)
 
-    // List the versions of all presets set and pick the latest active one.
+    // List all versions of all presets set.  The latest active one is chosen
+    // as a computed property in `activePresetSetVersions`.
     const versionListResponses = await Promise.all(
       tmpPresetsSet.map(({ sodar_uuid: querypresetsset }) =>
         SeqvarsService.seqvarsApiQuerypresetssetversionList({
           client,
           path: { querypresetsset },
+          query: { page_size: 100 },
         }),
       ),
     )
@@ -232,6 +251,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     factoryDefaultPresetSetUuids,
     presetSets,
     presetSetVersions,
+    activePresetSetVersions,
     // methods
     initialize,
     $reset,

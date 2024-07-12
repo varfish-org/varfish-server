@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-
-import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetSelect.vue'
+import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsSelect.vue'
+import QueryPresetsEditor from '@/seqvars/components/PresetsEditor/QueryPresetsEditor.vue'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 
 /** Props used in this component. */
 const props = defineProps<{
   /** The project UUID. */
   projectUuid?: string
-  /** Identifier of the current preset set. */
+  /** UUID of the current preset set. */
   presetSet?: string
+  /** UUID of the current presest set version. */
+  presetSetVersion?: string
 }>()
-
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
 </script>
 
 <template>
   <h2>Query Presets</h2>
-
-  <QueryPresetsSelect :project-uuid="projectUuid" :preset-set="presetSet" />
+  <QueryPresetsSelect
+    :project-uuid="projectUuid"
+    :preset-set="presetSet"
+    :preset-set-version="presetSetVersion"
+    class="mt-3"
+  />
+  <QueryPresetsEditor
+    :project-uuid="projectUuid"
+    :preset-set="presetSet"
+    :preset-set-version="presetSetVersion"
+    class="mt-3"
+  />
 </template>
