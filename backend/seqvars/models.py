@@ -522,7 +522,6 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
             status=self.STATUS_DRAFT,
         )
 
-        old_uuid_to_new_obj = {}
         for key in (
             "seqvarsquerypresetsfrequency_set",
             "seqvarsquerypresetsvariantprio_set",
@@ -722,9 +721,14 @@ class SeqvarsQuerySettings(BaseModel):
     #: The presets set version that this ``QuerySettings`` is based on.
     #:
     #: This information is used for computing differences between the presets and the
-    #: effective query settings.
+    #: effective query settings (together with ``predefinedquery``).
     presetssetversion = models.ForeignKey(
         SeqvarsQueryPresetsSetVersion, on_delete=models.PROTECT, null=True, blank=True
+    )
+
+    #: The predefined query that this ``QuerySettings`` is based on.
+    predefinedquery = models.ForeignKey(
+        SeqvarsPredefinedQuery, on_delete=models.PROTECT, null=True, blank=True
     )
 
     def __str__(self):

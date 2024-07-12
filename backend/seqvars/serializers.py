@@ -769,6 +769,8 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``presetssetversion`` as its ``sodar_uuid``.
     presetssetversion = serializers.ReadOnlyField(source="presetssetversion.sodar_uuid")
+    #: Serialize ``predefinedquery`` as its ``sodar_uuid``.
+    predefinedquery = serializers.ReadOnlyField(source="predefinedquery.sodar_uuid")
 
     #: Serialize ``genotype`` as its ``sodar_uuid``.
     genotype = serializers.ReadOnlyField(source="genotype.sodar_uuid")
@@ -798,6 +800,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
         fields = BaseModelSerializer.Meta.fields + [
             "session",
             "presetssetversion",
+            "predefinedquery",
             "genotype",
             "quality",
             "consequence",

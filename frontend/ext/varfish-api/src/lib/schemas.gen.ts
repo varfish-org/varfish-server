@@ -3070,7 +3070,7 @@ export const $PatchedSeqvarsPredefinedQuery = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ],
             default: {
@@ -3383,7 +3383,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3450,7 +3450,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3505,7 +3505,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3560,7 +3560,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3627,7 +3627,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -4002,6 +4002,11 @@ owned category settings.`,
             readOnly: true
         },
         presetssetversion: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
+        predefinedquery: {
             type: 'string',
             format: 'uuid',
             readOnly: true
@@ -5130,7 +5135,7 @@ export const $SeqvarsPredefinedQuery = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ],
             default: {
@@ -5677,7 +5682,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -5744,7 +5749,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -5799,7 +5804,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -5854,7 +5859,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -5921,7 +5926,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6469,6 +6474,11 @@ export const $SeqvarsQuerySettings = {
             format: 'uuid',
             readOnly: true
         },
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
         genotype: {
             type: 'string',
             format: 'uuid',
@@ -6510,7 +6520,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -6625,6 +6635,11 @@ owned category settings.`,
             format: 'uuid',
             readOnly: true
         },
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -6650,7 +6665,7 @@ owned category settings.`,
             '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvar'
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
 } as const;
 
 export const $SeqvarsQuerySettingsFrequency = {
@@ -6720,7 +6735,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6787,7 +6802,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6842,7 +6857,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6897,7 +6912,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6964,7 +6979,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7555,6 +7570,6 @@ export const $VarfishStats = {
 export const $strList = {
     type: 'array',
     items: {
-        type: 'number'
+        type: 'string'
     }
 } as const;
