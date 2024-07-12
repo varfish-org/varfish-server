@@ -11,15 +11,15 @@ from pydantic.json_schema import model_json_schema
 
 def pydantic_to_json_schema(schema_arg: typing.Any) -> typing.Dict[str, typing.Any]:
     """Convert a Python/pydantic schema to a JSON schema."""
-    if type(schema_arg) is type(int) or type(schema_arg) is type(float):
+    if schema_arg is int or schema_arg is float:
         return {
             "type": "number",
         }
-    elif type(schema_arg) is type(str):
+    elif schema_arg is str:
         return {
             "type": "string",
         }
-    elif type(schema_arg) is type(None):
+    elif schema_arg is type(None):
         return {
             "type": "null",
         }

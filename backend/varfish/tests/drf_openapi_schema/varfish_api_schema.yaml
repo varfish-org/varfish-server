@@ -6951,7 +6951,7 @@ components:
                 default: null
             title: SeqvarsGenotypePresets
             type: object
-          - type: number
+          - type: 'null'
           default:
             choice: null
         quality:
@@ -7176,7 +7176,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -7211,7 +7211,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -7240,7 +7240,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -7269,7 +7269,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -7304,7 +7304,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -7588,6 +7588,10 @@ components:
           format: uuid
           readOnly: true
         presetssetversion:
+          type: string
+          format: uuid
+          readOnly: true
+        predefinedquery:
           type: string
           format: uuid
           readOnly: true
@@ -8527,7 +8531,7 @@ components:
                 default: null
             title: SeqvarsGenotypePresets
             type: object
-          - type: number
+          - type: 'null'
           default:
             choice: null
         quality:
@@ -8994,7 +8998,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -9029,7 +9033,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -9058,7 +9062,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -9087,7 +9091,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -9122,7 +9126,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -9586,6 +9590,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        predefinedquery:
+          type: string
+          format: uuid
+          readOnly: true
         genotype:
           type: string
           format: uuid
@@ -9627,6 +9635,7 @@ components:
       - genotype
       - locus
       - phenotypeprio
+      - predefinedquery
       - presetssetversion
       - quality
       - session
@@ -9727,6 +9736,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        predefinedquery:
+          type: string
+          format: uuid
+          readOnly: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
         quality:
@@ -9752,6 +9765,7 @@ components:
       - genotype
       - locus
       - phenotypeprio
+      - predefinedquery
       - presetssetversion
       - quality
       - session
@@ -9795,7 +9809,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -9830,7 +9844,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -9859,7 +9873,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -9888,7 +9902,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -9923,7 +9937,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -10427,7 +10441,7 @@ components:
     strList:
       type: array
       items:
-        type: number
+        type: string
   securitySchemes:
     basicAuth:
       type: http
