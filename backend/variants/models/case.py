@@ -107,15 +107,21 @@ class CaseManager(models.Manager):
         """
         objects = super().get_queryset().order_by("name")
         terms = {}
-        sql_conditions = []
+        conditions = []
+        order_by = []
+
         for i, term in enumerate(search_terms):
-            terms[f"term{i}_like"] = rf"%{term}%"
+            terms[f"term{i}_like"] = rf"{term}%"
             terms[f"term{i}"] = term
-            sql_conditions.append(
-                rf"levenshtein(lower(c.name), lower(%(term{i})s)) < 4 "
-                rf"OR c.name ILIKE %(term{i}_like)s"
+            conditions.append(
+                rf"levenshtein(lower(name), lower(%(term{i})s)) < 3 "
+                rf"OR name ILIKE %(term{i}_like)s"
             )
-        sql_query = f"SELECT * FROM variants_case AS c WHERE {' OR '.join(sql_conditions)}"
+            order_by.append(rf"levenshtein(lower(name), lower(%(term{i})s))")
+
+        conditions = " OR ".join(conditions)
+        order_by = ", ".join(order_by)
+        sql_query = f"SELECT * FROM variants_case WHERE {conditions} ORDER BY {order_by} LIMIT 10;"
         return objects.raw(sql_query, terms)
 
 
