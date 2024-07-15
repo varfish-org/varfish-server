@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ESNext",
+    "types": [
+      "vite/client",
+      "jquery",
+    ],
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    // "noUncheckedIndexedAccess": true,
+    "declaration": true,
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
+      "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"],
+      "@tests/*": ["./tests/*"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js",
+    "ext/**/*.ts", "ext/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/ext/reev-frontend-lib/node_modules",
+  ],
+  "references": [
+    {
+      "path": "tsconfig.node.json"
+    }
+  ]
+}

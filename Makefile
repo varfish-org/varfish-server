@@ -1,118 +1,47 @@
-SHELL = /bin/bash
-MANAGE = time python manage.py
+# Top-Level Makefile
 
-.PHONY: npm-install
-npm-install:
-	cd varfish/vueapp && npm ci
+# Set the shell to bash with printing of all commands (`-x`) and unofficial
+# strict mode (`-euo pipefail`).
+SHELL := bash -x -euo pipefail
 
-.PHONY: serve
-serve:
-	$(MANAGE) runserver
+.PHONY: help
+help:
+	@echo "Usage: make <target>"
+	@echo
+	@echo "Targets:"
+	@echo "  help    This help (default target)"
+	@echo "  deps    Install all dependencies"
+	@echo "  format  Format source code"
+	@echo "  lint    Run lint checks"
+	@echo "  test    Run tests"
+	@echo "  ci      Install dependencies, run lints and tests"
+	@echo "  docs    Generate the documentation"
 
-.PHONY: vue_serve
-vue_serve:
-	npm run --prefix varfish/vueapp serve
+.PHONY: deps
+deps:
+	$(MAKE) -C backend deps
+	$(MAKE) -C frontend deps
 
-.PHONY: vue_build
-vue_build:
-	npm run --prefix varfish/vueapp build
+.PHONY: format
+format:
+	$(MAKE) -C backend format
+	$(MAKE) -C frontend format
 
-.PHONY: storybook
-storybook:
-	npm run --prefix varfish/vueapp storybook
+.PHONY: lint
+lint:
+	$(MAKE) -C backend lint
+	$(MAKE) -C frontend lint
 
-.PHONY: serve_public
-serve_public:
-	$(MANAGE) runserver 0.0.0.0:8000
+.PHONY: test
+test:
+	$(MAKE) -C backend test
+	$(MAKE) -C frontend test
 
-.PHONY: flushdb
-flushdb:
-	$(MANAGE) flush
-
-.PHONY: _migrate
-_migrate:
-	$(MANAGE) makemigrations
-	$(MANAGE) migrate
-
-.PHONY: migrate
-migrate: _migrate black isort
-
-.PHONY: shell
-shell:
-	$(MANAGE) shell
+.PHONY: ci
+ci:
+	$(MAKE) -C backend ci
+	$(MAKE) -C frontend ci
 
 .PHONY: docs
 docs:
-	$(MAKE) -C docs_manual html
-
-.PHONY: celery
-celery:
-	pipenv run watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- \
-		celery -A config.celery_app worker -l info --concurrency=4 --beat
-
-.PHONY: geticons
-geticons:
-	python manage.py geticons -c cil gridicons octicon icon-park-outline
-
-.PHONY: collectstatic
-collectstatic: geticons
-	python manage.py collectstatic --clear --no-input
-
-# Remember to execute 'python manage.py collectstatic' before executing tests the first time
-.PHONY: test
-test: collectstatic
-	VARFISH_KIOSK_MODE=0 coverage run manage.py test -v2 --settings=config.settings.test
-	coverage report
-
-.PHONY: test-noselenium
-test-noselenium:
-	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
-
-.PHONY: vue_test
-vue_test:
-	npm run --prefix varfish/vueapp test:unit $(arg)
-
-.PHONY: vue_test-coverage
-vue_test-coverage:
-	npm run --prefix varfish/vueapp test:unit-coverage $(arg)
-
-.PHONY: vue_lint
-vue_lint:
-	npm run --prefix varfish/vueapp lint $(arg)
-	npm run --prefix varfish/vueapp type-check $(arg)
-	npm run --prefix varfish/vueapp prettier-check $(arg)
-
-.PHONY: prettier
-prettier:
-	npm run --prefix varfish/vueapp prettier-write $(arg)
-
-coverage:
-	coverage report
-	coverage html
-
-
-.PHONY: lint
-lint: lint-flake8 lint-isort
-
-.PHONY: lint-flake8
-lint-flake8:
-	flake8
-
-.PHONY: lint-isort
-lint-isort:
-	isort --force-sort-within-sections --profile=black --check .
-
-.PHONY: lint-black
-lint-black:
-	black --line-length 100 --check --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
-
-.PHONY: format
-format: format-isort format-black
-
-.PHONY: format-isort
-format-isort:
-	isort --force-sort-within-sections --profile=black .
-
-.PHONY: format-black
-format-black:
-	black --line-length 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
+	$(MAKE) -C backend docs

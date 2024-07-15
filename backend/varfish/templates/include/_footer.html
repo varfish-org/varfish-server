@@ -1,0 +1,6 @@
+{% load projectroles_common_tags %}
+
+{% get_django_setting 'SITE_TITLE' as site_title %}
+
+Developed by BIH CUBI. For support and feedback, please contact <a href="mailto:cubi-helpdesk@bihealth.de">cubi-helpdesk@bihealth.de</a>.
+{{ site_title }} {% site_version %}

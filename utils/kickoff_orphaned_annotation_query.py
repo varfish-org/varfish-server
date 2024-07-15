@@ -16,7 +16,7 @@ ENDPOINT_SM_SETTINGS = (
 #: Endpoint to smallvariant list-create query
 ENDPOINT_SM_LISTCREATE_QUERY = "/variants/api/query/list-create/{case_uuid}"
 #: Endpoint to smallvariant retrieve query
-ENDPOINT_SM_RETRIEVE_QUERY = "/svs/api/query/retrieve-update-destroy/{query_uuid}/"
+ENDPOINT_SM_RETRIEVE_QUERY = "/variants/api/query/retrieve-update-destroy/{query_uuid}/"
 #: Endpoint to structuralvariant query settings
 ENDPOINT_SV_SETTINGS = "/svs/ajax/query-case/query-settings-shortcut/{case_uuid}/?quick_preset=whole_genome&genotype_criteria=default&inheritance=any&frequency=any&impact=any&sv_type=any"
 #: Endpoint to structuralvariant list-create query
