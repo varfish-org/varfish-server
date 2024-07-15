@@ -186,10 +186,6 @@ typings/
 
 ### VisualStudioCode template
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 
 # Provided default Pycharm Run/Debug Configurations should be tracked by git
@@ -337,30 +333,4 @@ Session.vim
 # Auto-generated tag files
 tags
 
-
-### VirtualEnv template
-# Virtualenv
-# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-[Bb]in
-[Ii]nclude
-[Ll]ib
-[Ll]ib64
-[Ll]ocal
-[Ss]cripts
-pyvenv.cfg
-pip-selfcheck.json
-
-
-mailhog
-
-
-varfish/media/
-
-/src/
-
-celerybeat-schedule
-
-varfish/vueapp/components.d.ts
-staticfiles.bak/
-
-varfish-server-worker-db/
+.DS_Store

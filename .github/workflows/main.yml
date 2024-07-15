@@ -124,22 +124,23 @@ jobs:
       - name: Install pip and Pipenv
         run: |
           pip install -U pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
         run: |
           pipenv install --verbose --categories=packages,dev-packages,ldap-packages
+        working-directory: backend
 
-      - name: Download icons
-        run: pipenv run python manage.py geticons
-
-      - name: Run collectstatic
-        run: pipenv run python manage.py collectstatic --noinput
+      - name: Run collectstatic (will download icons and build frontend)
+        run: make collectstatic
+        working-directory: backend
 
       - name: Build Vue app as that can be tested via selenium.
         run: |
-          npm ci --prefix varfish/vueapp
-          npm run build --prefix varfish/vueapp
-          nohup npm run serve --prefix varfish/vueapp &
+          npm ci
+          npm run build
+          nohup npm run serve &
+        working-directory: frontend
 
       - name: Setup environment with worker
         uses: mamba-org/setup-micromamba@v1
@@ -151,16 +152,16 @@ jobs:
 
       - name: Run tests
         run: |
-          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
-          pipenv run coverage xml
-          pipenv run coverage report
+          make test
         # Important: use shell that was initialized by micromamba.
         shell: bash -el {0}
+        working-directory: backend
 
       - name: Upload Python coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           flags: python
+          directory: backend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -184,36 +185,32 @@ jobs:
           python-version: "3.10"
 
       - name: Install pip and Pipenv
-        run: |
-            pip install pip pipenv
+        run: pip install pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
-        run: |
-          pipenv install --categories=packages,dev-packages
+        run: make deps
+        working-directory: backend
 
-      - name: Check import order with isort
+      - name: Run all lints
         run: |
           rm -rf src
-          pipenv run isort --force-sort-within-sections --profile=black --check .
+          make lint
+        working-directory: backend
 
-      - name: Check style with black
-        run: |
-          pipenv run black --check --line-length 100 .
-
-      - name: Run linting
-        run: |
-          pipenv run flake8
-
-      - name: Check for OpenAPI schema changes.
-        run: |
-          pipenv run python manage.py spectacular \
-          | sed -e 's/^  version:.*/  version: VERSION/g' \
-          > /tmp/varfish_api_schema.yaml
-
-          diff \
-            varfish/tests/drf_spectacular/varfish_api_schema.yaml \
-            /tmp/varfish_api_schema.yaml
-        shell: bash -euo pipefail {0}
+#       # TODO: re-enable once we use sodar-core 1.0 and the error is fixed
+#       - name: Check for OpenAPI schema changes.
+#         run: |
+#           pipenv run python manage.py generateschema \
+#           | grep -v ^Loading \
+#           | grep -v '^The ' \
+#           > /tmp/varfish_api_schema.yaml
+# 
+#           diff \
+#             varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+#             /tmp/varfish_api_schema.yaml
+#         shell: bash -euo pipefail {0}
+#         working-directory: backend
 
   Node-Lint:
     runs-on: ubuntu-latest
@@ -226,11 +223,26 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          make deps
+        working-directory: frontend
 
       - name: Run linting
         run: |
-          make vue_lint
+          make lint
+        working-directory: frontend
+
+#       # TODO: it appears that this is not stable
+#       - name: Check for OpenAPI schema changes.
+#         run: |
+#           npx openapi-typescript \
+#             ../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+#             -o /tmp/varfish.d.ts
+# 
+#           diff \
+#             src/varfish/api/varfish.d.ts \
+#             /tmp/varfish.d.ts
+#         shell: bash -euo pipefail {0}
+#         working-directory: frontend
 
 
   Node-Test:
@@ -244,15 +256,18 @@ jobs:
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          make deps
+        working-directory: frontend
 
       - name: Run Vue app tests
         run: |
-          make vue_test-coverage
+          make test
+        working-directory: frontend
 
       - name: Upload nodejs coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           flags: nodejs
+          directory: frontend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

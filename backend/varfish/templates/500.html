@@ -1,0 +1,16 @@
+{% extends 'projectroles/error/500.html' %}
+{% load projectroles_common_tags %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="col-md-4 mx-auto my-5">
+    <h2 class="sodar-pr-content-title">Server Error</h2>
+    <p>
+      Something went wrong on the server side. We track these errors
+      automatically, but if the problem persists feel free to contact the
+      administration.
+    </p>
+  </div>
+</div>
+{% endblock content %}
