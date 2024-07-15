@@ -106,11 +106,17 @@ class CaseManager(models.Manager):
         :return: Python list of BaseFilesfolderClass objects
         """
         objects = super().get_queryset().order_by("name")
-        term_query = Q()
-        for t in search_terms:
-            term_query.add(Q(name__iregex=rf"{t}"), Q.OR)
-            term_query.add(Q(search_tokens__icontains=t), Q.OR)
-        return objects.filter(term_query)
+        terms = {}
+        sql_conditions = []
+        for i, term in enumerate(search_terms):
+            terms[f"term{i}_like"] = rf"%{term}%"
+            terms[f"term{i}"] = term
+            sql_conditions.append(
+                rf"levenshtein(lower(c.name), lower(%(term{i})s)) < 4 "
+                rf"OR c.name ILIKE %(term{i}_like)s"
+            )
+        sql_query = f"SELECT * FROM variants_case AS c WHERE {' OR '.join(sql_conditions)}"
+        return objects.raw(sql_query, terms)
 
 
 class Case(CoreCase):
