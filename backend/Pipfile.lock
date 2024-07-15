@@ -704,12 +704,12 @@
         },
         "django-pydantic-field": {
             "hashes": [
-                "sha256:45ff896bea9681077c1d247103efd26e4c13248015f491c7b89587e6fa8e9223",
-                "sha256:9feec1b0f14c8601e56a28ee8121c2b46931fcbfe9c5f1b2f4b0b760c5f00e65"
+                "sha256:9237ad99f2fd1f54aa19c4da68e6c92ef9bcf8d2240f205aeea44a8a9aecdd47",
+                "sha256:c9824962d300dacd7009b76a64ef9ede81858cc769edbeb25a2c81d338c6f9b8"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==0.3.9"
+            "version": "==0.3.10"
         },
         "django-rest-knox": {
             "hashes": [
@@ -2664,7 +2664,7 @@
                 "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
                 "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
             ],
-            "markers": "python_version < '3.13'",
+            "markers": "python_version >= '3.8'",
             "version": "==4.12.2"
         },
         "tzdata": {
