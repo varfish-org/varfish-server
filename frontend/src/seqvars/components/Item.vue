@@ -36,6 +36,9 @@ button.item {
   box-sizing: border-box;
 
   text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:not(:focus-visible) {
     outline: none;

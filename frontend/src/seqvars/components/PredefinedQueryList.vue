@@ -1,27 +1,24 @@
 <script setup lang="ts">
+import { SeqvarsPredefinedQuery } from '@varfish-org/varfish-api/lib'
+
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Item from '@/seqvars/components/Item.vue'
 import ItemButton from '@/seqvars/components/ItemButton.vue'
 
-import { QUICK_PRESETS } from './constants'
-import { QuickPreset } from './types'
+const { presets } = defineProps<{ presets: SeqvarsPredefinedQuery[] }>()
+const selectedId = defineModel<string | undefined>({ required: true })
 
-const { value } = defineProps<{ value?: QuickPreset }>()
-
-defineEmits<{
-  addQuery: [preset: QuickPreset]
-  'update:value': [preset: QuickPreset]
-}>()
+defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
 </script>
 
 <template>
   <CollapsibleGroup title="Presets">
     <div style="width: 100%; display: flex; flex-direction: column">
       <Item
-        v-for="preset in QUICK_PRESETS"
-        :key="preset.label"
-        :selected="value?.label == preset.label"
-        @click="$emit('update:value', preset)"
+        v-for="preset in presets"
+        :key="preset.sodar_uuid"
+        :selected="preset.sodar_uuid === selectedId"
+        @click="selectedId = preset.sodar_uuid"
       >
         <template #default>{{ preset.label }}</template>
         <template #extra

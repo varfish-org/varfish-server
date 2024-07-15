@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import Input from '@/seqvars/components/Input.vue'
-import { FREQUENCY_DB_K_SIZES, FrequencyDB_Values } from './constants'
+import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
+
+import { LocalFields } from '@/seqvars/types'
+
+import FrequencyControlRow from './FrequencyControlRow.vue'
 import SmallText from './SmallText.vue'
 
-const model = defineModel<FrequencyDB_Values>({ required: true })
+const model = defineModel<LocalFields<SeqvarsQuerySettingsFrequency>>({
+  required: true,
+})
 </script>
 
 <template>
@@ -24,83 +29,20 @@ const model = defineModel<FrequencyDB_Values>({ required: true })
     <SmallText>hemi</SmallText>
 
     <template
-      v-for="[name, size] in Object.entries(FREQUENCY_DB_K_SIZES) as [
-        keyof typeof model,
+      v-for="[name, key, size] in [
+        ['gnomAd exomes', 'gnomad_exomes', 16],
+        ['gnomAd genomes', 'gnomad_genomes', 126],
+        ['gnomAd mitochondrial', 'gnomad_mitochondrial', null],
+        ['in-house DB', 'inhouse', null],
+        ['HelixMTdb', 'helixmtdb', 197],
+      ] satisfies [
+        string,
+        keyof SeqvarsQuerySettingsFrequency,
         number | null,
       ][]"
       :key="name"
     >
-      <input :id="name" v-model="model[name].checked" type="checkbox" />
-      <label
-        :for="name"
-        style="
-          grid-column: span 4;
-          margin-bottom: 0;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        "
-        >{{ name
-        }}<span v-if="size != null" style="color: #808080">{{ size }}k</span>
-      </label>
-
-      <Input
-        :model-value="model[name].numbers.freq"
-        style="grid-column: 2; margin-right: 8px; width: 52px"
-        @update:model-value="
-          (value) => {
-            if (typeof value == 'number') {
-              model[name].numbers.freq = value
-            } else {
-              delete model[name].numbers.freq
-            }
-          }
-        "
-      >
-        <template #after>%</template></Input
-      >
-      <Input
-        :model-value="model[name].numbers.het"
-        type="number"
-        style="width: 42px"
-        @update:model-value="
-          (value) => {
-            if (typeof value == 'number') {
-              model[name].numbers.het = value
-            } else {
-              delete model[name].numbers.het
-            }
-          }
-        "
-      />
-      <Input
-        :model-value="model[name].numbers.hom"
-        type="number"
-        style="width: 42px"
-        @update:model-value="
-          (value) => {
-            if (typeof value == 'number') {
-              model[name].numbers.hom = value
-            } else {
-              delete model[name].numbers.hom
-            }
-          }
-        "
-      />
-      <Input
-        :model-value="model[name].numbers.hemi"
-        type="number"
-        style="width: 42px"
-        @update:model-value="
-          (value) => {
-            if (typeof value == 'number') {
-              model[name].numbers.hemi = value
-            } else {
-              delete model[name].numbers.hemi
-            }
-          }
-        "
-      />
+      <FrequencyControlRow v-model="model[key]" :name="name" :size="size" />
     </template>
   </div>
 </template>

@@ -1,17 +1,18 @@
 <script setup lang="ts">
+import {
+  SeqvarsQueryPresetsFrequency,
+  SeqvarsQuerySettingsDetails,
+} from '@varfish-org/varfish-api/lib'
+
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
 import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import FrequencyControls from './FrequencyControls.vue'
-import {
-  FREQUENCY_PRESETS,
-  FrequencyModel,
-  FrequencyPresetKey,
-} from './constants'
-import { getFrequencyValueFromPreset, matchesFrequencyPreset } from './utils'
+import { matchesFrequencyPreset } from './utils'
 
-const model = defineModel<FrequencyModel>({ required: true })
+const { presets } = defineProps<{ presets: SeqvarsQueryPresetsFrequency[] }>()
+const model = defineModel<SeqvarsQuerySettingsDetails>({ required: true })
 </script>
 
 <template>
@@ -22,23 +23,28 @@ const model = defineModel<FrequencyModel>({ required: true })
         style="width: 100%; display: flex; flex-direction: column"
       >
         <Item
-          v-for="key in Object.keys(FREQUENCY_PRESETS) as FrequencyPresetKey[]"
-          :key="key"
-          :selected="key === model.preset"
-          @click="() => (model = getFrequencyValueFromPreset(key))"
+          v-for="preset in presets"
+          :key="preset.sodar_uuid"
+          :selected="preset.sodar_uuid === model.frequencypresets"
+          @click="
+            () => {
+              model.frequencypresets = preset.sodar_uuid
+            }
+          "
         >
-          <template #default>{{ key }}</template>
+          <template #default>{{ preset.label }}</template>
           <template #extra>
             <ModifiedIcon
               v-if="
-                model.preset == key && !matchesFrequencyPreset(model, key)
+                preset.sodar_uuid === model.frequencypresets &&
+                !matchesFrequencyPreset(value, preset as never)
               " /></template
         ></Item>
       </div>
 
       <Hr />
 
-      <FrequencyControls v-model="model.values" />
+      <FrequencyControls v-model="model.frequency" />
     </div>
   </CollapsibleGroup>
 </template>

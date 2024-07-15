@@ -34,7 +34,7 @@
     }
   },
   "include": [
-    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js",
+    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.json", "src/**/*.vue", "src/**/*.js",
     "ext/**/*.ts", "ext/**/*.vue", "tests/**/*.json"
   ],
   "exclude": [

@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
+import {
+  SeqvarsPredefinedQuery,
+  SeqvarsQueryPresetsSetVersionDetails,
+} from '@varfish-org/varfish-api/lib'
+
 import FrequencySelect from '@/seqvars/components/FrequencySelect/FrequencySelect.vue'
-import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
+// import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import {
   Affected,
-  GenotypeModel,
   PedigreeMember,
   SexAssignedAtBirth,
 } from '@/seqvars/components/GenotypeSelect/constants'
-import QueryList from '@/seqvars/components/QueryList/QueryList.vue'
-import { Query } from '@/seqvars/components/QueryList/types'
-import QuickPresetsList from '@/seqvars/components/QuickPresetsList/QuickPresetsList.vue'
-import { QuickPreset } from '@/seqvars/components/QuickPresetsList/types'
-import { getFrequencyValueFromPreset } from '../components/FrequencySelect/utils'
-import { getGenotypeValueFromPreset } from '../components/GenotypeSelect/utils'
+// import { getGenotypeValueFromPreset } from '@/seqvars/components/GenotypeSelect/utils'
+import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
+import QueryList from '@/seqvars/components/QueryList.vue'
+import { Query } from '@/seqvars/types'
+
+const { presets } = defineProps<{
+  presets: SeqvarsQueryPresetsSetVersionDetails
+}>()
 
 const queries = ref<Query[]>([])
 const selectedQueryIndex = ref<number | null>(null)
@@ -22,7 +28,7 @@ const selectedQuery = computed({
   get() {
     return selectedQueryIndex.value == null
       ? null
-      : queries.value[selectedQueryIndex.value]
+      : queries.value.at(selectedQueryIndex.value) ?? null
   },
   set(newValue) {
     if (selectedQueryIndex.value == null || newValue == null) {
@@ -50,14 +56,15 @@ const pedigreeMembers = ref<PedigreeMember[]>([
   },
 ])
 
-const getQueryFromPreset = (preset: QuickPreset): Query => ({
-  preset,
-  value: {
-    genotype: getGenotypeValueFromPreset(preset.genotype),
-    frequency: getFrequencyValueFromPreset(preset.frequency),
-  },
-  isRunning: false,
-})
+const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
+  return {
+    predefinedquery: pq.sodar_uuid,
+    frequency: presets.seqvarsquerypresetsfrequency_set.find(
+      (f) => f.sodar_uuid === pq.frequency,
+    )!,
+    frequencypresets: pq.frequency,
+  }
+}
 </script>
 
 <template>
@@ -86,31 +93,43 @@ const getQueryFromPreset = (preset: QuickPreset): Query => ({
       >
         <QueryList
           v-if="queries.length > 0"
+          v-model="selectedQueryIndex"
+          :predefined-queries="presets.seqvarspredefinedquery_set"
           :queries="queries"
-          :selected-index="selectedQueryIndex"
-          @select="(index) => (selectedQueryIndex = index)"
           @remove-query="(index) => queries.splice(index, 1)"
         />
 
-        <QuickPresetsList
-          :value="selectedQuery?.preset"
-          @add-query="(preset) => queries.push(getQueryFromPreset(preset))"
-          @update:value="
-            (preset) => {
-              if (selectedQuery) {
-                selectedQuery = getQueryFromPreset(preset)
+        <PredefinedQueryList
+          :presets="presets.seqvarspredefinedquery_set"
+          :model-value="selectedQuery?.predefinedquery"
+          @update:model-value="
+            (id) => {
+              const preset = presets.seqvarspredefinedquery_set.find(
+                (p) => p.sodar_uuid === id,
+              )
+              if (preset) {
+                selectedQuery = createQuery(preset)
               }
+            }
+          "
+          @add-query="
+            (preset) => {
+              queries.push(createQuery(preset))
+              selectedQueryIndex = queries.length - 1
             }
           "
         />
 
         <template v-if="selectedQuery">
-          <GenotypeSelect
+          <!-- <GenotypeSelect
             v-model="selectedQuery.value.genotype"
             :pedigree-members="pedigreeMembers"
-          />
+          /> -->
 
-          <FrequencySelect v-model="selectedQuery.value.frequency" />
+          <FrequencySelect
+            v-model="selectedQuery"
+            :presets="presets.seqvarsquerypresetsfrequency_set"
+          />
         </template>
       </div>
     </div>
