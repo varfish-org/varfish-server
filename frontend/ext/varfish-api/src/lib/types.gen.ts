@@ -1127,7 +1127,7 @@ export type PatchedSeqvarsPredefinedQuery = {
     included_in_sop?: boolean;
     genotype?: {
     choice?: SeqvarsGenotypePresetChoice | null;
-} | number;
+} | null;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1220,33 +1220,33 @@ export type PatchedSeqvarsQueryPresetsFrequency = {
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_genomes?: {
     enabled?: boolean;
     homozygous?: number | null;
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_mitochondrial?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     helixmtdb?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     inhouse?: {
     enabled?: boolean;
     heterozygous?: number | null;
     homozygous?: number | null;
     hemizygous?: number | null;
     carriers?: number | null;
-} | number;
+} | null;
     readonly sodar_uuid?: string;
     readonly date_created?: string;
     readonly date_modified?: string;
@@ -1373,6 +1373,17 @@ export type PatchedSeqvarsQuerySettingsDetails = {
     readonly date_modified?: string;
     readonly session?: string;
     readonly presetssetversion?: string;
+    readonly predefinedquery?: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    qualitypresets?: string | null;
+    consequencepresets?: string | null;
+    locuspresets?: string | null;
+    frequencypresets?: string | null;
+    phenotypepriopresets?: string | null;
+    variantpriopresets?: string | null;
+    clinvarpresets?: string | null;
     genotype?: SeqvarsQuerySettingsGenotype;
     quality?: SeqvarsQuerySettingsQuality;
     consequence?: SeqvarsQuerySettingsConsequence;
@@ -1790,7 +1801,7 @@ export type SeqvarsPredefinedQuery = {
     included_in_sop?: boolean;
     genotype?: {
     choice?: SeqvarsGenotypePresetChoice | null;
-} | number;
+} | null;
     quality?: string | null;
     frequency?: string | null;
     consequence?: string | null;
@@ -1954,33 +1965,33 @@ export type SeqvarsQueryPresetsFrequency = {
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_genomes?: {
     enabled?: boolean;
     homozygous?: number | null;
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_mitochondrial?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     helixmtdb?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     inhouse?: {
     enabled?: boolean;
     heterozygous?: number | null;
     homozygous?: number | null;
     hemizygous?: number | null;
     carriers?: number | null;
-} | number;
+} | null;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2147,6 +2158,17 @@ export type SeqvarsQuerySettings = {
     readonly date_modified: string;
     readonly session: string;
     readonly presetssetversion: string;
+    readonly predefinedquery: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    readonly qualitypresets: string | null;
+    readonly consequencepresets: string | null;
+    readonly locuspresets: string | null;
+    readonly frequencypresets: string | null;
+    readonly phenotypepriopresets: string | null;
+    readonly variantpriopresets: string | null;
+    readonly clinvarpresets: string | null;
     readonly genotype: string;
     readonly quality: string;
     readonly consequence: string;
@@ -2196,6 +2218,17 @@ export type SeqvarsQuerySettingsDetails = {
     readonly date_modified: string;
     readonly session: string;
     readonly presetssetversion: string;
+    readonly predefinedquery: string;
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null;
+    qualitypresets?: string | null;
+    consequencepresets?: string | null;
+    locuspresets?: string | null;
+    frequencypresets?: string | null;
+    phenotypepriopresets?: string | null;
+    variantpriopresets?: string | null;
+    clinvarpresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotype;
     quality: SeqvarsQuerySettingsQuality;
     consequence: SeqvarsQuerySettingsConsequence;
@@ -2216,33 +2249,33 @@ export type SeqvarsQuerySettingsFrequency = {
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_genomes?: {
     enabled?: boolean;
     homozygous?: number | null;
     heterozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     gnomad_mitochondrial?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     helixmtdb?: {
     enabled?: boolean;
     heteroplasmic?: number | null;
     homoplasmic?: number | null;
     frequency?: number | null;
-} | number;
+} | null;
     inhouse?: {
     enabled?: boolean;
     heterozygous?: number | null;
     homozygous?: number | null;
     hemizygous?: number | null;
     carriers?: number | null;
-} | number;
+} | null;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2459,7 +2492,7 @@ export type VarfishStats = {
     strucvarstats: SampleStrucvarStatsList;
 };
 
-export type strList = Array<(number)>;
+export type strList = Array<(string)>;
 
 export type CasesAnalysisApiCaseanalysisListData = {
     path: {
