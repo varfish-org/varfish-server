@@ -132,7 +132,7 @@ LOCAL_APPS = [
     "varannos.apps.VarannosConfig",
     # Legacy apps - not used anymore!
     "hgmd.apps.HgmdConfig",
-	"ext_gestaltmatcher.apps.ExtGestaltmatcherConfig",
+    "ext_gestaltmatcher.apps.ExtGestaltmatcherConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
