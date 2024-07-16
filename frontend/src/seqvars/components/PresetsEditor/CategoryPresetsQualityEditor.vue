@@ -9,13 +9,15 @@ const model = defineModel({
 </script>
 
 <template>
-  <h4>
-    Quality Presets &raquo;{{ model?.label ?? "UNDEFINED" }}&laquo;
-  </h4>
+  <h4>Quality Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
   <v-skeleton-loader v-if="!model" />
   <v-form v-else>
-    <v-checkbox v-model="model.filter_active" label="Filter Active" hide-details />
+    <v-checkbox
+      v-model="model.filter_active"
+      label="Filter Active"
+      hide-details
+    />
 
     <div class="text-body-1 pb-3">
       Clear the fields below to remove the filter threshold.
@@ -63,5 +65,5 @@ const model = defineModel({
       type="number"
       clearable
     />
-</v-form>
+  </v-form>
 </template>

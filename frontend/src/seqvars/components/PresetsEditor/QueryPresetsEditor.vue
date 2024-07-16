@@ -6,6 +6,7 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
 import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
+import CategoryPresetsFrequencyEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsFrequencyEditor.vue'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 /** Props used in this component. */
@@ -146,13 +147,13 @@ const selectedQualityPresets = computed<SeqvarsQueryPresetsQuality | undefined>(
 )
 
 /** The currently selected frequency presets, if any. */
-const selectedFrequencyPresets = computed<SeqvarsQueryPresetsQuality | undefined>(
-  () => {
-    return selectedPresetSetVersion.value?.seqvarsquerypresetsfrequency_set.find(
-      (item) => item.sodar_uuid === selectedPreset[Category.FREQUENCY],
-    )
-  },
-)
+const selectedFrequencyPresets = computed<
+  SeqvarsQueryPresetsQuality | undefined
+>(() => {
+  return selectedPresetSetVersion.value?.seqvarsquerypresetsfrequency_set.find(
+    (item) => item.sodar_uuid === selectedPreset[Category.FREQUENCY],
+  )
+})
 
 /** Select the first presets in each category. */
 const selectFirstPresets = () => {
@@ -231,7 +232,7 @@ watch(
             />
           </div>
           <div v-else-if="selectedCategory === Category.FREQUENCY">
-            <CategoryPresetsQualityEditor
+            <CategoryPresetsFrequencyEditor
               v-model:model-value="selectedFrequencyPresets"
             />
           </div>
