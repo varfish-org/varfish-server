@@ -2,6 +2,7 @@
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQueryPresetsSetVersionDetails,
+  SeqvarsQueryPresetsQuality,
 } from '@varfish-org/varfish-api/lib'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
 import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
@@ -135,6 +136,24 @@ const selectedPreset = reactive<{ [key in Category]: string | undefined }>({
   [Category.PREDEFINED_QUERIES]: undefined,
 })
 
+/** The currently selected quality presets, if any. */
+const selectedQualityPresets = computed<SeqvarsQueryPresetsQuality | undefined>(
+  () => {
+    return selectedPresetSetVersion.value?.seqvarsquerypresetsquality_set.find(
+      (item) => item.sodar_uuid === selectedPreset[Category.QUALITY],
+    )
+  },
+)
+
+/** The currently selected frequency presets, if any. */
+const selectedFrequencyPresets = computed<SeqvarsQueryPresetsQuality | undefined>(
+  () => {
+    return selectedPresetSetVersion.value?.seqvarsquerypresetsfrequency_set.find(
+      (item) => item.sodar_uuid === selectedPreset[Category.FREQUENCY],
+    )
+  },
+)
+
 /** Select the first presets in each category. */
 const selectFirstPresets = () => {
   for (const category of categories.value) {
@@ -172,7 +191,9 @@ watch(
   />
   <div class="pt-3" v-else>
     <h3 class="pb-3">
-      Presets: &raquo;{{ selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED' }}
+      Presets: &raquo;{{
+        selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED'
+      }}
       {{
         `v${selectedPresetSetVersion?.version_major ?? 'X'}` +
         `.${selectedPresetSetVersion?.version_minor ?? 'Y'}`
@@ -205,9 +226,20 @@ watch(
       <v-col cols="9">
         <v-sheet class="pa-3">
           <div v-if="selectedCategory === Category.QUALITY">
-            <CategoryPresetsQualityEditor v-model:model-value="" />
+            <CategoryPresetsQualityEditor
+              v-model:model-value="selectedQualityPresets"
+            />
           </div>
-          <v-alert :title="`Invalid category ${selectedCategory}`" color="error" v-else />
+          <div v-else-if="selectedCategory === Category.FREQUENCY">
+            <CategoryPresetsQualityEditor
+              v-model:model-value="selectedFrequencyPresets"
+            />
+          </div>
+          <v-alert
+            :title="`Invalid category ${selectedCategory}`"
+            color="error"
+            v-else
+          />
         </v-sheet>
       </v-col>
     </v-row>
