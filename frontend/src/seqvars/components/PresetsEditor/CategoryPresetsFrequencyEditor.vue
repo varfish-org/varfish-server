@@ -1,46 +1,25 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 import { PropType, computed } from 'vue'
+import { GnomadFreqs, MitochondrialFreqs, InhouseFreqs } from './types'
 
 /** The frequency presets to use in this editor. */
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsFrequency>,
 })
 
-interface GnomadFreqs {
-  enabled?: boolean
-  homozygous?: number | null
-  heterozygous?: number | null
-  hemizygous?: number | null
-  frequency?: number | null
-}
 const gnomadExomes = computed<GnomadFreqs>(
   () => model.value?.gnomad_exomes ?? ({} as GnomadFreqs),
 )
 const gnomadGenomes = computed<GnomadFreqs>(
   () => model.value?.gnomad_genomes ?? ({} as GnomadFreqs),
 )
-
-interface MitochondrialFreqs {
-  enabled?: boolean;
-  heteroplasmic?: number | null;
-  homoplasmic?: number | null;
-  frequency?: number | null;
-}
 const gnomadMitochondrial = computed<MitochondrialFreqs>(
   () => model.value?.gnomad_mitochondrial ?? ({} as MitochondrialFreqs),
 )
 const helixMtDb = computed<MitochondrialFreqs>(
   () => model.value?.helixmtdb ?? ({} as MitochondrialFreqs),
 )
-
-interface InhouseFreqs {
-  enabled?: boolean
-  homozygous?: number | null
-  heterozygous?: number | null
-  hemizygous?: number | null
-  carriers?: number | null;
-}
 const inhouse = computed<InhouseFreqs>(
   () => model.value?.inhouse ?? ({} as InhouseFreqs),
 )
@@ -172,9 +151,7 @@ const inhouse = computed<InhouseFreqs>(
               type="number"
             />
           </td>
-          <td class="px-1 text-center text-grey">
-            N/A
-          </td>
+          <td class="px-1 text-center text-grey">N/A</td>
           <td class="px-1">
             <v-text-field
               v-model="gnomadMitochondrial.frequency"
@@ -209,9 +186,7 @@ const inhouse = computed<InhouseFreqs>(
               type="number"
             />
           </td>
-          <td class="px-1 text-center text-grey">
-            N/A
-          </td>
+          <td class="px-1 text-center text-grey">N/A</td>
           <td class="px-1">
             <v-text-field
               v-model="helixMtDb.frequency"

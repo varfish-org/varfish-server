@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsSelect.vue'
 import QueryPresetsEditor from '@/seqvars/components/PresetsEditor/QueryPresetsEditor.vue'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 
 /** Props used in this component. */
 const props = defineProps<{
