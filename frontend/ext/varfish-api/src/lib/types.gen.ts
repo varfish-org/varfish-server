@@ -2203,6 +2203,7 @@ export type SeqvarsResultSet = {
 export type SeqvarsSampleGenotypeChoiceList = Array<{
     sample: string;
     genotype: SeqvarsGenotypeChoice;
+    include_no_call?: boolean;
 }>;
 
 export type SeqvarsSampleQualityFilterList = Array<{

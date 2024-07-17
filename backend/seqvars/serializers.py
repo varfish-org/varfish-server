@@ -666,7 +666,8 @@ class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer)
     recessive_mode = serializers.ChoiceField(
         choices=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_CHOICES,
         default=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED,
-        required=False)
+        required=False,
+    )
 
     sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
 

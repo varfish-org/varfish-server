@@ -7491,6 +7491,11 @@ export const $SeqvarsSampleGenotypeChoiceList = {
             },
             genotype: {
                 '$ref': '#/components/schemas/SeqvarsGenotypeChoice'
+            },
+            include_no_call: {
+                default: false,
+                title: 'Include No Call',
+                type: 'boolean'
             }
         },
         required: ['sample', 'genotype'],
