@@ -63,6 +63,9 @@ var eventer = window[eventMethod]
 var messageEvent = eventMethod == 'attachEvent' ? 'onmessage' : 'message'
 var imageRes
 
+// Get the URL dynamically from Django settings
+const middlewareUrl = window.middlewareUrl
+
 // Listen to message from child window
 eventer(
   messageEvent,
@@ -70,7 +73,7 @@ eventer(
     var key = event.message ? 'jsonRes' : 'data'
     imageRes = event[key]
 
-    if (event.origin == 'http://127.0.0.1:7000') {
+    if (event.origin == middlewareUrl) {
       if (JSON.stringify(imageRes).includes('gene_entrez_id')) {
         variantQueryStore.querySettings.prio_gm = JSON.stringify(imageRes)
       } else if (JSON.stringify(imageRes).includes('ImageName')) {

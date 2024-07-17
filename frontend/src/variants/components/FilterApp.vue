@@ -161,6 +161,10 @@ watch(
   () => props.caseUuid,
   () => refreshStores(),
 )
+
+// Set a global JS variable from Django settings
+window.middlewareUrl = "{{ settings.VARFISH_MIDDLEWARE_URL }}";
+
 </script>
 
 <template>
