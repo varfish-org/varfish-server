@@ -12,8 +12,6 @@ import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 const vigunoClient = new VigunoClient()
 
 const props = defineProps({
-  // eslint-disable-next-line vue/require-default-prop
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   modelValue: {
     type: Array,
@@ -40,16 +38,32 @@ const fetchHpoTerm = async (query) => {
   let results
   if (query.startsWith('HP:')) {
     results = await vigunoClient.resolveHpoTermById(queryArg)
+    results = results.result
   } else if (query.startsWith('OMIM:')) {
-    results = await vigunoClient.resolveOmimTermById(queryArg)
+    const queryArg2 = encodeURIComponent(query.replace('OMIM:', ''))
+    results = await vigunoClient.resolveOmimTermById(queryArg2)
+    results = results.result
   } else {
-    results = await vigunoClient.queryHpoTermsByName(queryArg)
+    let results1 = await vigunoClient.queryHpoTermsByName(queryArg)
+    results1 = results1.result
+    let results2 = await vigunoClient.queryOmimTermsByName(queryArg)
+    results2 = results2.result
+    if (results1.length < 2 && results2.length > 2) {
+      results2 = results2.slice(0, 2 + results1.length)
+    } else if (results2.length < 2 && results1.length > 2) {
+      results1 = results1.slice(0, 2 + results2.length)
+    } else {
+      results1 = results1.slice(0, 2)
+      results2 = results2.slice(0, 2)
+    }
+    results = results1.concat(results2)
   }
-  const data = results.result.map(({ termId, name }) => {
+  const data = results.map(({ termId, omimId, name }) => {
+    const id = termId || omimId
     return {
-      label: `${termId} - ${name}`,
+      label: `${id} - ${name}`,
       value: {
-        term_id: termId,
+        term_id: id,
         name,
       },
     }
@@ -258,3 +272,7 @@ onMounted(() => {
 </style>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

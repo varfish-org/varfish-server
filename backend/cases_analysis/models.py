@@ -1,5 +1,6 @@
 """Models for the ``cases_analysis`` module."""
 
+import typing
 import uuid as uuid_object
 
 from django.contrib.auth import get_user_model
@@ -36,14 +37,14 @@ class CaseAnalysis(BaseModel):
         unique=True,  # for now
     )
 
-    def __str__(self):
-        return f"CaseAnalysis '{self.sodar_uuid}'"
-
     def get_absolute_url(self):
         return reverse(
             "cases_analysis:api-caseanalysis-detail",
             kwargs={"case": self.case.sodar_uuid, "caseanalysis": self.sodar_uuid},
         )
+
+    def __str__(self):
+        return f"CaseAnalysis '{self.sodar_uuid}'"
 
 
 class CaseAnalysisSession(BaseModel):
@@ -60,8 +61,12 @@ class CaseAnalysisSession(BaseModel):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return f"CaseAnalysisSession '{self.sodar_uuid}'"
+    @property
+    def case(self) -> typing.Optional[Case]:
+        try:
+            return self.caseanalysis.case
+        except AttributeError:
+            return None
 
     def get_absolute_url(self):
         return reverse(
@@ -71,6 +76,9 @@ class CaseAnalysisSession(BaseModel):
                 "caseanalysissession": self.sodar_uuid,
             },
         )
+
+    def __str__(self):
+        return f"CaseAnalysisSession '{self.sodar_uuid}'"
 
     class Meta:
         # We constrain to one session per case analysis and user for now.

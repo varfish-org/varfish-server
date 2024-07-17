@@ -14,7 +14,11 @@ const props = defineProps({
 </script>
 
 <template>
-  <div style="position: relative" class="mr-2 mt-2">
+  <div
+    style="position: relative"
+    class="p-2"
+    v-if="querySettings !== null && querySettings !== undefined"
+  >
     <div
       v-if="props.showFiltrationInlineHelp"
       class="alert alert-secondary small p-2 m-2 mb-0"
@@ -91,3 +95,7 @@ const props = defineProps({
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

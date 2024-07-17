@@ -2,6 +2,9 @@
 # strict mode (`-euo pipefail`).
 SHELL := bash -x -euo pipefail
 
+# Bump the memory limit for Node.js to 32 GB.
+NODE_OPTIONS := "--max-old-space-size=32768"
+
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
@@ -36,7 +39,7 @@ lint:
 
 .PHONY: test
 test:
-	npm run -- test:unit --run
+	NODE_OPTIONS=${NODE_OPTIONS} npm run -- test:unit --run
 
 # Tests in the CI are forced into a single thread as the worker only has
 # two cores only and some tests run into timeouts otherwise.
@@ -60,22 +63,21 @@ ci: \
 
 .PHONY: build
 build:
-	NODE_OPTIONS="--max-old-space-size=32768" MODE=development npm run build
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run build
 
 .PHONY: serve
 serve:
-	MODE=development npm run serve
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run serve
 
 .PHONY: serve-public
 serve-public:
-	MODE=development npm run serve-public
+	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run serve-public
 
 .PHONY: openapi-ts
 openapi-ts:
-	mkdir -p src/varfish/api
-	npx openapi-typescript \
-		../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
-		-o src/varfish/api/varfish.d.ts
+	mkdir -p ext/varfish-api/src
+	rm -rf ext/varfish-api/src/lib
+	npx @hey-api/openapi-ts
 
 .PHONY: openapi
 openapi: openapi-ts format lint

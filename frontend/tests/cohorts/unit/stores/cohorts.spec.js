@@ -1,6 +1,7 @@
 import { uuidv4 } from '@/cohorts/helpers'
 import cohortsApi from '@/cohorts/api/cohorts'
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { State, StoreState } from '@/varfish/storeUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
@@ -32,6 +33,9 @@ describe('useCohortsStore', () => {
 
     setActivePinia(createPinia())
     cohortsStore = useCohortsStore()
+    const ctxStore = useCtxStore()
+    ctxStore.csrfToken = csrfToken
+
     uuidv4.mockReturnValue('cohortcase-fake-uuid')
     uuidv4.mockReturnValueOnce('cohortcase3-fake-uuid')
     uuidv4.mockReturnValueOnce('cohortcase4-fake-uuid')
@@ -45,7 +49,6 @@ describe('useCohortsStore', () => {
     expect(cohortsStore.storeState).toBe(State.Initial)
     expect(cohortsStore.serverInteractions).toBe(0)
     expect(cohortsStore.project).toBe(null)
-    expect(cohortsStore.csrfToken).toBe(null)
     expect(cohortsStore.projectsCases).toStrictEqual([])
     expect(cohortsStore.showInlineHelp).toBe(false)
     expect(cohortsStore.complexityMode).toBe('simple')
@@ -72,7 +75,6 @@ describe('useCohortsStore', () => {
       createCohortCaseResponses[1],
     )
     cohortsStore.storeState = StoreState.active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const payload = {
@@ -118,7 +120,6 @@ describe('useCohortsStore', () => {
     cohortsApi.createCohortCase.mockResolvedValue(createCohortCaseResponses)
 
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const updateCases = [
@@ -169,7 +170,6 @@ describe('useCohortsStore', () => {
   test('destroyCohort()', async () => {
     cohortsApi.destroyCohort.mockResolvedValue(createCohortResponse)
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     await cohortsStore.destroyCohort(cohortUuid)
@@ -182,7 +182,6 @@ describe('useCohortsStore', () => {
     cohortsApi.listCohort.mockResolvedValue(listCohortResponse)
 
     cohortsStore.storeState = State.Active
-    cohortsStore.csrfToken = csrfToken
     cohortsStore.project = project
 
     const tableServerOptions = {

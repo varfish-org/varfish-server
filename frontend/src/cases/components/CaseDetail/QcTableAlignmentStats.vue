@@ -148,3 +148,7 @@ const percentDuplicates = (bamstats) => {
     BAM statistics not available.
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

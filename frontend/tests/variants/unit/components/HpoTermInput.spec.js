@@ -11,7 +11,6 @@ describe('HpoTermInput.vue', () => {
   test('hpo term input with help', () => {
     const wrapper = shallowMount(HpoTermInput, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: true,
         hpoTerms: ['HP:0000118'],
       },

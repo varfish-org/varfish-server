@@ -96,13 +96,21 @@ for (const name of Object.keys(effectGroups)) {
 const formState = {
   maxExonDist: computed({
     get() {
-      return props.querySettings.max_exon_dist
+      if (props.querySettings !== null && props.querySettings !== undefined) {
+        return props.querySettings.max_exon_dist
+      } else {
+        return null
+      }
     },
     set(newValue) {
       if (newValue === '') {
         newValue = null
+      } else if (
+        props.querySettings !== null &&
+        props.querySettings !== undefined
+      ) {
+        props.querySettings.max_exon_dist = newValue
       }
-      props.querySettings.max_exon_dist = newValue
     },
   }),
 }
@@ -130,7 +138,11 @@ defineExpose({
 </script>
 
 <template>
-  <div style="position: relative" class="mr-2 mt-2">
+  <div
+    style="position: relative"
+    class="mr-2 mt-2"
+    v-if="props.querySettings !== null && props.querySettings !== undefined"
+  >
     <small
       v-if="props.filtrationComplexityMode != 'advanced'"
       class="alert alert-info"
@@ -154,8 +166,8 @@ defineExpose({
     </div>
 
     <!-- Row 1: Variant Types, Transcript Types, Distance to next Exon -->
-    <div class="row">
-      <div class="col-lg-3 col-md-6 mt-2">
+    <div class="row p-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Variant Types</h5>
         <div
           v-if="props.showFiltrationInlineHelp"
@@ -194,7 +206,7 @@ defineExpose({
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 mt-2 mb-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Transcript Type</h5>
         <div
           v-if="props.showFiltrationInlineHelp"
@@ -234,7 +246,7 @@ defineExpose({
         </div>
       </div>
 
-      <div class="col-lg-3 col-md-6 mt-2 mb-2">
+      <div class="col-lg-3 col-md-6">
         <h5>Distance to next Exon</h5>
 
         <div
@@ -283,8 +295,8 @@ defineExpose({
       </div>
     </div>
     <!-- Row 2: Effect Groups -->
-    <div class="row border-top mt-2">
-      <div class="col-12 pt-2 mb-2">
+    <div class="row p-2">
+      <div class="col-12">
         <h5>Effect Groups</h5>
 
         <div
@@ -322,11 +334,8 @@ defineExpose({
       </div>
     </div>
     <!-- Row 3: Detailed Effects -->
-    <div
-      v-if="props.filtrationComplexityMode === 'advanced'"
-      class="row border-top mt-2"
-    >
-      <div class="col-12 spt-2 mb-2 mt-2">
+    <div v-if="props.filtrationComplexityMode === 'advanced'" class="row p-2">
+      <div class="col-12">
         <h5 class="mb-0">Detailed Effects</h5>
         <div
           v-if="props.showFiltrationInlineHelp"
@@ -377,3 +386,7 @@ defineExpose({
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

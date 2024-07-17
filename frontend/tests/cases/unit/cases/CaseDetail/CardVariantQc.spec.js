@@ -14,7 +14,7 @@ describe('CaseDetail/CardVariantQc.vue', () => {
     const wrapper = makeWrapper(CaseDetailCardVariantQc)
 
     expect(wrapper.html()).matches(/No variant QC info provided/)
-    expect(wrapper.html()).not.matches(/<td class="font-weight-bold">/)
+    expect(wrapper.html()).not.matches(/<td.*class="font-weight-bold">/)
   })
 
   test('test with case detail store data', async () => {
@@ -23,6 +23,6 @@ describe('CaseDetail/CardVariantQc.vue', () => {
     })
 
     expect(wrapper.html()).not.matches(/No variant QC info provided./)
-    expect(wrapper.html()).matches(/<td class="font-weight-bold">/)
+    expect(wrapper.html()).matches(/<td.*class="font-weight-bold">/)
   })
 })

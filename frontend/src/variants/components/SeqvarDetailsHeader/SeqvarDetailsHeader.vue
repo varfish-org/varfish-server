@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import UiToggleMaxButton from '@/varfish/components/UiToggleMaxButton/UiToggleMaxButton.vue'
 
 /** The component's props. */
 const props = defineProps<{
@@ -54,9 +53,6 @@ const seqvarHgvs = computed<string | undefined>(() => {
           {{ seqvar?.userRepr }}
         </small>
       </template>
-    </v-col>
-    <v-col cols="1" class="flex-shrink-0 text-right">
-      <UiToggleMaxButton />
     </v-col>
   </v-row>
 </template>

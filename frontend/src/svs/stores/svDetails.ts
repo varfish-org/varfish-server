@@ -4,6 +4,7 @@ import { ref, reactive } from 'vue'
 import { AnnonarsApiClient } from '@/varfish/api/annonars'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** `SvRecord` is a type alias for easier future interface definition. */
 type SvRecord = any
@@ -13,13 +14,13 @@ type GeneInfo = any
 export const useSvDetailsStore = defineStore('svDetails', () => {
   // store dependencies
 
+  /** Context store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -57,9 +58,7 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
       genesInfos.value = null
 
       // Fetch new details
-      const annonarsClient = new AnnonarsApiClient(
-        csrfToken.value ?? 'undefined-csrf-token',
-      )
+      const annonarsClient = new AnnonarsApiClient(ctxStore.csrfToken)
       const hgncIds = []
       for (const txEffect of svRecord.payload.tx_effects) {
         if (txEffect.gene.hgnc_id) {
@@ -86,25 +85,18 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -117,7 +109,6 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
     // Update store state
@@ -130,7 +121,6 @@ export const useSvDetailsStore = defineStore('svDetails', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     caseUuid,
     storeState,

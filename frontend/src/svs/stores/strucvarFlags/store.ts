@@ -10,6 +10,7 @@ import { bndInsOverlap, reciprocalOverlap } from '@/varfish/helpers'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of StructuralVariant type; to be defined later. */
 type StructuralVariant = any
@@ -40,13 +41,13 @@ export const initialFlagsTemplate = Object.freeze({
 export const useSvFlagsStore = defineStore('svFlags', () => {
   // store dependencies
 
+  /** The context store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -79,25 +80,18 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -110,7 +104,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -118,7 +111,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       svClient.listFlags(caseUuid.value).then((flags) => {
@@ -158,7 +151,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       throw new Error('Case UUID not set')
     }
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     flags.value = null
     storeState.state = State.Fetching
@@ -193,7 +186,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     strucvar: Strucvar,
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
     // Throw error if case UUID has not been set.
     if (!caseUuid.value) {
       throw new Error('Case UUID not set')
@@ -244,7 +237,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const updateFlags = async (
     payload: StructuralVariantFlags,
   ): Promise<StructuralVariantFlags> => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     if (!flags.value) {
       console.warn('Trying to update flags with flags.value being falsy')
@@ -279,7 +272,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    * Delete current flags.
    */
   const deleteFlags = async () => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     if (!flags.value) {
       console.warn('Trying to delete flags with flags.value being falsy')
@@ -355,7 +348,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       throw new Error('projectUuid not set')
     }
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     projectWideVariantFlags.value = []
     storeState.state = State.Fetching
@@ -380,7 +373,6 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

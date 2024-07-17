@@ -5,7 +5,9 @@
     "paths": {
       "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
       "@tests/*": ["./tests/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
+      "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"]
     }
   }
 }

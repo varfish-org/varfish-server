@@ -186,10 +186,6 @@ typings/
 
 ### VisualStudioCode template
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 
 # Provided default Pycharm Run/Debug Configurations should be tracked by git

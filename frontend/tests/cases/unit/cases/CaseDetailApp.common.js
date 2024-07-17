@@ -11,11 +11,10 @@ export const makeWrapper = (
   component,
   initialState = {},
   props = {},
-  appContext,
   documentInnerHtml = null,
 ) => {
   // Define default app context.
-  appContext = appContext ?? {
+  const appContext = {
     csrf_token: 'fake-token',
     project: {
       sodar_uuid: 'fake-uuid',

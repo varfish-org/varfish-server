@@ -44,7 +44,6 @@ import { beforeEach, describe, test /*, vi*/ } from 'vitest'
 //     filterQuery: {
 //       showFiltrationInlineHelp: false,
 //       filtrationComplexityMode: null,
-//       csrfToken: null,
 //       caseUuid: null,
 //       case: null,
 //       querySettingsPresets: null,

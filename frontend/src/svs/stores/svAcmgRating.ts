@@ -11,14 +11,16 @@ import {
   LinearStrucvarImpl,
   Strucvar,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
   // store dependencies
 
+  /** Context store. */
+  const ctxStore = useCtxStore()
+
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | undefined>(undefined)
   /** UUID of the project. */
   const projectUuid = ref<string | undefined>(undefined)
   /** UUID of the case that this store holds annotations for. */
@@ -45,14 +47,12 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
@@ -70,7 +70,6 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
     $reset()
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -78,7 +77,7 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     // Fetch all ratings via API.
     //
@@ -139,7 +138,7 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
     if (!caseUuid.value) {
       throw new Error('No case UUID set')
     }
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -149,7 +148,7 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
       result = await svClient.createAcmgRating(caseUuid.value, strucvar, {
         ...strucvar,
         ...payload,
-        csrfToken: csrfToken.value,
+        csrfToken: ctxStore.csrfToken,
         sodarUuid: resultRowUuid,
       })
 
@@ -175,7 +174,7 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
   const updateAcmgRating = async (
     acmgRating$: AcmgRating,
   ): Promise<AcmgRating> => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     if (!acmgRating.value) {
       throw new Error(
@@ -226,7 +225,7 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
         'Trying to delete acmgRating with acmgRating.value being falsy',
       )
     }
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -264,7 +263,6 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
     storeState.serverInteractions = 0
     storeState.message = null
 
-    csrfToken.value = undefined
     caseUuid.value = undefined
     projectUuid.value = undefined
     strucvar.value = undefined
@@ -275,7 +273,6 @@ export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

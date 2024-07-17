@@ -41,3 +41,7 @@ const autoSizeAll = () => {
   height: calc(1.5em + 0.5rem + 2px);
 }
 </style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -1,25 +1,4 @@
-@use 'vuetify' with (
-  $utilities: (
-    margin: false,
-    margin-x: false,
-    margin-y: false,
-    margin-top: false,
-    margin-bottom: false,
-    margin-left: false,
-    margin-right: false,
-    margin-start: false,
-    margin-end: false,
-    negative-margin: false,
-    negative-margin-x: false,
-    negative-margin-y: false,
-    negative-margin-top: false,
-    negative-margin-bottom: false,
-    negative-margin-left: false,
-    negative-margin-right: false,
-    negative-margin-start: false,
-    negative-margin-end: false,
-  )
-);
+@use 'vuetify';
 
 @font-face {
   font-family: 'Segoe UI';

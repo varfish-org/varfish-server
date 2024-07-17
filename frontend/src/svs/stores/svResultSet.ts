@@ -8,14 +8,16 @@ import { ref, reactive } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { SvClient } from '@/svs/api/strucvarClient'
 import { VariantClient } from '@/variants/api/variantClient'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useSvResultSetStore = defineStore('svResultSet', () => {
-  // no store dependencies
+  // store dependencies
+
+  /** Context store. */
+  const ctxStore = useCtxStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
   const caseUuid = ref<string | null>(null)
   /** The current application state. */
@@ -64,21 +66,17 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
   }
 
   /**
-   * Initialize the store with the given CSRF token.
+   * Initialize the store.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param forceReload Whether to force reload.
    */
-  const initialize = (csrfToken$: string, forceReload: boolean = false) => {
+  const initialize = (forceReload: boolean = false) => {
     // Initialize only once.
     if (!forceReload && storeState.state !== State.Initial) {
       return initializeRes.value
     }
 
     $reset()
-
-    // Set simple properties.
-    csrfToken.value = csrfToken$
 
     // Mark store as active.
     storeState.state = State.Active
@@ -89,7 +87,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
     const responseResultSetList =
       await svClient.listSvQueryResultSet(queryUuid$)
     if (!responseResultSetList.length) {
@@ -103,9 +101,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     const case$ = await variantClient.retrieveCase(caseUuid$)
     if (case$.svqueryresultset) {
       resultSet.value = case$.svqueryresultset
@@ -124,7 +120,7 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
       return
     }
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -163,7 +159,6 @@ export const useSvResultSetStore = defineStore('svResultSet', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     resultRow,
     resultSetUuid,

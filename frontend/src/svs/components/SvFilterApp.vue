@@ -1,4 +1,5 @@
 <script setup>
+import $ from 'jquery'
 import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -9,25 +10,23 @@ import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { updateUserSetting } from '@/varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import SvFilterAppHeader from '@/svs/components/SvFilterApp/Header.vue'
 import SvFilterForm from '@/svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 const props = defineProps({
+  /** The project UUID. */
+  projectUuid: String,
   /** The case UUID. */
   caseUuid: String,
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
 const router = useRouter()
 
+const ctxStore = useCtxStore()
 const svQueryStore = useSvQueryStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
@@ -36,9 +35,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 
 const showDetails = async (event) => {
-  svQueryStore.lastPosition = document.querySelector(
-    'div#sodar-app-container',
-  ).scrollTop
+  svQueryStore.lastPosition = document.querySelector('div#app').scrollTop
   router.push({
     name: 'strucvar-details',
     params: {
@@ -49,22 +46,28 @@ const showDetails = async (event) => {
 }
 
 /** Whether the form is visible. */
-const formVisible = ref(true)
+const filterFormVisible = defineModel('filterFormVisible', {
+  type: Boolean,
+  default: true,
+})
 /** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
+const queryLogsVisible = defineModel('queryLogsVisible', {
+  type: Boolean,
+  default: true,
+})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
   () => svQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (
+      newValue !== undefined &&
+      newValue !== null &&
+      newValue !== oldValue &&
+      ctxStore.csrfToken
+    ) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -75,9 +78,14 @@ watch(
 watch(
   () => svQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
-    if (newValue !== null && newValue !== oldValue) {
+    if (
+      newValue !== null &&
+      newValue !== undefined &&
+      newValue !== oldValue &&
+      ctxStore.csrfToken
+    ) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -113,36 +121,26 @@ const refreshStores = async () => {
   // Reset all stores to avoid artifacts.
   svQueryStore.$reset()
 
-  await caseDetailsStore.initialize(
-    appContext.csrf_token,
-    appContext.project?.sodar_uuid,
-    props.caseUuid,
-  )
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
   Promise.all([
     svFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     svCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
-      props.caseUuid,
-      appContext,
-    ),
+    svQueryStore.initialize(props.projectUuid, props.caseUuid),
     svAcmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    svResultSetStore.initialize(appContext.csrf_token),
+    svResultSetStore.initialize(),
   ]).then(async () => {
-    await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    if (svQueryStore.queryUuid) {
+      await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    }
   })
 }
 
@@ -159,16 +157,13 @@ watch(
 <template>
   <div
     v-if="svQueryStore.storeState.state === State.Active"
-    class="d-flex flex-column h-100"
+    class="d-flex flex-column h-100 mx-3"
   >
-    <!-- title etc. -->
-    <SvFilterAppHeader
-      :form-visible="formVisible"
-      @toggle-form="toggleForm()"
-    />
-
     <!-- query form -->
-    <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
+    <div
+      v-if="filterFormVisible"
+      class="container-fluid sodar-page-container p-0 mb-2"
+    >
       <div
         v-if="svQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -207,6 +202,9 @@ watch(
       v-if="svQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
+      <pre v-show="queryLogsVisible">{{
+        svQueryStore.queryLogs?.join('\n')
+      }}</pre>
       <SvFilterResultsTable @variant-selected="showDetails" />
     </div>
     <div
@@ -224,15 +222,7 @@ watch(
       <strong class="pl-2"
         >{{ QueryStateToText[svQueryStore.queryState] }} ...</strong
       >
-      <button
-        class="ml-3 btn btn-sm btn-info"
-        @click="queryLogsVisible = !queryLogsVisible"
-      >
-        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
-      </button>
-      <pre v-show="queryLogsVisible">{{
-        svQueryStore.queryLogs?.join('\n')
-      }}</pre>
+      <pre>{{ svQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
@@ -266,10 +256,12 @@ watch(
       </div>
     </div>
   </div>
-  <div v-else class="alert alert-info">
+  <div v-else class="alert alert-info m-3">
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

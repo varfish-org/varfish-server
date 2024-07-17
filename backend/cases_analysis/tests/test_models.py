@@ -50,6 +50,10 @@ class TestCaseAnalysisSession(TestCase):
             caseanalysissession.get_absolute_url(),
         )
 
+    def test_property_case(self):
+        caseanalysissession = CaseAnalysisSessionFactory()
+        self.assertEqual(caseanalysissession.case, caseanalysissession.caseanalysis.case)
+
     def test_str(self):
         caseanalysissession = CaseAnalysisSessionFactory()
         self.assertEqual(

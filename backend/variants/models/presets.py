@@ -362,8 +362,14 @@ class QuickPresets(CloneMixin, models.Model):
         help_text="Preset value for category 'flags etc.'",
     )
 
+    #: Position of the preset in the list.
+    position = models.IntegerField(null=False, default=0, help_text="Position in the list")
+
     def get_project(self):
         return self.presetset.project
+
+    class Meta:
+        ordering = ("position",)
 
 
 class PresetSetManager(models.Manager):

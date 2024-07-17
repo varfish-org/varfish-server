@@ -220,125 +220,119 @@ defineExpose({
     </div>
 
     <!-- Row 1: Minimal and Maximal SV Size -->
-    <div class="row">
-      <div class="col mt-2 mb-2">
-        <h5>SV Size</h5>
-        <div
-          v-if="props.showFiltrationInlineHelp"
-          class="alert alert-secondary small mt-2 p-2 mb-2"
-        >
-          <i-mdi-information />
-          Define an optional lower and upper limit of the SVs to return. This
-          setting does not apply to break-ends (BNDs).
-        </div>
-        <div class="form-inline">
-          <label for="minSvSize">Min. SV size</label>
-          <div class="input-group input-group-sm ml-2 mr-4">
-            <input
-              id="minSvSize"
-              v-model.trim.lazy="v$.sv_size_min.$model"
-              type="text"
-              class="form-control"
-              placeholder="min. SV size"
-              :class="{
-                'is-invalid': v$.sv_size_min.$error,
-              }"
-            />
-            <div class="input-group-append">
-              <span class="input-group-text">bp</span>
-            </div>
-            <div
-              v-for="error of v$.sv_size_min.$errors"
-              :key="error.$uid"
-              class="invalid-feedback"
-            >
-              {{ error.$message }}
-            </div>
+    <div class="pl-2 mt-2 mb-2">
+      <h5>SV Size</h5>
+      <div
+        v-if="props.showFiltrationInlineHelp"
+        class="alert alert-secondary small mt-2 p-2 mb-2"
+      >
+        <i-mdi-information />
+        Define an optional lower and upper limit of the SVs to return. This
+        setting does not apply to break-ends (BNDs).
+      </div>
+      <div class="form-inline">
+        <label for="minSvSize">Min. SV size</label>
+        <div class="input-group input-group-sm ml-2 mr-4">
+          <input
+            id="minSvSize"
+            v-model.trim.lazy="v$.sv_size_min.$model"
+            type="text"
+            class="form-control"
+            placeholder="min. SV size"
+            :class="{
+              'is-invalid': v$.sv_size_min.$error,
+            }"
+          />
+          <div class="input-group-append">
+            <span class="input-group-text">bp</span>
           </div>
+          <div
+            v-for="error of v$.sv_size_min.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
+          </div>
+        </div>
 
-          <label for="maxSvSize">Max. SV size</label>
-          <div class="input-group input-group-sm ml-2">
-            <input
-              id="maxSvSize"
-              v-model.trim.lazy="v$.sv_size_max.$model"
-              type="text"
-              class="form-control"
-              placeholder="max. SV size"
-              :class="{
-                'is-invalid': v$.sv_size_max.$error,
-              }"
-            />
-            <div class="input-group-append">
-              <span class="input-group-text">bp</span>
-            </div>
-            <div
-              v-for="error of v$.sv_size_max.$errors"
-              :key="error.$uid"
-              class="invalid-feedback"
-            >
-              {{ error.$message }}
-            </div>
+        <label for="maxSvSize">Max. SV size</label>
+        <div class="input-group input-group-sm ml-2">
+          <input
+            id="maxSvSize"
+            v-model.trim.lazy="v$.sv_size_max.$model"
+            type="text"
+            class="form-control"
+            placeholder="max. SV size"
+            :class="{
+              'is-invalid': v$.sv_size_max.$error,
+            }"
+          />
+          <div class="input-group-append">
+            <span class="input-group-text">bp</span>
+          </div>
+          <div
+            v-for="error of v$.sv_size_max.$errors"
+            :key="error.$uid"
+            class="invalid-feedback"
+          >
+            {{ error.$message }}
           </div>
         </div>
       </div>
     </div>
 
     <!-- Row 2: SV Type -->
-    <div class="row border-top mt-2">
-      <div class="col mt-2 mb-2">
-        <h5>SV Types</h5>
-        <div
-          v-if="props.showFiltrationInlineHelp"
-          class="alert alert-secondary small mt-2 p-2 mb-2"
-        >
-          <i-mdi-information />
-          Limit the resulting SVs to certain types.
-        </div>
-        <div
-          v-for="field in svTypeFields"
-          class="custom-control custom-checkbox custom-control-inline"
-          :title="field.explanation"
-        >
-          <input
-            :id="`sv-type-${field.id}`"
-            v-model="svTypeGroupWrappers[field.id].value"
-            type="checkbox"
-            class="custom-control-input"
-            :indeterminate.prop="svTypeGroupIndeterminates[field.id].value"
-          />
-          <label class="custom-control-label" :for="`sv-type-${field.id}`">
-            {{ field.label }}
-          </label>
-        </div>
+    <div class="p-2">
+      <h5>SV Types</h5>
+      <div
+        v-if="props.showFiltrationInlineHelp"
+        class="alert alert-secondary small mt-2 p-2 mb-2"
+      >
+        <i-mdi-information />
+        Limit the resulting SVs to certain types.
+      </div>
+      <div
+        v-for="field in svTypeFields"
+        class="custom-control custom-checkbox custom-control-inline"
+        :title="field.explanation"
+      >
+        <input
+          :id="`sv-type-${field.id}`"
+          v-model="svTypeGroupWrappers[field.id].value"
+          type="checkbox"
+          class="custom-control-input"
+          :indeterminate.prop="svTypeGroupIndeterminates[field.id].value"
+        />
+        <label class="custom-control-label" :for="`sv-type-${field.id}`">
+          {{ field.label }}
+        </label>
       </div>
     </div>
 
     <!-- Row 3: SV Sub Types -->
-    <div class="row border-top mt-2">
-      <div class="col mt-2 mb-2">
-        <h5>SV Sub Types</h5>
-        <div class="row">
-          <div v-for="group in svSubTypeGroups" class="pl-0 col">
-            <strong>{{ group.title }}</strong>
-            <br />
-            <div
-              v-for="field in group.fields"
-              class="custom-control custom-checkbox custom-control-inline"
-              :title="field.explanation"
+    <div class="p-2">
+      <h5>SV Sub Types</h5>
+      <div class="row">
+        <div v-for="group in svSubTypeGroups" class="col">
+          <strong>{{ group.title }}</strong>
+          <br />
+          <div
+            v-for="field in group.fields"
+            class="custom-control custom-checkbox custom-control-inline"
+            :title="field.explanation"
+          >
+            <input
+              :id="`sv-sub-type-${field.id}`"
+              v-model="svSubTypeWrappers[field.id].value"
+              type="checkbox"
+              class="custom-control-input"
+            />
+            <label
+              class="custom-control-label"
+              :for="`sv-sub-type-${field.id}`"
             >
-              <input
-                :id="`sv-sub-type-${field.id}`"
-                v-model="svSubTypeWrappers[field.id].value"
-                type="checkbox"
-                class="custom-control-input"
-              />
-              <label
-                class="custom-control-label"
-                :for="`sv-sub-type-${field.id}`"
-              >
-                {{ field.label }}
-              </label>
-            </div>
+              {{ field.label }}
+            </label>
           </div>
         </div>
       </div>
@@ -386,3 +380,7 @@ defineExpose({
     </code>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

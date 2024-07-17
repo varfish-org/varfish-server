@@ -18,7 +18,10 @@ const props = defineProps({
 
 <template>
   <!-- eslint-disable -->
-  <div class="mr-2 mt-2">
+  <div
+    class="mr-2 mt-2"
+    v-if="props.querySettings !== null && props.querySettings !== undefined"
+  >
     <div class="form-group">
       <label :for="'dp_het' + idSuffix"> Heterozygous Coverage </label>
       <input
@@ -120,3 +123,7 @@ const props = defineProps({
   </div>
   <!-- eslint-enable -->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -125,4 +125,5 @@ celery:
 
 .PHONY: gen-api-schema
 gen-api-schema:
-	pipenv run $(MANAGE) generateschema | grep -v ^Loading | grep -v '^The ' > ./varfish/tests/drf_openapi_schema/varfish_api_schema.yaml
+	pipenv run $(MANAGE) spectacular \
+		--file ./varfish/tests/drf_openapi_schema/varfish_api_schema.yaml

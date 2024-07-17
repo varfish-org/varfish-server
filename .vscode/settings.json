@@ -1,6 +1,0 @@
-{
-    "search.exclude": {
-        "frontend/coverage/**": true,
-        "frontend/static/**": true
-    }
-}

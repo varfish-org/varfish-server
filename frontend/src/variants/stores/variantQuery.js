@@ -6,6 +6,7 @@ import { apiQueryStateToQueryState, QueryStates } from '@/variants/enums'
 import { copy } from '@/variants/helpers'
 import { previousQueryDetailsToQuerySettings } from '@/variants/stores/variantQuery.funcs'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { defineStore } from 'pinia'
 import { nextTick, reactive, ref } from 'vue'
 import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
@@ -94,9 +95,9 @@ const fetchPresets = async (
     ])
   }
   if (caseObj.presetset) {
-    await fetchUserPresets(csrfToken.value, caseObj.presetset)
+    await fetchUserPresets(csrfToken, caseObj.presetset)
   } else if (defaultPresetSetUuid.value) {
-    await fetchUserPresets(csrfToken.value, defaultPresetSetUuid.value)
+    await fetchUserPresets(csrfToken, defaultPresetSetUuid.value)
   } else {
     await fetchFactoryPresets()
   }
@@ -187,6 +188,8 @@ const FETCH_LOOP_ALLOW_FAILURES = 10 // up to 10 failures
 export const useVariantQueryStore = defineStore('variantQuery', () => {
   // store dependencies
 
+  /** The ctx store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
   /** The variantResultSet store */
@@ -194,8 +197,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref(null)
   /** UUID of the project.  */
   const projectUuid = ref(null)
   /** UUID of the case that this store holds annotations for. */
@@ -214,10 +215,6 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   // more properties from application context
   /** UMD Predictor API token (from app context). */
   const umdPredictorApiToken = ref(null)
-  /** Whether HGMD Pro is enabled (from app contet). */
-  const hgmdProEnabled = ref(null)
-  /** The URL prefix for HGMD Pro (from app context). */
-  const hgmdProPrefix = ref(null)
   /** Whether the GA4GH beacon network widget is enabled (from app context). */
   const ga4ghBeaconNetworkWidgetEnabled = ref(null)
   /** Whether exomiser support is enabled (from app context). */
@@ -283,9 +280,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (queryUuid, failuresSeen = 0) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -337,9 +332,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     previousQueryDetails.value = await variantClient.createQuery(
       caseUuid.value,
       { query_settings: copy(querySettings.value) },
@@ -368,9 +361,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    * Generate the files for download.
    */
   const generateDownloadResults = async (fileType) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     await variantClient
       .generateDownloadResults(fileType, queryUuid.value)
       .then((response) => {
@@ -421,9 +412,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     fileType,
     failuresSeen = 0,
   ) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
     try {
@@ -485,27 +474,14 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
-   * @param appContext An application context object with more information.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
-  const initialize = async (
-    csrfToken$,
-    projectUuid$,
-    caseUuid$,
-    appContext,
-    forceReload = false,
-  ) => {
+  const initialize = async (projectUuid$, caseUuid$, forceReload = false) => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -520,17 +496,17 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     $reset() // clear to avoid artifacts
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
-    // (copy appContext values)
-    umdPredictorApiToken.value = appContext.umd_predictor_api_token
-    hgmdProEnabled.value = appContext.hgmd_pro_enabled
-    hgmdProPrefix.value = appContext.hgmd_pro_prefix
+    // (copy ctxStore values)
+    umdPredictorApiToken.value =
+      ctxStore.userAndGlobalSettings.user_settings.umd_predictor_api_token
     ga4ghBeaconNetworkWidgetEnabled.value =
-      appContext.ga4gh_beacon_network_widget_enabled
-    exomiserEnabled.value = appContext.exomiser_enabled
-    caddEnabled.value = appContext.cadd_enabled
+      ctxStore.userAndGlobalSettings.user_settings.ga4gh_beacon_network_widget_enabled
+    exomiserEnabled.value =
+      ctxStore.userAndGlobalSettings.global_settings.exomiser_enabled
+    caddEnabled.value =
+      ctxStore.userAndGlobalSettings.global_settings.cadd_enabled
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -538,20 +514,18 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
     // trigger the loading of any previous results.
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       // 1. fetch default settings
       fetchDefaultSettings(
-        csrfToken.value,
+        ctxStore.csrfToken,
         caseUuid.value,
         querySettingsPresets,
         querySettings,
       ),
       // 2. fetch previous query UUID
-      fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
+      fetchPreviousQueryUuid(ctxStore.csrfToken, caseUuid.value)
         .then((response) => {
           if (response) {
             // Retrieve query details and extract query settings.
@@ -586,13 +560,13 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
           }
         }),
       // 3. fetch quick presets etc.
-      fetchProjectDefaultPresetSet(csrfToken.value, projectUuid.value).then(
+      fetchProjectDefaultPresetSet(ctxStore.csrfToken, projectUuid.value).then(
         async (result) => {
           defaultPresetSetUuid.value = result.sodar_uuid
             ? result.sodar_uuid
             : null
           await fetchPresets(
-            csrfToken.value,
+            ctxStore.csrfToken,
             caseDetailsStore.caseObj,
             quickPresets,
             categoryPresets,
@@ -601,7 +575,7 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
         },
       ),
       // 4. fetch extra anno fields
-      fetchExtraAnnoFields(csrfToken.value ?? 'undefined-csrf-token').then(
+      fetchExtraAnnoFields(ctxStore.csrfToken ?? 'undefined-csrf-token').then(
         (result) => {
           extraAnnoFields.value = result
         },
@@ -627,11 +601,8 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
 
     showFiltrationInlineHelp.value = false
     filtrationComplexityMode.value = 'simple'
-    csrfToken.value = null
     caseUuid.value = null
     umdPredictorApiToken.value = null
-    hgmdProEnabled.value = null
-    hgmdProPrefix.value = null
     ga4ghBeaconNetworkWidgetEnabled.value = null
     exomiserEnabled.value = null
     caddEnabled.value = null
@@ -666,15 +637,12 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     caseUuid,
     storeState,
     showFiltrationInlineHelp,
     filtrationComplexityMode,
     umdPredictorApiToken,
-    hgmdProEnabled,
-    hgmdProPrefix,
     ga4ghBeaconNetworkWidgetEnabled,
     exomiserEnabled,
     caddEnabled,

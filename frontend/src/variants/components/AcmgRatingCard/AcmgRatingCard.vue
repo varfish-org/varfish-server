@@ -206,11 +206,7 @@ watch(
 )
 onMounted(async () => {
   if (props.seqvar && props.projectUuid && props.caseUuid) {
-    await acmgRatingStore.initialize(
-      'unusedCsrfToken',
-      props.projectUuid,
-      props.caseUuid,
-    )
+    await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
     acmgRatingStore.setSeqvar(props.seqvar)
     resetAcmgRatingToStore()
   }

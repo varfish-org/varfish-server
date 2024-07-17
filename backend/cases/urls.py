@@ -140,6 +140,11 @@ api_urlpatterns = [
         view=views_ajax.PedigreeRelatednessListAjaxView.as_view(),
         name="api-caserelatedness-list",
     ),
+    url(
+        regex=r"^api/user-and-global-settings/?$",
+        view=views_api.UserAndGlobalSettingsView.as_view(),
+        name="api-userandglobalsettings",
+    ),
 ]
 
 

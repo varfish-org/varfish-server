@@ -13,6 +13,7 @@ import {
 } from '@/svs/api/strucvarClient'
 import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
 import { acmgColor, acmgLabel } from './lib'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** This component's props. */
 const props = defineProps<{
@@ -24,13 +25,14 @@ const props = defineProps<{
   strucvar?: Strucvar
   /** UUID of the result row. */
   resultRowUuid: string
-  csrfToken: string
 }>()
 
 const strucvar = computed<LinearStrucvar>(() => {
   return props.strucvar as LinearStrucvar
 })
 
+/** Context store. */
+const ctxStore = useCtxStore()
 /** Store for loading/storing Seqvar ACMG Ratings. */
 const acmgRatingStore = useSvAcmgRatingStore()
 
@@ -127,11 +129,7 @@ watch(
   async () => {
     if (strucvar.value && props.projectUuid && props.caseUuid) {
       if (acmgRatingStore.storeState.state !== State.Active) {
-        await acmgRatingStore.initialize(
-          props.csrfToken,
-          props.projectUuid,
-          props.caseUuid,
-        )
+        await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
       }
       acmgRatingStore.setStrucvar(strucvar.value)
       resetAcmgRatingToStore()
@@ -140,11 +138,7 @@ watch(
 )
 onMounted(async () => {
   if (strucvar.value && props.projectUuid && props.caseUuid) {
-    await acmgRatingStore.initialize(
-      props.csrfToken,
-      props.projectUuid,
-      props.caseUuid,
-    )
+    await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
     acmgRatingStore.setStrucvar(strucvar.value)
     resetAcmgRatingToStore()
   }

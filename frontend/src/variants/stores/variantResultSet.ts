@@ -8,14 +8,16 @@ import { ref, reactive } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { VariantClient } from '@/variants/api/variantClient'
 import { DisplayColumns } from '@/variants/enums'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
-  // no store dependencies
+  // store dependencies
+
+  /** The ctx store. */
+  const ctxStore = useCtxStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
   const caseUuid = ref<string | null>(null)
   /** The current application state. */
@@ -80,13 +82,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   /**
    * Initialize the store with the given CSRF token.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param forceReload Whether to force reload.
    */
-  const initialize = async (
-    csrfToken$: string,
-    forceReload: boolean = false,
-  ) => {
+  const initialize = async (forceReload: boolean = false) => {
     // Initialize only once.
     if (!forceReload && storeState.state !== State.Initial) {
       return initializeRes.value
@@ -96,12 +94,9 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
     // Load extra annotation fields, if necessary.
     if (!extraAnnoFields.value) {
-      const variantClient = new VariantClient(csrfToken$)
+      const variantClient = new VariantClient(ctxStore.csrfToken)
       extraAnnoFields.value = await variantClient.fetchExtraAnnoFields()
     }
-
-    // Set simple properties.
-    csrfToken.value = csrfToken$
 
     // Mark store as active.
     storeState.state = State.Active
@@ -128,9 +123,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
   const loadResultSetViaQuery = async (queryUuid$: string) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     const responseResultSetList =
       await variantClient.listQueryResultSet(queryUuid$)
     if (!responseResultSetList.length) {
@@ -145,9 +138,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
   const loadResultSetViaCase = async (caseUuid$: any) => {
     // Once query is finished, load results, if still for the same query.
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
     const case$ = await variantClient.retrieveCase(caseUuid$)
     if (case$.smallvariantqueryresultset) {
       resultSet.value = case$.smallvariantqueryresultset
@@ -167,9 +158,7 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
       return
     }
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -214,7 +203,6 @@ export const useVariantResultSetStore = defineStore('variantResultSet', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     extraAnnoFields,
     resultRow,

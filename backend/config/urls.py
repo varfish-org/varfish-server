@@ -3,13 +3,16 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles import finders
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
+from django.views import View
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from projectroles.views import HomeView as ProjectRolesHomeView
 from sentry_sdk import last_event_id
 
@@ -79,7 +82,6 @@ urlpatterns += [
     url(r"^manual/", include("docs.urls")),
     url(r"^su/", include("django_su.urls")),
     url(r"^cohorts/", include("cohorts.urls")),
-    url(r"^clinvar-export/", include("clinvar_export.urls")),
     url(r"^beaconsite/", include("beaconsite.urls")),
     url(r"^genepanels/", include("genepanels.urls")),
     url(r"^vueapp/", include("varfish.vueapp.urls")),
@@ -88,13 +90,24 @@ urlpatterns += [
     url(r"^seqmeta/", include("seqmeta.urls")),
     url(r"^cases-import/", include("cases_import.urls")),
     url(r"^cases-qc/", include("cases_qc.urls")),
+    url(r"^cases-analysis/", include("cases_analysis.urls")),
+    url(r"^seqvars/", include("seqvars.urls")),
 ]
 
-# Explicitely require v2 analysis endpoints to be enabled.
-if settings.VARFISH_GEN2_ANALYSIS:
-    urlpatterns += [
-        url(r"^cases-analysis/", include("cases_analysis.urls")),
-    ]
+# URL Patterns for DRF Spectacular
+# ------------------------------------------------------------------------------
+
+urlpatterns += [
+    # Schema
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # UI
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+]
 
 
 # URL Patterns for Proxies
@@ -160,6 +173,28 @@ urlpatterns += [
 # ------------------------------------------------------------------------------
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# URL Patterns for Serving Frontend
+# ------------------------------------------------------------------------------
+
+if settings.SERVE_FRONTEND:
+
+    class ServeStringView(View):
+        def get(self, *args, **kwargs):
+            _ = args
+            _ = kwargs
+            file_path = finders.find("vueapp/index.html")
+            with open(file_path, "rt") as inputf:
+                content = inputf.read()
+                return HttpResponse(content, content_type="text/html")
+
+    urlpatterns += [
+        url(
+            r"^-.*",
+            ServeStringView.as_view(),
+            name="vueapp-entrypoint",
+        )
+    ]
 
 # URL Patterns for Development
 # ------------------------------------------------------------------------------
