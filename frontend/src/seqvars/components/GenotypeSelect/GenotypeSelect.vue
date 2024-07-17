@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits } from 'vue'
+import { defineEmits, ref } from 'vue'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import {
@@ -17,11 +17,14 @@ import {
   GenotypePresetKey,
   PedigreeMember,
 } from './constants'
+import { type RecessiveModeEnum } from '@varfish-org/varfish-api/lib'
 
 const { pedigreeMembers } = defineProps<{ pedigreeMembers: PedigreeMember[] }>()
 
 const model = defineModel<GenotypeModel>({ required: true })
 defineEmits(['changePreset'])
+
+const recessiveMode = ref<RecessiveModeEnum>('disabled')
 </script>
 
 <template>
@@ -54,34 +57,55 @@ defineEmits(['changePreset'])
 
       <Hr />
 
-      <div
-        v-for="(member, index) in pedigreeMembers"
-        :key="index"
-        style="display: flex; flex-direction: row; align-items: start; gap: 4px"
-      >
-        <input
-          :id="member.name"
-          v-model="model.value[member.name].checked"
-          type="checkbox"
-          style="margin-top: 6px"
-        />
-        <div style="display: flex; flex-direction: column">
-          <label
-            :for="member.name"
-            style="
-              margin-bottom: 0;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-            "
-            ><span>{{ member.name }}</span>
+      <v-select model="recessiveMode" label="Recessive mode" :items="['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive']" />
 
-            <SexAffectedIcon
-              :sex="member.sexAssignedAtBirth"
-              :affected="member.affected"
-            />
-          </label>
-          <InheritanceModeControls v-model="model.value[member.name].mode" />
+      <Hr />
+
+      <div v-if="recessiveMode === 'disabled'">
+        <h4>Genotype Pattern Mode</h4>
+        <div
+          v-for="(member, index) in pedigreeMembers"
+          :key="index"
+          style="display: flex; flex-direction: row; align-items: start; gap: 4px"
+        >
+          <input
+            :id="member.name"
+            v-model="model.value[member.name].checked"
+            type="checkbox"
+            style="margin-top: 6px"
+          />
+          <div style="display: flex; flex-direction: column">
+            <label
+              :for="member.name"
+              style="
+                margin-bottom: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+              ><span>{{ member.name }}</span>
+
+              <SexAffectedIcon
+                :sex="member.sexAssignedAtBirth"
+                :affected="member.affected"
+              />
+            </label>
+            <InheritanceModeControls v-model="model.value[member.name].mode" />
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <h4>Recessive Mode</h4>
+        <div
+          v-for="(member, index) in pedigreeMembers"
+          :key="index"
+          style="display: flex; flex-direction: row; align-items: start; gap: 4px"
+        >
+          <div>
+            <label>{{ member.name }}</label>
+            <v-checkbox label="recessive index" /><!-- exactly one individual index -->
+            <v-checkbox label="parent" /><!-- at most two are parent, parent/index rule mutually exclusive -->
+          </div>
         </div>
       </div>
     </div>
