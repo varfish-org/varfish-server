@@ -2,7 +2,6 @@ from enum import Enum
 import typing
 import uuid as uuid_object
 
-import django
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
@@ -797,11 +796,9 @@ class SeqvarsGenotypeChoice(str, Enum):
     #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
     HOM = "hom"
     #: Non-homozygous.
-    NON_HOM = "non-hom"
+    NON_HOM = "non_hom"
     #: Variant.
     VARIANT = "variant"
-    #: Compound heterozygous index.
-    COMPHET_INDEX = "comphet_index"
     #: Recessive index.
     RECESSIVE_INDEX = "recessive_index"
     #: Recessive parent.
@@ -827,6 +824,27 @@ class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
         SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="genotype"
+    )
+
+    RECESSIVE_MODE_DISABLED = "disabled"
+    RECESSIVE_MODE_COMPHET_RECESSIVE = "comphet_recessive"
+    RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
+    RECESSIVE_MODE_RECESSIVE = "recessive"
+
+    RECESSIVE_MODE_CHOICES = (
+        (RECESSIVE_MODE_DISABLED, RECESSIVE_MODE_DISABLED),
+        (RECESSIVE_MODE_COMPHET_RECESSIVE, RECESSIVE_MODE_COMPHET_RECESSIVE),
+        (RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE, RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE),
+        (RECESSIVE_MODE_RECESSIVE, RECESSIVE_MODE_RECESSIVE),
+    )
+
+    #: The recessive mode.
+    recessive_mode = models.CharField(
+        max_length=128,
+        choices=RECESSIVE_MODE_CHOICES,
+        default=RECESSIVE_MODE_DISABLED,
+        null=False,
+        blank=False,
     )
 
     #: Per-sample genotype choice.

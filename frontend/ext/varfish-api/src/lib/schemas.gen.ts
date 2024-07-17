@@ -4294,118 +4294,13 @@ export const $PatchedTargetBedFile = {
     }
 } as const;
 
-export const $Project = {
-    type: 'object',
-    description: 'Serializer for the Project model',
-    properties: {
-        title: {
-            type: 'string',
-            description: 'Project title',
-            maxLength: 255
-        },
-        type: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/TypeEnum'
-                }
-            ],
-            description: `Type of project ("CATEGORY", "PROJECT")
-
-* \`CATEGORY\` - Category
-* \`PROJECT\` - Project`
-        },
-        parent: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Project SODAR UUID',
-            nullable: true
-        },
-        description: {
-            type: 'string',
-            nullable: true,
-            description: 'Short project description',
-            maxLength: 512
-        },
-        readme: {
-            type: 'string'
-        },
-        public_guest_access: {
-            type: 'boolean',
-            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
-        },
-        archive: {
-            type: 'boolean',
-            readOnly: true
-        },
-        owner: {
-            type: 'string',
-            writeOnly: true
-        },
-        roles: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/RoleAssignmentNestedList'
-            },
-            readOnly: true
-        },
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        }
-    },
-    required: ['archive', 'parent', 'roles', 'sodar_uuid', 'title']
-} as const;
-
-export const $ProjectInvite = {
-    type: 'object',
-    description: 'Serializer for the ProjectInvite model',
-    properties: {
-        email: {
-            type: 'string',
-            format: 'email',
-            description: 'Email address of the person to be invited',
-            maxLength: 254
-        },
-        project: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Project SODAR UUID',
-            readOnly: true
-        },
-        role: {
-            type: 'string',
-            description: 'Name of role'
-        },
-        issuer: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SODARUser'
-                }
-            ],
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of invite creation'
-        },
-        date_expire: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'Expiration of invite as DateTime'
-        },
-        message: {
-            type: 'string',
-            description: 'Message to be included in the invite email (optional)'
-        },
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        }
-    },
-    required: ['date_created', 'date_expire', 'email', 'issuer', 'project', 'role', 'sodar_uuid']
+export const $RecessiveModeEnum = {
+    enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
+    type: 'string',
+    description: `* \`disabled\` - disabled
+* \`comphet_recessive\` - comphet_recessive
+* \`homozygous_recessive\` - homozygous_recessive
+* \`recessive\` - recessive`
 } as const;
 
 export const $RegionCoverageStats = {
@@ -5437,7 +5332,7 @@ export const $SeqvarsColumnConfigList = {
 
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non-hom', 'variant', 'comphet_index', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -7529,6 +7424,14 @@ export const $SeqvarsQuerySettingsGenotype = {
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RecessiveModeEnum'
+                }
+            ],
+            default: 'disabled'
         },
         sample_genotype_choices: {
             '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'

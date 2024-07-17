@@ -1425,70 +1425,12 @@ export type PatchedTargetBedFile = {
 };
 
 /**
- * Serializer for the Project model
+ * * `disabled` - disabled
+ * * `comphet_recessive` - comphet_recessive
+ * * `homozygous_recessive` - homozygous_recessive
+ * * `recessive` - recessive
  */
-export type Project = {
-    /**
-     * Project title
-     */
-    title: string;
-    /**
-     * Type of project ("CATEGORY", "PROJECT")
-     *
-     * * `CATEGORY` - Category
-     * * `PROJECT` - Project
-     */
-    type?: TypeEnum;
-    /**
-     * Project SODAR UUID
-     */
-    parent: string | null;
-    /**
-     * Short project description
-     */
-    description?: string | null;
-    readme?: string;
-    /**
-     * Allow public guest access for the project, also including unauthenticated users if allowed on the site
-     */
-    public_guest_access?: boolean;
-    readonly archive: boolean;
-    owner?: string;
-    readonly roles: Array<RoleAssignmentNestedList>;
-    readonly sodar_uuid: string;
-};
-
-/**
- * Serializer for the ProjectInvite model
- */
-export type ProjectInvite = {
-    /**
-     * Email address of the person to be invited
-     */
-    email: string;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project: string;
-    /**
-     * Name of role
-     */
-    role: string;
-    readonly issuer: SODARUser;
-    /**
-     * DateTime of invite creation
-     */
-    readonly date_created: string;
-    /**
-     * Expiration of invite as DateTime
-     */
-    readonly date_expire: string;
-    /**
-     * Message to be included in the invite email (optional)
-     */
-    message?: string;
-    readonly sodar_uuid: string;
-};
+export type RecessiveModeEnum = 'disabled' | 'comphet_recessive' | 'homozygous_recessive' | 'recessive';
 
 /**
  * Per-region QC stats for alignment.
@@ -1780,7 +1722,7 @@ export type SeqvarsColumnConfigList = Array<{
 /**
  * Store genotype choice of a ``SampleGenotype``.
  */
-export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non-hom' | 'variant' | 'comphet_index' | 'recessive_index' | 'recessive_parent';
+export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_parent';
 
 /**
  * Presets value for the chosen genotype.
@@ -2290,6 +2232,7 @@ export type SeqvarsQuerySettingsGenotype = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+    recessive_mode?: RecessiveModeEnum;
     sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
 };
 
