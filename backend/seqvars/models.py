@@ -795,6 +795,8 @@ class SeqvarsGenotypeChoice(str, Enum):
     HET = "het"
     #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
     HOM = "hom"
+    #: Non-heterozygous.
+    NON_HET = "non_het"
     #: Non-homozygous.
     NON_HOM = "non_hom"
     #: Variant.
