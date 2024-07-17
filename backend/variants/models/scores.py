@@ -1,5 +1,6 @@
 """Code supporting scoring of variants by pathogenicity or phenotype."""
 
+import json
 import re
 import time
 
@@ -9,11 +10,13 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.forms import model_to_dict
 from django.utils.html import strip_tags
+import pandas as pd
 from projectroles.app_settings import AppSettingAPI
 import requests
 from sqlalchemy.exc import NoSuchColumnError
 import wrapt
 
+from ext_gestaltmatcher.models import SmallVariantQueryGestaltMatcherScores
 from varfish.utils import JSONField
 
 _app_settings = AppSettingAPI()
@@ -271,6 +274,60 @@ class RowWithPhenotypeScore(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithGestaltMatcherScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for Gestalt Matcher score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_gm_rank = None
+        self._self_gm_score = -1
+
+    @property
+    def gm_rank(self):
+        return self._self_gm_rank
+
+    @property
+    def gm_score(self):
+        return self._self_gm_score
+
+    def __getitem__(self, key):
+        if key == "gm_rank":
+            return self.gm_rank
+        elif key == "gm_score":
+            return self.gm_score
+        elif key == "pedia_score":
+            return
+        elif key == "pedia_rank":
+            return
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
+class RowWithPediaScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for PEDIA score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_pedia_rank = None
+        self._self_pedia_score = -1
+
+    @property
+    def pedia_rank(self):
+        return self._self_pedia_rank
+
+    @property
+    def pedia_score(self):
+        return self._self_pedia_score
+
+    def __getitem__(self, key):
+        if key == "pedia_rank":
+            return self.pedia_rank
+        elif key == "pedia_score":
+            return self.pedia_score
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 class RowWithTranscripts(wrapt.ObjectProxy):
     """Wrap a result row and add members for phenotype score and rank."""
 
@@ -327,6 +384,60 @@ def annotate_with_phenotype_scores(rows, gene_scores):
             prev_gene_score = row.phenotype_score
             prev_gene = row.entrez_id
         row._self_phenotype_rank = rank
+    return rows
+
+
+def annotate_with_gm_scores(rows, gm_scores):
+    """Annotate the results in ``rows`` with Gestalt Matcher scores stored in ``small_variant_query``.
+
+    Variants are ranked by the Gestalt Matcher scores, automatically ranking them by gene.
+    """
+    rows = [RowWithGestaltMatcherScore(row) for row in rows]
+    for row in rows:
+        row._self_gm_score = gm_scores.get(row.entrez_id, 0)
+    rows.sort(key=lambda row: (row._self_gm_score, row.entrez_id or ""), reverse=True)
+    # Re-compute ranks
+    prev_gene = rows[0].entrez_id if rows else None
+    prev_gm_score = rows[0].gm_score if rows else None
+    rank = 1
+    same_score_count = 1
+    for row in rows:
+        if row.entrez_id != prev_gene:
+            if prev_gm_score == row.gm_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            prev_gm_score = row.gm_score
+            prev_gene = row.entrez_id
+        row._self_gm_rank = rank
+    return rows
+
+
+def annotate_with_pedia_scores(rows, pedia_scores):
+    """Annotate the results in ``rows`` with PEDIA scores stored in ``small_variant_query``.
+
+    Variants are ranked by the PEDIA scores, automatically ranking them by gene.
+    """
+    rows = [RowWithPediaScore(row) for row in rows]
+    for row in rows:
+        row._self_pedia_score = pedia_scores.get(row.entrez_id, -1)
+    rows.sort(key=lambda row: (row._self_pedia_score, row.entrez_id or ""), reverse=True)
+    # Re-compute ranks
+    prev_gene = rows[0].entrez_id if rows else None
+    prev_pedia_score = rows[0].pedia_score if rows else None
+    rank = 1
+    same_score_count = 1
+    for row in rows:
+        if row.entrez_id != prev_gene:
+            if prev_pedia_score == row.pedia_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            prev_pedia_score = row.pedia_score
+            prev_gene = row.entrez_id
+        row._self_pedia_rank = rank
     return rows
 
 
@@ -546,6 +657,81 @@ def unroll_extra_annos_result(rows, fields):
     return rows_
 
 
+def generate_pedia_input(self, pathoEnabled, prioEnabled, gmEnabled, queryId, case_name, results):
+    pathogenicity_scores = None
+    if pathoEnabled:
+        pathogenicity_scores = {
+            (row.chromosome, row.start, row.reference, row.alternative): row.score
+            for row in SmallVariantQueryVariantScores.objects.filter(query__sodar_uuid=queryId)
+        }
+    phenotype_scores = None
+    if prioEnabled:
+        phenotype_scores = {
+            row.gene_id: row.score
+            for row in SmallVariantQueryGeneScores.objects.filter(query__sodar_uuid=queryId)
+            if row.gene_id
+        }
+    gm_scores = None
+    if gmEnabled:
+        gm_scores = {
+            row.gene_id: 0 if row.score == 0 else row.score
+            for row in SmallVariantQueryGestaltMatcherScores.objects.filter(
+                query__sodar_uuid=queryId
+            )
+            if row.gene_id
+        }
+
+    payloadList = []
+    """Read and json object by reading ``results`` ."""
+    for line in results:
+        payload = dict()
+
+        if line["entrez_id"]:
+            if line["symbol"]:
+                payload["gene_name"] = line["symbol"]
+            else:
+                payload["gene_name"] = " "
+            payload["gene_id"] = line["entrez_id"]
+
+        if phenotype_scores and line.entrez_id:
+            payload["cada_score"] = phenotype_scores.get(line.entrez_id, -1)
+
+        if pathogenicity_scores:
+            payload["cadd_score"] = pathogenicity_scores.get(
+                (line.chromosome, line.start, line.reference, line.alternative), 0.0
+            )
+
+        if gm_scores and line.entrez_id:
+            payload["gestalt_score"] = (
+                0
+                if gm_scores.get(line.entrez_id, 0) == float("nan")
+                else gm_scores.get(line.entrez_id, 0)
+            )
+
+        payload["label"] = False
+
+        payloadList.append(payload)
+
+    df = pd.DataFrame(payloadList)
+
+    if "cadd_score" in df:
+        # Sort the DataFrame based on the 'cadd_score' column in descending order
+        df_sorted = df.sort_values(by="cadd_score", ascending=False)
+
+        # Drop duplicates in the 'gene_name' column, keeping the first occurrence (highest CADD score)
+        df_no_duplicates = df_sorted.drop_duplicates(subset="gene_name", keep="first")
+
+        if case_name.startswith("F_"):
+            name = case_name[2:]  # Remove the first two characters ("F_")
+        else:
+            name = case_name
+
+        scores = {"case_name": name, "genes": df_no_duplicates.to_dict(orient="records")}
+        return scores
+
+    return {"case_name": "case", "genes": df.to_dict(orient="records")}
+
+
 def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm, logging=lambda text: True):
     """Perform gene prioritization query.
 
@@ -560,6 +746,21 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm, logging=lambda text:
     else:
         logging("Prioritize genes with Exomiser ...")
         yield from prio_exomiser(entrez_ids, hpo_terms, prio_algorithm)
+
+
+def prioritize_genes_gm(gm_response, logging=lambda text: True):
+    """Perform gene prioritization query.
+
+    Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
+    """
+    try:
+        res = json.loads(gm_response)
+    except requests.ConnectionError:
+        raise ConnectionError("ERROR: GestaltMatcher Server not responding.")
+    for entry in res:
+        yield entry["gene_entrez_id"], entry["gene_name"], (
+            1.3 - entry["distance"]
+        ), "GestaltMatcher"
 
 
 def prio_exomiser(entrez_ids, hpo_terms, prio_algorithm):
@@ -614,10 +815,45 @@ def prio_cada(hpo_terms):
             )
     except requests.ConnectionError:
         raise ConnectionError(
-            "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_API_URL)
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_REST_API_URL)
         )
     for entry in res.json():
         yield entry["geneId"].split(":")[1], entry["geneSymbol"], entry["score"], "CADA"
+
+
+def prioritize_genes_pedia(
+    self, pathoEnabled, prioEnabled, gmEnabled, caseId, case_name, result, logging
+):
+    inputJson = generate_pedia_input(
+        self, pathoEnabled, prioEnabled, gmEnabled, caseId, case_name, result
+    )
+    yield from get_pedia_scores(inputJson)
+
+
+def get_pedia_scores(inputJson):
+    try:
+        res = requests.post(
+            settings.VARFISH_PEDIA_REST_API_URL,
+            json=inputJson,
+        )
+
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}. ".format(
+                    res.status_code,
+                    strip_tags(
+                        re.sub("<head>.*</head>", "", res.text),
+                    ),
+                )
+            )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_PEDIA_REST_API_URL)
+        )
+
+    for entry in res.json():
+        gene_name = entry["gene_name"] if entry["gene_name"] else ""
+        yield entry["gene_id"], gene_name, entry["pedia_score"]
 
 
 class VariantScoresFactory:

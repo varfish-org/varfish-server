@@ -222,7 +222,11 @@ class FormDataFactory(FormDataFactoryBase):
     prio_enabled: bool = False
     prio_algorithm: str = ""
     prio_hpo_terms: str = ""
+    prio_gm: str = ""
+    photo_file: str = ""
     patho_enabled: bool = False
+    gm_enabled: bool = False
+    pedia_enabled: bool = False
     patho_score: str = ""
     file_type: str = "tsv"
     export_flags: bool = True

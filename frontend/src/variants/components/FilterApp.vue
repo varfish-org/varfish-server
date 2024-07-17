@@ -218,6 +218,13 @@ watch(
         :prio-enabled="
           variantQueryStore.previousQueryDetails.query_settings.prio_enabled
         "
+        :gm-enabled="
+          variantQueryStore.previousQueryDetails.query_settings.gm_enabled
+        "
+        :pedia-enabled="
+          variantQueryStore.previousQueryDetails.query_settings.pedia_enabled
+        "
+        :prio-gm="variantQueryStore.previousQueryDetails.query_settings.prio_gm"
         @variant-selected="showDetails"
       />
     </div>

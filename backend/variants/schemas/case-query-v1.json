@@ -1261,6 +1261,42 @@
         }
       ]
     },
+    "prio_gm": {
+      "$id": "#/properties/prio_gm",
+      "type": "string",
+      "title": "The prio_gm schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "gm_enabled": {
+      "$id": "#/properties/gm_enabled",
+      "type": "boolean",
+      "title": "Enable face-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "pedia_enabled": {
+      "$id": "#/properties/pedia_enabled",
+      "type": "boolean",
+      "title": "Enable PEDIA-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "photo_file": {
+      "$id": "#/properties/photo_file",
+      "type": ["string", "null"],
+      "title": "photo_file for prioritization of variants",
+      "description": " ",
+      "default": "Empty"
+    },
     "recessive_mode": {
       "anyOf": [
         {
