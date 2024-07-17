@@ -4141,6 +4141,15 @@ export const $PatchedTargetBedFile = {
     }
 } as const;
 
+export const $RecessiveModeEnum = {
+    enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
+    type: 'string',
+    description: `* \`disabled\` - disabled
+* \`comphet_recessive\` - comphet_recessive
+* \`homozygous_recessive\` - homozygous_recessive
+* \`recessive\` - recessive`
+} as const;
+
 export const $RegionCoverageStats = {
     description: 'Per-region QC stats for alignment.',
     properties: {
@@ -5119,7 +5128,7 @@ export const $SeqvarsColumnConfigList = {
 
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non-hom', 'variant', 'comphet_index', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -7211,6 +7220,14 @@ export const $SeqvarsQuerySettingsGenotype = {
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RecessiveModeEnum'
+                }
+            ],
+            default: 'disabled'
         },
         sample_genotype_choices: {
             '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'

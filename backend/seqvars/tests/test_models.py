@@ -31,6 +31,7 @@ from seqvars.models import (
     SeqvarsQuerySettingsVariantPrio,
     SeqvarsResultRow,
     SeqvarsResultSet,
+    SeqvarsSampleGenotypeChoice,
 )
 from seqvars.tests.factories import (
     SampleGenotypeChoiceFactory,
@@ -71,13 +72,26 @@ class TestSeqvarsCaseGenotypeChoice(TestCase):
                 "ref",
                 "het",
                 "hom",
-                "non-hom",
+                "non_hom",
                 "variant",
-                "comphet_index",
                 "recessive_index",
                 "recessive_parent",
             ],
             SeqvarsGenotypeChoice.values(),
+        )
+
+
+class TestSeqvarsSampleGenotypeChoice(TestCase):
+
+    def test_values(self):
+        self.assertEqual(
+            [
+                "disabled",
+                "comphet_recessive",
+                "homozygous_recessive",
+                "recessive",
+            ],
+            SeqvarsSampleGenotypeChoice.values(),
         )
 
 

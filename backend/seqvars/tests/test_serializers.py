@@ -837,6 +837,7 @@ class TestSeqvarsQuerySettingsGenotypeSerializer(TestCase):
             # QuerySettingsBase
             "querysettings",
             # GenotypeSettingsBase
+            "recessive_mode",
             "sample_genotype_choices",
         ]
         expected = model_to_dict(

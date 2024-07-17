@@ -7684,6 +7684,18 @@ components:
 
             * `grch37` - GRCh37
             * `grch38` - GRCh38
+    RecessiveModeEnum:
+      enum:
+      - disabled
+      - comphet_recessive
+      - homozygous_recessive
+      - recessive
+      type: string
+      description: |-
+        * `disabled` - disabled
+        * `comphet_recessive` - comphet_recessive
+        * `homozygous_recessive` - homozygous_recessive
+        * `recessive` - recessive
     RegionCoverageStats:
       description: Per-region QC stats for alignment.
       properties:
@@ -8506,9 +8518,8 @@ components:
       - ref
       - het
       - hom
-      - non-hom
+      - non_hom
       - variant
-      - comphet_index
       - recessive_index
       - recessive_parent
       title: SeqvarsGenotypeChoice
@@ -10109,6 +10120,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        recessive_mode:
+          allOf:
+          - $ref: '#/components/schemas/RecessiveModeEnum'
+          default: disabled
         sample_genotype_choices:
           $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
       required:
