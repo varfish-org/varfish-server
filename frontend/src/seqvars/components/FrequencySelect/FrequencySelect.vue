@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import {
-  SeqvarsQueryPresetsFrequency,
-  SeqvarsQuerySettingsDetails,
-} from '@varfish-org/varfish-api/lib'
+import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
 import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
+import { Query } from '@/seqvars/types'
+import { copy } from '@/varfish/helpers'
+
 import FrequencyControls from './FrequencyControls.vue'
 import { matchesFrequencyPreset } from './utils'
 
 const { presets } = defineProps<{ presets: SeqvarsQueryPresetsFrequency[] }>()
-const model = defineModel<SeqvarsQuerySettingsDetails>({ required: true })
+const model = defineModel<Query>({
+  required: true,
+})
 </script>
 
 <template>
@@ -29,6 +31,7 @@ const model = defineModel<SeqvarsQuerySettingsDetails>({ required: true })
           @click="
             () => {
               model.frequencypresets = preset.sodar_uuid
+              model.frequency = copy(preset)
             }
           "
         >
@@ -37,7 +40,7 @@ const model = defineModel<SeqvarsQuerySettingsDetails>({ required: true })
             <ModifiedIcon
               v-if="
                 preset.sodar_uuid === model.frequencypresets &&
-                !matchesFrequencyPreset(value, preset as never)
+                !matchesFrequencyPreset(model.frequency, preset)
               " /></template
         ></Item>
       </div>

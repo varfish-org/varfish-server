@@ -7,16 +7,16 @@ import {
 } from '@varfish-org/varfish-api/lib'
 
 import FrequencySelect from '@/seqvars/components/FrequencySelect/FrequencySelect.vue'
-// import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
-import {
-  Affected,
-  PedigreeMember,
-  SexAssignedAtBirth,
-} from '@/seqvars/components/GenotypeSelect/constants'
-// import { getGenotypeValueFromPreset } from '@/seqvars/components/GenotypeSelect/utils'
+import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import { Query } from '@/seqvars/types'
+import { copy } from '@/varfish/helpers'
+import {
+  GENOTYPE_PRESETS,
+  Pedigree,
+} from '../components/GenotypeSelect/constants'
+import { getGenotypeSettingsFromPreset } from '../components/GenotypeSelect/utils'
 
 const { presets } = defineProps<{
   presets: SeqvarsQueryPresetsSetVersionDetails
@@ -38,32 +38,16 @@ const selectedQuery = computed({
   },
 })
 
-const pedigreeMembers = ref<PedigreeMember[]>([
-  {
-    name: 'index',
-    affected: Affected.AFFECTED,
-    sexAssignedAtBirth: SexAssignedAtBirth.UNDEFINED,
-  },
-  {
-    name: 'father',
-    affected: Affected.UNDEFINED,
-    sexAssignedAtBirth: SexAssignedAtBirth.MALE,
-  },
-  {
-    name: 'mother',
-    affected: Affected.AFFECTED,
-    sexAssignedAtBirth: SexAssignedAtBirth.FEMALE,
-  },
-])
-
 const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
-  return {
+  return copy({
     predefinedquery: pq.sodar_uuid,
+    genotype: getGenotypeSettingsFromPreset(pq.genotype?.choice ?? 'any'),
     frequency: presets.seqvarsquerypresetsfrequency_set.find(
       (f) => f.sodar_uuid === pq.frequency,
     )!,
     frequencypresets: pq.frequency,
-  }
+    genotypepresets: pq.genotype,
+  })
 }
 </script>
 
@@ -121,11 +105,7 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
         />
 
         <template v-if="selectedQuery">
-          <!-- <GenotypeSelect
-            v-model="selectedQuery.value.genotype"
-            :pedigree-members="pedigreeMembers"
-          /> -->
-
+          <GenotypeSelect v-model="selectedQuery" />
           <FrequencySelect
             v-model="selectedQuery"
             :presets="presets.seqvarsquerypresetsfrequency_set"

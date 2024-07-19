@@ -1,3 +1,9 @@
+import {
+  RecessiveModeEnum,
+  SeqvarsGenotypeChoice,
+  SeqvarsGenotypePresetChoice,
+} from '@varfish-org/varfish-api/lib'
+
 export enum SexAssignedAtBirth {
   UNDEFINED = 'undefined',
   MALE = 'male',
@@ -12,76 +18,54 @@ export enum Affected {
 
 export type Pedigree = 'index' | 'father' | 'mother'
 
-export interface PedigreeMember {
-  name: Pedigree
-  sexAssignedAtBirth: SexAssignedAtBirth
-  affected: Affected
-}
+export type PedigreeInheritanceMode = Record<Pedigree, SeqvarsGenotypeChoice>
 
-export enum InheritanceMode {
-  WILD_TYPE = 'wild-type',
-  HET_ALT = 'het. alt.',
-  HOM_ALT = 'hom. alt.',
-  NO_CALL = 'no call',
-}
-
-export type InheritanceModeSet = Set<InheritanceMode>
-
-export type PedigreeInheritanceMode = Record<Pedigree, InheritanceModeSet>
-
-export type GenotypePresets = Record<string, PedigreeInheritanceMode>
-
-const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
 export const GENOTYPE_PRESETS = {
-  DE_NOVO: {
-    index: new Set([HET_ALT, HOM_ALT]),
-    father: new Set([WILD_TYPE]),
-    mother: new Set([WILD_TYPE]),
+  de_novo: {
+    recessiveMode: 'disabled',
+    samples: { index: 'variant', father: 'ref', mother: 'ref' },
   },
-  DOMINANT: {
-    index: new Set([HET_ALT]),
-    father: new Set([WILD_TYPE]),
-    mother: new Set([WILD_TYPE]),
+  dominant: {
+    recessiveMode: 'disabled',
+    samples: { index: 'ref', father: 'ref', mother: 'ref' },
   },
-  HOMOZYGOUS_RECESSIVE: {
-    index: new Set([HOM_ALT]),
-    father: new Set([HET_ALT]),
-    mother: new Set([HET_ALT]),
+  homozygous_recessive: {
+    recessiveMode: 'disabled',
+    samples: { index: 'hom', father: 'ref', mother: 'ref' },
   },
-  COMPOUND_RECESSIVE: {
-    index: new Set([HET_ALT]), // TODO c/h index?
-    father: new Set([HOM_ALT]), // TODO recess parent?
-    mother: new Set([HET_ALT]), // TODO recess parent?
+  affected_carriers: {
+    recessiveMode: 'disabled',
+    samples: { index: 'variant', father: 'any', mother: 'any' },
   },
-  RECESSIVE: {
-    index: new Set([HET_ALT]), // TODO recess index?
-    father: new Set([HET_ALT]), // TODO recess parent?
-    mother: new Set([HET_ALT]), // TODO recess parent?
+  any: {
+    recessiveMode: 'disabled',
+    samples: { index: 'any', father: 'any', mother: 'any' },
   },
-  X_RECESSIVE: {
-    index: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
-    father: new Set([WILD_TYPE]),
-    mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
+  compound_heterozygous_recessive: {
+    recessiveMode: 'comphet_recessive',
+    samples: {
+      index: 'recessive_index',
+      father: 'recessive_parent',
+      mother: 'recessive_parent',
+    },
   },
-  AFFECTED_CARRIERS: {
-    index: new Set([HET_ALT, HOM_ALT]),
-    father: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
-    mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
+  recessive: {
+    recessiveMode: 'recessive',
+    samples: {
+      index: 'recessive_index',
+      father: 'recessive_parent',
+      mother: 'recessive_parent',
+    },
   },
-  ANY: {
-    index: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
-    father: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
-    mother: new Set([HET_ALT, HOM_ALT, WILD_TYPE]),
+  x_recessive: {
+    recessiveMode: 'recessive',
+    samples: {
+      index: 'recessive_index',
+      father: 'any',
+      mother: 'recessive_parent',
+    },
   },
-} satisfies GenotypePresets
-export type GenotypePresetKey = keyof typeof GENOTYPE_PRESETS
-
-export type PedigreeModel = Record<
-  Pedigree,
-  { checked: boolean; mode: Set<InheritanceMode> }
+} satisfies Record<
+  SeqvarsGenotypePresetChoice,
+  { recessiveMode: RecessiveModeEnum; samples: PedigreeInheritanceMode }
 >
-
-export type GenotypeModel = {
-  preset: GenotypePresetKey
-  value: PedigreeModel
-}

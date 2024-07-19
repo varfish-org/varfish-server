@@ -11,7 +11,7 @@ import { Query } from '@/seqvars/types'
 
 const selectedIndex = defineModel<number | null>({ required: true })
 const { predefinedQueries, queries } = defineProps<{
-  predefinedQueries: SeqvarsPredefinedQuery
+  predefinedQueries: SeqvarsPredefinedQuery[]
   queries: Query[]
 }>()
 defineEmits(['removeQuery'])

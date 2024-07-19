@@ -16,8 +16,8 @@ export const Example: Story = {
   render: () => ({
     components: { InheritanceModeControls },
     setup() {
-      const model = ref(new Set())
-      const updateModel = (value: Set<string>) => (model.value = value)
+      const model = ref('any')
+      const updateModel = (value: string) => (model.value = value)
       return { model, updateModel }
     },
     template:

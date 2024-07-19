@@ -1,16 +1,19 @@
 import {
   SeqvarsQuerySettingsDetails as QuerySettingsDetails,
-  SeqvarsGenotypePresetChoice,
   SeqvarsQuerySettingsFrequency,
 } from '@varfish-org/varfish-api/lib'
 
 export type LocalFields<T> = Omit<
-  T,
+  {
+    [K in keyof T]: T[K] extends object ? LocalFields<T[K]> : T[K]
+  },
   'sodar_uuid' | 'date_created' | 'date_modified' | 'querysettings'
 >
 
 export type Query = {
-  // genotype: LocalFields<QuerySettingsDetails['genotype']>
-  // genotypepresets?: { choice?: SeqvarsGenotypePresetChoice | null }
+  genotype: LocalFields<QuerySettingsDetails['genotype']>
   frequency: LocalFields<SeqvarsQuerySettingsFrequency>
-} & Pick<QuerySettingsDetails, 'predefinedquery' | 'frequencypresets'>
+} & Pick<
+  QuerySettingsDetails,
+  'predefinedquery' | 'frequencypresets' | 'genotypepresets'
+>
