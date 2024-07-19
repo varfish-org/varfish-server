@@ -10,6 +10,7 @@ import { copy } from '@/varfish/helpers'
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
+import ItemButton from '@/seqvars/components/ItemButton.vue'
 import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import { Query } from '@/seqvars/types'
 
@@ -34,6 +35,10 @@ const recessiveMode = computed<RecessiveModeEnum>({
     model.value.genotype.recessive_mode = value
   },
 })
+
+const isSelectedAndModified = (key: SeqvarsGenotypePresetChoice) =>
+  model.value.genotypepresets?.choice == key &&
+  !matchesGenotypePreset(model.value.genotype, key)
 </script>
 
 <template>
@@ -44,27 +49,33 @@ const recessiveMode = computed<RecessiveModeEnum>({
         style="width: 100%; display: flex; flex-direction: column"
       >
         <Item
-          v-for="key in Object.keys(GENOTYPE_PRESETS)"
+          v-for="key in Object.keys(
+            GENOTYPE_PRESETS,
+          ) as SeqvarsGenotypePresetChoice[]"
           :key="key"
           :selected="model.genotypepresets?.choice == key"
           @click="
             () => {
-              const presetKey = key as SeqvarsGenotypePresetChoice
-              model.genotype = copy(getGenotypeSettingsFromPreset(presetKey))
-              model.genotypepresets = { choice: presetKey }
+              model.genotype = copy(getGenotypeSettingsFromPreset(key))
+              model.genotypepresets = { choice: key }
             }
           "
         >
           <template #default>{{
-            key == 'ANY' ? 'any mode' : key.toLowerCase().split('_').join(' ')
+            key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
           }}</template>
           <template #extra>
-            <ModifiedIcon
-              v-if="
-                model.genotypepresets?.choice == key &&
-                !matchesGenotypePreset(model.genotype, key)
+            <ModifiedIcon v-if="isSelectedAndModified(key)" />
+            <ItemButton
+              v-if="isSelectedAndModified(key)"
+              @click="
+                () => {
+                  model.genotype = copy(getGenotypeSettingsFromPreset(key))
+                  model.genotypepresets = { choice: key }
+                }
               "
-            />
+              ><i-fluent-arrow-undo-20-regular style="font-size: 0.9em"
+            /></ItemButton>
           </template>
         </Item>
       </div>
@@ -91,7 +102,12 @@ const recessiveMode = computed<RecessiveModeEnum>({
         :key="index"
         style="display: flex; flex-direction: row; align-items: start; gap: 4px"
       >
-        <input :id="choice.sample" type="checkbox" style="margin-top: 6px" />
+        <input
+          :id="choice.sample"
+          v-model="choice.enabled"
+          type="checkbox"
+          style="margin-top: 6px"
+        />
         <div style="display: flex; flex-direction: column">
           <label
             :for="choice.sample"
