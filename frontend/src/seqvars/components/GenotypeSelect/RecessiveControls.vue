@@ -15,7 +15,7 @@ const { index } = defineProps<{ index: number }>()
       ] ?? ''
     "
     @update:model-value="
-      (value: '' | 'index' | 'parent') => {
+      (value: any) => {
         if (value === 'index') {
           const el = model.find((m) => m.genotype === 'recessive_index')
           if (el) el.genotype = 'any'
@@ -33,7 +33,7 @@ const { index } = defineProps<{ index: number }>()
             parent: 'recessive_parent',
             '': 'any',
           } as const
-        )[value]
+        )[value as never]
       }
     "
   >
