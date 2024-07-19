@@ -72,7 +72,7 @@ class TestSeqvarsCaseGenotypeChoice(TestCase):
                 "ref",
                 "het",
                 "hom",
-                "non_hem",
+                "non_het",
                 "non_hom",
                 "variant",
                 "recessive_index",
