@@ -1600,7 +1600,7 @@ export type SeqvarsColumnConfigList = Array<{
 /**
  * Store genotype choice of a ``SampleGenotype``.
  */
-export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_parent';
+export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_parent';
 
 /**
  * Presets value for the chosen genotype.

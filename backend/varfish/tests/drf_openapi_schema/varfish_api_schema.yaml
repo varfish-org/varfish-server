@@ -8518,6 +8518,7 @@ components:
       - ref
       - het
       - hom
+      - non_het
       - non_hom
       - variant
       - recessive_index
