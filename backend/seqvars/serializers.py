@@ -663,11 +663,20 @@ class SeqvarsQuerySettingsBaseSerializer(BaseModelSerializer):
 class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsGenotype``."""
 
+    recessive_mode = serializers.ChoiceField(
+        choices=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_CHOICES,
+        default=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED,
+        required=False,
+    )
+
     sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
 
     class Meta:
         model = SeqvarsQuerySettingsGenotype
-        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + ["sample_genotype_choices"]
+        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + [
+            "recessive_mode",
+            "sample_genotype_choices",
+        ]
         read_only_fields = fields
 
 

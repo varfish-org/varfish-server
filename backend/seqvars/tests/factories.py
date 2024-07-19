@@ -396,6 +396,8 @@ class SeqvarsQuerySettingsGenotypeFactory(BaseModelFactory):
     # ``QuerySettingsGenotype``.
     querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, genotype=None)
 
+    recessive_mode = SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED
+
     sample_genotype_choices = [SampleGenotypeChoiceFactory()]
 
     class Meta:

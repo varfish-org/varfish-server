@@ -1334,6 +1334,14 @@ export type PatchedTargetBedFile = {
 };
 
 /**
+ * * `disabled` - disabled
+ * * `comphet_recessive` - comphet_recessive
+ * * `homozygous_recessive` - homozygous_recessive
+ * * `recessive` - recessive
+ */
+export type RecessiveModeEnum = 'disabled' | 'comphet_recessive' | 'homozygous_recessive' | 'recessive';
+
+/**
  * Per-region QC stats for alignment.
  */
 export type RegionCoverageStats = {
@@ -1592,7 +1600,7 @@ export type SeqvarsColumnConfigList = Array<{
 /**
  * Store genotype choice of a ``SampleGenotype``.
  */
-export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non-hom' | 'variant' | 'comphet_index' | 'recessive_index' | 'recessive_parent';
+export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_parent';
 
 /**
  * Presets value for the chosen genotype.
@@ -2102,6 +2110,7 @@ export type SeqvarsQuerySettingsGenotype = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+    recessive_mode?: RecessiveModeEnum;
     sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
 };
 
@@ -2194,6 +2203,7 @@ export type SeqvarsResultSet = {
 export type SeqvarsSampleGenotypeChoiceList = Array<{
     sample: string;
     genotype: SeqvarsGenotypeChoice;
+    include_no_call?: boolean;
 }>;
 
 export type SeqvarsSampleQualityFilterList = Array<{
