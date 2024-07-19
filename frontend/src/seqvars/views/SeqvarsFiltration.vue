@@ -12,10 +12,6 @@ import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import { Query } from '@/seqvars/types'
 import { copy } from '@/varfish/helpers'
-import {
-  GENOTYPE_PRESETS,
-  Pedigree,
-} from '../components/GenotypeSelect/constants'
 import { getGenotypeSettingsFromPreset } from '../components/GenotypeSelect/utils'
 
 const { presets } = defineProps<{

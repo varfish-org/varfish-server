@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { ref } from 'vue'
 
 import SeqvarsFiltration from './SeqvarsFiltration.vue'
 
