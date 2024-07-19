@@ -820,6 +820,7 @@ class SeqvarsSampleGenotypeChoice(pydantic.BaseModel):
     genotype: SeqvarsGenotypeChoice
     #: Include no-call genotype, will disable quality filter.
     include_no_call: bool = False
+    enabled: bool = True
 
 
 class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):

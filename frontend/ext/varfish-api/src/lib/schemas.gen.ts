@@ -5128,7 +5128,7 @@ export const $SeqvarsColumnConfigList = {
 
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_het', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -7495,6 +7495,11 @@ export const $SeqvarsSampleGenotypeChoiceList = {
             include_no_call: {
                 default: false,
                 title: 'Include No Call',
+                type: 'boolean'
+            },
+            enabled: {
+                default: true,
+                title: 'Enabled',
                 type: 'boolean'
             }
         },
