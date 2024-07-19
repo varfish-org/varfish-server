@@ -42,8 +42,7 @@ const fetchHpoTerm = async (query) => {
     results = await vigunoClient.resolveHpoTermById(queryArg)
     results = results.result
   } else if (query.startsWith('OMIM:')) {
-    const queryArg2 = encodeURIComponent(query.replace('OMIM:', ''))
-    results = await vigunoClient.resolveOmimTermById(queryArg2)
+    results = await vigunoClient.resolveOmimTermById(queryArg)
     results = results.result
   } else {
     let results1 = await vigunoClient.queryHpoTermsByName(queryArg)
