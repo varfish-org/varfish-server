@@ -3,9 +3,9 @@
     "downlevelIteration": true,
     "allowJs": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@tests/*": ["./tests/*"],
       "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
+      "@tests/*": ["./tests/*"],
+      "@/*": ["./src/*"],
       "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"]
     }
   }

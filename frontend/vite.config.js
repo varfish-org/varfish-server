@@ -52,7 +52,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@test': resolve(__dirname, './tests/'),
+      '@tests': resolve(__dirname, './tests/'),
       '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
       '@varfish-org/varfish-api': resolve(__dirname, './ext/varfish-api/src'),
       '@': resolve(__dirname, './src/'),
