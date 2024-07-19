@@ -35,12 +35,18 @@ const textValue = ref(null)
 /** Whether the Multiselect is loading from server. */
 const loading = ref(false)
 
+const hpoTermValidationError = ref('')
+
 const fetchHpoTerm = async (query) => {
   const queryArg = encodeURIComponent(query)
   let results
   if (query.startsWith('HP:')) {
-    results = await vigunoClient.resolveHpoTermById(queryArg)
-    results = results.result
+    try {
+      results = await vigunoClient.resolveHpoTermById(queryArg)
+      results = results.result
+    } catch (error) {
+      return [{ error: error.message, term: query }]
+    }
   } else if (query.startsWith('OMIM:')) {
     results = await vigunoClient.resolveOmimTermById(queryArg)
     results = results.result
@@ -82,24 +88,32 @@ const fetchHpoTermsForMultiselect = async (query) => {
 
 /** Refresh text value from terms. */
 const refreshTextValue = async (termsArray) => {
-  const withLabelUnfiltered = await Promise.all(
+  const termsValidationResults = await Promise.all(
     termsArray.map(async (hpoTerm) => {
       const fetched = await fetchHpoTerm(hpoTerm)
       if (fetched && fetched.length > 0) {
-        return fetched[0].label
+        return fetched[0]
       } else {
         return null
       }
     }),
   )
-  const withLabel = withLabelUnfiltered.filter((elem) => elem !== null)
+  const withError = termsValidationResults
+    .filter(
+      (elem) =>
+        elem !== null && 'error' in elem && elem.error === 'HPO term not found',
+    )
+    .map((elem) => elem.term)
+  hpoTermValidationError.value = withError.join('; ')
+  const withLabel = termsValidationResults
+    .filter((elem) => elem !== null && 'label' in elem)
+    .map((elem) => elem.label)
   textValue.value = withLabel.join('; ')
 }
 
 /** Refresh model value from text value. */
 const refreshModelValue = () => {
-  const regex =
-    /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;,]+)?(;|,|$)/g
+  const regex = /(HP:\d+|OMIM:\d+|DECIPHER:\d+|ORPHA:\d+)( - [^;,]+)?(;|,|$)/g
   const cleanTextValue = (textValue.value || '')
     .replace(/^\s*[;,]?\s*|\s*[;,]?\s*$/g, '') // replace any cruft in beginning or end of the string
     .replace(/\s{2,}/g, ' ') // replace double (or more) spaces with one space
@@ -172,7 +186,9 @@ onMounted(() => {
         :id="id"
         v-model="textValue"
         class="form-control"
+        :class="{ 'is-invalid': hpoTermValidationError.length > 0 }"
         rows="3"
+        aria-describedby="hpoTermValidationFeedback"
       ></textarea>
       <div class="input-group-append">
         <span
@@ -182,6 +198,10 @@ onMounted(() => {
         >
           <i-mdi-refresh :class="{ spin: refreshing }" />
         </span>
+      </div>
+      <div id="hpoTermValidationFeedback" class="invalid-feedback">
+        There was a problem validating the following HPO terms:
+        <strong>{{ hpoTermValidationError }}</strong>
       </div>
     </div>
     <code v-if="debugTerms">{{ props.modelValue }}</code>

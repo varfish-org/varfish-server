@@ -142,7 +142,9 @@ const refreshStores = async () => {
     ),
     svResultSetStore.initialize(appContext.csrf_token),
   ]).then(async () => {
-    await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    if (svQueryStore.queryUuid) {
+      await svResultSetStore.loadResultSetViaQuery(svQueryStore.queryUuid)
+    }
   })
 }
 
