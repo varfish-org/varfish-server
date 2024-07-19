@@ -7496,6 +7496,11 @@ export const $SeqvarsSampleGenotypeChoiceList = {
                 default: false,
                 title: 'Include No Call',
                 type: 'boolean'
+            },
+            enabled: {
+                default: true,
+                title: 'Enabled',
+                type: 'boolean'
             }
         },
         required: ['sample', 'genotype'],
