@@ -4,8 +4,6 @@ import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
-import ItemButton from '@/seqvars/components/ItemButton.vue'
-import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import { Query } from '@/seqvars/types'
 import { copy } from '@/varfish/helpers'
 
@@ -16,10 +14,10 @@ const { presets } = defineProps<{ presets: SeqvarsQueryPresetsFrequency[] }>()
 const model = defineModel<Query>({
   required: true,
 })
-
-const isSelectedAndModified = (preset: SeqvarsQueryPresetsFrequency) =>
-  preset.sodar_uuid === model.value.frequencypresets &&
-  !matchesFrequencyPreset(model.value.frequency, preset)
+const setToPreset = (preset: SeqvarsQueryPresetsFrequency) => {
+  model.value.frequencypresets = preset.sodar_uuid
+  model.value.frequency = copy(preset)
+}
 </script>
 
 <template>
@@ -33,27 +31,12 @@ const isSelectedAndModified = (preset: SeqvarsQueryPresetsFrequency) =>
           v-for="preset in presets"
           :key="preset.sodar_uuid"
           :selected="preset.sodar_uuid === model.frequencypresets"
-          @click="
-            () => {
-              model.frequencypresets = preset.sodar_uuid
-              model.frequency = copy(preset)
-            }
-          "
+          :modified="!matchesFrequencyPreset(model.frequency, preset)"
+          @click="() => setToPreset(preset)"
+          @revert="() => setToPreset(preset)"
         >
-          <template #default>{{ preset.label }}</template>
-          <template #extra>
-            <ModifiedIcon v-if="isSelectedAndModified(preset)" />
-            <ItemButton
-              v-if="isSelectedAndModified(preset)"
-              @click="
-                () => {
-                  model.frequencypresets = preset.sodar_uuid
-                  model.frequency = copy(preset)
-                }
-              "
-              ><i-fluent-arrow-undo-20-regular style="font-size: 0.9em"
-            /></ItemButton> </template
-        ></Item>
+          {{ preset.label }}
+        </Item>
       </div>
 
       <Hr />

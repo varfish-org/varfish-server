@@ -10,8 +10,6 @@ import { copy } from '@/varfish/helpers'
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
-import ItemButton from '@/seqvars/components/ItemButton.vue'
-import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import { Query } from '@/seqvars/types'
 
 import { Affected, GENOTYPE_PRESETS, SexAssignedAtBirth } from './constants'
@@ -36,9 +34,10 @@ const recessiveMode = computed<RecessiveModeEnum>({
   },
 })
 
-const isSelectedAndModified = (key: SeqvarsGenotypePresetChoice) =>
-  model.value.genotypepresets?.choice == key &&
-  !matchesGenotypePreset(model.value.genotype, key)
+const setToPreset = (key: SeqvarsGenotypePresetChoice) => {
+  model.value.genotype = copy(getGenotypeSettingsFromPreset(key))
+  model.value.genotypepresets = { choice: key }
+}
 </script>
 
 <template>
@@ -54,29 +53,13 @@ const isSelectedAndModified = (key: SeqvarsGenotypePresetChoice) =>
           ) as SeqvarsGenotypePresetChoice[]"
           :key="key"
           :selected="model.genotypepresets?.choice == key"
-          @click="
-            () => {
-              model.genotype = copy(getGenotypeSettingsFromPreset(key))
-              model.genotypepresets = { choice: key }
-            }
-          "
+          :modified="!matchesGenotypePreset(model.genotype, key)"
+          @click="() => setToPreset(key)"
+          @revert="() => setToPreset(key)"
         >
-          <template #default>{{
+          {{
             key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
-          }}</template>
-          <template #extra>
-            <ModifiedIcon v-if="isSelectedAndModified(key)" />
-            <ItemButton
-              v-if="isSelectedAndModified(key)"
-              @click="
-                () => {
-                  model.genotype = copy(getGenotypeSettingsFromPreset(key))
-                  model.genotypepresets = { choice: key }
-                }
-              "
-              ><i-fluent-arrow-undo-20-regular style="font-size: 0.9em"
-            /></ItemButton>
-          </template>
+          }}
         </Item>
       </div>
 

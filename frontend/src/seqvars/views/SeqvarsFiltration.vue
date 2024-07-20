@@ -73,16 +73,28 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
       >
         <QueryList
           v-if="queries.length > 0"
-          v-model="selectedQueryIndex"
-          :predefined-queries="presets.seqvarspredefinedquery_set"
+          :selected-index="selectedQueryIndex"
+          :presets="presets"
           :queries="queries"
-          @remove-query="(index) => queries.splice(index, 1)"
+          @update:selected-index="(index) => (selectedQueryIndex = index)"
+          @remove="(index) => queries.splice(index, 1)"
+          @revert="
+            () => {
+              const preset = presets.seqvarspredefinedquery_set.find(
+                (p) => p.sodar_uuid === selectedQuery?.predefinedquery,
+              )
+              if (preset) {
+                selectedQuery = createQuery(preset)
+              }
+            }
+          "
         />
 
         <PredefinedQueryList
-          :presets="presets.seqvarspredefinedquery_set"
-          :model-value="selectedQuery?.predefinedquery"
-          @update:model-value="
+          :presets="presets"
+          :selected-id="selectedQuery?.predefinedquery"
+          :query="selectedQuery"
+          @update:selected-id="
             (id) => {
               const preset = presets.seqvarspredefinedquery_set.find(
                 (p) => p.sodar_uuid === id,

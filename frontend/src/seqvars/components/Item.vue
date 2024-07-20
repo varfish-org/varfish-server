@@ -1,7 +1,12 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ selected?: boolean }>(), {
-  selected: false,
-})
+import ItemButton from './ItemButton.vue'
+import ModifiedIcon from './ModifiedIcon.vue'
+
+const props = withDefaults(
+  defineProps<{ selected?: boolean; modified?: boolean }>(),
+  { selected: false, modified: false },
+)
+const emit = defineEmits<{ revert: [] }>()
 </script>
 
 <template>
@@ -10,6 +15,12 @@ const props = withDefaults(defineProps<{ selected?: boolean }>(), {
       <slot />
     </button>
     <div style="display: flex; align-items: center">
+      <ModifiedIcon v-if="props.selected && props.modified" />
+      <ItemButton
+        v-if="props.selected && props.modified"
+        @click="() => emit('revert')"
+        ><i-fluent-arrow-undo-20-regular style="font-size: 0.9em"
+      /></ItemButton>
       <slot name="extra"></slot>
     </div>
   </div>
