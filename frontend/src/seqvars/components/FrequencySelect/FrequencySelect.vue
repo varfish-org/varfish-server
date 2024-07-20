@@ -4,7 +4,6 @@ import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
-import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import { Query } from '@/seqvars/types'
 import { copy } from '@/varfish/helpers'
 
@@ -15,6 +14,10 @@ const { presets } = defineProps<{ presets: SeqvarsQueryPresetsFrequency[] }>()
 const model = defineModel<Query>({
   required: true,
 })
+const setToPreset = (preset: SeqvarsQueryPresetsFrequency) => {
+  model.value.frequencypresets = preset.sodar_uuid
+  model.value.frequency = copy(preset)
+}
 </script>
 
 <template>
@@ -28,21 +31,12 @@ const model = defineModel<Query>({
           v-for="preset in presets"
           :key="preset.sodar_uuid"
           :selected="preset.sodar_uuid === model.frequencypresets"
-          @click="
-            () => {
-              model.frequencypresets = preset.sodar_uuid
-              model.frequency = copy(preset)
-            }
-          "
+          :modified="!matchesFrequencyPreset(model.frequency, preset)"
+          @click="() => setToPreset(preset)"
+          @revert="() => setToPreset(preset)"
         >
-          <template #default>{{ preset.label }}</template>
-          <template #extra>
-            <ModifiedIcon
-              v-if="
-                preset.sodar_uuid === model.frequencypresets &&
-                !matchesFrequencyPreset(model.frequency, preset)
-              " /></template
-        ></Item>
+          {{ preset.label }}
+        </Item>
       </div>
 
       <Hr />

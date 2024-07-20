@@ -16,6 +16,7 @@ export function getGenotypeSettingsFromPreset(
     recessive_mode: preset.recessiveMode,
     sample_genotype_choices: (['index', 'father', 'mother'] as Pedigree[]).map(
       (sample) => ({
+        enabled: true,
         sample,
         genotype: preset.samples[sample],
         include_no_call: false,

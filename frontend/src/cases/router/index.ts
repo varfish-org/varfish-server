@@ -4,6 +4,7 @@ import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
 import SvFilterApp from '@/svs/components/SvFilterApp.vue'
 import { useHistoryStore } from '@/varfish/stores/history'
 import FilterApp from '@/variants/components/FilterApp.vue'
+import SeqvarsApp from '@/seqvars/App.vue'
 import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
 import {
   RouteLocationNormalized,
@@ -88,6 +89,14 @@ const routes: RouteRecordRaw[] = [
     name: 'variants-filter',
     path: '/variants/filter/:case',
     component: FilterApp,
+    props: (route: RouteLocationNormalized) => ({
+      caseUuid: route.params.case,
+    }),
+  },
+  {
+    name: 'seqvars',
+    path: '/seqvars/:case',
+    component: SeqvarsApp,
     props: (route: RouteLocationNormalized) => ({
       caseUuid: route.params.case,
     }),

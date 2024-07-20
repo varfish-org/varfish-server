@@ -34,8 +34,7 @@ const GENOTYPE_TO_INHERITANCE_MODE = {
   hom: [HOM_ALT],
   non_hom: [WILD_TYPE, HET_ALT],
   variant: [HET_ALT, HOM_ALT],
-  // TODO: missing
-  // non_het: [WILD_TYPE, HOM_ALT],
+  non_het: [WILD_TYPE, HOM_ALT],
 } satisfies Record<GenotypeKey, Modes[]>
 const modes = computed({
   get() {

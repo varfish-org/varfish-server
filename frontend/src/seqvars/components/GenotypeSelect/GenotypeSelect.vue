@@ -10,7 +10,6 @@ import { copy } from '@/varfish/helpers'
 import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/Hr.vue'
 import Item from '@/seqvars/components/Item.vue'
-import ModifiedIcon from '@/seqvars/components/ModifiedIcon.vue'
 import { Query } from '@/seqvars/types'
 
 import { Affected, GENOTYPE_PRESETS, SexAssignedAtBirth } from './constants'
@@ -34,6 +33,11 @@ const recessiveMode = computed<RecessiveModeEnum>({
     model.value.genotype.recessive_mode = value
   },
 })
+
+const setToPreset = (key: SeqvarsGenotypePresetChoice) => {
+  model.value.genotype = copy(getGenotypeSettingsFromPreset(key))
+  model.value.genotypepresets = { choice: key }
+}
 </script>
 
 <template>
@@ -44,28 +48,18 @@ const recessiveMode = computed<RecessiveModeEnum>({
         style="width: 100%; display: flex; flex-direction: column"
       >
         <Item
-          v-for="key in Object.keys(GENOTYPE_PRESETS)"
+          v-for="key in Object.keys(
+            GENOTYPE_PRESETS,
+          ) as SeqvarsGenotypePresetChoice[]"
           :key="key"
           :selected="model.genotypepresets?.choice == key"
-          @click="
-            () => {
-              const presetKey = key as SeqvarsGenotypePresetChoice
-              model.genotype = copy(getGenotypeSettingsFromPreset(presetKey))
-              model.genotypepresets = { choice: presetKey }
-            }
-          "
+          :modified="!matchesGenotypePreset(model.genotype, key)"
+          @click="() => setToPreset(key)"
+          @revert="() => setToPreset(key)"
         >
-          <template #default>{{
-            key == 'ANY' ? 'any mode' : key.toLowerCase().split('_').join(' ')
-          }}</template>
-          <template #extra>
-            <ModifiedIcon
-              v-if="
-                model.genotypepresets?.choice == key &&
-                !matchesGenotypePreset(model.genotype, key)
-              "
-            />
-          </template>
+          {{
+            key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
+          }}
         </Item>
       </div>
 
@@ -91,7 +85,12 @@ const recessiveMode = computed<RecessiveModeEnum>({
         :key="index"
         style="display: flex; flex-direction: row; align-items: start; gap: 4px"
       >
-        <input :id="choice.sample" type="checkbox" style="margin-top: 6px" />
+        <input
+          :id="choice.sample"
+          v-model="choice.enabled"
+          type="checkbox"
+          style="margin-top: 6px"
+        />
         <div style="display: flex; flex-direction: column">
           <label
             :for="choice.sample"
