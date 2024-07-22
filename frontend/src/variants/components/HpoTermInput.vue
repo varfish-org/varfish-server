@@ -22,6 +22,10 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   id: String,
   showHpoShortcutsButton: Boolean,
+  includeOmim: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -37,8 +41,32 @@ const loading = ref(false)
 
 const hpoTermValidationError = ref('')
 
+/** Calculate the Levenshtein distance between two strings for ranking the search results.
+    Source: https://www.30secondsofcode.org/js/s/levenshtein-distance/
+*/
+const levenshteinDistance = (s, t) => {
+  if (!s.length) return t.length
+  if (!t.length) return s.length
+  const arr = []
+  for (let i = 0; i <= t.length; i++) {
+    arr[i] = [i]
+    for (let j = 1; j <= s.length; j++) {
+      arr[i][j] =
+        i === 0
+          ? j
+          : Math.min(
+              arr[i - 1][j] + 1,
+              arr[i][j - 1] + 1,
+              arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1),
+            )
+    }
+  }
+  return arr[t.length][s.length]
+}
+
 const fetchHpoTerm = async (query) => {
   const queryArg = encodeURIComponent(query)
+  const queryLower = query.toLowerCase()
   let results
   if (query.startsWith('HP:')) {
     try {
@@ -52,19 +80,28 @@ const fetchHpoTerm = async (query) => {
     results = results.result
   } else {
     let results1 = await vigunoClient.queryHpoTermsByName(queryArg)
-    results1 = results1.result
-    let results2 = await vigunoClient.queryOmimTermsByName(queryArg)
-    results2 = results2.result
-    if (results1.length < 2 && results2.length > 2) {
-      results2 = results2.slice(0, 2 + results1.length)
-    } else if (results2.length < 2 && results1.length > 2) {
-      results1 = results1.slice(0, 2 + results2.length)
+    if (props.includeOmim) {
+      let results2 = await vigunoClient.queryOmimTermsByName(queryArg)
+      results = results1.result.concat(results2.result)
     } else {
-      results1 = results1.slice(0, 2)
-      results2 = results2.slice(0, 2)
+      results = results1.result
     }
-    results = results1.concat(results2)
+
+    for (let r of results) {
+      const nameLower = r.name.toLowerCase()
+      r.distance = levenshteinDistance(queryLower, nameLower)
+      r.includes = nameLower.includes(queryLower)
+    }
+
+    results = results.sort((a, b) => {
+      if (a.includes && !b.includes) return -1
+      if (!a.includes && b.includes) return 1
+      if (a.distance < b.distance) return -1
+      if (a.distance > b.distance) return 1
+      return 0
+    })
   }
+
   const data = results.map(({ termId, omimId, name }) => {
     const id = termId || omimId
     return {
