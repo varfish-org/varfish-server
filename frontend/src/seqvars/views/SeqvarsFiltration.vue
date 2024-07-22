@@ -8,11 +8,14 @@ import {
 
 import FrequencySelect from '@/seqvars/components/FrequencySelect/FrequencySelect.vue'
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
+import PhenotypePrioSelect from '@/seqvars/components/PhenotypePrioSelect/PhenotypePrioSelect.vue'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import { Query } from '@/seqvars/types'
 import { copy } from '@/varfish/helpers'
 import { getGenotypeSettingsFromPreset } from '../components/GenotypeSelect/utils'
+import Patho from '@/svs/components/SvFilterForm/Patho.vue'
+import PathogenicityPrioSelect from '../components/PathogenicityPrioSelect/PathogenicityPrioSelect.vue'
 
 const { presets } = defineProps<{
   presets: SeqvarsQueryPresetsSetVersionDetails
@@ -37,12 +40,24 @@ const selectedQuery = computed({
 const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   return copy({
     predefinedquery: pq.sodar_uuid,
+
     genotype: getGenotypeSettingsFromPreset(pq.genotype?.choice ?? 'any'),
+    genotypepresets: pq.genotype,
+
     frequency: presets.seqvarsquerypresetsfrequency_set.find(
       (f) => f.sodar_uuid === pq.frequency,
     )!,
     frequencypresets: pq.frequency,
-    genotypepresets: pq.genotype,
+
+    phenotypeprio: presets.seqvarsquerypresetsphenotypeprio_set.find(
+      (f) => f.sodar_uuid === pq.phenotypeprio,
+    )!,
+    phenotypepriopresets: pq.phenotypeprio,
+
+    variantprio: presets.seqvarsquerypresetsvariantprio_set.find(
+      (f) => f.sodar_uuid === pq.variantprio,
+    )!,
+    variantpriopresets: pq.variantprio,
   })
 }
 </script>
@@ -117,6 +132,14 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
           <FrequencySelect
             v-model="selectedQuery"
             :presets="presets.seqvarsquerypresetsfrequency_set"
+          />
+          <PhenotypePrioSelect
+            v-model="selectedQuery"
+            :presets="presets.seqvarsquerypresetsphenotypeprio_set"
+          />
+          <PathogenicityPrioSelect
+            v-model="selectedQuery"
+            :presets="presets.seqvarsquerypresetsvariantprio_set"
           />
         </template>
       </div>

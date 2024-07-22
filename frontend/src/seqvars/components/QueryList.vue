@@ -17,11 +17,26 @@ const { presets, queries } = defineProps<{
 }>()
 defineEmits<{ remove: [index: number]; revert: [] }>()
 
-let count: number
+function getQueryLabel(query: Query, index: number) {
+  const presetLabel = presets.seqvarspredefinedquery_set.find(
+    (pq) => pq.sodar_uuid === query.predefinedquery,
+  )?.label
+  const othersCount = queries
+    .slice(0, index)
+    .filter((q) => q.predefinedquery === query.predefinedquery).length
+  return `${presetLabel} ${othersCount > 0 ? `(${othersCount})` : ''}`
+}
 </script>
 
 <template>
-  <CollapsibleGroup title="Results">
+  <CollapsibleGroup
+    title="Results"
+    :summary="
+      selectedIndex
+        ? `#${selectedIndex + 1} ${getQueryLabel(queries[selectedIndex], selectedIndex)}`
+        : undefined
+    "
+  >
     <div style="width: 100%; display: flex; flex-direction: column">
       <Item
         v-for="(query, index) in queries"
@@ -42,21 +57,7 @@ let count: number
       >
         <template #default>
           #{{ index + 1 }}
-          {{
-            presets.seqvarspredefinedquery_set.find(
-              (pq) => pq.sodar_uuid === query.predefinedquery,
-            )?.label
-          }}
-          <span
-            :set="
-              (count = queries
-                .slice(0, index)
-                .filter(
-                  (q) => q.predefinedquery === query.predefinedquery,
-                ).length)
-            "
-            >{{ count > 0 ? ` (${count})` : '' }}</span
-          >
+          {{ getQueryLabel(query, index) }}
         </template>
         <template #extra>
           <ItemButton @click="$emit('remove', index)"

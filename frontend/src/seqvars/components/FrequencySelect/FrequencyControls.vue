@@ -18,7 +18,7 @@ const model = defineModel<LocalFields<SeqvarsQuerySettingsFrequency>>({
       display: grid;
       grid-template-columns: 1fr auto auto auto auto;
       gap: 4px;
-      font-size: 14px;
+      font-size: var(--font-size-sm);
     "
   >
     <SmallText style="grid-column: 2">Max freq.</SmallText>

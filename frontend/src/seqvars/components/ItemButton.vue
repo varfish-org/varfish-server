@@ -4,9 +4,8 @@
 
 <style scoped>
 button {
-  width: auto;
+  padding: 0 6px;
   height: 100%;
-  aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
