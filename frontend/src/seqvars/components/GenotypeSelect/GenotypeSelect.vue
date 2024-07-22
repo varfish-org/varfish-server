@@ -34,6 +34,9 @@ const recessiveMode = computed<RecessiveModeEnum>({
   },
 })
 
+const formatKey = (key: string) =>
+  key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
+
 const setToPreset = (key: SeqvarsGenotypePresetChoice) => {
   model.value.genotype = copy(getGenotypeSettingsFromPreset(key))
   model.value.genotypepresets = { choice: key }
@@ -41,7 +44,10 @@ const setToPreset = (key: SeqvarsGenotypePresetChoice) => {
 </script>
 
 <template>
-  <CollapsibleGroup title="Genotype">
+  <CollapsibleGroup
+    title="Genotype"
+    :summary="formatKey(model.genotypepresets?.choice ?? '')"
+  >
     <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
       <div
         role="listbox"
@@ -57,9 +63,7 @@ const setToPreset = (key: SeqvarsGenotypePresetChoice) => {
           @click="() => setToPreset(key)"
           @revert="() => setToPreset(key)"
         >
-          {{
-            key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
-          }}
+          {{ formatKey(key) }}
         </Item>
       </div>
 

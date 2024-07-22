@@ -22,7 +22,14 @@ defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
 </script>
 
 <template>
-  <CollapsibleGroup title="Presets">
+  <CollapsibleGroup
+    title="Presets"
+    :summary="
+      presets.seqvarspredefinedquery_set.find(
+        (pq) => pq.sodar_uuid === selectedId,
+      )?.label
+    "
+  >
     <div style="width: 100%; display: flex; flex-direction: column">
       <Item
         v-for="pq in presets.seqvarspredefinedquery_set"

@@ -5,7 +5,7 @@ const { style } = defineProps<{ style?: CSSProperties }>()
 <template>
   <span
     :style="{
-      'font-size': '12px',
+      'font-size': 'var(--font-size-xs)',
       color: 'rgb(var(--v-theme-ui-aux-text))',
       ...style,
     }"

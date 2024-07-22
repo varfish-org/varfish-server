@@ -1,7 +1,4 @@
-import {
-  SeqvarsQuerySettingsDetails as QuerySettingsDetails,
-  SeqvarsQuerySettingsFrequency,
-} from '@varfish-org/varfish-api/lib'
+import { SeqvarsQuerySettingsDetails as QuerySettingsDetails } from '@varfish-org/varfish-api/lib'
 
 export type LocalFields<T> = Omit<
   {
@@ -10,10 +7,17 @@ export type LocalFields<T> = Omit<
   'sodar_uuid' | 'date_created' | 'date_modified' | 'querysettings'
 >
 
-export type Query = {
-  genotype: LocalFields<QuerySettingsDetails['genotype']>
-  frequency: LocalFields<SeqvarsQuerySettingsFrequency>
-} & Pick<
-  QuerySettingsDetails,
-  'predefinedquery' | 'frequencypresets' | 'genotypepresets'
->
+export type Query = LocalFields<
+  Pick<
+    QuerySettingsDetails,
+    'genotype' | 'frequency' | 'phenotypeprio' | 'variantprio'
+  >
+> &
+  Pick<
+    QuerySettingsDetails,
+    | 'predefinedquery'
+    | 'genotypepresets'
+    | 'frequencypresets'
+    | 'phenotypepriopresets'
+    | 'variantpriopresets'
+  >

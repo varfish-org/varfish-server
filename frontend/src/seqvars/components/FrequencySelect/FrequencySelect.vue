@@ -11,9 +11,7 @@ import FrequencyControls from './FrequencyControls.vue'
 import { matchesFrequencyPreset } from './utils'
 
 const { presets } = defineProps<{ presets: SeqvarsQueryPresetsFrequency[] }>()
-const model = defineModel<Query>({
-  required: true,
-})
+const model = defineModel<Query>({ required: true })
 const setToPreset = (preset: SeqvarsQueryPresetsFrequency) => {
   model.value.frequencypresets = preset.sodar_uuid
   model.value.frequency = copy(preset)
@@ -21,7 +19,12 @@ const setToPreset = (preset: SeqvarsQueryPresetsFrequency) => {
 </script>
 
 <template>
-  <CollapsibleGroup title="Frequency">
+  <CollapsibleGroup
+    title="Frequency"
+    :summary="
+      presets.find((p) => p.sodar_uuid === model.frequencypresets)?.label
+    "
+  >
     <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
       <div
         role="listbox"

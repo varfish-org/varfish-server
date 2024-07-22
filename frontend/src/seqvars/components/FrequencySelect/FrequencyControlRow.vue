@@ -56,16 +56,16 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
     }}<span v-if="size != null" style="color: #808080">{{ size }}k</span>
   </label>
 
-  <Input v-model="freq" style="grid-column: 2; margin-right: 8px; width: 64px">
+  <Input v-model="freq" style="grid-column: 2; margin-right: 8px; width: 56px">
     <template v-if="'frequency' in model" #after>%</template></Input
   >
-  <Input v-model="het" type="number" style="width: 48px" />
-  <Input v-model="hom" type="number" style="width: 48px" />
+  <Input v-model="het" type="number" style="width: 40px" />
+  <Input v-model="hom" type="number" style="width: 40px" />
   <Input
     v-if="'hemizygous' in model"
     v-model="model.hemizygous"
     type="number"
-    style="width: 48px"
+    style="width: 40px"
   />
   <span v-else />
 </template>
