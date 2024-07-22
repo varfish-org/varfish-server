@@ -147,9 +147,11 @@ const refreshStores = async () => {
     ),
     variantResultSetStore.initialize(appContext.csrf_token),
   ]).then(async () => {
-    await variantResultSetStore.loadResultSetViaQuery(
-      variantQueryStore.queryUuid,
-    )
+    if (variantQueryStore.queryUuid) {
+      await variantResultSetStore.loadResultSetViaQuery(
+        variantQueryStore.queryUuid,
+      )
+    }
   })
 }
 
