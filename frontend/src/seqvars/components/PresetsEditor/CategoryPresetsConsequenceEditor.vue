@@ -194,7 +194,6 @@ const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
   },
 ]
 
-
 /** Type for the consequence group checkbox state. */
 interface ConsequenceGroupState {
   /** Whether the group is checked. */
@@ -250,11 +249,15 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
 
   if (consequenceGroups.value[key].checked) {
     model.value.variant_consequences = model.value.variant_consequences!.filter(
-      (elem) => !consequenceGroupsInfos.find((group) => group.key === key)?.valueKeys.includes(elem),
+      (elem) =>
+        !consequenceGroupsInfos
+          .find((group) => group.key === key)
+          ?.valueKeys.includes(elem),
     )
   } else {
     model.value.variant_consequences = model.value.variant_consequences!.concat(
-      consequenceGroupsInfos.find((group) => group.key === key)?.valueKeys ?? [],
+      consequenceGroupsInfos.find((group) => group.key === key)?.valueKeys ??
+        [],
     )
   }
 }

@@ -1,11 +1,13 @@
-// Source: https://dev.to/razi91/using-v-model-with-custom-setters-4hni
-
+import { GenomeRegionList } from '@varfish-org/varfish-api/lib'
 import { computed, ref, Ref } from 'vue'
+import { formatLargeInt } from '@/varfish/helpers'
 
+// Source: https://dev.to/razi91/using-v-model-with-custom-setters-4hni
 export type ProxySetters<T extends object> = Partial<{
   [K in keyof T]: (target: T, value: T[K]) => Partial<T> | Promise<Partial<T>>
 }>
 
+// Source: https://dev.to/razi91/using-v-model-with-custom-setters-4hni
 export function toProxy<T extends object>(opt: {
   target: Ref<T>
   setters: ProxySetters<T>
@@ -57,4 +59,91 @@ export function toProxy<T extends object>(opt: {
     currentlySetting,
     isProcessing: computed(() => currentlySetting.value != undefined),
   }
+}
+
+/** Helper type to unpack, e.g., `Array<T1 | T2>`. */
+type _Unpacked<T> = T extends (infer U)[] ? U : T
+
+/** Helper type for one GenomeRegion */
+export type GenomeRegion = _Unpacked<GenomeRegionList>
+
+/**
+ * Return user-readable string representation of a `GenomeRegion`.
+ *
+ * @param genomeRegion The `GenomeRegion` to convert to a string.
+ * @returns The user-readable string representation of the `GenomeRegion`.
+ */
+export const genomeRegionToString = (genomeRegion: GenomeRegion): string => {
+  const chromStr = genomeRegion.chromosome.startsWith('chr')
+    ? genomeRegion.chromosome
+    : `chr${genomeRegion.chromosome}`
+  if (genomeRegion.range) {
+    const start = formatLargeInt(genomeRegion.range.start)
+    const end = formatLargeInt(genomeRegion.range.end)
+    return `${chromStr}:${start}-${end}`
+  } else {
+    return chromStr
+  }
+}
+
+/** Regular expression for chromosome (1, 22, X, Y, M/MT) */
+const CHROMOSOME_RE = /^(chr)?([1-9]|1[0-9]|2[0-2]|x|y|m|mt)$/
+
+/**
+ * Attempt to parse `GenomeRegion` from text.
+ *
+ * @param text The text to parse.
+ * @returns The parsed `GenomeRegion`.
+ * @throws Error if the input is invalid.
+ */
+export const parseGenomeRegion = (text: string): GenomeRegion => {
+  // Guard against multiple colons.
+  if ((text.match(/:/) || []).length > 1) {
+    throw new Error('Multiple colons in input')
+  }
+
+  // Otherwise, split by colon.
+  const parts = text.split(':')
+
+  // Now, validate chromosome, strip 'chr' prefix, and normalize 'MT'
+  // to 'M' necessary.
+  let chromosome = parts[0].toLowerCase()
+  // Check that chromosome is valid.
+  if (!chromosome.match(CHROMOSOME_RE)) {
+    throw new Error(`Invalid chromosome: ${chromosome}`)
+  }
+  // Remove "chr" prefix if present.
+  if (chromosome.startsWith('chr')) {
+    chromosome = chromosome.slice(3)
+  }
+  // Normalize "MT" to "M".
+  if (chromosome === 'mt') {
+    chromosome = 'm'
+  }
+  chromosome = chromosome.toUpperCase()
+  // If we only have the chromosome, we are done.
+  if (parts.length === 1) {
+    return { chromosome: parts[0] }
+  }
+
+  // Parse out the range.
+  let range = parts[1]
+  if ((range.match(/-/) || []).length > 1) {
+    throw new Error('Multiple hyphens input range')
+  }
+  // Strip any commas.
+  range = range.replace(/,/g, '')
+  // Split by hyphen and convert to number.
+  const rangeArr = range.split('-').map((x) => parseInt(x, 10))
+  const [start, end] = rangeArr
+  // Check whether conversion was successful.
+  if (isNaN(start) || isNaN(end)) {
+    throw new Error('Invalid range: NaN found')
+  }
+  // Check that start is not greater than end.
+  if (start > end) {
+    throw new Error('Invalid range: start greater than end')
+  }
+  // Otherwise, we are good.
+  return { chromosome, range: { start, end } }
 }
