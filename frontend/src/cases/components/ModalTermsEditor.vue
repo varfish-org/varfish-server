@@ -156,6 +156,7 @@ defineExpose({ show, hide })
               :id="'modal-input-' + idSuffix"
               v-model="v$.inputValue.$model"
               :show-hpo-shortcuts-button="true"
+              :include-omim="true"
             />
             <div
               v-for="error of v$.inputValue.$errors"
