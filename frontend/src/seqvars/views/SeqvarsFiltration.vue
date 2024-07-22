@@ -14,7 +14,6 @@ import QueryList from '@/seqvars/components/QueryList.vue'
 import { Query } from '@/seqvars/types'
 import { copy } from '@/varfish/helpers'
 import { getGenotypeSettingsFromPreset } from '../components/GenotypeSelect/utils'
-import Patho from '@/svs/components/SvFilterForm/Patho.vue'
 import PathogenicityPrioSelect from '../components/PathogenicityPrioSelect/PathogenicityPrioSelect.vue'
 
 const { presets } = defineProps<{
