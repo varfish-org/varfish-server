@@ -15,7 +15,10 @@ const emit = defineEmits<{ revert: [] }>()
       <slot />
     </button>
     <div style="display: flex; align-items: center">
-      <ModifiedIcon v-if="props.selected && props.modified" />
+      <ModifiedIcon
+        v-if="props.selected && props.modified"
+        :data-test-modified="props.modified && props.selected ? '' : undefined"
+      />
       <ItemButton
         v-if="props.selected && props.modified"
         @click="() => emit('revert')"
