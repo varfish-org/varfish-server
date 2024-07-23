@@ -88,6 +88,18 @@ const maxExonDistance = computed({
     model.value.consequence.max_distance_to_exon = value
   },
 })
+
+const toggle = (arr: string[] | undefined, key: string) => {
+  if (arr == undefined) {
+    return
+  }
+  const index = arr.indexOf(key)
+  if (index === -1) {
+    arr.push(key)
+  } else {
+    arr.splice(index, 1)
+  }
+}
 </script>
 
 <template>
@@ -151,12 +163,7 @@ const maxExonDistance = computed({
           :hide-details="true"
           density="compact"
           :model-value="model.consequence.variant_types?.includes(key)"
-          @update:model-value="
-            (checked: boolean) =>
-              (model.consequence.variant_types = checked
-                ? [...(model.consequence.variant_types ?? []), key]
-                : model.consequence.variant_types?.filter((v) => v !== key))
-          "
+          @update:model-value="toggle(model.consequence.variant_types, key)"
         />
       </div>
 
@@ -170,12 +177,7 @@ const maxExonDistance = computed({
           density="compact"
           style="font-size: var(--font-size-sm)"
           :model-value="model.consequence.transcript_types?.includes(key)"
-          @update:model-value="
-            (checked: boolean) =>
-              (model.consequence.transcript_types = checked
-                ? [...(model.consequence.transcript_types ?? []), key]
-                : model.consequence.transcript_types?.filter((v) => v !== key))
-          "
+          @update:model-value="toggle(model.consequence.transcript_types, key)"
         />
       </div>
 
@@ -195,12 +197,7 @@ const maxExonDistance = computed({
                 model.consequence.variant_consequences?.includes(key)
               "
               @update:model-value="
-                (checked: boolean) =>
-                  (model.consequence.variant_consequences = checked
-                    ? [...(model.consequence.variant_consequences ?? []), key]
-                    : model.consequence.variant_consequences?.filter(
-                        (v) => v !== key,
-                      ))
+                toggle(model.consequence.variant_consequences, key)
               "
             />
           </div>
