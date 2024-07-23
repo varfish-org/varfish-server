@@ -115,7 +115,8 @@ const refreshStores = async () => {
   variantFlagsStore.$reset()
   variantCommentsStore.$reset()
   variantAcmgRatingStore.$reset()
-  variantResultSetStore.$reset()
+  // do no reset variant result set store as it will discard table sorting information etc
+  // variantResultSetStore.$reset()
 
   await caseDetailsStore.initialize(
     appContext.csrf_token,
