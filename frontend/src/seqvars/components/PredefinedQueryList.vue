@@ -4,10 +4,11 @@ import {
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 
-import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import Item from '@/seqvars/components/Item.vue'
-import ItemButton from '@/seqvars/components/ItemButton.vue'
 import { Query } from '@/seqvars/types'
+
+import CollapsibleGroup from './ui/CollapsibleGroup.vue'
+import Item from './ui/Item.vue'
+import ItemButton from './ui/ItemButton.vue'
 import { matchesPredefinedQuery } from './utils'
 
 const { presets, query } = defineProps<{

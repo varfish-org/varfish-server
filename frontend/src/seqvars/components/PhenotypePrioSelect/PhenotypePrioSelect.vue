@@ -2,11 +2,10 @@
 import { ref } from 'vue'
 
 import { SeqvarsQueryPresetsPhenotypePrio } from '@varfish-org/varfish-api/lib'
-import { copy } from '@/varfish/helpers'
 
-import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/Hr.vue'
-import Item from '@/seqvars/components/Item.vue'
+import CollapsibleGroup from '../ui/CollapsibleGroup.vue'
+import Item from '../ui/Item.vue'
+import PresetSelect from '../ui/PresetSelect.vue'
 import { Query } from '@/seqvars/types'
 
 import TermItem from './TermItem.vue'
@@ -34,34 +33,17 @@ async function onSearch(query: string) {
     value: i.term_id,
   }))
 }
-
-const setToPreset = (preset: SeqvarsQueryPresetsPhenotypePrio) => {
-  model.value.phenotypepriopresets = preset.sodar_uuid
-  model.value.phenotypeprio = copy(preset)
-}
 </script>
 
 <template>
   <CollapsibleGroup title="Phenotype Priorization">
-    <div>
-      <div
-        role="listbox"
-        style="width: 100%; display: flex; flex-direction: column"
-      >
-        <Item
-          v-for="preset in presets"
-          :key="preset.sodar_uuid"
-          :selected="preset.sodar_uuid === model.phenotypepriopresets"
-          :modified="!matchesPhenotypePrioPreset(model.phenotypeprio, preset)"
-          @click="() => setToPreset(preset)"
-          @revert="() => setToPreset(preset)"
-        >
-          {{ preset.label }}
-        </Item>
-      </div>
-
-      <Hr />
-    </div>
+    <PresetSelect
+      v-model="model"
+      :presets="presets"
+      preset-id-field="phenotypepriopresets"
+      settings-field="phenotypeprio"
+      :matcher="matchesPhenotypePrioPreset"
+    />
 
     <label style="display: flex; max-width: 260px">
       <v-checkbox-btn v-model="model.phenotypeprio.phenotype_prio_enabled" />
@@ -141,26 +123,15 @@ const setToPreset = (preset: SeqvarsQueryPresetsPhenotypePrio) => {
         @update:search="onSearch"
         ><template #selection="" />
         <template #item="{ item, props }"
-          ><v-list-items v-bind="props">
+          ><v-list-item v-bind="props" title="">
             <TermItem
               :label="item.title"
               :term-id="item.value"
-              class="term-list-item"
+              style="padding: 4px 16px; cursor: pointer"
             />
-          </v-list-items>
+          </v-list-item>
         </template>
       </v-autocomplete>
     </div>
   </CollapsibleGroup>
 </template>
-
-<style scoped>
-.term-list-item {
-  padding: 4px 16px;
-  cursor: pointer;
-
-  &:hover {
-    background: #f5f5f5;
-  }
-}
-</style>

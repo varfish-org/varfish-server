@@ -5,16 +5,18 @@ import {
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
+import { copy } from '@/varfish/helpers'
 
+import EffectsSelect from '@/seqvars/components/EffectsSelect/EffectsSelect.vue'
 import FrequencySelect from '@/seqvars/components/FrequencySelect/FrequencySelect.vue'
 import GenotypeSelect from '@/seqvars/components/GenotypeSelect/GenotypeSelect.vue'
 import PhenotypePrioSelect from '@/seqvars/components/PhenotypePrioSelect/PhenotypePrioSelect.vue'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
+import { getGenotypeSettingsFromPreset } from '@/seqvars/components/GenotypeSelect/utils'
+import PathogenicityPrioSelect from '@/seqvars/components/PathogenicityPrioSelect/PathogenicityPrioSelect.vue'
+import { getReferencedPresets } from '@/seqvars/components/utils'
 import { Query } from '@/seqvars/types'
-import { copy } from '@/varfish/helpers'
-import { getGenotypeSettingsFromPreset } from '../components/GenotypeSelect/utils'
-import PathogenicityPrioSelect from '../components/PathogenicityPrioSelect/PathogenicityPrioSelect.vue'
 
 const { presets } = defineProps<{
   presets: SeqvarsQueryPresetsSetVersionDetails
@@ -36,27 +38,30 @@ const selectedQuery = computed({
   },
 })
 
-const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
+const createQuery = (pq: SeqvarsPredefinedQuery): Query | null => {
+  const { frequency, phenotypeprio, variantprio, consequence } =
+    getReferencedPresets(presets, pq)
+  if (!frequency || !phenotypeprio || !variantprio || !consequence) {
+    console.error('Missing preset(s)')
+    return null
+  }
   return copy({
     predefinedquery: pq.sodar_uuid,
 
     genotype: getGenotypeSettingsFromPreset(pq.genotype?.choice ?? 'any'),
     genotypepresets: pq.genotype,
 
-    frequency: presets.seqvarsquerypresetsfrequency_set.find(
-      (f) => f.sodar_uuid === pq.frequency,
-    )!,
+    frequency,
     frequencypresets: pq.frequency,
 
-    phenotypeprio: presets.seqvarsquerypresetsphenotypeprio_set.find(
-      (f) => f.sodar_uuid === pq.phenotypeprio,
-    )!,
+    phenotypeprio,
     phenotypepriopresets: pq.phenotypeprio,
 
-    variantprio: presets.seqvarsquerypresetsvariantprio_set.find(
-      (f) => f.sodar_uuid === pq.variantprio,
-    )!,
+    variantprio,
     variantpriopresets: pq.variantprio,
+
+    consequence,
+    consequencepresets: pq.consequence,
   })
 }
 </script>
@@ -120,7 +125,11 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
           "
           @add-query="
             (preset) => {
-              queries.push(createQuery(preset))
+              const query = createQuery(preset)
+              if (!query) {
+                return
+              }
+              queries.push(query)
               selectedQueryIndex = queries.length - 1
             }
           "
@@ -139,6 +148,10 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
           <PathogenicityPrioSelect
             v-model="selectedQuery"
             :presets="presets.seqvarsquerypresetsvariantprio_set"
+          />
+          <EffectsSelect
+            v-model="selectedQuery"
+            :presets="presets.seqvarsquerypresetsconsequence_set"
           />
         </template>
       </div>

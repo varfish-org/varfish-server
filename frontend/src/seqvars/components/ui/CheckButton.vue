@@ -7,7 +7,7 @@ const model = defineModel<boolean>({ default: false })
     class="root ui-control-text"
     variant="outlined"
     rounded="sm"
-    :aria-selected="model"
+    :aria-checked="model"
     @click="model = !model"
   >
     <slot />
@@ -27,7 +27,7 @@ const model = defineModel<boolean>({ default: false })
     outline: none;
   }
 
-  &[aria-selected='true'] {
+  &[aria-checked='true'] {
     border-color: #0f6cbd;
     color: white !important;
 

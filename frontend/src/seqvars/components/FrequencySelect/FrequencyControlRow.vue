@@ -3,7 +3,7 @@ import { computed, defineProps } from 'vue'
 
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 
-import Input from '@/seqvars/components/Input.vue'
+import Input from '../ui/Input.vue'
 
 type ValueOf<T> = T[keyof T]
 
