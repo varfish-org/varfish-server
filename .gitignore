@@ -335,6 +335,6 @@ tags
 
 .DS_Store
 /test-results/
-/playwright-report/
+playwright-report/
 /blob-report/
 /playwright/.cache/

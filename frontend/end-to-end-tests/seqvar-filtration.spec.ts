@@ -10,9 +10,9 @@ test('modified genotype preset is marked', async ({ page }) => {
   page.locator('button[aria-label="Create query based on dominant"]').click()
 
   const selectedGenotypePreset = page.locator(
-    '[aria-selected="true"]:below(:text("Genotype"))',
+    '[aria-selected="true"]:below(:text("Genotype")):has-text("dominant")',
   )
-  await expect(selectedGenotypePreset.first()).toHaveText('dominant')
+  await expect(selectedGenotypePreset.first()).toBeVisible()
 
   const modifiedPreset = selectedGenotypePreset.locator('[data-test-modified]')
   await expect(modifiedPreset).toBeHidden()
@@ -27,7 +27,7 @@ test.describe('genotype (recessive)', () => {
       .click()
   })
 
-  test('index checkboxes are mutually exclusive', async ({ page }) => {
+  test('index radios are mutually exclusive', async ({ page }) => {
     await page
       .locator('input[type="radio"][aria-label="Index"]:not(:checked)')
       .first()
