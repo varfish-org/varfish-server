@@ -20,6 +20,29 @@ test('modified genotype preset is marked', async ({ page }) => {
   await expect(modifiedPreset).toBeVisible()
 })
 
+test.describe('genotype', () => {
+  test.beforeEach(async ({ page }) => {
+    await page
+      .locator('button[aria-label="Create query based on de novo"]')
+      .click()
+  })
+
+  test('any is checked when all types are checked', async ({ page }) => {
+    const firstAnyButton = page
+      .getByRole('button', { name: 'any' })
+      .and(page.locator('[aria-selected]'))
+      .first()
+    await expect(firstAnyButton).toHaveAttribute('aria-selected', 'false')
+    for (const name of ['0/0', '1/0', '1/1']) {
+      const button = page.getByRole('button', { name }).first()
+      if ((await button.getAttribute('aria-selected')) === 'false') {
+        await button.click()
+      }
+    }
+    await expect(firstAnyButton).toHaveAttribute('aria-selected', 'true')
+  })
+})
+
 test.describe('genotype (recessive)', () => {
   test.beforeEach(async ({ page }) => {
     await page
