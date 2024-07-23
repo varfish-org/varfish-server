@@ -41,7 +41,9 @@ defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
       >
         <template #default>{{ pq.label }}</template>
         <template #extra
-          ><ItemButton @click="$emit('addQuery', pq)"
+          ><ItemButton
+            :aria-label="`Create query based on ${pq.label}`"
+            @click="$emit('addQuery', pq)"
             ><i-bi-filter style="font-size: 0.9em" /></ItemButton
         ></template>
       </Item>

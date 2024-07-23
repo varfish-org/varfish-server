@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
 
-const props = defineProps<{ style?: CSSProperties; type?: 'text' | 'number' }>()
+const props = defineProps<{
+  style?: CSSProperties
+  type?: 'text' | 'number'
+  ariaLabel?: string
+}>()
 const model = defineModel<string | number>()
 </script>
 
 <template>
   <div class="root" :style="props.style">
-    <input v-model="model" :type="props.type ?? 'text'" />
+    <input
+      v-model="model"
+      :aria-label="props.ariaLabel"
+      :type="props.type ?? 'text'"
+    />
     <slot name="after"></slot>
   </div>
 </template>
