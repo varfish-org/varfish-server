@@ -1,7 +1,6 @@
 import {
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsSetVersionDetails,
-  SeqvarsQuerySettingsDetails,
 } from '@varfish-org/varfish-api/lib'
 import { Query } from '@/seqvars/types'
 
