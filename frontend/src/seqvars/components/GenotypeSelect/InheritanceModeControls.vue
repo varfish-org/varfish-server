@@ -7,7 +7,7 @@ import {
   SeqvarsSampleGenotypeChoiceList,
 } from '@varfish-org/varfish-api/lib'
 
-import CheckButton from './CheckButton.vue'
+import CheckButton from '../ui/CheckButton.vue'
 
 enum InheritanceMode {
   WILD_TYPE = 'wild-type',

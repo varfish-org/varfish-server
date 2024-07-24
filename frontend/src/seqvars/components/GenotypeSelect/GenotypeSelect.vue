@@ -7,9 +7,9 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { copy } from '@/varfish/helpers'
 
-import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/Hr.vue'
-import Item from '@/seqvars/components/Item.vue'
+import CollapsibleGroup from '../ui/CollapsibleGroup.vue'
+import Hr from '../ui/Hr.vue'
+import Item from '../ui/Item.vue'
 import { Query } from '@/seqvars/types'
 
 import { Affected, GENOTYPE_PRESETS, SexAssignedAtBirth } from './constants'

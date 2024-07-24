@@ -10,7 +10,7 @@ export type LocalFields<T> = Omit<
 export type Query = LocalFields<
   Pick<
     QuerySettingsDetails,
-    'genotype' | 'frequency' | 'phenotypeprio' | 'variantprio'
+    'genotype' | 'frequency' | 'phenotypeprio' | 'variantprio' | 'consequence'
   >
 > &
   Pick<
@@ -20,4 +20,5 @@ export type Query = LocalFields<
     | 'frequencypresets'
     | 'phenotypepriopresets'
     | 'variantpriopresets'
+    | 'consequencepresets'
   >

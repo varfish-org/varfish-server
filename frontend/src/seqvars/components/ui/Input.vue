@@ -2,16 +2,18 @@
 import type { CSSProperties } from 'vue'
 
 const props = defineProps<{
+  id?: string
   style?: CSSProperties
   type?: 'text' | 'number'
   ariaLabel?: string
 }>()
-const model = defineModel<string | number>()
+const model = defineModel<string | number | null>()
 </script>
 
 <template>
   <div class="root" :style="props.style">
     <input
+      :id="props.id"
       v-model="model"
       :aria-label="props.ariaLabel"
       :type="props.type ?? 'text'"

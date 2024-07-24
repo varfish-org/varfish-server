@@ -30,16 +30,16 @@ test.describe('genotype', () => {
   test('any is checked when all types are checked', async ({ page }) => {
     const firstAnyButton = page
       .getByRole('button', { name: 'any' })
-      .and(page.locator('[aria-selected]'))
+      .and(page.locator('[aria-checked]'))
       .first()
-    await expect(firstAnyButton).toHaveAttribute('aria-selected', 'false')
+    await expect(firstAnyButton).toHaveAttribute('aria-checked', 'false')
     for (const name of ['0/0', '1/0', '1/1']) {
       const button = page.getByRole('button', { name }).first()
-      if ((await button.getAttribute('aria-selected')) === 'false') {
+      if ((await button.getAttribute('aria-checked')) === 'false') {
         await button.click()
       }
     }
-    await expect(firstAnyButton).toHaveAttribute('aria-selected', 'true')
+    await expect(firstAnyButton).toHaveAttribute('aria-checked', 'true')
   })
 })
 

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { copy } from '@/varfish/helpers'
 import { SeqvarsQueryPresetsVariantPrio } from '@varfish-org/varfish-api/lib'
 
-import CollapsibleGroup from '@/seqvars/components/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/Hr.vue'
-import Item from '@/seqvars/components/Item.vue'
+import CollapsibleGroup from '../ui/CollapsibleGroup.vue'
+import Item from '../ui/Item.vue'
+import PresetSelect from '../ui/PresetSelect.vue'
 import { Query } from '@/seqvars/types'
 
 import { matchesPathogenicityPrioPreset } from './utils'
@@ -25,34 +24,17 @@ const model = defineModel<Query>({ required: true })
 const { presets } = defineProps<{
   presets: SeqvarsQueryPresetsVariantPrio[]
 }>()
-
-const setToPreset = (preset: SeqvarsQueryPresetsVariantPrio) => {
-  model.value.variantpriopresets = preset.sodar_uuid
-  model.value.variantprio = copy(preset)
-}
 </script>
 
 <template>
   <CollapsibleGroup title="Phenotype Priorization">
-    <div>
-      <div
-        role="listbox"
-        style="width: 100%; display: flex; flex-direction: column"
-      >
-        <Item
-          v-for="preset in presets"
-          :key="preset.sodar_uuid"
-          :selected="preset.sodar_uuid === model.variantpriopresets"
-          :modified="!matchesPathogenicityPrioPreset(model.variantprio, preset)"
-          @click="() => setToPreset(preset)"
-          @revert="() => setToPreset(preset)"
-        >
-          {{ preset.label }}
-        </Item>
-      </div>
-
-      <Hr />
-    </div>
+    <PresetSelect
+      v-model="model"
+      :presets="presets"
+      preset-id-field="variantpriopresets"
+      settings-field="variantprio"
+      :matcher="matchesPathogenicityPrioPreset"
+    />
 
     <label style="display: flex; max-width: 260px">
       <v-checkbox-btn v-model="model.variantprio.variant_prio_enabled" />
