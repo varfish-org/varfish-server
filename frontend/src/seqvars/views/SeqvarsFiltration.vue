@@ -15,6 +15,7 @@ import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import { getGenotypeSettingsFromPreset } from '@/seqvars/components/GenotypeSelect/utils'
 import PathogenicityPrioSelect from '@/seqvars/components/PathogenicityPrioSelect/PathogenicityPrioSelect.vue'
+import QualitySelect from '@/seqvars/components/QualitySelect/QualitySelect.vue'
 import { getReferencedPresets } from '@/seqvars/components/utils'
 import { Query } from '@/seqvars/types'
 
@@ -39,29 +40,23 @@ const selectedQuery = computed({
 })
 
 const createQuery = (pq: SeqvarsPredefinedQuery): Query | null => {
-  const { frequency, phenotypeprio, variantprio, consequence } =
-    getReferencedPresets(presets, pq)
-  if (!frequency || !phenotypeprio || !variantprio || !consequence) {
-    console.error('Missing preset(s)')
-    return null
-  }
+  const { quality, ...rp } = getReferencedPresets(presets, pq)
   return copy({
+    ...rp,
     predefinedquery: pq.sodar_uuid,
-
     genotype: getGenotypeSettingsFromPreset(pq.genotype?.choice ?? 'any'),
     genotypepresets: pq.genotype,
-
-    frequency,
     frequencypresets: pq.frequency,
-
-    phenotypeprio,
     phenotypepriopresets: pq.phenotypeprio,
-
-    variantprio,
     variantpriopresets: pq.variantprio,
-
-    consequence,
     consequencepresets: pq.consequence,
+    qualitypresets: pq.quality,
+    quality: {
+      sample_quality_filters: ['index', 'father', 'mother'].map((sample) => ({
+        sample,
+        ...quality,
+      })),
+    },
   })
 }
 </script>
@@ -152,6 +147,10 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query | null => {
           <EffectsSelect
             v-model="selectedQuery"
             :presets="presets.seqvarsquerypresetsconsequence_set"
+          />
+          <QualitySelect
+            v-model="selectedQuery"
+            :presets="presets.seqvarsquerypresetsquality_set"
           />
         </template>
       </div>

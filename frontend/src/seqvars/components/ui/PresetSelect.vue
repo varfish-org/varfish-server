@@ -15,14 +15,20 @@ import { Query } from '@/seqvars/types'
 
 const model = defineModel<Query>({ required: true })
 
-const { presets, presetIdField, settingsField, matcher } = defineProps<{
-  presets: Preset[]
-  settingsField: SettingsField
-  presetIdField: PresetField
-  matcher: (value: Query[SettingsField], preset: Preset) => boolean
-}>()
+const { presets, presetIdField, settingsField, matcher, onSelect } =
+  defineProps<{
+    presets: Preset[]
+    settingsField: SettingsField
+    presetIdField: PresetField
+    matcher: (value: Query[SettingsField], preset: Preset) => boolean
+    onSelect?: (preset: Preset) => void
+  }>()
 
 const setToPreset = (preset: Preset) => {
+  if (onSelect) {
+    onSelect(preset)
+    return
+  }
   model.value[presetIdField] = preset.sodar_uuid
   model.value[settingsField] = copy(preset)
 }

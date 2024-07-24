@@ -2,9 +2,8 @@
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 
 import { LocalFields } from '@/seqvars/types'
-
+import SmallText from '../ui/SmallText.vue'
 import FrequencyControlRow from './FrequencyControlRow.vue'
-import SmallText from './SmallText.vue'
 
 const model = defineModel<LocalFields<SeqvarsQuerySettingsFrequency>>({
   required: true,

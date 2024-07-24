@@ -9,6 +9,7 @@ import { matchesGenotypePreset } from './GenotypeSelect/utils'
 import { matchesPathogenicityPrioPreset } from './PathogenicityPrioSelect/utils'
 import { matchesPhenotypePrioPreset } from './PhenotypePrioSelect/utils'
 import { matchesEffectsPreset } from './EffectsSelect/utils'
+import { matchesQualityPreset } from './QualitySelect/utils'
 
 export const getReferencedPresets = (
   presets: SeqvarsQueryPresetsSetVersionDetails,
@@ -17,16 +18,19 @@ export const getReferencedPresets = (
   ({
     frequency: presets.seqvarsquerypresetsfrequency_set.find(
       (f) => f.sodar_uuid === pq.frequency,
-    ),
+    )!,
     phenotypeprio: presets.seqvarsquerypresetsphenotypeprio_set.find(
       (p) => p.sodar_uuid === pq.phenotypeprio,
-    ),
+    )!,
     variantprio: presets.seqvarsquerypresetsvariantprio_set.find(
       (p) => p.sodar_uuid === pq.variantprio,
-    ),
+    )!,
     consequence: presets.seqvarsquerypresetsconsequence_set.find(
       (c) => c.sodar_uuid === pq.consequence,
-    ),
+    )!,
+    quality: presets.seqvarsquerypresetsquality_set.find(
+      (q) => q.sodar_uuid === pq.quality,
+    )!,
   }) satisfies Partial<Record<keyof Query, unknown>>
 
 export function matchesPredefinedQuery(
@@ -35,8 +39,7 @@ export function matchesPredefinedQuery(
   pq: SeqvarsPredefinedQuery,
 ): boolean {
   const genotype = pq.genotype?.choice
-
-  const { frequency, phenotypeprio, variantprio, consequence } =
+  const { frequency, phenotypeprio, variantprio, consequence, quality } =
     getReferencedPresets(presets, pq)
   return (
     !!genotype &&
@@ -48,6 +51,8 @@ export function matchesPredefinedQuery(
     !!variantprio &&
     matchesPathogenicityPrioPreset(query.variantprio, variantprio) &&
     !!consequence &&
-    matchesEffectsPreset(query.consequence, consequence)
+    matchesEffectsPreset(query.consequence, consequence) &&
+    !!quality &&
+    matchesQualityPreset(query.quality, quality)
   )
 }
