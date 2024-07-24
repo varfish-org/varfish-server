@@ -67,10 +67,10 @@ const CUSTOMIZATION = {
     splice_donor_variant: 'splice donor',
     splice_region_variant: 'splice region',
   },
-  Structural: {
-    // structural: 'structural ',
-    // transcript_ablation: 'transcript ablation',
-  },
+  // Structural: {
+  // structural: 'structural ',
+  // transcript_ablation: 'transcript ablation',
+  // },
 } satisfies Record<
   string,
   Partial<Record<SeqvarsVariantConsequenceChoiceList[number], string>>
