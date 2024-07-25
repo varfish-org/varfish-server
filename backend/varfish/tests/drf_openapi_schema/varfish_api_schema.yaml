@@ -8650,6 +8650,18 @@ components:
       - project
       - role
       - sodar_uuid
+    RecessiveModeEnum:
+      enum:
+      - disabled
+      - comphet_recessive
+      - homozygous_recessive
+      - recessive
+      type: string
+      description: |-
+        * `disabled` - disabled
+        * `comphet_recessive` - comphet_recessive
+        * `homozygous_recessive` - homozygous_recessive
+        * `recessive` - recessive
     RegionCoverageStats:
       description: Per-region QC stats for alignment.
       properties:
@@ -9514,9 +9526,9 @@ components:
       - ref
       - het
       - hom
-      - non-hom
+      - non_het
+      - non_hom
       - variant
-      - comphet_index
       - recessive_index
       - recessive_parent
       title: SeqvarsGenotypeChoice
@@ -11117,6 +11129,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        recessive_mode:
+          allOf:
+          - $ref: '#/components/schemas/RecessiveModeEnum'
+          default: disabled
         sample_genotype_choices:
           $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
       required:
@@ -11348,6 +11364,14 @@ components:
             type: string
           genotype:
             $ref: '#/components/schemas/SeqvarsGenotypeChoice'
+          include_no_call:
+            default: false
+            title: Include No Call
+            type: boolean
+          enabled:
+            default: true
+            title: Enabled
+            type: boolean
         required:
         - sample
         - genotype

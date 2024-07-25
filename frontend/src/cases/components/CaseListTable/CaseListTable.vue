@@ -88,6 +88,22 @@ onMounted(() => {
 
 <template>
   <h2>Cases</h2>
+
+  <v-sheet class="pa-3 rounded-0">
+    <v-row no-gutter>
+      <v-col cols="6"> </v-col>
+      <v-col cols="6">
+        <v-text-field
+          v-model="search"
+          density="compact"
+          label="Filter cases"
+          append-inner-icon="mdi-magnify"
+          variant="outlined"
+          hide-details
+        ></v-text-field>
+      </v-col>
+    </v-row>
+  </v-sheet>
   <v-data-table-server
     v-model:page="page"
     v-model:items-per-page="itemsPerPage"
@@ -97,6 +113,7 @@ onMounted(() => {
     :items-length="caseListStore.caseCount ?? 0"
     :loading="loading"
     :search="search"
+    no-data-text="No matching cases found"
     item-value="name"
     @update:options="loadItemDebounced"
   >

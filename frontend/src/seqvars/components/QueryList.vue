@@ -1,0 +1,70 @@
+<script setup lang="ts">
+import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+
+import { Query } from '@/seqvars/types'
+
+import CollapsibleGroup from './ui/CollapsibleGroup.vue'
+import Item from './ui/Item.vue'
+import ItemButton from './ui/ItemButton.vue'
+import { matchesPredefinedQuery } from './utils'
+
+const selectedIndex = defineModel<number | null>('selectedIndex', {
+  required: true,
+})
+const { presets, queries } = defineProps<{
+  presets: SeqvarsQueryPresetsSetVersionDetails
+  queries: Query[]
+}>()
+defineEmits<{ remove: [index: number]; revert: [] }>()
+
+function getQueryLabel(query: Query, index: number) {
+  const presetLabel = presets.seqvarspredefinedquery_set.find(
+    (pq) => pq.sodar_uuid === query.predefinedquery,
+  )?.label
+  const othersCount = queries
+    .slice(0, index)
+    .filter((q) => q.predefinedquery === query.predefinedquery).length
+  return `${presetLabel} ${othersCount > 0 ? `(${othersCount})` : ''}`
+}
+</script>
+
+<template>
+  <CollapsibleGroup
+    title="Results"
+    :summary="
+      selectedIndex
+        ? `#${selectedIndex + 1} ${getQueryLabel(queries[selectedIndex], selectedIndex)}`
+        : undefined
+    "
+  >
+    <div style="width: 100%; display: flex; flex-direction: column">
+      <Item
+        v-for="(query, index) in queries"
+        :key="index"
+        :selected="index === selectedIndex"
+        :modified="
+          !!query &&
+          !matchesPredefinedQuery(
+            presets,
+            query,
+            presets.seqvarspredefinedquery_set.find(
+              (pq) => pq.sodar_uuid === query.predefinedquery,
+            )!,
+          )
+        "
+        @click="selectedIndex = index"
+        @revert="$emit('revert')"
+      >
+        <template #default>
+          #{{ index + 1 }}
+          {{ getQueryLabel(query, index) }}
+        </template>
+        <template #extra>
+          <ItemButton @click="$emit('remove', index)"
+            ><i-mdi-close-box-outline
+          /></ItemButton>
+        </template>
+      </Item>
+    </div>
+  </CollapsibleGroup>
+</template>
