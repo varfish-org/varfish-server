@@ -7820,9 +7820,7 @@ components:
                 default: null
             title: SeqvarsGenotypePresets
             type: object
-          - type: number
-          default:
-            choice: null
+          - type: 'null'
         quality:
           type: string
           format: uuid
@@ -8045,7 +8043,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -8080,7 +8078,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -8109,7 +8107,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -8138,7 +8136,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -8173,7 +8171,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -8460,6 +8458,50 @@ components:
           type: string
           format: uuid
           readOnly: true
+        predefinedquery:
+          type: string
+          format: uuid
+          readOnly: true
+        genotypepresets:
+          oneOf:
+          - description: Configuration for a single column in the result table.
+            properties:
+              choice:
+                anyOf:
+                - $ref: '#/components/schemas/SeqvarsGenotypePresetChoice'
+                - type: 'null'
+                default: null
+            title: SeqvarsGenotypePresets
+            type: object
+          - type: 'null'
+        qualitypresets:
+          type: string
+          format: uuid
+          nullable: true
+        consequencepresets:
+          type: string
+          format: uuid
+          nullable: true
+        locuspresets:
+          type: string
+          format: uuid
+          nullable: true
+        frequencypresets:
+          type: string
+          format: uuid
+          nullable: true
+        phenotypepriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        variantpriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        clinvarpresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
         quality:
@@ -8608,6 +8650,18 @@ components:
       - project
       - role
       - sodar_uuid
+    RecessiveModeEnum:
+      enum:
+      - disabled
+      - comphet_recessive
+      - homozygous_recessive
+      - recessive
+      type: string
+      description: |-
+        * `disabled` - disabled
+        * `comphet_recessive` - comphet_recessive
+        * `homozygous_recessive` - homozygous_recessive
+        * `recessive` - recessive
     RegionCoverageStats:
       description: Per-region QC stats for alignment.
       properties:
@@ -9472,9 +9526,9 @@ components:
       - ref
       - het
       - hom
-      - non-hom
+      - non_het
+      - non_hom
       - variant
-      - comphet_index
       - recessive_index
       - recessive_parent
       title: SeqvarsGenotypeChoice
@@ -9535,9 +9589,7 @@ components:
                 default: null
             title: SeqvarsGenotypePresets
             type: object
-          - type: number
-          default:
-            choice: null
+          - type: 'null'
         quality:
           type: string
           format: uuid
@@ -10002,7 +10054,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -10037,7 +10089,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -10066,7 +10118,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -10095,7 +10147,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -10130,7 +10182,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -10594,6 +10646,57 @@ components:
           type: string
           format: uuid
           readOnly: true
+        predefinedquery:
+          type: string
+          format: uuid
+          readOnly: true
+        genotypepresets:
+          oneOf:
+          - description: Configuration for a single column in the result table.
+            properties:
+              choice:
+                anyOf:
+                - $ref: '#/components/schemas/SeqvarsGenotypePresetChoice'
+                - type: 'null'
+                default: null
+            title: SeqvarsGenotypePresets
+            type: object
+          - type: 'null'
+        qualitypresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        consequencepresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        locuspresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        frequencypresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        phenotypepriopresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        variantpriopresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        clinvarpresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
         genotype:
           type: string
           format: uuid
@@ -10628,18 +10731,26 @@ components:
           readOnly: true
       required:
       - clinvar
+      - clinvarpresets
       - consequence
+      - consequencepresets
       - date_created
       - date_modified
       - frequency
+      - frequencypresets
       - genotype
       - locus
+      - locuspresets
       - phenotypeprio
+      - phenotypepriopresets
+      - predefinedquery
       - presetssetversion
       - quality
+      - qualitypresets
       - session
       - sodar_uuid
       - variantprio
+      - variantpriopresets
     SeqvarsQuerySettingsClinvar:
       type: object
       description: Serializer for ``QuerySettingsClinvar``.
@@ -10735,6 +10846,50 @@ components:
           type: string
           format: uuid
           readOnly: true
+        predefinedquery:
+          type: string
+          format: uuid
+          readOnly: true
+        genotypepresets:
+          oneOf:
+          - description: Configuration for a single column in the result table.
+            properties:
+              choice:
+                anyOf:
+                - $ref: '#/components/schemas/SeqvarsGenotypePresetChoice'
+                - type: 'null'
+                default: null
+            title: SeqvarsGenotypePresets
+            type: object
+          - type: 'null'
+        qualitypresets:
+          type: string
+          format: uuid
+          nullable: true
+        consequencepresets:
+          type: string
+          format: uuid
+          nullable: true
+        locuspresets:
+          type: string
+          format: uuid
+          nullable: true
+        frequencypresets:
+          type: string
+          format: uuid
+          nullable: true
+        phenotypepriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        variantpriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        clinvarpresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
         quality:
@@ -10760,6 +10915,7 @@ components:
       - genotype
       - locus
       - phenotypeprio
+      - predefinedquery
       - presetssetversion
       - quality
       - session
@@ -10803,7 +10959,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -10838,7 +10994,7 @@ components:
                 title: Frequency
             title: GnomadNuclearFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -10867,7 +11023,7 @@ components:
                 title: Frequency
             title: GnomadMitochondrialFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -10896,7 +11052,7 @@ components:
                 title: Frequency
             title: HelixmtDbFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -10931,7 +11087,7 @@ components:
                 title: Carriers
             title: InhouseFrequencySettings
             type: object
-          - type: number
+          - type: 'null'
         sodar_uuid:
           type: string
           format: uuid
@@ -10973,6 +11129,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        recessive_mode:
+          allOf:
+          - $ref: '#/components/schemas/RecessiveModeEnum'
+          default: disabled
         sample_genotype_choices:
           $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
       required:
@@ -11204,6 +11364,14 @@ components:
             type: string
           genotype:
             $ref: '#/components/schemas/SeqvarsGenotypeChoice'
+          include_no_call:
+            default: false
+            title: Include No Call
+            type: boolean
+          enabled:
+            default: true
+            title: Enabled
+            type: boolean
         required:
         - sample
         - genotype
@@ -11486,7 +11654,7 @@ components:
     strList:
       type: array
       items:
-        type: number
+        type: string
   securitySchemes:
     basicAuth:
       type: http

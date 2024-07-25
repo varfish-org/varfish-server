@@ -5,6 +5,7 @@
     "types": [
       "vite/client",
       "jquery",
+      "unplugin-icons/types/vue"
     ],
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -33,8 +34,8 @@
     }
   },
   "include": [
-    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js",
-    "ext/**/*.ts", "ext/**/*.vue"
+    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.json", "src/**/*.vue", "src/**/*.js",
+    "ext/**/*.ts", "ext/**/*.vue", "tests/**/*.json"
   ],
   "exclude": [
     "node_modules",

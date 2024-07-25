@@ -20,3 +20,95 @@
     negative-margin-end: false,
   )
 );
+
+@font-face {
+  font-family: 'Segoe UI';
+  src:
+    local('Segoe UI Light'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.woff2)
+      format('woff2'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.woff)
+      format('woff'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.ttf)
+      format('truetype');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src:
+    local('Segoe UI Semilight'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.woff2)
+      format('woff2'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.woff)
+      format('woff'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.ttf)
+      format('truetype');
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src:
+    local('Segoe UI'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.woff2)
+      format('woff2'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.woff)
+      format('woff'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.ttf)
+      format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src:
+    local('Segoe UI Bold'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.woff2)
+      format('woff2'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.woff)
+      format('woff'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.ttf)
+      format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src:
+    local('Segoe UI Semibold'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.woff2)
+      format('woff2'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.woff)
+      format('woff'),
+    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.ttf)
+      format('truetype');
+  font-weight: 700;
+}
+
+:root {
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+}
+
+.group-title {
+  font-family: 'Segoe UI';
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.ui-control-text {
+  color: var(--v-theme-ui-control-text, #242424);
+  font-family: 'Segoe UI';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.v-selection-control .v-label {
+  margin-bottom: 0;
+}

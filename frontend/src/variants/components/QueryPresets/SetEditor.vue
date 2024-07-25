@@ -9,6 +9,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
 
+import Sortable from 'sortablejs'
+
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCtxStore } from '@/varfish/stores/ctx'
 import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
@@ -404,11 +406,48 @@ const handleDeleteClicked = async (category, presetsUuid) => {
   }
 }
 
+const setUpQuickPresetSortable = () => {
+  var el = document.getElementById('quickpresets')
+  var sortable = Sortable.create(el, {
+    dataIdAttr: 'id',
+    draggable: '.drag-item',
+    store: {
+      /**
+       * Save the order of elements. Called onEnd (when the item is dropped).
+       * @param {Sortable}  sortable
+       */
+      set: async (sortable) => {
+        var uuids = sortable.toArray()
+        var uuidsToPresets = {}
+        for (const presets of presetSet.value[
+          `${selectedCategory.value}_set`
+        ]) {
+          uuidsToPresets[presets.sodar_uuid] = presets
+        }
+        uuids.forEach(async (presetsUuid, i) => {
+          if (presetsUuid in uuidsToPresets) {
+            uuidsToPresets[presetsUuid].position = i
+            await queryPresetsStore.updatePresets(
+              'quickpresets',
+              props.presetSetUuid,
+              presetsUuid,
+              uuidsToPresets[presetsUuid],
+            )
+          }
+        })
+      },
+    },
+  })
+}
+
 /** When mounted, start out with frequency presets. Initialize store if necessary. */
 onMounted(async () => {
   await caseListStore.initialize(props.projectUuid)
   await queryPresetsStore.initialize(caseListStore.projectUuid)
   handleCategoryClicked('presetset')
+  if (getPresetSetEntries('quickpresets').length > 0) {
+    setUpQuickPresetSortable()
+  }
 })
 
 /** Handle change of presetSetUuid. */
@@ -418,6 +457,7 @@ watch(
     handleCategoryClicked('presetset')
   },
 )
+
 // eslint-enable
 </script>
 
@@ -482,13 +522,14 @@ watch(
                 class="collapse"
                 :class="{ show: selectedCategory === category.name }"
               >
-                <div class="card-body">
+                <div class="card-body" :id="category.name">
                   <template
                     v-if="getPresetSetEntries(category.name).length > 0"
                   >
                     <div
                       v-for="entry in getPresetSetEntries(category.name)"
-                      class="nav nav-pills flex-column"
+                      class="drag-item nav nav-pills flex-column"
+                      :id="entry.sodar_uuid"
                     >
                       <a
                         class="nav-link"
@@ -500,6 +541,9 @@ watch(
                           handlePresetsClicked(category.name, entry.sodar_uuid)
                         "
                       >
+                        <i-mdi-reorder-horizontal
+                          v-if="category.name === 'quickpresets'"
+                        />
                         {{ entry.label }}
                       </a>
                     </div>

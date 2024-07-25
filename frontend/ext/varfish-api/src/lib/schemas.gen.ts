@@ -3223,12 +3223,9 @@ export const $PatchedSeqvarsPredefinedQuery = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
-            ],
-            default: {
-                choice: null
-            }
+            ]
         },
         quality: {
             type: 'string',
@@ -3536,7 +3533,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3603,7 +3600,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3658,7 +3655,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3713,7 +3710,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -3780,7 +3777,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -4159,6 +4156,71 @@ owned category settings.`,
             format: 'uuid',
             readOnly: true
         },
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -4344,6 +4406,15 @@ export const $ProjectInvite = {
         }
     },
     required: ['date_created', 'date_expire', 'email', 'issuer', 'project', 'role', 'sodar_uuid']
+} as const;
+
+export const $RecessiveModeEnum = {
+    enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
+    type: 'string',
+    description: `* \`disabled\` - disabled
+* \`comphet_recessive\` - comphet_recessive
+* \`homozygous_recessive\` - homozygous_recessive
+* \`recessive\` - recessive`
 } as const;
 
 export const $RegionCoverageStats = {
@@ -5375,7 +5446,7 @@ export const $SeqvarsColumnConfigList = {
 
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non-hom', 'variant', 'comphet_index', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_het', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -5448,12 +5519,9 @@ export const $SeqvarsPredefinedQuery = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
-            ],
-            default: {
-                choice: null
-            }
+            ]
         },
         quality: {
             type: 'string',
@@ -5995,7 +6063,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6062,7 +6130,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6117,7 +6185,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6172,7 +6240,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6239,7 +6307,7 @@ Not used directly but used as base class.`,
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -6787,6 +6855,78 @@ export const $SeqvarsQuerySettings = {
             format: 'uuid',
             readOnly: true
         },
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
         genotype: {
             type: 'string',
             format: 'uuid',
@@ -6828,7 +6968,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'clinvarpresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -6943,6 +7083,71 @@ owned category settings.`,
             format: 'uuid',
             readOnly: true
         },
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresets',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -6968,7 +7173,7 @@ owned category settings.`,
             '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvar'
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
 } as const;
 
 export const $SeqvarsQuerySettingsFrequency = {
@@ -7038,7 +7243,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7105,7 +7310,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7160,7 +7365,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7215,7 +7420,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7282,7 +7487,7 @@ export const $SeqvarsQuerySettingsFrequency = {
                     type: 'object'
                 },
                 {
-                    type: 'number'
+                    type: 'null'
                 }
             ]
         },
@@ -7333,6 +7538,14 @@ export const $SeqvarsQuerySettingsGenotype = {
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RecessiveModeEnum'
+                }
+            ],
+            default: 'disabled'
         },
         sample_genotype_choices: {
             '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
@@ -7596,6 +7809,16 @@ export const $SeqvarsSampleGenotypeChoiceList = {
             },
             genotype: {
                 '$ref': '#/components/schemas/SeqvarsGenotypeChoice'
+            },
+            include_no_call: {
+                default: false,
+                title: 'Include No Call',
+                type: 'boolean'
+            },
+            enabled: {
+                default: true,
+                title: 'Enabled',
+                type: 'boolean'
             }
         },
         required: ['sample', 'genotype'],
@@ -7937,6 +8160,6 @@ export const $VarfishStats = {
 export const $strList = {
     type: 'array',
     items: {
-        type: 'number'
+        type: 'string'
     }
 } as const;

@@ -38,8 +38,7 @@ const fetchTermLabels = async (terms) => {
       if (term.startsWith('HP:')) {
         results = await vigunoClient.resolveHpoTermById(term)
       } else if (term.startsWith('OMIM:')) {
-        const term2 = term.replace('OMIM:', '')
-        results = await vigunoClient.resolveOmimTermById(term2)
+        results = await vigunoClient.resolveOmimTermById(term)
       }
       if (results.result.length) {
         termLabels[term] = results[0].label

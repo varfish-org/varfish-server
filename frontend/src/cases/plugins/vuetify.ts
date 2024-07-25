@@ -26,6 +26,23 @@ const customLightTheme: ThemeDefinition = {
     warning: '#ff9800',
     error: '#f44336',
     info: '#f0f2f5',
+
+    'hint-text': '#757575',
+    'ui-aux-text': '#595959',
+    'ui-control-text': '#242424',
+    'ui-control-text-disabled': '#BDBDBD',
+    'inactive-ui-element': '#D7D7D7',
+
+    bg: '#FFFFFF',
+    'hover-bg': '#FAFAFA',
+    'selected-bg': '#F3F9FF',
+    'bg-alt': '#F9F9F9',
+
+    'modification-indicator': '#DC9E00',
+    rating5: '#A21C19',
+    rating4: '#DC9E00',
+    rating3: '#DC9E00',
+    ratingX: '#DC9E00',
   },
 }
 

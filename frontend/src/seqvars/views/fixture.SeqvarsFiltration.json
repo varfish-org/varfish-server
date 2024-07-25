@@ -1,0 +1,1145 @@
+{
+  "sodar_uuid": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+  "date_created": "2024-07-01T00:00:00Z",
+  "date_modified": "2024-07-01T00:00:00Z",
+  "presetsset": {
+    "sodar_uuid": "b39cfd4b-8abe-4d78-8520-10116895cea8",
+    "date_created": "2024-07-01T00:00:00Z",
+    "date_modified": "2024-07-01T00:00:00Z",
+    "rank": 2,
+    "label": "short-read exome sequencing (modern)",
+    "description": "Settings for short-read exome sequencing with strict quality presets.  These settings are aimed at 'modern' WES sequencing where a target coverage of >=20x can be achieved for >=99% of the exome."
+  },
+  "version_major": 1,
+  "version_minor": 0,
+  "status": "active",
+  "signed_off_by": null,
+  "seqvarsquerypresetsquality_set": [
+    {
+      "sodar_uuid": "39850d17-0772-4aea-8a21-229039a40dfe",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "super strict",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "filter_active": true,
+      "min_dp_het": 10,
+      "min_dp_hom": 5,
+      "min_ab_het": 0.3,
+      "min_gq": 30,
+      "min_ad": 3,
+      "max_ad": null
+    },
+    {
+      "sodar_uuid": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "strict",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "filter_active": true,
+      "min_dp_het": 10,
+      "min_dp_hom": 5,
+      "min_ab_het": 0.2,
+      "min_gq": 10,
+      "min_ad": 3,
+      "max_ad": null
+    },
+    {
+      "sodar_uuid": "b0567812-8382-456e-8642-35eb281cdb93",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "relaxed",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "filter_active": true,
+      "min_dp_het": 8,
+      "min_dp_hom": 4,
+      "min_ab_het": 0.1,
+      "min_gq": 10,
+      "min_ad": 2,
+      "max_ad": null
+    },
+    {
+      "sodar_uuid": "a24eb80d-b189-4370-8d90-437bfd4f6854",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "any",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "filter_active": false,
+      "min_dp_het": null,
+      "min_dp_hom": null,
+      "min_ab_het": null,
+      "min_gq": null,
+      "min_ad": null,
+      "max_ad": null
+    }
+  ],
+  "seqvarsquerypresetsfrequency_set": [
+    {
+      "gnomad_exomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 1,
+        "hemizygous": null,
+        "frequency": 0.002
+      },
+      "gnomad_genomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 1,
+        "hemizygous": null,
+        "frequency": 0.002
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": true,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": 20
+      },
+      "sodar_uuid": "bd15349c-09af-4530-b5b9-80156fb59ea3",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "dominant super strict",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "gnomad_exomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 1,
+        "hemizygous": null,
+        "frequency": 0.002
+      },
+      "gnomad_genomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 1,
+        "hemizygous": null,
+        "frequency": 0.002
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": true,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": 20
+      },
+      "sodar_uuid": "d82e3ed6-bcaf-4c20-b1d8-fbc7b6ad2d73",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "dominant strict",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "gnomad_exomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 50,
+        "hemizygous": null,
+        "frequency": 0.01
+      },
+      "gnomad_genomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 20,
+        "hemizygous": null,
+        "frequency": 0.01
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": true,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": 20
+      },
+      "sodar_uuid": "5e9879ff-5422-47bb-8fbe-5628a7483d73",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "dominant relaxed",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "gnomad_exomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 120,
+        "hemizygous": null,
+        "frequency": 0.001
+      },
+      "gnomad_genomes": {
+        "enabled": true,
+        "homozygous": 0,
+        "heterozygous": 15,
+        "hemizygous": null,
+        "frequency": 0.001
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": true,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": 20
+      },
+      "sodar_uuid": "74211244-a16c-4327-b88b-78bdd49a72b4",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "recessive strict",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "gnomad_exomes": {
+        "enabled": true,
+        "homozygous": 20,
+        "heterozygous": 0,
+        "hemizygous": null,
+        "frequency": 0.01
+      },
+      "gnomad_genomes": {
+        "enabled": true,
+        "homozygous": 4,
+        "heterozygous": 150,
+        "hemizygous": null,
+        "frequency": 0.01
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": true,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": 20
+      },
+      "sodar_uuid": "268cdc62-8a60-4252-8d4d-6762970882be",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 5,
+      "label": "recessive relaxed",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "gnomad_exomes": {
+        "enabled": false,
+        "homozygous": null,
+        "heterozygous": null,
+        "hemizygous": null,
+        "frequency": null
+      },
+      "gnomad_genomes": {
+        "enabled": false,
+        "homozygous": null,
+        "heterozygous": null,
+        "hemizygous": null,
+        "frequency": null
+      },
+      "gnomad_mitochondrial": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "helixmtdb": {
+        "enabled": false,
+        "heteroplasmic": null,
+        "homoplasmic": null,
+        "frequency": null
+      },
+      "inhouse": {
+        "enabled": false,
+        "heterozygous": null,
+        "homozygous": null,
+        "hemizygous": null,
+        "carriers": null
+      },
+      "sodar_uuid": "fe56b1e5-74a0-4625-bbc3-6d973bb70669",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 6,
+      "label": "any",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetsconsequence_set": [
+    {
+      "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
+      "transcript_types": ["coding", "non_coding"],
+      "variant_consequences": [
+        "frameshift_variant",
+        "rare_amino_acid_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "3_prime_UTR_truncation",
+        "5_prime_UTR_truncation",
+        "conservative_inframe_deletion",
+        "conservative_inframe_insertion",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "missense_variant",
+        "splice_region_variant",
+        "initiator_codon_variant",
+        "start_retained",
+        "stop_retained_variant",
+        "synonymous_variant",
+        "downstream_gene_variant",
+        "intron_variant",
+        "non_coding_transcript_exon_variant",
+        "non_coding_transcript_intron_variant",
+        "5_prime_UTR_variant",
+        "coding_sequence_variant",
+        "upstream_gene_variant",
+        "3_prime_UTR_variant-exon_variant",
+        "5_prime_UTR_variant-exon_variant",
+        "3_prime_UTR_variant-intron_variant",
+        "5_prime_UTR_variant-intron_variant"
+      ],
+      "max_distance_to_exon": null,
+      "sodar_uuid": "c41edca6-67b1-4551-974b-975360e09044",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "any",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
+      "transcript_types": ["coding"],
+      "variant_consequences": [
+        "frameshift_variant",
+        "rare_amino_acid_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost"
+      ],
+      "max_distance_to_exon": null,
+      "sodar_uuid": "5bb88633-537c-4792-ab87-55c5b0f9aafc",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "null variant",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
+      "transcript_types": ["coding"],
+      "variant_consequences": [
+        "frameshift_variant",
+        "rare_amino_acid_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "conservative_inframe_deletion",
+        "conservative_inframe_insertion",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "missense_variant",
+        "splice_region_variant"
+      ],
+      "max_distance_to_exon": null,
+      "sodar_uuid": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "AA change + splicing",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
+      "transcript_types": ["coding", "non_coding"],
+      "variant_consequences": [
+        "frameshift_variant",
+        "rare_amino_acid_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "conservative_inframe_deletion",
+        "conservative_inframe_insertion",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "missense_variant",
+        "splice_region_variant",
+        "initiator_codon_variant",
+        "start_retained",
+        "stop_retained_variant",
+        "synonymous_variant",
+        "intron_variant",
+        "coding_sequence_variant"
+      ],
+      "max_distance_to_exon": null,
+      "sodar_uuid": "82d1d170-1cac-4d0b-a8b7-65989e022098",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "all coding + deep intronic",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_types": ["snv", "indel", "mnv", "complex_substitution"],
+      "transcript_types": ["coding", "non_coding"],
+      "variant_consequences": [
+        "frameshift_variant",
+        "rare_amino_acid_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "3_prime_UTR_truncation",
+        "5_prime_UTR_truncation",
+        "conservative_inframe_deletion",
+        "conservative_inframe_insertion",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "missense_variant",
+        "splice_region_variant",
+        "initiator_codon_variant",
+        "start_retained",
+        "stop_retained_variant",
+        "synonymous_variant",
+        "intron_variant",
+        "non_coding_transcript_exon_variant",
+        "non_coding_transcript_intron_variant",
+        "5_prime_UTR_variant",
+        "coding_sequence_variant",
+        "3_prime_UTR_variant-exon_variant",
+        "5_prime_UTR_variant-exon_variant",
+        "3_prime_UTR_variant-intron_variant",
+        "5_prime_UTR_variant-intron_variant"
+      ],
+      "max_distance_to_exon": null,
+      "sodar_uuid": "451ed237-1839-42d2-96af-b86411efe3fd",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 5,
+      "label": "whole transcript",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetslocus_set": [
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [],
+      "sodar_uuid": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "whole genome",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "1",
+          "range": null
+        },
+        {
+          "chromosome": "2",
+          "range": null
+        },
+        {
+          "chromosome": "3",
+          "range": null
+        },
+        {
+          "chromosome": "4",
+          "range": null
+        },
+        {
+          "chromosome": "5",
+          "range": null
+        },
+        {
+          "chromosome": "6",
+          "range": null
+        },
+        {
+          "chromosome": "7",
+          "range": null
+        },
+        {
+          "chromosome": "8",
+          "range": null
+        },
+        {
+          "chromosome": "9",
+          "range": null
+        },
+        {
+          "chromosome": "10",
+          "range": null
+        },
+        {
+          "chromosome": "11",
+          "range": null
+        },
+        {
+          "chromosome": "12",
+          "range": null
+        },
+        {
+          "chromosome": "13",
+          "range": null
+        },
+        {
+          "chromosome": "14",
+          "range": null
+        },
+        {
+          "chromosome": "15",
+          "range": null
+        },
+        {
+          "chromosome": "16",
+          "range": null
+        },
+        {
+          "chromosome": "17",
+          "range": null
+        },
+        {
+          "chromosome": "18",
+          "range": null
+        },
+        {
+          "chromosome": "19",
+          "range": null
+        },
+        {
+          "chromosome": "20",
+          "range": null
+        },
+        {
+          "chromosome": "21",
+          "range": null
+        },
+        {
+          "chromosome": "22",
+          "range": null
+        },
+        {
+          "chromosome": "X",
+          "range": null
+        },
+        {
+          "chromosome": "Y",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "4a2a3e41-f835-4314-9263-3d6da014c5d4",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "nuclear chromosomes",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "1",
+          "range": null
+        },
+        {
+          "chromosome": "2",
+          "range": null
+        },
+        {
+          "chromosome": "3",
+          "range": null
+        },
+        {
+          "chromosome": "4",
+          "range": null
+        },
+        {
+          "chromosome": "5",
+          "range": null
+        },
+        {
+          "chromosome": "6",
+          "range": null
+        },
+        {
+          "chromosome": "7",
+          "range": null
+        },
+        {
+          "chromosome": "8",
+          "range": null
+        },
+        {
+          "chromosome": "9",
+          "range": null
+        },
+        {
+          "chromosome": "10",
+          "range": null
+        },
+        {
+          "chromosome": "11",
+          "range": null
+        },
+        {
+          "chromosome": "12",
+          "range": null
+        },
+        {
+          "chromosome": "13",
+          "range": null
+        },
+        {
+          "chromosome": "14",
+          "range": null
+        },
+        {
+          "chromosome": "15",
+          "range": null
+        },
+        {
+          "chromosome": "16",
+          "range": null
+        },
+        {
+          "chromosome": "17",
+          "range": null
+        },
+        {
+          "chromosome": "18",
+          "range": null
+        },
+        {
+          "chromosome": "19",
+          "range": null
+        },
+        {
+          "chromosome": "20",
+          "range": null
+        },
+        {
+          "chromosome": "21",
+          "range": null
+        },
+        {
+          "chromosome": "22",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "18873255-62c8-44c1-9834-7f9608f5fa74",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "autosomes",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "X",
+          "range": null
+        },
+        {
+          "chromosome": "Y",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "30c9e507-eab9-4480-b9e2-1d297a2f15f0",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "gonosomes",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "X",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "bf4302b2-4223-453b-a14a-79023047a452",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 5,
+      "label": "X chromosome",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "Y",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "0b1f331b-0c98-4e86-86cc-ac693f7a9c53",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 6,
+      "label": "Y chromosome",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "genes": [],
+      "gene_panels": [],
+      "genome_regions": [
+        {
+          "chromosome": "MT",
+          "range": null
+        }
+      ],
+      "sodar_uuid": "ae0b60fd-d113-4b9a-b5e8-04cfac78b489",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 7,
+      "label": "MT genome",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetsphenotypeprio_set": [
+    {
+      "phenotype_prio_enabled": false,
+      "phenotype_prio_algorithm": "exomiser.hiphive_human",
+      "terms": [],
+      "sodar_uuid": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "disabled",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetsvariantprio_set": [
+    {
+      "variant_prio_enabled": false,
+      "services": [],
+      "sodar_uuid": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "disabled",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_prio_enabled": false,
+      "services": [
+        {
+          "name": "cadd",
+          "version": "1.6"
+        }
+      ],
+      "sodar_uuid": "47290348-0b2a-43a0-bcd4-48ced6e3facf",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "CADD",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "variant_prio_enabled": false,
+      "services": [
+        {
+          "name": "mutationtaster",
+          "version": "2021"
+        }
+      ],
+      "sodar_uuid": "e2164371-3920-4108-8260-d2cc2842cc58",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "MutationTaster",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetsclinvar_set": [
+    {
+      "clinvar_presence_required": false,
+      "clinvar_germline_aggregate_description": [],
+      "allow_conflicting_interpretations": false,
+      "sodar_uuid": "9a949347-c0e2-4124-947d-605303bc1158",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "disabled",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "clinvar_presence_required": true,
+      "clinvar_germline_aggregate_description": [
+        "pathogenic",
+        "likely_pathogenic"
+      ],
+      "allow_conflicting_interpretations": false,
+      "sodar_uuid": "481ffa49-8b0f-441e-8e55-e385a5940e13",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "Clinvar P/LP",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "clinvar_presence_required": true,
+      "clinvar_germline_aggregate_description": [
+        "pathogenic",
+        "likely_pathogenic"
+      ],
+      "allow_conflicting_interpretations": true,
+      "sodar_uuid": "90401dcc-5b4f-4f2c-b1c4-1106fea2658c",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "Clinvar P/LP +conflicting",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    },
+    {
+      "clinvar_presence_required": true,
+      "clinvar_germline_aggregate_description": [
+        "pathogenic",
+        "likely_pathogenic",
+        "uncertain_significance"
+      ],
+      "allow_conflicting_interpretations": true,
+      "sodar_uuid": "5c66c458-1c8c-457b-a78f-5a8532f4bdb0",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "ClinVar P/LP/VUS +conflicting",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarsquerypresetscolumns_set": [
+    {
+      "column_settings": [],
+      "sodar_uuid": "394aa1da-d68a-4f2d-9cc2-5c505712caa6",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "defaults",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f"
+    }
+  ],
+  "seqvarspredefinedquery_set": [
+    {
+      "sodar_uuid": "ffb91fd8-0f2c-4bfc-b779-e1eb9b527636",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 1,
+      "label": "defaults",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "any"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "d82e3ed6-bcaf-4c20-b1d8-fbc7b6ad2d73",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "ad05a008-0c48-4695-82be-277b6ee870af",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 2,
+      "label": "de novo",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "de_novo"
+      },
+      "quality": "39850d17-0772-4aea-8a21-229039a40dfe",
+      "frequency": "d82e3ed6-bcaf-4c20-b1d8-fbc7b6ad2d73",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "2486d632-1f5b-4a1a-b954-7b1e9f82af07",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 3,
+      "label": "dominant",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "dominant"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "d82e3ed6-bcaf-4c20-b1d8-fbc7b6ad2d73",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "bc333ff0-a477-41d4-aeb9-07252defcb3a",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 4,
+      "label": "homozygous recessive",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "homozygous_recessive"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "74211244-a16c-4327-b88b-78bdd49a72b4",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "a64108e7-9ea0-4917-8161-afd8d5e6ece5",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 5,
+      "label": "compound heterozygous",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "compound_heterozygous_recessive"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "74211244-a16c-4327-b88b-78bdd49a72b4",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "1024b6d5-a533-4e83-abc9-d0834b2fd3fb",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 6,
+      "label": "recessive",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "recessive"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "74211244-a16c-4327-b88b-78bdd49a72b4",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "6f6c866b-01b9-49d2-930e-16c145a5027c",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 7,
+      "label": "X recessive",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "x_recessive"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "74211244-a16c-4327-b88b-78bdd49a72b4",
+      "consequence": "4860f7d0-d76e-4b6f-96bc-f77c12d465da",
+      "locus": "bf4302b2-4223-453b-a14a-79023047a452",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "86113d33-b030-491d-adab-5aaf461f1f40",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 8,
+      "label": "ClinVar pathogenic",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "affected_carriers"
+      },
+      "quality": "a24eb80d-b189-4370-8d90-437bfd4f6854",
+      "frequency": "fe56b1e5-74a0-4625-bbc3-6d973bb70669",
+      "consequence": "c41edca6-67b1-4551-974b-975360e09044",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "90401dcc-5b4f-4f2c-b1c4-1106fea2658c",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "dba947cb-3150-4e85-ada0-9b93a060af85",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 9,
+      "label": "mitochondrial",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "affected_carriers"
+      },
+      "quality": "19a56746-0241-45e4-9195-9d9d1ddccf2d",
+      "frequency": "d82e3ed6-bcaf-4c20-b1d8-fbc7b6ad2d73",
+      "consequence": "c41edca6-67b1-4551-974b-975360e09044",
+      "locus": "ae0b60fd-d113-4b9a-b5e8-04cfac78b489",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    },
+    {
+      "sodar_uuid": "0f8f7bdb-d4a7-463b-baa2-ac82d733291e",
+      "date_created": "2024-07-01T00:00:00Z",
+      "date_modified": "2024-07-01T00:00:00Z",
+      "rank": 10,
+      "label": "whole genome",
+      "description": null,
+      "presetssetversion": "612b6cd5-2d39-45ab-9ddd-2106dcae6e9f",
+      "included_in_sop": false,
+      "genotype": {
+        "choice": "any"
+      },
+      "quality": "a24eb80d-b189-4370-8d90-437bfd4f6854",
+      "frequency": "fe56b1e5-74a0-4625-bbc3-6d973bb70669",
+      "consequence": "c41edca6-67b1-4551-974b-975360e09044",
+      "locus": "f1702cde-1b93-4513-90bf-eb96f57bfe7b",
+      "phenotypeprio": "feb9a31c-af0a-46c8-bc93-5110cb477e85",
+      "variantprio": "f92d470b-d1d2-484c-9dc2-b5d1588d6282",
+      "clinvar": "9a949347-c0e2-4124-947d-605303bc1158",
+      "columns": "394aa1da-d68a-4f2d-9cc2-5c505712caa6"
+    }
+  ]
+}

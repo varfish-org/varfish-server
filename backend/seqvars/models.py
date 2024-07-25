@@ -2,7 +2,6 @@ from enum import Enum
 import typing
 import uuid as uuid_object
 
-import django
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
@@ -522,7 +521,6 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
             status=self.STATUS_DRAFT,
         )
 
-        old_uuid_to_new_obj = {}
         for key in (
             "seqvarsquerypresetsfrequency_set",
             "seqvarsquerypresetsvariantprio_set",
@@ -673,7 +671,10 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
 
     #: The chosen genotype presets.
     genotype = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets], default=SeqvarsGenotypePresets()
+        schema=typing.Optional[SeqvarsGenotypePresets],
+        default=SeqvarsGenotypePresets(),
+        null=True,
+        blank=True,
     )
 
     #: The chosen quality presets.
@@ -722,9 +723,54 @@ class SeqvarsQuerySettings(BaseModel):
     #: The presets set version that this ``QuerySettings`` is based on.
     #:
     #: This information is used for computing differences between the presets and the
-    #: effective query settings.
+    #: effective query settings (together with ``predefinedquery``).
     presetssetversion = models.ForeignKey(
         SeqvarsQueryPresetsSetVersion, on_delete=models.PROTECT, null=True, blank=True
+    )
+
+    #: The predefined query that this ``QuerySettings`` is based on.
+    predefinedquery = models.ForeignKey(
+        SeqvarsPredefinedQuery, on_delete=models.PROTECT, null=True, blank=True
+    )
+
+    #: The chosen genotype presets.
+    genotypepresets = SchemaField(
+        schema=typing.Optional[SeqvarsGenotypePresets],
+        default=SeqvarsGenotypePresets(),
+        null=True,
+        blank=True,
+    )
+    #: The chosen quality presets.
+    qualitypresets = models.ForeignKey(
+        SeqvarsQueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen frequency presets.
+    frequencypresets = models.ForeignKey(
+        SeqvarsQueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen consequence presets.
+    consequencepresets = models.ForeignKey(
+        SeqvarsQueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen locus presets.
+    locuspresets = models.ForeignKey(
+        SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen phenotype priorization presets.
+    phenotypepriopresets = models.ForeignKey(
+        SeqvarsQueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen variant priorization presets.
+    variantpriopresets = models.ForeignKey(
+        SeqvarsQueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen clinvar presets.
+    clinvarpresets = models.ForeignKey(
+        SeqvarsQueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    #: The chosen columns presets.
+    columnspresets = models.ForeignKey(
+        SeqvarsQueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def __str__(self):
@@ -749,12 +795,12 @@ class SeqvarsGenotypeChoice(str, Enum):
     HET = "het"
     #: Homozygous alternative genotype (or hemizygous alt for chrX / male).
     HOM = "hom"
+    #: Non-heterozygous.
+    NON_HET = "non_het"
     #: Non-homozygous.
-    NON_HOM = "non-hom"
+    NON_HOM = "non_hom"
     #: Variant.
     VARIANT = "variant"
-    #: Compound heterozygous index.
-    COMPHET_INDEX = "comphet_index"
     #: Recessive index.
     RECESSIVE_INDEX = "recessive_index"
     #: Recessive parent.
@@ -772,6 +818,9 @@ class SeqvarsSampleGenotypeChoice(pydantic.BaseModel):
     sample: str
     #: The genotype.
     genotype: SeqvarsGenotypeChoice
+    #: Include no-call genotype, will disable quality filter.
+    include_no_call: bool = False
+    enabled: bool = True
 
 
 class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
@@ -780,6 +829,27 @@ class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
         SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="genotype"
+    )
+
+    RECESSIVE_MODE_DISABLED = "disabled"
+    RECESSIVE_MODE_COMPHET_RECESSIVE = "comphet_recessive"
+    RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
+    RECESSIVE_MODE_RECESSIVE = "recessive"
+
+    RECESSIVE_MODE_CHOICES = (
+        (RECESSIVE_MODE_DISABLED, RECESSIVE_MODE_DISABLED),
+        (RECESSIVE_MODE_COMPHET_RECESSIVE, RECESSIVE_MODE_COMPHET_RECESSIVE),
+        (RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE, RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE),
+        (RECESSIVE_MODE_RECESSIVE, RECESSIVE_MODE_RECESSIVE),
+    )
+
+    #: The recessive mode.
+    recessive_mode = models.CharField(
+        max_length=128,
+        choices=RECESSIVE_MODE_CHOICES,
+        default=RECESSIVE_MODE_DISABLED,
+        null=False,
+        blank=False,
     )
 
     #: Per-sample genotype choice.

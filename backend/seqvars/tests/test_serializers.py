@@ -707,6 +707,14 @@ class TestSeqvarsQuerySettingsSerializer(TestCase):
             # QuerySettings
             "session",
             # "presetssetversion",
+            "genotypepresets",
+            "locuspresets",
+            "variantpriopresets",
+            "phenotypepriopresets",
+            "consequencepresets",
+            "qualitypresets",
+            "clinvarpresets",
+            "frequencypresets",
             "genotype",
             "quality",
             "consequence",
@@ -731,6 +739,8 @@ class TestSeqvarsQuerySettingsSerializer(TestCase):
         expected["phenotypeprio"] = self.querysettings.phenotypeprio.sodar_uuid
         expected["variantprio"] = self.querysettings.variantprio.sodar_uuid
         expected["clinvar"] = self.querysettings.clinvar.sodar_uuid
+        # Create JSON dump where necessary.
+        expected["genotypepresets"] = expected["genotypepresets"].model_dump(mode="json")
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -757,6 +767,14 @@ class TestSeqvarsQuerySettingsDetailsSerializer(TestCase):
             # QuerySettings
             "session",
             # "presetssetversion",
+            "genotypepresets",
+            "locuspresets",
+            "variantpriopresets",
+            "phenotypepriopresets",
+            "consequencepresets",
+            "qualitypresets",
+            "clinvarpresets",
+            "frequencypresets",
             "genotype",
             "quality",
             "consequence",
@@ -796,6 +814,8 @@ class TestSeqvarsQuerySettingsDetailsSerializer(TestCase):
             self.querysettings.variantprio
         ).data
         expected["clinvar"] = SeqvarsQuerySettingsClinvarSerializer(self.querysettings.clinvar).data
+        # Create JSON dump where necessary.
+        expected["genotypepresets"] = expected["genotypepresets"].model_dump(mode="json")
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
@@ -817,6 +837,7 @@ class TestSeqvarsQuerySettingsGenotypeSerializer(TestCase):
             # QuerySettingsBase
             "querysettings",
             # GenotypeSettingsBase
+            "recessive_mode",
             "sample_genotype_choices",
         ]
         expected = model_to_dict(

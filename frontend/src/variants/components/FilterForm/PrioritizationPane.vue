@@ -106,7 +106,7 @@ defineExpose({ v$ })
       </div>
       <div class="form-group pt-2">
         <label for="prio-hpo-terms"> HPO Terms </label>
-        <HpoTermInput v-model="prioHpoTermsWrapper" />
+        <HpoTermInput v-model="prioHpoTermsWrapper" :include-omim="false" />
       </div>
     </div>
 

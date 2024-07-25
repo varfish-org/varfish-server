@@ -1,6 +1,6 @@
 import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
-import singletonCaseData from '@/variantsTest/data/case-singleton.json'
-import querySettingsSingleton from '@/variantsTest/data/query-settings-singleton.json'
+import singletonCaseData from '@tests/variants/data/case-singleton.json'
+import querySettingsSingleton from '@tests/variants/data/query-settings-singleton.json'
 
 export default {
   title: 'Variants / Filter Form Frequency',

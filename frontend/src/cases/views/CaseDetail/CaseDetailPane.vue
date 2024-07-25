@@ -60,7 +60,6 @@ const caseAnalysisStore = useCaseAnalysisStore()
 const seqvarsQueryStore = useSeqvarsQueryStore()
 
 // Routing-related.
-
 const router = useRouter()
 
 const refreshStores = async () => {
