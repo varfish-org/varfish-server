@@ -5,6 +5,16 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { computed, PropType } from 'vue'
 
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether the editor is readonly. */
+    readonly: boolean
+  }>(),
+  { readonly: false },
+)
+
 /** The consequence presets to use in this editor. */
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsConsequence>,
@@ -266,7 +276,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
 <template>
   <h3>Consequence Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h3>
 
-  <v-skeleton-loader v-if="!model" />
+  <v-skeleton-loader v-if="!model" type="article" />
   <v-form v-else>
     <h4 class="pt-3">Distance</h4>
 
@@ -276,6 +286,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       type="number"
       hide-details
       clearable
+      :disabled="readonly"
     />
 
     <h4 class="pt-3">Variant Type</h4>
@@ -286,6 +297,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       label="SNV"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
     <v-checkbox
       v-model="model.variant_types"
@@ -293,6 +305,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       label="Indel"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
     <v-checkbox
       v-model="model.variant_types"
@@ -300,6 +313,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       label="MNV"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
 
     <h4 class="pt-3">Transcript Type</h4>
@@ -310,6 +324,7 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       label="Coding"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
     <v-checkbox
       v-model="model.transcript_types"
@@ -317,18 +332,21 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
       label="Non-Coding"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
 
     <h4 class="pt-3">Effect Group</h4>
 
     <v-checkbox
       v-for="group in consequenceGroupsInfos"
-      :label="group.label"
+      :key="`group-${group.key}`"
       v-model="consequenceGroups[group.key].checked"
+      :label="group.label"
       :indeterminate="consequenceGroups[group.key].indeterminate"
-      @click="toggleConsequenceGroup(group.key)"
       density="compact"
       hide-details
+      :disabled="readonly"
+      @click="toggleConsequenceGroup(group.key)"
     />
 
     <h4 class="pt-3">Customize Effects</h4>
@@ -337,44 +355,52 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
 
     <v-checkbox
       v-for="consequence in codingConsequences"
+      :key="`consequence-${consequence.key}`"
+      v-model="model.variant_consequences"
       :value="consequence.key"
       :label="consequence.label"
-      v-model="model.variant_consequences"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
 
     <h5>Off-Exomes</h5>
 
     <v-checkbox
       v-for="consequence in offExomesConsequences"
+      :key="`consequence-${consequence.key}`"
+      v-model="model.variant_consequences"
       :value="consequence.key"
       :label="consequence.label"
-      v-model="model.variant_consequences"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
 
     <h5>Non-coding</h5>
 
     <v-checkbox
       v-for="consequence in nonCodingConsequences"
+      :key="`consequence-${consequence.key}`"
+      v-model="model.variant_consequences"
       :value="consequence.key"
       :label="consequence.label"
-      v-model="model.variant_consequences"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
 
     <h5>Splicing</h5>
 
     <v-checkbox
       v-for="consequence in splicingConsequences"
+      :key="`consequence-${consequence.key}`"
+      v-model="model.variant_consequences"
       :value="consequence.key"
       :label="consequence.label"
-      v-model="model.variant_consequences"
       density="compact"
       hide-details
+      :disabled="readonly"
     />
   </v-form>
 </template>

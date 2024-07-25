@@ -2,6 +2,16 @@
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
 import { PropType } from 'vue'
 
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether the editor is readonly. */
+    readonly: boolean
+  }>(),
+  { readonly: false },
+)
+
 /** The quality presets to use in this editor. */
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsQuality>,
@@ -11,12 +21,13 @@ const model = defineModel({
 <template>
   <h4>Quality Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
-  <v-skeleton-loader v-if="!model" />
+  <v-skeleton-loader v-if="!model" type="article" />
   <v-form v-else>
     <v-checkbox
       v-model="model.filter_active"
       label="Filter Active"
       hide-details
+      :disabled="readonly"
     />
 
     <div class="text-body-1 pb-3">
@@ -28,6 +39,7 @@ const model = defineModel({
       label="Min DP Het: minimal depth required for heterozygous genotypes."
       type="number"
       clearable
+      :disabled="readonly"
     />
 
     <v-text-field
@@ -35,6 +47,7 @@ const model = defineModel({
       label="Min DP Hom: minimal depth required for homozygous genotypes."
       type="number"
       clearable
+      :disabled="readonly"
     />
 
     <v-text-field
@@ -43,6 +56,7 @@ const model = defineModel({
       type="number"
       step="0.01"
       clearable
+      :disabled="readonly"
     />
 
     <v-text-field
@@ -50,6 +64,7 @@ const model = defineModel({
       label="Min GQ: minimal genotype quality required to pass."
       type="number"
       clearable
+      :disabled="readonly"
     />
 
     <v-text-field
@@ -57,6 +72,7 @@ const model = defineModel({
       label="Min AD: minimal alternate read depth required to pass."
       type="number"
       clearable
+      :disabled="readonly"
     />
 
     <v-text-field
@@ -64,6 +80,7 @@ const model = defineModel({
       label="Max AD: maximal alternate read depth allowed to pass."
       type="number"
       clearable
+      :disabled="readonly"
     />
   </v-form>
 </template>

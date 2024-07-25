@@ -1,4 +1,7 @@
-import { GenomeRegionList } from '@varfish-org/varfish-api/lib'
+import {
+  GenomeRegionList,
+  SeqvarsGenotypePresetChoice,
+} from '@varfish-org/varfish-api/lib'
 import { computed, ref, Ref } from 'vue'
 import { formatLargeInt } from '@/varfish/helpers'
 
@@ -13,6 +16,7 @@ export function toProxy<T extends object>(opt: {
   setters: ProxySetters<T>
 }) {
   // <(string & {})> -- a trick for "any string, but still suggest the keys"
+  // eslint-disable-next-line @typescript-eslint/ban-types
   const currentlySetting = ref<keyof T | (string & {})>()
 
   function setFields(toSet: Partial<T>) {
@@ -98,8 +102,8 @@ const CHROMOSOME_RE = /^(chr)?([1-9]|1[0-9]|2[0-2]|x|y|m|mt)$/
  */
 export const parseGenomeRegion = (text: string): GenomeRegion => {
   // Guard against multiple colons.
-  if ((text.match(/:/) || []).length > 1) {
-    throw new Error('Multiple colons in input')
+  if ((text.match(/:/g) || []).length > 1) {
+    throw new Error('Too many colons in input')
   }
 
   // Otherwise, split by colon.
@@ -123,13 +127,13 @@ export const parseGenomeRegion = (text: string): GenomeRegion => {
   chromosome = chromosome.toUpperCase()
   // If we only have the chromosome, we are done.
   if (parts.length === 1) {
-    return { chromosome: parts[0] }
+    return { chromosome }
   }
 
   // Parse out the range.
   let range = parts[1]
-  if ((range.match(/-/) || []).length > 1) {
-    throw new Error('Multiple hyphens input range')
+  if ((range.match(/-/g) || []).length > 1) {
+    throw new Error('Invalid range: too many hyphens')
   }
   // Strip any commas.
   range = range.replace(/,/g, '')
@@ -146,4 +150,18 @@ export const parseGenomeRegion = (text: string): GenomeRegion => {
   }
   // Otherwise, we are good.
   return { chromosome, range: { start, end } }
+}
+
+/** Labels for genotype presets. */
+export const GENOTYPE_PRESET_LABELS: {
+  [key in SeqvarsGenotypePresetChoice]: string
+} = {
+  any: 'Any',
+  de_novo: 'De novo',
+  dominant: 'Dominant',
+  homozygous_recessive: 'Homozygous recessive',
+  compound_heterozygous_recessive: 'Compound heterozygous recessive',
+  recessive: 'Recessive',
+  x_recessive: 'X-linked recessive',
+  affected_carriers: 'Affected carriers',
 }

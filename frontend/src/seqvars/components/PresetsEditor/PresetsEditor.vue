@@ -3,6 +3,7 @@ import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsS
 import QueryPresetsEditor from '@/seqvars/components/PresetsEditor/QueryPresetsEditor.vue'
 
 /** Props used in this component. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   /** The project UUID. */
   projectUuid?: string

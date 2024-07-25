@@ -23,6 +23,7 @@ import CategoryPresetsClinvarEditor from '@/seqvars/components/PresetsEditor/Cat
 import CategoryPresetsColumnsEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsColumnsEditor.vue'
 import CategoryPresetsPredefinedQueriesEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsPredefinedQueriesEditor.vue'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { EditableState } from '@/seqvars/stores/presets/types'
 
 /** Props used in this component. */
 const props = defineProps<{
@@ -242,6 +243,15 @@ const selectFirstPresets = () => {
   }
 }
 
+/** Whether the currently selected presets version is readonly. */
+const presetSetVersionReadonly = computed<boolean>(() => {
+  return (
+    props.presetSetVersion === undefined ||
+    seqvarsPresetsStore.getEditableState(props.presetSetVersion) !==
+      EditableState.EDITABLE
+  )
+})
+
 // Select first presets when mounted.
 onMounted(() => {
   selectFirstPresets()
@@ -263,12 +273,12 @@ watch(
 
 <template>
   <v-skeleton-loader
+    v-if="!selectedPresetSetVersion?.presetsset"
     loading
     type="heading,paragraph"
     class="pt-3"
-    v-if="!selectedPresetSetVersion?.presetsset"
   />
-  <div class="pt-3" v-else>
+  <div v-else class="pt-3">
     <h3 class="pb-3">
       Presets: &raquo;{{
         selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED'
@@ -282,8 +292,8 @@ watch(
     <v-row class="d-flex flex-nowrap">
       <v-col cols="3">
         <v-expansion-panels
-          mandatory
           v-model="selectedCategory"
+          mandatory
           :flat="false"
           density="compact"
         >
@@ -307,52 +317,62 @@ watch(
           <div v-if="selectedCategory === Category.QUALITY">
             <CategoryPresetsQualityEditor
               v-model:model-value="selectedQualityPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.FREQUENCY">
             <CategoryPresetsFrequencyEditor
               v-model:model-value="selectedFrequencyPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.CONSEQUENCE">
             <CategoryPresetsConsequenceEditor
               v-model:model-value="selectedConsequencePresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.LOCUS">
             <CategoryPresetsLocusEditor
               v-model:model-value="selectedLocusPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.PHENOTYPE_PRIO">
             <CategoryPresetsPhenotypePrioEditor
               v-model:model-value="selectedPhenotypePrioPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.VARIANT_PRIO">
             <CategoryPresetsVariantPrioEditor
               v-model:model-value="selectedVariantPrioPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.CLINVAR">
             <CategoryPresetsClinvarEditor
               v-model:model-value="selectedClinvarPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.COLUMNS">
             <CategoryPresetsColumnsEditor
               v-model:model-value="selectedColumnsPresets"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <div v-else-if="selectedCategory === Category.PREDEFINED_QUERIES">
             <CategoryPresetsPredefinedQueriesEditor
               v-model:model-value="selectedPredefinedQueryPresets"
+              :presets-set-version="selectedPresetSetVersion"
+              :readonly="presetSetVersionReadonly"
             />
           </div>
           <v-alert
+            v-else
             :title="`Invalid category ${selectedCategory}`"
             color="error"
-            v-else
           />
         </v-sheet>
       </v-col>

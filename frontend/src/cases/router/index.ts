@@ -13,7 +13,6 @@ import {
 import { nextTick } from 'vue'
 import { useCtxStore } from '@/varfish/stores/ctx/store'
 import { Tab as CaseListTab } from '@/cases/views/CaseList/types'
-import QueryPresets from '@/variants/components/QueryPresets.vue'
 
 const CaseDetail = () => import('@/cases/views/CaseDetail/CaseDetail.vue')
 const CaseList = () => import('@/cases/views/CaseList/CaseList.vue')

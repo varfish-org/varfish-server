@@ -3,6 +3,16 @@ import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 import { PropType, computed } from 'vue'
 import { GnomadFreqs, MitochondrialFreqs, InhouseFreqs } from './types'
 
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether the editor is readonly. */
+    readonly: boolean
+  }>(),
+  { readonly: false },
+)
+
 /** The frequency presets to use in this editor. */
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsFrequency>,
@@ -28,7 +38,7 @@ const inhouse = computed<InhouseFreqs>(
 <template>
   <h4>Frequency Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
-  <v-skeleton-loader v-if="!model" />
+  <v-skeleton-loader v-if="!model" type="article" />
   <v-form v-else>
     <v-table density="compact">
       <thead>
@@ -45,7 +55,11 @@ const inhouse = computed<InhouseFreqs>(
         <tr>
           <th class="px-1">gnomAD exomes</th>
           <td class="px-1">
-            <v-checkbox v-model="gnomadExomes.enabled" hide-details />
+            <v-checkbox
+              v-model="gnomadExomes.enabled"
+              hide-details
+              :disabled="readonly"
+            />
           </td>
           <td class="px-1">
             <v-text-field
@@ -54,6 +68,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -63,6 +78,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -72,6 +88,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -82,13 +99,18 @@ const inhouse = computed<InhouseFreqs>(
               clearable
               type="number"
               step="0.001"
+              :disabled="readonly"
             />
           </td>
         </tr>
         <tr>
           <th class="px-1">gnomAD genomes</th>
           <td class="px-1">
-            <v-checkbox v-model="gnomadGenomes.enabled" hide-details />
+            <v-checkbox
+              v-model="gnomadGenomes.enabled"
+              hide-details
+              :disabled="readonly"
+            />
           </td>
           <td class="px-1">
             <v-text-field
@@ -97,6 +119,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -106,6 +129,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -115,6 +139,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -125,13 +150,18 @@ const inhouse = computed<InhouseFreqs>(
               clearable
               type="number"
               step="0.001"
+              :disabled="readonly"
             />
           </td>
         </tr>
         <tr>
           <th class="px-1">gnomAD MT</th>
           <td class="px-1">
-            <v-checkbox v-model="gnomadMitochondrial.enabled" hide-details />
+            <v-checkbox
+              v-model="gnomadMitochondrial.enabled"
+              hide-details
+              :disabled="readonly"
+            />
           </td>
           <td class="px-1">
             <v-text-field
@@ -140,6 +170,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -149,6 +180,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1 text-center text-grey">N/A</td>
@@ -160,13 +192,18 @@ const inhouse = computed<InhouseFreqs>(
               clearable
               type="number"
               step="0.001"
+              :disabled="readonly"
             />
           </td>
         </tr>
         <tr>
           <th class="px-1">HelixMtDb</th>
           <td class="px-1">
-            <v-checkbox v-model="helixMtDb.enabled" hide-details />
+            <v-checkbox
+              v-model="helixMtDb.enabled"
+              hide-details
+              :disabled="readonly"
+            />
           </td>
           <td class="px-1">
             <v-text-field
@@ -175,6 +212,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -184,6 +222,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1 text-center text-grey">N/A</td>
@@ -195,6 +234,7 @@ const inhouse = computed<InhouseFreqs>(
               clearable
               type="number"
               step="0.001"
+              :disabled="readonly"
             />
           </td>
         </tr>
@@ -209,7 +249,11 @@ const inhouse = computed<InhouseFreqs>(
         <tr>
           <th class="px-1">In-House</th>
           <td class="px-1">
-            <v-checkbox v-model="inhouse.enabled" hide-details />
+            <v-checkbox
+              v-model="inhouse.enabled"
+              hide-detail
+              :disabled="readonly"
+            />
           </td>
           <td class="px-1">
             <v-text-field
@@ -218,6 +262,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -227,6 +272,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -236,6 +282,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
           <td class="px-1">
@@ -245,6 +292,7 @@ const inhouse = computed<InhouseFreqs>(
               density="compact"
               clearable
               type="number"
+              :disabled="readonly"
             />
           </td>
         </tr>

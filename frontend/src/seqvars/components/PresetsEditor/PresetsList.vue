@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 /** Type for the items. */
 interface Item {
@@ -21,7 +21,7 @@ const model = defineModel({
 
 /** The items sorted by their rank, default rank is `0`. */
 const sortedItems = computed(() => {
-  return props.items.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+  return Array.from(props.items).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
 })
 
 /** Helper glue code between model and `VList` below. */
@@ -45,10 +45,10 @@ const selectedModel = computed<string[] | undefined>({
 
 <template>
   <v-list
+    v-model:selected="selectedModel"
     selectable
     mandatory
     density="compact"
-    v-model:selected="selectedModel"
   >
     <v-list-item
       v-for="item in sortedItems"

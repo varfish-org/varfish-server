@@ -7,6 +7,7 @@ import {
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
 import { client } from '@/cases/plugins/heyApi'
+import { PresetSetVersionState, EditableState } from './types'
 
 /**
  * Store for the seqvars query presets.
@@ -229,6 +230,26 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   }
 
   /**
+   * Queries for the editable state of a given version or reason why it is not.
+   */
+  const getEditableState = (versionUuid: string): EditableState => {
+    const version = presetSetVersions.get(versionUuid)
+    if (version === undefined) {
+      return EditableState.IS_NOT_SET
+    } else if (
+      factoryDefaultPresetSetUuids.includes(version.presetsset.sodar_uuid)
+    ) {
+      return EditableState.IS_FACTORY_DEFAULT
+    } else if (version.status === PresetSetVersionState.ACTIVE) {
+      return EditableState.IS_ACTIVE
+    } else if (version.status === PresetSetVersionState.RETIRED) {
+      return EditableState.IS_RETIRED
+    } else {
+      return EditableState.EDITABLE
+    }
+  }
+
+  /**
    * Clear the store.
    *
    * This can be useful against artifacts in the UI.
@@ -254,6 +275,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     activePresetSetVersions,
     // methods
     initialize,
+    getEditableState,
     $reset,
   }
 })

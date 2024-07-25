@@ -7,6 +7,10 @@ import {
 
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { useRouter } from 'vue-router'
+import {
+  EditableState,
+  getEditableStateLabel,
+} from '@/seqvars/stores/presets/types'
 
 /** Props used in this component. */
 const props = defineProps<{
@@ -239,6 +243,24 @@ watch(
           Delete
         </v-btn>
       </span>
+    </v-row>
+    <v-row v-if="presetSetVersion" no-gutters class="d-flex flex-nowrap">
+      <v-col class="pt-3">
+        <v-alert
+          :icon="
+            seqvarsPresetsStore.getEditableState(presetSetVersion) ===
+            EditableState.IS_FACTORY_DEFAULT
+              ? 'mdi-factory'
+              : 'mdi-information'
+          "
+        >
+          {{
+            getEditableStateLabel(
+              seqvarsPresetsStore.getEditableState(presetSetVersion),
+            )
+          }}
+        </v-alert>
+      </v-col>
     </v-row>
   </v-sheet>
 </template>
