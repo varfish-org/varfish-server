@@ -1,6 +1,7 @@
 import typing
 from typing import Optional
 
+from django.db import transaction
 from django_pydantic_field.v2.rest_framework.fields import SchemaField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from projectroles.serializers import SODARUserSerializer
@@ -254,9 +255,23 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
     presetssetversion = serializers.ReadOnlyField(source="presetssetversion.sodar_uuid")
 
     def validate(self, attrs):
-        """Augment the attributes by the presets set object from context."""
+        """Augment the attributes by the presetsset from context and then check consistency
+        with the instance status.
+        """
+        # First, augment attributes.
         if "presetssetversion" in self.context:
             attrs["presetssetversion"] = self.context["presetssetversion"]
+
+        # Then, validate the corresponding version status.
+        if self.instance:
+            presetssetversion = self.instance.presetssetversion
+        else:
+            presetssetversion = SeqvarsQueryPresetsSetVersion.objects.get(
+                sodar_uuid=attrs.get("presetssetversion")
+            )
+        if presetssetversion.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
+            raise ValueError("Can only update/create presets in draft preset set versions.")
+
         return attrs
 
     class Meta:
@@ -556,12 +571,43 @@ class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
     signed_off_by = SODARUserSerializer(read_only=True)
 
     def validate(self, attrs):
-        """Augment the attributes by the presetsset from context."""
+        """Augment the attributes by the presetsset from context and then check consistency
+        with the instance status.
+        """
+        # First, augment attributes.
         if "presetsset" in self.context:
             attrs["presetsset"] = self.context["presetsset"]
-        if self.context.get("current_user"):
-            attrs["signed_off_by"] = self.context["current_user"]
+
+        # Then, validate the instance status.
+        if self.instance:
+            # update
+            if self.instance.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
+                raise ValueError("Can only update preset set versions in draft status")
+            if "status" in attrs:
+                if attrs["status"] != SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
+                    raise ValueError("Can only update preset set versions to active status")
+                if self.context.get("current_user"):
+                    attrs["signed_off_by"] = self.context["current_user"]
+        else:
+            # create
+            if "status" in attrs and attrs["status"] not in (
+                SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+                SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
+            ):
+                raise ValueError("Can only create preset set versions in active or draft status")
+
         return attrs
+
+    def update(self, instance, validated_data):
+        """Handle update of the status to active (mark all other versions as retired)."""
+        with transaction.atomic():
+            if validated_data["status"] == SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
+                SeqvarsQueryPresetsSetVersion.objects.filter(
+                    presetsset=instance.presetsset
+                ).exclude(sodar_uuid=instance.sodar_uuid).update(
+                    status=SeqvarsQueryPresetsSetVersion.STATUS_INACTIVE
+                )
+            return super().update(instance, validated_data)
 
     class Meta:
         model = SeqvarsQueryPresetsSetVersion
