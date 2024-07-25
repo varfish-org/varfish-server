@@ -31,34 +31,10 @@ export default defineConfig(({ mode }) => {
       },
       target: 'es2020',
     },
-  },
-  plugins: [
-    Vue(),
-    Components({
-      dts: true,
-      resolvers: [IconsResolver()],
-    }),
-    Icons({
-      // autoInstall: true,
-      compiler: 'vue3',
-    }),
-    Unfonts({
-      google: {
-        families: [
-          {
-            name: 'Roboto',
-            styles: 'wght@100;300;400;500;700;900'
-          }
-        ]
-      }
-    })
-  ],
-  resolve: {
-    alias: {
-      '@tests': resolve(__dirname, './tests/'),
-      '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
-      '@varfish-org/varfish-api': resolve(__dirname, './ext/varfish-api/src'),
-      '@': resolve(__dirname, './src/'),
+    optimizeDeps: {
+      esbuildOptions: {
+        target: 'es2020',
+      },
     },
     plugins: [
       Vue(),

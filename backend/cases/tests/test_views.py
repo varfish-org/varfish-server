@@ -11,4 +11,4 @@ class TestCasesViews(TestProjectPermissionBase):
         with self.login(self.user_contributor):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            self.assertInHTML('<div id="app" class="h-100">', response.content.decode("utf-8"))
+            self.assertInHTML('Redirecting', response.content.decode("utf-8"))

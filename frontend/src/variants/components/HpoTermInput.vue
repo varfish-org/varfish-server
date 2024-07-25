@@ -77,15 +77,15 @@ const fetchHpoTerm = async (query) => {
     results = await vigunoClient.resolveOmimTermById(queryArg)
     results = results.result
   } else {
-    let results1 = await vigunoClient.queryHpoTermsByName(queryArg)
+    const results1 = await vigunoClient.queryHpoTermsByName(queryArg)
     if (props.includeOmim) {
-      let results2 = await vigunoClient.queryOmimTermsByName(queryArg)
+      const results2 = await vigunoClient.queryOmimTermsByName(queryArg)
       results = results1.result.concat(results2.result)
     } else {
       results = results1.result
     }
 
-    for (let r of results) {
+    for (const r of results) {
       const nameLower = r.name.toLowerCase()
       r.distance = levenshteinDistance(queryLower, nameLower)
       r.includes = nameLower.includes(queryLower)
