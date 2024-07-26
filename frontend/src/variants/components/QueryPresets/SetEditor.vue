@@ -446,7 +446,7 @@ const setUpQuickPresetSortable = () => {
 onMounted(async () => {
   await caseListStore.initialize(props.projectUuid)
   await queryPresetsStore.initialize(caseListStore.projectUuid)
-  handleCategoryClicked('presetset')
+  await handleCategoryClicked('presetset')
   if (getPresetSetEntries('quickpresets').length > 0) {
     setUpQuickPresetSortable()
   }
