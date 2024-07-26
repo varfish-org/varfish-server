@@ -267,10 +267,12 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
             presetssetversion = self.instance.presetssetversion
         else:
             presetssetversion = SeqvarsQueryPresetsSetVersion.objects.get(
-                sodar_uuid=attrs.get("presetssetversion")
+                sodar_uuid=attrs["presetssetversion"].sodar_uuid
             )
         if presetssetversion.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
-            raise ValueError("Can only update/create presets in draft preset set versions.")
+            raise serializers.ValidationError(
+                {"non_field_errors": "Can only update/create presets in draft preset set versions."}
+            )
 
         return attrs
 
@@ -491,7 +493,7 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
 
     def validate(self, data):
         if "project" not in self.context:
-            raise ValueError("Project is required in serializer context")
+            raise serializers.ValidationError("Project is required in serializer context")
 
         result = super().validate(data)
 
@@ -508,7 +510,9 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
         for key in keys:
             if result.get(key):
                 if result[key].presetssetversion.presetsset.project != self.context["project"]:
-                    raise ValueError(f"Predefined query {key} does not belong to the same project")
+                    raise serializers.ValidationError(
+                        f"Predefined query {key} does not belong to the same project"
+                    )
 
         return result
 
@@ -582,10 +586,14 @@ class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
         if self.instance:
             # update
             if self.instance.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
-                raise ValueError("Can only update preset set versions in draft status")
+                raise serializers.ValidationError(
+                    {"non_field_errors": "Can only update preset set versions in draft status"}
+                )
             if "status" in attrs:
                 if attrs["status"] != SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
-                    raise ValueError("Can only update preset set versions to active status")
+                    raise serializers.ValidationError(
+                        {"status": "Can only update preset set versions to active status"}
+                    )
                 if self.context.get("current_user"):
                     attrs["signed_off_by"] = self.context["current_user"]
         else:
@@ -594,18 +602,20 @@ class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
                 SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
                 SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
             ):
-                raise ValueError("Can only create preset set versions in active or draft status")
+                raise serializers.ValidationError(
+                    {"status": "Can only create preset set versions in active or draft status"}
+                )
 
         return attrs
 
     def update(self, instance, validated_data):
         """Handle update of the status to active (mark all other versions as retired)."""
         with transaction.atomic():
-            if validated_data["status"] == SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
+            if validated_data.get("status") == SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
                 SeqvarsQueryPresetsSetVersion.objects.filter(
                     presetsset=instance.presetsset
                 ).exclude(sodar_uuid=instance.sodar_uuid).update(
-                    status=SeqvarsQueryPresetsSetVersion.STATUS_INACTIVE
+                    status=SeqvarsQueryPresetsSetVersion.STATUS_RETIRED
                 )
             return super().update(instance, validated_data)
 
