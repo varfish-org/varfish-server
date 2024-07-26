@@ -114,7 +114,8 @@ const refreshStores = async () => {
   variantFlagsStore.$reset()
   variantCommentsStore.$reset()
   variantAcmgRatingStore.$reset()
-  variantResultSetStore.$reset()
+  // Do not reset the result set store, as we need to keep the table settings when returning from
+  // variant details.
 
   await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
 
