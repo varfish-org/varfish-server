@@ -130,6 +130,8 @@ const modalConfirmRef = ref(null)
 const modalInputRef = ref(null)
 /** Ref to the toast. */
 const toastRef = ref(null)
+/** Quick presets already sortable */
+const sortable = ref(null)
 
 /** Handle click on a presets category, will select first entry unless editing presets set properties. */
 const handleCategoryClicked = async (category) => {
@@ -408,7 +410,7 @@ const handleDeleteClicked = async (category, presetsUuid) => {
 
 const setUpQuickPresetSortable = () => {
   var el = document.getElementById('quickpresets')
-  var sortable = Sortable.create(el, {
+  sortable.value = Sortable.create(el, {
     dataIdAttr: 'id',
     draggable: '.drag-item',
     store: {
@@ -453,8 +455,11 @@ onMounted(async () => {
 /** Handle change of presetSetUuid. */
 watch(
   () => props.presetSetUuid,
-  (newValue) => {
-    handleCategoryClicked('presetset')
+  async (newValue) => {
+    await handleCategoryClicked('presetset')
+    if (sortable.value === null) {
+      setUpQuickPresetSortable()
+    }
   },
 )
 
