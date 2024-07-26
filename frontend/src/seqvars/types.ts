@@ -16,6 +16,8 @@ export type Query = LocalFields<
     | 'variantprio'
     | 'consequence'
     | 'quality'
+    | 'clinvar'
+    | 'locus'
   >
 > &
   Pick<
@@ -27,4 +29,6 @@ export type Query = LocalFields<
     | 'variantpriopresets'
     | 'consequencepresets'
     | 'qualitypresets'
+    | 'clinvarpresets'
+    | 'locuspresets'
   >

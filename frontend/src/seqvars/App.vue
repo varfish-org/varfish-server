@@ -61,5 +61,5 @@ const presets = computed(() =>
 </script>
 
 <template>
-  <SeqvarsFiltration v-if="presets" :presets="presets" />
+  <SeqvarsFiltration v-if="presets" :presets-details="presets" />
 </template>

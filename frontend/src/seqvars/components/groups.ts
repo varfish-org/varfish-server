@@ -106,14 +106,4 @@ export const matchesPredefinedQuery = (
   presetDetails: SeqvarsQueryPresetsSetVersionDetails,
   pq: SeqvarsPredefinedQuery,
   query: Query,
-) => {
-  console.log(
-    Object.fromEntries(
-      GROUPS.map((group) => [
-        group.id,
-        group.matchesPreset(presetDetails, pq, query),
-      ]),
-    ),
-  )
-  return GROUPS.every((group) => group.matchesPreset(presetDetails, pq, query))
-}
+) => GROUPS.every((group) => group.matchesPreset(presetDetails, pq, query))

@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 
 const props = defineProps<{ title: string; summary?: string }>()
-
 const isOpen = ref(true)
 </script>
 

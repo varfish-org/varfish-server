@@ -6,10 +6,10 @@ import {
 
 import { Query } from '@/seqvars/types'
 
+import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
-import { matchesPredefinedQuery } from './utils'
 
 const { presets, query } = defineProps<{
   presets: SeqvarsQueryPresetsSetVersionDetails
@@ -36,7 +36,7 @@ defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
         v-for="pq in presets.seqvarspredefinedquery_set"
         :key="pq.sodar_uuid"
         :selected="pq.sodar_uuid === selectedId"
-        :modified="!!query && !matchesPredefinedQuery(presets, query, pq)"
+        :modified="!!query && !matchesPredefinedQuery(presets, pq, query)"
         @click="selectedId = pq.sodar_uuid"
         @revert="selectedId = pq.sodar_uuid"
       >
