@@ -307,6 +307,7 @@ watch(
               <PresetsList
                 v-model="selectedPreset[item.category]"
                 :items="item.items"
+                :readonly="presetSetVersionReadonly"
               />
             </v-expansion-panel-text>
           </v-expansion-panel>

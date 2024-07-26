@@ -3225,7 +3225,8 @@ export const $PatchedSeqvarsPredefinedQuery = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         quality: {
             type: 'string',
@@ -3535,7 +3536,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -3602,7 +3604,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -3657,7 +3660,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -3712,7 +3716,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -3779,7 +3784,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         sodar_uuid: {
             type: 'string',
@@ -4184,7 +4190,8 @@ owned category settings.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -5521,7 +5528,8 @@ export const $SeqvarsPredefinedQuery = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         quality: {
             type: 'string',
@@ -6065,7 +6073,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -6132,7 +6141,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -6187,7 +6197,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -6242,7 +6253,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -6309,7 +6321,8 @@ Not used directly but used as base class.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         sodar_uuid: {
             type: 'string',
@@ -6883,7 +6896,8 @@ export const $SeqvarsQuerySettings = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -7111,7 +7125,8 @@ owned category settings.`,
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -7245,7 +7260,8 @@ export const $SeqvarsQuerySettingsFrequency = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -7312,7 +7328,8 @@ export const $SeqvarsQuerySettingsFrequency = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -7367,7 +7384,8 @@ export const $SeqvarsQuerySettingsFrequency = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -7422,7 +7440,8 @@ export const $SeqvarsQuerySettingsFrequency = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -7489,7 +7508,8 @@ export const $SeqvarsQuerySettingsFrequency = {
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         sodar_uuid: {
             type: 'string',

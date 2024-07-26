@@ -30,14 +30,16 @@ export const getEditableStateLabel = (state: EditableState): string => {
         'This preset set version is in draft state and thus editable. ' +
         'You will need to activate it to make it useable in queries.'
       )
+    case EditableState.IS_FACTORY_DEFAULT:
+      return (
+        'This preset set version is a factory default.  You can clone ' +
+        'the whole preset sets and make changes to the clone.'
+      )
     case EditableState.IS_ACTIVE:
       token = 'active'
       break
     case EditableState.IS_RETIRED:
       token = 'retired'
-      break
-    case EditableState.IS_FACTORY_DEFAULT:
-      token = 'a factory default'
       break
     case EditableState.IS_NOT_SET:
       return 'Preset set is currently unset.'
