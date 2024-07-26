@@ -1,17 +1,10 @@
 <script setup>
-import { computed } from 'vue'
-
 import PaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
 import PaneQc from '@/cases_qc/components/PaneQc.vue'
 import LegacyPaneQc from '@/cases/components/CaseDetail/PaneQc.vue'
 import PaneAnnotations from '@/cases/components/CaseDetail/PaneAnnotations.vue'
-import { useRouter } from 'vue-router'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseQcStore } from '@/cases_qc/stores/caseQc'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
-import { useSvResultSetStore } from '@/svs/stores/svResultSet'
-
-const router = useRouter()
 
 const props = defineProps({
   /** The case UUID. */
@@ -43,139 +36,50 @@ const Tabs = Object.freeze({
 
 const caseDetailsStore = useCaseDetailsStore()
 const caseQcStore = useCaseQcStore()
-const variantResultSetStore = useVariantResultSetStore()
-const svResultSetStore = useSvResultSetStore()
-
-const annosLoading = computed(
-  () =>
-    variantResultSetStore.resultSet === null ||
-    svResultSetStore.resultSet === null,
-)
-const annoCount = computed(() => {
-  if (annosLoading.value) {
-    return null
-  } else {
-    return (
-      (variantResultSetStore.resultSet.result_row_count ?? 0) +
-      (svResultSetStore.resultSet.result_row_count ?? 0)
-    )
-  }
-})
-
-/** Update the current tab. */
-const updateCurrentTab = (newValue) => {
-  router.push({
-    name: 'case-detail-' + newValue,
-    params: { case: caseDetailsStore.caseObj.sodar_uuid },
-  })
-}
 </script>
 
 <template>
   <div
-    :class="{
-      'flex-grow-1 d-flex flex-column': props.currentTab === Tabs.annotation,
-    }"
+    v-if="props.currentTab === Tabs.overview"
+    id="case-list"
+    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    role="tabpanel"
   >
-    <ul id="case-tab" class="nav nav-tabs" role="tablist">
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: props.currentTab === Tabs.overview }"
-          role="button"
-          @click="updateCurrentTab(Tabs.overview)"
-        >
-          <i-mdi-account />
-          Overview
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: props.currentTab === Tabs.qc }"
-          role="button"
-          @click="updateCurrentTab(Tabs.qc)"
-        >
-          <i-mdi-chart-multiple />
-          Quality Control
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: props.currentTab === Tabs.annotation }"
-          role="button"
-          @click="updateCurrentTab(Tabs.annotation)"
-        >
-          <i-mdi-bookmark-multiple />
-
-          Variant Annotation
-          <span class="badge badge-pill badge-primary">
-            <i-fa-solid-circle-notch v-if="annosLoading" class="spin" />
-            <template v-if="!annosLoading">
-              {{ annoCount }}
-            </template>
-          </span>
-        </a>
-      </li>
-    </ul>
-    <div id="cases-content" class="tab-content flex-grow-1 d-flex flex-column">
-      <div
-        v-if="props.currentTab === Tabs.overview"
-        id="case-list"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
-        role="tabpanel"
-      >
-        <PaneCase
-          @edit-case-status-click="emit('editCaseStatusClick')"
-          @edit-case-notes-click="emit('editCaseNotesClick')"
-          @edit-query-presets-click="emit('editQueryPresetsClick')"
-          @add-case-comment-click="emit('addCaseCommentClick')"
-          @update-case-comment-click="emit('updateCaseCommentClick', $event)"
-          @delete-case-comment-click="emit('deleteCaseCommentClick', $event)"
-          @edit-pedigree-click="emit('editPedigreeClick')"
-          @update-case-phenotype-terms-click="
-            emit('updateCasePhenotypeTermsClick', $event)
-          "
-        />
-      </div>
-      <div
-        v-if="props.currentTab === Tabs.qc && caseDetailsStore.caseObj"
-        id="case-list"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
-        role="tabpanel"
-      >
-        <LegacyPaneQc v-if="caseDetailsStore.caseObj?.case_version !== 2" />
-        <PaneQc v-else :stats="caseQcStore.varfishStats" />
-      </div>
-      <div
-        v-if="props.currentTab === Tabs.annotation"
-        id="case-list"
-        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
-        role="tabpanel"
-      >
-        <Suspense>
-          <PaneAnnotations :case-uuid="props.caseUuid" />
-          <template #fallback> Loading ... </template>
-        </Suspense>
-      </div>
-    </div>
+    <PaneCase
+      @edit-case-status-click="emit('editCaseStatusClick')"
+      @edit-case-notes-click="emit('editCaseNotesClick')"
+      @edit-query-presets-click="emit('editQueryPresetsClick')"
+      @add-case-comment-click="emit('addCaseCommentClick')"
+      @update-case-comment-click="emit('updateCaseCommentClick', $event)"
+      @delete-case-comment-click="emit('deleteCaseCommentClick', $event)"
+      @edit-pedigree-click="emit('editPedigreeClick')"
+      @update-case-phenotype-terms-click="
+        emit('updateCasePhenotypeTermsClick', $event)
+      "
+    />
+  </div>
+  <div
+    v-if="props.currentTab === Tabs.qc && caseDetailsStore.caseObj"
+    id="case-list"
+    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    role="tabpanel"
+  >
+    <LegacyPaneQc v-if="caseDetailsStore.caseObj?.case_version !== 2" />
+    <PaneQc v-else :stats="caseQcStore.varfishStats" />
+  </div>
+  <div
+    v-if="props.currentTab === Tabs.annotation"
+    id="case-list"
+    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    role="tabpanel"
+  >
+    <Suspense>
+      <PaneAnnotations />
+      <template #fallback> Loading ... </template>
+    </Suspense>
   </div>
 </template>
 
 <style scoped>
-.spin {
-  animation-name: spin;
-  animation-duration: 2000ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

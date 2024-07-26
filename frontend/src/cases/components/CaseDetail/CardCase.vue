@@ -43,12 +43,10 @@ const badgeStatusColor = computed(() => {
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <div class="row card-header p-2 pl-2">
-      <h5 class="col-auto ml-0 mr-0 mb-0">
-        <i-mdi-card-account-details-outline />
-        Case Details
-      </h5>
-      <div class="btn-group ml-auto">
+    <h5 class="card-header p-2">
+      <i-mdi-card-account-details-outline />
+      Case Details
+      <div class="btn-group float-right">
         <a
           class="btn btn-sm btn-primary"
           href="#"
@@ -66,9 +64,9 @@ const badgeStatusColor = computed(() => {
           Edit Notes
         </a>
       </div>
-    </div>
+    </h5>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold"> Case Name </span>
           <span class="col-3"> {{ caseObj.name }} </span>
@@ -78,7 +76,7 @@ const badgeStatusColor = computed(() => {
           </span>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold"> Created At </span>
           <span class="col-3" :title="formatTimeAgo(caseObj.date_created)">
@@ -92,7 +90,7 @@ const badgeStatusColor = computed(() => {
           >
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Reference Genome
@@ -100,7 +98,7 @@ const badgeStatusColor = computed(() => {
           <span class="col-3"> {{ caseObj.release }} </span>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Status, Notes, &amp; Tags
@@ -129,7 +127,7 @@ const badgeStatusColor = computed(() => {
           </span>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Called Variants
@@ -143,7 +141,7 @@ const badgeStatusColor = computed(() => {
           </span>
         </div>
       </li>
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-2">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Annotated Variants
@@ -170,3 +168,7 @@ const badgeStatusColor = computed(() => {
     </ul>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

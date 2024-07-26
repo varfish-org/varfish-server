@@ -42,7 +42,7 @@ const getMinCovTarget = (memberName: string, coverage: number): string => {
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2">
+    <h5 class="card-header p-2 pl-2 p-2 pl-2 ml-0 mr-0">
       <i-mdi-chart-box-outline />
       Alignment Quality Control
     </h5>
@@ -133,3 +133,7 @@ const getMinCovTarget = (memberName: string, coverage: number): string => {
     </table>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

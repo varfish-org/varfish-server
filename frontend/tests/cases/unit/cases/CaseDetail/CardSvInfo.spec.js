@@ -14,7 +14,7 @@ describe('CaseDetailCardSvInfo.vue', () => {
     const wrapper = makeWrapper(CaseDetailCardSvInfo)
 
     expect(wrapper.html()).matches(/No SV annotation info./)
-    expect(wrapper.html()).not.matches(/<td>GRCh37<\/td>/)
+    expect(wrapper.html()).not.matches(/<td.*>GRCh37<\/td>/)
   })
 
   test('test with case detail store data', async () => {
@@ -23,6 +23,6 @@ describe('CaseDetailCardSvInfo.vue', () => {
     })
 
     expect(wrapper.html()).not.matches(/No SV annotation info./)
-    expect(wrapper.html()).matches(/<td>GRCh37<\/td>/)
+    expect(wrapper.html()).matches(/<td.*>GRCh37<\/td>/)
   })
 })

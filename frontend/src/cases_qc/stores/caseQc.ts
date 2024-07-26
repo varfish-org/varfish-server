@@ -5,17 +5,18 @@ import { CaseQcClient } from '@/cases_qc/api/caseQcClient'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { type VarfishStats } from '@/cases_qc/api/types'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useCaseQcStore = defineStore('caseQc', () => {
   // store dependencies
 
+  /** The context store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -46,7 +47,7 @@ export const useCaseQcStore = defineStore('caseQc', () => {
     varfishStats.value = null
 
     // Fetch new details
-    const caseQcClient = new CaseQcClient(csrfToken.value ?? 'csrf-undefined')
+    const caseQcClient = new CaseQcClient(ctxStore.csrfToken)
     varfishStats.value = await caseQcClient.retrieveVarfishStats(caseUuid$)
 
     caseUuid.value = caseUuid$
@@ -59,25 +60,18 @@ export const useCaseQcStore = defineStore('caseQc', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -90,7 +84,6 @@ export const useCaseQcStore = defineStore('caseQc', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     await fetchQc(caseUuid$)
     // case UUID set in fetchQc
@@ -102,7 +95,6 @@ export const useCaseQcStore = defineStore('caseQc', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     caseUuid,
     storeState,

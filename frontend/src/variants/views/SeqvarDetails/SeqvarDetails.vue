@@ -50,18 +50,13 @@ import { StoreState } from '@bihealth/reev-frontend-lib/stores'
 
 /** This component's props. */
 const props = defineProps<{
+  /** Project UUID. */
+  projectUuid: string
   /** UUID of the result row to display. */
   resultRowUuid: string
   /** Identifier of the selected section. */
   selectedSection?: string
 }>()
-
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document
-    .getElementById('sodar-ss-app-context')
-    ?.getAttribute('app-context') ?? '{}',
-)
 
 // Store-related
 
@@ -98,35 +93,30 @@ const seqvar = computed<Seqvar | undefined>(() => {
 /** Refresh the stores. */
 const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
-    await variantResultSetStore.initialize(appContext.csrf_token)
+    await variantResultSetStore.initialize()
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
     if (!variantResultSetStore.caseUuid) {
       throw new Error('No case UUID found')
     }
     await caseDetailsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       variantResultSetStore.caseUuid,
     )
     await Promise.all([
       variantFlagsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantCommentsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantAcmgRatingStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantDetailsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
     ])
@@ -315,7 +305,7 @@ onMounted(async () => {
               </div>
               <div id="seqvar-acmg" class="mt-3">
                 <AcmgRatingCard
-                  :project-uuid="appContext.project?.sodar_uuid"
+                  :project-uuid="props.projectUuid"
                   :case-uuid="variantResultSetStore.caseUuid ?? undefined"
                   :seqvar="seqvarInfoStore.seqvar"
                   :result-row-uuid="props.resultRowUuid"
@@ -334,3 +324,7 @@ onMounted(async () => {
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

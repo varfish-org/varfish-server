@@ -1,5 +1,6 @@
 <script setup>
-import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
+import $ from 'jquery'
+import { watch, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { State } from '@/varfish/storeUtils'
@@ -9,22 +10,21 @@ import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { updateUserSetting } from '@/varfish/userSettings'
 import { QueryStates, QueryStateToText } from '@/variants/enums'
 
-import Header from '@/variants/components/FilterApp/Header.vue'
 import FilterForm from '@/variants/components/FilterForm.vue'
 import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 
 const props = defineProps({
+  /** The project UUID. */
+  projectUuid: String,
   /** The case UUID. */
   caseUuid: String,
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
+const ctxStore = useCtxStore()
 
 const router = useRouter()
 
@@ -36,9 +36,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 
 const showDetails = async (event) => {
-  variantQueryStore.lastPosition = document.querySelector(
-    'div#sodar-app-container',
-  ).scrollTop
+  variantQueryStore.lastPosition = document.querySelector('div#app').scrollTop
   router.push({
     name: 'seqvar-details',
     params: {
@@ -49,14 +47,15 @@ const showDetails = async (event) => {
 }
 
 /** Whether the form is visible. */
-const formVisible = ref(true)
+const filterFormVisible = defineModel('filterFormVisible', {
+  type: Boolean,
+  default: true,
+})
 /** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
+const queryLogsVisible = defineModel('queryLogsVisible', {
+  type: Boolean,
+  default: true,
+})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -64,7 +63,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== undefined && newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -77,7 +76,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -115,45 +114,31 @@ const refreshStores = async () => {
   variantFlagsStore.$reset()
   variantCommentsStore.$reset()
   variantAcmgRatingStore.$reset()
-  // do no reset variant result set store as it will discard table sorting information etc
-  // variantResultSetStore.$reset()
+  variantResultSetStore.$reset()
 
-  await caseDetailsStore.initialize(
-    appContext.csrf_token,
-    appContext.project?.sodar_uuid,
-    props.caseUuid,
-  )
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
 
-  Promise.all([
-    variantQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
-      props.caseUuid,
-      appContext,
-    ),
+  await Promise.all([
+    variantQueryStore.initialize(props.projectUuid, props.caseUuid),
     variantFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantAcmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    variantResultSetStore.initialize(appContext.csrf_token),
-  ]).then(async () => {
-    if (variantQueryStore.queryUuid) {
-      await variantResultSetStore.loadResultSetViaQuery(
-        variantQueryStore.queryUuid,
-      )
-    }
-  })
+    variantResultSetStore.initialize(),
+  ])
+  if (variantQueryStore.queryUuid) {
+    await variantResultSetStore.loadResultSetViaQuery(
+      variantQueryStore.queryUuid,
+    )
+  }
 }
 
 // Initialize (=refresh) stores when mounted.
@@ -169,13 +154,13 @@ watch(
 <template>
   <div
     v-if="variantQueryStore.storeState.state === State.Active"
-    class="d-flex flex-column h-100"
+    class="d-flex flex-column h-100 mx-3"
   >
-    <!-- title etc. -->
-    <Header :form-visible="formVisible" @toggle-form="toggleForm()" />
-
     <!-- query form -->
-    <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
+    <div
+      v-if="filterFormVisible"
+      class="container-fluid sodar-page-container p-0 mb-2"
+    >
       <div
         v-if="variantQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -214,6 +199,9 @@ watch(
       v-if="variantQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
+      <pre v-show="queryLogsVisible">{{
+        variantQueryStore.queryLogs?.join('\n')
+      }}</pre>
       <FilterResultsTable
         :patho-enabled="
           variantQueryStore.previousQueryDetails.query_settings.patho_enabled
@@ -239,15 +227,7 @@ watch(
       <strong class="pl-2"
         >{{ QueryStateToText[variantQueryStore.queryState] }} ...</strong
       >
-      <button
-        class="ml-3 btn btn-sm btn-info"
-        @click="queryLogsVisible = !queryLogsVisible"
-      >
-        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
-      </button>
-      <pre v-show="queryLogsVisible">{{
-        variantQueryStore.queryLogs?.join('\n')
-      }}</pre>
+      <pre>{{ variantQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
@@ -280,10 +260,12 @@ watch(
       </div>
     </div>
   </div>
-  <div v-else class="alert alert-info">
+  <div v-else class="alert alert-info m-3">
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

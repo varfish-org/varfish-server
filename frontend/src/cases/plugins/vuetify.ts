@@ -16,7 +16,9 @@ import '../styles/main.scss'
 const customLightTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: '#757ce8',
+    'surface-variant': '#333F50',
+    'on-surface-variant': '#FFFFFF',
+    primary: '#333F50',
     secondary: '#3f50b5',
     tertiary: '#002884',
     background: '#eeeeee',

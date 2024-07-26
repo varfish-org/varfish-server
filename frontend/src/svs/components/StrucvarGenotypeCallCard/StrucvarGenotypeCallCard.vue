@@ -75,3 +75,7 @@ const allKeys = computed<string[]>(() => {
     </v-card>
   </template>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

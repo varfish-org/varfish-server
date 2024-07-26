@@ -1,7 +1,7 @@
 import typing
 from typing import Optional
 
-from django_pydantic_field.rest_framework import SchemaField
+from django_pydantic_field.v2.rest_framework.fields import SchemaField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from projectroles.serializers import SODARUserSerializer
 from rest_framework import serializers

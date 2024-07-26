@@ -19,3 +19,7 @@ const props = defineProps<{
     <template v-else>NO FLAG</template>
   </span>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

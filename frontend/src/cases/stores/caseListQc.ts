@@ -14,6 +14,7 @@ import { StoreState, State } from '@/varfish/storeUtils'
 
 import { CaseListClient } from '@/cases/api/caseListClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of CaseListQcValues type; to be defined later. */
 type CaseListQcValues = any
@@ -21,13 +22,13 @@ type CaseListQcValues = any
 export const useCasesQcStore = defineStore('caseListQc', () => {
   // store dependencies
 
+  /** The context store. */
+  const ctxStore = useCtxStore()
   /** The caseList store */
   const caseListStore = useCaseListStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** The project UUID. */
   const projectUuid = ref<string | null>(null)
   /** The current application state. */
@@ -50,16 +51,14 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
    *
    * Will only reload for the same project if `forceReload`.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project to load the case list for.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseListStore.initialize(csrfToken$, projectUuid$, forceReload)
+    await caseListStore.initialize(projectUuid$, forceReload)
 
     // Initialize only once for each project.
     if (
@@ -71,16 +70,13 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
 
     // Start fetching.
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseListClient = new CaseListClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const caseListClient = new CaseListClient(ctxStore.csrfToken)
 
     return caseListClient
       .loadProjectQcValues(caseListStore.project.sodar_uuid)
@@ -98,7 +94,6 @@ export const useCasesQcStore = defineStore('caseListQc', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     storeState,
     qcValues,

@@ -6,7 +6,9 @@ import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { randomString } from '@/varfish/common'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantQueryStore = useVariantQueryStore()
 
@@ -23,11 +25,6 @@ const props = defineProps({
   },
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
 /** Internal store of inheritance preset. If set through here, then it is only applied in the control. */
 const inheritanceRef = ref(null)
 const presetSource = ref(null)
@@ -36,10 +33,7 @@ const presetSetLabel = ref(null)
 
 const updatePresetSetLoading = async () => {
   let uuid
-  if (
-    !props.case?.presetset &&
-    variantQueryStore?.defaultPresetSetUuid === undefined
-  ) {
+  if (!props.case?.presetset && !variantQueryStore?.defaultPresetSetUuid) {
     presetSetLabel.value = 'Factory Defaults'
     presetSource.value = 'Factory Defaults'
     return // short circuit in case of factory defaults
@@ -47,12 +41,12 @@ const updatePresetSetLoading = async () => {
     if (props.case?.presetset) {
       uuid = caseDetailsStore.caseObj.presetset
       presetSource.value = 'Individual Case Setting'
-    } else if (variantQueryStore?.defaultPresetSetUuid !== undefined) {
+    } else if (variantQueryStore?.defaultPresetSetUuid) {
       uuid = variantQueryStore.defaultPresetSetUuid
       presetSource.value = 'Project Default Setting'
     }
   }
-  const queryPresetsClient = new QueryPresetsClient(caseDetailsStore.csrfToken)
+  const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
   presetSetLoading.value = true
   await queryPresetsClient
     .retrievePresetSet(uuid)
@@ -521,3 +515,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

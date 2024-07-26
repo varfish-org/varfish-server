@@ -102,3 +102,7 @@ defineExpose({ isValid })
     </td>
   </tr>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -1,4 +1,6 @@
 <script setup>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import $ from 'jquery'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -28,6 +30,7 @@ import {
   DisplayColumns,
 } from '@/variants/enums'
 import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /**
  * The component's props.
@@ -50,6 +53,7 @@ const emit = defineEmits([
 /**
  * Setup stores before mounting the component.
  */
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
@@ -509,7 +513,7 @@ const loadFromServer = async () => {
     return row
   }
 
-  const variantClient = new VariantClient(variantResultSetStore.csrfToken)
+  const variantClient = new VariantClient(ctxStore.csrfToken)
 
   tableLoading.value = true
   if (variantResultSetStore.resultSetUuid) {
@@ -551,8 +555,10 @@ const extraAnnoFields = computed(
 
 const scrollToLastPosition = () => {
   if (variantQueryStore.lastPosition) {
-    document.querySelector('div#sodar-app-container').scrollTop =
-      variantQueryStore.lastPosition
+    const elem = document.querySelector('div#app')
+    if (elem) {
+      elem.scrollTop = variantQueryStore.lastPosition
+    }
   }
 }
 
@@ -578,9 +584,6 @@ onMounted(async () => {
     await loadFromServer()
     scrollToLastPosition()
   }
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  })
 })
 
 watch(
@@ -911,8 +914,6 @@ watch(
           <div class="btn-group btn-group-sm">
             <div
               title="Flags the variant as an artifact by setting visually negative and summary negative flags."
-              data-toggle="tooltip"
-              data-placement="left"
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               role="button"
@@ -1041,4 +1042,8 @@ watch(
   border-bottom-left-radius: 0;
   margin-left: 0;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

@@ -41,3 +41,7 @@ const showStructuralVariantDetails = async (event) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

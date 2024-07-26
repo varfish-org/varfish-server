@@ -83,7 +83,7 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
-      <div class="card-header">
+      <div class="card-header border-bottom-0">
         <FilterFormQuickPresets
           :show-filtration-inline-help="
             variantQueryStore.showFiltrationInlineHelp
@@ -94,7 +94,7 @@ const onSubmitCancelButtonClicked = () => {
           :case="caseDetailsStore.caseObj"
         />
       </div>
-      <div class="card-header row border-bottom-1 pt-1 pr-1">
+      <div class="card-header border-bottom-1 pt-0">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a
@@ -281,7 +281,6 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.querySettings.patho_enabled
               "
               v-model:patho-score="variantQueryStore.querySettings.patho_score"
-              :csrf-token="variantQueryStore.csrfToken"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
@@ -412,4 +411,8 @@ footer.sodar-footer,
 .sodar-sub-navbar-container {
   display: none;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

@@ -14,7 +14,7 @@ describe('CaseDetailCardComments.vue', () => {
     const wrapper = makeWrapper(CaseDetailCardComments)
 
     expect(wrapper.html()).matches(/No case comments \(yet\)/)
-    expect(wrapper.html()).not.matches(/<strong>root<\/strong>/)
+    expect(wrapper.html()).not.matches(/<strong.*>root<\/strong>/)
   })
 
   test('test with case detail store data', async () => {
@@ -23,6 +23,6 @@ describe('CaseDetailCardComments.vue', () => {
     })
 
     expect(wrapper.html()).not.matches(/No case comments \(yet\)/)
-    expect(wrapper.html()).matches(/<strong>root<\/strong>/)
+    expect(wrapper.html()).matches(/<strong.*>root<\/strong>/)
   })
 })

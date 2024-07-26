@@ -33,6 +33,55 @@ export const $AnnotationReleaseInfo = {
     required: ['genomebuild', 'release', 'table', 'timestamp']
 } as const;
 
+export const $AppSetting = {
+    type: 'object',
+    description: `Serializer for the AppSetting model. Should only be used for read and list
+views. The sodar_uuid is not provided, as interacting with database objects
+directly is not the intended way to set/get app settings.`,
+    properties: {
+        app_name: {
+            type: 'string',
+            readOnly: true
+        },
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        user: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        name: {
+            type: 'string',
+            readOnly: true,
+            description: 'Name of the setting'
+        },
+        type: {
+            type: 'string',
+            readOnly: true,
+            description: 'Type of the setting'
+        },
+        value: {
+            type: 'string',
+            readOnly: true,
+            nullable: true,
+            description: 'Value of the setting'
+        },
+        user_modifiable: {
+            type: 'boolean',
+            readOnly: true,
+            description: 'Setting visibility in forms'
+        }
+    },
+    required: ['app_name', 'name', 'project', 'type', 'user', 'user_modifiable', 'value']
+} as const;
+
 export const $BcftoolsStatsAfRecordList = {
     type: 'array',
     items: {
@@ -1972,6 +2021,23 @@ export const $EnrichmentKit = {
     required: ['date_created', 'date_modified', 'identifier', 'sodar_uuid', 'title']
 } as const;
 
+export const $ExtraAnnoFieldInfo = {
+    description: 'Description of an extra annotation field.',
+    properties: {
+        field: {
+            title: 'Field',
+            type: 'integer'
+        },
+        label: {
+            title: 'Label',
+            type: 'string'
+        }
+    },
+    required: ['field', 'label'],
+    title: 'ExtraAnnoFieldInfo',
+    type: 'object'
+} as const;
+
 export const $GeneList = {
     type: 'array',
     items: {
@@ -3005,6 +3071,93 @@ export const $PatchedEnrichmentKit = {
             type: 'string',
             nullable: true,
             description: 'Optional description of the enrichment kit'
+        }
+    }
+} as const;
+
+export const $PatchedProject = {
+    type: 'object',
+    description: 'Serializer for the Project model',
+    properties: {
+        title: {
+            type: 'string',
+            description: 'Project title',
+            maxLength: 255
+        },
+        type: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TypeEnum'
+                }
+            ],
+            description: `Type of project ("CATEGORY", "PROJECT")
+
+* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+        },
+        parent: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Short project description',
+            maxLength: 512
+        },
+        readme: {
+            type: 'string'
+        },
+        public_guest_access: {
+            type: 'boolean',
+            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
+        },
+        archive: {
+            type: 'boolean',
+            readOnly: true
+        },
+        owner: {
+            type: 'string',
+            writeOnly: true
+        },
+        roles: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/RoleAssignmentNestedList'
+            },
+            readOnly: true
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    }
+} as const;
+
+export const $PatchedRoleAssignment = {
+    type: 'object',
+    description: 'Serializer for the RoleAssignment model',
+    properties: {
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        user: {
+            type: 'string',
+            format: 'uuid',
+            description: 'User SODAR UUID'
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
         }
     }
 } as const;
@@ -4141,6 +4294,120 @@ export const $PatchedTargetBedFile = {
     }
 } as const;
 
+export const $Project = {
+    type: 'object',
+    description: 'Serializer for the Project model',
+    properties: {
+        title: {
+            type: 'string',
+            description: 'Project title',
+            maxLength: 255
+        },
+        type: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TypeEnum'
+                }
+            ],
+            description: `Type of project ("CATEGORY", "PROJECT")
+
+* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+        },
+        parent: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Short project description',
+            maxLength: 512
+        },
+        readme: {
+            type: 'string'
+        },
+        public_guest_access: {
+            type: 'boolean',
+            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
+        },
+        archive: {
+            type: 'boolean',
+            readOnly: true
+        },
+        owner: {
+            type: 'string',
+            writeOnly: true
+        },
+        roles: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/RoleAssignmentNestedList'
+            },
+            readOnly: true
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['archive', 'parent', 'roles', 'sodar_uuid', 'title']
+} as const;
+
+export const $ProjectInvite = {
+    type: 'object',
+    description: 'Serializer for the ProjectInvite model',
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            description: 'Email address of the person to be invited',
+            maxLength: 254
+        },
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        issuer: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        date_created: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true,
+            description: 'DateTime of invite creation'
+        },
+        date_expire: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true,
+            description: 'Expiration of invite as DateTime'
+        },
+        message: {
+            type: 'string',
+            description: 'Message to be included in the invite email (optional)'
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['date_created', 'date_expire', 'email', 'issuer', 'project', 'role', 'sodar_uuid']
+} as const;
+
 export const $RecessiveModeEnum = {
     enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
     type: 'string',
@@ -4220,6 +4487,57 @@ export const $RegionVariantStats = {
     required: ['region_name', 'snv_count', 'indel_count', 'multiallelic_count', 'transition_count', 'transversion_count', 'tstv_ratio'],
     title: 'RegionVariantStats',
     type: 'object'
+} as const;
+
+export const $RoleAssignment = {
+    type: 'object',
+    description: 'Serializer for the RoleAssignment model',
+    properties: {
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        user: {
+            type: 'string',
+            format: 'uuid',
+            description: 'User SODAR UUID'
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['project', 'role', 'sodar_uuid', 'user']
+} as const;
+
+export const $RoleAssignmentNestedList = {
+    type: 'object',
+    description: 'Nested list serializer for the RoleAssignment model.',
+    properties: {
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        user: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['role', 'sodar_uuid', 'user']
 } as const;
 
 export const $SODARUser = {
@@ -7750,6 +8068,70 @@ export const $TermPresenceList = {
         title: 'TermPresence',
         type: 'object'
     }
+} as const;
+
+export const $TypeEnum = {
+    enum: ['CATEGORY', 'PROJECT'],
+    type: 'string',
+    description: `* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+} as const;
+
+export const $UserAndGlobalSettings = {
+    type: 'object',
+    description: 'Serializer for ``UserAndGlobalSettingsSerializer``.',
+    properties: {
+        user_settings: {
+            description: 'Transient information about user settings.',
+            properties: {
+                umd_predictor_api_token: {
+                    anyOf: [
+                        {
+                            type: 'string'
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ],
+                    title: 'Umd Predictor Api Token'
+                },
+                ga4gh_beacon_network_widget_enabled: {
+                    default: false,
+                    title: 'Ga4Gh Beacon Network Widget Enabled',
+                    type: 'boolean'
+                }
+            },
+            required: ['umd_predictor_api_token'],
+            title: 'UserSettings',
+            type: 'object'
+        },
+        global_settings: {
+            description: 'Transient information about global settings.',
+            properties: {
+                exomiser_enabled: {
+                    default: false,
+                    title: 'Exomiser Enabled',
+                    type: 'boolean'
+                },
+                cadd_enabled: {
+                    default: false,
+                    title: 'Cadd Enabled',
+                    type: 'boolean'
+                },
+                extra_anno_fields: {
+                    items: {
+                        '$ref': '#/components/schemas/ExtraAnnoFieldInfo'
+                    },
+                    title: 'Extra Anno Fields',
+                    type: 'array'
+                }
+            },
+            required: ['extra_anno_fields'],
+            title: 'GlobalSettings',
+            type: 'object'
+        }
+    },
+    required: ['global_settings', 'user_settings']
 } as const;
 
 export const $VarfishStats = {

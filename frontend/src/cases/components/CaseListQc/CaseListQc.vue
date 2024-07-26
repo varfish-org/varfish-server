@@ -15,7 +15,7 @@ import { downloadPerSampleMetrics, downloadRelatedness } from '@/cases/common'
 const caseListStore = useCaseListStore()
 const casesQcStore = useCasesQcStore()
 
-// Compontent state.
+// Component state.
 
 const overlayShow = computed(() => casesQcStore.qcValues === null)
 
@@ -137,3 +137,7 @@ onMounted(() => {
     <Overlay v-if="overlayShow" message="Loading QC metrics..." />
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

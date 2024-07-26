@@ -1,7 +1,12 @@
 import sys
 
 from bgjobs.models import BackgroundJob
+from django.conf import settings
 from django.db import transaction
+from django.forms import model_to_dict
+from django.middleware.csrf import get_token
+from modelcluster.queryset import FakeQuerySet
+from projectroles.app_settings import AppSettingAPI
 from projectroles.views_api import (
     SODARAPIBaseMixin,
     SODARAPIBaseProjectMixin,
@@ -10,12 +15,14 @@ from projectroles.views_api import (
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import BasePermission
 
+from cases.models import ExtraAnnoFieldInfo, GlobalSettings, UserAndGlobalSettings, UserSettings
 from cases.serializers import (
     CaseAlignmentStatsSerializer,
     CaseCommentSerializer,
@@ -23,7 +30,9 @@ from cases.serializers import (
     CaseSerializerNg,
     PedigreeRelatednessSerializer,
     SampleVariantStatisticsSerializer,
+    UserAndGlobalSettingsSerializer,
 )
+from extra_annos.models import ExtraAnnoField
 from svs.models import SvAnnotationReleaseInfo
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models import (
@@ -477,3 +486,51 @@ class PedigreeRelatednessListApiView(PedigreeRelatednessApiMixin, ListAPIView):
 
     **Returns:** List of variant
     """
+
+
+class UserAndGlobalSettingsView(RetrieveAPIView):
+    """Retrieve user and global settings.
+
+    Also, send the CSRF token as a response token.
+    """
+
+    serializer_class = UserAndGlobalSettingsSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    def get_queryset(self):
+        """Return fake query set to support spectacular schema generation."""
+        return FakeQuerySet(model=UserAndGlobalSettings, results=[])
+
+    def get(self, request, *args, **kwargs):
+        result = super().get(request, *args, **kwargs)
+        get_token(request)
+        return result
+
+    def get_object(self) -> UserAndGlobalSettings:
+        setting_api = AppSettingAPI()
+
+        return UserAndGlobalSettings(
+            user_settings=UserSettings(
+                umd_predictor_api_token=setting_api.get(
+                    "variants", "umd_predictor_api_token", user=self.request.user
+                ),
+                ga4gh_beacon_network_widget_enabled=setting_api.get(
+                    "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
+                ),
+            ),
+            global_settings=GlobalSettings(
+                exomiser_enabled=settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
+                cadd_enabled=settings.VARFISH_ENABLE_CADD,
+                extra_anno_fields=self._get_extra_anno_fields(),
+            ),
+        )
+
+    def _get_extra_anno_fields(self):
+        return [
+            ExtraAnnoFieldInfo(
+                field=entry.field,
+                label=entry.label,
+            )
+            for entry in ExtraAnnoField.objects.all()
+        ]

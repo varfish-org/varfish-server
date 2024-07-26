@@ -147,3 +147,7 @@ const props = defineProps({
   </div>
   <!-- eslint-enable -->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

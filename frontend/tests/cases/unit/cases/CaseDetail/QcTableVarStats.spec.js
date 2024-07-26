@@ -34,6 +34,6 @@ describe('QcTableVarStats.vue', () => {
     })
 
     expect(wrapper.findAll('table').length).toBe(1)
-    expect(wrapper.html()).toMatch(/<td>NA12878<\/td>/)
+    expect(wrapper.html()).toMatch(/<td.*>NA12878<\/td>/)
   })
 })

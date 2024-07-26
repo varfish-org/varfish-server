@@ -1,8 +1,10 @@
+from django_pydantic_field.v2.rest_framework.fields import SchemaField
 from projectroles.app_settings import AppSettingAPI
 from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from cases.models import GlobalSettings, UserAndGlobalSettings, UserSettings
 from cases_qc.models import CaseQc
 from cases_qc.serializers import CaseQcSerializer
 from svs.serializers import SvQueryResultSetSerializer
@@ -226,5 +228,20 @@ class PedigreeRelatednessSerializer(serializers.ModelSerializer):
             "n_ibs1",
             "n_ibs2",
             "relatedness",
+        )
+        read_only_fields = fields
+
+
+class UserAndGlobalSettingsSerializer(serializers.ModelSerializer):
+    """Serializer for ``UserAndGlobalSettingsSerializer``."""
+
+    user_settings = SchemaField(schema=UserSettings)
+    global_settings = SchemaField(schema=GlobalSettings)
+
+    class Meta:
+        model = UserAndGlobalSettings
+        fields = (
+            "user_settings",
+            "global_settings",
         )
         read_only_fields = fields

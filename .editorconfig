@@ -18,7 +18,7 @@ known_first_party=varfish
 multi_line_output=3
 default_section=THIRDPARTY
 
-[*.{html,css,scss,js,ts,json,yml}]
+[*.{html,css,scss,js,ts,json,yml,vue}]
 indent_style = space
 indent_size = 2
 

@@ -5,7 +5,6 @@ import { declareWrapper } from '@/variants/helpers'
 import { useVuelidate } from '@vuelidate/core'
 
 const props = defineProps({
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   filtrationComplexityMode: String,
   exomiserEnabled: Boolean,
@@ -41,9 +40,9 @@ defineExpose({ v$ })
 </script>
 
 <template>
-  <div class="row">
-    <div class="col-6 pt-3 mb-2">
-      <h5 class="card-title mb-0">Phenotype Prioritization</h5>
+  <div class="row p-2">
+    <div class="col-6">
+      <h5 class="card-title">Phenotype Prioritization</h5>
       <div
         v-if="prioEnabledWarning()"
         class="alert alert-warning mt-2 mb-0"
@@ -111,8 +110,8 @@ defineExpose({ v$ })
       </div>
     </div>
 
-    <div v-if="props.caddEnabled" class="col-6 pt-3">
-      <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
+    <div v-if="props.caddEnabled" class="col-6">
+      <h5 class="card-title">Pathogenicity Prioritization</h5>
       <div
         v-if="props.showFiltrationInlineHelp"
         class="alert alert-secondary small mt-2 mb-0 p-2"
@@ -138,7 +137,7 @@ defineExpose({ v$ })
           variants returned by your query will be prioritized!
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group pt-2">
         <label for="patho-score"> Pathogenicity Score </label>
         <select
           id="patho-score"
@@ -149,7 +148,7 @@ defineExpose({ v$ })
         </select>
       </div>
     </div>
-    <div v-else class="col-6 pt-3">
+    <div v-else class="col-6">
       <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
       <div class="mt-2 font-italic text-muted">
         No scoring method activated.
@@ -157,3 +156,7 @@ defineExpose({ v$ })
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

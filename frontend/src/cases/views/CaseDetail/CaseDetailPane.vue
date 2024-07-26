@@ -1,4 +1,5 @@
 <script setup>
+import $ from 'jquery'
 import { onMounted, nextTick, ref, watch } from 'vue'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
@@ -15,6 +16,7 @@ import { overlayShow, overlayMessage } from '@/cases/common'
 import { useSeqvarPresetsStore } from '@/seqvars/stores/presets'
 import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
 import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { useRouter } from 'vue-router'
 
 import ModalSelect from '@/varfish/components/ModalSelect.vue'
@@ -24,12 +26,14 @@ import Overlay from '@/varfish/components/Overlay.vue'
 import Toast from '@/varfish/components/Toast.vue'
 import { updateUserSetting } from '@/varfish/userSettings'
 
-import Header from '@/cases/components/CaseDetail/Header.vue'
 import Content from '@/cases/components/CaseDetail/Content.vue'
 import ModalPedigreeEditor from '@/cases/components/ModalPedigreeEditor.vue'
 import ModalTermsEditor from '@/cases/components/ModalTermsEditor.vue'
 
 const props = defineProps({
+  /** The project UUID. */
+  // eslint-disable-next-line vue/require-default-prop
+  projectUuid: String,
   /** The case UUID. */
   // eslint-disable-next-line vue/require-default-prop
   caseUuid: String,
@@ -38,11 +42,7 @@ const props = defineProps({
   currentTab: String,
 })
 
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
+const ctxStore = useCtxStore()
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -64,23 +64,21 @@ const router = useRouter()
 
 const refreshStores = async () => {
   if (
-    appContext?.csrf_token &&
-    appContext?.project?.sodar_uuid &&
-    props?.caseUuid
+    props.projectUuid !== undefined &&
+    props.projectUuid !== null &&
+    props.caseUuid !== undefined &&
+    props.caseUuid !== null
   ) {
     await Promise.all([
       (async () => {
         // We currently load this mostly for demonstration purposes in this place.
         // It really belongs to the seqvars query view.
         await Promise.all([
-          seqvarPresetsStore.initialize(appContext.project.sodar_uuid),
-          caseAnalysisStore.initialize(
-            appContext.project.sodar_uuid,
-            props.caseUuid,
-          ),
+          seqvarPresetsStore.initialize(props.projectUuid),
+          caseAnalysisStore.initialize(props.projectUuid, props.caseUuid),
         ])
         await seqvarsQueryStore.initialize(
-          appContext.project.sodar_uuid,
+          props.projectUuid,
           props.caseUuid,
           caseAnalysisStore.currentAnalysis.sodar_uuid,
           caseAnalysisStore.currentSession.sodar_uuid,
@@ -88,53 +86,41 @@ const refreshStores = async () => {
         )
       })(),
       caseDetailsStore
-        .initialize(
-          appContext.csrf_token,
-          appContext.project.sodar_uuid,
-          props.caseUuid,
-        )
+        .initialize(props.projectUuid, props.caseUuid)
         .then(async () => {
           caseQcStore.initialize(
-            appContext.csrf_token,
-            appContext.project.sodar_uuid,
+            props.projectUuid,
             caseDetailsStore.caseObj.sodar_uuid,
           )
-          variantResultSetStore
-            .initialize(appContext.csrf_token)
-            .then(async () => {
-              await variantResultSetStore.loadResultSetViaCase(
-                caseDetailsStore.caseObj.sodar_uuid,
-              )
-            })
-          svResultSetStore.initialize(appContext.csrf_token).then(async () => {
+          variantResultSetStore.initialize().then(async () => {
+            await variantResultSetStore.loadResultSetViaCase(
+              caseDetailsStore.caseObj.sodar_uuid,
+            )
+          })
+          svResultSetStore.initialize().then(async () => {
             await svResultSetStore.loadResultSetViaCase(
               caseDetailsStore.caseObj.sodar_uuid,
             )
           })
           await Promise.all([
             variantFlagsStore.initialize(
-              appContext.csrf_token,
-              appContext.project.sodar_uuid,
+              props.projectUuid,
               caseDetailsStore.caseObj.sodar_uuid,
             ),
             variantCommentsStore.initialize(
-              appContext.csrf_token,
-              appContext.project.sodar_uuid,
+              props.projectUuid,
               caseDetailsStore.caseObj.sodar_uuid,
             ),
             variantAcmgRatingStore.initialize(
-              appContext.csrf_token,
-              appContext.project.sodar_uuid,
+              props.projectUuid,
               caseDetailsStore.caseObj.sodar_uuid,
             ),
             svFlagsStore.initialize(
-              appContext.csrf_token,
-              appContext.project?.sodar_uuid,
+              props.projectUuid,
               caseDetailsStore.caseObj.sodar_uuid,
             ),
             svCommentsStore.initialize(
-              appContext.csrf_token,
-              appContext.project?.sodar_uuid,
+              props.projectUuid,
               caseDetailsStore.caseObj.sodar_uuid,
             ),
           ])
@@ -170,12 +156,10 @@ const toastRef = ref(null)
  * Show a modal dialog to select the user-defined query presets or factory defaults.
  */
 const handleEditQueryPresetsClicked = async () => {
-  const queryPresetsClient = new QueryPresetsClient(caseListStore.csrfToken)
+  const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
   const allPresets = await queryPresetsClient.listPresetSetAll()
   const projectDefaultPresetSet =
-    await queryPresetsClient.retrieveProjectDefaultPresetSet(
-      appContext.project.sodar_uuid,
-    )
+    await queryPresetsClient.retrieveProjectDefaultPresetSet(props.projectUuid)
   caseDetailsStore.projectDefaultPresetSet = projectDefaultPresetSet
   const defaultLabel = projectDefaultPresetSet
     ? 'Project Default'
@@ -485,17 +469,25 @@ const handleDestroyCaseClicked = async () => {
   }
 }
 
+defineExpose({
+  handleEditQueryPresetsClicked,
+  handleAddCaseCommentClicked,
+  handleEditCaseStatusClicked,
+  handleEditCaseNotesClicked,
+  handleEditPedigreeClicked,
+  handleDestroyCaseClicked,
+  handleUpdateCaseCommentClicked,
+  handleDeleteCaseCommentClicked,
+  handleUpdateCasePhenotypeTermsClicked,
+})
+
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
   () => caseListStore.showInlineHelp,
   (newValue, oldValue) => {
-    if (
-      newValue !== undefined &&
-      newValue !== oldValue &&
-      caseListStore.csrfToken
-    ) {
+    if (newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
-        caseListStore.csrfToken,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -509,13 +501,9 @@ watch(
 watch(
   () => caseListStore.complexityMode,
   (newValue, oldValue) => {
-    if (
-      newValue !== undefined &&
-      newValue !== oldValue &&
-      caseListStore.csrfToken
-    ) {
+    if (newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
-        caseListStore.csrfToken,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -545,40 +533,45 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="d-flex flex-column h-100">
-    <Header
-      :case-obj="caseDetailsStore.caseObj"
-      @edit-query-presets-click="handleEditQueryPresetsClicked"
-      @add-case-comment-click="handleAddCaseCommentClicked"
+  <h2>
+    Case
+    <small v-if="caseDetailsStore.caseObj" class="text-muted">{{
+      caseDetailsStore.caseObj.name
+    }}</small>
+    <small v-else>NO CASE</small>
+    &mdash;
+    <span>
+      <template v-if="currentTab == 'overview'"> Overview </template>
+      <template v-else-if="currentTab == 'qc'"> Quality Control </template>
+      <template v-else-if="currentTab == 'annotation'"> Annotation </template>
+      <template v-else> UNKNOWN TAB </template>
+    </span>
+  </h2>
+  <div
+    class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
+  >
+    <Content
+      :case-uuid="props.caseUuid"
+      :current-tab="props.currentTab"
       @edit-case-status-click="handleEditCaseStatusClicked"
       @edit-case-notes-click="handleEditCaseNotesClicked"
+      @edit-query-presets-click="handleEditQueryPresetsClicked"
+      @add-case-comment-click="handleAddCaseCommentClicked"
+      @update-case-comment-click="handleUpdateCaseCommentClicked"
+      @delete-case-comment-click="handleDeleteCaseCommentClicked"
       @edit-pedigree-click="handleEditPedigreeClicked"
-      @destroy-case-click="handleDestroyCaseClicked"
+      @update-case-phenotype-terms-click="handleUpdateCasePhenotypeTermsClicked"
     />
-    <div
-      class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
-    >
-      <Content
-        :case-uuid="props.caseUuid"
-        :current-tab="props.currentTab"
-        @edit-case-status-click="handleEditCaseStatusClicked"
-        @edit-case-notes-click="handleEditCaseNotesClicked"
-        @edit-query-presets-click="handleEditQueryPresetsClicked"
-        @add-case-comment-click="handleAddCaseCommentClicked"
-        @update-case-comment-click="handleUpdateCaseCommentClicked"
-        @delete-case-comment-click="handleDeleteCaseCommentClicked"
-        @edit-pedigree-click="handleEditPedigreeClicked"
-        @update-case-phenotype-terms-click="
-          handleUpdateCasePhenotypeTermsClicked
-        "
-      />
-      <Overlay v-if="overlayShow" :message="overlayMessage" />
-    </div>
-    <ModalInput ref="modalInputRef" />
-    <ModalSelect ref="modalSelectRef" />
-    <ModalPedigreeEditor ref="modalPedigreeEditorRef" />
-    <ModalTermsEditor ref="modalTermsEditorRef" />
-    <ModalConfirm ref="modalConfirmRef" />
-    <Toast ref="toastRef" :autohide="false" />
+    <Overlay v-if="overlayShow" :message="overlayMessage" />
   </div>
+  <ModalInput ref="modalInputRef" />
+  <ModalSelect ref="modalSelectRef" />
+  <ModalPedigreeEditor ref="modalPedigreeEditorRef" />
+  <ModalTermsEditor ref="modalTermsEditorRef" />
+  <ModalConfirm ref="modalConfirmRef" />
+  <Toast ref="toastRef" :autohide="false" />
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>
