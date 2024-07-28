@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.

@@ -7821,6 +7821,7 @@ components:
             title: SeqvarsGenotypePresets
             type: object
           - type: 'null'
+          nullable: true
         quality:
           type: string
           format: uuid
@@ -8044,6 +8045,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -8079,6 +8081,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -8108,6 +8111,7 @@ components:
             title: GnomadMitochondrialFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -8137,6 +8141,7 @@ components:
             title: HelixmtDbFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -8172,6 +8177,7 @@ components:
             title: InhouseFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         sodar_uuid:
           type: string
           format: uuid
@@ -8474,6 +8480,7 @@ components:
             title: SeqvarsGenotypePresets
             type: object
           - type: 'null'
+          nullable: true
         qualitypresets:
           type: string
           format: uuid
@@ -9590,6 +9597,7 @@ components:
             title: SeqvarsGenotypePresets
             type: object
           - type: 'null'
+          nullable: true
         quality:
           type: string
           format: uuid
@@ -10055,6 +10063,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -10090,6 +10099,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -10119,6 +10129,7 @@ components:
             title: GnomadMitochondrialFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -10148,6 +10159,7 @@ components:
             title: HelixmtDbFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -10183,6 +10195,7 @@ components:
             title: InhouseFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         sodar_uuid:
           type: string
           format: uuid
@@ -10662,6 +10675,7 @@ components:
             title: SeqvarsGenotypePresets
             type: object
           - type: 'null'
+          nullable: true
         qualitypresets:
           type: string
           format: uuid
@@ -10862,6 +10876,7 @@ components:
             title: SeqvarsGenotypePresets
             type: object
           - type: 'null'
+          nullable: true
         qualitypresets:
           type: string
           format: uuid
@@ -10960,6 +10975,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_genomes:
           oneOf:
           - description: Settings for gnomAD nuclear frequency filtering.
@@ -10995,6 +11011,7 @@ components:
             title: GnomadNuclearFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         gnomad_mitochondrial:
           oneOf:
           - description: Settings for gnomAD mitochondrial frequency filtering.
@@ -11024,6 +11041,7 @@ components:
             title: GnomadMitochondrialFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         helixmtdb:
           oneOf:
           - description: Settings for HelixMtDb frequency filtering.
@@ -11053,6 +11071,7 @@ components:
             title: HelixmtDbFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         inhouse:
           oneOf:
           - description: Settings for in-house frequency filtering.
@@ -11088,6 +11107,7 @@ components:
             title: InhouseFrequencySettings
             type: object
           - type: 'null'
+          nullable: true
         sodar_uuid:
           type: string
           format: uuid
