@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
-import { PropType } from 'vue'
+import { PropType, watch } from 'vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -16,6 +16,25 @@ const props = withDefaults(
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsQuality>,
 })
+
+// Watch the model deeply for changes and update the quality presets via the store
+// if the sodar_uuid changes.  The store will take care of updating the data on the
+// server and reactivity on its state takes care of UI state.
+watch(
+  () => model.value,
+  (
+    newValue?: SeqvarsQueryPresetsQuality,
+    oldValue?: SeqvarsQueryPresetsQuality,
+  ) => {
+    if (
+      newValue?.sodar_uuid !== undefined &&
+      newValue?.sodar_uuid === oldValue?.sodar_uuid
+    ) {
+      console.log('would update quality')
+    }
+  },
+  { deep: true },
+)
 </script>
 
 <template>

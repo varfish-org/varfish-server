@@ -523,8 +523,8 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
     ) -> "SeqvarsQueryPresetsSetVersion":
         result = SeqvarsQueryPresetsSetVersion.objects.create(
             presetsset=presetsset,
-            version_major=1,
-            version_minor=0,
+            version_major=self.version_major,
+            version_minor=self.version_minor + 1,
             status=self.STATUS_DRAFT,
         )
 

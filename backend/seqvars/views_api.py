@@ -307,10 +307,8 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
     @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
         """Copy from another presets set version."""
-        source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
-        instance = source.clone_with_presetsset(source.presetsset)
-        instance.version_minor = instance.version_minor + 1
-        instance.save()
+        source = self.get_queryset().get(sodar_uuid=kwargs["querypresetssetversion"])
+        instance = source.clone_with_presetsset(presetsset=source.presetsset)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 

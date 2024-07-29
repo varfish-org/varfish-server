@@ -17,14 +17,13 @@ import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 const props = defineProps<{
   /** The project UUID. */
   projectUuid?: string
-  /** UUID of the current preset set. */
+  /** UUID of the current presets set. */
   presetSet?: string
-  /** UUID of the current preset set version. */
+  /** UUID of the current presets set version. */
   presetSetVersion?: string
 }>()
 
 /** This component's events. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
@@ -35,7 +34,7 @@ const router = useRouter()
 /** Store with the presets. */
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
 
-/** The currently selected preset set, manged through route/props; component state */
+/** The currently selected presets set, manged through route/props; component state */
 const selectedPresetSetUuid = computed<string | undefined>({
   get() {
     return props.presetSet
@@ -47,7 +46,7 @@ const selectedPresetSetUuid = computed<string | undefined>({
   },
 })
 
-/** The currently selected preset set version, manged through route/props; component state */
+/** The currently selected presets set version, manged through route/props; component state */
 const selectedPresetSetVersionUuid = computed<string | undefined>({
   get() {
     return props.presetSetVersion
@@ -63,19 +62,25 @@ const selectedPresetSetVersionUuid = computed<string | undefined>({
 const cloneDialogModel = ref<string>('')
 /** Whether the clone presets set dialog is shown; component state. */
 const cloneDialogShow = ref<boolean>(false)
+/** Whether to show the dialog for confirming presets set deletion; component state. */
+const deleteDialogShow = ref<boolean>(false)
 /** Whether the new version dialog is shown; component state. */
 const newVersionDialogShow = ref<boolean>(false)
 /** Whether the "publish" confirmation dialog is shown; component state. */
 const publishDialogShow = ref<boolean>(false)
 /** Whether the "discard" confirmation dialog is shown; component state. */
 const discardDialogShow = ref<boolean>(false)
+/** The string value from the rename dialog; component state. */
+const renameDialogModel = ref<string>('')
+/** Whether the "rename" dialog is shown; component state. */
+const renameDialogShow = ref<boolean>(false)
 
 /**
- * Helper to auto fill `cloneDialogModel` with the name of the preset set, then show dialog.
+ * Helper to auto fill `cloneDialogModel` with the name of the presets set, then show dialog.
  */
 const showCloneDialog = () => {
+  // guard against undefined presets set
   if (selectedPresetSetUuid.value) {
-    // guard against undefined presets set
     const presetSet = seqvarsPresetsStore.presetSets.get(
       selectedPresetSetUuid.value,
     )
@@ -93,18 +98,161 @@ const showCloneDialog = () => {
  * Helper to execute the cloning.
  */
 const doClone = async () => {
-  emit('message', {
-    text: 'Cloning not implemented yet.',
-    color: 'error',
-  })
+  // guard against undefined presets set
+  if (props.presetSet !== undefined) {
+    let presetsSet, presetsSetVersion
+    try {
+      ;[presetsSet, presetsSetVersion] =
+        await seqvarsPresetsStore.copyPresetSet(
+          props.presetSet,
+          cloneDialogModel.value,
+        )
+    } catch (e) {
+      emit('message', {
+        text: `Cloning presets set failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets set was cloned.`,
+      color: 'success',
+    })
+    router.push({
+      params: {
+        presetSet: presetsSet.sodar_uuid,
+        presetSetVersion: presetsSetVersion.sodar_uuid,
+      },
+    })
+    cloneDialogShow.value = false
+  }
+}
+
+/**
+ * Helper to auto fill `renameDialogModel` with the name of the presets set, then show dialog.
+ */
+const showRenameDialog = () => {
+  // guard against undefined presets set
+  if (selectedPresetSetUuid.value) {
+    const presetSet = seqvarsPresetsStore.presetSets.get(
+      selectedPresetSetUuid.value,
+    )
+    if (presetSet) {
+      renameDialogModel.value = presetSet.label
+    } else {
+      renameDialogModel.value = ''
+    }
+
+    renameDialogShow.value = true
+  }
+}
+
+/**
+ * Helper to execute the renaming.
+ */
+const doRename = async () => {
+  // guard against undefined presets set
+  if (selectedPresetSetUuid.value) {
+    try {
+      await seqvarsPresetsStore.updatePresetsSet(selectedPresetSetUuid.value, {
+        label: renameDialogModel.value,
+      })
+    } catch (e) {
+      emit('message', {
+        text: `Renaming presets set failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets set was renamed.`,
+      color: 'success',
+    })
+    renameDialogShow.value = false
+  }
+}
+
+/**
+ * Helper to delete a presets set.
+ */
+const doDeletePresetsSet = async () => {
+  // guard against undefined presets set
+  if (selectedPresetSetUuid.value) {
+    try {
+      await seqvarsPresetsStore.deletePresetsSet(selectedPresetSetUuid.value)
+    } catch (e) {
+      emit('message', {
+        text: `Deleting presets set failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets set was deleted.`,
+      color: 'success',
+    })
+    router.push({ params: { presetSet: '', presetSetVersion: '' } })
+    deleteDialogShow.value = false
+  }
+}
+
+/**
+ * Helper to publish a presets set version.
+ */
+const doPublishVersion = async () => {
+  // guard against undefined version
+  if (selectedPresetSetVersionUuid.value) {
+    try {
+      await seqvarsPresetsStore.publishPresetSetVersion(
+        selectedPresetSetVersionUuid.value,
+      )
+    } catch (e) {
+      emit('message', {
+        text: `Publishing presets version failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets version was published.`,
+      color: 'success',
+    })
+    publishDialogShow.value = false
+  }
+}
+
+/**
+ * Helper to discard a presets set version.
+ */
+const doDiscardVersion = async () => {
+  // guard against undefined version
+  if (selectedPresetSetVersionUuid.value) {
+    try {
+      await seqvarsPresetsStore.discardPresetSetVersion(
+        selectedPresetSetVersionUuid.value,
+      )
+    } catch (e) {
+      emit('message', {
+        text: `Discarding presets version failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets version was discarded.`,
+      color: 'success',
+    })
+    router.push({ params: { presetSetVersion: '' } })
+    discardDialogShow.value = false
+  }
 }
 
 /**
  * Helper to show the new version dialog.
  */
 const showNewVersionDialog = () => {
+  // guard against undefined version
   if (selectedPresetSetVersionUuid.value) {
-    // guard against undefined version
     newVersionDialogShow.value = true
   }
 }
@@ -113,14 +261,31 @@ const showNewVersionDialog = () => {
  * Helper to execute the creation of a new version.
  */
 const doNewVersion = async () => {
-  emit('message', {
-    text: 'Creating new version not implemented yet.',
-    color: 'error',
-  })
+  // guard against undefined version
+  if (selectedPresetSetVersionUuid.value) {
+    let presetSetVersion
+    try {
+      presetSetVersion = await seqvarsPresetsStore.copyPresetSetVersion(
+        selectedPresetSetVersionUuid.value,
+      )
+    } catch (e) {
+      emit('message', {
+        text: `Creating new presets version failed: ${e}`,
+        color: 'error',
+      })
+      return
+    }
+    emit('message', {
+      text: `Presets version created successfully.`,
+      color: 'success',
+    })
+    router.push({ params: { presetSetVersion: presetSetVersion.sodar_uuid } })
+    newVersionDialogShow.value = false
+  }
 }
 
 /**
- * The items to display in the preset set list.
+ * The items to display in the presets set list.
  *
  * Ensures a sorted order by rank where factory defaults come first.
  */
@@ -142,7 +307,7 @@ const presetSetItems = computed<SeqvarsQueryPresetsSet[]>(() => {
 })
 
 /**
- * The items to display in the preset set version list.
+ * The items to display in the presets set version list.
  *
  * Ensures the ones for the selected version are displayed and sorted by `(major, minor)` version.
  */
@@ -180,15 +345,17 @@ const initializeStores = async () => {
  *
  * Ensures that when no preset has been selected yet via props then this is done
  * via the router.
+ *
+ * @param force Whether to force the selection of the presets set and version.
  */
-const selectPresetSetAndVersion = () => {
+const selectPresetSetAndVersion = (force: boolean = false) => {
   let presetSet = props.presetSet
-  if (!presetSet && presetSetItems.value.length) {
+  if (force || (!presetSet && presetSetItems.value.length)) {
     presetSet = presetSetItems.value[0].sodar_uuid
   }
 
   let presetSetVersion = props.presetSetVersion
-  if (!presetSetVersion && presetSetVersionItems.value.length) {
+  if (force || (!presetSetVersion && presetSetVersionItems.value.length)) {
     presetSetVersion = presetSetVersionItems.value[0].sodar_uuid
   }
 
@@ -201,7 +368,7 @@ const selectPresetSetAndVersion = () => {
 }
 
 /**
- * Trigger selection of preset set and version when the store, and/or
+ * Trigger selection of presets set and version when the store, and/or
  * the computed component state changes.
  */
 watch(
@@ -254,7 +421,7 @@ watch(
             "
             :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
             label="Presets Set"
-            hint="Select preset set to work with."
+            hint="Select presets set to work with."
             persistent-hint
           ></v-select>
         </v-col>
@@ -288,7 +455,13 @@ watch(
           <div class="ml-auto">
             <v-menu>
               <template #activator="{ props: localProps }">
-                <v-btn icon="mdi-dots-vertical" v-bind="localProps"></v-btn>
+                <v-btn
+                  icon="mdi-dots-vertical"
+                  v-bind="localProps"
+                  :loading="
+                    seqvarsPresetsStore.storeState.serverInteractions > 0
+                  "
+                ></v-btn>
               </template>
 
               <v-list>
@@ -334,7 +507,7 @@ watch(
                 >
                   <v-list-item
                     prepend-icon="mdi-file-document-plus-outline"
-                    title="New Version"
+                    title="New Draft"
                     link
                     @click="showNewVersionDialog()"
                   />
@@ -342,7 +515,7 @@ watch(
                 <template v-else>
                   <v-list-item
                     prepend-icon="mdi-file-document-plus-outline"
-                    title="No New Version (Only Active)"
+                    title="No New Draft (Only Active)"
                     disabled
                   />
                 </template>
@@ -362,12 +535,36 @@ watch(
                     link
                     @click="showCloneDialog()"
                   />
+                  <v-list-item
+                    prepend-icon="mdi-file-edit-outline"
+                    title="Cannot Rename (Factory Defaults)"
+                    disabled
+                  />
+                  <v-list-item
+                    prepend-icon="mdi-trash-can-outline"
+                    title="Cannot Delete (Factory Defaults)"
+                    disabled
+                  />
                 </template>
                 <template v-else>
                   <v-list-item
                     prepend-icon="mdi-folder-multiple-plus-outline"
-                    title="Clone Preset Set"
+                    title="Clone Presets Set"
                     link
+                    @click="showCloneDialog()"
+                  />
+                  <v-list-item
+                    prepend-icon="mdi-file-edit-outline"
+                    title="Rename Presets Set"
+                    link
+                    @click="showRenameDialog()"
+                  />
+                  <v-list-item
+                    prepend-icon="mdi-trash-can-outline"
+                    title="Delete Presets Set"
+                    color="error"
+                    link
+                    @click="deleteDialogShow = true"
                   />
                 </template>
               </v-list>
@@ -396,7 +593,7 @@ watch(
     </v-sheet>
 
     <!-- Dialog for cloning presets set -->
-    <v-dialog v-model="cloneDialogShow" persistent max-width="600px">
+    <v-dialog v-model="cloneDialogShow" max-width="600px">
       <v-card>
         <v-card-title>Clone Presets</v-card-title>
         <v-card-text>
@@ -414,26 +611,104 @@ watch(
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn rounded="xs" @click="cloneDialogShow = false">Cancel</v-btn>
+          <v-btn rounded="xs" @click="cloneDialogShow = false"> Cancel </v-btn>
           <v-btn rounded="xs" @click="doClone()"> Clone </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Dialog for creating new version -->
-    <v-dialog v-model="newVersionDialogShow" persistent max-width="600px">
+    <v-dialog v-model="newVersionDialogShow" max-width="600px">
       <v-card>
         <v-card-title>Create New Version</v-card-title>
         <v-card-text> Confirm to create new draft version. </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn rounded="xs" @click="newVersionDialogShow = false"
-            >Cancel</v-btn
-          >
-          <v-btn rounded="xs" @click="doNewVersion()">
-            Create New Version
+          <v-btn rounded="xs" @click="newVersionDialogShow = false">
+            Cancel
+          </v-btn>
+          <v-btn rounded="xs" @click="doNewVersion()"> Create New Draft </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for deleting presets set -->
+    <v-dialog v-model="deleteDialogShow" max-width="600px">
+      <v-card>
+        <v-card-title>Delete Presets Set</v-card-title>
+        <v-card-text> Confirm to delete the presets set. </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded="xs" @click="deleteDialogShow = false"> Cancel </v-btn>
+          <v-btn rounded="xs" @click="doDeletePresetsSet()" color="error">
+            Delete Presets Set
           </v-btn>
         </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for renaming presets set -->
+    <v-dialog v-model="renameDialogShow" max-width="600px">
+      <v-card>
+        <v-card-title>Rename Presets</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="renameDialogModel"
+            label="Name"
+            hint="Adjust the presets set name."
+            persistent-hint
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded="xs" @click="renameDialogShow = false"> Cancel </v-btn>
+          <v-btn rounded="xs" @click="doRename()"> Rename </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for publishing presets set version -->
+    <v-dialog v-model="publishDialogShow" max-width="600px">
+      <v-card>
+        <v-card-title>Publish Presets Version</v-card-title>
+        <v-card-text> Confirm to publish the presets version. </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded="xs" @click="publishDialogShow = false">
+            Cancel
+          </v-btn>
+          <v-btn rounded="xs" @click="doPublishVersion()" color="success">
+            Publish Presets Version
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for discarding presets set version -->
+    <v-dialog v-model="discardDialogShow" max-width="600px">
+      <v-card>
+        <v-card-title>Discard Presets Version</v-card-title>
+        <template v-if="presetSetVersionItems.length > 1">
+          <v-card-text> Confirm to discard the presets version. </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn rounded="xs" @click="discardDialogShow = false">
+              Cancel
+            </v-btn>
+            <v-btn rounded="xs" @click="doDiscardVersion()" color="error">
+              Discard Presets
+            </v-btn>
+          </v-card-actions>
+        </template>
+        <template v-else>
+          <v-card-text> Cannot discard only version. </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn rounded="xs" @click="discardDialogShow = false">
+              Cancel
+            </v-btn>
+          </v-card-actions>
+        </template>
       </v-card>
     </v-dialog>
   </div>

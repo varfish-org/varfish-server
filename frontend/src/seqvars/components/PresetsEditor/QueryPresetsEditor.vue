@@ -69,7 +69,7 @@ enum Category {
   PREDEFINED_QUERIES = 'predefined_queries',
 }
 
-/** Common interface for prests for use in `PresetsList`. */
+/** Common interface for presets for use in `PresetsList`. */
 interface CategoryInfoItem {
   sodar_uuid: string
   label: string

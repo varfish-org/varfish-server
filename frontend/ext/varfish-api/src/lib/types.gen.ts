@@ -2084,6 +2084,13 @@ export type SeqvarsQueryPresetsSet = {
 };
 
 /**
+ * Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.
+ */
+export type SeqvarsQueryPresetsSetCopyFrom = {
+    label: string;
+};
+
+/**
  * Serializer for ``QueryPresetsSet`` that renders all nested versions.
  */
 export type SeqvarsQueryPresetsSetDetails = {
@@ -3968,7 +3975,7 @@ export type SeqvarsApiQuerypresetssetDestroyResponse = void;
 export type SeqvarsApiQuerypresetssetDestroyError = unknown;
 
 export type SeqvarsApiQuerypresetssetCopyFromCreateData = {
-    body: SeqvarsQueryPresetsSet;
+    body: SeqvarsQueryPresetsSetCopyFrom;
     path: {
         project: string;
         querypresetsset: string;

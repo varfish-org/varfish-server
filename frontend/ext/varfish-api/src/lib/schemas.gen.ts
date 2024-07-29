@@ -6577,6 +6577,18 @@ export const $SeqvarsQueryPresetsSet = {
     required: ['date_created', 'date_modified', 'label', 'project', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsSetCopyFrom = {
+    type: 'object',
+    description: 'Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.',
+    properties: {
+        label: {
+            type: 'string',
+            maxLength: 128
+        }
+    },
+    required: ['label']
+} as const;
+
 export const $SeqvarsQueryPresetsSetDetails = {
     type: 'object',
     description: 'Serializer for ``QueryPresetsSet`` that renders all nested versions.',

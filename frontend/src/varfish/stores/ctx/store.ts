@@ -5,6 +5,7 @@ import {
   CasesService,
   UserAndGlobalSettings,
 } from '@varfish-org/varfish-api/lib'
+import { client } from '@/cases/plugins/heyApi'
 
 /**
  * Returns the value of a cookie.
@@ -94,6 +95,11 @@ export const useCtxStore = defineStore('ctx', () => {
    */
   const setupCsrfToken = async () => {
     csrfToken.value = getCookie('csrftoken') || ''
+    // Ensure the CSRF token is set for all requests.
+    client.interceptors.request.use((request, _options) => {
+      request.headers.set('X-CSRFToken', csrfToken.value)
+      return request
+    })
   }
 
   return {
