@@ -122,8 +122,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
       }
     } while (cursor !== undefined)
 
-    // List all versions of all presets set.  The latest active one is chosen
-    // as a computed property in `activePresetSetVersions`.
+    // List all versions of all presets set.
     const versionListResponses = await Promise.all(
       tmpPresetsSet.map(({ sodar_uuid: querypresetsset }) =>
         SeqvarsService.seqvarsApiQuerypresetssetversionList({
@@ -136,23 +135,13 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const versionDetailResponses = []
     for (const listResponse of versionListResponses) {
       if (listResponse.data && listResponse.data.results?.length) {
-        let tmpVersion = undefined // picked ones
         for (const version of listResponse.data.results) {
-          if (version.status === 'ACTIVE') {
-            tmpVersion = version
-            break
-          }
-        }
-        if (tmpVersion === undefined && listResponse.data.results.length > 0) {
-          tmpVersion = listResponse.data.results[0]
-        }
-        if (tmpVersion !== undefined) {
           versionDetailResponses.push(
             SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
               client,
               path: {
-                querypresetsset: tmpVersion.presetsset,
-                querypresetssetversion: tmpVersion.sodar_uuid,
+                querypresetsset: version.presetsset,
+                querypresetssetversion: version.sodar_uuid,
               },
             }),
           )
@@ -230,6 +219,99 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   }
 
   /**
+   * Copy of the the given preset set with the new given label.
+   */
+  const copyPresetSet = async (
+    presetSetUuid: string,
+    label: string,
+  ): Promise<SeqvarsQueryPresetsSet> => {
+    const origPresetSet = presetSets.get(presetSetUuid)
+    if (origPresetSet === undefined) {
+      throw new Error(`presetSetUuid not found: {presetSetUuid}`)
+    }
+
+    // Create new preset set via API.
+    const copyFromResponse =
+      await SeqvarsService.seqvarsApiQuerypresetssetCopyFromCreate({
+        client,
+        path: {
+          project: origPresetSet.project,
+          querypresetsset: presetSetUuid,
+        },
+        body: {
+          label,
+          rank: presetSets.size - factoryDefaultPresetSetUuids.size + 1
+        }
+      })
+    if (copyFromResponse.data === undefined) {
+      throw new Error('copyFromResponse.data is undefined')
+    }
+  }
+
+  /**
+   * Create a copy of the given preset set version.
+   */
+  const copyPresetSetVersion = async (
+    versionUuid: string,
+  ): Promise<SeqvarsQueryPresetsSetVersionDetails> => {
+    const origVersion = presetSetVersions.get(versionUuid)
+    if (origVersion === undefined) {
+      throw new Error(`versionUuid not found: {versionUuid}`)
+    }
+
+    // Create new version via API.
+    const copyFromResponse =
+      await SeqvarsService.seqvarsApiQuerypresetssetversionCopyFromCreate({
+        client,
+        path: {
+          querypresetsset: origVersion.presetsset.sodar_uuid,
+          querypresetssetversion: versionUuid,
+        },
+      })
+    if (copyFromResponse.data === undefined) {
+      throw new Error('copyFromResponse.data is undefined')
+    }
+
+    // We must refresh all versions as the previously active version will
+    // have changed its state.
+    //
+    // First, list the versions (assuming there are <100).
+    const querypresetsset = origVersion.presetsset.sodar_uuid
+    const versionListResponse =
+      await SeqvarsService.seqvarsApiQuerypresetssetversionList({
+        client,
+        path: { querypresetsset },
+        query: { page_size: 100 },
+      })
+    // Then, fetch all.
+    const versionDetailResponses = []
+    if (versionListResponse.data && versionListResponse.data.results?.length) {
+      for (const version of versionListResponse.data.results) {
+        versionDetailResponses.push(
+          SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
+            client,
+            path: {
+              querypresetsset: version.presetsset,
+              querypresetssetversion: version.sodar_uuid,
+            },
+          }),
+        )
+      }
+    }
+    for (const detailResponse of await Promise.all(versionDetailResponses)) {
+      if (detailResponse.data !== undefined) {
+        presetSetVersions.set(
+          detailResponse.data.sodar_uuid,
+          detailResponse.data,
+        )
+      }
+    }
+
+    // Return the newly created version.
+    return copyFromResponse.data
+  }
+
+  /**
    * Queries for the editable state of a given version or reason why it is not.
    */
   const getEditableState = (versionUuid: string): EditableState => {
@@ -277,5 +359,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     initialize,
     getEditableState,
     $reset,
+    copyPresetSetVersion,
   }
 })

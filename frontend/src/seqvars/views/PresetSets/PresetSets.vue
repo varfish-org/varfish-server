@@ -7,6 +7,7 @@ import PresetsEditor from '@/seqvars/components/PresetsEditor/PresetsEditor.vue'
 
 import { useProjectStore } from '@/cases/stores/project/store'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { type SnackbarMessage } from './lib'
 
 const props = defineProps<{
   /** The project UUID. */
@@ -20,8 +21,10 @@ const props = defineProps<{
 const projectStore = useProjectStore()
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
 
-// Whether to hide the navigation bar; component state.
+/** Whether to hide the navigation bar; component state. */
 const navbarHidden = ref<boolean>(false)
+/** Messages to display in VSnackbarQueue; component state. */
+const messages = ref<SnackbarMessage[]>([])
 
 /** (Re-)initialize the stores. */
 const initializeStores = async () => {
@@ -29,6 +32,11 @@ const initializeStores = async () => {
     projectStore.initialize(props.projectUuid),
     seqvarsPresetsStore.initialize(props.projectUuid),
   ])
+}
+
+/** Event handler for queueing message in VSnackbarQueue. */
+const queueMessage = (message: SnackbarMessage) => {
+  messages.value.push(message)
 }
 
 // Initialize case list store on mount.
@@ -100,8 +108,14 @@ watch(
           :project-uuid="projectUuid"
           :preset-set="presetSet"
           :preset-set-version="presetSetVersion"
+          @message="queueMessage"
         />
       </v-container>
     </v-main>
+    <v-snackbar-queue
+      v-model="messages"
+      timer="5000"
+      close-on-content-click
+    ></v-snackbar-queue>
   </v-app>
 </template>

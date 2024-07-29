@@ -11,6 +11,7 @@ import {
   EditableState,
   getEditableStateLabel,
 } from '@/seqvars/stores/presets/types'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */
 const props = defineProps<{
@@ -20,6 +21,12 @@ const props = defineProps<{
   presetSet?: string
   /** UUID of the current preset set version. */
   presetSetVersion?: string
+}>()
+
+/** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  message: [message: SnackbarMessage]
 }>()
 
 /** Global router instance. */
@@ -54,27 +61,62 @@ const selectedPresetSetVersionUuid = computed<string | undefined>({
 
 /** The string value from the name entry dialog; component state. */
 const cloneDialogModel = ref<string>('')
-/** Whether the name entry dialog is shown; component state. */
-const cloneDialogShow = ref<boolean>(true)
-/** The entity to clone */
-const cloneDialogEntity = ref<'presets' | 'presetsset'>('presetsset')
+/** Whether the clone presets set dialog is shown; component state. */
+const cloneDialogShow = ref<boolean>(false)
+/** Whether the new version dialog is shown; component state. */
+const newVersionDialogShow = ref<boolean>(false)
 /** Whether the "publish" confirmation dialog is shown; component state. */
 const publishDialogShow = ref<boolean>(false)
 /** Whether the "discard" confirmation dialog is shown; component state. */
 const discardDialogShow = ref<boolean>(false)
 
 /**
- * Helper to auto fill `cloneDialogModel` with the name of the preset set.
+ * Helper to auto fill `cloneDialogModel` with the name of the preset set, then show dialog.
  */
-const autoFillCloneDialogModel = () => {
-  if (cloneDialogEntity.value === 'presetsset' && selectedPresetSetUuid.value) {
-    const presetSet = seqvarsPresetsStore.presetSets.get(selectedPresetSetUuid.value)
+const showCloneDialog = () => {
+  if (selectedPresetSetUuid.value) {
+    // guard against undefined presets set
+    const presetSet = seqvarsPresetsStore.presetSets.get(
+      selectedPresetSetUuid.value,
+    )
     if (presetSet) {
       cloneDialogModel.value = `Copy of ${presetSet.label}`
+    } else {
+      cloneDialogModel.value = ''
     }
-  } else {
-    cloneDialogModel.value = ''
+
+    cloneDialogShow.value = true
   }
+}
+
+/**
+ * Helper to execute the cloning.
+ */
+const doClone = async () => {
+  emit('message', {
+    text: 'Cloning not implemented yet.',
+    color: 'error',
+  })
+}
+
+/**
+ * Helper to show the new version dialog.
+ */
+const showNewVersionDialog = () => {
+  if (selectedPresetSetVersionUuid.value) {
+    // guard against undefined version
+    newVersionDialogShow.value = true
+  }
+}
+
+/**
+ * Helper to execute the creation of a new version.
+ */
+const doNewVersion = async () => {
+  emit('message', {
+    text: 'Creating new version not implemented yet.',
+    color: 'error',
+  })
 }
 
 /**
@@ -123,7 +165,14 @@ const presetSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
 
 /** (Re-)initialize the stores if necessary. */
 const initializeStores = async () => {
-  await seqvarsPresetsStore.initialize(props.projectUuid)
+  try {
+    await seqvarsPresetsStore.initialize(props.projectUuid)
+  } catch (e) {
+    emit('message', {
+      text: `Communication with server failed: ${e}`,
+      color: 'error',
+    })
+  }
 }
 
 /**
@@ -183,172 +232,172 @@ watch(
 </script>
 
 <template>
-  <v-sheet class="pa-3">
-    <v-row no-gutters class="d-flex flex-nowrap" justify="space-between">
-      <v-col class="flex-grow-1 flex-shrink-0">
-        <v-select
-          v-model="selectedPresetSetUuid"
-          :items="presetSetItems"
-          :item-props="
-            (item: SeqvarsQueryPresetsSet) => {
-              const isBuiltin =
-                seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-                  item.sodar_uuid,
-                )
-              return {
-                value: item.sodar_uuid,
-                title: item.label,
-                subtitle: isBuiltin ? 'Factory Default' : 'User-Defined',
+  <div>
+    <v-sheet class="pa-3">
+      <v-row no-gutters class="d-flex flex-nowrap" justify="space-between">
+        <v-col class="flex-grow-1 flex-shrink-0">
+          <v-select
+            v-model="selectedPresetSetUuid"
+            :items="presetSetItems"
+            :item-props="
+              (item: SeqvarsQueryPresetsSet) => {
+                const isBuiltin =
+                  seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
+                    item.sodar_uuid,
+                  )
+                return {
+                  value: item.sodar_uuid,
+                  title: item.label,
+                  subtitle: isBuiltin ? 'Factory Default' : 'User-Defined',
+                }
               }
-            }
-          "
-          :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
-          label="Presets Set"
-          hint="Select preset set to work with."
-          persistent-hint
-        ></v-select>
-      </v-col>
-      <v-col class="flex-grow-1 flex-shrink-0 pl-3">
-        <v-select
-          v-model="selectedPresetSetVersionUuid"
-          :items="presetSetVersionItems"
-          :item-props="
-            (item: SeqvarsQueryPresetsSetVersionDetails) => {
-              return {
-                value: item.sodar_uuid,
-                title: item
-                  ? `${item.version_major}.${item.version_minor}`
-                  : undefined,
-                subtitle: `${item.status}`,
+            "
+            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            label="Presets Set"
+            hint="Select preset set to work with."
+            persistent-hint
+          ></v-select>
+        </v-col>
+        <v-col class="flex-grow-1 flex-shrink-0 pl-3">
+          <v-select
+            v-model="selectedPresetSetVersionUuid"
+            :items="presetSetVersionItems"
+            :item-props="
+              (item: SeqvarsQueryPresetsSetVersionDetails) => {
+                return {
+                  value: item.sodar_uuid,
+                  title: item
+                    ? `${item.version_major}.${item.version_minor}`
+                    : undefined,
+                  subtitle: `${item.status}`,
+                }
               }
-            }
-          "
-          :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
-          label="Presets Set Version"
-          hint="Select the version to work with."
-          persistent-hint
-        ></v-select>
-      </v-col>
+            "
+            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            label="Presets Set Version"
+            hint="Select the version to work with."
+            persistent-hint
+          ></v-select>
+        </v-col>
 
-      <v-col
-        class="flex-grow-0 flex-shrink-1 pl-3"
-        v-if="presetSetVersion"
-        cols="auto"
-      >
-        <div class="ml-auto">
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-            </template>
-
-            <v-list>
-              <v-list-subheader class="text-uppercase">
-                Presets Version
-              </v-list-subheader>
-              <template
-                v-if="
-                  seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                  EditableState.EDITABLE
-                "
-              >
-              <v-list-item
-                  prepend-icon="mdi-publish"
-                  title="Publish as Active"
-                  link
-                  @click="publishDialogShow = true"
-                />
-                <v-list-item
-                  prepend-icon="mdi-trash-can-outline"
-                  title="Discard"
-                  link
-                  @click="discardDialogShow = true"
-                />
-              </template>
-              <template v-else>
-                <v-list-item
-                  prepend-icon="mdi-publish"
-                  title="Cannot Publish (Only Draft)"
-                  disabled
-                />
-                <v-list-item
-                  prepend-icon="mdi-trash-can-outline"
-                  title="Cannot Discard (Only Draft)"
-                  disabled
-                />
-              </template>
-              <template
-                v-if="
-                  seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                  EditableState.IS_ACTIVE
-                "
-              >
-                <v-list-item
-                  prepend-icon="mdi-file-document-plus-outline"
-                  title="New Version"
-                  link
-                  @click="cloneDialogEntity = 'presets'; cloneDialogShow = true"
-                />
-              </template>
-              <template v-else>
-                <v-list-item
-                  prepend-icon="mdi-file-document-plus-outline"
-                  title="No New Version (Only Active)"
-                  disabled
-                />
-              </template>
-
-              <v-list-subheader class="text-uppercase">
-                Presets Set
-              </v-list-subheader>
-              <template
-                v-if="
-                  seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                  EditableState.IS_FACTORY_DEFAULT
-                "
-              >
-                <v-list-item
-                  prepend-icon="mdi-folder-multiple-plus-outline"
-                  title="Clone Factory Defaults"
-                  link
-                  @click="cloneDialogEntity = 'presetsset'; autoFillCloneDialogModel(); cloneDialogShow = true"
-                />
-              </template>
-              <template v-else>
-                <v-list-item
-                  prepend-icon="mdi-folder-multiple-plus-outline"
-                  title="Clone Preset Set"
-                  link
-                />
-              </template>
-            </v-list>
-          </v-menu>
-        </div>
-      </v-col>
-    </v-row>
-    <v-row v-if="presetSetVersion" no-gutters class="d-flex flex-nowrap">
-      <v-col class="pt-3">
-        <v-alert
-          :icon="
-            seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-            EditableState.IS_FACTORY_DEFAULT
-              ? 'mdi-factory'
-              : 'mdi-information'
-          "
+        <v-col
+          v-if="presetSetVersion"
+          class="flex-grow-0 flex-shrink-1 pl-3"
+          cols="auto"
         >
-          {{
-            getEditableStateLabel(
-              seqvarsPresetsStore.getEditableState(presetSetVersion),
-            )
-          }}
-        </v-alert>
-      </v-col>
-    </v-row>
-  </v-sheet>
+          <div class="ml-auto">
+            <v-menu>
+              <template #activator="{ props: localProps }">
+                <v-btn icon="mdi-dots-vertical" v-bind="localProps"></v-btn>
+              </template>
 
-  <!-- Dialog for cloning / new version -->
-  <v-dialog v-model="cloneDialogShow" persistent max-width="600px">
-    <v-card>
-      <template v-if="cloneDialogEntity === 'presetsset'">
+              <v-list>
+                <v-list-subheader class="text-uppercase">
+                  Presets Version
+                </v-list-subheader>
+                <template
+                  v-if="
+                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
+                    EditableState.EDITABLE
+                  "
+                >
+                  <v-list-item
+                    prepend-icon="mdi-publish"
+                    title="Publish as Active"
+                    link
+                    @click="publishDialogShow = true"
+                  />
+                  <v-list-item
+                    prepend-icon="mdi-trash-can-outline"
+                    title="Discard"
+                    link
+                    @click="discardDialogShow = true"
+                  />
+                </template>
+                <template v-else>
+                  <v-list-item
+                    prepend-icon="mdi-publish"
+                    title="Cannot Publish (Only Draft)"
+                    disabled
+                  />
+                  <v-list-item
+                    prepend-icon="mdi-trash-can-outline"
+                    title="Cannot Discard (Only Draft)"
+                    disabled
+                  />
+                </template>
+                <template
+                  v-if="
+                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
+                    EditableState.IS_ACTIVE
+                  "
+                >
+                  <v-list-item
+                    prepend-icon="mdi-file-document-plus-outline"
+                    title="New Version"
+                    link
+                    @click="showNewVersionDialog()"
+                  />
+                </template>
+                <template v-else>
+                  <v-list-item
+                    prepend-icon="mdi-file-document-plus-outline"
+                    title="No New Version (Only Active)"
+                    disabled
+                  />
+                </template>
+
+                <v-list-subheader class="text-uppercase">
+                  Presets Set
+                </v-list-subheader>
+                <template
+                  v-if="
+                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
+                    EditableState.IS_FACTORY_DEFAULT
+                  "
+                >
+                  <v-list-item
+                    prepend-icon="mdi-folder-multiple-plus-outline"
+                    title="Clone Factory Defaults"
+                    link
+                    @click="showCloneDialog()"
+                  />
+                </template>
+                <template v-else>
+                  <v-list-item
+                    prepend-icon="mdi-folder-multiple-plus-outline"
+                    title="Clone Preset Set"
+                    link
+                  />
+                </template>
+              </v-list>
+            </v-menu>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row v-if="presetSetVersion" no-gutters class="d-flex flex-nowrap">
+        <v-col class="pt-3">
+          <v-alert
+            :icon="
+              seqvarsPresetsStore.getEditableState(presetSetVersion) ===
+              EditableState.IS_FACTORY_DEFAULT
+                ? 'mdi-factory'
+                : 'mdi-information'
+            "
+          >
+            {{
+              getEditableStateLabel(
+                seqvarsPresetsStore.getEditableState(presetSetVersion),
+              )
+            }}
+          </v-alert>
+        </v-col>
+      </v-row>
+    </v-sheet>
+
+    <!-- Dialog for cloning presets set -->
+    <v-dialog v-model="cloneDialogShow" persistent max-width="600px">
+      <v-card>
         <v-card-title>Clone Presets</v-card-title>
         <v-card-text>
           <v-alert icon="mdi-information" type="info">
@@ -363,22 +412,29 @@ watch(
             persistent-hint
           ></v-text-field>
         </v-card-text>
-      </template>
-      <template v-else>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded="xs" @click="cloneDialogShow = false">Cancel</v-btn>
+          <v-btn rounded="xs" @click="doClone()"> Clone </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for creating new version -->
+    <v-dialog v-model="newVersionDialogShow" persistent max-width="600px">
+      <v-card>
         <v-card-title>Create New Version</v-card-title>
-        <v-card-text>
-          Confirm to create new draft version.
-        </v-card-text>
-      </template>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="cloneDialogShow = false" rounded="xs">Cancel</v-btn>
-        <v-btn
-          @click="doCloneEntity()" rounded="xs"
-        >
-        Clone
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-card-text> Confirm to create new draft version. </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded="xs" @click="newVersionDialogShow = false"
+            >Cancel</v-btn
+          >
+          <v-btn rounded="xs" @click="doNewVersion()">
+            Create New Version
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>

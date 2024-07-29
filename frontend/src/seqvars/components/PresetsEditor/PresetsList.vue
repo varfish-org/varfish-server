@@ -22,6 +22,7 @@ const props = withDefaults(
 )
 
 /** Events defined by this component. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
   /** Event for creating a new item. */
   create: [label: string, rank: number]

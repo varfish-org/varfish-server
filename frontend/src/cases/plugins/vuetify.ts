@@ -6,6 +6,7 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 // Composables
+import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 import { type ThemeDefinition, createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { md3 } from 'vuetify/blueprints'
@@ -50,6 +51,7 @@ const customLightTheme: ThemeDefinition = {
 export const vuetify = createVuetify({
   blueprint: md3,
   components: {
+    VSnackbarQueue, // labs; needs to be explicitly added
     ...components,
   },
   icons: {

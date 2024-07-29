@@ -4407,9 +4407,9 @@ paths:
         '204':
           description: No response body
   /seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/:
-    get:
-      operationId: seqvars_api_querypresetsset_copy_from_retrieve
-      description: Copy from another presets set.
+    post:
+      operationId: seqvars_api_querypresetsset_copy_from_create
+      description: Create a copy/clone of the given queryset.
       parameters:
       - in: path
         name: project
@@ -4425,6 +4425,18 @@ paths:
         required: true
       tags:
       - seqvars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+        required: true
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4641,6 +4653,47 @@ paths:
       responses:
         '204':
           description: No response body
+  /seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/copy_from/:
+    post:
+      operationId: seqvars_api_querypresetssetversion_copy_from_create
+      description: Copy from another presets set version.
+      parameters:
+      - in: path
+        name: querypresetsset
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      - in: path
+        name: querypresetssetversion
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - seqvars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+          description: ''
   /seqvars/api/querypresetsvariantprio/{querypresetssetversion}/:
     get:
       operationId: seqvars_api_querypresetsvariantprio_list

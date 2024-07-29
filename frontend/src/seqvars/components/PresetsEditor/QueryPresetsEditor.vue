@@ -24,6 +24,7 @@ import CategoryPresetsColumnsEditor from '@/seqvars/components/PresetsEditor/Cat
 import CategoryPresetsPredefinedQueriesEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsPredefinedQueriesEditor.vue'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { EditableState } from '@/seqvars/stores/presets/types'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */
 const props = defineProps<{
@@ -33,6 +34,12 @@ const props = defineProps<{
   presetSet?: string
   /** UUID of the current preset set version. */
   presetSetVersion?: string
+}>()
+
+/** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  message: [message: SnackbarMessage]
 }>()
 
 /** Store with the presets. */

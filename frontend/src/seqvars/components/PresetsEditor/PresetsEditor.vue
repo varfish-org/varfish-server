@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsSelect.vue'
 import QueryPresetsEditor from '@/seqvars/components/PresetsEditor/QueryPresetsEditor.vue'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -12,6 +13,12 @@ const props = defineProps<{
   /** UUID of the current presest set version. */
   presetSetVersion?: string
 }>()
+
+/** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  message: [message: SnackbarMessage]
+}>()
 </script>
 
 <template>
@@ -21,11 +28,13 @@ const props = defineProps<{
     :preset-set="presetSet"
     :preset-set-version="presetSetVersion"
     class="mt-3"
+    @message="emit('message', $event)"
   />
   <QueryPresetsEditor
     :project-uuid="projectUuid"
     :preset-set="presetSet"
     :preset-set-version="presetSetVersion"
     class="mt-3"
+    @message="emit('message', $event)"
   />
 </template>

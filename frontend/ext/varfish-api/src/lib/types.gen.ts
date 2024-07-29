@@ -3967,16 +3967,17 @@ export type SeqvarsApiQuerypresetssetDestroyResponse = void;
 
 export type SeqvarsApiQuerypresetssetDestroyError = unknown;
 
-export type SeqvarsApiQuerypresetssetCopyFromRetrieveData = {
+export type SeqvarsApiQuerypresetssetCopyFromCreateData = {
+    body: SeqvarsQueryPresetsSet;
     path: {
         project: string;
         querypresetsset: string;
     };
 };
 
-export type SeqvarsApiQuerypresetssetCopyFromRetrieveResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetCopyFromCreateResponse = SeqvarsQueryPresetsSet;
 
-export type SeqvarsApiQuerypresetssetCopyFromRetrieveError = unknown;
+export type SeqvarsApiQuerypresetssetCopyFromCreateError = unknown;
 
 export type SeqvarsApiQuerypresetssetversionListData = {
     path: {
@@ -4054,6 +4055,18 @@ export type SeqvarsApiQuerypresetssetversionDestroyData = {
 export type SeqvarsApiQuerypresetssetversionDestroyResponse = void;
 
 export type SeqvarsApiQuerypresetssetversionDestroyError = unknown;
+
+export type SeqvarsApiQuerypresetssetversionCopyFromCreateData = {
+    body?: SeqvarsQueryPresetsSetVersionDetails;
+    path: {
+        querypresetsset: string;
+        querypresetssetversion: string;
+    };
+};
+
+export type SeqvarsApiQuerypresetssetversionCopyFromCreateResponse = SeqvarsQueryPresetsSetVersionDetails;
+
+export type SeqvarsApiQuerypresetssetversionCopyFromCreateError = unknown;
 
 export type SeqvarsApiQuerypresetsvariantprioListData = {
     path: {
@@ -5225,8 +5238,8 @@ export type $OpenApiTs = {
         };
     };
     '/seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/': {
-        get: {
-            req: SeqvarsApiQuerypresetssetCopyFromRetrieveData;
+        post: {
+            req: SeqvarsApiQuerypresetssetCopyFromCreateData;
             res: {
                 '200': SeqvarsQueryPresetsSet;
             };
@@ -5272,6 +5285,14 @@ export type $OpenApiTs = {
                  * No response body
                  */
                 '204': void;
+            };
+        };
+    };
+    '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/copy_from/': {
+        post: {
+            req: SeqvarsApiQuerypresetssetversionCopyFromCreateData;
+            res: {
+                '200': SeqvarsQueryPresetsSetVersionDetails;
             };
         };
     };

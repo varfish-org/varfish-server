@@ -185,9 +185,9 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
-    @action(detail=True)
+    @action(methods=['post'], detail=True)
     def copy_from(self, *args, **kwargs):
-        """Copy from another presets set."""
+        """Create a copy/clone of the given queryset."""
         source = None
         try:
             source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
@@ -201,7 +201,7 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
                     source = value
                     break
 
-        instance = source.clone_with_latest_version()
+        instance = source.clone_with_latest_version(label=self.request.data.get("label"))
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -271,8 +271,11 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
     lookup_url_kwarg = "querypresetssetversion"
     #: The default serializer class to use.
     serializer_class = SeqvarsQueryPresetsSetVersionSerializer
-    #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer}
+    #: Override ``retrieve`` and ``copy_from`` serializer to render all presets.
+    action_serializers = {
+        "retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+        "copy_from": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    }
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
@@ -294,6 +297,16 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
         # Set the current user from the request into the context.
         context["current_user"] = self.request.user
         return context
+
+    @action(methods=['post'], detail=True)
+    def copy_from(self, *args, **kwargs):
+        """Copy from another presets set version."""
+        source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
+        instance = source.clone_with_presetsset(source.presetsset)
+        instance.version_minor = instance.version_minor + 1
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class SeqvarsCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
