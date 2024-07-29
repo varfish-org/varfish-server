@@ -188,23 +188,26 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         return result
 
     @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
-    @action(methods=['post'], detail=True)
+    @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
         """Create a copy/clone of the given queryset."""
         source = None
         try:
-            source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
+            source = self.get_queryset().get(sodar_uuid=kwargs["querypresetsset"])
         except ObjectDoesNotExist:
             for value in (
                 create_seqvarspresetsset_short_read_genome(),
                 create_seqvarspresetsset_short_read_exome_modern(),
                 create_seqvarspresetsset_short_read_exome_legacy(),
             ):
-                if str(value.sodar_uuid) == kwargs["sodar_uuid"]:
+                if str(value.sodar_uuid) == kwargs["querypresetsset"]:
                     source = value
                     break
 
-        instance = source.clone_with_latest_version(label=self.request.data.get("label"))
+        instance = source.clone_with_latest_version(
+            label=self.request.data.get("label"),
+            project=get_project(self.kwargs),
+        )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -301,7 +304,7 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
         context["current_user"] = self.request.user
         return context
 
-    @action(methods=['post'], detail=True)
+    @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
         """Copy from another presets set version."""
         source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])

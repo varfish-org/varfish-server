@@ -448,7 +448,9 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     )
 
     @transaction.atomic
-    def clone_with_latest_version(self, *, label: typing.Optional[str] = None) -> "SeqvarsQueryPresetsSet":
+    def clone_with_latest_version(
+        self, *, project: Project, label: typing.Optional[str] = None
+    ) -> "SeqvarsQueryPresetsSet":
         # Get label of presets set to create (use given label by default).
         for i in range(0, 100):
             if i == 0 and not label:
@@ -457,9 +459,7 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
             elif i > 0:
                 # else, try to find a unique label
                 label = f"{self.label} (copy {i})"
-            if not SeqvarsQueryPresetsSet.objects.filter(
-                project=self.project, label=label
-            ).exists():
+            if not SeqvarsQueryPresetsSet.objects.filter(project=project, label=label).exists():
                 break
         # Compute rank.
         rank = SeqvarsQueryPresetsSet.objects.filter(project=self.project).count() + 1
@@ -468,7 +468,7 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
             label=label,
             rank=rank,
             description=self.description,
-            project=self.project,
+            project=project,
         )
         if self.versions.exists():
             self.versions.first().clone_with_presetsset(presetsset=result)
@@ -517,7 +517,9 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
 
     @transaction.atomic
     def clone_with_presetsset(
-        self, *, presetsset: SeqvarsQueryPresetsSet,
+        self,
+        *,
+        presetsset: SeqvarsQueryPresetsSet,
     ) -> "SeqvarsQueryPresetsSetVersion":
         result = SeqvarsQueryPresetsSetVersion.objects.create(
             presetsset=presetsset,
