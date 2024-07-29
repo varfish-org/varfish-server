@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
 import { PropType, watch } from 'vue'
+import { debounce } from 'lodash'
+import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -12,29 +16,51 @@ const props = withDefaults(
   { readonly: false },
 )
 
+/** This component's events. */
+const emit = defineEmits<{
+  message: [message: SnackbarMessage]
+}>()
+
 /** The quality presets to use in this editor. */
 const model = defineModel({
   type: Object as PropType<SeqvarsQueryPresetsQuality>,
 })
 
-// Watch the model deeply for changes and update the quality presets via the store
-// if the sodar_uuid changes.  The store will take care of updating the data on the
-// server and reactivity on its state takes care of UI state.
-watch(
-  () => model.value,
-  (
-    newValue?: SeqvarsQueryPresetsQuality,
-    oldValue?: SeqvarsQueryPresetsQuality,
-  ) => {
-    if (
-      newValue?.sodar_uuid !== undefined &&
-      newValue?.sodar_uuid === oldValue?.sodar_uuid
-    ) {
-      console.log('would update quality')
-    }
-  },
-  { deep: true },
-)
+// /** Store with the presets. */
+// const seqvarsPresetsStore = useSeqvarsPresetsStore()
+
+// /** Debounced version of the presets store's `updateQueryPresetsQuality` method. */
+// const updateQueryPresetsQuality = debounce(
+//   seqvarsPresetsStore.updateQueryPresetsQuality,
+//   CATEGORY_PRESETS_DEBOUNCE_WAIT,
+//   {leading: true}
+// )
+
+// // Watch the model deeply for changes and update the quality presets via the store
+// // if the sodar_uuid changes.  The store will take care of updating the data on the
+// // server and reactivity on its state takes care of UI state.
+// watch(
+//   () => model.value,
+//   async (
+//     newValue?: SeqvarsQueryPresetsQuality,
+//     oldValue?: SeqvarsQueryPresetsQuality,
+//   ) => {
+//     if (
+//       newValue?.sodar_uuid !== undefined &&
+//       newValue?.sodar_uuid === oldValue?.sodar_uuid
+//     ) {
+//       try {
+//         await updateQueryPresetsQuality(newValue.presetssetversion, newValue)
+//       } catch (error) {
+//         emit('message', {
+//           text: `Failed to update quality presets: ${error}`,
+//           color: 'error',
+//         })
+//       }
+//     }
+//   },
+//   { deep: true },
+// )
 </script>
 
 <template>
@@ -43,7 +69,7 @@ watch(
   <v-skeleton-loader v-if="!model" type="article" />
   <v-form v-else>
     <v-checkbox
-      v-model="model.filter_active"
+      v-model.number="model.filter_active"
       label="Filter Active"
       hide-details
       :disabled="readonly"
@@ -54,7 +80,7 @@ watch(
     </div>
 
     <v-text-field
-      v-model="model.min_dp_het"
+      v-model.number="model.min_dp_het"
       label="Min DP Het: minimal depth required for heterozygous genotypes."
       type="number"
       clearable
@@ -62,7 +88,7 @@ watch(
     />
 
     <v-text-field
-      v-model="model.min_dp_hom"
+      v-model.number="model.min_dp_hom"
       label="Min DP Hom: minimal depth required for homozygous genotypes."
       type="number"
       clearable
@@ -70,7 +96,7 @@ watch(
     />
 
     <v-text-field
-      v-model="model.min_ab_het"
+      v-model.number="model.min_ab_het"
       label="Min AB Het: minimal allelic balance for heterozygous genotypes."
       type="number"
       step="0.01"
@@ -79,7 +105,7 @@ watch(
     />
 
     <v-text-field
-      v-model="model.min_gq"
+      v-model.number="model.min_gq"
       label="Min GQ: minimal genotype quality required to pass."
       type="number"
       clearable
@@ -87,7 +113,7 @@ watch(
     />
 
     <v-text-field
-      v-model="model.min_ad"
+      v-model.number="model.min_ad"
       label="Min AD: minimal alternate read depth required to pass."
       type="number"
       clearable
@@ -95,7 +121,8 @@ watch(
     />
 
     <v-text-field
-      v-model="model.max_ad"
+      :value="model.max_ad"
+      @input.integer="model.max_ad = $event.target.value ? parseInt($event.target.value) : null"
       label="Max AD: maximal alternate read depth allowed to pass."
       type="number"
       clearable

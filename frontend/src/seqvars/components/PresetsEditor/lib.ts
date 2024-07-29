@@ -165,3 +165,6 @@ export const GENOTYPE_PRESET_LABELS: {
   x_recessive: 'X-linked recessive',
   affected_carriers: 'Affected carriers',
 }
+
+/** Debounce wait value for category presets updates. */
+export const CATEGORY_PRESETS_DEBOUNCE_WAIT = 500

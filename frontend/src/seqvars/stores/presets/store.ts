@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import {
   PatchedSeqvarsQueryPresetsSet,
+  SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSet,
   SeqvarsQueryPresetsSetVersionDetails,
   SeqvarsService,
@@ -543,6 +544,50 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   }
 
   /**
+   * Update the quality query presets of the given version.
+   *
+   * Uses the API to update this on the server, then applies the changes to the store.
+   *
+   * @param versionUuid The UUID of the version to update.
+   * @param body The new quality query presets.
+   * @returns A promise that resolves when the update is done.
+   * @throws Error if there is a problem with the update.
+   */
+  const updateQueryPresetsQuality = async (
+    versionUuid: string,
+    body: SeqvarsQueryPresetsQuality,
+  ): Promise<void> => {
+    const version = presetSetVersions.get(versionUuid)
+    if (version === undefined) {
+      throw new Error(`versionUuid not found: {versionUuid}`)
+    }
+
+    // Update on the server.
+    const updateResponse = await storeState.execAsync(async () =>
+      SeqvarsService.seqvarsApiQuerypresetsqualityPartialUpdate({
+        client,
+        path: {
+          querypresetsquality: body.sodar_uuid,
+          querypresetssetversion: versionUuid,
+        },
+        body,
+      }))
+    if (updateResponse.data === undefined) {
+      throw new Error('Problem updating query presets quality')
+    }
+
+    // Update locally.
+    for (let i = 0; i < version.seqvarsquerypresetsquality_set.length; i++) {
+      if (version.seqvarsquerypresetsquality_set[i].sodar_uuid === body.sodar_uuid) {
+        version.seqvarsquerypresetsquality_set[i] = body
+        return
+      }
+    }
+    // If we reach here then the quality was not found.
+    throw new Error('Quality not found in version')
+  }
+
+  /**
    * Queries for the editable state of a given version or reason why it is not.
    */
   const getEditableState = (versionUuid: string): EditableState => {
@@ -594,5 +639,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     copyPresetSetVersion,
     publishPresetSetVersion,
     discardPresetSetVersion,
+    updateQueryPresetsQuality,
   }
 })

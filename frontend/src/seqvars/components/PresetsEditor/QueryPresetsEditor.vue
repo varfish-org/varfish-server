@@ -242,10 +242,12 @@ const selectedPredefinedQueryPresets = computed<
 })
 
 /** Select the first presets in each category. */
-const selectFirstPresets = () => {
+const selectFirstPresets = (options?: {onlyIfEmpty: boolean}) => {
   for (const category of categories.value) {
     if (category.items.length) {
-      selectedPreset[category.category] = category.items[0].sodar_uuid
+      if ((!(options?.onlyIfEmpty ?? false) || selectedPreset[category.category] === undefined)) {
+        selectedPreset[category.category] = category.items[0].sodar_uuid
+      }
     }
   }
 }
@@ -263,17 +265,24 @@ const presetSetVersionReadonly = computed<boolean>(() => {
 onMounted(() => {
   selectFirstPresets()
 })
-// Also select first when project, preset set, preset set version, or
-// the load state of the store changes
+// Also select first when project, preset set, or preset set version changes.
 watch(
   () => [
     props.projectUuid,
     props.presetSet,
     props.presetSetVersion,
-    seqvarsPresetsStore.storeState.state,
   ],
   () => {
     selectFirstPresets()
+  },
+)
+// On store state change, only select the first presets if it is not set.
+watch(
+  () => [
+    seqvarsPresetsStore.storeState.state,
+  ],
+  () => {
+    selectFirstPresets({onlyIfEmpty: true})
   },
 )
 </script>
@@ -326,6 +335,7 @@ watch(
             <CategoryPresetsQualityEditor
               v-model:model-value="selectedQualityPresets"
               :readonly="presetSetVersionReadonly"
+              @message="($event) => emit('message', $event)"
             />
           </div>
           <div v-else-if="selectedCategory === Category.FREQUENCY">
