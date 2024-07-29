@@ -3,6 +3,7 @@ import sys
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
+from drf_spectacular.utils import extend_schema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
@@ -38,6 +39,7 @@ from seqvars.serializers import (
     SeqvarsQueryPresetsLocusSerializer,
     SeqvarsQueryPresetsPhenotypePrioSerializer,
     SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetCopyFromSerializer,
     SeqvarsQueryPresetsSetDetailsSerializer,
     SeqvarsQueryPresetsSetSerializer,
     SeqvarsQueryPresetsSetVersionDetailsSerializer,
@@ -185,6 +187,7 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
+    @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
     @action(methods=['post'], detail=True)
     def copy_from(self, *args, **kwargs):
         """Create a copy/clone of the given queryset."""

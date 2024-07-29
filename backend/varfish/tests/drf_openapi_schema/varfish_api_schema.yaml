@@ -4429,13 +4429,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
         required: true
       security:
       - basicAuth: []
@@ -10467,6 +10467,15 @@ components:
       - label
       - project
       - sodar_uuid
+    SeqvarsQueryPresetsSetCopyFrom:
+      type: object
+      description: Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.
+      properties:
+        label:
+          type: string
+          maxLength: 128
+      required:
+      - label
     SeqvarsQueryPresetsSetDetails:
       type: object
       description: Serializer for ``QueryPresetsSet`` that renders all nested versions.

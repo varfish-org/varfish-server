@@ -553,6 +553,12 @@ class SeqvarsQueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
         read_only_fields = fields
 
 
+class SeqvarsQueryPresetsSetCopyFromSerializer(serializers.Serializer):
+    """Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``."""
+
+    label = serializers.CharField(max_length=128, required=True)
+
+
 class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
     """Serializer for ``QueryPresetsSetVersion``."""
 
