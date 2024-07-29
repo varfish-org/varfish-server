@@ -80,7 +80,7 @@
     "@testing-library/vue": "^8.1.0",
     "@types/jquery": "^3.5.29",
     "@types/node": "^20.14.10",
-    "@vitejs/plugin-vue": "^5.0.5",
+    "@vitejs/plugin-vue": "^5.1.1",
     "@vitest/coverage-istanbul": "^1.4.0",
     "@vue/compiler-sfc": "^3.4.33",
     "@vue/eslint-config-prettier": "^9.0.0",
