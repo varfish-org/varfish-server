@@ -168,3 +168,30 @@ export const GENOTYPE_PRESET_LABELS: {
 
 /** Debounce wait value for category presets updates. */
 export const CATEGORY_PRESETS_DEBOUNCE_WAIT = 500
+
+/** Enumeration for the presets categories. */
+export enum PresetsCategory {
+  QUALITY = 'quality',
+  FREQUENCY = 'frequency',
+  CONSEQUENCE = 'consequence',
+  LOCUS = 'locus',
+  PHENOTYPE_PRIO = 'phenotype_prioritization',
+  VARIANT_PRIO = 'variant_prioritization',
+  CLINVAR = 'clinvar',
+  COLUMNS = 'columns',
+  PREDEFINED_QUERIES = 'predefined_queries',
+}
+
+/** Type for the category items. */
+export interface PresetsListItem {
+  sodar_uuid: string
+  label: string
+  rank?: number
+}
+
+/** Information about one category. */
+export interface PresetsCategoryInfo {
+  label: string
+  category: PresetsCategory
+  items: PresetsListItem[]
+}

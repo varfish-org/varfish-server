@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-
 /**
  * The possible states of a store.
  */
@@ -49,12 +47,11 @@ export class StoreState {
     this.serverInteractions += 1
     try {
       const result = await asyncCallable()
-      this.state = State.Active
       return result
     } catch (error) {
       this.state = State.Error
       if (transformError) {
-        let e = error as E
+        const e = error as E
         this.message = transformError(e)
       } else {
         this.message = `Error: ${error}`
@@ -62,6 +59,9 @@ export class StoreState {
       throw error
     } finally {
       this.serverInteractions -= 1
+      if (this.serverInteractions === 0 && this.state === State.Fetching) {
+        this.state = State.Active
+      }
     }
   }
 }

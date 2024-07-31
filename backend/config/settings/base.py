@@ -678,6 +678,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "VarFish API",
     "VERSION": varfish_version,
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
         "varfish.spectacular_utils.spectacular_preprocess_hook",

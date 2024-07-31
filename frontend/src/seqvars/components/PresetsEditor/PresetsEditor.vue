@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 <template>
   <h2>Query Presets</h2>
+
   <QueryPresetsSelect
     :project-uuid="projectUuid"
     :preset-set="presetSet"
@@ -30,6 +31,7 @@ const emit = defineEmits<{
     class="mt-3"
     @message="emit('message', $event)"
   />
+
   <QueryPresetsEditor
     :project-uuid="projectUuid"
     :preset-set="presetSet"

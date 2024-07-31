@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import {
@@ -180,3 +180,8 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
     $reset,
   }
 })
+
+// Enable HMR (Hot Module Replacement)
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useCaseAnalysisStore, import.meta.hot))
+}

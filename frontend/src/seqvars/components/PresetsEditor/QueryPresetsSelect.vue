@@ -640,7 +640,7 @@ watch(
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn rounded="xs" @click="deleteDialogShow = false"> Cancel </v-btn>
-          <v-btn rounded="xs" @click="doDeletePresetsSet()" color="error">
+          <v-btn rounded="xs" color="error" @click="doDeletePresetsSet()">
             Delete Presets Set
           </v-btn>
         </v-card-actions>
@@ -677,7 +677,7 @@ watch(
           <v-btn rounded="xs" @click="publishDialogShow = false">
             Cancel
           </v-btn>
-          <v-btn rounded="xs" @click="doPublishVersion()" color="success">
+          <v-btn rounded="xs" color="success" @click="doPublishVersion()">
             Publish Presets Version
           </v-btn>
         </v-card-actions>
@@ -695,7 +695,7 @@ watch(
             <v-btn rounded="xs" @click="discardDialogShow = false">
               Cancel
             </v-btn>
-            <v-btn rounded="xs" @click="doDiscardVersion()" color="error">
+            <v-btn rounded="xs" color="error" @click="doDiscardVersion()">
               Discard Presets
             </v-btn>
           </v-card-actions>

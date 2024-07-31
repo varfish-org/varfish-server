@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import {
-  PatchedSeqvarsQueryPresetsSet,
+  PatchedSeqvarsQueryPresetsSetRequest,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSet,
   SeqvarsQueryPresetsSetVersionDetails,
@@ -21,6 +21,9 @@ import { RequestResult } from '@hey-api/client-fetch'
  * The preset sets and preset versions are stored by their UUID.  To differentiate
  * between the builtin and the custom ones, the UUIDs of the builtin preset sets are
  * stored in `factoryDefaultPresetSetUuids`.
+ *
+ * Eventually, we should probably use pinia-colada once it is ready:
+ * https://github.com/posva/pinia-colada
  */
 export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   /** The current store state. */
@@ -236,14 +239,14 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
    */
   const updatePresetsSet = async (
     presetSetUuid: string,
-    body: PatchedSeqvarsQueryPresetsSet,
+    body: PatchedSeqvarsQueryPresetsSetRequest,
   ): Promise<SeqvarsQueryPresetsSet> => {
     if (projectUuid.value === undefined) {
       throw new Error('projectUuid is undefined')
     }
     const origPresetSet = presetSets.get(presetSetUuid)
     if (origPresetSet === undefined) {
-      throw new Error(`presetSetUuid not found: {presetSetUuid}`)
+      throw new Error(`presetSetUuid not found: ${presetSetUuid}`)
     }
 
     // Update the preset set via API.
@@ -544,6 +547,46 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   }
 
   /**
+   * Create a new quality presets.
+   *
+   * @param versionUuid UUID of the version to create the quality for.
+   * @param label The label of the new quality presets.
+   * @returns A promise that resolves with the created object after creation.
+   * @throws Error if there is a problem with the creation.
+   */
+  const createQueryPresetsQuality = async (
+    versionUuid: string,
+    label: string,
+  ): Promise<SeqvarsQueryPresetsQuality> => {
+    const version = presetSetVersions.get(versionUuid)
+    if (version === undefined) {
+      throw new Error(`versionUuid not found: ${versionUuid}`)
+    }
+
+    // Create on the server.
+    const createResponse = await storeState.execAsync(async () =>
+      SeqvarsService.seqvarsApiQuerypresetsqualityCreate({
+        client,
+        path: {
+          querypresetsset: version.presetsset.sodar_uuid,
+          querypresetssetversion: versionUuid,
+        },
+        body: {
+          label,
+          rank: version.seqvarsquerypresetsquality_set.length + 1,
+        },
+      }),
+    )
+    if (createResponse.data === undefined) {
+      throw new Error('Problem creating quality presets')
+    }
+
+    // Update the store and return.
+    version.seqvarsquerypresetsquality_set.push(createResponse.data)
+    return createResponse.data
+  }
+
+  /**
    * Update the quality query presets of the given version.
    *
    * Uses the API to update this on the server, then applies the changes to the store.
@@ -559,7 +602,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   ): Promise<void> => {
     const version = presetSetVersions.get(versionUuid)
     if (version === undefined) {
-      throw new Error(`versionUuid not found: {versionUuid}`)
+      throw new Error(`versionUuid not found: ${versionUuid}`)
     }
 
     // Update on the server.
@@ -571,20 +614,64 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
           querypresetssetversion: versionUuid,
         },
         body,
-      }))
+      }),
+    )
     if (updateResponse.data === undefined) {
       throw new Error('Problem updating query presets quality')
     }
 
     // Update locally.
     for (let i = 0; i < version.seqvarsquerypresetsquality_set.length; i++) {
-      if (version.seqvarsquerypresetsquality_set[i].sodar_uuid === body.sodar_uuid) {
+      if (
+        version.seqvarsquerypresetsquality_set[i].sodar_uuid === body.sodar_uuid
+      ) {
         version.seqvarsquerypresetsquality_set[i] = body
         return
       }
     }
     // If we reach here then the quality was not found.
     throw new Error('Quality not found in version')
+  }
+
+  /**
+   * Delete the given quality query presets.
+   *
+   * @param versionUuid UUID of the version to delete the quality presets from.
+   * @param uuid UUID of the quality presets to delete.
+   * @returns A promise that resolves when the deletion is done.
+   * @throws Error if there is a problem with the deletion.
+   */
+  const deleteQueryPresetsQuality = async (
+    versionUuid: string,
+    uuid: string,
+  ): Promise<void> => {
+    const version = presetSetVersions.get(versionUuid)
+    if (version === undefined) {
+      throw new Error(`versionUuid not found: ${versionUuid}`)
+    }
+
+    // Delete on the server.
+    const deleteResponse = await storeState.execAsync(async () =>
+      SeqvarsService.seqvarsApiQuerypresetsqualityDestroy({
+        client,
+        path: {
+          querypresetsquality: uuid,
+          querypresetssetversion: versionUuid,
+        },
+      }),
+    )
+    if (deleteResponse.error !== undefined) {
+      throw new Error('Problem deleting quality presets')
+    }
+
+    // Apply locally.
+    version.seqvarsquerypresetsquality_set.splice(
+      0,
+      version.seqvarsquerypresetsquality_set.length,
+      ...version.seqvarsquerypresetsquality_set.filter(
+        (quality) => quality.sodar_uuid !== uuid,
+      ),
+    )
   }
 
   /**
@@ -639,6 +726,15 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     copyPresetSetVersion,
     publishPresetSetVersion,
     discardPresetSetVersion,
+    createQueryPresetsQuality,
     updateQueryPresetsQuality,
+    deleteQueryPresetsQuality,
   }
 })
+
+// Enable HMR (Hot Module Replacement)
+if (import.meta.hot) {
+  import.meta.hot.accept(
+    acceptHMRUpdate(useSeqvarsPresetsStore, import.meta.hot),
+  )
+}

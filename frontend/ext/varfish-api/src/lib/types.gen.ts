@@ -184,6 +184,13 @@ export type CaseComment = {
 };
 
 /**
+ * Serializer for ``CaseComments``.
+ */
+export type CaseCommentRequest = {
+    comment: string;
+};
+
+/**
  * Serializer for the ``CaseImportAction`` model.
  */
 export type CaseImportAction = {
@@ -195,6 +202,16 @@ export type CaseImportAction = {
     state: CaseImportActionStateEnum;
     readonly date_created: string;
     readonly date_modified: string;
+    action?: ActionEnum;
+    payload: unknown;
+    overwrite_terms?: boolean;
+};
+
+/**
+ * Serializer for the ``CaseImportAction`` model.
+ */
+export type CaseImportActionRequest = {
+    state: CaseImportActionStateEnum;
     action?: ActionEnum;
     payload: unknown;
     overwrite_terms?: boolean;
@@ -223,6 +240,17 @@ export type CasePhenotypeTerms = {
      * Case SODAR UUID
      */
     readonly case: string;
+    /**
+     * Individual
+     */
+    individual: string;
+    terms: unknown;
+};
+
+/**
+ * Base serializer for any SODAR model with a sodar_uuid field
+ */
+export type CasePhenotypeTermsRequest = {
     /**
      * Individual
      */
@@ -334,6 +362,22 @@ export type CaseSerializerNg = {
      * Number of structural variants, empty if no structural variants have been imported
      */
     readonly num_svs: number | null;
+};
+
+/**
+ * Serializer for the ``Case`` model.
+ *
+ * In contrast to the old (legacy) ``CaseSerializer`` from ``variants.serializers.case``, this class does not
+ * perform serialization of nested attributes and thus does not trigger a large query cascade.
+ */
+export type CaseSerializerNgRequest = {
+    name: string;
+    index: string;
+    pedigree: unknown;
+    notes?: string | null;
+    status?: CaseStatusEnum;
+    tags?: Array<(string)> | null;
+    case_version?: number;
 };
 
 /**
@@ -678,6 +722,24 @@ export type EnrichmentKit = {
 };
 
 /**
+ * Serializer for ``EnrichmentKit``.
+ */
+export type EnrichmentKitRequest = {
+    /**
+     * Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.
+     */
+    identifier: string;
+    /**
+     * Title of the enrichment kit
+     */
+    title: string;
+    /**
+     * Optional description of the enrichment kit
+     */
+    description?: string | null;
+};
+
+/**
  * Description of an extra annotation field.
  */
 export type ExtraAnnoFieldInfo = {
@@ -935,15 +997,8 @@ export type PaginatedSeqvarsResultSetList = {
 /**
  * Serializer for the ``CaseImportAction`` model.
  */
-export type PatchedCaseImportAction = {
-    readonly sodar_uuid?: string;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project?: string;
+export type PatchedCaseImportActionRequest = {
     state?: CaseImportActionStateEnum;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     action?: ActionEnum;
     payload?: unknown;
     overwrite_terms?: boolean;
@@ -952,20 +1007,7 @@ export type PatchedCaseImportAction = {
 /**
  * Base serializer for any SODAR model with a sodar_uuid field
  */
-export type PatchedCasePhenotypeTerms = {
-    readonly sodar_uuid?: string;
-    /**
-     * DateTime of creation
-     */
-    readonly date_created?: string;
-    /**
-     * DateTime of last modification
-     */
-    readonly date_modified?: string;
-    /**
-     * Case SODAR UUID
-     */
-    readonly case?: string;
+export type PatchedCasePhenotypeTermsRequest = {
     /**
      * Individual
      */
@@ -979,73 +1021,20 @@ export type PatchedCasePhenotypeTerms = {
  * In contrast to the old (legacy) ``CaseSerializer`` from ``variants.serializers.case``, this class does not
  * perform serialization of nested attributes and thus does not trigger a large query cascade.
  */
-export type PatchedCaseSerializerNg = {
-    readonly sodar_uuid?: string;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project?: string;
-    /**
-     * Cohort SODAR UUID
-     */
-    readonly presetset?: string;
-    readonly sex_errors?: {
-        [key: string]: Array<(string)>;
-    };
-    readonly smallvariantqueryresultset?: {
-        [key: string]: (number | string | null);
-    };
-    readonly svqueryresultset?: {
-        [key: string]: (number | string | null);
-    };
-    /**
-     * Obtain the latest CaseQC for this in active state and serialize it.
-     *
-     * If there is no such record then return ``None``.
-     */
-    readonly caseqc?: {
-        [key: string]: (number | string | null);
-    } | null;
-    readonly release?: string | null;
+export type PatchedCaseSerializerNgRequest = {
     name?: string;
     index?: string;
     pedigree?: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
-    /**
-     * DateTime of creation
-     */
-    readonly date_created?: string;
-    /**
-     * DateTime of last modification
-     */
-    readonly date_modified?: string;
     case_version?: number;
-    readonly state?: CaseSerializerNgStateEnum | NullEnum | null;
-    /**
-     * Number of small variants, empty if no small variants have been imported
-     */
-    readonly num_small_vars?: number | null;
-    /**
-     * Number of structural variants, empty if no structural variants have been imported
-     */
-    readonly num_svs?: number | null;
 };
 
 /**
  * Serializer for ``EnrichmentKit``.
  */
-export type PatchedEnrichmentKit = {
-    readonly sodar_uuid?: string;
-    /**
-     * DateTime of creation
-     */
-    readonly date_created?: string;
-    /**
-     * DateTime of last modification
-     */
-    readonly date_modified?: string;
+export type PatchedEnrichmentKitRequest = {
     /**
      * Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.
      */
@@ -1063,7 +1052,7 @@ export type PatchedEnrichmentKit = {
 /**
  * Serializer for the Project model
  */
-export type PatchedProject = {
+export type PatchedProjectRequest = {
     /**
      * Project title
      */
@@ -1088,20 +1077,13 @@ export type PatchedProject = {
      * Allow public guest access for the project, also including unauthenticated users if allowed on the site
      */
     public_guest_access?: boolean;
-    readonly archive?: boolean;
     owner?: string;
-    readonly roles?: Array<RoleAssignmentNestedList>;
-    readonly sodar_uuid?: string;
 };
 
 /**
  * Serializer for the RoleAssignment model
  */
-export type PatchedRoleAssignment = {
-    /**
-     * Project SODAR UUID
-     */
-    readonly project?: string;
+export type PatchedRoleAssignmentRequest = {
     /**
      * Name of role
      */
@@ -1110,20 +1092,15 @@ export type PatchedRoleAssignment = {
      * User SODAR UUID
      */
     user?: string;
-    readonly sodar_uuid?: string;
 };
 
 /**
  * Serializer for ``PredefinedQuery``.
  */
-export type PatchedSeqvarsPredefinedQuery = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
+export type PatchedSeqvarsPredefinedQueryRequest = {
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
     included_in_sop?: boolean;
     genotype?: {
     choice?: SeqvarsGenotypePresetChoice | null;
@@ -1144,15 +1121,11 @@ export type PatchedSeqvarsPredefinedQuery = {
  * For retrieve, update, or delete operations, we also render the nested query settings
  * in detail.
  */
-export type PatchedSeqvarsQueryDetails = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
+export type PatchedSeqvarsQueryDetailsRequest = {
     rank?: number;
     label?: string;
-    readonly session?: string;
-    settings?: SeqvarsQuerySettingsDetails;
-    columnsconfig?: SeqvarsQueryColumnsConfig;
+    settings?: SeqvarsQuerySettingsDetailsRequest;
+    columnsconfig?: SeqvarsQueryColumnsConfigRequest;
 };
 
 /**
@@ -1160,17 +1133,13 @@ export type PatchedSeqvarsQueryDetails = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsClinvar = {
+export type PatchedSeqvarsQueryPresetsClinvarRequest = {
     clinvar_presence_required?: boolean;
     clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
     allow_conflicting_interpretations?: boolean;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1178,15 +1147,11 @@ export type PatchedSeqvarsQueryPresetsClinvar = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsColumns = {
+export type PatchedSeqvarsQueryPresetsColumnsRequest = {
     column_settings?: SeqvarsColumnConfigList;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1194,18 +1159,14 @@ export type PatchedSeqvarsQueryPresetsColumns = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsConsequence = {
+export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
     max_distance_to_exon?: number | null;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1213,7 +1174,7 @@ export type PatchedSeqvarsQueryPresetsConsequence = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsFrequency = {
+export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
     gnomad_exomes?: {
     enabled?: boolean;
     homozygous?: number | null;
@@ -1247,13 +1208,9 @@ export type PatchedSeqvarsQueryPresetsFrequency = {
     hemizygous?: number | null;
     carriers?: number | null;
 } | null | null;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1261,17 +1218,13 @@ export type PatchedSeqvarsQueryPresetsFrequency = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsLocus = {
+export type PatchedSeqvarsQueryPresetsLocusRequest = {
     genes?: GeneList;
     gene_panels?: GenePanelList;
     genome_regions?: GenomeRegionList;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1279,17 +1232,13 @@ export type PatchedSeqvarsQueryPresetsLocus = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsPhenotypePrio = {
+export type PatchedSeqvarsQueryPresetsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
     terms?: TermPresenceList;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1297,14 +1246,10 @@ export type PatchedSeqvarsQueryPresetsPhenotypePrio = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsQuality = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
+export type PatchedSeqvarsQueryPresetsQualityRequest = {
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
     filter_active?: boolean;
     min_dp_het?: number | null;
     min_dp_hom?: number | null;
@@ -1317,31 +1262,19 @@ export type PatchedSeqvarsQueryPresetsQuality = {
 /**
  * Serializer for ``QueryPresetsSet``.
  */
-export type PatchedSeqvarsQueryPresetsSet = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
+export type PatchedSeqvarsQueryPresetsSetRequest = {
     rank?: number;
     label?: string;
     description?: string | null;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project?: string;
 };
 
 /**
  * Serializer for ``QueryPresetsSetVersion``.
  */
-export type PatchedSeqvarsQueryPresetsSetVersion = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
-    readonly presetsset?: string;
+export type PatchedSeqvarsQueryPresetsSetVersionRequest = {
     version_major?: number;
     version_minor?: number;
     status?: string;
-    readonly signed_off_by?: SODARUser;
 };
 
 /**
@@ -1349,16 +1282,12 @@ export type PatchedSeqvarsQueryPresetsSetVersion = {
  *
  * Not used directly but used as base class.
  */
-export type PatchedSeqvarsQueryPresetsVariantPrio = {
+export type PatchedSeqvarsQueryPresetsVariantPrioRequest = {
     variant_prio_enabled?: boolean;
     services?: SeqvarsPrioServiceList;
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
     rank?: number;
     label?: string;
     description?: string | null;
-    readonly presetssetversion?: string;
 };
 
 /**
@@ -1367,13 +1296,7 @@ export type PatchedSeqvarsQueryPresetsVariantPrio = {
  * For retrieve, update, or delete operations, we also render the nested
  * owned category settings.
  */
-export type PatchedSeqvarsQuerySettingsDetails = {
-    readonly sodar_uuid?: string;
-    readonly date_created?: string;
-    readonly date_modified?: string;
-    readonly session?: string;
-    readonly presetssetversion?: string;
-    readonly predefinedquery?: string;
+export type PatchedSeqvarsQuerySettingsDetailsRequest = {
     genotypepresets?: {
     choice?: SeqvarsGenotypePresetChoice | null;
 } | null | null;
@@ -1384,33 +1307,20 @@ export type PatchedSeqvarsQuerySettingsDetails = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
-    genotype?: SeqvarsQuerySettingsGenotype;
-    quality?: SeqvarsQuerySettingsQuality;
-    consequence?: SeqvarsQuerySettingsConsequence;
-    locus?: SeqvarsQuerySettingsLocus;
-    frequency?: SeqvarsQuerySettingsFrequency;
-    phenotypeprio?: SeqvarsQuerySettingsPhenotypePrio;
-    variantprio?: SeqvarsQuerySettingsVariantPrio;
-    clinvar?: SeqvarsQuerySettingsClinvar;
+    genotype?: SeqvarsQuerySettingsGenotypeRequest;
+    quality?: SeqvarsQuerySettingsQualityRequest;
+    consequence?: SeqvarsQuerySettingsConsequenceRequest;
+    locus?: SeqvarsQuerySettingsLocusRequest;
+    frequency?: SeqvarsQuerySettingsFrequencyRequest;
+    phenotypeprio?: SeqvarsQuerySettingsPhenotypePrioRequest;
+    variantprio?: SeqvarsQuerySettingsVariantPrioRequest;
+    clinvar?: SeqvarsQuerySettingsClinvarRequest;
 };
 
 /**
  * Serializer for ``TargetBedFile``.
  */
-export type PatchedTargetBedFile = {
-    readonly sodar_uuid?: string;
-    /**
-     * DateTime of creation
-     */
-    readonly date_created?: string;
-    /**
-     * DateTime of last modification
-     */
-    readonly date_modified?: string;
-    /**
-     * Record SODAR UUID
-     */
-    readonly enrichmentkit?: string;
+export type PatchedTargetBedFileRequest = {
     /**
      * The file's URI.
      */
@@ -1453,7 +1363,6 @@ export type Project = {
      */
     public_guest_access?: boolean;
     readonly archive: boolean;
-    owner?: string;
     readonly roles: Array<RoleAssignmentNestedList>;
     readonly sodar_uuid: string;
 };
@@ -1488,6 +1397,55 @@ export type ProjectInvite = {
      */
     message?: string;
     readonly sodar_uuid: string;
+};
+
+/**
+ * Serializer for the ProjectInvite model
+ */
+export type ProjectInviteRequest = {
+    /**
+     * Email address of the person to be invited
+     */
+    email: string;
+    /**
+     * Name of role
+     */
+    role: string;
+    /**
+     * Message to be included in the invite email (optional)
+     */
+    message?: string;
+};
+
+/**
+ * Serializer for the Project model
+ */
+export type ProjectRequest = {
+    /**
+     * Project title
+     */
+    title: string;
+    /**
+     * Type of project ("CATEGORY", "PROJECT")
+     *
+     * * `CATEGORY` - Category
+     * * `PROJECT` - Project
+     */
+    type?: TypeEnum;
+    /**
+     * Project SODAR UUID
+     */
+    parent: string | null;
+    /**
+     * Short project description
+     */
+    description?: string | null;
+    readme?: string;
+    /**
+     * Allow public guest access for the project, also including unauthenticated users if allowed on the site
+     */
+    public_guest_access?: boolean;
+    owner?: string;
 };
 
 /**
@@ -1552,6 +1510,30 @@ export type RoleAssignmentNestedList = {
 };
 
 /**
+ * Nested list serializer for the RoleAssignment model.
+ */
+export type RoleAssignmentNestedListRequest = {
+    /**
+     * Name of role
+     */
+    role: string;
+};
+
+/**
+ * Serializer for the RoleAssignment model
+ */
+export type RoleAssignmentRequest = {
+    /**
+     * Name of role
+     */
+    role: string;
+    /**
+     * User SODAR UUID
+     */
+    user: string;
+};
+
+/**
  * Serializer for the user model used in SODAR Core based sites
  */
 export type SODARUser = {
@@ -1566,6 +1548,22 @@ export type SODARUser = {
      */
     is_superuser?: boolean;
     readonly sodar_uuid: string;
+};
+
+/**
+ * Serializer for the user model used in SODAR Core based sites
+ */
+export type SODARUserRequest = {
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    username: string;
+    name?: string;
+    email?: string;
+    /**
+     * Designates that this user has all permissions without explicitly assigning them.
+     */
+    is_superuser?: boolean;
 };
 
 export type SampleAlignmentStatsList = Array<{
@@ -1820,6 +1818,27 @@ export type SeqvarsPredefinedQuery = {
     columns?: string | null;
 };
 
+/**
+ * Serializer for ``PredefinedQuery``.
+ */
+export type SeqvarsPredefinedQueryRequest = {
+    rank?: number;
+    label: string;
+    description?: string | null;
+    included_in_sop?: boolean;
+    genotype?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null | null;
+    quality?: string | null;
+    frequency?: string | null;
+    consequence?: string | null;
+    locus?: string | null;
+    phenotypeprio?: string | null;
+    variantprio?: string | null;
+    clinvar?: string | null;
+    columns?: string | null;
+};
+
 export type SeqvarsPrioServiceList = Array<{
     name: string;
     version: string;
@@ -1850,6 +1869,13 @@ export type SeqvarsQueryColumnsConfig = {
 };
 
 /**
+ * Serializer for ``QueryColumnsConfig``.
+ */
+export type SeqvarsQueryColumnsConfigRequest = {
+    column_settings?: SeqvarsColumnConfigList;
+};
+
+/**
  * Serializer for ``Query`` (for ``*-detail``).
  *
  * For retrieve, update, or delete operations, we also render the nested query settings
@@ -1864,6 +1890,19 @@ export type SeqvarsQueryDetails = {
     readonly session: string;
     settings: SeqvarsQuerySettingsDetails;
     columnsconfig: SeqvarsQueryColumnsConfig;
+};
+
+/**
+ * Serializer for ``Query`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested query settings
+ * in detail.
+ */
+export type SeqvarsQueryDetailsRequest = {
+    rank?: number;
+    label: string;
+    settings: SeqvarsQuerySettingsDetailsRequest;
+    columnsconfig: SeqvarsQueryColumnsConfigRequest;
 };
 
 /**
@@ -1927,6 +1966,20 @@ export type SeqvarsQueryPresetsClinvar = {
 };
 
 /**
+ * Serializer for ``QueryPresetsClinvar``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsClinvarRequest = {
+    clinvar_presence_required?: boolean;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    allow_conflicting_interpretations?: boolean;
+    rank?: number;
+    label: string;
+    description?: string | null;
+};
+
+/**
  * Serializer for ``QueryPresetsColumns``.
  *
  * Not used directly but used as base class.
@@ -1940,6 +1993,18 @@ export type SeqvarsQueryPresetsColumns = {
     label: string;
     description?: string | null;
     readonly presetssetversion: string;
+};
+
+/**
+ * Serializer for ``QueryPresetsColumns``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsColumnsRequest = {
+    column_settings?: SeqvarsColumnConfigList;
+    rank?: number;
+    label: string;
+    description?: string | null;
 };
 
 /**
@@ -1959,6 +2024,21 @@ export type SeqvarsQueryPresetsConsequence = {
     label: string;
     description?: string | null;
     readonly presetssetversion: string;
+};
+
+/**
+ * Serializer for ``QueryPresetsConsequence``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsConsequenceRequest = {
+    variant_types?: SeqvarsVariantTypeChoiceList;
+    transcript_types?: SeqvarsTranscriptTypeChoiceList;
+    variant_consequences?: SeqvarsVariantConsequenceChoiceList;
+    max_distance_to_exon?: number | null;
+    rank?: number;
+    label: string;
+    description?: string | null;
 };
 
 /**
@@ -2010,6 +2090,50 @@ export type SeqvarsQueryPresetsFrequency = {
 };
 
 /**
+ * Serializer for ``QueryPresetsFrequency``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsFrequencyRequest = {
+    gnomad_exomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | null | null;
+    gnomad_genomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | null | null;
+    gnomad_mitochondrial?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | null | null;
+    helixmtdb?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | null | null;
+    inhouse?: {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    carriers?: number | null;
+} | null | null;
+    rank?: number;
+    label: string;
+    description?: string | null;
+};
+
+/**
  * Serializer for ``QueryPresetsLocus``.
  *
  * Not used directly but used as base class.
@@ -2025,6 +2149,20 @@ export type SeqvarsQueryPresetsLocus = {
     label: string;
     description?: string | null;
     readonly presetssetversion: string;
+};
+
+/**
+ * Serializer for ``QueryPresetsLocus``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsLocusRequest = {
+    genes?: GeneList;
+    gene_panels?: GenePanelList;
+    genome_regions?: GenomeRegionList;
+    rank?: number;
+    label: string;
+    description?: string | null;
 };
 
 /**
@@ -2046,6 +2184,20 @@ export type SeqvarsQueryPresetsPhenotypePrio = {
 };
 
 /**
+ * Serializer for ``QueryPresetsPhenotypePrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsPhenotypePrioRequest = {
+    phenotype_prio_enabled?: boolean;
+    phenotype_prio_algorithm?: string | null;
+    terms?: TermPresenceList;
+    rank?: number;
+    label: string;
+    description?: string | null;
+};
+
+/**
  * Serializer for ``QueryPresetsQuality``.
  *
  * Not used directly but used as base class.
@@ -2058,6 +2210,24 @@ export type SeqvarsQueryPresetsQuality = {
     label: string;
     description?: string | null;
     readonly presetssetversion: string;
+    filter_active?: boolean;
+    min_dp_het?: number | null;
+    min_dp_hom?: number | null;
+    min_ab_het?: number | null;
+    min_gq?: number | null;
+    min_ad?: number | null;
+    max_ad?: number | null;
+};
+
+/**
+ * Serializer for ``QueryPresetsQuality``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsQualityRequest = {
+    rank?: number;
+    label: string;
+    description?: string | null;
     filter_active?: boolean;
     min_dp_het?: number | null;
     min_dp_hom?: number | null;
@@ -2086,7 +2256,7 @@ export type SeqvarsQueryPresetsSet = {
 /**
  * Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.
  */
-export type SeqvarsQueryPresetsSetCopyFrom = {
+export type SeqvarsQueryPresetsSetCopyFromRequest = {
     label: string;
 };
 
@@ -2105,6 +2275,15 @@ export type SeqvarsQueryPresetsSetDetails = {
      */
     readonly project: string;
     readonly versions: Array<SeqvarsQueryPresetsSetVersionDetails>;
+};
+
+/**
+ * Serializer for ``QueryPresetsSet``.
+ */
+export type SeqvarsQueryPresetsSetRequest = {
+    rank?: number;
+    label: string;
+    description?: string | null;
 };
 
 /**
@@ -2148,6 +2327,27 @@ export type SeqvarsQueryPresetsSetVersionDetails = {
 };
 
 /**
+ * Serializer for ``QueryPresetsSetVersion`` (for ``*-detail``).
+ *
+ * When retrieving the details of a seqvar query preset set version, we also render the
+ * owned records as well as the presetsset.
+ */
+export type SeqvarsQueryPresetsSetVersionDetailsRequest = {
+    version_major?: number;
+    version_minor?: number;
+    status?: string;
+};
+
+/**
+ * Serializer for ``QueryPresetsSetVersion``.
+ */
+export type SeqvarsQueryPresetsSetVersionRequest = {
+    version_major?: number;
+    version_minor?: number;
+    status?: string;
+};
+
+/**
  * Serializer for ``QueryPresetsVariantPrio``.
  *
  * Not used directly but used as base class.
@@ -2162,6 +2362,19 @@ export type SeqvarsQueryPresetsVariantPrio = {
     label: string;
     description?: string | null;
     readonly presetssetversion: string;
+};
+
+/**
+ * Serializer for ``QueryPresetsVariantPrio``.
+ *
+ * Not used directly but used as base class.
+ */
+export type SeqvarsQueryPresetsVariantPrioRequest = {
+    variant_prio_enabled?: boolean;
+    services?: SeqvarsPrioServiceList;
+    rank?: number;
+    label: string;
+    description?: string | null;
 };
 
 /**
@@ -2208,6 +2421,15 @@ export type SeqvarsQuerySettingsClinvar = {
 };
 
 /**
+ * Serializer for ``QuerySettingsClinvar``.
+ */
+export type SeqvarsQuerySettingsClinvarRequest = {
+    clinvar_presence_required?: boolean;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    allow_conflicting_interpretations?: boolean;
+};
+
+/**
  * Serializer for ``QuerySettingsConsequence``.
  */
 export type SeqvarsQuerySettingsConsequence = {
@@ -2219,6 +2441,16 @@ export type SeqvarsQuerySettingsConsequence = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+};
+
+/**
+ * Serializer for ``QuerySettingsConsequence``.
+ */
+export type SeqvarsQuerySettingsConsequenceRequest = {
+    variant_types?: SeqvarsVariantTypeChoiceList;
+    transcript_types?: SeqvarsTranscriptTypeChoiceList;
+    variant_consequences?: SeqvarsVariantConsequenceChoiceList;
+    max_distance_to_exon?: number | null;
 };
 
 /**
@@ -2252,6 +2484,33 @@ export type SeqvarsQuerySettingsDetails = {
     phenotypeprio: SeqvarsQuerySettingsPhenotypePrio;
     variantprio: SeqvarsQuerySettingsVariantPrio;
     clinvar: SeqvarsQuerySettingsClinvar;
+};
+
+/**
+ * Serializer for ``QuerySettings`` (for ``*-detail``).
+ *
+ * For retrieve, update, or delete operations, we also render the nested
+ * owned category settings.
+ */
+export type SeqvarsQuerySettingsDetailsRequest = {
+    genotypepresets?: {
+    choice?: SeqvarsGenotypePresetChoice | null;
+} | null | null;
+    qualitypresets?: string | null;
+    consequencepresets?: string | null;
+    locuspresets?: string | null;
+    frequencypresets?: string | null;
+    phenotypepriopresets?: string | null;
+    variantpriopresets?: string | null;
+    clinvarpresets?: string | null;
+    genotype: SeqvarsQuerySettingsGenotypeRequest;
+    quality: SeqvarsQuerySettingsQualityRequest;
+    consequence: SeqvarsQuerySettingsConsequenceRequest;
+    locus: SeqvarsQuerySettingsLocusRequest;
+    frequency: SeqvarsQuerySettingsFrequencyRequest;
+    phenotypeprio: SeqvarsQuerySettingsPhenotypePrioRequest;
+    variantprio: SeqvarsQuerySettingsVariantPrioRequest;
+    clinvar: SeqvarsQuerySettingsClinvarRequest;
 };
 
 /**
@@ -2298,6 +2557,45 @@ export type SeqvarsQuerySettingsFrequency = {
 };
 
 /**
+ * Serializer for ``QuerySettingsFrequency``.
+ */
+export type SeqvarsQuerySettingsFrequencyRequest = {
+    gnomad_exomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | null | null;
+    gnomad_genomes?: {
+    enabled?: boolean;
+    homozygous?: number | null;
+    heterozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+} | null | null;
+    gnomad_mitochondrial?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | null | null;
+    helixmtdb?: {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+} | null | null;
+    inhouse?: {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    carriers?: number | null;
+} | null | null;
+};
+
+/**
  * Serializer for ``QuerySettingsGenotype``.
  */
 export type SeqvarsQuerySettingsGenotype = {
@@ -2305,6 +2603,14 @@ export type SeqvarsQuerySettingsGenotype = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+    recessive_mode?: RecessiveModeEnum;
+    sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
+};
+
+/**
+ * Serializer for ``QuerySettingsGenotype``.
+ */
+export type SeqvarsQuerySettingsGenotypeRequest = {
     recessive_mode?: RecessiveModeEnum;
     sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
 };
@@ -2323,6 +2629,15 @@ export type SeqvarsQuerySettingsLocus = {
 };
 
 /**
+ * Serializer for ``QuerySettingsLocus``.
+ */
+export type SeqvarsQuerySettingsLocusRequest = {
+    genes?: GeneList;
+    gene_panels?: GenePanelList;
+    genome_regions?: GenomeRegionList;
+};
+
+/**
  * Serializer for ``QuerySettingsPhenotypePrio``.
  */
 export type SeqvarsQuerySettingsPhenotypePrio = {
@@ -2333,6 +2648,15 @@ export type SeqvarsQuerySettingsPhenotypePrio = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+};
+
+/**
+ * Serializer for ``QuerySettingsPhenotypePrio``.
+ */
+export type SeqvarsQuerySettingsPhenotypePrioRequest = {
+    phenotype_prio_enabled?: boolean;
+    phenotype_prio_algorithm?: string | null;
+    terms?: TermPresenceList;
 };
 
 /**
@@ -2347,6 +2671,13 @@ export type SeqvarsQuerySettingsQuality = {
 };
 
 /**
+ * Serializer for ``QuerySettingsQuality``.
+ */
+export type SeqvarsQuerySettingsQualityRequest = {
+    sample_quality_filters?: SeqvarsSampleQualityFilterList;
+};
+
+/**
  * Serializer for ``QuerySettingsVariantPrio``.
  */
 export type SeqvarsQuerySettingsVariantPrio = {
@@ -2356,6 +2687,14 @@ export type SeqvarsQuerySettingsVariantPrio = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+};
+
+/**
+ * Serializer for ``QuerySettingsVariantPrio``.
+ */
+export type SeqvarsQuerySettingsVariantPrioRequest = {
+    variant_prio_enabled?: boolean;
+    services?: SeqvarsPrioServiceList;
 };
 
 /**
@@ -2446,6 +2785,23 @@ export type TargetBedFile = {
      * Record SODAR UUID
      */
     readonly enrichmentkit: string;
+    /**
+     * The file's URI.
+     */
+    file_uri: string;
+    /**
+     * The file's reference genome.
+     *
+     * * `grch37` - GRCh37
+     * * `grch38` - GRCh38
+     */
+    genome_release?: GenomeReleaseEnum;
+};
+
+/**
+ * Serializer for ``TargetBedFile``.
+ */
+export type TargetBedFileRequest = {
     /**
      * The file's URI.
      */
@@ -2595,7 +2951,7 @@ export type CasesImportApiCaseImportActionListCreateListResponse = PaginatedCase
 export type CasesImportApiCaseImportActionListCreateListError = unknown;
 
 export type CasesImportApiCaseImportActionListCreateCreateData = {
-    body: CaseImportAction;
+    body: CaseImportActionRequest;
     path: {
         project: string;
     };
@@ -2616,7 +2972,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveError = unknown;
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData = {
-    body: CaseImportAction;
+    body: CaseImportActionRequest;
     path: {
         caseimportaction: string;
     };
@@ -2627,7 +2983,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse = 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError = unknown;
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData = {
-    body?: PatchedCaseImportAction;
+    body?: PatchedCaseImportActionRequest;
     path: {
         caseimportaction: string;
     };
@@ -2688,7 +3044,7 @@ export type CasesApiCaseCommentListCreateListResponse = Array<CaseComment>;
 export type CasesApiCaseCommentListCreateListError = unknown;
 
 export type CasesApiCaseCommentListCreateCreateData = {
-    body: CaseComment;
+    body: CaseCommentRequest;
     path: {
         case: string;
     };
@@ -2709,7 +3065,7 @@ export type CasesApiCasePhenotypeTermsListCreateListResponse = Array<CasePhenoty
 export type CasesApiCasePhenotypeTermsListCreateListError = unknown;
 
 export type CasesApiCasePhenotypeTermsListCreateCreateData = {
-    body: CasePhenotypeTerms;
+    body: CasePhenotypeTermsRequest;
     path: {
         case: string;
     };
@@ -2730,7 +3086,7 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveResponse = Ca
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveError = unknown;
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData = {
-    body: CasePhenotypeTerms;
+    body: CasePhenotypeTermsRequest;
     path: {
         casephenotypeterms: string;
     };
@@ -2741,7 +3097,7 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse = Case
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError = unknown;
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData = {
-    body?: PatchedCasePhenotypeTerms;
+    body?: PatchedCasePhenotypeTermsRequest;
     path: {
         casephenotypeterms: string;
     };
@@ -2792,7 +3148,7 @@ export type CasesApiCaseRetrieveUpdateDestroyRetrieveResponse = CaseSerializerNg
 export type CasesApiCaseRetrieveUpdateDestroyRetrieveError = unknown;
 
 export type CasesApiCaseRetrieveUpdateDestroyUpdateData = {
-    body: CaseSerializerNg;
+    body: CaseSerializerNgRequest;
     path: {
         case: string;
     };
@@ -2803,7 +3159,7 @@ export type CasesApiCaseRetrieveUpdateDestroyUpdateResponse = CaseSerializerNg;
 export type CasesApiCaseRetrieveUpdateDestroyUpdateError = unknown;
 
 export type CasesApiCaseRetrieveUpdateDestroyPartialUpdateData = {
-    body?: PatchedCaseSerializerNg;
+    body?: PatchedCaseSerializerNgRequest;
     path: {
         case: string;
     };
@@ -2846,7 +3202,7 @@ export type GenepanelsApiLookupGenepanelRetrieveResponse = GenePanel;
 export type GenepanelsApiLookupGenepanelRetrieveError = unknown;
 
 export type ProjectApiCreateCreateData = {
-    body: Project;
+    body: ProjectRequest;
 };
 
 export type ProjectApiCreateCreateResponse = Project;
@@ -2854,7 +3210,7 @@ export type ProjectApiCreateCreateResponse = Project;
 export type ProjectApiCreateCreateError = unknown;
 
 export type ProjectApiInvitesCreateCreateData = {
-    body: ProjectInvite;
+    body: ProjectInviteRequest;
     path: {
         project: string;
     };
@@ -2919,7 +3275,7 @@ export type ProjectApiRetrieveRetrieveResponse = Project;
 export type ProjectApiRetrieveRetrieveError = unknown;
 
 export type ProjectApiRolesCreateCreateData = {
-    body: RoleAssignment;
+    body: RoleAssignmentRequest;
     path: {
         project: string;
     };
@@ -2950,7 +3306,7 @@ export type ProjectApiRolesOwnerTransferCreateResponse = unknown;
 export type ProjectApiRolesOwnerTransferCreateError = unknown;
 
 export type ProjectApiRolesUpdateUpdateData = {
-    body: RoleAssignment;
+    body: RoleAssignmentRequest;
     path: {
         roleassignment: string;
     };
@@ -2961,7 +3317,7 @@ export type ProjectApiRolesUpdateUpdateResponse = RoleAssignment;
 export type ProjectApiRolesUpdateUpdateError = unknown;
 
 export type ProjectApiRolesUpdatePartialUpdateData = {
-    body?: PatchedRoleAssignment;
+    body?: PatchedRoleAssignmentRequest;
     path: {
         roleassignment: string;
     };
@@ -3000,7 +3356,7 @@ export type ProjectApiSettingsSetUserCreateResponse = unknown;
 export type ProjectApiSettingsSetUserCreateError = unknown;
 
 export type ProjectApiUpdateUpdateData = {
-    body: Project;
+    body: ProjectRequest;
     path: {
         project: string;
     };
@@ -3011,7 +3367,7 @@ export type ProjectApiUpdateUpdateResponse = Project;
 export type ProjectApiUpdateUpdateError = unknown;
 
 export type ProjectApiUpdatePartialUpdateData = {
-    body?: PatchedProject;
+    body?: PatchedProjectRequest;
     path: {
         project: string;
     };
@@ -3034,7 +3390,7 @@ export type SeqmetaApiEnrichmentkitListCreateListResponse = Array<EnrichmentKit>
 export type SeqmetaApiEnrichmentkitListCreateListError = unknown;
 
 export type SeqmetaApiEnrichmentkitListCreateCreateData = {
-    body: EnrichmentKit;
+    body: EnrichmentKitRequest;
 };
 
 export type SeqmetaApiEnrichmentkitListCreateCreateResponse = EnrichmentKit;
@@ -3052,7 +3408,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveResponse = Enric
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveError = unknown;
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData = {
-    body: EnrichmentKit;
+    body: EnrichmentKitRequest;
     path: {
         enrichmentkit: string;
     };
@@ -3063,7 +3419,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse = Enrichm
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError = unknown;
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData = {
-    body?: PatchedEnrichmentKit;
+    body?: PatchedEnrichmentKitRequest;
     path: {
         enrichmentkit: string;
     };
@@ -3094,7 +3450,7 @@ export type SeqmetaApiTargetbedfileListCreateListResponse = Array<TargetBedFile>
 export type SeqmetaApiTargetbedfileListCreateListError = unknown;
 
 export type SeqmetaApiTargetbedfileListCreateCreateData = {
-    body: TargetBedFile;
+    body: TargetBedFileRequest;
     path: {
         enrichmentkit: string;
     };
@@ -3115,7 +3471,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveResponse = Targe
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveError = unknown;
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData = {
-    body: TargetBedFile;
+    body: TargetBedFileRequest;
     path: {
         targetbedfile: string;
     };
@@ -3126,7 +3482,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse = TargetB
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError = unknown;
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData = {
-    body?: PatchedTargetBedFile;
+    body?: PatchedTargetBedFileRequest;
     path: {
         targetbedfile: string;
     };
@@ -3167,7 +3523,7 @@ export type SeqvarsApiPredefinedqueryListResponse = PaginatedSeqvarsPredefinedQu
 export type SeqvarsApiPredefinedqueryListError = unknown;
 
 export type SeqvarsApiPredefinedqueryCreateData = {
-    body: SeqvarsPredefinedQuery;
+    body: SeqvarsPredefinedQueryRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3189,7 +3545,7 @@ export type SeqvarsApiPredefinedqueryRetrieveResponse = SeqvarsPredefinedQuery;
 export type SeqvarsApiPredefinedqueryRetrieveError = unknown;
 
 export type SeqvarsApiPredefinedqueryUpdateData = {
-    body: SeqvarsPredefinedQuery;
+    body: SeqvarsPredefinedQueryRequest;
     path: {
         predefinedquery: string;
         querypresetssetversion: string;
@@ -3201,7 +3557,7 @@ export type SeqvarsApiPredefinedqueryUpdateResponse = SeqvarsPredefinedQuery;
 export type SeqvarsApiPredefinedqueryUpdateError = unknown;
 
 export type SeqvarsApiPredefinedqueryPartialUpdateData = {
-    body?: PatchedSeqvarsPredefinedQuery;
+    body?: PatchedSeqvarsPredefinedQueryRequest;
     path: {
         predefinedquery: string;
         querypresetssetversion: string;
@@ -3244,7 +3600,7 @@ export type SeqvarsApiQueryListResponse = PaginatedSeqvarsQueryList;
 export type SeqvarsApiQueryListError = unknown;
 
 export type SeqvarsApiQueryCreateData = {
-    body: SeqvarsQueryDetails;
+    body: SeqvarsQueryDetailsRequest;
     path: {
         session: string;
     };
@@ -3266,7 +3622,7 @@ export type SeqvarsApiQueryRetrieveResponse = SeqvarsQueryDetails;
 export type SeqvarsApiQueryRetrieveError = unknown;
 
 export type SeqvarsApiQueryUpdateData = {
-    body: SeqvarsQueryDetails;
+    body: SeqvarsQueryDetailsRequest;
     path: {
         query: string;
         session: string;
@@ -3278,7 +3634,7 @@ export type SeqvarsApiQueryUpdateResponse = SeqvarsQueryDetails;
 export type SeqvarsApiQueryUpdateError = unknown;
 
 export type SeqvarsApiQueryPartialUpdateData = {
-    body?: PatchedSeqvarsQueryDetails;
+    body?: PatchedSeqvarsQueryDetailsRequest;
     path: {
         query: string;
         session: string;
@@ -3352,7 +3708,7 @@ export type SeqvarsApiQuerypresetsclinvarListResponse = PaginatedSeqvarsQueryPre
 export type SeqvarsApiQuerypresetsclinvarListError = unknown;
 
 export type SeqvarsApiQuerypresetsclinvarCreateData = {
-    body: SeqvarsQueryPresetsClinvar;
+    body: SeqvarsQueryPresetsClinvarRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3374,7 +3730,7 @@ export type SeqvarsApiQuerypresetsclinvarRetrieveResponse = SeqvarsQueryPresetsC
 export type SeqvarsApiQuerypresetsclinvarRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsclinvarUpdateData = {
-    body: SeqvarsQueryPresetsClinvar;
+    body: SeqvarsQueryPresetsClinvarRequest;
     path: {
         querypresetsclinvar: string;
         querypresetssetversion: string;
@@ -3386,7 +3742,7 @@ export type SeqvarsApiQuerypresetsclinvarUpdateResponse = SeqvarsQueryPresetsCli
 export type SeqvarsApiQuerypresetsclinvarUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsclinvarPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsClinvar;
+    body?: PatchedSeqvarsQueryPresetsClinvarRequest;
     path: {
         querypresetsclinvar: string;
         querypresetssetversion: string;
@@ -3429,7 +3785,7 @@ export type SeqvarsApiQuerypresetscolumnsListResponse = PaginatedSeqvarsQueryPre
 export type SeqvarsApiQuerypresetscolumnsListError = unknown;
 
 export type SeqvarsApiQuerypresetscolumnsCreateData = {
-    body: SeqvarsQueryPresetsColumns;
+    body: SeqvarsQueryPresetsColumnsRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3451,7 +3807,7 @@ export type SeqvarsApiQuerypresetscolumnsRetrieveResponse = SeqvarsQueryPresetsC
 export type SeqvarsApiQuerypresetscolumnsRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetscolumnsUpdateData = {
-    body: SeqvarsQueryPresetsColumns;
+    body: SeqvarsQueryPresetsColumnsRequest;
     path: {
         querypresetscolumns: string;
         querypresetssetversion: string;
@@ -3463,7 +3819,7 @@ export type SeqvarsApiQuerypresetscolumnsUpdateResponse = SeqvarsQueryPresetsCol
 export type SeqvarsApiQuerypresetscolumnsUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetscolumnsPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsColumns;
+    body?: PatchedSeqvarsQueryPresetsColumnsRequest;
     path: {
         querypresetscolumns: string;
         querypresetssetversion: string;
@@ -3506,7 +3862,7 @@ export type SeqvarsApiQuerypresetsconsequenceListResponse = PaginatedSeqvarsQuer
 export type SeqvarsApiQuerypresetsconsequenceListError = unknown;
 
 export type SeqvarsApiQuerypresetsconsequenceCreateData = {
-    body: SeqvarsQueryPresetsConsequence;
+    body: SeqvarsQueryPresetsConsequenceRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3528,7 +3884,7 @@ export type SeqvarsApiQuerypresetsconsequenceRetrieveResponse = SeqvarsQueryPres
 export type SeqvarsApiQuerypresetsconsequenceRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsconsequenceUpdateData = {
-    body: SeqvarsQueryPresetsConsequence;
+    body: SeqvarsQueryPresetsConsequenceRequest;
     path: {
         querypresetsconsequence: string;
         querypresetssetversion: string;
@@ -3540,7 +3896,7 @@ export type SeqvarsApiQuerypresetsconsequenceUpdateResponse = SeqvarsQueryPreset
 export type SeqvarsApiQuerypresetsconsequenceUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsconsequencePartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsConsequence;
+    body?: PatchedSeqvarsQueryPresetsConsequenceRequest;
     path: {
         querypresetsconsequence: string;
         querypresetssetversion: string;
@@ -3610,7 +3966,7 @@ export type SeqvarsApiQuerypresetsfrequencyListResponse = PaginatedSeqvarsQueryP
 export type SeqvarsApiQuerypresetsfrequencyListError = unknown;
 
 export type SeqvarsApiQuerypresetsfrequencyCreateData = {
-    body: SeqvarsQueryPresetsFrequency;
+    body: SeqvarsQueryPresetsFrequencyRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3632,7 +3988,7 @@ export type SeqvarsApiQuerypresetsfrequencyRetrieveResponse = SeqvarsQueryPreset
 export type SeqvarsApiQuerypresetsfrequencyRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsfrequencyUpdateData = {
-    body: SeqvarsQueryPresetsFrequency;
+    body: SeqvarsQueryPresetsFrequencyRequest;
     path: {
         querypresetsfrequency: string;
         querypresetssetversion: string;
@@ -3644,7 +4000,7 @@ export type SeqvarsApiQuerypresetsfrequencyUpdateResponse = SeqvarsQueryPresetsF
 export type SeqvarsApiQuerypresetsfrequencyUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsfrequencyPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsFrequency;
+    body?: PatchedSeqvarsQueryPresetsFrequencyRequest;
     path: {
         querypresetsfrequency: string;
         querypresetssetversion: string;
@@ -3687,7 +4043,7 @@ export type SeqvarsApiQuerypresetslocusListResponse = PaginatedSeqvarsQueryPrese
 export type SeqvarsApiQuerypresetslocusListError = unknown;
 
 export type SeqvarsApiQuerypresetslocusCreateData = {
-    body: SeqvarsQueryPresetsLocus;
+    body: SeqvarsQueryPresetsLocusRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3709,7 +4065,7 @@ export type SeqvarsApiQuerypresetslocusRetrieveResponse = SeqvarsQueryPresetsLoc
 export type SeqvarsApiQuerypresetslocusRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetslocusUpdateData = {
-    body: SeqvarsQueryPresetsLocus;
+    body: SeqvarsQueryPresetsLocusRequest;
     path: {
         querypresetslocus: string;
         querypresetssetversion: string;
@@ -3721,7 +4077,7 @@ export type SeqvarsApiQuerypresetslocusUpdateResponse = SeqvarsQueryPresetsLocus
 export type SeqvarsApiQuerypresetslocusUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetslocusPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsLocus;
+    body?: PatchedSeqvarsQueryPresetsLocusRequest;
     path: {
         querypresetslocus: string;
         querypresetssetversion: string;
@@ -3764,7 +4120,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioListResponse = PaginatedSeqvarsQu
 export type SeqvarsApiQuerypresetsphenotypeprioListError = unknown;
 
 export type SeqvarsApiQuerypresetsphenotypeprioCreateData = {
-    body: SeqvarsQueryPresetsPhenotypePrio;
+    body: SeqvarsQueryPresetsPhenotypePrioRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3786,7 +4142,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse = SeqvarsQueryPr
 export type SeqvarsApiQuerypresetsphenotypeprioRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsphenotypeprioUpdateData = {
-    body: SeqvarsQueryPresetsPhenotypePrio;
+    body: SeqvarsQueryPresetsPhenotypePrioRequest;
     path: {
         querypresetsphenotypeprio: string;
         querypresetssetversion: string;
@@ -3798,7 +4154,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioUpdateResponse = SeqvarsQueryPres
 export type SeqvarsApiQuerypresetsphenotypeprioUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsPhenotypePrio;
+    body?: PatchedSeqvarsQueryPresetsPhenotypePrioRequest;
     path: {
         querypresetsphenotypeprio: string;
         querypresetssetversion: string;
@@ -3841,7 +4197,7 @@ export type SeqvarsApiQuerypresetsqualityListResponse = PaginatedSeqvarsQueryPre
 export type SeqvarsApiQuerypresetsqualityListError = unknown;
 
 export type SeqvarsApiQuerypresetsqualityCreateData = {
-    body: SeqvarsQueryPresetsQuality;
+    body: SeqvarsQueryPresetsQualityRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -3863,7 +4219,7 @@ export type SeqvarsApiQuerypresetsqualityRetrieveResponse = SeqvarsQueryPresetsQ
 export type SeqvarsApiQuerypresetsqualityRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsqualityUpdateData = {
-    body: SeqvarsQueryPresetsQuality;
+    body: SeqvarsQueryPresetsQualityRequest;
     path: {
         querypresetsquality: string;
         querypresetssetversion: string;
@@ -3875,7 +4231,7 @@ export type SeqvarsApiQuerypresetsqualityUpdateResponse = SeqvarsQueryPresetsQua
 export type SeqvarsApiQuerypresetsqualityUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsqualityPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsQuality;
+    body?: PatchedSeqvarsQueryPresetsQualityRequest;
     path: {
         querypresetsquality: string;
         querypresetssetversion: string;
@@ -3918,7 +4274,7 @@ export type SeqvarsApiQuerypresetssetListResponse = PaginatedSeqvarsQueryPresets
 export type SeqvarsApiQuerypresetssetListError = unknown;
 
 export type SeqvarsApiQuerypresetssetCreateData = {
-    body: SeqvarsQueryPresetsSet;
+    body: SeqvarsQueryPresetsSetRequest;
     path: {
         project: string;
     };
@@ -3940,7 +4296,7 @@ export type SeqvarsApiQuerypresetssetRetrieveResponse = SeqvarsQueryPresetsSet;
 export type SeqvarsApiQuerypresetssetRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetssetUpdateData = {
-    body: SeqvarsQueryPresetsSet;
+    body: SeqvarsQueryPresetsSetRequest;
     path: {
         project: string;
         querypresetsset: string;
@@ -3952,7 +4308,7 @@ export type SeqvarsApiQuerypresetssetUpdateResponse = SeqvarsQueryPresetsSet;
 export type SeqvarsApiQuerypresetssetUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetssetPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsSet;
+    body?: PatchedSeqvarsQueryPresetsSetRequest;
     path: {
         project: string;
         querypresetsset: string;
@@ -3975,7 +4331,7 @@ export type SeqvarsApiQuerypresetssetDestroyResponse = void;
 export type SeqvarsApiQuerypresetssetDestroyError = unknown;
 
 export type SeqvarsApiQuerypresetssetCopyFromCreateData = {
-    body: SeqvarsQueryPresetsSetCopyFrom;
+    body: SeqvarsQueryPresetsSetCopyFromRequest;
     path: {
         project: string;
         querypresetsset: string;
@@ -4007,7 +4363,7 @@ export type SeqvarsApiQuerypresetssetversionListResponse = PaginatedSeqvarsQuery
 export type SeqvarsApiQuerypresetssetversionListError = unknown;
 
 export type SeqvarsApiQuerypresetssetversionCreateData = {
-    body?: SeqvarsQueryPresetsSetVersion;
+    body?: SeqvarsQueryPresetsSetVersionRequest;
     path: {
         querypresetsset: string;
     };
@@ -4029,7 +4385,7 @@ export type SeqvarsApiQuerypresetssetversionRetrieveResponse = SeqvarsQueryPrese
 export type SeqvarsApiQuerypresetssetversionRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetssetversionUpdateData = {
-    body?: SeqvarsQueryPresetsSetVersion;
+    body?: SeqvarsQueryPresetsSetVersionRequest;
     path: {
         querypresetsset: string;
         querypresetssetversion: string;
@@ -4041,7 +4397,7 @@ export type SeqvarsApiQuerypresetssetversionUpdateResponse = SeqvarsQueryPresets
 export type SeqvarsApiQuerypresetssetversionUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetssetversionPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsSetVersion;
+    body?: PatchedSeqvarsQueryPresetsSetVersionRequest;
     path: {
         querypresetsset: string;
         querypresetssetversion: string;
@@ -4064,7 +4420,7 @@ export type SeqvarsApiQuerypresetssetversionDestroyResponse = void;
 export type SeqvarsApiQuerypresetssetversionDestroyError = unknown;
 
 export type SeqvarsApiQuerypresetssetversionCopyFromCreateData = {
-    body?: SeqvarsQueryPresetsSetVersionDetails;
+    body?: SeqvarsQueryPresetsSetVersionDetailsRequest;
     path: {
         querypresetsset: string;
         querypresetssetversion: string;
@@ -4096,7 +4452,7 @@ export type SeqvarsApiQuerypresetsvariantprioListResponse = PaginatedSeqvarsQuer
 export type SeqvarsApiQuerypresetsvariantprioListError = unknown;
 
 export type SeqvarsApiQuerypresetsvariantprioCreateData = {
-    body: SeqvarsQueryPresetsVariantPrio;
+    body: SeqvarsQueryPresetsVariantPrioRequest;
     path: {
         querypresetssetversion: string;
     };
@@ -4118,7 +4474,7 @@ export type SeqvarsApiQuerypresetsvariantprioRetrieveResponse = SeqvarsQueryPres
 export type SeqvarsApiQuerypresetsvariantprioRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsvariantprioUpdateData = {
-    body: SeqvarsQueryPresetsVariantPrio;
+    body: SeqvarsQueryPresetsVariantPrioRequest;
     path: {
         querypresetssetversion: string;
         querypresetsvariantprio: string;
@@ -4130,7 +4486,7 @@ export type SeqvarsApiQuerypresetsvariantprioUpdateResponse = SeqvarsQueryPreset
 export type SeqvarsApiQuerypresetsvariantprioUpdateError = unknown;
 
 export type SeqvarsApiQuerypresetsvariantprioPartialUpdateData = {
-    body?: PatchedSeqvarsQueryPresetsVariantPrio;
+    body?: PatchedSeqvarsQueryPresetsVariantPrioRequest;
     path: {
         querypresetssetversion: string;
         querypresetsvariantprio: string;
@@ -4173,7 +4529,7 @@ export type SeqvarsApiQuerysettingsListResponse = PaginatedSeqvarsQuerySettingsL
 export type SeqvarsApiQuerysettingsListError = unknown;
 
 export type SeqvarsApiQuerysettingsCreateData = {
-    body: SeqvarsQuerySettingsDetails;
+    body: SeqvarsQuerySettingsDetailsRequest;
     path: {
         session: string;
     };
@@ -4195,7 +4551,7 @@ export type SeqvarsApiQuerysettingsRetrieveResponse = SeqvarsQuerySettingsDetail
 export type SeqvarsApiQuerysettingsRetrieveError = unknown;
 
 export type SeqvarsApiQuerysettingsUpdateData = {
-    body: SeqvarsQuerySettingsDetails;
+    body: SeqvarsQuerySettingsDetailsRequest;
     path: {
         querysettings: string;
         session: string;
@@ -4207,7 +4563,7 @@ export type SeqvarsApiQuerysettingsUpdateResponse = SeqvarsQuerySettingsDetails;
 export type SeqvarsApiQuerysettingsUpdateError = unknown;
 
 export type SeqvarsApiQuerysettingsPartialUpdateData = {
-    body?: PatchedSeqvarsQuerySettingsDetails;
+    body?: PatchedSeqvarsQuerySettingsDetailsRequest;
     path: {
         querysettings: string;
         session: string;

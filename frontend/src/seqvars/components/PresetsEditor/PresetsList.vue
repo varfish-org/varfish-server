@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-
-/** Type for the items. */
-interface Item {
-  sodar_uuid: string
-  label: string
-  rank?: number
-}
+import { PresetsListItem } from './lib'
 
 /** Props used in this component. */
 const props = withDefaults(
   defineProps<{
     /** The items to display. */
-    items: Item[]
+    items: PresetsListItem[]
     /** Whether the list of items is readonly. */
     readonly: boolean
   }>(),
@@ -25,13 +19,24 @@ const props = withDefaults(
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
   /** Event for creating a new item. */
-  create: [label: string, rank: number]
+  create: [partial: { label: string }]
+  /** Event for deleting an item. */
+  delete: [uuid: string]
 }>()
 
 /** The model is the currently selected item's UUID. */
 const model = defineModel({
   type: String,
 })
+
+/** The name of the new presets in "add new" dialog; component state. */
+const createDialogModel = ref<string>('')
+/** Whether to display the "add new" dialog; component state. */
+const createDialogShow = ref<boolean>(false)
+/** The UUID of the entry to delete; component state. */
+const deleteDialogModel = ref<string>('')
+/** Whether to display the delete dialog; component state. */
+const deleteDialogShow = ref<boolean>(false)
 
 /** The items sorted by their rank, default rank is `0`. */
 const sortedItems = computed(() => {
@@ -55,9 +60,6 @@ const selectedModel = computed<string[] | undefined>({
     }
   },
 })
-
-/** Whether to display the "add new" dialog. */
-const showCreateDialog = ref(false)
 </script>
 
 <template>
@@ -70,9 +72,24 @@ const showCreateDialog = ref(false)
     <v-list-item
       v-for="item in sortedItems"
       :key="item.sodar_uuid"
-      :title="item.label"
       :value="item.sodar_uuid"
-    ></v-list-item>
+      :title="item.label"
+    >
+      <template v-slot:append>
+        <v-btn
+          color="grey-lighten-1"
+          icon="mdi-delete-outline"
+          variant="text"
+          :disabled="readonly"
+          @click="
+            () => {
+              deleteDialogModel = item.sodar_uuid
+              deleteDialogShow = true
+            }
+          "
+        ></v-btn>
+      </template>
+    </v-list-item>
   </v-list>
   <v-btn
     class="text-center"
@@ -80,106 +97,74 @@ const showCreateDialog = ref(false)
     rounded="xs"
     block
     :disabled="props.readonly"
-    @click="showCreateDialog = true"
+    @click="
+      () => {
+        createDialogModel = 'new entry'
+        createDialogShow = true
+      }
+    "
   >
     <v-icon>mdi-plus-box-outline</v-icon>
     add new
   </v-btn>
 
-  <v-dialog v-model="showCreateDialog" max-width="600">
-    <v-card prepend-icon="mdi-account" title="User Profile">
+  <!-- Dialog for creating a new item -->
+  <v-dialog v-model="createDialogShow" max-width="600">
+    <v-card>
+      <v-card-title> Add New Presets </v-card-title>
       <v-card-text>
-        <v-row dense>
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field label="First name*" required></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field
-              hint="example of helper text only on focus"
-              label="Middle name"
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field
-              hint="example of persistent helper text"
-              label="Last name*"
-              persistent-hint
-              required
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field label="Email*" required></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field
-              label="Password*"
-              type="password"
-              required
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="4" sm="6">
-            <v-text-field
-              label="Confirm Password*"
-              type="password"
-              required
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" sm="6">
-            <v-select
-              :items="['0-17', '18-29', '30-54', '54+']"
-              label="Age*"
-              required
-            ></v-select>
-          </v-col>
-
-          <v-col cols="12" sm="6">
-            <v-autocomplete
-              :items="[
-                'Skiing',
-                'Ice hockey',
-                'Soccer',
-                'Basketball',
-                'Hockey',
-                'Reading',
-                'Writing',
-                'Coding',
-                'Basejump',
-              ]"
-              label="Interests"
-              auto-select-first
-              multiple
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-
-        <small class="text-caption text-medium-emphasis"
-          > *indicates required field </small
-        >
+        <v-text-field
+          v-model="createDialogModel"
+          label="Name"
+          hint="Enter a name for the new presets."
+          persistent-hint
+        ></v-text-field>
       </v-card-text>
-
-      <v-divider></v-divider>
-
       <v-card-actions>
         <v-spacer></v-spacer>
-
+        <v-btn rounded="xs" @click="createDialogShow = false"> Cancel </v-btn>
         <v-btn
-          text="Close"
-          variant="plain"
-          @click="showCreateDialog = false"
-        ></v-btn>
+          rounded="xs"
+          color="success"
+          @click="
+            () => {
+              emit('create', {
+                label: createDialogModel,
+              })
+              createDialogShow = false
+            }
+          "
+        >
+          Add New
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
+  <!-- Dialog for deleting an item -->
+  <v-dialog v-model="deleteDialogShow" max-width="600">
+    <v-card>
+      <v-card-title> Reall Delete Presets? </v-card-title>
+      <v-card-text>
+        <v-alert type="error" icon="mdi-alert-circle-outline">
+          Are you sure you want to delete this item?
+        </v-alert>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn rounded="xs" @click="deleteDialogShow = false"> Cancel </v-btn>
         <v-btn
-          color="primary"
-          text="Save"
-          variant="tonal"
-          @click="showCreateDialog = false"
-        ></v-btn>
+          rounded="xs"
+          color="error"
+          @click="
+            () => {
+              emit('delete', deleteDialogModel)
+              deleteDialogShow = false
+            }
+          "
+        >
+          Delete Presets
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

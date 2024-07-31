@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
-import { PropType, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
 import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { VForm } from 'vuetify/lib/components/index.mjs'
+import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current preset set version. */
+    presetSetVersion?: string
+    /** UUID of the query presets quality */
+    qualityPresets?: string
     /** Whether the editor is readonly. */
     readonly: boolean
   }>(),
@@ -18,114 +24,276 @@ const props = withDefaults(
 
 /** This component's events. */
 const emit = defineEmits<{
+  /** Emit event to show a message. */
   message: [message: SnackbarMessage]
 }>()
 
-/** The quality presets to use in this editor. */
-const model = defineModel({
-  type: Object as PropType<SeqvarsQueryPresetsQuality>,
+/** Store with the presets. */
+const seqvarsPresetsStore = useSeqvarsPresetsStore()
+
+/** The data that is to be edited by this component; component state. */
+const data = ref<SeqvarsQueryPresetsQuality | undefined>(undefined)
+
+/** Shortcut to the number of quality presets, used for rank. */
+const maxRank = computed<number>(() => {
+  if (props.presetSetVersion === undefined) {
+    return 0
+  }
+  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
+    props.presetSetVersion,
+  )
+  if (!presetSetVersion) {
+    return 0
+  }
+  return presetSetVersion.seqvarsquerypresetsquality_set.length
 })
 
-// /** Store with the presets. */
-// const seqvarsPresetsStore = useSeqvarsPresetsStore()
+/** Rules for data validation. */
+const rules = {
+  required: (value: any) => !!value || 'Required.',
+}
 
-// /** Debounced version of the presets store's `updateQueryPresetsQuality` method. */
-// const updateQueryPresetsQuality = debounce(
-//   seqvarsPresetsStore.updateQueryPresetsQuality,
-//   CATEGORY_PRESETS_DEBOUNCE_WAIT,
-//   {leading: true}
-// )
+/** Ref to the form. */
+const formRef = ref<VForm | undefined>(undefined)
 
-// // Watch the model deeply for changes and update the quality presets via the store
-// // if the sodar_uuid changes.  The store will take care of updating the data on the
-// // server and reactivity on its state takes care of UI state.
-// watch(
-//   () => model.value,
-//   async (
-//     newValue?: SeqvarsQueryPresetsQuality,
-//     oldValue?: SeqvarsQueryPresetsQuality,
-//   ) => {
-//     if (
-//       newValue?.sodar_uuid !== undefined &&
-//       newValue?.sodar_uuid === oldValue?.sodar_uuid
-//     ) {
-//       try {
-//         await updateQueryPresetsQuality(newValue.presetssetversion, newValue)
-//       } catch (error) {
-//         emit('message', {
-//           text: `Failed to update quality presets: ${error}`,
-//           color: 'error',
-//         })
-//       }
-//     }
-//   },
-//   { deep: true },
-// )
+/** Fill the data from the store. */
+const fillModel = () => {
+  // Guard against missing preset set version or quality.
+  if (
+    props.presetSetVersion === undefined ||
+    props.qualityPresets === undefined
+  ) {
+    return
+  }
+  // Attempt to obtain the model from the store.
+  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
+    props.presetSetVersion,
+  )
+  if (!presetSetVersion) {
+    emit('message', {
+      text: 'Failed to find preset set version.',
+      color: 'error',
+    })
+    return
+  }
+  const qualityPresets = presetSetVersion?.seqvarsquerypresetsquality_set.find(
+    (elem) => elem.sodar_uuid === props.qualityPresets,
+  )
+  if (!qualityPresets) {
+    emit('message', {
+      text: 'Failed to find quality presets.',
+      color: 'error',
+    })
+    return
+  }
+
+  data.value = { ...qualityPresets }
+}
+
+/**
+ * Update the quality presets in the store.
+ *
+ * Used directly when changing the rank (to minimize UI delay).
+ *
+ * @param rankDelta The delta to apply to the rank, if any.
+ */
+const updateQualityPresets = async (rankDelta: number = 0) => {
+  // Guard against missing/readonly/non-draft preset set version or missing quality.
+  if (
+    props.qualityPresets === undefined ||
+    props.presetSetVersion === undefined ||
+    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
+      props.qualityPresets,
+    ) ||
+    seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
+      ?.status !== PresetSetVersionState.DRAFT ||
+    data.value === undefined
+  ) {
+    return
+  }
+
+  // If necessary, update the rank of the other item as well via API and set
+  // the new rank to `data.value.rank`.
+  if (rankDelta !== 0) {
+    const version = seqvarsPresetsStore.presetSetVersions.get(
+      props.presetSetVersion,
+    )
+    if (
+      version === undefined ||
+      data.value.rank === undefined ||
+      data.value.rank + rankDelta < 1 ||
+      data.value.rank + rankDelta > maxRank.value
+    ) {
+      // Guard against invalid rank and version.
+      return
+    }
+    // Find the next smaller or larger item, sort by rank.
+    const others = version.seqvarsquerypresetsquality_set.filter((elem) => {
+      if (elem.sodar_uuid === props.qualityPresets) {
+        return false
+      }
+      if (rankDelta < 0) {
+        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
+      } else {
+        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
+      }
+    })
+    others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    // Then, pick the other item to flip ranks with.
+    const other = others[rankDelta < 0 ? others.length - 1 : 0]
+    // Store the other's rank in `data.value.rank` and update other via API.
+    if (other) {
+      let dataRank = data.value.rank
+      data.value.rank = other.rank
+      other.rank = dataRank
+      try {
+        await seqvarsPresetsStore.updateQueryPresetsQuality(
+          props.presetSetVersion,
+          other,
+        )
+      } catch (error) {
+        emit('message', {
+          text: 'Failed to update quality presets rank.',
+          color: 'error',
+        })
+      }
+    }
+  }
+
+  // Guard against invalid form data.
+  const validateResult = await formRef.value?.validate()
+  if (validateResult?.valid !== true) {
+    return
+  }
+  try {
+    await seqvarsPresetsStore.updateQueryPresetsQuality(
+      props.presetSetVersion,
+      data.value,
+    )
+  } catch (error) {
+    emit('message', {
+      text: 'Failed to update quality presets.',
+      color: 'error',
+    })
+  }
+}
+
+/**
+ * Update the quality presets in the store -- debounced.
+ *
+ * Used for updating non-rank fields so that the UI does not lag.
+ */
+const updateQualityPresetsDebounced = debounce(
+  updateQualityPresets,
+  CATEGORY_PRESETS_DEBOUNCE_WAIT,
+  { leading: true, trailing: true },
+)
+
+// Load model data from store when the UUID changes.
+watch(
+  () => props.qualityPresets,
+  () => fillModel(),
+)
+// Also, load model data from store when mounted.
+onMounted(() => fillModel())
+
+// Watch the data and trigger a store update.
+watch(data, () => updateQualityPresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h4>Quality Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h4>
+  <h4>Quality Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
-  <v-skeleton-loader v-if="!model" type="article" />
-  <v-form v-else>
+  <v-skeleton-loader v-if="!data" type="article" />
+  <v-form v-else ref="formRef">
     <v-checkbox
-      v-model.number="model.filter_active"
+      v-model="data.filter_active"
       label="Filter Active"
       hide-details
       :disabled="readonly"
     />
 
-    <div class="text-body-1 pb-3">
+    <v-text-field
+      v-model="data.label"
+      :rules="[rules.required]"
+      label="Label"
+      clearable
+      :disabled="readonly"
+    />
+
+    <div>
+      <v-btn-group variant="outlined" divided>
+        <v-btn
+          prepend-icon="mdi-arrow-up-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank <= 1
+          "
+          @click="updateQualityPresets(-1)"
+        >
+          Move Up
+        </v-btn>
+        <v-btn
+          prepend-icon="mdi-arrow-down-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank >= maxRank
+          "
+          @click="updateQualityPresets(1)"
+        >
+          Move Down
+        </v-btn>
+      </v-btn-group>
+    </div>
+
+    <div class="text-body-1 pb-3 pt-3">
       Clear the fields below to remove the filter threshold.
     </div>
 
-    <v-text-field
-      v-model.number="model.min_dp_het"
+    <v-number-input
+      v-model="data.min_dp_het"
       label="Min DP Het: minimal depth required for heterozygous genotypes."
-      type="number"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
 
-    <v-text-field
-      v-model.number="model.min_dp_hom"
+    <v-number-input
+      v-model="data.min_dp_hom"
       label="Min DP Hom: minimal depth required for homozygous genotypes."
-      type="number"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
 
-    <v-text-field
-      v-model.number="model.min_ab_het"
+    <v-number-input
+      v-model="data.min_ab_het"
       label="Min AB Het: minimal allelic balance for heterozygous genotypes."
-      type="number"
-      step="0.01"
+      :step="0.01"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
 
-    <v-text-field
-      v-model.number="model.min_gq"
+    <v-number-input
+      v-model="data.min_gq"
       label="Min GQ: minimal genotype quality required to pass."
-      type="number"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
 
-    <v-text-field
-      v-model.number="model.min_ad"
+    <v-number-input
+      v-model="data.min_ad"
       label="Min AD: minimal alternate read depth required to pass."
-      type="number"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
 
-    <v-text-field
-      :value="model.max_ad"
-      @input.integer="model.max_ad = $event.target.value ? parseInt($event.target.value) : null"
+    <v-number-input
+      v-model="data.max_ad"
       label="Max AD: maximal alternate read depth allowed to pass."
-      type="number"
       clearable
+      control-variant="stacked"
       :disabled="readonly"
     />
   </v-form>

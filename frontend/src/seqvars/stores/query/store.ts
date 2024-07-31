@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { StoreState, State } from '@/varfish/storeUtils'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
@@ -207,3 +207,8 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     $reset,
   }
 })
+
+// Enable HMR (Hot Module Replacement)
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useSeqvarsQueryStore, import.meta.hot))
+}

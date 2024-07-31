@@ -13,6 +13,7 @@ import { md3 } from 'vuetify/blueprints'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '../styles/main.scss'
+import { VNumberInput } from 'vuetify/lib/labs/components.mjs'
 
 const customLightTheme: ThemeDefinition = {
   dark: false,
@@ -49,9 +50,9 @@ const customLightTheme: ThemeDefinition = {
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export const vuetify = createVuetify({
-  blueprint: md3,
   components: {
     VSnackbarQueue, // labs; needs to be explicitly added
+    VNumberInput, // labs; needs to be explicitly added
     ...components,
   },
   icons: {

@@ -231,13 +231,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
         required: true
       security:
       - basicAuth: []
@@ -322,13 +322,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CaseImportAction'
+              $ref: '#/components/schemas/CaseImportActionRequest'
         required: true
       security:
       - basicAuth: []
@@ -373,13 +373,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCaseImportAction'
+              $ref: '#/components/schemas/PatchedCaseImportActionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCaseImportAction'
+              $ref: '#/components/schemas/PatchedCaseImportActionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCaseImportAction'
+              $ref: '#/components/schemas/PatchedCaseImportActionRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -598,13 +598,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CaseComment'
+              $ref: '#/components/schemas/CaseCommentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CaseComment'
+              $ref: '#/components/schemas/CaseCommentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CaseComment'
+              $ref: '#/components/schemas/CaseCommentRequest'
         required: true
       security:
       - basicAuth: []
@@ -693,13 +693,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
         required: true
       security:
       - basicAuth: []
@@ -762,13 +762,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CasePhenotypeTerms'
+              $ref: '#/components/schemas/CasePhenotypeTermsRequest'
         required: true
       security:
       - basicAuth: []
@@ -802,13 +802,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCasePhenotypeTerms'
+              $ref: '#/components/schemas/PatchedCasePhenotypeTermsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCasePhenotypeTerms'
+              $ref: '#/components/schemas/PatchedCasePhenotypeTermsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCasePhenotypeTerms'
+              $ref: '#/components/schemas/PatchedCasePhenotypeTermsRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -941,13 +941,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CaseSerializerNg'
+              $ref: '#/components/schemas/CaseSerializerNgRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CaseSerializerNg'
+              $ref: '#/components/schemas/CaseSerializerNgRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CaseSerializerNg'
+              $ref: '#/components/schemas/CaseSerializerNgRequest'
         required: true
       security:
       - basicAuth: []
@@ -983,13 +983,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCaseSerializerNg'
+              $ref: '#/components/schemas/PatchedCaseSerializerNgRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCaseSerializerNg'
+              $ref: '#/components/schemas/PatchedCaseSerializerNgRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCaseSerializerNg'
+              $ref: '#/components/schemas/PatchedCaseSerializerNgRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -1156,13 +1156,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
         required: true
       security:
       - basicAuth: []
@@ -1202,13 +1202,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProjectInvite'
+              $ref: '#/components/schemas/ProjectInviteRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ProjectInvite'
+              $ref: '#/components/schemas/ProjectInviteRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProjectInvite'
+              $ref: '#/components/schemas/ProjectInviteRequest'
         required: true
       security:
       - basicAuth: []
@@ -1404,13 +1404,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
         required: true
       security:
       - basicAuth: []
@@ -1499,13 +1499,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/RoleAssignment'
+              $ref: '#/components/schemas/RoleAssignmentRequest'
         required: true
       security:
       - basicAuth: []
@@ -1546,13 +1546,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedRoleAssignment'
+              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedRoleAssignment'
+              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedRoleAssignment'
+              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -1724,13 +1724,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Project'
+              $ref: '#/components/schemas/ProjectRequest'
         required: true
       security:
       - basicAuth: []
@@ -1779,13 +1779,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProject'
+              $ref: '#/components/schemas/PatchedProjectRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedProject'
+              $ref: '#/components/schemas/PatchedProjectRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedProject'
+              $ref: '#/components/schemas/PatchedProjectRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -1885,13 +1885,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
         required: true
       security:
       - basicAuth: []
@@ -1948,13 +1948,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/EnrichmentKit'
+              $ref: '#/components/schemas/EnrichmentKitRequest'
         required: true
       security:
       - basicAuth: []
@@ -1985,13 +1985,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedEnrichmentKit'
+              $ref: '#/components/schemas/PatchedEnrichmentKitRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedEnrichmentKit'
+              $ref: '#/components/schemas/PatchedEnrichmentKitRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedEnrichmentKit'
+              $ref: '#/components/schemas/PatchedEnrichmentKitRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -2068,13 +2068,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
         required: true
       security:
       - basicAuth: []
@@ -2131,13 +2131,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TargetBedFile'
+              $ref: '#/components/schemas/TargetBedFileRequest'
         required: true
       security:
       - basicAuth: []
@@ -2168,13 +2168,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTargetBedFile'
+              $ref: '#/components/schemas/PatchedTargetBedFileRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTargetBedFile'
+              $ref: '#/components/schemas/PatchedTargetBedFileRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTargetBedFile'
+              $ref: '#/components/schemas/PatchedTargetBedFileRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -2260,13 +2260,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
         required: true
       security:
       - basicAuth: []
@@ -2331,13 +2331,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/SeqvarsPredefinedQueryRequest'
         required: true
       security:
       - basicAuth: []
@@ -2372,13 +2372,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQueryRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQueryRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQuery'
+              $ref: '#/components/schemas/PatchedSeqvarsPredefinedQueryRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -2467,13 +2467,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
         required: true
       security:
       - basicAuth: []
@@ -2538,13 +2538,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryDetails'
+              $ref: '#/components/schemas/SeqvarsQueryDetailsRequest'
         required: true
       security:
       - basicAuth: []
@@ -2579,13 +2579,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryDetailsRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -2740,13 +2740,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
         required: true
       security:
       - basicAuth: []
@@ -2811,13 +2811,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsClinvarRequest'
         required: true
       security:
       - basicAuth: []
@@ -2852,13 +2852,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvarRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvarRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvar'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsClinvarRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -2947,13 +2947,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
         required: true
       security:
       - basicAuth: []
@@ -3018,13 +3018,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsColumnsRequest'
         required: true
       security:
       - basicAuth: []
@@ -3059,13 +3059,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumnsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumnsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumns'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsColumnsRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -3154,13 +3154,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
         required: true
       security:
       - basicAuth: []
@@ -3225,13 +3225,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsConsequenceRequest'
         required: true
       security:
       - basicAuth: []
@@ -3266,13 +3266,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequenceRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequenceRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequence'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsConsequenceRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -3423,13 +3423,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
         required: true
       security:
       - basicAuth: []
@@ -3494,13 +3494,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsFrequencyRequest'
         required: true
       security:
       - basicAuth: []
@@ -3535,13 +3535,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequencyRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequencyRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequency'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsFrequencyRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -3630,13 +3630,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
         required: true
       security:
       - basicAuth: []
@@ -3701,13 +3701,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsLocusRequest'
         required: true
       security:
       - basicAuth: []
@@ -3742,13 +3742,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocusRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocusRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocus'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsLocusRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -3837,13 +3837,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
         required: true
       security:
       - basicAuth: []
@@ -3908,13 +3908,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrioRequest'
         required: true
       security:
       - basicAuth: []
@@ -3949,13 +3949,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsPhenotypePrioRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4044,13 +4044,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
         required: true
       security:
       - basicAuth: []
@@ -4115,13 +4115,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsQualityRequest'
         required: true
       security:
       - basicAuth: []
@@ -4156,13 +4156,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQualityRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQualityRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQuality'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsQualityRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4251,13 +4251,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
         required: true
       security:
       - basicAuth: []
@@ -4322,13 +4322,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetRequest'
         required: true
       security:
       - basicAuth: []
@@ -4363,13 +4363,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSet'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4429,13 +4429,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFromRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFromRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFrom'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetCopyFromRequest'
         required: true
       security:
       - basicAuth: []
@@ -4500,13 +4500,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4570,13 +4570,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4610,13 +4610,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersion'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsSetVersionRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4676,13 +4676,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetailsRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4746,13 +4746,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
         required: true
       security:
       - basicAuth: []
@@ -4817,13 +4817,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrioRequest'
         required: true
       security:
       - basicAuth: []
@@ -4858,13 +4858,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrioRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrioRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrio'
+              $ref: '#/components/schemas/PatchedSeqvarsQueryPresetsVariantPrioRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -4953,13 +4953,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
         required: true
       security:
       - basicAuth: []
@@ -5024,13 +5024,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
         required: true
       security:
       - basicAuth: []
@@ -5065,13 +5065,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetails'
+              $ref: '#/components/schemas/PatchedSeqvarsQuerySettingsDetailsRequest'
       security:
       - basicAuth: []
       - cookieAuth: []
@@ -5699,6 +5699,15 @@ components:
       - date_modified
       - sodar_uuid
       - user
+    CaseCommentRequest:
+      type: object
+      description: Serializer for ``CaseComments``.
+      properties:
+        comment:
+          type: string
+          minLength: 1
+      required:
+      - comment
     CaseImportAction:
       type: object
       description: Serializer for the ``CaseImportAction`` model.
@@ -5732,6 +5741,20 @@ components:
       - payload
       - project
       - sodar_uuid
+      - state
+    CaseImportActionRequest:
+      type: object
+      description: Serializer for the ``CaseImportAction`` model.
+      properties:
+        state:
+          $ref: '#/components/schemas/CaseImportActionStateEnum'
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        payload: {}
+        overwrite_terms:
+          type: boolean
+      required:
+      - payload
       - state
     CaseImportActionStateEnum:
       enum:
@@ -5774,6 +5797,19 @@ components:
       - date_modified
       - individual
       - sodar_uuid
+      - terms
+    CasePhenotypeTermsRequest:
+      type: object
+      description: Base serializer for any SODAR model with a sodar_uuid field
+      properties:
+        individual:
+          type: string
+          minLength: 1
+          description: Individual
+          maxLength: 128
+        terms: {}
+      required:
+      - individual
       - terms
     CaseQc:
       type: object
@@ -6102,6 +6138,43 @@ components:
       - sodar_uuid
       - state
       - svqueryresultset
+    CaseSerializerNgRequest:
+      type: object
+      description: |-
+        Serializer for the ``Case`` model.
+
+        In contrast to the old (legacy) ``CaseSerializer`` from ``variants.serializers.case``, this class does not
+        perform serialization of nested attributes and thus does not trigger a large query cascade.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 512
+        index:
+          type: string
+          minLength: 1
+          maxLength: 512
+        pedigree: {}
+        notes:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/CaseStatusEnum'
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 32
+          nullable: true
+        case_version:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - index
+      - name
+      - pedigree
     CaseSerializerNgStateEnum:
       enum:
       - importing
@@ -7008,6 +7081,28 @@ components:
       - identifier
       - sodar_uuid
       - title
+    EnrichmentKitRequest:
+      type: object
+      description: Serializer for ``EnrichmentKit``.
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          description: Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.
+          pattern: ^[\w_-]+$
+          maxLength: 128
+        title:
+          type: string
+          minLength: 1
+          description: Title of the enrichment kit
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          description: Optional description of the enrichment kit
+      required:
+      - identifier
+      - title
     ExtraAnnoFieldInfo:
       description: Description of an extra annotation field.
       properties:
@@ -7562,61 +7657,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SeqvarsResultSet'
-    PatchedCaseImportAction:
+    PatchedCaseImportActionRequest:
       type: object
       description: Serializer for the ``CaseImportAction`` model.
       properties:
-        sodar_uuid:
-          type: string
-          readOnly: true
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
         state:
           $ref: '#/components/schemas/CaseImportActionStateEnum'
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         action:
           $ref: '#/components/schemas/ActionEnum'
         payload: {}
         overwrite_terms:
           type: boolean
-    PatchedCasePhenotypeTerms:
+    PatchedCasePhenotypeTermsRequest:
       type: object
       description: Base serializer for any SODAR model with a sodar_uuid field
       properties:
-        sodar_uuid:
-          type: string
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of creation
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of last modification
-        case:
-          type: string
-          format: uuid
-          description: Case SODAR UUID
-          readOnly: true
         individual:
           type: string
+          minLength: 1
           description: Individual
           maxLength: 128
         terms: {}
-    PatchedCaseSerializerNg:
+    PatchedCaseSerializerNgRequest:
       type: object
       description: |-
         Serializer for the ``Case`` model.
@@ -7624,70 +7686,13 @@ components:
         In contrast to the old (legacy) ``CaseSerializer`` from ``variants.serializers.case``, this class does not
         perform serialization of nested attributes and thus does not trigger a large query cascade.
       properties:
-        sodar_uuid:
-          type: string
-          readOnly: true
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-        presetset:
-          type: string
-          format: uuid
-          description: Cohort SODAR UUID
-          readOnly: true
-        sex_errors:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          readOnly: true
-        smallvariantqueryresultset:
-          type: object
-          additionalProperties:
-            oneOf:
-            - type: integer
-            - type: number
-              format: double
-            - type: string
-            nullable: true
-          readOnly: true
-        svqueryresultset:
-          type: object
-          additionalProperties:
-            oneOf:
-            - type: integer
-            - type: number
-              format: double
-            - type: string
-            nullable: true
-          readOnly: true
-        caseqc:
-          type: object
-          additionalProperties:
-            oneOf:
-            - type: integer
-            - type: number
-              format: double
-            - type: string
-            nullable: true
-          nullable: true
-          description: |-
-            Obtain the latest CaseQC for this in active state and serialize it.
-
-            If there is no such record then return ``None``.
-          readOnly: true
-        release:
-          type: string
-          readOnly: true
-          nullable: true
         name:
           type: string
+          minLength: 1
           maxLength: 512
         index:
           type: string
+          minLength: 1
           maxLength: 512
         pedigree: {}
         notes:
@@ -7699,78 +7704,39 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
             maxLength: 32
           nullable: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of creation
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of last modification
         case_version:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
-        state:
-          readOnly: true
-          nullable: true
-          oneOf:
-          - $ref: '#/components/schemas/CaseSerializerNgStateEnum'
-          - $ref: '#/components/schemas/NullEnum'
-        num_small_vars:
-          type: integer
-          readOnly: true
-          nullable: true
-          title: Small variants
-          description: Number of small variants, empty if no small variants have been
-            imported
-        num_svs:
-          type: integer
-          readOnly: true
-          nullable: true
-          title: Structural variants
-          description: Number of structural variants, empty if no structural variants
-            have been imported
-    PatchedEnrichmentKit:
+    PatchedEnrichmentKitRequest:
       type: object
       description: Serializer for ``EnrichmentKit``.
       properties:
-        sodar_uuid:
-          type: string
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of creation
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of last modification
         identifier:
           type: string
+          minLength: 1
           description: Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.
           pattern: ^[\w_-]+$
           maxLength: 128
         title:
           type: string
+          minLength: 1
           description: Title of the enrichment kit
           maxLength: 128
         description:
           type: string
           nullable: true
           description: Optional description of the enrichment kit
-    PatchedProject:
+    PatchedProjectRequest:
       type: object
       description: Serializer for the Project model
       properties:
         title:
           type: string
+          minLength: 1
           description: Project title
           maxLength: 255
         type:
@@ -7797,68 +7763,37 @@ components:
           type: boolean
           description: Allow public guest access for the project, also including unauthenticated
             users if allowed on the site
-        archive:
-          type: boolean
-          readOnly: true
         owner:
           type: string
           writeOnly: true
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleAssignmentNestedList'
-          readOnly: true
-        sodar_uuid:
-          type: string
-          readOnly: true
-    PatchedRoleAssignment:
+          minLength: 1
+    PatchedRoleAssignmentRequest:
       type: object
       description: Serializer for the RoleAssignment model
       properties:
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
         role:
           type: string
+          minLength: 1
           description: Name of role
         user:
           type: string
           format: uuid
           description: User SODAR UUID
-        sodar_uuid:
-          type: string
-          readOnly: true
-    PatchedSeqvarsPredefinedQuery:
+    PatchedSeqvarsPredefinedQueryRequest:
       type: object
       description: Serializer for ``PredefinedQuery``.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
+          minLength: 1
         included_in_sop:
           type: boolean
           default: false
@@ -7907,7 +7842,7 @@ components:
           type: string
           format: uuid
           nullable: true
-    PatchedSeqvarsQueryDetails:
+    PatchedSeqvarsQueryDetailsRequest:
       type: object
       description: |-
         Serializer for ``Query`` (for ``*-detail``).
@@ -7915,33 +7850,18 @@ components:
         For retrieve, update, or delete operations, we also render the nested query settings
         in detail.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
-        session:
-          type: string
-          format: uuid
-          readOnly: true
         settings:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
         columnsconfig:
-          $ref: '#/components/schemas/SeqvarsQueryColumnsConfig'
-    PatchedSeqvarsQueryPresetsClinvar:
+          $ref: '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
+    PatchedSeqvarsQueryPresetsClinvarRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsClinvar``.
@@ -7956,32 +7876,18 @@ components:
         allow_conflicting_interpretations:
           type: boolean
           default: false
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsColumns:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsColumnsRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsColumns``.
@@ -7990,32 +7896,18 @@ components:
       properties:
         column_settings:
           $ref: '#/components/schemas/SeqvarsColumnConfigList'
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsConsequence:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsConsequenceRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsConsequence``.
@@ -8031,32 +7923,18 @@ components:
         max_distance_to_exon:
           type: integer
           nullable: true
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsFrequency:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsFrequencyRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsFrequency``.
@@ -8231,32 +8109,18 @@ components:
             type: object
           - type: 'null'
           nullable: true
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsLocus:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsLocusRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsLocus``.
@@ -8269,32 +8133,18 @@ components:
           $ref: '#/components/schemas/GenePanelList'
         genome_regions:
           $ref: '#/components/schemas/GenomeRegionList'
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsPhenotypePrio:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsPhenotypePrioRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsPhenotypePrio``.
@@ -8307,66 +8157,39 @@ components:
         phenotype_prio_algorithm:
           type: string
           nullable: true
+          minLength: 1
           maxLength: 128
         terms:
           $ref: '#/components/schemas/TermPresenceList'
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQueryPresetsQuality:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsQualityRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsQuality``.
 
         Not used directly but used as base class.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
+          minLength: 1
         filter_active:
           type: boolean
           default: false
@@ -8389,56 +8212,25 @@ components:
         max_ad:
           type: integer
           nullable: true
-    PatchedSeqvarsQueryPresetsSet:
+    PatchedSeqvarsQueryPresetsSetRequest:
       type: object
       description: Serializer for ``QueryPresetsSet``.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-    PatchedSeqvarsQueryPresetsSetVersion:
+          minLength: 1
+    PatchedSeqvarsQueryPresetsSetVersionRequest:
       type: object
       description: Serializer for ``QueryPresetsSetVersion``.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-        presetsset:
-          type: string
-          format: uuid
-          readOnly: true
         version_major:
           type: integer
           default: 1
@@ -8447,12 +8239,9 @@ components:
           default: 0
         status:
           type: string
+          minLength: 1
           default: draft
-        signed_off_by:
-          allOf:
-          - $ref: '#/components/schemas/SODARUser'
-          readOnly: true
-    PatchedSeqvarsQueryPresetsVariantPrio:
+    PatchedSeqvarsQueryPresetsVariantPrioRequest:
       type: object
       description: |-
         Serializer for ``QueryPresetsVariantPrio``.
@@ -8464,32 +8253,18 @@ components:
           default: false
         services:
           $ref: '#/components/schemas/SeqvarsPrioServiceList'
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
         rank:
           type: integer
           default: 1
         label:
           type: string
+          minLength: 1
           maxLength: 128
         description:
           type: string
           nullable: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-    PatchedSeqvarsQuerySettingsDetails:
+          minLength: 1
+    PatchedSeqvarsQuerySettingsDetailsRequest:
       type: object
       description: |-
         Serializer for ``QuerySettings`` (for ``*-detail``).
@@ -8497,30 +8272,6 @@ components:
         For retrieve, update, or delete operations, we also render the nested
         owned category settings.
       properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-        session:
-          type: string
-          format: uuid
-          readOnly: true
-        presetssetversion:
-          type: string
-          format: uuid
-          readOnly: true
-        predefinedquery:
-          type: string
-          format: uuid
-          readOnly: true
         genotypepresets:
           oneOf:
           - description: Configuration for a single column in the result table.
@@ -8563,45 +8314,28 @@ components:
           format: uuid
           nullable: true
         genotype:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
         quality:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsQuality'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsQualityRequest'
         consequence:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsConsequence'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsConsequenceRequest'
         locus:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsLocus'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsLocusRequest'
         frequency:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsFrequency'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsFrequencyRequest'
         phenotypeprio:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsPhenotypePrio'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsPhenotypePrioRequest'
         variantprio:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrio'
+          $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
         clinvar:
-          $ref: '#/components/schemas/SeqvarsQuerySettingsClinvar'
-    PatchedTargetBedFile:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+    PatchedTargetBedFileRequest:
       type: object
       description: Serializer for ``TargetBedFile``.
       properties:
-        sodar_uuid:
-          type: string
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of creation
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of last modification
-        enrichmentkit:
-          type: string
-          format: uuid
-          description: Record SODAR UUID
-          readOnly: true
         file_uri:
           type: string
+          minLength: 1
           description: The file's URI.
           maxLength: 512
         genome_release:
@@ -8648,9 +8382,6 @@ components:
         archive:
           type: boolean
           readOnly: true
-        owner:
-          type: string
-          writeOnly: true
         roles:
           type: array
           items:
@@ -8710,6 +8441,66 @@ components:
       - project
       - role
       - sodar_uuid
+    ProjectInviteRequest:
+      type: object
+      description: Serializer for the ProjectInvite model
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          description: Email address of the person to be invited
+          maxLength: 254
+        role:
+          type: string
+          minLength: 1
+          description: Name of role
+        message:
+          type: string
+          description: Message to be included in the invite email (optional)
+      required:
+      - email
+      - role
+    ProjectRequest:
+      type: object
+      description: Serializer for the Project model
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Project title
+          maxLength: 255
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Type of project ("CATEGORY", "PROJECT")
+
+            * `CATEGORY` - Category
+            * `PROJECT` - Project
+        parent:
+          type: string
+          format: uuid
+          description: Project SODAR UUID
+          nullable: true
+        description:
+          type: string
+          nullable: true
+          description: Short project description
+          maxLength: 512
+        readme:
+          type: string
+        public_guest_access:
+          type: boolean
+          description: Allow public guest access for the project, also including unauthenticated
+            users if allowed on the site
+        owner:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - parent
+      - title
     RecessiveModeEnum:
       enum:
       - disabled
@@ -8823,6 +8614,31 @@ components:
       - role
       - sodar_uuid
       - user
+    RoleAssignmentNestedListRequest:
+      type: object
+      description: Nested list serializer for the RoleAssignment model.
+      properties:
+        role:
+          type: string
+          minLength: 1
+          description: Name of role
+      required:
+      - role
+    RoleAssignmentRequest:
+      type: object
+      description: Serializer for the RoleAssignment model
+      properties:
+        role:
+          type: string
+          minLength: 1
+          description: Name of role
+        user:
+          type: string
+          format: uuid
+          description: User SODAR UUID
+      required:
+      - role
+      - user
     SODARUser:
       type: object
       description: Serializer for the user model used in SODAR Core based sites
@@ -8852,6 +8668,33 @@ components:
           readOnly: true
       required:
       - sodar_uuid
+      - username
+    SODARUserRequest:
+      type: object
+      description: Serializer for the user model used in SODAR Core based sites
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        name:
+          type: string
+          title: Name of User
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        is_superuser:
+          type: boolean
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+      required:
       - username
     SampleAlignmentStatsList:
       type: array
@@ -9689,6 +9532,71 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsPredefinedQueryRequest:
+      type: object
+      description: Serializer for ``PredefinedQuery``.
+      properties:
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+        included_in_sop:
+          type: boolean
+          default: false
+        genotype:
+          oneOf:
+          - description: Configuration for a single column in the result table.
+            properties:
+              choice:
+                anyOf:
+                - $ref: '#/components/schemas/SeqvarsGenotypePresetChoice'
+                - type: 'null'
+                default: null
+            title: SeqvarsGenotypePresets
+            type: object
+          - type: 'null'
+          nullable: true
+        quality:
+          type: string
+          format: uuid
+          nullable: true
+        frequency:
+          type: string
+          format: uuid
+          nullable: true
+        consequence:
+          type: string
+          format: uuid
+          nullable: true
+        locus:
+          type: string
+          format: uuid
+          nullable: true
+        phenotypeprio:
+          type: string
+          format: uuid
+          nullable: true
+        variantprio:
+          type: string
+          format: uuid
+          nullable: true
+        clinvar:
+          type: string
+          format: uuid
+          nullable: true
+        columns:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - label
     SeqvarsPrioServiceList:
       type: array
       items:
@@ -9769,6 +9677,12 @@ components:
       - date_created
       - date_modified
       - sodar_uuid
+    SeqvarsQueryColumnsConfigRequest:
+      type: object
+      description: Serializer for ``QueryColumnsConfig``.
+      properties:
+        column_settings:
+          $ref: '#/components/schemas/SeqvarsColumnConfigList'
     SeqvarsQueryDetails:
       type: object
       description: |-
@@ -9811,6 +9725,29 @@ components:
       - session
       - settings
       - sodar_uuid
+    SeqvarsQueryDetailsRequest:
+      type: object
+      description: |-
+        Serializer for ``Query`` (for ``*-detail``).
+
+        For retrieve, update, or delete operations, we also render the nested query settings
+        in detail.
+      properties:
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        settings:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
+        columnsconfig:
+          $ref: '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
+      required:
+      - columnsconfig
+      - label
+      - settings
     SeqvarsQueryExecution:
       type: object
       description: Serializer for ``QueryExecution``.
@@ -9987,6 +9924,34 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsClinvarRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsClinvar``.
+
+        Not used directly but used as base class.
+      properties:
+        clinvar_presence_required:
+          type: boolean
+          default: false
+        clinvar_germline_aggregate_description:
+          $ref: '#/components/schemas/ClinvarGermlineAggregateDescriptionList'
+        allow_conflicting_interpretations:
+          type: boolean
+          default: false
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsColumns:
       type: object
       description: |-
@@ -10027,6 +9992,28 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsColumnsRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsColumns``.
+
+        Not used directly but used as base class.
+      properties:
+        column_settings:
+          $ref: '#/components/schemas/SeqvarsColumnConfigList'
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsConsequence:
       type: object
       description: |-
@@ -10074,6 +10061,35 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsConsequenceRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsConsequence``.
+
+        Not used directly but used as base class.
+      properties:
+        variant_types:
+          $ref: '#/components/schemas/SeqvarsVariantTypeChoiceList'
+        transcript_types:
+          $ref: '#/components/schemas/SeqvarsTranscriptTypeChoiceList'
+        variant_consequences:
+          $ref: '#/components/schemas/SeqvarsVariantConsequenceChoiceList'
+        max_distance_to_exon:
+          type: integer
+          nullable: true
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsFrequency:
       type: object
       description: |-
@@ -10280,6 +10296,194 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsFrequencyRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsFrequency``.
+
+        Not used directly but used as base class.
+      properties:
+        gnomad_exomes:
+          oneOf:
+          - description: Settings for gnomAD nuclear frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadNuclearFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        gnomad_genomes:
+          oneOf:
+          - description: Settings for gnomAD nuclear frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadNuclearFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        gnomad_mitochondrial:
+          oneOf:
+          - description: Settings for gnomAD mitochondrial frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heteroplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heteroplasmic
+              homoplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homoplasmic
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadMitochondrialFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        helixmtdb:
+          oneOf:
+          - description: Settings for HelixMtDb frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heteroplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heteroplasmic
+              homoplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homoplasmic
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: HelixmtDbFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        inhouse:
+          oneOf:
+          - description: Settings for in-house frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              carriers:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Carriers
+            title: InhouseFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsLocus:
       type: object
       description: |-
@@ -10324,6 +10528,32 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsLocusRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsLocus``.
+
+        Not used directly but used as base class.
+      properties:
+        genes:
+          $ref: '#/components/schemas/GeneList'
+        gene_panels:
+          $ref: '#/components/schemas/GenePanelList'
+        genome_regions:
+          $ref: '#/components/schemas/GenomeRegionList'
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsPhenotypePrio:
       type: object
       description: |-
@@ -10371,6 +10601,36 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsPhenotypePrioRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsPhenotypePrio``.
+
+        Not used directly but used as base class.
+      properties:
+        phenotype_prio_enabled:
+          type: boolean
+          default: false
+        phenotype_prio_algorithm:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 128
+        terms:
+          $ref: '#/components/schemas/TermPresenceList'
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsQuality:
       type: object
       description: |-
@@ -10431,6 +10691,48 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsQualityRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsQuality``.
+
+        Not used directly but used as base class.
+      properties:
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+        filter_active:
+          type: boolean
+          default: false
+        min_dp_het:
+          type: integer
+          nullable: true
+        min_dp_hom:
+          type: integer
+          nullable: true
+        min_ab_het:
+          type: number
+          format: double
+          nullable: true
+        min_gq:
+          type: integer
+          nullable: true
+        min_ad:
+          type: integer
+          nullable: true
+        max_ad:
+          type: integer
+          nullable: true
+      required:
+      - label
     SeqvarsQueryPresetsSet:
       type: object
       description: Serializer for ``QueryPresetsSet``.
@@ -10467,12 +10769,13 @@ components:
       - label
       - project
       - sodar_uuid
-    SeqvarsQueryPresetsSetCopyFrom:
+    SeqvarsQueryPresetsSetCopyFromRequest:
       type: object
       description: Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.
       properties:
         label:
           type: string
+          minLength: 1
           maxLength: 128
       required:
       - label
@@ -10518,6 +10821,23 @@ components:
       - project
       - sodar_uuid
       - versions
+    SeqvarsQueryPresetsSetRequest:
+      type: object
+      description: Serializer for ``QueryPresetsSet``.
+      properties:
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQueryPresetsSetVersion:
       type: object
       description: Serializer for ``QueryPresetsSetVersion``.
@@ -10654,6 +10974,38 @@ components:
       - seqvarsquerypresetsvariantprio_set
       - signed_off_by
       - sodar_uuid
+    SeqvarsQueryPresetsSetVersionDetailsRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsSetVersion`` (for ``*-detail``).
+
+        When retrieving the details of a seqvar query preset set version, we also render the
+        owned records as well as the presetsset.
+      properties:
+        version_major:
+          type: integer
+          default: 1
+        version_minor:
+          type: integer
+          default: 0
+        status:
+          type: string
+          minLength: 1
+          default: draft
+    SeqvarsQueryPresetsSetVersionRequest:
+      type: object
+      description: Serializer for ``QueryPresetsSetVersion``.
+      properties:
+        version_major:
+          type: integer
+          default: 1
+        version_minor:
+          type: integer
+          default: 0
+        status:
+          type: string
+          minLength: 1
+          default: draft
     SeqvarsQueryPresetsVariantPrio:
       type: object
       description: |-
@@ -10697,6 +11049,31 @@ components:
       - label
       - presetssetversion
       - sodar_uuid
+    SeqvarsQueryPresetsVariantPrioRequest:
+      type: object
+      description: |-
+        Serializer for ``QueryPresetsVariantPrio``.
+
+        Not used directly but used as base class.
+      properties:
+        variant_prio_enabled:
+          type: boolean
+          default: false
+        services:
+          $ref: '#/components/schemas/SeqvarsPrioServiceList'
+        rank:
+          type: integer
+          default: 1
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+        description:
+          type: string
+          nullable: true
+          minLength: 1
+      required:
+      - label
     SeqvarsQuerySettings:
       type: object
       description: Serializer for ``QuerySettings``.
@@ -10860,6 +11237,18 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsClinvarRequest:
+      type: object
+      description: Serializer for ``QuerySettingsClinvar``.
+      properties:
+        clinvar_presence_required:
+          type: boolean
+          default: false
+        clinvar_germline_aggregate_description:
+          $ref: '#/components/schemas/ClinvarGermlineAggregateDescriptionList'
+        allow_conflicting_interpretations:
+          type: boolean
+          default: false
     SeqvarsQuerySettingsConsequence:
       type: object
       description: Serializer for ``QuerySettingsConsequence``.
@@ -10894,6 +11283,19 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsConsequenceRequest:
+      type: object
+      description: Serializer for ``QuerySettingsConsequence``.
+      properties:
+        variant_types:
+          $ref: '#/components/schemas/SeqvarsVariantTypeChoiceList'
+        transcript_types:
+          $ref: '#/components/schemas/SeqvarsTranscriptTypeChoiceList'
+        variant_consequences:
+          $ref: '#/components/schemas/SeqvarsVariantConsequenceChoiceList'
+        max_distance_to_exon:
+          type: integer
+          nullable: true
     SeqvarsQuerySettingsDetails:
       type: object
       description: |-
@@ -10997,6 +11399,80 @@ components:
       - quality
       - session
       - sodar_uuid
+      - variantprio
+    SeqvarsQuerySettingsDetailsRequest:
+      type: object
+      description: |-
+        Serializer for ``QuerySettings`` (for ``*-detail``).
+
+        For retrieve, update, or delete operations, we also render the nested
+        owned category settings.
+      properties:
+        genotypepresets:
+          oneOf:
+          - description: Configuration for a single column in the result table.
+            properties:
+              choice:
+                anyOf:
+                - $ref: '#/components/schemas/SeqvarsGenotypePresetChoice'
+                - type: 'null'
+                default: null
+            title: SeqvarsGenotypePresets
+            type: object
+          - type: 'null'
+          nullable: true
+        qualitypresets:
+          type: string
+          format: uuid
+          nullable: true
+        consequencepresets:
+          type: string
+          format: uuid
+          nullable: true
+        locuspresets:
+          type: string
+          format: uuid
+          nullable: true
+        frequencypresets:
+          type: string
+          format: uuid
+          nullable: true
+        phenotypepriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        variantpriopresets:
+          type: string
+          format: uuid
+          nullable: true
+        clinvarpresets:
+          type: string
+          format: uuid
+          nullable: true
+        genotype:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
+        quality:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsQualityRequest'
+        consequence:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsConsequenceRequest'
+        locus:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsLocusRequest'
+        frequency:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsFrequencyRequest'
+        phenotypeprio:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsPhenotypePrioRequest'
+        variantprio:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
+        clinvar:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+      required:
+      - clinvar
+      - consequence
+      - frequency
+      - genotype
+      - locus
+      - phenotypeprio
+      - quality
       - variantprio
     SeqvarsQuerySettingsFrequency:
       type: object
@@ -11191,6 +11667,178 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsFrequencyRequest:
+      type: object
+      description: Serializer for ``QuerySettingsFrequency``.
+      properties:
+        gnomad_exomes:
+          oneOf:
+          - description: Settings for gnomAD nuclear frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadNuclearFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        gnomad_genomes:
+          oneOf:
+          - description: Settings for gnomAD nuclear frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadNuclearFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        gnomad_mitochondrial:
+          oneOf:
+          - description: Settings for gnomAD mitochondrial frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heteroplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heteroplasmic
+              homoplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homoplasmic
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: GnomadMitochondrialFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        helixmtdb:
+          oneOf:
+          - description: Settings for HelixMtDb frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heteroplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heteroplasmic
+              homoplasmic:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homoplasmic
+              frequency:
+                anyOf:
+                - type: number
+                - type: 'null'
+                default: null
+                title: Frequency
+            title: HelixmtDbFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
+        inhouse:
+          oneOf:
+          - description: Settings for in-house frequency filtering.
+            properties:
+              enabled:
+                default: false
+                title: Enabled
+                type: boolean
+              heterozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
+              hemizygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Hemizygous
+              carriers:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Carriers
+            title: InhouseFrequencySettings
+            type: object
+          - type: 'null'
+          nullable: true
     SeqvarsQuerySettingsGenotype:
       type: object
       description: Serializer for ``QuerySettingsGenotype``.
@@ -11222,6 +11870,16 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsGenotypeRequest:
+      type: object
+      description: Serializer for ``QuerySettingsGenotype``.
+      properties:
+        recessive_mode:
+          allOf:
+          - $ref: '#/components/schemas/RecessiveModeEnum'
+          default: disabled
+        sample_genotype_choices:
+          $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
     SeqvarsQuerySettingsLocus:
       type: object
       description: Serializer for ``QuerySettingsLocus``.
@@ -11253,6 +11911,16 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsLocusRequest:
+      type: object
+      description: Serializer for ``QuerySettingsLocus``.
+      properties:
+        genes:
+          $ref: '#/components/schemas/GeneList'
+        gene_panels:
+          $ref: '#/components/schemas/GenePanelList'
+        genome_regions:
+          $ref: '#/components/schemas/GenomeRegionList'
     SeqvarsQuerySettingsPhenotypePrio:
       type: object
       description: Serializer for ``QuerySettingsPhenotypePrio``.
@@ -11287,6 +11955,20 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsPhenotypePrioRequest:
+      type: object
+      description: Serializer for ``QuerySettingsPhenotypePrio``.
+      properties:
+        phenotype_prio_enabled:
+          type: boolean
+          default: false
+        phenotype_prio_algorithm:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 128
+        terms:
+          $ref: '#/components/schemas/TermPresenceList'
     SeqvarsQuerySettingsQuality:
       type: object
       description: Serializer for ``QuerySettingsQuality``.
@@ -11314,6 +11996,12 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsQualityRequest:
+      type: object
+      description: Serializer for ``QuerySettingsQuality``.
+      properties:
+        sample_quality_filters:
+          $ref: '#/components/schemas/SeqvarsSampleQualityFilterList'
     SeqvarsQuerySettingsVariantPrio:
       type: object
       description: Serializer for ``QuerySettingsVariantPrio``.
@@ -11344,6 +12032,15 @@ components:
       - date_modified
       - querysettings
       - sodar_uuid
+    SeqvarsQuerySettingsVariantPrioRequest:
+      type: object
+      description: Serializer for ``QuerySettingsVariantPrio``.
+      properties:
+        variant_prio_enabled:
+          type: boolean
+          default: false
+        services:
+          $ref: '#/components/schemas/SeqvarsPrioServiceList'
     SeqvarsResultRow:
       type: object
       description: Serializer for ``ResultRow``.
@@ -11628,6 +12325,26 @@ components:
       - enrichmentkit
       - file_uri
       - sodar_uuid
+    TargetBedFileRequest:
+      type: object
+      description: Serializer for ``TargetBedFile``.
+      properties:
+        file_uri:
+          type: string
+          minLength: 1
+          description: The file's URI.
+          maxLength: 512
+        genome_release:
+          allOf:
+          - $ref: '#/components/schemas/GenomeReleaseEnum'
+          default: grch37
+          description: |-
+            The file's reference genome.
+
+            * `grch37` - GRCh37
+            * `grch38` - GRCh38
+      required:
+      - file_uri
     Term:
       description: Representation of a condition (phenotype / disease) term.
       properties:
