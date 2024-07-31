@@ -75,7 +75,7 @@ const selectedModel = computed<string[] | undefined>({
       :value="item.sodar_uuid"
       :title="item.label"
     >
-      <template v-slot:append>
+      <template #append>
         <v-btn
           color="grey-lighten-1"
           icon="mdi-delete-outline"

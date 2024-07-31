@@ -9,7 +9,6 @@ import { VForm } from 'vuetify/lib/components/index.mjs'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 
 /** This component's props. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
     /** UUID of the current preset set version. */
@@ -57,7 +56,7 @@ const rules = {
 const formRef = ref<VForm | undefined>(undefined)
 
 /** Fill the data from the store. */
-const fillModel = () => {
+const fillData = () => {
   // Guard against missing preset set version or quality.
   if (
     props.presetSetVersion === undefined ||
@@ -143,7 +142,7 @@ const updateQualityPresets = async (rankDelta: number = 0) => {
     const other = others[rankDelta < 0 ? others.length - 1 : 0]
     // Store the other's rank in `data.value.rank` and update other via API.
     if (other) {
-      let dataRank = data.value.rank
+      const dataRank = data.value.rank
       data.value.rank = other.rank
       other.rank = dataRank
       try {
@@ -192,10 +191,10 @@ const updateQualityPresetsDebounced = debounce(
 // Load model data from store when the UUID changes.
 watch(
   () => props.qualityPresets,
-  () => fillModel(),
+  () => fillData(),
 )
 // Also, load model data from store when mounted.
-onMounted(() => fillModel())
+onMounted(() => fillData())
 
 // Watch the data and trigger a store update.
 watch(data, () => updateQualityPresetsDebounced(), { deep: true })

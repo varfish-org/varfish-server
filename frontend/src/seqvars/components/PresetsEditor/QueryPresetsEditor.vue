@@ -2,15 +2,6 @@
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQueryPresetsSetVersionDetails,
-  SeqvarsQueryPresetsQuality,
-  SeqvarsQueryPresetsFrequency,
-  SeqvarsQueryPresetsConsequence,
-  SeqvarsPredefinedQuery,
-  SeqvarsQueryPresetsClinvar,
-  SeqvarsQueryPresetsColumns,
-  SeqvarsQueryPresetsLocus,
-  SeqvarsQueryPresetsPhenotypePrio,
-  SeqvarsQueryPresetsVariantPrio,
 } from '@varfish-org/varfish-api/lib'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
 import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
@@ -210,80 +201,6 @@ const doDeletePresets = async (category: PresetsCategory, uuid: string) => {
   }
 }
 
-/** The currently selected frequency presets, if any. */
-const selectedFrequencyPresets = computed<
-  SeqvarsQueryPresetsFrequency | undefined
->(() => {
-  return selectedPresetSetVersion.value?.seqvarsquerypresetsfrequency_set.find(
-    (item) => item.sodar_uuid === selectedPreset[PresetsCategory.FREQUENCY],
-  )
-})
-
-/** The currently selected consequence presets, if any. */
-const selectedConsequencePresets = computed<
-  SeqvarsQueryPresetsConsequence | undefined
->(() => {
-  return selectedPresetSetVersion.value?.seqvarsquerypresetsconsequence_set.find(
-    (item) => item.sodar_uuid === selectedPreset[PresetsCategory.CONSEQUENCE],
-  )
-})
-
-/** The currently selected locus presets, if any. */
-const selectedLocusPresets = computed<SeqvarsQueryPresetsLocus | undefined>(
-  () => {
-    return selectedPresetSetVersion.value?.seqvarsquerypresetslocus_set.find(
-      (item) => item.sodar_uuid === selectedPreset[PresetsCategory.LOCUS],
-    )
-  },
-)
-
-/** The currently selected phenotype prio presets, if any. */
-const selectedPhenotypePrioPresets = computed<
-  SeqvarsQueryPresetsPhenotypePrio | undefined
->(() => {
-  return selectedPresetSetVersion.value?.seqvarsquerypresetsphenotypeprio_set.find(
-    (item) =>
-      item.sodar_uuid === selectedPreset[PresetsCategory.PHENOTYPE_PRIO],
-  )
-})
-
-/** The currently selected variant prio presets, if any. */
-const selectedVariantPrioPresets = computed<
-  SeqvarsQueryPresetsVariantPrio | undefined
->(() => {
-  return selectedPresetSetVersion.value?.seqvarsquerypresetsvariantprio_set.find(
-    (item) => item.sodar_uuid === selectedPreset[PresetsCategory.VARIANT_PRIO],
-  )
-})
-
-/** The currently selected clinvar presets, if any. */
-const selectedClinvarPresets = computed<SeqvarsQueryPresetsClinvar | undefined>(
-  () => {
-    return selectedPresetSetVersion.value?.seqvarsquerypresetsclinvar_set.find(
-      (item) => item.sodar_uuid === selectedPreset[PresetsCategory.CLINVAR],
-    )
-  },
-)
-
-/** The currently selected columns presets, if any. */
-const selectedColumnsPresets = computed<SeqvarsQueryPresetsColumns | undefined>(
-  () => {
-    return selectedPresetSetVersion.value?.seqvarsquerypresetscolumns_set.find(
-      (item) => item.sodar_uuid === selectedPreset[PresetsCategory.COLUMNS],
-    )
-  },
-)
-
-/** The currently selected predefined query presets, if any. */
-const selectedPredefinedQueryPresets = computed<
-  SeqvarsPredefinedQuery | undefined
->(() => {
-  return selectedPresetSetVersion.value?.seqvarspredefinedquery_set.find(
-    (item) =>
-      item.sodar_uuid === selectedPreset[PresetsCategory.PREDEFINED_QUERIES],
-  )
-})
-
 /** Select the first presets in each category. */
 const selectFirstPresets = (options?: { onlyIfEmpty: boolean }) => {
   for (const category of categories.value) {
@@ -386,53 +303,74 @@ watch(
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.FREQUENCY">
             <CategoryPresetsFrequencyEditor
-              v-model:model-value="selectedFrequencyPresets"
+              :preset-set-version="presetSetVersion"
+              :frequency-presets="selectedPreset[PresetsCategory.FREQUENCY]"
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.CONSEQUENCE">
             <CategoryPresetsConsequenceEditor
-              v-model:model-value="selectedConsequencePresets"
+              :preset-set-version="presetSetVersion"
+              :consequence-presets="selectedPreset[PresetsCategory.CONSEQUENCE]"
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.LOCUS">
             <CategoryPresetsLocusEditor
-              v-model:model-value="selectedLocusPresets"
+              :preset-set-version="presetSetVersion"
+              :locus-presets="selectedPreset[PresetsCategory.LOCUS]"
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.PHENOTYPE_PRIO">
             <CategoryPresetsPhenotypePrioEditor
-              v-model:model-value="selectedPhenotypePrioPresets"
+              :preset-set-version="presetSetVersion"
+              :phenotype-prio-presets="
+                selectedPreset[PresetsCategory.PHENOTYPE_PRIO]
+              "
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.VARIANT_PRIO">
             <CategoryPresetsVariantPrioEditor
-              v-model:model-value="selectedVariantPrioPresets"
+              :preset-set-version="presetSetVersion"
+              :variant-prio-presets="
+                selectedPreset[PresetsCategory.VARIANT_PRIO]
+              "
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.CLINVAR">
             <CategoryPresetsClinvarEditor
-              v-model:model-value="selectedClinvarPresets"
+              :preset-set-version="presetSetVersion"
+              :clinvar-presets="selectedPreset[PresetsCategory.CLINVAR]"
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.COLUMNS">
             <CategoryPresetsColumnsEditor
-              v-model:model-value="selectedColumnsPresets"
+              :preset-set-version="presetSetVersion"
+              :columns-presets="selectedPreset[PresetsCategory.COLUMNS]"
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <div
             v-else-if="selectedCategory === PresetsCategory.PREDEFINED_QUERIES"
           >
             <CategoryPresetsPredefinedQueriesEditor
-              v-model:model-value="selectedPredefinedQueryPresets"
-              :presets-set-version="selectedPresetSetVersion"
+              :preset-set-version="presetSetVersion"
+              :predefined-queries-presets="
+                selectedPreset[PresetsCategory.PREDEFINED_QUERIES]
+              "
               :readonly="presetSetVersionReadonly"
+              @message="(event) => emit('message', event)"
             />
           </div>
           <v-alert
