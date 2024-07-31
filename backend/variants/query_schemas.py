@@ -220,10 +220,10 @@ class CaseQuery:
     flag_molecular_positive: bool = True
     flag_molecular_uncertain: bool = True
 
-    flag_phenotype_empty: bool = True
-    flag_phenotype_negative: bool = True
-    flag_phenotype_positive: bool = True
-    flag_phenotype_uncertain: bool = True
+    flag_phenotype_match_empty: bool = True
+    flag_phenotype_match_negative: bool = True
+    flag_phenotype_match_positive: bool = True
+    flag_phenotype_match_uncertain: bool = True
 
     flag_summary_empty: bool = True
     flag_summary_negative: bool = True
@@ -357,10 +357,10 @@ class QueryJsonToFormConverter:
             "flag_molecular_negative": query.flag_molecular_negative,
             "flag_molecular_positive": query.flag_molecular_positive,
             "flag_molecular_uncertain": query.flag_molecular_uncertain,
-            "flag_phenotype_empty": query.flag_phenotype_empty,
-            "flag_phenotype_negative": query.flag_phenotype_negative,
-            "flag_phenotype_positive": query.flag_phenotype_positive,
-            "flag_phenotype_uncertain": query.flag_phenotype_uncertain,
+            "flag_phenotype_match_empty": query.flag_phenotype_match_empty,
+            "flag_phenotype_match_negative": query.flag_phenotype_match_negative,
+            "flag_phenotype_match_positive": query.flag_phenotype_match_positive,
+            "flag_phenotype_match_uncertain": query.flag_phenotype_match_uncertain,
             "flag_summary_empty": query.flag_summary_empty,
             "flag_summary_negative": query.flag_summary_negative,
             "flag_summary_positive": query.flag_summary_positive,
@@ -439,6 +439,143 @@ class QueryJsonToFormConverter:
                 )
 
         return result, query.VERSION
+
+
+def genomic_region_to_str(region: typing.Tuple[str, typing.Optional[int], typing.Optional[int]]):
+    chromosome, start, end = region
+    if start is None and end is None:
+        return chromosome
+    return "%s:%s-%s" % (chromosome, start, end)
+
+
+class FormToQueryJsonConverter:
+    """Helper class"""
+
+    def convert(self, form: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+        result = {
+            "database": form.get("database_select"),  # OK
+            "var_type_snv": form.get("var_type_snv"),  # OK
+            "var_type_mnv": form.get("var_type_mnv"),  # OK
+            "var_type_indel": form.get("var_type_indel"),  # OK
+            "exac_enabled": form.get("exac_enabled"),  # OK
+            "exac_frequency": form.get("exac_frequency"),  # OK
+            "exac_heterozygous": form.get("exac_heterozygous"),  # OK
+            "exac_homozygous": form.get("exac_homozygous"),  # OK
+            "exac_hemizygous": form.get("exac_hemizygous"),  # OK
+            "thousand_genomes_enabled": form.get("thousand_genomes_enabled"),  # OK
+            "thousand_genomes_frequency": form.get("thousand_genomes_frequency"),  # OK
+            "thousand_genomes_heterozygous": form.get("thousand_genomes_heterozygous"),  # OK
+            "thousand_genomes_homozygous": form.get("thousand_genomes_homozygous"),  # OK
+            "thousand_genomes_hemizygous": form.get("thousand_genomes_hemizygous"),  # OK
+            "gnomad_exomes_enabled": form.get("gnomad_exomes_enabled"),  # OK
+            "gnomad_exomes_frequency": form.get("gnomad_exomes_frequency"),  # OK
+            "gnomad_exomes_heterozygous": form.get("gnomad_exomes_heterozygous"),  # OK
+            "gnomad_exomes_homozygous": form.get("gnomad_exomes_homozygous"),  # OK
+            "gnomad_exomes_hemizygous": form.get("gnomad_exomes_hemizygous"),  # OK
+            "gnomad_genomes_enabled": form.get("gnomad_genomes_enabled"),  # OK
+            "gnomad_genomes_frequency": form.get("gnomad_genomes_frequency"),  # OK
+            "gnomad_genomes_heterozygous": form.get("gnomad_genomes_heterozygous"),  # OK
+            "gnomad_genomes_homozygous": form.get("gnomad_genomes_homozygous"),  # OK
+            "gnomad_genomes_hemizygous": form.get("gnomad_genomes_hemizygous"),  # OK
+            "inhouse_enabled": form.get("inhouse_enabled"),  # OK
+            "inhouse_carriers": form.get("inhouse_carriers"),  # OK
+            "inhouse_heterozygous": form.get("inhouse_heterozygous"),  # OK
+            "inhouse_homozygous": form.get("inhouse_homozygous"),  # OK
+            "inhouse_hemizygous": form.get("inhouse_hemizygous"),  # OK
+            "max_exon_dist": form.get("max_exon_dist"),  # OK
+            "mtdb_enabled": form.get("mtdb_enabled"),  # OK
+            "mtdb_count": form.get("mtdb_count"),  # OK
+            "mtdb_frequency": form.get("mtdb_frequency"),  # OK
+            "helixmtdb_enabled": form.get("helixmtdb_enabled"),  # OK
+            "helixmtdb_hom_count": form.get("helixmtdb_hom_count"),  # OK
+            "helixmtdb_het_count": form.get("helixmtdb_het_count"),  # OK
+            "helixmtdb_frequency": form.get("helixmtdb_frequency"),  # OK
+            "mitomap_enabled": form.get("mitomap_enabled"),  # OK
+            "mitomap_count": form.get("mitomap_count"),  # OK
+            "mitomap_frequency": form.get("mitomap_frequency"),  # OK
+            "transcripts_coding": form.get("transcripts_coding"),  # OK
+            "transcripts_noncoding": form.get("transcripts_noncoding"),  # OK
+            "require_in_clinvar": form.get("require_in_clinvar"),  # OK
+            "clinvar_include_benign": form.get("clinvar_include_benign"),  # OK
+            "clinvar_include_likely_benign": form.get("clinvar_include_likely_benign"),  # OK
+            "clinvar_include_uncertain_significance": form.get(
+                "clinvar_include_uncertain_significance"
+            ),  # OK
+            "clinvar_include_likely_pathogenic": form.get(
+                "clinvar_include_likely_pathogenic"
+            ),  # OK
+            "clinvar_include_pathogenic": form.get("clinvar_include_pathogenic"),  # OK
+            "clinvar_paranoid_mode": form.get("clinvar_paranoid_mode", False),  # OK
+            "flag_simple_empty": form.get("flag_simple_empty"),  # OK
+            "flag_bookmarked": form.get("flag_bookmarked"),  # OK
+            "flag_incidental": form.get("flag_incidental"),  # OK
+            "flag_candidate": form.get("flag_candidate"),  # OK
+            "flag_doesnt_segregate": form.get("flag_doesnt_segregate"),  # OK
+            "flag_final_causative": form.get("flag_final_causative"),  # OK
+            "flag_for_validation": form.get("flag_for_validation"),  # OK
+            "flag_no_disease_association": form.get("flag_no_disease_association"),  # OK
+            "flag_segregates": form.get("flag_segregates"),  # OK
+            "flag_molecular_empty": form.get("flag_molecular_empty"),  # OK
+            "flag_molecular_negative": form.get("flag_molecular_negative"),  # OK
+            "flag_molecular_positive": form.get("flag_molecular_positive"),  # OK
+            "flag_molecular_uncertain": form.get("flag_molecular_uncertain"),  # OK
+            "flag_phenotype_match_empty": form.get("flag_phenotype_match_empty"),  # OK
+            "flag_phenotype_match_negative": form.get("flag_phenotype_match_negative"),  # OK
+            "flag_phenotype_match_positive": form.get("flag_phenotype_match_positive"),  # OK
+            "flag_phenotype_match_uncertain": form.get("flag_phenotype_match_uncertain"),  # OK
+            "flag_summary_empty": form.get("flag_summary_empty"),  # OK
+            "flag_summary_negative": form.get("flag_summary_negative"),  # OK
+            "flag_summary_positive": form.get("flag_summary_positive"),  # OK
+            "flag_summary_uncertain": form.get("flag_summary_uncertain"),  # OK
+            "flag_validation_empty": form.get("flag_validation_empty"),  # OK
+            "flag_validation_negative": form.get("flag_validation_negative"),  # OK
+            "flag_validation_positive": form.get("flag_validation_positive"),  # OK
+            "flag_validation_uncertain": form.get("flag_validation_uncertain"),  # OK
+            "flag_visual_empty": form.get("flag_visual_empty"),  # OK
+            "flag_visual_negative": form.get("flag_visual_negative"),  # OK
+            "flag_visual_positive": form.get("flag_visual_positive"),  # OK
+            "flag_visual_uncertain": form.get("flag_visual_uncertain"),  # OK
+            "gene_blocklist": form.get("gene_blocklist"),  # OK
+            "gene_allowlist": form.get("gene_allowlist"),  # OK
+            "genomic_region": [genomic_region_to_str(r) for r in form.get("genomic_region")],  # OK
+            "prio_enabled": form.get("prio_enabled"),  # OK
+            "prio_algorithm": form.get("prio_algorithm"),  # OK
+            "prio_hpo_terms": form.get("prio_hpo_terms"),  # OK
+            "patho_enabled": form.get("patho_enabled"),  # OK
+            "patho_score": form.get("patho_score"),  # OK
+            "effects": form.get("effects"),  # OK
+            "recessive_mode": None,
+            "recessive_index": None,
+            "quality": {},
+            "genotype": {},
+        }
+
+        # transform fields
+        for e in form.keys():
+            # turn genotype information into dictionary
+            if e.endswith("_gt"):
+                sample = e[:-3]
+                gt = form[e]
+                if sample not in result["quality"]:
+                    result["quality"][sample] = {}
+                if gt == "recessive-index":
+                    result["recessive_index"] = sample
+                    result["recessive_mode"] = RecessiveMode.RECESSIVE.value
+                elif gt == "index":
+                    gt = "recessive-index"
+                    result["recessive_index"] = sample
+                    result["recessive_mode"] = RecessiveMode.COMPOUND_RECESSIVE.value
+                result["genotype"][sample] = gt
+
+            # turn quality information into dictionary
+            for field in ("dp_het", "dp_hom", "ab", "gq", "ad", "ad_max", "fail"):
+                if e.endswith("_%s" % field):
+                    sample = e[: -len(field) - 1]
+                    if sample not in result["quality"]:
+                        result["quality"][sample] = {}
+                    result["quality"][sample][field] = form[e]
+
+        return result
 
 
 def convert_query_json_to_small_variant_filter_form(
