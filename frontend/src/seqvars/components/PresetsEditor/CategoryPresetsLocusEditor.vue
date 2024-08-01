@@ -8,6 +8,8 @@ import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,6 +31,8 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
+/** Store with application context, such as CSRF token. */
+const ctxStore = useCtxStore()
 /** Store with the presets. */
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
 
@@ -57,6 +61,12 @@ const rules = {
 /** Ref to the form. */
 const formRef = ref<VForm | undefined>(undefined)
 
+/** Genes text area; component state. */
+const genesText = ref<string>('')
+/** Error message(s) for genes; component state. */
+const genesErrors = ref<string>('')
+/** Hint(s) for genes; component state. */
+const genesHint = ref<string>('')
 /** Genome regions text area; component state. */
 const genomeRegionsText = ref<string>('')
 /** Error message(s) for genome regions; component state. */
@@ -67,6 +77,93 @@ const genomeRegionsHint = ref<string>('')
 const editorToShow = ref<'genes' | 'loci'>(
   (data.value?.genes?.length ?? 0) > 0 ? 'genes' : 'loci',
 )
+
+/** Handler for parsing genes on clicking the button; using the annonars API. */
+const parseGenes = async () => {
+  // Annonars client to use.
+  const annonarsClient = new AnnonarsApiClient(ctxStore.csrfToken)
+
+  // Clear any error message and hints.
+  genesErrors.value = ''
+  genesHint.value = ''
+
+  // Guard against empty data or genome regions.
+  if (data?.value?.genes?.length === undefined) {
+    genesErrors.value = 'Invalid data state (should never happen)'
+    return
+  }
+  // Get gene strings from text area.
+  const genesArr = genesText.value.split(/[;\s+]/).filter((r) => r.length > 0)
+
+  // Lookup genes with annonars, add to data and/or generate error message.
+  const foundGenes = await annonarsClient.lookupGenes(genesArr)
+
+  // Helper function that registers a `GeneNames` with a set of identifiers.
+  const registerIdentifier = (geneNames: GeneNames, seenSet: Set<string>) => {
+    seenSet.add(geneNames.hgnc_id)
+    seenSet.add(geneNames.symbol)
+    if (geneNames.ensembl_gene_id) {
+      seenSet.add(geneNames.ensembl_gene_id)
+    }
+    if (geneNames.ncbi_gene_id) {
+      seenSet.add(`${geneNames.ncbi_gene_id}`)
+    }
+  }
+
+  // Collect list of seen identifiers.
+  const seen = new Set<string>()
+  for (const gene of foundGenes) {
+    registerIdentifier(gene, seen)
+  }
+
+  // Copy-convert the found genes over to the data, removing duplicates.
+  const alreadyAdded = new Set<string>()
+  for (const gene of foundGenes) {
+    if (
+      alreadyAdded.has(gene.hgnc_id) ||
+      alreadyAdded.has(gene.symbol) ||
+      (gene.ensembl_gene_id && alreadyAdded.has(gene.ensembl_gene_id)) ||
+      (gene.ncbi_gene_id && alreadyAdded.has(gene.ncbi_gene_id))
+    ) {
+      genesHint.value = 'Skipped already present genes.'
+      continue
+    }
+    registerIdentifier(gene, alreadyAdded)
+
+    data.value.genes.push({
+      hgnc_id: gene.hgnc_id,
+      symbol: gene.symbol,
+      name: gene.name,
+      ensembl_id: gene.ensembl_gene_id ?? undefined,
+      entrez_id: gene.ncbi_gene_id ? parseInt(gene.ncbi_gene_id) : undefined,
+    })
+  }
+
+  // Helpfully, sort genes by symbol.
+  data.value.genes.sort((a, b) => a.symbol.localeCompare(b.symbol))
+
+  // Copy the genes that were not found over back to the text area.
+  const invalidGenes: string[] = []
+  for (const gene of genesArr) {
+    if (!seen.has(gene)) {
+      invalidGenes.push(gene)
+    }
+  }
+  if (invalidGenes.length > 0) {
+    genesErrors.value = 'Some genome regions could not be parsed.'
+  }
+  genesText.value = invalidGenes.join(' ')
+}
+
+/** Handler for removing genes from data on clicking "close" in chip. */
+const removeGene = async (index: number) => {
+  // Guard against empty data or genome regions.
+  if (!data?.value?.genes?.length) {
+    return
+  }
+  // Remove genome region from data by index.
+  data.value.genes.splice(index, 1)
+}
 
 /** Handler for parsing genomic regions on clicking the button. */
 const parseGenomeRegions = async () => {
@@ -162,6 +259,8 @@ const fillData = () => {
  * @param rankDelta The delta to apply to the rank, if any.
  */
 const updateLocusPresets = async (rankDelta: number = 0) => {
+  console.log('update locus presets')
+
   // Guard against missing/readonly/non-draft preset set version or missing locus.
   if (
     props.locusPresets === undefined ||
@@ -300,14 +399,68 @@ watch(data, () => updateLocusPresetsDebounced(), { deep: true })
     </div>
 
     <v-radio-group v-model="editorToShow" inline class="pt-3">
-      <v-radio label="Gene List" value="genes"></v-radio>
-      <v-radio label="Genomic Regions" value="loci"></v-radio>
+      <v-radio
+        :label="`Gene List (${(data?.genes ?? []).length})`"
+        value="genes"
+      ></v-radio>
+      <v-radio
+        :label="`Genomic Regions (${(data?.genome_regions ?? []).length})`"
+        value="loci"
+      ></v-radio>
     </v-radio-group>
 
-    <div v-if="editorToShow === 'genes'">Genes</div>
+    <div v-if="editorToShow === 'genes'">
+      <v-row>
+        <v-col>
+          <v-textarea
+            v-model="genesText"
+            :error-messages="genesErrors"
+            :hint="genesHint"
+            persistent-hint
+            label="Enter genes by their symbol, HGNC, ENSEMBL, or Entrez Gene ID, e.g., BRCA1 HGNC:1100 ENSG00000012048 672."
+            :disabled="readonly"
+            class="mb-3"
+          ></v-textarea>
+
+          <v-btn
+            block
+            variant="outlined"
+            text="parse and store regions"
+            rounded="xs"
+            prepend-icon="mdi-arrow-down-bold"
+            :disabled="readonly"
+            @click="parseGenes()"
+          ></v-btn>
+
+          <div
+            class="border-sm rounded bg-surface mt-3 pa-1"
+            style="min-height: 100px"
+          >
+            <span v-for="(gene, idx) in data?.genes ?? []">
+              <v-tooltip
+                :key="gene.hgnc_id"
+                :text="`${gene.symbol} / ${gene.hgnc_id} / ${gene.ensembl_id} / ${gene.entrez_id}`"
+                location="bottom"
+              >
+                <template #activator="{ props }">
+                  <v-chip
+                    v-bind="props"
+                    closable
+                    class="ma-1"
+                    :text="gene.symbol"
+                    :disabled="readonly"
+                    @click:close="removeGene(idx)"
+                  />
+                </template>
+              </v-tooltip>
+            </span>
+          </div>
+        </v-col>
+      </v-row>
+    </div>
     <div v-else>
       <v-row>
-        <v-col cols="6">
+        <v-col>
           <v-textarea
             v-model="genomeRegionsText"
             :error-messages="genomeRegionsErrors"
@@ -315,9 +468,9 @@ watch(data, () => updateLocusPresetsDebounced(), { deep: true })
             persistent-hint
             label="Enter genome regions separated by spaces, e.g., 1 X MT chr1 chr3:1,000,000-2,000,000."
             :disabled="readonly"
+            class="mb-3"
           ></v-textarea>
-        </v-col>
-        <v-col cols="6" class="d-flex flex-column">
+
           <v-btn
             block
             variant="outlined"
@@ -327,7 +480,11 @@ watch(data, () => updateLocusPresetsDebounced(), { deep: true })
             :disabled="readonly"
             @click="parseGenomeRegions()"
           ></v-btn>
-          <div class="border-sm rounded h-100 bg-surface mt-3 pa-1">
+
+          <div
+            class="border-sm rounded bg-surface mt-3 pa-1"
+            style="min-height: 100px"
+          >
             <span v-for="(region, idx) in data?.genome_regions ?? []">
               <v-chip
                 :key="genomeRegionToString(region)"
