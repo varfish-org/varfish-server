@@ -100,7 +100,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          Query Presets (NEW)
+          Query Presets (V2)
         </v-list-item>
       </TheNavBar>
       <v-container class="py-2 px-6" fluid>

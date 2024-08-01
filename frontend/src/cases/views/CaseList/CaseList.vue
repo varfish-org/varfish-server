@@ -89,7 +89,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          Query Presets (NEW)
+          Query Presets (V2)
         </v-list-item>
       </TheNavBar>
       <div class="pa-3">

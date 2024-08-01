@@ -204,7 +204,6 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     # GENE_VARIANT = "gene_variant"
 
 
-
 class SeqvarsConsequenceSettingsBase(models.Model):
     """Abstract model for storing consequence-related settings."""
 

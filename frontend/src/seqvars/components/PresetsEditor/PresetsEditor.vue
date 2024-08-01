@@ -24,6 +24,12 @@ const emit = defineEmits<{
 <template>
   <h2>Query Presets</h2>
 
+  <v-alert type="warning" variant="tonal" closable>
+    <v-alert-title> Upcoming Feature... </v-alert-title>
+    Note that the presets here are only for the upcoming "Version 2" interface.
+    Most likely, you are looking for the non-V2 query presets.
+  </v-alert>
+
   <QueryPresetsSelect
     :project-uuid="projectUuid"
     :preset-set="presetSet"

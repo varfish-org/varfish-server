@@ -61,6 +61,7 @@ from seqvars.tests.factories import (
     SeqvarsResultRowFactory,
     SeqvarsResultSetFactory,
 )
+from variants.tests.factories import ProjectFactory
 
 
 class TestSeqvarsCaseGenotypeChoice(TestCase):
@@ -118,13 +119,15 @@ class TestSeqvarsQueryPresetsSet(TestCase):
 
     def test_clone_from_db(self):
         # Note: only smoke test implemented so far.
+        project = ProjectFactory()
         querypresetsset = SeqvarsQueryPresetsSetFactory()
-        querypresetsset.clone_with_latest_version()
+        querypresetsset.clone_with_latest_version(project=project)
 
     def test_clone_factory_default(self):
         # Note: only smoke test implemented so far.
+        project = ProjectFactory()
         querypresetset = create_seqvarspresetsset_short_read_genome()
-        querypresetset.clone_with_latest_version()
+        querypresetset.clone_with_latest_version(project=project)
 
 
 class TestSeqvarsQueryPresetsSetVersion(TestCase):
