@@ -75,9 +75,10 @@ const fillData = () => {
     })
     return
   }
-  const phenotypePrioPresets = presetSetVersion?.seqvarsquerypresetsphenotypeprio_set.find(
-    (elem) => elem.sodar_uuid === props.phenotypePrioPresets,
-  )
+  const phenotypePrioPresets =
+    presetSetVersion?.seqvarsquerypresetsphenotypeprio_set.find(
+      (elem) => elem.sodar_uuid === props.phenotypePrioPresets,
+    )
   if (!phenotypePrioPresets) {
     emit('message', {
       text: 'Failed to find phenotypePrio presets.',
@@ -96,7 +97,7 @@ const fillData = () => {
  *
  * @param rankDelta The delta to apply to the rank, if any.
  */
- const updatePhenotypePrioPresets = async (rankDelta: number = 0) => {
+const updatePhenotypePrioPresets = async (rankDelta: number = 0) => {
   // Guard against missing/readonly/non-draft preset set version or missing phenotypePrio.
   if (
     props.phenotypePrioPresets === undefined ||
@@ -127,16 +128,18 @@ const fillData = () => {
       return
     }
     // Find the next smaller or larger item, sort by rank.
-    const others = version.seqvarsquerypresetsphenotypeprio_set.filter((elem) => {
-      if (elem.sodar_uuid === props.phenotypePrioPresets) {
-        return false
-      }
-      if (rankDelta < 0) {
-        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
-      } else {
-        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
-      }
-    })
+    const others = version.seqvarsquerypresetsphenotypeprio_set.filter(
+      (elem) => {
+        if (elem.sodar_uuid === props.phenotypePrioPresets) {
+          return false
+        }
+        if (rankDelta < 0) {
+          return (elem.rank ?? 0) < (data.value?.rank ?? 0)
+        } else {
+          return (elem.rank ?? 0) > (data.value?.rank ?? 0)
+        }
+      },
+    )
     others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
     // Then, pick the other item to flip ranks with.
     const other = others[rankDelta < 0 ? others.length - 1 : 0]
@@ -201,9 +204,7 @@ watch(data, () => updatePhenotypePrioPresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h4>
-    Phenotype Prio Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;
-  </h4>
+  <h4>Phenotype Prio Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
   <v-skeleton-loader v-if="!data" type="article" />
   <v-form v-else ref="formRef">

@@ -75,9 +75,10 @@ const fillData = () => {
     })
     return
   }
-  const variantPrioPresets = presetSetVersion?.seqvarsquerypresetsvariantprio_set.find(
-    (elem) => elem.sodar_uuid === props.variantPrioPresets,
-  )
+  const variantPrioPresets =
+    presetSetVersion?.seqvarsquerypresetsvariantprio_set.find(
+      (elem) => elem.sodar_uuid === props.variantPrioPresets,
+    )
   if (!variantPrioPresets) {
     emit('message', {
       text: 'Failed to find variantPrio presets.',
@@ -96,7 +97,7 @@ const fillData = () => {
  *
  * @param rankDelta The delta to apply to the rank, if any.
  */
- const updateVariantPrioPresets = async (rankDelta: number = 0) => {
+const updateVariantPrioPresets = async (rankDelta: number = 0) => {
   // Guard against missing/readonly/non-draft preset set version or missing variantPrio.
   if (
     props.variantPrioPresets === undefined ||
