@@ -20,8 +20,8 @@ const model = defineModel<Query>({ required: true })
 <template>
   <label style="display: flex; max-width: 260px">
     <v-checkbox-btn v-model="model.variantprio.variant_prio_enabled" />
-    Enable pathogenicity-based priorization</label
-  >
+    Enable pathogenicity-based priorization
+  </label>
 
   <CollapsibleGroup title="Phenotype similarity algorithm">
     <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">

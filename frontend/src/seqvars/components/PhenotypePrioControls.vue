@@ -1,41 +1,3 @@
-<script lang="ts">
-import {
-  HpoOmim,
-  HpoTerm,
-  VigunoClient,
-} from '@bihealth/reev-frontend-lib/api/viguno'
-
-async function fetchHPO(query: string) {
-  const vigunoClient = new VigunoClient('/proxy/varfish/viguno')
-  const queryArg = encodeURIComponent(query)
-  let results: (HpoTerm | HpoOmim)[]
-  if (query.startsWith('HP:')) {
-    results = (await vigunoClient.resolveHpoTermById(queryArg)).result
-  } else if (query.startsWith('OMIM:')) {
-    results = (await vigunoClient.resolveOmimTermById(queryArg)).result
-  } else {
-    let [{ result: hpoResults }, { result: omimResults }] = await Promise.all([
-      vigunoClient.queryHpoTermsByName(queryArg),
-      vigunoClient.queryOmimTermsByName(queryArg),
-    ])
-    if (hpoResults.length < 2 && omimResults.length > 2) {
-      omimResults = omimResults.slice(0, 2 + hpoResults.length)
-    } else if (omimResults.length < 2 && hpoResults.length > 2) {
-      hpoResults = hpoResults.slice(0, 2 + omimResults.length)
-    } else {
-      hpoResults = hpoResults.slice(0, 2)
-      omimResults = omimResults.slice(0, 2)
-    }
-    results = [...hpoResults, ...omimResults]
-  }
-
-  return results.map(({ name, ...item }) => {
-    const id = 'termId' in item ? item.termId : item.omimId
-    return { label: name, term_id: id }
-  })
-}
-</script>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -43,6 +5,7 @@ import { Query } from '@/seqvars/types'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import SelectBox, { type ItemData } from './ui/SelectBox.vue'
+import { queryHPO_Terms } from './utils'
 
 const ITEMS = {
   phenix: 'Phenix',
@@ -57,7 +20,7 @@ const model = defineModel<Query>({ required: true })
 const items = ref<ItemData[]>([])
 
 async function onSearch(query: string) {
-  items.value = (await fetchHPO(query)).map((i) => ({
+  items.value = (await queryHPO_Terms(query)).map((i) => ({
     id: i.term_id,
     label: i.label,
     sublabel: i.term_id,
