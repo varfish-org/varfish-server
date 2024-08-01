@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, onMounted, ref } from 'vue'
+import { watch, onMounted, ref, computed } from 'vue'
 
 import FilterApp from '@/variants/components/FilterApp.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
@@ -45,6 +45,37 @@ watch(
 const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantQueryStore = useVariantQueryStore()
+
+const filtrationComplexityMode = computed(() => {
+  switch (variantQueryStore.filtrationComplexityMode) {
+    case 'simple':
+      return '1'
+    case 'normal':
+      return '2'
+    case 'advanced':
+      return '3'
+    case 'dev':
+      return '4'
+  }
+  return '1'
+})
+
+const toggleFiltrationComplexityMode = () => {
+  switch (variantQueryStore.filtrationComplexityMode) {
+    case 'simple':
+      variantQueryStore.filtrationComplexityMode = 'normal'
+      break
+    case 'normal':
+      variantQueryStore.filtrationComplexityMode = 'advanced'
+      break
+    case 'advanced':
+      variantQueryStore.filtrationComplexityMode = 'dev'
+      break
+    case 'dev':
+      variantQueryStore.filtrationComplexityMode = 'simple'
+      break
+  }
+}
 
 /** Whether the preset set is loading. */
 const presetSetLoading = ref<boolean>(false)
@@ -136,6 +167,12 @@ onMounted(() => {
           @click="filterFormVisible = !filterFormVisible"
         >
           Toggle Form
+        </v-list-item>
+        <v-list-item
+          :prepend-icon="`mdi-numeric-${filtrationComplexityMode}-box-multiple`"
+          @click="toggleFiltrationComplexityMode()"
+        >
+          Toggle Complexity
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-card-text-outline"
