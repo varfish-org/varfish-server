@@ -3,6 +3,7 @@ import sys
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
+from drf_spectacular.utils import extend_schema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
@@ -38,6 +39,7 @@ from seqvars.serializers import (
     SeqvarsQueryPresetsLocusSerializer,
     SeqvarsQueryPresetsPhenotypePrioSerializer,
     SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetCopyFromSerializer,
     SeqvarsQueryPresetsSetDetailsSerializer,
     SeqvarsQueryPresetsSetSerializer,
     SeqvarsQueryPresetsSetVersionDetailsSerializer,
@@ -185,23 +187,27 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
-    @action(detail=True)
+    @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
+    @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
-        """Copy from another presets set."""
+        """Create a copy/clone of the given queryset."""
         source = None
         try:
-            source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
+            source = self.get_queryset().get(sodar_uuid=kwargs["querypresetsset"])
         except ObjectDoesNotExist:
             for value in (
                 create_seqvarspresetsset_short_read_genome(),
                 create_seqvarspresetsset_short_read_exome_modern(),
                 create_seqvarspresetsset_short_read_exome_legacy(),
             ):
-                if str(value.sodar_uuid) == kwargs["sodar_uuid"]:
+                if str(value.sodar_uuid) == kwargs["querypresetsset"]:
                     source = value
                     break
 
-        instance = source.clone_with_latest_version()
+        instance = source.clone_with_latest_version(
+            label=self.request.data.get("label"),
+            project=get_project(self.kwargs),
+        )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -271,8 +277,11 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
     lookup_url_kwarg = "querypresetssetversion"
     #: The default serializer class to use.
     serializer_class = SeqvarsQueryPresetsSetVersionSerializer
-    #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer}
+    #: Override ``retrieve`` and ``copy_from`` serializer to render all presets.
+    action_serializers = {
+        "retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+        "copy_from": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    }
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
@@ -294,6 +303,14 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
         # Set the current user from the request into the context.
         context["current_user"] = self.request.user
         return context
+
+    @action(methods=["post"], detail=True)
+    def copy_from(self, *args, **kwargs):
+        """Copy from another presets set version."""
+        source = self.get_queryset().get(sodar_uuid=kwargs["querypresetssetversion"])
+        instance = source.clone_with_presetsset(presetsset=source.presetsset)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class SeqvarsCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):

@@ -26,44 +26,46 @@ const logsVisible = ref<boolean>(false)
 
 <template>
   <v-app id="strucvar-filter-legacy">
-    <TheAppBar v-model:navbar-hidden="navbarHidden" />
-    <TheNavBar :navbar-hidden="navbarHidden">
-      <v-list-item
-        prepend-icon="mdi-arrow-left"
-        :to="{
-          name: 'case-detail-overview',
-          params: { project: projectUuid, case: caseUuid },
-        }"
-      >
-        Back to Case
-      </v-list-item>
-      <v-list-subheader class="text-uppercase"> SV Analysis </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-filter"
-        :to="{
-          name: 'variants-filter',
-          params: { case: caseUuid },
-        }"
-      >
-        Go To Variant Filtration
-      </v-list-item>
-      <v-list-subheader class="text-uppercase">
-        Analysis Info
-      </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-button-cursor"
-        @click="filterFormVisible = !filterFormVisible"
-      >
-        Toggle Form
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-card-text-outline"
-        @click="logsVisible = !logsVisible"
-      >
-        Toggle Logs
-      </v-list-item>
-    </TheNavBar>
     <v-main>
+      <TheAppBar v-model:navbar-hidden="navbarHidden" />
+      <TheNavBar :navbar-hidden="navbarHidden">
+        <v-list-item
+          prepend-icon="mdi-arrow-left"
+          :to="{
+            name: 'case-detail-overview',
+            params: { project: projectUuid, case: caseUuid },
+          }"
+        >
+          Back to Case
+        </v-list-item>
+        <v-list-subheader class="text-uppercase">
+          SV Analysis
+        </v-list-subheader>
+        <v-list-item
+          prepend-icon="mdi-filter"
+          :to="{
+            name: 'variants-filter',
+            params: { case: caseUuid },
+          }"
+        >
+          Go To Variant Filtration
+        </v-list-item>
+        <v-list-subheader class="text-uppercase">
+          Analysis Info
+        </v-list-subheader>
+        <v-list-item
+          prepend-icon="mdi-button-cursor"
+          @click="filterFormVisible = !filterFormVisible"
+        >
+          Toggle Form
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-card-text-outline"
+          @click="logsVisible = !logsVisible"
+        >
+          Toggle Logs
+        </v-list-item>
+      </TheNavBar>
       <SvFilterApp
         :project-uuid="props.projectUuid"
         :case-uuid="props.caseUuid"

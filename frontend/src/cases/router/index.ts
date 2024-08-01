@@ -16,6 +16,8 @@ import { Tab as CaseListTab } from '@/cases/views/CaseList/types'
 
 const CaseDetail = () => import('@/cases/views/CaseDetail/CaseDetail.vue')
 const CaseList = () => import('@/cases/views/CaseList/CaseList.vue')
+const SeqvarsPresetSets = () =>
+  import('@/seqvars/views/PresetSets/PresetSets.vue')
 
 const routes: RouteRecordRaw[] = [
   {
@@ -54,6 +56,16 @@ const routes: RouteRecordRaw[] = [
       projectUuid: route.params.project,
       currentTab: 'case-list-query-presets',
       presetSet: route.params.presetSet,
+    }),
+  },
+  {
+    name: 'seqvars-query-presets',
+    path: '/-/seqvars/:project/query-presets/:presetSet?/:presetSetVersion?',
+    component: SeqvarsPresetSets,
+    props: (route: RouteLocationNormalized) => ({
+      projectUuid: route.params.project,
+      presetSet: route.params.presetSet,
+      presetSetVersion: route.params.presetSetVersion,
     }),
   },
   {

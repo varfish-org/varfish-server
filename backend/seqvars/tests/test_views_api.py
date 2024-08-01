@@ -244,7 +244,8 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
 
     def test_list(self):
@@ -386,7 +387,10 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsquality = SeqvarsQueryPresetsQualityFactory(
             presetssetversion=self.presetssetversion
         )
@@ -519,7 +523,10 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
             presetssetversion=self.presetssetversion
         )
@@ -652,7 +659,10 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
             presetssetversion=self.presetssetversion
         )
@@ -785,7 +795,10 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetslocus = SeqvarsQueryPresetsLocusFactory(
             presetssetversion=self.presetssetversion
         )
@@ -918,7 +931,10 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1051,7 +1067,10 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1184,7 +1203,10 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetscolumns = SeqvarsQueryPresetsColumnsFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1317,7 +1339,10 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsclinvar = SeqvarsQueryPresetsClinvarFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1450,7 +1475,10 @@ class PredefinedQueryViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.predefinedquery = SeqvarsPredefinedQueryFactory(
             presetssetversion=self.presetssetversion
         )

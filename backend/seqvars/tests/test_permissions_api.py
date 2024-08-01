@@ -207,7 +207,8 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
 
     def test_list(self):
@@ -341,7 +342,9 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
                 sodar_uuid=querypresetssetversion_uuid
             ):
                 self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-                    sodar_uuid=querypresetssetversion_uuid, presetsset=self.querypresetsset
+                    sodar_uuid=querypresetssetversion_uuid,
+                    presetsset=self.querypresetsset,
+                    status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
                 )
 
         self.assert_response(url, good_users, 204, method="DELETE", cleanup_method=cleanup)
@@ -355,7 +358,8 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
             presetssetversion=self.querypresetssetversion
@@ -508,7 +512,8 @@ class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsquality = SeqvarsQueryPresetsQualityFactory(
             presetssetversion=self.querypresetssetversion
@@ -659,7 +664,8 @@ class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
             presetssetversion=self.querypresetssetversion
@@ -812,7 +818,8 @@ class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetslocus = SeqvarsQueryPresetsLocusFactory(
             presetssetversion=self.querypresetssetversion
@@ -961,7 +968,8 @@ class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
             presetssetversion=self.querypresetssetversion
@@ -1114,7 +1122,8 @@ class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
             presetssetversion=self.querypresetssetversion
@@ -1267,7 +1276,8 @@ class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetscolumns = SeqvarsQueryPresetsColumnsFactory(
             presetssetversion=self.querypresetssetversion
@@ -1418,7 +1428,8 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.querypresetsclinvar = SeqvarsQueryPresetsClinvarFactory(
             presetssetversion=self.querypresetssetversion
@@ -1569,7 +1580,8 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
         self.predefinedquery = SeqvarsPredefinedQueryFactory(
             presetssetversion=self.querypresetssetversion

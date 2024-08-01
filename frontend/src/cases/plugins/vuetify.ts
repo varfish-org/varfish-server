@@ -6,12 +6,13 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 // Composables
+import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 import { type ThemeDefinition, createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import { md3 } from 'vuetify/blueprints'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '../styles/main.scss'
+import { VNumberInput } from 'vuetify/lib/labs/components.mjs'
 
 const customLightTheme: ThemeDefinition = {
   dark: false,
@@ -48,8 +49,9 @@ const customLightTheme: ThemeDefinition = {
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export const vuetify = createVuetify({
-  blueprint: md3,
   components: {
+    VSnackbarQueue, // labs; needs to be explicitly added
+    VNumberInput, // labs; needs to be explicitly added
     ...components,
   },
   icons: {

@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -677,6 +678,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "VarFish API",
     "VERSION": varfish_version,
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
         "varfish.spectacular_utils.spectacular_preprocess_hook",

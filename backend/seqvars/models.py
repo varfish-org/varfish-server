@@ -111,101 +111,97 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
 
     # high impact
 
-    # skipped chromosome_number_variation
-    # skipped exon_loss_variant
-    #: Frameshift variant
-    FRAMESHIFT_VARIANT = "frameshift_variant"
-    #: Rare amino acid variant
-    RARE_AMINO_ACID_VARIANT = "rare_amino_acid_variant"
+    #: Transcript ablation.
+    TRANSCRIPT_ABLATION = "transcript_ablation"
+    #: Exon loss variant.
+    EXON_LOSS_VARIANT = "exon_loss_variant"
     #: Splice acceptor variant
     SPLICE_ACCEPTOR_VARIANT = "splice_acceptor_variant"
     #: Splice donor variant
     SPLICE_DONOR_VARIANT = "splice_donor_variant"
-    #: Start lost
-    START_LOST = "start_lost"
     #: Stop gained
     STOP_GAINED = "stop_gained"
+    #: Frameshift variant
+    FRAMESHIFT_VARIANT = "frameshift_variant"
     #: Stop lost
     STOP_LOST = "stop_lost"
-    # skipped transcript_ablation
+    #: Start lost
+    START_LOST = "start_lost"
+    #: Transcript amplification
+    TRANSCRIPT_AMPLIFICATION = "transcript_amplification"
 
     # moderate impact
 
-    # 3' UTR truncation
-    THREE_PRIME_UTR_TRUNCATION = "3_prime_UTR_truncation"
-    # 5' UTR truncation
-    FIVE_PRIME_UTR_TRUNCATION = "5_prime_UTR_truncation"
-    #: Conservative inframe deletion
-    CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
-    #: Conservative inframe insertion
-    CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
-    #: Disruptive inframe deletion
-    DISRUPTIVE_INFRAME_DELETION = "disruptive_inframe_deletion"
     #: Disruptive inframe insertion
     DISRUPTIVE_INFRAME_INSERTION = "disruptive_inframe_insertion"
+    #: Disruptive inframe deletion
+    DISRUPTIVE_INFRAME_DELETION = "disruptive_inframe_deletion"
+    #: Conservative inframe insertion
+    CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
+    #: Conservative inframe deletion
+    CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
+    #: In-frame indel.
+    IN_FRAME_INDEL = "inframe_indel"
     #: Missense variant
     MISSENSE_VARIANT = "missense_variant"
-    #: skipped regulatory_region_ablation
-    #: Splice region variant
-    SPLICE_REGION_VARIANT = "splice_region_variant"
-    # skipped TFBS_ablation
 
     # low impact
 
-    # skipped 5_prime_UTR_premature_start_codon_gain_variant
-    #: Initiator codon variant
-    INITIATOR_CODON_VARIANT = "initiator_codon_variant"
-    #: Start retained
-    START_RETAINED = "start_retained"
-    #: Stop retained variant
+    #: Splice donor 5th base variant.
+    SPLICE_DONOR_5TH_BASE_VARIANT = "splice_donor_5th_base_variant"
+    #: Splice region variant.
+    SPLICE_REGION_VARIANT = "splice_region_variant"
+    #: Splice donor region variant.
+    SPLICE_DONOR_REGION_VARIANT = "splice_donor_region_variant"
+    #: Splice polypyrimidine tract variant.
+    SPLICE_POLYPYRIMIDINE_TRACT_VARIANT = "splice_polypyrimidine_tract_variant"
+    #: Start retained variant.
+    START_RETAINED_VARIANT = "start_retained_variant"
+    #: Stop retained variant.
     STOP_RETAINED_VARIANT = "stop_retained_variant"
-    #: Synonymous variant
+    #: Synonymous variant.
     SYNONYMOUS_VARIANT = "synonymous_variant"
 
     # modifier
 
-    # skipped 3_prime_UTR_variant
-    # skipped 5_prime_UTR_variant
-    # skipped coding_sequence_variant
-    # skipped conserved_intergenic_variant
-    # skipped conserved_intron_variant
-    #: Downstream gene variant
+    #: Coding sequence variant.
+    CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
+    # #: Mature miRNA variant.
+    # MATURE_MIRNA_VARIANT = "mature_miRNA_variant"
+    #: 5' UTR exon variant.
+    FIVE_PRIME_UTR_EXON_VARIANT = "5_prime_UTR_exon_variant"
+    #: 5' UTR intron variant.
+    FIVE_PRIME_UTR_INTRON_VARIANT = "5_prime_UTR_intron_variant"
+    #: 3' UTR exon variant.
+    THREE_PRIME_UTR_EXON_VARIANT = "3_prime_UTR_exon_variant"
+    #: 3' UTR intron variant.
+    THREE_PRIME_UTR_INTRON_VARIANT = "3_prime_UTR_intron_variant"
+    #: Non-coding transcript exon variant.
+    NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"
+    #: Non-coding transcript intron variant.
+    NON_CODING_TRANSCRIPT_INTRON_VARIANT = "non_coding_transcript_intron_variant"
+    #: Upstream gene variant.
+    UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
+    #: Downstream gene variant.
     DOWNSTREAM_GENE_VARIANT = "downstream_gene_variant"
-    # skipped exon_variant
-    # skipped feature_elongation
-    # skipped feature_truncation
-    # skipped gene_variant
-    # skipped intergenic_variant
+    # #: TFBS ablation.
+    # TFBS_ABLATION = "TFBS_ablation"
+    # #: TFBS amplification.
+    # TFBS_AMPLIFICATION = "TFBS_amplification"
+    # #: TF binding site variant.
+    # TF_BINDING_SITE_VARIANT = "TF_binding_site_variant"
+    # #: Regulatory region ablation.
+    # REGULATORY_REGION_ABLATION = "regulatory_region_ablation"
+    # #: Regulatory region amplification.
+    # REGULATORY_REGION_AMPLIFICATION = "regulatory_region_amplification"
+    # #: Regulatory region variant.
+    # REGULATORY_REGION_VARIANT = "regulatory_region_variant"
+    #: Intergenic variant.
+    INTERGENIC_VARIANT = "intergenic_variant"
     #: Intron variant.
     INTRON_VARIANT = "intron_variant"
-    # skipped mature_miRNA_variant
-    # skipped miRNA
-    # skipped NMD_transcript_variant
-    #: Non-coding transcript exon variant
-    NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"
-    #: Non-coding transcript intron variant
-    NON_CODING_TRANSCRIPT_INTRON_VARIANT = "non_coding_transcript_intron_variant"
-    #: 5' UTR variant
-    FIVE_PRIME_UTR_VARIANT = "5_prime_UTR_variant"
-    #: Coding sequence variant
-    CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
-    # skipped regulatory_region_amplification
-    # skipped regulatory_region_variant
-    # skipped TF_binding_site_variant
-    # skipped TFBS_amplification
-    # skipped transcript_amplification
-    # skipped transcript_variant
-    #: Upstream gene variant
-    UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
-
-    #: EXTRA, not directly written by Mehari: 3' UTR variant + exon variant
-    THREE_PRIME_UTR_VARIANT_EXON_VARIANT = "3_prime_UTR_variant-exon_variant"
-    #: EXTRA, not directly written by Mehari: 5' UTR variant + exon variant
-    FIVE_PRIME_UTR_VARIANT_EXON_VARIANT = "5_prime_UTR_variant-exon_variant"
-    #: EXTRA, not directly written by Mehari: 3' UTR variant + intron_variant
-    THREE_PRIME_UTR_VARIANT_INTRON_VARIANT = "3_prime_UTR_variant-intron_variant"
-    #: EXTRA, not directly written by Mehari: 5' UTR variant + intron_variant
-    FIVE_PRIME_UTR_VARIANT_INTRON_VARIANT = "5_prime_UTR_variant-intron_variant"
+    # #: Gene variant.
+    # GENE_VARIANT = "gene_variant"
 
 
 class SeqvarsConsequenceSettingsBase(models.Model):
@@ -448,13 +444,18 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     )
 
     @transaction.atomic
-    def clone_with_latest_version(self) -> "SeqvarsQueryPresetsSet":
-        # Get label of presets set to create.
-        for i in range(1, 100):
-            label = f"{self.label} (copy {i})"
-            if not SeqvarsQueryPresetsSet.objects.filter(
-                project=self.project, label=label
-            ).exists():
+    def clone_with_latest_version(
+        self, *, project: Project, label: typing.Optional[str] = None
+    ) -> "SeqvarsQueryPresetsSet":
+        # Get label of presets set to create (use given label by default).
+        for i in range(0, 100):
+            if i == 0 and not label:
+                # first try label from argument if given
+                continue
+            elif i > 0:
+                # else, try to find a unique label
+                label = f"{self.label} (copy {i})"
+            if not SeqvarsQueryPresetsSet.objects.filter(project=project, label=label).exists():
                 break
         # Compute rank.
         rank = SeqvarsQueryPresetsSet.objects.filter(project=self.project).count() + 1
@@ -463,10 +464,10 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
             label=label,
             rank=rank,
             description=self.description,
-            project=self.project,
+            project=project,
         )
         if self.versions.exists():
-            self.versions.first().clone_with_presetsset(result)
+            self.versions.first().clone_with_presetsset(presetsset=result)
         return result
 
     def __str__(self):
@@ -512,15 +513,20 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
 
     @transaction.atomic
     def clone_with_presetsset(
-        self, presetsset: SeqvarsQueryPresetsSet
+        self,
+        *,
+        presetsset: SeqvarsQueryPresetsSet,
     ) -> "SeqvarsQueryPresetsSetVersion":
         result = SeqvarsQueryPresetsSetVersion.objects.create(
             presetsset=presetsset,
-            version_major=1,
-            version_minor=0,
+            version_major=self.version_major,
+            version_minor=self.version_minor + 1,
             status=self.STATUS_DRAFT,
         )
 
+        # First, handle the "normal" presets categories.  A side-effect of the
+        # code below is that the UUIDs of the presets are changed and we rely
+        # on this when createing the predefined queries.
         for key in (
             "seqvarsquerypresetsfrequency_set",
             "seqvarsquerypresetsvariantprio_set",
@@ -530,15 +536,48 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
             "seqvarsquerypresetsconsequence_set",
             "seqvarsquerypresetsquality_set",
             "seqvarsquerypresetsphenotypeprio_set",
-            "seqvarspredefinedquery_set",
         ):
             for obj in getattr(self, key, []).all():
                 obj.pk = None
                 obj.id = None
                 obj._state.adding = True
-                obj.sodar_uuid = uuid_object.uuid4()
+                new_uuid = uuid_object.uuid4()
+                obj.sodar_uuid = new_uuid
                 obj.presetssetversion = result
                 obj.save()
+
+        # Then, handle the predefined queries, using the UUID mapping built above.
+        for obj in self.seqvarspredefinedquery_set.all():
+            obj.pk = None
+            obj.id = None
+            obj._state.adding = True
+            obj.sodar_uuid = uuid_object.uuid4()
+            obj.presetssetversion = result
+            obj.quality = SeqvarsQueryPresetsQuality.objects.get(
+                sodar_uuid=obj.quality.sodar_uuid,
+            )
+            obj.frequency = SeqvarsQueryPresetsFrequency.objects.get(
+                sodar_uuid=obj.frequency.sodar_uuid,
+            )
+            obj.consequence = SeqvarsQueryPresetsConsequence.objects.get(
+                sodar_uuid=obj.consequence.sodar_uuid,
+            )
+            obj.locus = SeqvarsQueryPresetsLocus.objects.get(
+                sodar_uuid=obj.locus.sodar_uuid,
+            )
+            obj.phenotypeprio = SeqvarsQueryPresetsPhenotypePrio.objects.get(
+                sodar_uuid=obj.phenotypeprio.sodar_uuid,
+            )
+            obj.variantprio = SeqvarsQueryPresetsVariantPrio.objects.get(
+                sodar_uuid=obj.variantprio.sodar_uuid,
+            )
+            obj.clinvar = SeqvarsQueryPresetsClinvar.objects.get(
+                sodar_uuid=obj.clinvar.sodar_uuid,
+            )
+            obj.columns = SeqvarsQueryPresetsColumns.objects.get(
+                sodar_uuid=obj.columns.sodar_uuid,
+            )
+            obj.save()
 
         return result
 

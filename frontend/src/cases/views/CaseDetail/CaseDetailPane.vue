@@ -13,7 +13,7 @@ import { useSvResultSetStore } from '@/svs/stores/svResultSet'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { overlayShow, overlayMessage } from '@/cases/common'
-import { useSeqvarPresetsStore } from '@/seqvars/stores/presets'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
 import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { useCtxStore } from '@/varfish/stores/ctx'
@@ -55,7 +55,7 @@ const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
 
-const seqvarPresetsStore = useSeqvarPresetsStore()
+const seqvarPresetsStore = useSeqvarsPresetsStore()
 const caseAnalysisStore = useCaseAnalysisStore()
 const seqvarsQueryStore = useSeqvarsQueryStore()
 
