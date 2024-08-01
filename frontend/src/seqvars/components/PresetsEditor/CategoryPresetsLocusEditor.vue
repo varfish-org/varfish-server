@@ -442,9 +442,9 @@ watch(data, () => updateLocusPresetsDebounced(), { deep: true })
                 :text="`${gene.symbol} / ${gene.hgnc_id} / ${gene.ensembl_id} / ${gene.entrez_id}`"
                 location="bottom"
               >
-                <template #activator="{ props }">
+                <template #activator="{ props: innerProps }">
                   <v-chip
-                    v-bind="props"
+                    v-bind="innerProps"
                     closable
                     class="ma-1"
                     :text="gene.symbol"

@@ -106,6 +106,7 @@ enum ConsequenceGroup {
   SPLICING = 'splicing',
   CODING = 'coding',
   UTR_INTRONIC = 'utr_intronic',
+  OFF_EXOME = 'off_exome',
   NON_CODING = 'non_coding',
   NONSENSE = 'nonsense',
 }
@@ -128,29 +129,32 @@ interface ConsequenceChoice {
 
 /** Consequence choices in "coding" category. */
 const codingConsequences: ConsequenceChoice[] = [
+  { label: 'transcript ablation', key: 'transcript_ablation' },
+  { label: 'transcript amplification', key: 'transcript_amplification' },
+  { label: 'exon loss', key: 'exon_loss_variant' },
   { label: 'frameshift variant', key: 'frameshift_variant' },
-  { label: 'rare amino acid', key: 'rare_amino_acid_variant' },
   { label: 'start lost', key: 'start_lost' },
   { label: 'stop gained', key: 'stop_gained' },
   { label: 'stop lost', key: 'stop_lost' },
   {
-    label: 'conservative inframe deletion',
-    key: 'conservative_inframe_deletion',
+    label: 'disruptive inframe insertion',
+    key: 'disruptive_inframe_insertion',
   },
+  { label: 'disruptive inframe deletion', key: 'disruptive_inframe_deletion' },
   {
     label: 'conservative inframe insertion',
     key: 'conservative_inframe_insertion',
   },
-  { label: 'disruptive inframe deletion', key: 'disruptive_inframe_deletion' },
   {
-    label: 'disruptive inframe insertion',
-    key: 'disruptive_inframe_insertion',
+    label: 'conservative inframe deletion',
+    key: 'conservative_inframe_deletion',
   },
+  { label: 'in-frame indel', key: 'inframe_indel' },
   { label: 'missense', key: 'missense_variant' },
-  { label: 'initiator codon synonymous', key: 'initiator_codon_variant' },
-  { label: 'start retained', key: 'start_retained' },
+  { label: 'start retained', key: 'start_retained_variant' },
   { label: 'stop retained', key: 'stop_retained_variant' },
   { label: 'synonymous', key: 'synonymous_variant' },
+  { label: 'coding', key: 'coding_sequence_variant' },
 ]
 
 /** Consequence choices in "off-exomes" category. */
@@ -158,25 +162,30 @@ const offExomesConsequences: ConsequenceChoice[] = [
   { label: 'upstream', key: 'upstream_gene_variant' },
   { label: 'downstream', key: 'downstream_gene_variant' },
   { label: 'intronic', key: 'intron_variant' },
+  { label: 'intergenic', key: 'intergenic_variant' },
 ]
 
 /** Consequence choices in "non-coding" category. */
 const nonCodingConsequences: ConsequenceChoice[] = [
+  { label: "5' UTR exon variant", key: '5_prime_UTR_exon_variant' },
+  { label: "5' UTR intron variant", key: '5_prime_UTR_intron_variant' },
+  { label: "3' UTR exon variant", key: '3_prime_UTR_exon_variant' },
+  { label: "3' UTR intron variant", key: '3_prime_UTR_intron_variant' },
   { label: 'non-coding exonic', key: 'non_coding_transcript_exon_variant' },
   { label: 'non-coding intronic', key: 'non_coding_transcript_intron_variant' },
-  { label: "5' UTR truncation", key: '5_prime_UTR_truncation' },
-  { label: "3' UTR truncation", key: '3_prime_UTR_truncation' },
-  { label: "5' UTR exonic", key: '5_prime_UTR_variant-exon_variant' },
-  { label: "3' UTR exonic", key: '3_prime_UTR_variant-exon_variant' },
-  { label: "5' UTR intronic", key: '5_prime_UTR_variant-intron_variant' },
-  { label: "3' UTR intronic", key: '3_prime_UTR_variant-intron_variant' },
 ]
 
 /** Consequence choices in "splicing" category. */
 const splicingConsequences: ConsequenceChoice[] = [
   { label: 'splice acceptor (-1, -2)', key: 'splice_acceptor_variant' },
   { label: 'splice donor (+1, +2)', key: 'splice_donor_variant' },
+  { label: 'splice donor 5th-base', key: 'splice_donor_5th_base_variant' },
   { label: 'splice region (-3, +3, ..., +8)', key: 'splice_region_variant' },
+  { label: 'splice donor region', key: 'splice_donor_region_variant' },
+  {
+    label: 'splice polypyrimidine tract variant',
+    key: 'splice_polypyrimidine_tract_variant',
+  },
 ]
 
 /** Defined consequence groups. */
@@ -194,18 +203,19 @@ const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
     label: 'nonsynonymous',
     key: ConsequenceGroup.NONSYNONYMOUS,
     valueKeys: [
+      'transcript_ablation',
+      'transcript_amplification',
+      'exon_loss_variant',
       'frameshift_variant',
-      'rare_amino_acid_variant',
-      'splice_acceptor_variant',
-      'splice_donor_variant',
       'start_lost',
       'stop_gained',
       'stop_lost',
-      'conservative_inframe_deletion',
-      'conservative_inframe_insertion',
       'disruptive_inframe_deletion',
       'disruptive_inframe_insertion',
+      'conservative_inframe_insertion',
+      'conservative_inframe_deletion',
       'missense_variant',
+      'coding_sequence_variant',
     ],
   },
   {
@@ -215,28 +225,27 @@ const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
       'splice_acceptor_variant',
       'splice_donor_variant',
       'splice_region_variant',
+      'splice_donor_5th_base_variant',
+      'splice_donor_region_variant',
+      'splice_polypyrimidine_tract_variant',
     ],
   },
   {
     label: 'coding',
     key: ConsequenceGroup.CODING,
     valueKeys: [
+      'transcript_ablation',
+      'transcript_amplification',
+      'exon_loss_variant',
       'frameshift_variant',
-      'rare_amino_acid_variant',
-      'splice_acceptor_variant',
-      'splice_donor_variant',
       'start_lost',
       'stop_gained',
       'stop_lost',
-      'conservative_inframe_deletion',
-      'conservative_inframe_insertion',
       'disruptive_inframe_deletion',
       'disruptive_inframe_insertion',
+      'conservative_inframe_insertion',
+      'conservative_inframe_deletion',
       'missense_variant',
-      'splice_region_variant',
-      'initiator_codon_variant',
-      'start_retained',
-      'stop_retained_variant',
       'synonymous_variant',
     ],
   },
@@ -244,13 +253,20 @@ const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
     label: 'UTR / intronic',
     key: ConsequenceGroup.UTR_INTRONIC,
     valueKeys: [
-      '3_prime_UTR_truncation',
-      '5_prime_UTR_truncation',
+      '5_prime_UTR_exon_variant',
+      '5_prime_UTR_intron_variant',
+      '3_prime_UTR_exon_variant',
+      '3_prime_UTR_intron_variant',
+    ],
+  },
+  {
+    label: 'off-exome',
+    key: ConsequenceGroup.OFF_EXOME,
+    valueKeys: [
+      'upstream_gene_variant',
+      'downstream_gene_variant',
       'intron_variant',
-      '3_prime_UTR_variant-exon_variant',
-      '5_prime_UTR_variant-exon_variant',
-      '3_prime_UTR_variant-intron_variant',
-      '5_prime_UTR_variant-intron_variant',
+      'intergenic_variant',
     ],
   },
   {
@@ -265,8 +281,9 @@ const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
     label: 'nonsense',
     key: ConsequenceGroup.NONSENSE,
     valueKeys: [
+      'transcript_ablation',
+      'exon_loss_variant',
       'frameshift_variant',
-      'rare_amino_acid_variant',
       'splice_acceptor_variant',
       'splice_donor_variant',
       'start_lost',

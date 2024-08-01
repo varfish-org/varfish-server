@@ -3,7 +3,7 @@ import { onMounted, watch } from 'vue'
 
 import SeqvarsFiltration from './views/SeqvarsFiltration.vue'
 import { useCaseAnalysisStore } from './stores/caseAnalysis'
-import { useSeqvarPresetsStore } from './stores/presets'
+import { useSeqvarsPresetsStore } from './stores/presets'
 import { useSeqvarsQueryStore } from './stores/query'
 import { computed } from 'vue'
 
@@ -15,7 +15,7 @@ const appContext = JSON.parse(
 
 const props = defineProps<{ caseUuid: string }>()
 
-const seqvarPresetsStore = useSeqvarPresetsStore()
+const seqvarsPresetsStore = useSeqvarsPresetsStore()
 const caseAnalysisStore = useCaseAnalysisStore()
 const seqvarsQueryStore = useSeqvarsQueryStore()
 
@@ -28,7 +28,7 @@ const refreshStores = async () => {
     await Promise.all([
       (async () => {
         await Promise.all([
-          seqvarPresetsStore.initialize(appContext.project.sodar_uuid),
+          seqvarsPresetsStore.initialize(appContext.project.sodar_uuid),
           caseAnalysisStore.initialize(
             appContext.project.sodar_uuid,
             props.caseUuid,
@@ -39,7 +39,7 @@ const refreshStores = async () => {
           props.caseUuid,
           caseAnalysisStore.currentAnalysis!.sodar_uuid,
           caseAnalysisStore.currentSession!.sodar_uuid,
-          seqvarPresetsStore.presetSets.values().next().value.sodar_uuid,
+          seqvarsPresetsStore.presetSets.values().next().value.sodar_uuid,
         )
       })(),
     ])
@@ -56,7 +56,7 @@ watch(
 )
 
 const presets = computed(() =>
-  [...seqvarPresetsStore.presetSetVersions.values()].at(0),
+  [...seqvarsPresetsStore.presetSetVersions.values()].at(0),
 )
 </script>
 

@@ -32,11 +32,56 @@ export class AnnonarsApiClient {
    * @param chunkSize How many IDs to send in one request.
    * @returns Promise with an array of gene information objects.
    */
-  async lookupGenes(
+  async retrieveGeneInfos(
     hgncIds: Array<string>,
     chunkSize?: number,
-  ): Promise<Array<GeneNames>> {
+  ): Promise<Array<any>> {
     const hgncIdChunks = chunks(hgncIds, chunkSize ?? this.defaultChunkSize)
+
+    const promises = hgncIdChunks.map((chunk) => {
+      const url = `${this.baseUrl}/genes/info?hgnc_id=${chunk.join(',')}`
+
+      const headers: { [key in string]: string } = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      }
+      if (this.csrfToken) {
+        headers['X-CSRFToken'] = this.csrfToken
+      }
+
+      return fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers,
+      })
+    })
+
+    const responses = await Promise.all(promises)
+    const results = await Promise.all(
+      responses.map((response) => response.json()),
+    )
+
+    const result: any[] = []
+    results.forEach((chunk) => {
+      for (const value of Object.values(chunk.genes)) {
+        result.push(value)
+      }
+    })
+    return result
+  }
+
+  /**
+   * Lookup gene names via annonars REST API.
+   *
+   * @param query Array of HGNC IDs to use, e.g., `["HGNC:26467"]`.
+   * @param chunkSize How many IDs to send in one request.
+   * @returns Promise with an array of gene information objects.
+   */
+  async lookupGenes(
+    query: Array<string>,
+    chunkSize?: number,
+  ): Promise<Array<GeneNames>> {
+    const hgncIdChunks = chunks(query, chunkSize ?? this.defaultChunkSize)
 
     const promises = hgncIdChunks.map((chunk) => {
       const url = `${this.baseUrl}/genes/lookup?q=${chunk.join(',')}`

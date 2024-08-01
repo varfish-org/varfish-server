@@ -3355,7 +3355,6 @@ paths:
         name: querypresetsset
         schema:
           type: string
-          format: uuid
         required: true
       tags:
       - seqvars
@@ -12222,36 +12221,39 @@ components:
         type: string
         title: SeqvarsVariantConsequenceChoice
         enum:
-        - frameshift_variant
-        - rare_amino_acid_variant
+        - transcript_ablation
+        - exon_loss_variant
         - splice_acceptor_variant
         - splice_donor_variant
-        - start_lost
         - stop_gained
+        - frameshift_variant
         - stop_lost
-        - 3_prime_UTR_truncation
-        - 5_prime_UTR_truncation
-        - conservative_inframe_deletion
-        - conservative_inframe_insertion
-        - disruptive_inframe_deletion
+        - start_lost
+        - transcript_amplification
         - disruptive_inframe_insertion
+        - disruptive_inframe_deletion
+        - conservative_inframe_insertion
+        - conservative_inframe_deletion
+        - inframe_indel
         - missense_variant
+        - splice_donor_5th_base_variant
         - splice_region_variant
-        - initiator_codon_variant
-        - start_retained
+        - splice_donor_region_variant
+        - splice_polypyrimidine_tract_variant
+        - start_retained_variant
         - stop_retained_variant
         - synonymous_variant
-        - downstream_gene_variant
-        - intron_variant
+        - coding_sequence_variant
+        - 5_prime_UTR_exon_variant
+        - 5_prime_UTR_intron_variant
+        - 3_prime_UTR_exon_variant
+        - 3_prime_UTR_intron_variant
         - non_coding_transcript_exon_variant
         - non_coding_transcript_intron_variant
-        - 5_prime_UTR_variant
-        - coding_sequence_variant
         - upstream_gene_variant
-        - 3_prime_UTR_variant-exon_variant
-        - 5_prime_UTR_variant-exon_variant
-        - 3_prime_UTR_variant-intron_variant
-        - 5_prime_UTR_variant-intron_variant
+        - downstream_gene_variant
+        - intergenic_variant
+        - intron_variant
     SeqvarsVariantTypeChoiceList:
       type: array
       items:
