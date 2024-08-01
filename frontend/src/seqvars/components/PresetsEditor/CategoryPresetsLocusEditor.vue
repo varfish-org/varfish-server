@@ -1,35 +1,72 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsLocus } from '@varfish-org/varfish-api/lib'
 import { genomeRegionToString, GenomeRegion, parseGenomeRegion } from './lib'
-import { PropType, ref } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { debounce } from 'lodash'
+import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { VForm } from 'vuetify/lib/components/index.mjs'
+import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current preset set version. */
+    presetSetVersion?: string
+    /** UUID of the query presets locus */
+    locusPresets?: string
     /** Whether the editor is readonly. */
     readonly: boolean
   }>(),
   { readonly: false },
 )
 
-/** The locus presets to use in this editor. */
-const model = defineModel({
-  type: Object as PropType<SeqvarsQueryPresetsLocus>,
+/** This component's events. */
+const emit = defineEmits<{
+  /** Emit event to show a message. */
+  message: [message: SnackbarMessage]
+}>()
+
+/** Store with the presets. */
+const seqvarsPresetsStore = useSeqvarsPresetsStore()
+
+/** The data that is to be edited by this component; component state. */
+const data = ref<SeqvarsQueryPresetsLocus | undefined>(undefined)
+
+/** Shortcut to the number of locus presets, used for rank. */
+const maxRank = computed<number>(() => {
+  if (props.presetSetVersion === undefined) {
+    return 0
+  }
+  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
+    props.presetSetVersion,
+  )
+  if (!presetSetVersion) {
+    return 0
+  }
+  return presetSetVersion.seqvarsquerypresetslocus_set.length
 })
 
-/** Whether to show editor for genes or loci; component state. */
-const editorToShow = ref<'genes' | 'loci'>(
-  (model.value?.genes?.length ?? 0) > 0 ? 'genes' : 'loci',
-)
+/** Rules for data validation. */
+const rules = {
+  required: (value: any) => !!value || 'Required.',
+}
+
+/** Ref to the form. */
+const formRef = ref<VForm | undefined>(undefined)
 
 /** Genome regions text area; component state. */
 const genomeRegionsText = ref<string>('')
-
 /** Error message(s) for genome regions; component state. */
 const genomeRegionsErrors = ref<string>('')
 /** Hint(s) for genome regions; component state. */
 const genomeRegionsHint = ref<string>('')
+/** Whether to show editor for genes or loci; component state. */
+const editorToShow = ref<'genes' | 'loci'>(
+  (data.value?.genes?.length ?? 0) > 0 ? 'genes' : 'loci',
+)
 
 /** Handler for parsing genomic regions on clicking the button. */
 const parseGenomeRegions = async () => {
@@ -37,29 +74,29 @@ const parseGenomeRegions = async () => {
   genomeRegionsErrors.value = ''
   genomeRegionsHint.value = ''
 
-  // Guard against empty model or genome regions.
-  if (model?.value?.genome_regions?.length === undefined) {
-    genomeRegionsErrors.value = 'Invalid model state (should never happen)'
+  // Guard against empty data or genome regions.
+  if (data?.value?.genome_regions?.length === undefined) {
+    genomeRegionsErrors.value = 'Invalid data state (should never happen)'
     return
   }
   // Get genome regions string from text area.
   const genomeRegionsArr = genomeRegionsText.value
     .split(/[;\s+]/)
     .filter((r) => r.length > 0)
-  // Loop over genome regions, parse it, add to model and/or generate error message.
+  // Loop over genome regions, parse it, add to data and/or generate error message.
   const invalidGenomeRegions: string[] = []
   for (const genomeRegion of genomeRegionsArr) {
     try {
       const parsed = parseGenomeRegion(genomeRegion)
-      // Only add to model if not already present; this also ensures that
+      // Only add to data if not already present; this also ensures that
       // the text description is unique and can be used as `:key` below.
       if (
-        !model.value.genome_regions.find(
+        !data.value.genome_regions.find(
           (r: GenomeRegion) =>
             genomeRegionToString(r) === genomeRegionToString(parsed),
         )
       ) {
-        model.value.genome_regions.push(parsed)
+        data.value.genome_regions.push(parsed)
       } else {
         genomeRegionsHint.value = 'Skipped already present genome regions.'
       }
@@ -73,22 +110,196 @@ const parseGenomeRegions = async () => {
   genomeRegionsText.value = invalidGenomeRegions.join(' ')
 }
 
-/** Handler for removing genome region from model on clicking "close" in chip. */
+/** Handler for removing genome region from data on clicking "close" in chip. */
 const removeGenomeRegion = async (index: number) => {
-  // Guard against empty model or genome regions.
-  if (!model?.value?.genome_regions?.length) {
+  // Guard against empty data or genome regions.
+  if (!data?.value?.genome_regions?.length) {
     return
   }
-  // Remove genome region from model by index.
-  model.value.genome_regions.splice(index, 1)
+  // Remove genome region from data by index.
+  data.value.genome_regions.splice(index, 1)
 }
+
+/** Fill the data from the store. */
+const fillData = () => {
+  // Guard against missing preset set version or locus.
+  if (
+    props.presetSetVersion === undefined ||
+    props.locusPresets === undefined
+  ) {
+    return
+  }
+  // Attempt to obtain the model from the store.
+  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
+    props.presetSetVersion,
+  )
+  if (!presetSetVersion) {
+    emit('message', {
+      text: 'Failed to find preset set version.',
+      color: 'error',
+    })
+    return
+  }
+  const locusPresets = presetSetVersion?.seqvarsquerypresetslocus_set.find(
+    (elem) => elem.sodar_uuid === props.locusPresets,
+  )
+  if (!locusPresets) {
+    emit('message', {
+      text: 'Failed to find locus presets.',
+      color: 'error',
+    })
+    return
+  }
+
+  data.value = { ...locusPresets }
+}
+
+/**
+ * Update the locus presets in the store.
+ *
+ * Used directly when changing the rank (to minimize UI delay).
+ *
+ * @param rankDelta The delta to apply to the rank, if any.
+ */
+const updateLocusPresets = async (rankDelta: number = 0) => {
+  // Guard against missing/readonly/non-draft preset set version or missing locus.
+  if (
+    props.locusPresets === undefined ||
+    props.presetSetVersion === undefined ||
+    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
+      props.locusPresets,
+    ) ||
+    seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
+      ?.status !== PresetSetVersionState.DRAFT ||
+    data.value === undefined
+  ) {
+    return
+  }
+
+  // If necessary, update the rank of the other item as well via API and set
+  // the new rank to `data.value.rank`.
+  if (rankDelta !== 0) {
+    const version = seqvarsPresetsStore.presetSetVersions.get(
+      props.presetSetVersion,
+    )
+    if (
+      version === undefined ||
+      data.value.rank === undefined ||
+      data.value.rank + rankDelta < 1 ||
+      data.value.rank + rankDelta > maxRank.value
+    ) {
+      // Guard against invalid rank and version.
+      return
+    }
+    // Find the next smaller or larger item, sort by rank.
+    const others = version.seqvarsquerypresetslocus_set.filter((elem) => {
+      if (elem.sodar_uuid === props.locusPresets) {
+        return false
+      }
+      if (rankDelta < 0) {
+        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
+      } else {
+        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
+      }
+    })
+    others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    // Then, pick the other item to flip ranks with.
+    const other = others[rankDelta < 0 ? others.length - 1 : 0]
+    // Store the other's rank in `data.value.rank` and update other via API.
+    if (other) {
+      const dataRank = data.value.rank
+      data.value.rank = other.rank
+      other.rank = dataRank
+      try {
+        await seqvarsPresetsStore.updateQueryPresetsLocus(
+          props.presetSetVersion,
+          other,
+        )
+      } catch (error) {
+        emit('message', {
+          text: 'Failed to update locus presets rank.',
+          color: 'error',
+        })
+      }
+    }
+  }
+
+  // Guard against invalid form data.
+  const validateResult = await formRef.value?.validate()
+  if (validateResult?.valid !== true) {
+    return
+  }
+  try {
+    await seqvarsPresetsStore.updateQueryPresetsLocus(
+      props.presetSetVersion,
+      data.value,
+    )
+  } catch (error) {
+    emit('message', {
+      text: 'Failed to update locus presets.',
+      color: 'error',
+    })
+  }
+}
+
+/**
+ * Update the locus presets in the store -- debounced.
+ *
+ * Used for updating non-rank fields so that the UI does not lag.
+ */
+const updateLocusPresetsDebounced = debounce(
+  updateLocusPresets,
+  CATEGORY_PRESETS_DEBOUNCE_WAIT,
+  { leading: true, trailing: true },
+)
+
+// Load model data from store when the UUID changes.
+watch(
+  () => props.locusPresets,
+  () => fillData(),
+)
+// Also, load model data from store when mounted.
+onMounted(() => fillData())
+
+// Watch the data and trigger a store update.
+watch(data, () => updateLocusPresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h4>Locus Presets &raquo;{{ model?.label ?? 'UNDEFINED' }}&laquo;</h4>
-  <v-skeleton-loader v-if="!model" type="article" />
-  <v-form v-else>
-    <v-radio-group v-model="editorToShow" inline>
+  <h4>Locus Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
+  <v-skeleton-loader v-if="!data" type="article" />
+  <v-form v-else ref="formRef">
+    <v-text-field
+      v-model="data.label"
+      :rules="[rules.required]"
+      label="Label"
+      clearable
+      :disabled="readonly"
+    />
+    <div>
+      <v-btn-group variant="outlined" divided>
+        <v-btn
+          prepend-icon="mdi-arrow-up-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank <= 1
+          "
+          @click="updateLocusPresets(-1)"
+        >
+          Move Up
+        </v-btn>
+        <v-btn
+          prepend-icon="mdi-arrow-down-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank >= maxRank
+          "
+          @click="updateLocusPresets(1)"
+        >
+          Move Down
+        </v-btn>
+      </v-btn-group>
+    </div>
+
+    <v-radio-group v-model="editorToShow" inline class="pt-3">
       <v-radio label="Gene List" value="genes"></v-radio>
       <v-radio label="Genomic Regions" value="loci"></v-radio>
     </v-radio-group>
@@ -117,7 +328,7 @@ const removeGenomeRegion = async (index: number) => {
             @click="parseGenomeRegions()"
           ></v-btn>
           <div class="border-sm rounded h-100 bg-surface mt-3 pa-1">
-            <span v-for="(region, idx) in model?.genome_regions ?? []">
+            <span v-for="(region, idx) in data?.genome_regions ?? []">
               <v-chip
                 :key="genomeRegionToString(region)"
                 closable

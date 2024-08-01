@@ -3,11 +3,11 @@ import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
 import { computed, onMounted, ref, watch } from 'vue'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { GnomadFreqs, MitochondrialFreqs, InhouseFreqs } from './types'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets';
-import { VForm } from 'vuetify/lib/components/index.mjs';
-import { PresetSetVersionState } from '@/seqvars/stores/presets/types';
-import debounce from 'lodash.debounce';
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib';
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { VForm } from 'vuetify/lib/components/index.mjs'
+import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
+import debounce from 'lodash.debounce'
+import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 
 /** This component's props. */
 const props = withDefaults(
@@ -48,6 +48,11 @@ const maxRank = computed<number>(() => {
   return presetSetVersion.seqvarsquerypresetsfrequency_set.length
 })
 
+/** Rules for data validation. */
+const rules = {
+  required: (value: any) => !!value || 'Required.',
+}
+
 /** Ref to the form. */
 const formRef = ref<VForm | undefined>(undefined)
 
@@ -71,9 +76,10 @@ const fillData = () => {
     })
     return
   }
-  const frequencyPresets = presetSetVersion?.seqvarsquerypresetsfrequency_set.find(
-    (elem) => elem.sodar_uuid === props.frequencyPresets,
-  )
+  const frequencyPresets =
+    presetSetVersion?.seqvarsquerypresetsfrequency_set.find(
+      (elem) => elem.sodar_uuid === props.frequencyPresets,
+    )
   if (!frequencyPresets) {
     emit('message', {
       text: 'Failed to find frequency presets.',
@@ -113,7 +119,7 @@ const inhouse = computed<InhouseFreqs>(
  *
  * @param rankDelta The delta to apply to the rank, if any.
  */
- const updateFrequencyPresets = async (rankDelta: number = 0) => {
+const updateFrequencyPresets = async (rankDelta: number = 0) => {
   // Guard against missing/readonly/non-draft preset set version or missing frequency.
   if (
     props.frequencyPresets === undefined ||
@@ -221,7 +227,38 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
   <h4>Frequency Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
 
   <v-skeleton-loader v-if="!data" type="article" />
-  <v-form v-else>
+  <v-form v-else ref="formRef">
+    <v-text-field
+      v-model="data.label"
+      :rules="[rules.required]"
+      label="Label"
+      clearable
+      :disabled="readonly"
+    />
+
+    <div>
+      <v-btn-group variant="outlined" divided>
+        <v-btn
+          prepend-icon="mdi-arrow-up-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank <= 1
+          "
+          @click="updateFrequencyPresets(-1)"
+        >
+          Move Up
+        </v-btn>
+        <v-btn
+          prepend-icon="mdi-arrow-down-circle-outline"
+          :disabled="
+            props.readonly || data.rank === undefined || data.rank >= maxRank
+          "
+          @click="updateFrequencyPresets(1)"
+        >
+          Move Down
+        </v-btn>
+      </v-btn-group>
+    </div>
+
     <v-table density="compact">
       <thead>
         <tr>

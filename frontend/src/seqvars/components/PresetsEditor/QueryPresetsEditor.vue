@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import {
-  SeqvarsQueryPresetsSetVersionDetails,
-} from '@varfish-org/varfish-api/lib'
+import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
 import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
 import CategoryPresetsFrequencyEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsFrequencyEditor.vue'
