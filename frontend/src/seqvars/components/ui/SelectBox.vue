@@ -70,7 +70,7 @@ defineEmits<{ 'update:search': [string] }>()
       <template #item="{ item, props }">
         <v-list-item v-bind="props" :title="''">
           <SelectItem
-            :label="props.title.label"
+            :label="(props.title as any).label"
             :sublabel="item.value"
             style="padding: 4px 16px; cursor: pointer"
           />
