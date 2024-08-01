@@ -528,6 +528,9 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
             status=self.STATUS_DRAFT,
         )
 
+        # First, handle the "normal" presets categories.  Build a UUID mapping
+        # from old to new.
+        uuid_mapping: dict[uuid_object.UUID, uuid_object.UUID] = {}
         for key in (
             "seqvarsquerypresetsfrequency_set",
             "seqvarsquerypresetsvariantprio_set",
@@ -537,15 +540,49 @@ class SeqvarsQueryPresetsSetVersion(BaseModel, ClusterableModel):
             "seqvarsquerypresetsconsequence_set",
             "seqvarsquerypresetsquality_set",
             "seqvarsquerypresetsphenotypeprio_set",
-            "seqvarspredefinedquery_set",
         ):
             for obj in getattr(self, key, []).all():
                 obj.pk = None
                 obj.id = None
                 obj._state.adding = True
-                obj.sodar_uuid = uuid_object.uuid4()
+                new_uuid = uuid_object.uuid4()
+                uuid_mapping[obj.sodar_uuid] = new_uuid
+                obj.sodar_uuid = new_uuid
                 obj.presetssetversion = result
                 obj.save()
+
+        # Then, handle the predefined queries, using the UUID mapping built above.
+        for obj in self.seqvarspredefinedquery_set.all():
+            obj.pk = None
+            obj.id = None
+            obj._state.adding = True
+            obj.sodar_uuid = uuid_object.uuid4()
+            obj.presetssetversion = result
+            obj.quality = SeqvarsQueryPresetsQuality.objects.get(
+                sodar_uuid=uuid_mapping[obj.quality.sodar_uuid]
+            )
+            obj.frequency = SeqvarsQueryPresetsFrequency.objects.get(
+                sodar_uuid=uuid_mapping[obj.frequency.sodar_uuid]
+            )
+            obj.consequence = SeqvarsQueryPresetsConsequence.objects.get(
+                sodar_uuid=uuid_mapping[obj.consequence.sodar_uuid]
+            )
+            obj.locus = SeqvarsQueryPresetsLocus.objects.get(
+                sodar_uuid=uuid_mapping[obj.locus.sodar_uuid]
+            )
+            obj.phenotypeprio = SeqvarsQueryPresetsPhenotypePrio.objects.get(
+                sodar_uuid=uuid_mapping[obj.phenotypeprio.sodar_uuid]
+            )
+            obj.variantprio = SeqvarsQueryPresetsVariantPrio.objects.get(
+                sodar_uuid=uuid_mapping[obj.variantprio.sodar_uuid]
+            )
+            obj.clinvar = SeqvarsQueryPresetsClinvar.objects.get(
+                sodar_uuid=uuid_mapping[obj.clinvar.sodar_uuid]
+            )
+            obj.columns = SeqvarsQueryPresetsColumns.objects.get(
+                sodar_uuid=uuid_mapping[obj.columns.sodar_uuid]
+            )
+            obj.save()
 
         return result
 
