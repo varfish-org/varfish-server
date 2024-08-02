@@ -6,7 +6,7 @@ import { type App } from 'vue'
 import { registerPlugins } from './plugins'
 import { withVuetifyTheme } from './withVuetifyTheme.decorator'
 
-initializeMSW()
+initializeMSW({ onUnhandledRequest: 'bypass' })
 
 export const pinia = createPinia()
 

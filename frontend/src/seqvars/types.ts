@@ -1,24 +1,13 @@
-import { SeqvarsQuerySettingsDetails as QuerySettingsDetails } from '@varfish-org/varfish-api/lib'
+import { SeqvarsQuerySettingsDetails } from '@varfish-org/varfish-api/lib'
 
 export type LocalFields<T> = Omit<
-  {
-    [K in keyof T]: T[K] extends object ? LocalFields<T[K]> : T[K]
-  },
-  'sodar_uuid' | 'date_created' | 'date_modified' | 'querysettings'
+  { [K in keyof T]: T[K] extends object ? LocalFields<T[K]> : T[K] },
+  | 'sodar_uuid'
+  | 'date_created'
+  | 'date_modified'
+  | 'querysettings'
+  | 'session'
+  | 'presetssetversion'
 >
 
-export type Query = LocalFields<
-  Pick<
-    QuerySettingsDetails,
-    'genotype' | 'frequency' | 'phenotypeprio' | 'variantprio' | 'consequence'
-  >
-> &
-  Pick<
-    QuerySettingsDetails,
-    | 'predefinedquery'
-    | 'genotypepresets'
-    | 'frequencypresets'
-    | 'phenotypepriopresets'
-    | 'variantpriopresets'
-    | 'consequencepresets'
-  >
+export type Query = LocalFields<SeqvarsQuerySettingsDetails>

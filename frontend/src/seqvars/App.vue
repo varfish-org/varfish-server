@@ -55,11 +55,11 @@ watch(
   () => refreshStores(),
 )
 
-const presets = computed(() =>
+const presetDetails = computed(() =>
   [...seqvarsPresetsStore.presetSetVersions.values()].at(0),
 )
 </script>
 
 <template>
-  <SeqvarsFiltration v-if="presets" :presets="presets" />
+  <SeqvarsFiltration v-if="presetDetails" :preset-details="presetDetails" />
 </template>

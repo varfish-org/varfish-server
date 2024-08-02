@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-const { label, termId } = defineProps<{
+const { label, sublabel } = defineProps<{
   label: string | null
-  termId: string
+  sublabel: string
 }>()
 </script>
 
@@ -19,7 +19,7 @@ const { label, termId } = defineProps<{
       {{ label }}
     </div>
     <div style="font-size: var(--font-size-xs)">
-      {{ termId }}
+      {{ sublabel }}
     </div>
   </div>
 </template>

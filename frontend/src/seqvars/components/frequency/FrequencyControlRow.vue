@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 

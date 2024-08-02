@@ -35,6 +35,7 @@
     "luxon": "^3.4.4",
     "pinia": "^2.1.7",
     "plotly.js-dist": "^2.33.0",
+    "remeda": "^2.6.0",
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
     "sortablejs": "^1.15.2",

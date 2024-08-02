@@ -19,7 +19,7 @@ export const Example: Story = {
     setup() {
       return { fixture }
     },
-    template: '<SeqvarsFiltration :presets="fixture"  />',
+    template: '<SeqvarsFiltration :presetDetails="fixture"  />',
   }),
   parameters: {
     msw: {

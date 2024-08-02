@@ -3,10 +3,10 @@ import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/l
 
 import { Query } from '@/seqvars/types'
 
+import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
-import { matchesPredefinedQuery } from './utils'
 
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,
@@ -46,10 +46,10 @@ function getQueryLabel(query: Query, index: number) {
           !!query &&
           !matchesPredefinedQuery(
             presets,
-            query,
             presets.seqvarspredefinedquery_set.find(
               (pq) => pq.sodar_uuid === query.predefinedquery,
             )!,
+            query,
           )
         "
         @click="selectedIndex = index"

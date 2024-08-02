@@ -1,53 +1,54 @@
 import {
-  SeqvarsPredefinedQuery,
-  SeqvarsQueryPresetsSetVersionDetails,
-} from '@varfish-org/varfish-api/lib'
-import { Query } from '@/seqvars/types'
+  HpoOmim,
+  HpoTerm,
+  VigunoClient,
+} from '@bihealth/reev-frontend-lib/api/viguno'
 
-import { matchesFrequencyPreset } from './FrequencySelect/utils'
-import { matchesGenotypePreset } from './GenotypeSelect/utils'
-import { matchesPathogenicityPrioPreset } from './PathogenicityPrioSelect/utils'
-import { matchesPhenotypePrioPreset } from './PhenotypePrioSelect/utils'
-import { matchesEffectsPreset } from './EffectsSelect/utils'
+export function toggleArrayElement(arr: string[] | undefined, element: string) {
+  if (arr == undefined) {
+    return
+  }
+  const index = arr.indexOf(element)
+  if (index === -1) {
+    arr.push(element)
+  } else {
+    arr.splice(index, 1)
+  }
+}
 
-export const getReferencedPresets = (
-  presets: SeqvarsQueryPresetsSetVersionDetails,
-  pq: SeqvarsPredefinedQuery,
-) =>
-  ({
-    frequency: presets.seqvarsquerypresetsfrequency_set.find(
-      (f) => f.sodar_uuid === pq.frequency,
-    ),
-    phenotypeprio: presets.seqvarsquerypresetsphenotypeprio_set.find(
-      (p) => p.sodar_uuid === pq.phenotypeprio,
-    ),
-    variantprio: presets.seqvarsquerypresetsvariantprio_set.find(
-      (p) => p.sodar_uuid === pq.variantprio,
-    ),
-    consequence: presets.seqvarsquerypresetsconsequence_set.find(
-      (c) => c.sodar_uuid === pq.consequence,
-    ),
-  }) satisfies Partial<Record<keyof Query, unknown>>
+export function isKeyOfObject<T extends object>(
+  key: string | number | symbol,
+  obj: T,
+): key is keyof T {
+  return key in obj
+}
 
-export function matchesPredefinedQuery(
-  presets: SeqvarsQueryPresetsSetVersionDetails,
-  query: Query,
-  pq: SeqvarsPredefinedQuery,
-): boolean {
-  const genotype = pq.genotype?.choice
+export async function queryHPO_Terms(query: string) {
+  const vigunoClient = new VigunoClient('/proxy/varfish/viguno')
+  const queryArg = encodeURIComponent(query)
+  let results: (HpoTerm | HpoOmim)[]
+  if (query.startsWith('HP:')) {
+    results = (await vigunoClient.resolveHpoTermById(queryArg)).result
+  } else if (query.startsWith('OMIM:')) {
+    results = (await vigunoClient.resolveOmimTermById(queryArg)).result
+  } else {
+    let [{ result: hpoResults }, { result: omimResults }] = await Promise.all([
+      vigunoClient.queryHpoTermsByName(queryArg),
+      vigunoClient.queryOmimTermsByName(queryArg),
+    ])
+    if (hpoResults.length < 2 && omimResults.length > 2) {
+      omimResults = omimResults.slice(0, 2 + hpoResults.length)
+    } else if (omimResults.length < 2 && hpoResults.length > 2) {
+      hpoResults = hpoResults.slice(0, 2 + omimResults.length)
+    } else {
+      hpoResults = hpoResults.slice(0, 2)
+      omimResults = omimResults.slice(0, 2)
+    }
+    results = [...hpoResults, ...omimResults]
+  }
 
-  const { frequency, phenotypeprio, variantprio, consequence } =
-    getReferencedPresets(presets, pq)
-  return (
-    !!genotype &&
-    matchesGenotypePreset(query.genotype, genotype) &&
-    !!frequency &&
-    matchesFrequencyPreset(query.frequency, frequency) &&
-    !!phenotypeprio &&
-    matchesPhenotypePrioPreset(query.phenotypeprio, phenotypeprio) &&
-    !!variantprio &&
-    matchesPathogenicityPrioPreset(query.variantprio, variantprio) &&
-    !!consequence &&
-    matchesEffectsPreset(query.consequence, consequence)
-  )
+  return results.map(({ name, ...item }) => {
+    const id = 'termId' in item ? item.termId : item.omimId
+    return { label: name, term_id: id }
+  })
 }

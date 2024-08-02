@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 
-import { LocalFields } from '@/seqvars/types'
-
+import { Query } from '@/seqvars/types'
+import SmallText from '../ui/SmallText.vue'
 import FrequencyControlRow from './FrequencyControlRow.vue'
-import SmallText from './SmallText.vue'
 
-const model = defineModel<LocalFields<SeqvarsQuerySettingsFrequency>>({
+const model = defineModel<Query>({
   required: true,
 })
 </script>
@@ -42,7 +41,11 @@ const model = defineModel<LocalFields<SeqvarsQuerySettingsFrequency>>({
       ][]"
       :key="name"
     >
-      <FrequencyControlRow v-model="model[key]" :name="name" :size="size" />
+      <FrequencyControlRow
+        v-model="model.frequency[key]!"
+        :name="name"
+        :size="size"
+      />
     </template>
   </div>
 </template>

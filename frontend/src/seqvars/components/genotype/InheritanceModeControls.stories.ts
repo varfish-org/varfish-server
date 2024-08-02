@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import InheritanceModeControls from '@/seqvars/components/GenotypeSelect/InheritanceModeControls.vue'
+import InheritanceModeControls from './InheritanceModeControls.vue'
 
 const meta: Meta<typeof InheritanceModeControls> = {
   title: 'Seqvars / Inheritance Mode Controls',
