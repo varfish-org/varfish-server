@@ -156,20 +156,24 @@ watch(
     pubtatorStore.storeState,
     geneInfoStore.storeState,
     seqvarInfoStore.storeState,
-    variantAcmgRatingStore.storeState,
-    variantCommentsStore.storeState,
-    variantDetailsStore.storeState,
+    variantAcmgRatingStore.storeState.state,
+    variantCommentsStore.storeState.state,
+    variantDetailsStore.storeState.state,
   ],
   () => {
+    const completeStoreStates = [StoreState.Active, StoreState.Error]
+    const completeStates = [State.Active, State.Error]
     if (
-      variantResultSetStore.storeState.state === State.Active &&
-      pubtatorStore.storeState === StoreState.Active &&
-      geneInfoStore.storeState === StoreState.Active &&
-      seqvarInfoStore.storeState === StoreState.Active &&
-      variantAcmgRatingStore.storeState.state === State.Active &&
-      variantCommentsStore.storeState.state === State.Active &&
-      variantDetailsStore.storeState.state === State.Active
+      completeStates.includes(variantResultSetStore.storeState.state) &&
+      completeStoreStates.includes(pubtatorStore.storeState) &&
+      completeStoreStates.includes(geneInfoStore.storeState) &&
+      completeStoreStates.includes(seqvarInfoStore.storeState) &&
+      completeStates.includes(variantAcmgRatingStore.storeState.state) &&
+      completeStates.includes(variantCommentsStore.storeState.state) &&
+      completeStates.includes(variantDetailsStore.storeState.state)
     ) {
+      console.log('stores loaded')
+
       setTimeout(() => {
         document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
       }, 500)

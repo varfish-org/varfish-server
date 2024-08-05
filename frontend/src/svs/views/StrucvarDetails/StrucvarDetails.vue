@@ -163,13 +163,15 @@ watch(
     svDetailsStore.storeState,
   ],
   () => {
+    const completeStates = [State.Active, State.Error]
+    const completeStoreStates = [StoreState.Active, StoreState.Error]
     if (
-      svResultSetStore.storeState.state === State.Active &&
-      pubtatorStore.storeState === StoreState.Active &&
-      geneInfoStore.storeState === StoreState.Active &&
-      strucvarInfoStore.storeState === StoreState.Active &&
-      svCommentsStore.storeState.state === State.Active &&
-      svDetailsStore.storeState.state === State.Active
+      completeStates.includes(svResultSetStore.storeState.state) &&
+      completeStoreStates.includes(pubtatorStore.storeState) &&
+      completeStoreStates.includes(geneInfoStore.storeState) &&
+      completeStoreStates.includes(strucvarInfoStore.storeState) &&
+      completeStates.includes(svCommentsStore.storeState.state) &&
+      completeStates.includes(svDetailsStore.storeState.state)
     ) {
       setTimeout(() => {
         document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
