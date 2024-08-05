@@ -10,9 +10,11 @@ const { index } = defineProps<{ index: number }>()
     inline
     :hide-details="true"
     :model-value="
-      { recessive_index: 'index', recessive_parent: 'parent' }[
-        model[index].genotype as never
-      ] ?? ''
+      {
+        recessive_index: 'index',
+        recessive_father: 'father',
+        recessive_mother: 'mother',
+      }[model[index].genotype as never] ?? ''
     "
     @update:model-value="
       (value: any) => {
@@ -20,17 +22,24 @@ const { index } = defineProps<{ index: number }>()
           const el = model.find((m) => m.genotype === 'recessive_index')
           if (el) el.genotype = 'any'
         } else if (
-          value === 'parent' &&
-          model.filter((m) => m.genotype === 'recessive_parent').length > 1
+          value === 'father' &&
+          model.filter((m) => m.genotype === 'recessive_father').length > 1
         ) {
-          const el = model.find((m) => m.genotype === 'recessive_parent')
+          const el = model.find((m) => m.genotype === 'recessive_father')
+          if (el) el.genotype = 'any'
+        } else if (
+          value === 'mother' &&
+          model.filter((m) => m.genotype === 'recessive_mother').length > 1
+        ) {
+          const el = model.find((m) => m.genotype === 'recessive_mother')
           if (el) el.genotype = 'any'
         }
 
         model[index].genotype = (
           {
             index: 'recessive_index',
-            parent: 'recessive_parent',
+            father: 'recessive_father',
+            mother: 'recessive_mother',
             '': 'any',
           } as const
         )[value as never]
@@ -39,6 +48,7 @@ const { index } = defineProps<{ index: number }>()
   >
     <v-radio label="None" value=""></v-radio>
     <v-radio label="Index" value="index"></v-radio>
-    <v-radio label="Parent" value="parent"></v-radio>
+    <v-radio label="Father" value="father"></v-radio>
+    <v-radio label="Mother" value="mother"></v-radio>
   </v-radio-group>
 </template>

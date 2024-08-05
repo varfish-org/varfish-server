@@ -7949,18 +7949,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -7985,18 +7985,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -9433,7 +9433,8 @@ components:
       - non_hom
       - variant
       - recessive_index
-      - recessive_parent
+      - recessive_father
+      - recessive_mother
       title: SeqvarsGenotypeChoice
       type: string
     SeqvarsGenotypePresetChoice:
@@ -10105,18 +10106,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -10141,18 +10142,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -10311,18 +10312,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -10347,18 +10348,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -11486,18 +11487,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -11522,18 +11523,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -11679,18 +11680,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
@@ -11715,18 +11716,18 @@ components:
                 default: false
                 title: Enabled
                 type: boolean
-              homozygous:
-                anyOf:
-                - type: integer
-                - type: 'null'
-                default: null
-                title: Homozygous
               heterozygous:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
                 title: Heterozygous
+              homozygous:
+                anyOf:
+                - type: integer
+                - type: 'null'
+                default: null
+                title: Homozygous
               hemizygous:
                 anyOf:
                 - type: integer
