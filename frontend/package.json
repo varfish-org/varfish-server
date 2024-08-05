@@ -68,7 +68,7 @@
     "@iconify-json/fluent": "^1.1.59",
     "@iconify-json/mdi": "^1.1.68",
     "@iconify-json/medical-icon": "^1.1.8",
-    "@iconify-json/oi": "^1.1.8",
+    "@iconify-json/oi": "^1.1.9",
     "@pinia/testing": "0.1.4",
     "@playwright/test": "^1.45.1",
     "@popperjs/core": "^2.11.8",
