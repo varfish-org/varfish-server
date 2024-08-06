@@ -397,7 +397,40 @@ export type CaseSerializerNgStateEnum = 'importing' | 'updating' | 'active' | 'd
  */
 export type CaseStatusEnum = 'initial' | 'active' | 'closed-unsolved' | 'closed-uncertain' | 'closed-solved';
 
-export type ClinvarGermlineAggregateDescriptionList = Array<('pathogenic' | 'likely_pathogenic' | 'uncertain_significance' | 'likely_benign' | 'benign')>;
+/**
+ * Store Clingen dosage annotation.
+ */
+export type ClingenDosageAnnotationPydantic = {
+    haplo: ClingenDosageScoreChoice;
+    triplo: ClingenDosageScoreChoice;
+};
+
+/**
+ * Enumeration of the Clingen dosage score.
+ */
+export type ClingenDosageScoreChoice = 'sufficient_evidence_available' | 'some_evidence_available' | 'little_evidence' | 'no_evidence_available' | 'recessive' | 'unlikely';
+
+/**
+ * Enumeration describing aggregate germline review status value.
+ */
+export type ClinvarAggregateGermlineReviewStatusChoice = 'no_classification_provided' | 'no_assertion_criteria_provided' | 'criteria_provided_single_submitter' | 'criteria_provided_multiple_submitters_no_conflicts' | 'criteria_provided_conflicting_classifications' | 'reviewed_by_expert_panel' | 'practice_guideline' | 'no_classifications_from_unflagged_records' | 'no_classification_for_the_single_variant';
+
+/**
+ * Store ClinVar-related annotation.
+ */
+export type ClinvarAnnotationPydantic = {
+    vcv_accession: string;
+    germline_significance_description: string;
+    germline_review_status: ClinvarAggregateGermlineReviewStatusChoice;
+    effective_germline_significance_description: string;
+};
+
+/**
+ * The aggregate description for germline variants in ClinVar.
+ */
+export type ClinvarGermlineAggregateDescriptionChoice = 'pathogenic' | 'likely_pathogenic' | 'uncertain_significance' | 'likely_benign' | 'benign';
+
+export type ClinvarGermlineAggregateDescriptionChoiceList = Array<('pathogenic' | 'likely_pathogenic' | 'uncertain_significance' | 'likely_benign' | 'benign')>;
 
 export type CraminoChromNormalizedCountsRecordList = Array<{
     chrom_name: string;
@@ -425,9 +458,17 @@ export type CraminoSummaryRecordList = Array<{
 /**
  * Describes the version version of a given datasource.
  */
-export type DataSourceInfo = {
+export type DataSourceInfoPydantic = {
     name: string;
     version: string;
+};
+
+/**
+ * Store DECIPHER constraints.
+ */
+export type DecipherConstraintsPydantic = {
+    hi_percentile: number;
+    hi_index: number;
 };
 
 /**
@@ -747,13 +788,13 @@ export type ExtraAnnoFieldInfo = {
     label: string;
 };
 
-export type GeneList = Array<{
+/**
+ * Store gene identity information.
+ */
+export type GeneIdentityPydantic = {
     hgnc_id: string;
-    symbol: string;
-    name?: string | null;
-    entrez_id?: number | null;
-    ensembl_id?: string | null;
-}>;
+    gene_symbol: string;
+};
 
 /**
  * Serializer that serializes ``GenePanel``.
@@ -804,8 +845,8 @@ export type GenePanelCategory = {
     readonly genepanel_set: GenePanel;
 };
 
-export type GenePanelList = Array<{
-    source: GenePanelSource;
+export type GenePanelPydanticList = Array<{
+    source: GenePanelSourceChoice;
     panel_id: string;
     name: string;
     version: string;
@@ -814,7 +855,7 @@ export type GenePanelList = Array<{
 /**
  * The source of a gene panel.
  */
-export type GenePanelSource = 'panelapp' | 'internal';
+export type GenePanelSourceChoice = 'panelapp' | 'internal';
 
 /**
  * * `draft` - draft
@@ -823,16 +864,90 @@ export type GenePanelSource = 'panelapp' | 'internal';
  */
 export type GenePanelStateEnum = 'draft' | 'active' | 'retired';
 
-export type GenomeRegionList = Array<{
-    chromosome: string;
-    range?: OneBasedRange | null;
+export type GenePydanticList = Array<{
+    hgnc_id: string;
+    symbol: string;
+    name?: string | null;
+    entrez_id?: number | null;
+    ensembl_id?: string | null;
 }>;
+
+/**
+ * Store gene-related annotation (always for a single gene).
+ */
+export type GeneRelatedAnnotationPydantic = {
+    identity: GeneIdentityPydantic;
+    consequences: GeneRelatedConsequencesPydantic;
+    phenotypes: GeneRelatedPhenotypesPydantic;
+    constraints: GeneRelatedConstraintsPydantic;
+};
+
+/**
+ * Store gene-related consequences.
+ */
+export type GeneRelatedConsequencesPydantic = {
+    hgvs_t: string;
+    hgvs_p: string | null;
+    consequences: Array<SeqvarsVariantConsequenceChoice>;
+};
+
+/**
+ * Gene-wise constraints.
+ */
+export type GeneRelatedConstraintsPydantic = {
+    gnomad?: GnomadConstraintsPydantic | null;
+    decipher?: DecipherConstraintsPydantic | null;
+    rcnv?: RcnvConstraintsPydantic | null;
+    shet?: ShetConstraintsPydantic | null;
+    clingen?: ClingenDosageAnnotationPydantic | null;
+};
+
+/**
+ * Phenotype-related information, if any.
+ */
+export type GeneRelatedPhenotypesPydantic = {
+    is_acmg_sf?: boolean;
+    is_disease_gene?: boolean;
+};
+
+/**
+ * Representation of a genomic region to query for.
+ */
+export type GenomeRegionPydantic = {
+    chromosome: string;
+    range?: OneBasedRangePydantic | null;
+};
+
+export type GenomeRegionPydanticList = Array<{
+    chromosome: string;
+    range?: OneBasedRangePydantic | null;
+}>;
+
+/**
+ * Enumeration of the genome release.
+ */
+export type GenomeReleaseChoice = 'grch37' | 'grch38';
 
 /**
  * * `grch37` - GRCh37
  * * `grch38` - GRCh38
  */
 export type GenomeReleaseEnum = 'grch37' | 'grch38';
+
+/**
+ * Store gnomAD constraints.
+ */
+export type GnomadConstraintsPydantic = {
+    mis_z: number;
+    oe_lof: number;
+    oe_lof_lower: number;
+    oe_lof_upper: number;
+    oe_mis: number;
+    oe_mis_lower: number;
+    oe_mis_upper: number;
+    pli: number;
+    syn_z: number;
+};
 
 /**
  * Per-sample QC stats for insert sizes.
@@ -867,7 +982,7 @@ export type NullEnum = unknown;
 /**
  * Representation of a 1-based range.
  */
-export type OneBasedRange = {
+export type OneBasedRangePydantic = {
     start: number;
     end: number;
 };
@@ -1135,7 +1250,7 @@ export type PatchedSeqvarsQueryDetailsRequest = {
  */
 export type PatchedSeqvarsQueryPresetsClinvarRequest = {
     clinvar_presence_required?: boolean;
-    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
     rank?: number;
     label?: string;
@@ -1148,7 +1263,7 @@ export type PatchedSeqvarsQueryPresetsClinvarRequest = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsColumnsRequest = {
-    column_settings?: SeqvarsColumnConfigList;
+    column_settings?: SeqvarsColumnConfigPydanticList;
     rank?: number;
     label?: string;
     description?: string | null;
@@ -1219,9 +1334,9 @@ export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsLocusRequest = {
-    genes?: GeneList;
-    gene_panels?: GenePanelList;
-    genome_regions?: GenomeRegionList;
+    genes?: GenePydanticList;
+    gene_panels?: GenePanelPydanticList;
+    genome_regions?: GenomeRegionPydanticList;
     rank?: number;
     label?: string;
     description?: string | null;
@@ -1235,7 +1350,7 @@ export type PatchedSeqvarsQueryPresetsLocusRequest = {
 export type PatchedSeqvarsQueryPresetsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
-    terms?: TermPresenceList;
+    terms?: TermPresencePydanticList;
     rank?: number;
     label?: string;
     description?: string | null;
@@ -1284,7 +1399,7 @@ export type PatchedSeqvarsQueryPresetsSetVersionRequest = {
  */
 export type PatchedSeqvarsQueryPresetsVariantPrioRequest = {
     variant_prio_enabled?: boolean;
-    services?: SeqvarsPrioServiceList;
+    services?: SeqvarsPrioServicePydanticList;
     rank?: number;
     label?: string;
     description?: string | null;
@@ -1449,6 +1564,14 @@ export type ProjectRequest = {
 };
 
 /**
+ * Store RCNV constraints.
+ */
+export type RcnvConstraintsPydantic = {
+    p_haplo: number;
+    p_triplo: number;
+};
+
+/**
  * * `disabled` - disabled
  * * `comphet_recessive` - comphet_recessive
  * * `homozygous_recessive` - homozygous_recessive
@@ -1476,6 +1599,15 @@ export type RegionVariantStats = {
     transition_count: number;
     transversion_count: number;
     tstv_ratio: number;
+};
+
+/**
+ * Store resource usage information.
+ */
+export type ResourcesUsedPydantic = {
+    start_time?: string | null;
+    end_time?: string | null;
+    memory_used?: number;
 };
 
 /**
@@ -1775,13 +1907,52 @@ export type SamtoolsStatsSupplementaryMetrics = {
     sample: string;
 };
 
-export type SeqvarsColumnConfigList = Array<{
+/**
+ * Store call-related annotation.
+ */
+export type SeqvarsCallRelatedAnnotationPydantic = {
+    call_infos?: {
+        [key: string]: SeqvarsSampleCallInfoPydantic;
+    };
+};
+
+/**
+ * Pydantic representation of ``SeqvarsCaseQuery``.
+ */
+export type SeqvarsCaseQueryPydantic = {
+    genotype?: SeqvarsQuerySettingsGenotypePydantic | null;
+    quality?: SeqvarsQuerySettingsQualityPydantic | null;
+    frequency?: SeqvarsQuerySettingsFrequencyPydantic | null;
+    consequence?: SeqvarsQuerySettingsConsequencePydantic | null;
+    locus?: SeqvarsQuerySettingsLocusPydantic | null;
+    clinvar?: SeqvarsQuerySettingsClinvarPydantic | null;
+};
+
+export type SeqvarsColumnConfigPydanticList = Array<{
     name: string;
     label: string;
     description?: string | null;
     width: number;
     visible: boolean;
 }>;
+
+/**
+ * Store database identifiers.
+ */
+export type SeqvarsDbIdsPydantic = {
+    dbsnp_id?: string | null;
+};
+
+/**
+ * SPopulation frequency information
+ */
+export type SeqvarsFrequencyAnnotationPydantic = {
+    gnomad_exomes?: SeqvarsNuclearFrequencyPydantic | null;
+    gnomad_genomes?: SeqvarsNuclearFrequencyPydantic | null;
+    gnomad_mtdna?: SeqvarsGnomadMitochondrialFrequencyPydantic | null;
+    helixmtdb?: SeqvarsHelixMtDbFrequencyPydantic | null;
+    inhouse?: SeqvarsNuclearFrequencyPydantic | null;
+};
 
 /**
  * Store genotype choice of a ``SampleGenotype``.
@@ -1792,6 +1963,79 @@ export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 
  * Presets value for the chosen genotype.
  */
 export type SeqvarsGenotypePresetChoice = 'any' | 'de_novo' | 'dominant' | 'homozygous_recessive' | 'compound_heterozygous_recessive' | 'recessive' | 'x_recessive' | 'affected_carriers';
+
+/**
+ * Store gnomAD mitochondrial frequency information.
+ */
+export type SeqvarsGnomadMitochondrialFrequencyPydantic = {
+    an?: number;
+    het?: number;
+    homalt?: number;
+    af?: number;
+};
+
+/**
+ * gnomAD mitochondrial filter options.
+ */
+export type SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+};
+
+/**
+ * Store HelixMtDb frequency information.
+ */
+export type SeqvarsHelixMtDbFrequencyPydantic = {
+    an?: number;
+    het?: number;
+    homalt?: number;
+    af?: number;
+};
+
+/**
+ * HelixMtDb filter options.
+ */
+export type SeqvarsHelixMtDbFrequencySettingsPydantic = {
+    enabled?: boolean;
+    heteroplasmic?: number | null;
+    homoplasmic?: number | null;
+    frequency?: number | null;
+};
+
+/**
+ * Store gnomAD and in-house nuclear frequency information.
+ */
+export type SeqvarsNuclearFrequencyPydantic = {
+    an?: number;
+    het?: number;
+    homalt?: number;
+    hemialt?: number;
+    af?: number;
+};
+
+/**
+ * gnomAD and in-house nuclear filter options.
+ */
+export type SeqvarsNuclearFrequencySettingsPydantic = {
+    enabled?: boolean;
+    heterozygous?: number | null;
+    homozygous?: number | null;
+    hemizygous?: number | null;
+    frequency?: number | null;
+};
+
+/**
+ * Store statistics about the output.
+ */
+export type SeqvarsOutputStatisticsPydantic = {
+    count_total?: number;
+    count_passed?: number;
+    passed_by_consequences?: {
+        [key: string]: (number);
+    };
+};
 
 /**
  * Serializer for ``PredefinedQuery``.
@@ -1839,7 +2083,7 @@ export type SeqvarsPredefinedQueryRequest = {
     columns?: string | null;
 };
 
-export type SeqvarsPrioServiceList = Array<{
+export type SeqvarsPrioServicePydanticList = Array<{
     name: string;
     version: string;
 }>;
@@ -1865,14 +2109,14 @@ export type SeqvarsQueryColumnsConfig = {
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
-    column_settings?: SeqvarsColumnConfigList;
+    column_settings?: SeqvarsColumnConfigPydanticList;
 };
 
 /**
  * Serializer for ``QueryColumnsConfig``.
  */
 export type SeqvarsQueryColumnsConfigRequest = {
-    column_settings?: SeqvarsColumnConfigList;
+    column_settings?: SeqvarsColumnConfigPydanticList;
 };
 
 /**
@@ -1954,7 +2198,7 @@ export type SeqvarsQueryExecutionStateEnum = 'initial' | 'queued' | 'running' | 
  */
 export type SeqvarsQueryPresetsClinvar = {
     clinvar_presence_required?: boolean;
-    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -1972,7 +2216,7 @@ export type SeqvarsQueryPresetsClinvar = {
  */
 export type SeqvarsQueryPresetsClinvarRequest = {
     clinvar_presence_required?: boolean;
-    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
     rank?: number;
     label: string;
@@ -1985,7 +2229,7 @@ export type SeqvarsQueryPresetsClinvarRequest = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsColumns = {
-    column_settings?: SeqvarsColumnConfigList;
+    column_settings?: SeqvarsColumnConfigPydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2001,7 +2245,7 @@ export type SeqvarsQueryPresetsColumns = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsColumnsRequest = {
-    column_settings?: SeqvarsColumnConfigList;
+    column_settings?: SeqvarsColumnConfigPydanticList;
     rank?: number;
     label: string;
     description?: string | null;
@@ -2139,9 +2383,9 @@ export type SeqvarsQueryPresetsFrequencyRequest = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsLocus = {
-    genes?: GeneList;
-    gene_panels?: GenePanelList;
-    genome_regions?: GenomeRegionList;
+    genes?: GenePydanticList;
+    gene_panels?: GenePanelPydanticList;
+    genome_regions?: GenomeRegionPydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2157,9 +2401,9 @@ export type SeqvarsQueryPresetsLocus = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsLocusRequest = {
-    genes?: GeneList;
-    gene_panels?: GenePanelList;
-    genome_regions?: GenomeRegionList;
+    genes?: GenePydanticList;
+    gene_panels?: GenePanelPydanticList;
+    genome_regions?: GenomeRegionPydanticList;
     rank?: number;
     label: string;
     description?: string | null;
@@ -2173,7 +2417,7 @@ export type SeqvarsQueryPresetsLocusRequest = {
 export type SeqvarsQueryPresetsPhenotypePrio = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
-    terms?: TermPresenceList;
+    terms?: TermPresencePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2191,7 +2435,7 @@ export type SeqvarsQueryPresetsPhenotypePrio = {
 export type SeqvarsQueryPresetsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
-    terms?: TermPresenceList;
+    terms?: TermPresencePydanticList;
     rank?: number;
     label: string;
     description?: string | null;
@@ -2354,7 +2598,7 @@ export type SeqvarsQueryPresetsSetVersionRequest = {
  */
 export type SeqvarsQueryPresetsVariantPrio = {
     variant_prio_enabled?: boolean;
-    services?: SeqvarsPrioServiceList;
+    services?: SeqvarsPrioServicePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2371,7 +2615,7 @@ export type SeqvarsQueryPresetsVariantPrio = {
  */
 export type SeqvarsQueryPresetsVariantPrioRequest = {
     variant_prio_enabled?: boolean;
-    services?: SeqvarsPrioServiceList;
+    services?: SeqvarsPrioServicePydanticList;
     rank?: number;
     label: string;
     description?: string | null;
@@ -2412,7 +2656,7 @@ export type SeqvarsQuerySettings = {
  */
 export type SeqvarsQuerySettingsClinvar = {
     clinvar_presence_required?: boolean;
-    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2421,11 +2665,20 @@ export type SeqvarsQuerySettingsClinvar = {
 };
 
 /**
+ * Pydantic representation of ``SeqvarsQuerySettingsClinvar``.
+ */
+export type SeqvarsQuerySettingsClinvarPydantic = {
+    presence_required: boolean;
+    germline_descriptions?: Array<ClinvarGermlineAggregateDescriptionChoice>;
+    allow_conflicting_interpretations?: boolean;
+};
+
+/**
  * Serializer for ``QuerySettingsClinvar``.
  */
 export type SeqvarsQuerySettingsClinvarRequest = {
     clinvar_presence_required?: boolean;
-    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionList;
+    clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
 };
 
@@ -2441,6 +2694,16 @@ export type SeqvarsQuerySettingsConsequence = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
+};
+
+/**
+ * Pydantic representation of ``SeqvarsQuerySettingsConsequence``.
+ */
+export type SeqvarsQuerySettingsConsequencePydantic = {
+    variant_types?: Array<SeqvarsVariantTypeChoice>;
+    transcript_types?: Array<SeqvarsTranscriptTypeChoice>;
+    consequences?: Array<SeqvarsVariantConsequenceChoice>;
+    max_dist_to_exon?: number | null;
 };
 
 /**
@@ -2557,6 +2820,15 @@ export type SeqvarsQuerySettingsFrequency = {
 };
 
 /**
+ * Pydantic representation of ``SeqvarsQuerySettingsFrequency``.
+ */
+export type SeqvarsQuerySettingsFrequencyPydantic = {
+    nuclear?: SeqvarsNuclearFrequencySettingsPydantic | null;
+    gnomad_mtdna?: SeqvarsGnomadMitochondrialFrequencySettingsPydantic | null;
+    helixmtdb?: SeqvarsHelixMtDbFrequencySettingsPydantic | null;
+};
+
+/**
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequencyRequest = {
@@ -2608,6 +2880,14 @@ export type SeqvarsQuerySettingsGenotype = {
 };
 
 /**
+ * Pydantic representation of ``SeqvarsQuerySettingsGenotype``.
+ */
+export type SeqvarsQuerySettingsGenotypePydantic = {
+    recessive_mode?: SeqvarsRecessiveModeChoice;
+    sample_genotypes?: Array<SeqvarsSampleGenotypeChoice>;
+};
+
+/**
  * Serializer for ``QuerySettingsGenotype``.
  */
 export type SeqvarsQuerySettingsGenotypeRequest = {
@@ -2619,9 +2899,9 @@ export type SeqvarsQuerySettingsGenotypeRequest = {
  * Serializer for ``QuerySettingsLocus``.
  */
 export type SeqvarsQuerySettingsLocus = {
-    genes?: GeneList;
-    gene_panels?: GenePanelList;
-    genome_regions?: GenomeRegionList;
+    genes?: GenePydanticList;
+    gene_panels?: GenePanelPydanticList;
+    genome_regions?: GenomeRegionPydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2629,12 +2909,20 @@ export type SeqvarsQuerySettingsLocus = {
 };
 
 /**
+ * Pydantic representation of ``SeqvarsQuerySettingsLocus``.
+ */
+export type SeqvarsQuerySettingsLocusPydantic = {
+    genes?: Array<(string)>;
+    genome_regions?: Array<GenomeRegionPydantic>;
+};
+
+/**
  * Serializer for ``QuerySettingsLocus``.
  */
 export type SeqvarsQuerySettingsLocusRequest = {
-    genes?: GeneList;
-    gene_panels?: GenePanelList;
-    genome_regions?: GenomeRegionList;
+    genes?: GenePydanticList;
+    gene_panels?: GenePanelPydanticList;
+    genome_regions?: GenomeRegionPydanticList;
 };
 
 /**
@@ -2643,7 +2931,7 @@ export type SeqvarsQuerySettingsLocusRequest = {
 export type SeqvarsQuerySettingsPhenotypePrio = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
-    terms?: TermPresenceList;
+    terms?: TermPresencePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2656,7 +2944,7 @@ export type SeqvarsQuerySettingsPhenotypePrio = {
 export type SeqvarsQuerySettingsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
     phenotype_prio_algorithm?: string | null;
-    terms?: TermPresenceList;
+    terms?: TermPresencePydanticList;
 };
 
 /**
@@ -2667,14 +2955,21 @@ export type SeqvarsQuerySettingsQuality = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
-    sample_quality_filters?: SeqvarsSampleQualityFilterList;
+    sample_quality_filters?: SeqvarsSampleQualityFilterPydanticList;
+};
+
+/**
+ * Pydantic representation of ``SeqvarsQuerySettingsQuality``.
+ */
+export type SeqvarsQuerySettingsQualityPydantic = {
+    sample_quality_settings?: Array<SeqvarsSampleQualitySettingsPydantic>;
 };
 
 /**
  * Serializer for ``QuerySettingsQuality``.
  */
 export type SeqvarsQuerySettingsQualityRequest = {
-    sample_quality_filters?: SeqvarsSampleQualityFilterList;
+    sample_quality_filters?: SeqvarsSampleQualityFilterPydanticList;
 };
 
 /**
@@ -2682,7 +2977,7 @@ export type SeqvarsQuerySettingsQualityRequest = {
  */
 export type SeqvarsQuerySettingsVariantPrio = {
     variant_prio_enabled?: boolean;
-    services?: SeqvarsPrioServiceList;
+    services?: SeqvarsPrioServicePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2694,8 +2989,13 @@ export type SeqvarsQuerySettingsVariantPrio = {
  */
 export type SeqvarsQuerySettingsVariantPrioRequest = {
     variant_prio_enabled?: boolean;
-    services?: SeqvarsPrioServiceList;
+    services?: SeqvarsPrioServicePydanticList;
 };
+
+/**
+ * Enumeration for the recessive mode in pydantic models.
+ */
+export type SeqvarsRecessiveModeChoice = 'disabled' | 'comphet_recessive' | 'homozygous_recessive' | 'recessive';
 
 /**
  * Serializer for ``ResultRow``.
@@ -2703,19 +3003,18 @@ export type SeqvarsQuerySettingsVariantPrioRequest = {
 export type SeqvarsResultRow = {
     readonly sodar_uuid: string;
     readonly resultset: string;
-    readonly release: string;
-    readonly chromosome: string;
-    readonly chromosome_no: number;
-    readonly start: number;
-    readonly stop: number;
-    readonly reference: string;
-    readonly alternative: string;
-    /**
-     * Payload for one result row of a seqvar query.
-     */
+    readonly genome_release: string;
+    readonly chrom: string;
+    readonly chrom_no: number;
+    readonly pos: number;
+    readonly ref_allele: string;
+    readonly alt_allele: string;
     payload: {
-        foo: number;
-    };
+    uuid: string;
+    case_uuid: string;
+    vcf_variant: SeqvarsVcfVariantPydantic | null;
+    variant_annotation: SeqvarsVariantAnnotationPydantic | null;
+} | null;
 };
 
 /**
@@ -2730,8 +3029,41 @@ export type SeqvarsResultSet = {
      * Container for ``DataSourceInfo`` records.
      */
     datasource_infos: {
-        infos: Array<DataSourceInfo>;
+        infos?: Array<DataSourceInfoPydantic>;
     };
+    output_header: {
+    genome_release: GenomeReleaseChoice;
+    versions: {
+        [key: string]: (string);
+    };
+    query: SeqvarsCaseQueryPydantic | null;
+    case_uuid: string;
+    resources: ResourcesUsedPydantic | null;
+    statistics: SeqvarsOutputStatisticsPydantic | null;
+    variant_score_columns?: Array<SeqvarsVariantScoreColumnPydantic>;
+} | null;
+};
+
+/**
+ * Store call-related annotation.
+ */
+export type SeqvarsSampleCallInfoPydantic = {
+    sample: string;
+    genotype?: string | null;
+    dp?: number | null;
+    ad?: number | null;
+    gq?: number | null;
+    ps?: number | null;
+};
+
+/**
+ * Store the genotype of a sample.
+ */
+export type SeqvarsSampleGenotypeChoice = {
+    sample: string;
+    genotype: SeqvarsGenotypeChoice;
+    include_no_call?: boolean;
+    enabled?: boolean;
 };
 
 export type SeqvarsSampleGenotypeChoiceList = Array<{
@@ -2741,7 +3073,7 @@ export type SeqvarsSampleGenotypeChoiceList = Array<{
     enabled?: boolean;
 }>;
 
-export type SeqvarsSampleQualityFilterList = Array<{
+export type SeqvarsSampleQualityFilterPydanticList = Array<{
     sample: string;
     filter_active?: boolean;
     min_dp_het?: number | null;
@@ -2752,11 +3084,102 @@ export type SeqvarsSampleQualityFilterList = Array<{
     max_ad?: number | null;
 }>;
 
+/**
+ * Quality settings for one sample.
+ */
+export type SeqvarsSampleQualitySettingsPydantic = {
+    sample: string;
+    filter_active?: boolean;
+    min_dp_het?: number | null;
+    min_dp_hom?: number | null;
+    min_gq?: number | null;
+    min_ab?: number | null;
+    min_ad?: number | null;
+    max_ad?: number | null;
+};
+
+/**
+ * Store the score annotations.
+ */
+export type SeqvarsScoreAnnotationsPydantic = {
+    entries?: {
+        [key: string]: (string | number | null);
+    };
+};
+
+/**
+ * The type of a transcript.
+ */
+export type SeqvarsTranscriptTypeChoice = 'coding' | 'non_coding';
+
 export type SeqvarsTranscriptTypeChoiceList = Array<('coding' | 'non_coding')>;
+
+/**
+ * Store the variant annotation payload (always for a single gene).
+ */
+export type SeqvarsVariantAnnotationPydantic = {
+    gene?: GeneRelatedAnnotationPydantic | null;
+    variant?: SeqvarsVariantRelatedAnnotationPydantic | null;
+    call?: SeqvarsCallRelatedAnnotationPydantic | null;
+};
+
+/**
+ * The variant consequence.
+ */
+export type SeqvarsVariantConsequenceChoice = 'transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'inframe_indel' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'intergenic_variant' | 'intron_variant';
 
 export type SeqvarsVariantConsequenceChoiceList = Array<('transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'inframe_indel' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'intergenic_variant' | 'intron_variant')>;
 
+/**
+ * Store variant-related annotation.
+ */
+export type SeqvarsVariantRelatedAnnotationPydantic = {
+    dbids?: SeqvarsDbIdsPydantic | null;
+    frequency?: SeqvarsFrequencyAnnotationPydantic | null;
+    clinvar?: ClinvarAnnotationPydantic | null;
+    scores?: SeqvarsScoreAnnotationsPydantic | null;
+};
+
+/**
+ * Store information about the variant score columns in the output.
+ */
+export type SeqvarsVariantScoreColumnPydantic = {
+    name: string;
+    label: string;
+    description?: string | null;
+    type: SevarsVariantScoreColumnTypeChoice;
+};
+
+/**
+ * The type of a variant.
+ */
+export type SeqvarsVariantTypeChoice = 'snv' | 'indel' | 'mnv' | 'complex_substitution';
+
 export type SeqvarsVariantTypeChoiceList = Array<('snv' | 'indel' | 'mnv' | 'complex_substitution')>;
+
+/**
+ * Store a single VCF variant.
+ */
+export type SeqvarsVcfVariantPydantic = {
+    genome_release: GenomeReleaseChoice;
+    chrom: string;
+    chrom_no: number;
+    pos: number;
+    ref_allele: string;
+    alt_allele: string;
+};
+
+/**
+ * Enumeration of the variant score type.
+ */
+export type SevarsVariantScoreColumnTypeChoice = 'number' | 'string';
+
+/**
+ * Store sHET constraints.
+ */
+export type ShetConstraintsPydantic = {
+    s_het: number;
+};
 
 /**
  * Base serializer for any SODAR model with a sodar_uuid field
@@ -2815,18 +3238,18 @@ export type TargetBedFileRequest = {
     genome_release?: GenomeReleaseEnum;
 };
 
+export type TermPresencePydanticList = Array<{
+    term: TermPydantic;
+    excluded?: boolean | null;
+}>;
+
 /**
  * Representation of a condition (phenotype / disease) term.
  */
-export type Term = {
+export type TermPydantic = {
     term_id: string;
     label: string | null;
 };
-
-export type TermPresenceList = Array<{
-    term: Term;
-    excluded?: boolean | null;
-}>;
 
 /**
  * * `CATEGORY` - Category

@@ -8,25 +8,27 @@ from projectroles.serializers import SODARUserSerializer
 from rest_framework import serializers
 
 from seqvars.models import (
-    ClinvarGermlineAggregateDescription,
-    DataSourceInfos,
-    Gene,
-    GenePanel,
-    GenomeRegion,
-    GnomadMitochondrialFrequencySettings,
-    GnomadNuclearFrequencySettings,
-    HelixmtDbFrequencySettings,
-    InhouseFrequencySettings,
+    ClinvarGermlineAggregateDescriptionChoice,
+    DataSourceInfosPydantic,
+    GenePanelPydantic,
+    GenePydantic,
+    GenomeRegionPydantic,
+    GnomadMitochondrialFrequencySettingsPydantic,
+    GnomadNuclearFrequencySettingsPydantic,
+    HelixmtDbFrequencySettingsPydantic,
+    InhouseFrequencySettingsPydantic,
     SeqvarsClinvarSettingsBase,
-    SeqvarsColumnConfig,
+    SeqvarsColumnConfigPydantic,
     SeqvarsColumnsSettingsBase,
     SeqvarsConsequenceSettingsBase,
     SeqvarsFrequencySettingsBase,
-    SeqvarsGenotypePresets,
+    SeqvarsGenotypePresetsPydantic,
     SeqvarsLocusSettingsBase,
+    SeqvarsOutputHeaderPydantic,
+    SeqvarsOutputRecordPydantic,
     SeqvarsPhenotypePrioSettingsBase,
     SeqvarsPredefinedQuery,
-    SeqvarsPrioService,
+    SeqvarsPrioServicePydantic,
     SeqvarsQuery,
     SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
@@ -51,15 +53,14 @@ from seqvars.models import (
     SeqvarsQuerySettingsQuality,
     SeqvarsQuerySettingsVariantPrio,
     SeqvarsResultRow,
-    SeqvarsResultRowPayload,
     SeqvarsResultSet,
-    SeqvarsSampleGenotypeChoice,
-    SeqvarsSampleQualityFilter,
+    SeqvarsSampleGenotypePydantic,
+    SeqvarsSampleQualityFilterPydantic,
     SeqvarsTranscriptTypeChoice,
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantPrioSettingsBase,
     SeqvarsVariantTypeChoice,
-    TermPresence,
+    TermPresencePydantic,
 )
 
 
@@ -70,18 +71,20 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     gnomad_exomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
     gnomad_genomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
     gnomad_mitochondrial = SchemaField(
-        schema=Optional[GnomadMitochondrialFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadMitochondrialFrequencySettingsPydantic], allow_null=True, default=None
     )
     helixmtdb = SchemaField(
-        schema=Optional[HelixmtDbFrequencySettings], allow_null=True, default=None
+        schema=Optional[HelixmtDbFrequencySettingsPydantic], allow_null=True, default=None
     )
-    inhouse = SchemaField(schema=Optional[InhouseFrequencySettings], allow_null=True, default=None)
+    inhouse = SchemaField(
+        schema=Optional[InhouseFrequencySettingsPydantic], allow_null=True, default=None
+    )
 
     class Meta:
         model = SeqvarsFrequencySettingsBase
@@ -121,9 +124,9 @@ class LocusSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    genes = SchemaField(schema=list[Gene], default=list)
-    gene_panels = SchemaField(schema=list[GenePanel], default=list)
-    genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
+    genes = SchemaField(schema=list[GenePydantic], default=list)
+    gene_panels = SchemaField(schema=list[GenePanelPydantic], default=list)
+    genome_regions = SchemaField(schema=list[GenomeRegionPydantic], default=list)
 
     class Meta:
         model = SeqvarsLocusSettingsBase
@@ -144,7 +147,7 @@ class PhenotypePrioSettingsBaseSerializer(serializers.ModelSerializer):
     phenotype_prio_algorithm = serializers.CharField(
         max_length=128, allow_null=True, required=False
     )
-    terms = SchemaField(schema=list[TermPresence], default=list)
+    terms = SchemaField(schema=list[TermPresencePydantic], default=list)
 
     class Meta:
         model = SeqvarsPhenotypePrioSettingsBase
@@ -162,7 +165,7 @@ class VariantPrioSettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     variant_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
-    services = SchemaField(schema=list[SeqvarsPrioService], default=list)
+    services = SchemaField(schema=list[SeqvarsPrioServicePydantic], default=list)
 
     class Meta:
         model = SeqvarsVariantPrioSettingsBase
@@ -180,7 +183,7 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
 
     clinvar_presence_required = serializers.BooleanField(default=False, allow_null=False)
     clinvar_germline_aggregate_description = SchemaField(
-        schema=list[ClinvarGermlineAggregateDescription], default=list
+        schema=list[ClinvarGermlineAggregateDescriptionChoice], default=list
     )
     allow_conflicting_interpretations = serializers.BooleanField(default=False, allow_null=False)
 
@@ -199,7 +202,7 @@ class ColumnsSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    column_settings = SchemaField(schema=list[SeqvarsColumnConfig], default=list)
+    column_settings = SchemaField(schema=list[SeqvarsColumnConfigPydantic], default=list)
 
     class Meta:
         model = SeqvarsColumnsSettingsBase
@@ -428,7 +431,7 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
     genotype = SchemaField(
-        schema=Optional[SeqvarsGenotypePresets],
+        schema=Optional[SeqvarsGenotypePresetsPydantic],
         required=False,
         allow_null=True,
         default=None,
@@ -731,7 +734,7 @@ class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer)
         required=False,
     )
 
-    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
+    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypePydantic], default=list)
 
     class Meta:
         model = SeqvarsQuerySettingsGenotype
@@ -745,7 +748,9 @@ class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer)
 class SeqvarsQuerySettingsQualitySerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsQuality``."""
 
-    sample_quality_filters = SchemaField(schema=list[SeqvarsSampleQualityFilter], default=list)
+    sample_quality_filters = SchemaField(
+        schema=list[SeqvarsSampleQualityFilterPydantic], default=list
+    )
 
     class Meta:
         model = SeqvarsQuerySettingsQuality
@@ -849,7 +854,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``genotypepresets`` as its ``sodar_uuid``.
     genotypepresets = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets],
+        schema=typing.Optional[SeqvarsGenotypePresetsPydantic],
         required=False,
         allow_null=True,
         default=None,
@@ -1152,15 +1157,18 @@ class SeqvarsResultSetSerializer(BaseModelSerializer):
     """Serializer for ``ResultSet``."""
 
     #: Explicitely provide django-pydantic-field schema for ``datasource_infos``.
-    datasource_infos = SchemaField(schema=DataSourceInfos)
+    datasource_infos = SchemaField(schema=DataSourceInfosPydantic)
     #: Serialize ``queryexecution`` as its ``sodar_uuid``.
     queryexecution = serializers.ReadOnlyField(source="queryexecution.sodar_uuid")
+    #: Explicitely provide django-pydantic-field schema for ``output_header``.
+    output_header = SchemaField(schema=typing.Optional[SeqvarsOutputHeaderPydantic])
 
     class Meta:
         model = SeqvarsResultSet
         fields = BaseModelSerializer.Meta.fields + [
             "queryexecution",
             "datasource_infos",
+            "output_header",
         ]
         read_only_fields = fields
 
@@ -1171,20 +1179,19 @@ class SeqvarsResultRowSerializer(serializers.ModelSerializer):
     #: Serialize ``resultset`` as its ``sodar_uuid``.
     resultset = serializers.ReadOnlyField(source="resultset.sodar_uuid")
     #: Explicitely provide django-pydantic-field schema for ``payload``.
-    payload = SchemaField(schema=SeqvarsResultRowPayload)
+    payload = SchemaField(schema=typing.Optional[SeqvarsOutputRecordPydantic])
 
     class Meta:
         model = SeqvarsResultRow
         fields = [
             "sodar_uuid",
             "resultset",
-            "release",
-            "chromosome",
-            "chromosome_no",
-            "start",
-            "stop",
-            "reference",
-            "alternative",
+            "genome_release",
+            "chrom",
+            "chrom_no",
+            "pos",
+            "ref_allele",
+            "alt_allele",
             "payload",
         ]
         read_only_fields = fields

@@ -1,6 +1,5 @@
 """Test models and factories"""
 
-from freezegun import freeze_time
 from test_plus.test import TestCase
 
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
@@ -29,12 +28,11 @@ from seqvars.models import (
     SeqvarsQuerySettingsPhenotypePrio,
     SeqvarsQuerySettingsQuality,
     SeqvarsQuerySettingsVariantPrio,
+    SeqvarsRecessiveModeChoice,
     SeqvarsResultRow,
     SeqvarsResultSet,
-    SeqvarsSampleGenotypeChoice,
 )
 from seqvars.tests.factories import (
-    SampleGenotypeChoiceFactory,
     SeqvarsPredefinedQueryFactory,
     SeqvarsQueryColumnsConfigFactory,
     SeqvarsQueryExecutionFactory,
@@ -83,7 +81,7 @@ class TestSeqvarsCaseGenotypeChoice(TestCase):
         )
 
 
-class TestSeqvarsSampleGenotypeChoice(TestCase):
+class TestSeqvarsRecessiveModeChoice(TestCase):
 
     def test_values(self):
         self.assertEqual(
@@ -93,14 +91,8 @@ class TestSeqvarsSampleGenotypeChoice(TestCase):
                 "homozygous_recessive",
                 "recessive",
             ],
-            SeqvarsSampleGenotypeChoice.values(),
+            SeqvarsRecessiveModeChoice.values(),
         )
-
-
-class TestSeqvarsSampleGenotypeChoice(TestCase):
-
-    def test_values(self):
-        SampleGenotypeChoiceFactory()
 
 
 class TestSeqvarsQueryPresetsSet(TestCase):
@@ -516,9 +508,9 @@ class TestSeqvarsResultRow(TestCase):
         seqvarresultrow = SeqvarsResultRowFactory()
         self.assertEqual(
             (
-                f"SeqvarsResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.release}-"
-                f"{seqvarresultrow.chromosome}-{seqvarresultrow.start}-"
-                f"{seqvarresultrow.reference}-{seqvarresultrow.alternative}'"
+                f"SeqvarsResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.genome_release}-"
+                f"{seqvarresultrow.chrom}-{seqvarresultrow.pos}-"
+                f"{seqvarresultrow.ref_allele}-{seqvarresultrow.alt_allele}'"
             ),
             seqvarresultrow.__str__(),
         )

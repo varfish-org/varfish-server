@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsColumnConfig,)
+                            list, (seqvars.models.SeqvarsColumnConfigPydantic,)
                         ),
                     ),
                 ),
@@ -241,7 +241,7 @@ class Migration(migrations.Migration):
                         config=None,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            typing.Union, (seqvars.models.DataSourceInfos, type(None))
+                            typing.Union, (seqvars.models.DataSourceInfosPydantic, type(None))
                         ),
                     ),
                 ),
@@ -280,7 +280,7 @@ class Migration(migrations.Migration):
                         config=None,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            typing.Union, (seqvars.models.SeqvarsResultRowPayload, type(None))
+                            typing.Union, (seqvars.models.SeqvarsResultRow, type(None))
                         ),
                     ),
                 ),
@@ -312,7 +312,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsPrioService,)
+                            list, (seqvars.models.SeqvarsPrioServicePydantic,)
                         ),
                     ),
                 ),
@@ -348,7 +348,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsSampleQualityFilter,)
+                            list, (seqvars.models.SeqvarsSampleQualityFilterPydantic,)
                         ),
                     ),
                 ),
@@ -389,7 +389,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.TermPresence,)
+                            list, (seqvars.models.TermPresencePydantic,)
                         ),
                     ),
                 ),
@@ -425,7 +425,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.Gene,)
+                            list, (seqvars.models.GenePydantic,)
                         ),
                     ),
                 ),
@@ -436,7 +436,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.GenePanel,)
+                            list, (seqvars.models.GenePanelPydantic,)
                         ),
                     ),
                 ),
@@ -447,7 +447,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.GenomeRegion,)
+                            list, (seqvars.models.GenomeRegionPydantic,)
                         ),
                     ),
                 ),
@@ -483,7 +483,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsSampleGenotypeChoice,)
+                            list, (seqvars.models.SeqvarsSampleGenotypePydantic,)
                         ),
                     ),
                 ),
@@ -624,7 +624,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.ClinvarGermlineAggregateDescription,)
+                            list, (seqvars.models.ClinvarGermlineAggregateDescriptionChoice,)
                         ),
                     ),
                 ),
@@ -664,7 +664,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsPrioService,)
+                            list, (seqvars.models.SeqvarsPrioServicePydantic,)
                         ),
                     ),
                 ),
@@ -741,7 +741,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.TermPresence,)
+                            list, (seqvars.models.TermPresencePydantic,)
                         ),
                     ),
                 ),
@@ -779,7 +779,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.Gene,)
+                            list, (seqvars.models.GenePydantic,)
                         ),
                     ),
                 ),
@@ -790,7 +790,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.GenePanel,)
+                            list, (seqvars.models.GenePanelPydantic,)
                         ),
                     ),
                 ),
@@ -801,7 +801,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.GenomeRegion,)
+                            list, (seqvars.models.GenomeRegionPydantic,)
                         ),
                     ),
                 ),
@@ -946,7 +946,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.SeqvarsColumnConfig,)
+                            list, (seqvars.models.SeqvarsColumnConfigPydantic,)
                         ),
                     ),
                 ),
@@ -986,7 +986,7 @@ class Migration(migrations.Migration):
                         default=list,
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            list, (seqvars.models.ClinvarGermlineAggregateDescription,)
+                            list, (seqvars.models.ClinvarGermlineAggregateDescriptionChoice,)
                         ),
                     ),
                 ),
@@ -1053,7 +1053,8 @@ class Migration(migrations.Migration):
                         default={"choice": None},
                         encoder=django.core.serializers.json.DjangoJSONEncoder,
                         schema=django_pydantic_field.compat.django.GenericContainer(
-                            typing.Union, (seqvars.models.SeqvarsGenotypePresets, type(None))
+                            typing.Union,
+                            (seqvars.models.SeqvarsGenotypePresetsPydantic, type(None)),
                         ),
                     ),
                 ),

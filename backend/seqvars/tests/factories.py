@@ -1,24 +1,24 @@
-import datetime
-
 import django.utils.timezone
 import factory
 
 from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.models import (
-    ClinvarGermlineAggregateDescription,
-    DataSourceInfo,
-    DataSourceInfos,
-    Gene,
-    GenePanel,
-    GenePanelSource,
-    GnomadMitochondrialFrequencySettings,
-    GnomadNuclearFrequencySettings,
-    HelixmtDbFrequencySettings,
-    InhouseFrequencySettings,
-    SeqvarsColumnConfig,
+    ClinvarGermlineAggregateDescriptionChoice,
+    DataSourceInfoPydantic,
+    DataSourceInfosPydantic,
+    GenePanelPydantic,
+    GenePanelSourceChoice,
+    GenePydantic,
+    GenomeReleaseChoice,
+    GnomadMitochondrialFrequencySettingsPydantic,
+    GnomadNuclearFrequencySettingsPydantic,
+    HelixmtDbFrequencySettingsPydantic,
+    InhouseFrequencySettingsPydantic,
+    SeqvarsColumnConfigPydantic,
     SeqvarsGenotypeChoice,
+    SeqvarsOutputRecordPydantic,
     SeqvarsPredefinedQuery,
-    SeqvarsPrioService,
+    SeqvarsPrioServicePydantic,
     SeqvarsQuery,
     SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
@@ -42,15 +42,16 @@ from seqvars.models import (
     SeqvarsQuerySettingsQuality,
     SeqvarsQuerySettingsVariantPrio,
     SeqvarsResultRow,
-    SeqvarsResultRowPayload,
     SeqvarsResultSet,
-    SeqvarsSampleGenotypeChoice,
-    SeqvarsSampleQualityFilter,
+    SeqvarsSampleGenotypePydantic,
+    SeqvarsSampleQualityFilterPydantic,
     SeqvarsTranscriptTypeChoice,
+    SeqvarsVariantAnnotationPydantic,
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantTypeChoice,
-    Term,
-    TermPresence,
+    SeqvarsVcfVariantPydantic,
+    TermPresencePydantic,
+    TermPydantic,
 )
 from variants.tests.factories import ProjectFactory
 
@@ -65,12 +66,10 @@ class SampleGenotypeChoiceFactory(factory.Factory):
         return SeqvarsGenotypeChoice(values[n % len(values)])
 
     class Meta:
-        model = SeqvarsSampleGenotypeChoice
+        model = SeqvarsSampleGenotypePydantic
 
 
 class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
-    sample_genotypes = factory.Faker("pydantic_field", schema=[SeqvarsSampleGenotypeChoice])
-
     @factory.lazy_attribute
     def sample_genotypes(self):
         return [SampleGenotypeChoiceFactory() for _ in range(3)]
@@ -88,7 +87,7 @@ class GnomadNuclearFrequencySettingsFactory(factory.Factory):
     frequency = None
 
     class Meta:
-        model = GnomadNuclearFrequencySettings
+        model = GnomadNuclearFrequencySettingsPydantic
 
 
 class GnomadMitochondrialFrequencySettingsFactory(factory.Factory):
@@ -99,7 +98,7 @@ class GnomadMitochondrialFrequencySettingsFactory(factory.Factory):
     frequency = None
 
     class Meta:
-        model = GnomadMitochondrialFrequencySettings
+        model = GnomadMitochondrialFrequencySettingsPydantic
 
 
 class HelixMtDbFrequencySettingsFactory(factory.Factory):
@@ -110,7 +109,7 @@ class HelixMtDbFrequencySettingsFactory(factory.Factory):
     frequency = None
 
     class Meta:
-        model = HelixmtDbFrequencySettings
+        model = HelixmtDbFrequencySettingsPydantic
 
 
 class InhouseFrequencySettingsFactory(factory.Factory):
@@ -122,7 +121,7 @@ class InhouseFrequencySettingsFactory(factory.Factory):
     carriers = None
 
     class Meta:
-        model = InhouseFrequencySettings
+        model = InhouseFrequencySettingsPydantic
 
 
 class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
@@ -165,11 +164,11 @@ class ConsequenceSettingsBaseFactory(factory.django.DjangoModelFactory):
 class LocusSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     genes = [
-        Gene(hgnc_id="HGNC:1234", symbol="GENE1"),
+        GenePydantic(hgnc_id="HGNC:1234", symbol="GENE1"),
     ]
     gene_panels = [
-        GenePanel(
-            source=GenePanelSource.PANELAPP,
+        GenePanelPydantic(
+            source=GenePanelSourceChoice.PANELAPP,
             panel_id="126",
             name="Monogenic hearing loss",
             version="4.39",
@@ -186,8 +185,8 @@ class PhenotypePrioSettingsBaseFactory(factory.django.DjangoModelFactory):
     phenotype_prio_enabled = False
     phenotype_prio_algorithm = "HiPhive"
     terms = [
-        TermPresence(
-            term=Term(
+        TermPresencePydantic(
+            term=TermPydantic(
                 term_id="HP:0000001",
                 label="Phenotype 1",
             ),
@@ -202,7 +201,7 @@ class PhenotypePrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 class VariantPrioSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     variant_prio_enabled = False
-    services = [SeqvarsPrioService(name="MutationTaster", version="2021")]
+    services = [SeqvarsPrioServicePydantic(name="MutationTaster", version="2021")]
 
     class Meta:
         abstract = True
@@ -212,8 +211,8 @@ class ClinvarSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     clinvar_presence_required = False
     clinvar_germline_aggregate_description = [
-        ClinvarGermlineAggregateDescription.PATHOGENIC,
-        ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
+        ClinvarGermlineAggregateDescriptionChoice.PATHOGENIC,
+        ClinvarGermlineAggregateDescriptionChoice.LIKELY_PATHOGENIC,
     ]
     allow_conflicting_interpretations = False
 
@@ -224,7 +223,7 @@ class ClinvarSettingsBaseFactory(factory.django.DjangoModelFactory):
 class ColumnsSettingsBaseFactory(factory.django.DjangoModelFactory):
 
     column_settings = [
-        SeqvarsColumnConfig(
+        SeqvarsColumnConfigPydantic(
             name="chromosome",
             label="Chromosome",
             width=300,
@@ -410,7 +409,7 @@ class SeqvarsQuerySettingsQualityFactory(BaseModelFactory):
     # ``QuerySettingsQuality``.
     querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, quality=None)
     sample_quality_filters = [
-        SeqvarsSampleQualityFilter(
+        SeqvarsSampleQualityFilterPydantic(
             sample="index",
         )
     ]
@@ -526,9 +525,9 @@ class SeqvarsResultSetFactory(BaseModelFactory):
 
     @factory.lazy_attribute
     def datasource_infos(self):
-        return DataSourceInfos(
+        return DataSourceInfosPydantic(
             infos=[
-                DataSourceInfo(
+                DataSourceInfoPydantic(
                     name="fake-name",
                     version="0.0.1",
                 )
@@ -539,23 +538,54 @@ class SeqvarsResultSetFactory(BaseModelFactory):
         model = SeqvarsResultSet
 
 
+class SeqvarsVcfVariantPydanticFactory(factory.Factory):
+
+    genome_release = GenomeReleaseChoice.GRCH37
+    chrom = factory.Sequence(lambda n: f"chr{n % 22}")
+    chrom_no = factory.Sequence(lambda n: n % 22)
+    pos = factory.Sequence(lambda n: 10_000_000 + n)
+    ref_allele = factory.Sequence(lambda n: "ACGT"[n % 4])
+    alt_allele = factory.Sequence(lambda n: "TACG"[n % 4])
+
+    class Meta:
+        model = SeqvarsVcfVariantPydantic
+
+
+class SeqvarsVariantAnnotationPydanticFactory(factory.Factory):
+
+    gene = None
+    variant = None
+    call = None
+
+    class Meta:
+        model = SeqvarsVariantAnnotationPydantic
+
+
+class SeqvarsOutputRecordPydanticFactory(factory.Factory):
+
+    uuid = factory.Faker("uuid4")
+    case_uuid = factory.Faker("uuid4")
+    vcf_variant = factory.SubFactory(SeqvarsVcfVariantPydanticFactory)
+    variant_annotation = factory.SubFactory(SeqvarsVariantAnnotationPydanticFactory)
+
+    class Meta:
+        model = SeqvarsOutputRecordPydantic
+
+
 class SeqvarsResultRowFactory(factory.django.DjangoModelFactory):
 
     sodar_uuid = factory.Faker("uuid4")
 
     resultset = factory.SubFactory(SeqvarsResultSetFactory)
 
-    release = "GRCh38"
-    chromosome = factory.Sequence(lambda n: f"chr{n % 22}")
-    chromosome_no = factory.Sequence(lambda n: n % 22)
-    start = factory.Sequence(lambda n: 10_000_000 + n)
-    stop = factory.Sequence(lambda n: 10_000_000 + n)
-    reference = factory.Sequence(lambda n: "ACGT"[n % 4])
-    alternative = factory.Sequence(lambda n: "TACG"[n % 4])
+    genome_release = "GRCh38"
+    chrom = factory.Sequence(lambda n: f"chr{n % 22}")
+    chrom_no = factory.Sequence(lambda n: n % 22)
+    pos = factory.Sequence(lambda n: 10_000_000 + n)
+    ref_allele = factory.Sequence(lambda n: "ACGT"[n % 4])
+    alt_allele = factory.Sequence(lambda n: "TACG"[n % 4])
 
-    @factory.lazy_attribute
-    def payload(self):
-        return SeqvarsResultRowPayload(foo=42)
+    payload = factory.SubFactory(SeqvarsOutputRecordPydanticFactory)
 
     class Meta:
         model = SeqvarsResultRow

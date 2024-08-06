@@ -1,5 +1,5 @@
 import {
-  GenomeRegionList,
+  GenomeRegionPydanticList,
   SeqvarsGenotypePresetChoice,
 } from '@varfish-org/varfish-api/lib'
 import { computed, ref, Ref } from 'vue'
@@ -69,7 +69,7 @@ export function toProxy<T extends object>(opt: {
 type _Unpacked<T> = T extends (infer U)[] ? U : T
 
 /** Helper type for one GenomeRegion */
-export type GenomeRegion = _Unpacked<GenomeRegionList>
+export type GenomeRegion = _Unpacked<GenomeRegionPydanticList>
 
 /**
  * Return user-readable string representation of a `GenomeRegion`.

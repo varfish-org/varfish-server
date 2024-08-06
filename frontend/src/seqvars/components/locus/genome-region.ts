@@ -1,4 +1,4 @@
-import { GenomeRegionList } from '@varfish-org/varfish-api/lib'
+import { GenomeRegionPydanticList } from '@varfish-org/varfish-api/lib'
 
 import { formatLargeInt } from '@/varfish/helpers'
 
@@ -8,7 +8,7 @@ import { formatLargeInt } from '@/varfish/helpers'
 type _Unpacked<T> = T extends (infer U)[] ? U : T
 
 /** Helper type for one GenomeRegion */
-export type GenomeRegion = _Unpacked<GenomeRegionList>
+export type GenomeRegion = _Unpacked<GenomeRegionPydanticList>
 
 /**
  * Return user-readable string representation of a `GenomeRegion`.
