@@ -2876,7 +2876,7 @@ export type SeqvarsQuerySettingsGenotype = {
     readonly date_modified: string;
     readonly querysettings: string;
     recessive_mode?: RecessiveModeEnum;
-    sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
+    sample_genotype_choices?: SeqvarsSampleGenotypePydanticList;
 };
 
 /**
@@ -2884,7 +2884,7 @@ export type SeqvarsQuerySettingsGenotype = {
  */
 export type SeqvarsQuerySettingsGenotypePydantic = {
     recessive_mode?: SeqvarsRecessiveModeChoice;
-    sample_genotypes?: Array<SeqvarsSampleGenotypeChoice>;
+    sample_genotypes?: Array<SeqvarsSampleGenotypePydantic>;
 };
 
 /**
@@ -2892,7 +2892,7 @@ export type SeqvarsQuerySettingsGenotypePydantic = {
  */
 export type SeqvarsQuerySettingsGenotypeRequest = {
     recessive_mode?: RecessiveModeEnum;
-    sample_genotype_choices?: SeqvarsSampleGenotypeChoiceList;
+    sample_genotype_choices?: SeqvarsSampleGenotypePydanticList;
 };
 
 /**
@@ -3059,14 +3059,14 @@ export type SeqvarsSampleCallInfoPydantic = {
 /**
  * Store the genotype of a sample.
  */
-export type SeqvarsSampleGenotypeChoice = {
+export type SeqvarsSampleGenotypePydantic = {
     sample: string;
     genotype: SeqvarsGenotypeChoice;
     include_no_call?: boolean;
     enabled?: boolean;
 };
 
-export type SeqvarsSampleGenotypeChoiceList = Array<{
+export type SeqvarsSampleGenotypePydanticList = Array<{
     sample: string;
     genotype: SeqvarsGenotypeChoice;
     include_no_call?: boolean;

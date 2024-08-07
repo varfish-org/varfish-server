@@ -9505,7 +9505,7 @@ export const $SeqvarsQuerySettingsGenotype = {
             default: 'disabled'
         },
         sample_genotype_choices: {
-            '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
+            '$ref': '#/components/schemas/SeqvarsSampleGenotypePydanticList'
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
@@ -9525,7 +9525,7 @@ export const $SeqvarsQuerySettingsGenotypePydantic = {
         sample_genotypes: {
             default: [],
             items: {
-                '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoice'
+                '$ref': '#/components/schemas/SeqvarsSampleGenotypePydantic'
             },
             title: 'Sample Genotypes',
             type: 'array'
@@ -9548,7 +9548,7 @@ export const $SeqvarsQuerySettingsGenotypeRequest = {
             default: 'disabled'
         },
         sample_genotype_choices: {
-            '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
+            '$ref': '#/components/schemas/SeqvarsSampleGenotypePydanticList'
         }
     }
 } as const;
@@ -10071,7 +10071,7 @@ export const $SeqvarsSampleCallInfoPydantic = {
     type: 'object'
 } as const;
 
-export const $SeqvarsSampleGenotypeChoice = {
+export const $SeqvarsSampleGenotypePydantic = {
     description: 'Store the genotype of a sample.',
     properties: {
         sample: {
@@ -10093,11 +10093,11 @@ export const $SeqvarsSampleGenotypeChoice = {
         }
     },
     required: ['sample', 'genotype'],
-    title: 'SeqvarsSampleGenotypeChoice',
+    title: 'SeqvarsSampleGenotypePydantic',
     type: 'object'
 } as const;
 
-export const $SeqvarsSampleGenotypeChoiceList = {
+export const $SeqvarsSampleGenotypePydanticList = {
     type: 'array',
     items: {
         description: 'Store the genotype of a sample.',
@@ -10121,7 +10121,7 @@ export const $SeqvarsSampleGenotypeChoiceList = {
             }
         },
         required: ['sample', 'genotype'],
-        title: 'SeqvarsSampleGenotypeChoice',
+        title: 'SeqvarsSampleGenotypePydantic',
         type: 'object'
     }
 } as const;

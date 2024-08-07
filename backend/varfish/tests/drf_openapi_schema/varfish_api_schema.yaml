@@ -12474,7 +12474,7 @@ components:
           - $ref: '#/components/schemas/RecessiveModeEnum'
           default: disabled
         sample_genotype_choices:
-          $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
+          $ref: '#/components/schemas/SeqvarsSampleGenotypePydanticList'
       required:
       - date_created
       - date_modified
@@ -12490,7 +12490,7 @@ components:
         sample_genotypes:
           default: []
           items:
-            $ref: '#/components/schemas/SeqvarsSampleGenotypeChoice'
+            $ref: '#/components/schemas/SeqvarsSampleGenotypePydantic'
           title: Sample Genotypes
           type: array
       title: SeqvarsQuerySettingsGenotypePydantic
@@ -12504,7 +12504,7 @@ components:
           - $ref: '#/components/schemas/RecessiveModeEnum'
           default: disabled
         sample_genotype_choices:
-          $ref: '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
+          $ref: '#/components/schemas/SeqvarsSampleGenotypePydanticList'
     SeqvarsQuerySettingsLocus:
       type: object
       description: Serializer for ``QuerySettingsLocus``.
@@ -12889,7 +12889,7 @@ components:
       - sample
       title: SeqvarsSampleCallInfoPydantic
       type: object
-    SeqvarsSampleGenotypeChoice:
+    SeqvarsSampleGenotypePydantic:
       description: Store the genotype of a sample.
       properties:
         sample:
@@ -12908,9 +12908,9 @@ components:
       required:
       - sample
       - genotype
-      title: SeqvarsSampleGenotypeChoice
+      title: SeqvarsSampleGenotypePydantic
       type: object
-    SeqvarsSampleGenotypeChoiceList:
+    SeqvarsSampleGenotypePydanticList:
       type: array
       items:
         description: Store the genotype of a sample.
@@ -12931,7 +12931,7 @@ components:
         required:
         - sample
         - genotype
-        title: SeqvarsSampleGenotypeChoice
+        title: SeqvarsSampleGenotypePydantic
         type: object
     SeqvarsSampleQualityFilterPydanticList:
       type: array
