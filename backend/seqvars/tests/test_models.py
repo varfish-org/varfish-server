@@ -74,7 +74,8 @@ class TestSeqvarsCaseGenotypeChoice(TestCase):
                 "non_hom",
                 "variant",
                 "recessive_index",
-                "recessive_parent",
+                "recessive_father",
+                "recessive_mother",
             ],
             SeqvarsGenotypeChoice.values(),
         )

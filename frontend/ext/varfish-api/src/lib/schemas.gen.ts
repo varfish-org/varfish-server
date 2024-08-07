@@ -3300,18 +3300,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -3323,6 +3311,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -3368,18 +3368,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -3391,6 +3379,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -5217,7 +5217,7 @@ export const $SeqvarsColumnConfigList = {
 
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non_het', 'non_hom', 'variant', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_het', 'non_hom', 'variant', 'recessive_index', 'recessive_father', 'recessive_mother'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -6009,18 +6009,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6032,6 +6020,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -6077,18 +6077,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6100,6 +6088,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -6367,18 +6367,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6390,6 +6378,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -6435,18 +6435,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6458,6 +6446,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -7902,18 +7902,6 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -7925,6 +7913,18 @@ export const $SeqvarsQuerySettingsFrequency = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -7970,18 +7970,6 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -7993,6 +7981,18 @@ export const $SeqvarsQuerySettingsFrequency = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -8246,18 +8246,6 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -8269,6 +8257,18 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -8314,18 +8314,6 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -8337,6 +8325,18 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [

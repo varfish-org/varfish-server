@@ -45,24 +45,24 @@ export const GENOTYPE_PRESETS = {
     recessiveMode: 'comphet_recessive',
     samples: {
       index: 'recessive_index',
-      father: 'recessive_parent',
-      mother: 'recessive_parent',
+      father: 'recessive_father',
+      mother: 'recessive_mother',
     },
   },
   recessive: {
     recessiveMode: 'recessive',
     samples: {
       index: 'recessive_index',
-      father: 'recessive_parent',
-      mother: 'recessive_parent',
+      father: 'recessive_father',
+      mother: 'recessive_mother',
     },
   },
   x_recessive: {
     recessiveMode: 'recessive',
     samples: {
       index: 'recessive_index',
-      father: 'any',
-      mother: 'recessive_parent',
+      father: 'recessive_father',
+      mother: 'recessive_mother',
     },
   },
 } satisfies Record<
