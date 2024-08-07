@@ -69,40 +69,42 @@ const logsVisible = ref<boolean>(false)
             params: { project: projectUuid, case: caseUuid },
           }"
         >
-          Back to Case
+          <template v-if="!navbarHidden"> Back to Case </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
           SV Analysis
         </v-list-subheader>
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-filter"
           :to="{
             name: 'variants-filter',
             params: { case: caseUuid },
           }"
         >
-          Go To Variant Filtration
+          <template v-if="!navbarHidden"> Go To Variant Filtration </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
           Analysis Info
         </v-list-subheader>
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-button-cursor"
           @click="filterFormVisible = !filterFormVisible"
         >
-          Toggle Form
+          <template v-if="!navbarHidden"> Toggle Form </template>
         </v-list-item>
         <v-list-item
           :prepend-icon="`mdi-numeric-${filtrationComplexityMode}-box-multiple`"
           @click="toggleFiltrationComplexityMode()"
         >
-          Toggle Complexity
+          <template v-if="!navbarHidden"> Toggle Complexity </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-card-text-outline"
           @click="logsVisible = !logsVisible"
         >
-          Toggle Logs
+          <template v-if="!navbarHidden"> Toggle Logs </template>
         </v-list-item>
       </TheNavBar>
       <SvFilterApp

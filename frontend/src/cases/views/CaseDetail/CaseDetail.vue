@@ -38,17 +38,18 @@ const userHasPerms = (perm: string) =>
       >
         <template v-if="!navbarHidden"> Back to Case List </template>
       </v-list-item>
-      <v-list-subheader class="text-uppercase">
+      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
         Case Overview
       </v-list-subheader>
       <v-list-item
+        :class="{ 'mt-3': navbarHidden }"
         prepend-icon="mdi-account"
         :to="{
           name: 'case-detail-overview',
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        Overview
+        <template v-if="!navbarHidden"> Overview </template>
       </v-list-item>
       <v-list-item
         prepend-icon="mdi-chart-multiple"
@@ -57,7 +58,7 @@ const userHasPerms = (perm: string) =>
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        Quality Control
+        <template v-if="!navbarHidden"> Quality Control </template>
       </v-list-item>
       <v-list-item
         prepend-icon="mdi-bookmark-multiple"
@@ -66,14 +67,15 @@ const userHasPerms = (perm: string) =>
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        Variant Annotation
+        <template v-if="!navbarHidden"> Variant Annotation </template>
       </v-list-item>
 
-      <v-list-subheader class="text-uppercase">
+      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
         Variant Analysis
       </v-list-subheader>
 
       <v-list-item
+        :class="{ 'mt-3': navbarHidden }"
         prepend-icon="mdi-filter"
         append-icon="mdi-arrow-right"
         :to="{
@@ -81,7 +83,7 @@ const userHasPerms = (perm: string) =>
           params: { case: caseUuid },
         }"
       >
-        Filter Variants
+        <template v-if="!navbarHidden"> Filter Variants </template>
       </v-list-item>
       <v-list-item
         prepend-icon="mdi-filter-variant"
@@ -91,48 +93,49 @@ const userHasPerms = (perm: string) =>
           params: { case: caseUuid },
         }"
       >
-        Filter SVs
+        <template v-if="!navbarHidden"> Filter SVs </template>
       </v-list-item>
 
       <template v-if="userHasPerms('cases.update_case')">
-        <v-list-subheader class="text-uppercase">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
           Case Operations
         </v-list-subheader>
 
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-filter-settings"
           link
           @click="paneRef!.handleEditQueryPresetsClicked()"
         >
-          Edit Query Presets
+          <template v-if="!navbarHidden"> Edit Query Presets </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-comment-plus"
           link
           @click="paneRef!.handleAddCaseCommentClicked()"
         >
-          Add Comment
+          <template v-if="!navbarHidden"> Add Comment </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-square-edit-outline"
           link
           @click="paneRef!.handleEditCaseStatusClicked()"
         >
-          Edit Status
+          <template v-if="!navbarHidden"> Edit Status </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-playlist-edit"
           link
           @click="paneRef!.handleEditCaseNotesClicked()"
         >
-          Edit Notes
+          <template v-if="!navbarHidden"> Edit Notes </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-file-document-edit"
           link
           @click="paneRef!.handleEditPedigreeClicked()"
         >
-          Edit Pedigree
+          <template v-if="!navbarHidden"> Edit Pedigree </template>
         </v-list-item>
         <v-list-item
           v-if="userHasPerms('cases.delete_case')"
@@ -142,7 +145,7 @@ const userHasPerms = (perm: string) =>
           class="dropdown-item text-danger"
           @click="paneRef!.handleDestroyCaseClicked()"
         >
-          Delete Case
+          <template v-if="!navbarHidden"> Delete Case </template>
         </v-list-item>
       </template>
     </TheNavBar>

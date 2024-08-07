@@ -61,19 +61,20 @@ watch(
           prepend-icon="mdi-arrow-left"
           :href="`/project/${projectStore.projectUuid}`"
         >
-          Back to Project
+          <template v-if="!navbarHidden"> Back to Project </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
           Project Overview
         </v-list-subheader>
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-format-list-bulleted-square"
           :to="{
             name: 'case-list',
             params: { project: projectStore.projectUuid },
           }"
         >
-          Case List
+          <template v-if="!navbarHidden"> Case List </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-chart-multiple"
@@ -82,7 +83,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          Quality Control
+          <template v-if="!navbarHidden"> Quality Control </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-filter-settings"
@@ -91,7 +92,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          Query Presets
+          <template v-if="!navbarHidden"> Query Presets </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-numeric-2-box-multiple-outline"
@@ -100,7 +101,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          Query Presets (V2)
+          <template v-if="!navbarHidden"> Query Presets (V2) </template>
         </v-list-item>
       </TheNavBar>
       <v-container class="py-2 px-6" fluid>

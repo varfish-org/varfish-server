@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import VarFishLogo from '@/varfish/components/VarFishLogo.vue'
+import 'iconify-icon'
 
 const navbarHidden = defineModel('navbarHidden', {
   type: Boolean,
@@ -10,10 +11,17 @@ const navbarHidden = defineModel('navbarHidden', {
 <template>
   <v-app-bar color="primary" density="compact">
     <template #prepend>
-      <v-app-bar-nav-icon
-        :icon="`mdi-menu-` + (navbarHidden ? `close` : `open`)"
+      <v-btn
+        rounded="xl"
+        icon=""
         @click="navbarHidden = !navbarHidden"
-      ></v-app-bar-nav-icon>
+        :title="`${navbarHidden ? 'Show' : 'Hide'} the left sidebar.`"
+      >
+        <iconify-icon
+          :icon="`material-symbols:left-panel-${navbarHidden ? 'open' : 'close'}`"
+          style="font-size: 24px"
+        ></iconify-icon>
+      </v-btn>
     </template>
 
     <v-app-bar-title>
