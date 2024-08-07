@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 import {
   SeqvarsGenotypeChoice,
-  SeqvarsSampleGenotypeChoiceList,
+  SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
 
 import CheckButton from '../ui/CheckButton.vue'
@@ -16,7 +16,7 @@ enum InheritanceMode {
   NO_CALL = 'no call',
 }
 
-const model = defineModel<SeqvarsSampleGenotypeChoiceList[number]>({
+const model = defineModel<SeqvarsSampleGenotypePydanticList[number]>({
   required: true,
 })
 
