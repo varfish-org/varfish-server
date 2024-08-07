@@ -21,10 +21,10 @@ exclude_lines = [
 [tool.flake8]
 exclude = [
     "docs",
-    # "tests",
     ".*.py",
     "wrapper.py",
     "src",
+    "*_pb2.py",
 ]
 max-complexity = 18
 select = ["B","C","E","F","W","T4","B9"]

@@ -28,6 +28,7 @@ from seqvars.models import (
     SeqvarsQuerySettingsPhenotypePrio,
     SeqvarsQuerySettingsQuality,
     SeqvarsQuerySettingsVariantPrio,
+    SeqvarsRecessiveModeChoice,
     SeqvarsResultRow,
     SeqvarsResultSet,
 )
@@ -78,6 +79,20 @@ class TestSeqvarsCaseGenotypeChoice(TestCase):
                 "recessive_mother",
             ],
             SeqvarsGenotypeChoice.values(),
+        )
+
+
+class TestSeqvarsRecessiveModeChoice(TestCase):
+
+    def test_values(self):
+        self.assertEqual(
+            [
+                "disabled",
+                "comphet_recessive",
+                "homozygous_recessive",
+                "recessive",
+            ],
+            SeqvarsRecessiveModeChoice.values(),
         )
 
 
@@ -494,9 +509,9 @@ class TestSeqvarsResultRow(TestCase):
         seqvarresultrow = SeqvarsResultRowFactory()
         self.assertEqual(
             (
-                f"SeqvarsResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.release}-"
-                f"{seqvarresultrow.chromosome}-{seqvarresultrow.start}-"
-                f"{seqvarresultrow.reference}-{seqvarresultrow.alternative}'"
+                f"SeqvarsResultRow '{seqvarresultrow.sodar_uuid}' '{seqvarresultrow.genome_release}-"
+                f"{seqvarresultrow.chrom}-{seqvarresultrow.pos}-"
+                f"{seqvarresultrow.ref_allele}-{seqvarresultrow.alt_allele}'"
             ),
             seqvarresultrow.__str__(),
         )

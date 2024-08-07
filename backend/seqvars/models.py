@@ -1,3 +1,22 @@
+"""Models of the ``seqvars`` app.
+
+Broadly, we have two different types of models: Django models based and Pydantic based.
+
+Django models are used for storing records in the database.  Pydantic models are used
+for storing compound information in JSONB fields in the database.  The trade-off of having
+denormalized data was chosen for keeping certain complexity at bay at the cost of
+denormalized database schemas and related potential issues.
+
+All models are expected to be eventually exposed to the REST API.  Here, we need globally
+unique names, thus the ``Seqvars`` prefix was used to support this.  The enums used have
+the suffix ``Choice`` in some cases for disambiguation of names and in others for
+consistency.  The Pydantic models have the suffix ``Pydantic`` (again) in some cases for
+disambiguation and otherwise for consistency.
+
+We are aware that there is some redundancy in the models.
+"""
+
+import datetime
 from enum import Enum
 import typing
 import uuid as uuid_object
@@ -17,7 +36,7 @@ from variants.models.projectroles import Project
 User = get_user_model()
 
 
-class GnomadNuclearFrequencySettings(pydantic.BaseModel):
+class GnomadNuclearFrequencySettingsPydantic(pydantic.BaseModel):
     """Settings for gnomAD nuclear frequency filtering."""
 
     enabled: bool = False
@@ -27,7 +46,7 @@ class GnomadNuclearFrequencySettings(pydantic.BaseModel):
     frequency: float | None = None
 
 
-class GnomadMitochondrialFrequencySettings(pydantic.BaseModel):
+class GnomadMitochondrialFrequencySettingsPydantic(pydantic.BaseModel):
     """Settings for gnomAD mitochondrial frequency filtering."""
 
     enabled: bool = False
@@ -36,7 +55,7 @@ class GnomadMitochondrialFrequencySettings(pydantic.BaseModel):
     frequency: float | None = None
 
 
-class HelixmtDbFrequencySettings(pydantic.BaseModel):
+class HelixmtDbFrequencySettingsPydantic(pydantic.BaseModel):
     """Settings for HelixMtDb frequency filtering."""
 
     enabled: bool = False
@@ -45,7 +64,7 @@ class HelixmtDbFrequencySettings(pydantic.BaseModel):
     frequency: float | None = None
 
 
-class InhouseFrequencySettings(pydantic.BaseModel):
+class InhouseFrequencySettingsPydantic(pydantic.BaseModel):
     """Settings for in-house frequency filtering."""
 
     enabled: bool = False
@@ -59,25 +78,34 @@ class SeqvarsFrequencySettingsBase(models.Model):
     """Abstract model for storing frequency-related settings."""
 
     gnomad_exomes = SchemaField(
-        schema=typing.Optional[GnomadNuclearFrequencySettings],
+        schema=typing.Optional[GnomadNuclearFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
     gnomad_genomes = SchemaField(
-        schema=typing.Optional[GnomadNuclearFrequencySettings], blank=True, null=True, default=None
+        schema=typing.Optional[GnomadNuclearFrequencySettingsPydantic],
+        blank=True,
+        null=True,
+        default=None,
     )
     gnomad_mitochondrial = SchemaField(
-        schema=typing.Optional[GnomadMitochondrialFrequencySettings],
+        schema=typing.Optional[GnomadMitochondrialFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
     helixmtdb = SchemaField(
-        schema=typing.Optional[HelixmtDbFrequencySettings], blank=True, null=True, default=None
+        schema=typing.Optional[HelixmtDbFrequencySettingsPydantic],
+        blank=True,
+        null=True,
+        default=None,
     )
     inhouse = SchemaField(
-        schema=typing.Optional[InhouseFrequencySettings], blank=True, null=True, default=None
+        schema=typing.Optional[InhouseFrequencySettingsPydantic],
+        blank=True,
+        null=True,
+        default=None,
     )
 
     class Meta:
@@ -96,6 +124,10 @@ class SeqvarsVariantTypeChoice(str, Enum):
     #: Complex substitution.
     COMPLEX_SUBSTITUTION = "complex_substitution"
 
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
 
 class SeqvarsTranscriptTypeChoice(str, Enum):
     """The type of a transcript."""
@@ -104,6 +136,10 @@ class SeqvarsTranscriptTypeChoice(str, Enum):
     CODING = "coding"
     #: Non-coding transcript.
     NON_CODING = "non_coding"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
 
 
 class SeqvarsVariantConsequenceChoice(str, Enum):
@@ -203,6 +239,10 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     # #: Gene variant.
     # GENE_VARIANT = "gene_variant"
 
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
 
 class SeqvarsConsequenceSettingsBase(models.Model):
     """Abstract model for storing consequence-related settings."""
@@ -220,7 +260,7 @@ class SeqvarsConsequenceSettingsBase(models.Model):
         abstract = True
 
 
-class Gene(pydantic.BaseModel):
+class GenePydantic(pydantic.BaseModel):
     """Representation of a gene to query for."""
 
     #: The HGNC identifier used as stable ID.
@@ -235,7 +275,7 @@ class Gene(pydantic.BaseModel):
     ensembl_id: typing.Optional[str] = None
 
 
-class GenePanelSource(str, Enum):
+class GenePanelSourceChoice(str, Enum):
     """The source of a gene panel."""
 
     #: PanelApp.
@@ -243,12 +283,16 @@ class GenePanelSource(str, Enum):
     #: Internal to varfish intance.
     INTERNAL = "internal"
 
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
 
-class GenePanel(pydantic.BaseModel):
+
+class GenePanelPydantic(pydantic.BaseModel):
     """Representation of a gene panel to use in the query."""
 
     #: The source of the gene panel.
-    source: GenePanelSource
+    source: GenePanelSourceChoice
     #: The panel ID (number for PanelApp, UUID for internal).
     panel_id: str
     #: The panel name.
@@ -257,7 +301,7 @@ class GenePanel(pydantic.BaseModel):
     version: str
 
 
-class OneBasedRange(pydantic.BaseModel):
+class OneBasedRangePydantic(pydantic.BaseModel):
     """Representation of a 1-based range."""
 
     #: The 1-based start position.
@@ -266,30 +310,30 @@ class OneBasedRange(pydantic.BaseModel):
     end: int
 
 
-class GenomeRegion(pydantic.BaseModel):
+class GenomeRegionPydantic(pydantic.BaseModel):
     """Representation of a genomic region to query for."""
 
     #: The chromosome name.
     chromosome: str
     #: The optional range.
-    range: typing.Optional[OneBasedRange] = None
+    range: typing.Optional[OneBasedRangePydantic] = None
 
 
 class SeqvarsLocusSettingsBase(models.Model):
     """Abstract model for storing locus-related settings."""
 
     #: Optional list of gene symbols to filter for.
-    genes = SchemaField(schema=list[Gene], default=list)
+    genes = SchemaField(schema=list[GenePydantic], default=list)
     #: Optional ilst of gene panels to use in the query.
-    gene_panels = SchemaField(schema=list[GenePanel], default=list)
+    gene_panels = SchemaField(schema=list[GenePanelPydantic], default=list)
     #: Optional list of genomic regions to filter for.
-    genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
+    genome_regions = SchemaField(schema=list[GenomeRegionPydantic], default=list)
 
     class Meta:
         abstract = True
 
 
-class Term(pydantic.BaseModel):
+class TermPydantic(pydantic.BaseModel):
     """Representation of a condition (phenotype / disease) term."""
 
     #: CURIE-style identifier, e.g., with prefixes "HP:0000001", "OMIM:123456", "ORPHA:123456
@@ -298,11 +342,11 @@ class Term(pydantic.BaseModel):
     label: typing.Optional[str]
 
 
-class TermPresence(pydantic.BaseModel):
+class TermPresencePydantic(pydantic.BaseModel):
     """Representation of a term with optional presence (default is not excluded)."""
 
     #: The condition term.
-    term: Term
+    term: TermPydantic
     #: Whether the term is excluded.
     excluded: typing.Optional[bool] = None
 
@@ -315,13 +359,13 @@ class SeqvarsPhenotypePrioSettingsBase(models.Model):
     #: The algorithm to use for priorization.
     phenotype_prio_algorithm = models.CharField(max_length=128, null=True, blank=True)
     #: The phenotype terms to use.
-    terms = SchemaField(schema=list[TermPresence], default=list)
+    terms = SchemaField(schema=list[TermPresencePydantic], default=list)
 
     class Meta:
         abstract = True
 
 
-class SeqvarsPrioService(pydantic.BaseModel):
+class SeqvarsPrioServicePydantic(pydantic.BaseModel):
     """Representation of a variant pathogenicity service."""
 
     #: The name of the service.
@@ -340,13 +384,13 @@ class SeqvarsVariantPrioSettingsBase(models.Model):
     #: Whether to enable variant-based priorization.
     variant_prio_enabled = models.BooleanField(default=False, null=False, blank=False)
     #: The enabled services.
-    services = SchemaField(schema=list[SeqvarsPrioService], default=list)
+    services = SchemaField(schema=list[SeqvarsPrioServicePydantic], default=list)
 
     class Meta:
         abstract = True
 
 
-class ClinvarGermlineAggregateDescription(str, Enum):
+class ClinvarGermlineAggregateDescriptionChoice(str, Enum):
     """The aggregate description for germline variants in ClinVar."""
 
     #: Pathogenic
@@ -360,6 +404,10 @@ class ClinvarGermlineAggregateDescription(str, Enum):
     #: Benign
     BENIGN = "benign"
 
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
 
 class SeqvarsClinvarSettingsBase(models.Model):
     """Abstract model for storing clinvar-related settings."""
@@ -368,7 +416,7 @@ class SeqvarsClinvarSettingsBase(models.Model):
     clinvar_presence_required = models.BooleanField(default=False, null=False, blank=False)
     #: The aggregate description for germline variants.
     clinvar_germline_aggregate_description = SchemaField(
-        schema=list[ClinvarGermlineAggregateDescription], default=list
+        schema=list[ClinvarGermlineAggregateDescriptionChoice], default=list
     )
     #: Whether to allow for conflicting interpretations of pathogenicity.
     allow_conflicting_interpretations = models.BooleanField(default=False, null=False, blank=False)
@@ -377,7 +425,7 @@ class SeqvarsClinvarSettingsBase(models.Model):
         abstract = True
 
 
-class SeqvarsColumnConfig(pydantic.BaseModel):
+class SeqvarsColumnConfigPydantic(pydantic.BaseModel):
     """Configuration for a single column in the result table."""
 
     #: The column name.
@@ -396,7 +444,7 @@ class SeqvarsColumnsSettingsBase(models.Model):
     """Abstract model for storing column-related settings."""
 
     #: List of columns with their widths.
-    column_settings = SchemaField(schema=list[SeqvarsColumnConfig], default=list)
+    column_settings = SchemaField(schema=list[SeqvarsColumnConfigPydantic], default=list)
 
     class Meta:
         abstract = True
@@ -602,7 +650,7 @@ class SeqvarsQueryPresetsBase(LabeledSortableBaseModel):
 class SeqvarsQueryPresetsQuality(SeqvarsQueryPresetsBase):
     """Presets for quality settings within a ``QueryPresetsSetVersion``.
 
-    This is copied into ``QuerySettingsQuality.sample_quality_filters`` for
+    This is copied into ``SevarsQuerySettingsQuality.sample_quality_filters`` for
     each sample in the family when creating filter settings.
     """
 
@@ -694,8 +742,12 @@ class SeqvarsGenotypePresetChoice(str, Enum):
     #: All carriers are affected.
     AFFECTED_CARRIERS = "affected_carriers"
 
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
 
-class SeqvarsGenotypePresets(pydantic.BaseModel):
+
+class SeqvarsGenotypePresetsPydantic(pydantic.BaseModel):
     """Configuration for a single column in the result table."""
 
     #: The genotype prests choice.
@@ -710,8 +762,8 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
 
     #: The chosen genotype presets.
     genotype = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets],
-        default=SeqvarsGenotypePresets(),
+        schema=typing.Optional[SeqvarsGenotypePresetsPydantic],
+        default=SeqvarsGenotypePresetsPydantic(),
         null=True,
         blank=True,
     )
@@ -774,8 +826,8 @@ class SeqvarsQuerySettings(BaseModel):
 
     #: The chosen genotype presets.
     genotypepresets = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets],
-        default=SeqvarsGenotypePresets(),
+        schema=typing.Optional[SeqvarsGenotypePresetsPydantic],
+        default=SeqvarsGenotypePresetsPydantic(),
         null=True,
         blank=True,
     )
@@ -852,7 +904,7 @@ class SeqvarsGenotypeChoice(str, Enum):
         return list(map(lambda c: c.value, cls))
 
 
-class SeqvarsSampleGenotypeChoice(pydantic.BaseModel):
+class SeqvarsSampleGenotypePydantic(pydantic.BaseModel):
     """Store the genotype of a sample."""
 
     #: The sample identifier.
@@ -861,6 +913,7 @@ class SeqvarsSampleGenotypeChoice(pydantic.BaseModel):
     genotype: SeqvarsGenotypeChoice
     #: Include no-call genotype, will disable quality filter.
     include_no_call: bool = False
+    #: Whether the genotype choice is enabled.
     enabled: bool = True
 
 
@@ -894,13 +947,13 @@ class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
     )
 
     #: Per-sample genotype choice.
-    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
+    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypePydantic], default=list)
 
     def __str__(self):
         return f"SeqvarsQuerySettingsGenotype '{self.sodar_uuid}'"
 
 
-class SeqvarsSampleQualityFilter(pydantic.BaseModel):
+class SeqvarsSampleQualityFilterPydantic(pydantic.BaseModel):
     """Stores per-sample quality filter settings for a particular query."""
 
     #: Name of the sample.
@@ -931,7 +984,9 @@ class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
     )
 
     #: Per-sample quality settings.
-    sample_quality_filters = SchemaField(schema=list[SeqvarsSampleQualityFilter], default=list)
+    sample_quality_filters = SchemaField(
+        schema=list[SeqvarsSampleQualityFilterPydantic], default=list
+    )
 
     def __str__(self):
         return f"SeqvarsQuerySettingsQuality '{self.sodar_uuid}'"
@@ -1105,7 +1160,163 @@ class SeqvarsQueryExecution(BaseModel):
         return f"SeqvarsQueryExecution '{self.sodar_uuid}'"
 
 
-class DataSourceInfo(pydantic.BaseModel):
+class SeqvarsRecessiveModeChoice(str, Enum):
+    """Enumeration for the recessive mode in pydantic models."""
+
+    #: Recessive mode is disabled.
+    DISABLED = SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED
+    #: Compound heterozygous recessive mode.
+    COMPHET_RECESSIVE = SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_COMPHET_RECESSIVE
+    #: Homozygous recessive mode.
+    HOMOZYGOUS_RECESSIVE = SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_HOMOZYGOUS_RECESSIVE
+    #: Any recessive mode.
+    RECESSIVE = SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_RECESSIVE
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class SeqvarsQuerySettingsGenotypePydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsGenotype``."""
+
+    #: The recessive mode.
+    recessive_mode: SeqvarsRecessiveModeChoice = SeqvarsRecessiveModeChoice.DISABLED
+    #: Per-sample genotype choice.
+    sample_genotypes: typing.List[SeqvarsSampleGenotypePydantic] = []
+
+
+class SeqvarsSampleQualitySettingsPydantic(pydantic.BaseModel):
+    """Quality settings for one sample."""
+
+    #: Name of the sample filtered for.
+    sample: str
+    #: Drop whole variant on failure.
+    filter_active: bool = False
+    #: Minimal coverage for het. sites.
+    min_dp_het: typing.Optional[int] = []
+    #: Minimal coverage for hom. sites.
+    min_dp_hom: typing.Optional[int] = []
+    #: Minimal genotype quality.
+    min_gq: typing.Optional[int] = []
+    #: Minimal allele balance for het. variants.
+    min_ab: typing.Optional[float] = []
+    #: Minimal number of alternate reads.
+    min_ad: typing.Optional[int] = []
+    #: Maximal number of alternate reads.
+    max_ad: typing.Optional[int] = []
+
+
+class SeqvarsQuerySettingsQualityPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsQuality``."""
+
+    #: Per-sample quality settings.
+    sample_quality_settings: typing.List[SeqvarsSampleQualitySettingsPydantic] = []
+
+
+class SeqvarsNuclearFrequencySettingsPydantic(pydantic.BaseModel):
+    """gnomAD and in-house nuclear filter options."""
+
+    #: Whether to enable filtration by 1000 Genomes.
+    enabled: bool = False
+    #: Maximal number of in-house heterozygous carriers.
+    heterozygous: typing.Optional[int] = None
+    #: Maximal number of in-house homozygous carriers.
+    homozygous: typing.Optional[int] = None
+    #: Maximal number of in-house hemizygous carriers.
+    hemizygous: typing.Optional[int] = None
+    #: Maximal allele frequency.
+    frequency: typing.Optional[float] = None
+
+
+class SeqvarsGnomadMitochondrialFrequencySettingsPydantic(pydantic.BaseModel):
+    """gnomAD mitochondrial filter options."""
+
+    #: Whether to enable filtration by 1000 Genomes.
+    enabled: bool = False
+    #: Maximal number of heteroplasmic carriers.
+    heteroplasmic: typing.Optional[int] = None
+    #: Maximal number of homoplasmic carriers.
+    homoplasmic: typing.Optional[int] = None
+    #: Maximal allele frequency.
+    frequency: typing.Optional[float] = None
+
+
+class SeqvarsHelixMtDbFrequencySettingsPydantic(pydantic.BaseModel):
+    """HelixMtDb filter options."""
+
+    #: Whether to enable filtration by mtDB
+    enabled: bool = False
+    #: Maximal number of heterozygous carriers in HelixMtDb
+    heteroplasmic: typing.Optional[int] = None
+    #: Maximal number of homozygous carriers in HelixMtDb
+    homoplasmic: typing.Optional[int] = None
+    #: Maximal frequency in HelixMtDb
+    frequency: typing.Optional[float] = None
+
+
+class SeqvarsQuerySettingsFrequencyPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsFrequency``."""
+
+    #: gnomAD and in-house nuclear filter options.
+    nuclear: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
+    #: gnomAD mitochondrial filter options.
+    gnomad_mtdna: typing.Optional[SeqvarsGnomadMitochondrialFrequencySettingsPydantic] = None
+    #: HelixMtDb filter options.
+    helixmtdb: typing.Optional[SeqvarsHelixMtDbFrequencySettingsPydantic] = None
+
+
+class SeqvarsQuerySettingsConsequencePydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsConsequence``."""
+
+    #: The variant types.
+    variant_types: typing.List[SeqvarsVariantTypeChoice] = []
+    #: The transcript types.
+    transcript_types: typing.List[SeqvarsTranscriptTypeChoice] = []
+    #: The consequences.
+    consequences: typing.List[SeqvarsVariantConsequenceChoice] = []
+    #: Maximal distance to next exon.
+    max_dist_to_exon: typing.Optional[int] = None
+
+
+class SeqvarsQuerySettingsLocusPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsLocus``."""
+
+    #: List of HGNC identifiers for filtration to genes.
+    genes: typing.List[str] = []
+    #: List of genomic regions to limit restrict the resulting variants to.
+    genome_regions: typing.List[GenomeRegionPydantic] = []
+
+
+class SeqvarsQuerySettingsClinvarPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsClinvar``."""
+
+    #: Whether to require ClinVar membership.
+    presence_required: bool
+    #: The ClinVar germline aggregate description to include.
+    germline_descriptions: typing.List[ClinvarGermlineAggregateDescriptionChoice] = []
+    #: Whether to include conflicting interpretation ClinVar variants.
+    allow_conflicting_interpretations: bool = False
+
+
+class SeqvarsCaseQueryPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsCaseQuery``."""
+
+    #: Genotype query settings.
+    genotype: typing.Optional[SeqvarsQuerySettingsGenotypePydantic] = None
+    #: Quality query settings.
+    quality: typing.Optional[SeqvarsQuerySettingsQualityPydantic] = None
+    #: Frequency query settings.
+    frequency: typing.Optional[SeqvarsQuerySettingsFrequencyPydantic] = None
+    #: Consequence query settings.
+    consequence: typing.Optional[SeqvarsQuerySettingsConsequencePydantic] = None
+    #: Locus query settings.
+    locus: typing.Optional[SeqvarsQuerySettingsLocusPydantic] = None
+    #: ClinVar query settings.
+    clinvar: typing.Optional[SeqvarsQuerySettingsClinvarPydantic] = None
+
+
+class DataSourceInfoPydantic(pydantic.BaseModel):
     """Describes the version version of a given datasource."""
 
     #: The name.
@@ -1114,11 +1325,416 @@ class DataSourceInfo(pydantic.BaseModel):
     version: str
 
 
-class DataSourceInfos(pydantic.BaseModel):
+class DataSourceInfosPydantic(pydantic.BaseModel):
     """Container for ``DataSourceInfo`` records."""
 
     #: Information about the used datasources.
-    infos: list[DataSourceInfo]
+    infos: list[DataSourceInfoPydantic] = []
+
+
+class GenomeReleaseChoice(str, Enum):
+    """Enumeration of the genome release."""
+
+    #: GRCh37.
+    GRCH37 = "grch37"
+    #: GRCh38.
+    GRCH38 = "grch38"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class ResourcesUsedPydantic(pydantic.BaseModel):
+    """Store resource usage information."""
+
+    #: Start time.
+    start_time: typing.Optional[datetime.datetime] = None
+    #: End time.
+    end_time: typing.Optional[datetime.datetime] = None
+    #: RAM usage in bytes.
+    memory_used: int = 0
+
+
+class SeqvarsOutputStatisticsPydantic(pydantic.BaseModel):
+    """Store statistics about the output."""
+
+    #: Total number of records.
+    count_total: int = 0
+    #: Number of passed records.
+    count_passed: int = 0
+    #: Passed records by consequence.
+    passed_by_consequences: dict[SeqvarsVariantConsequenceChoice, int] = {}
+
+
+class SevarsVariantScoreColumnTypeChoice(str, Enum):
+    """Enumeration of the variant score type."""
+
+    #: Number
+    NUMBER = "number"
+    #: String
+    STRING = "string"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class SeqvarsVariantScoreColumnPydantic(pydantic.BaseModel):
+    """Store information about the variant score columns in the output."""
+
+    #: Name of the scolumn.
+    name: str
+    #: Label for the scolumn.
+    label: str
+    #: Description of the scolumn.
+    description: typing.Optional[str] = None
+    #: Type of the scolumn.
+    type: SevarsVariantScoreColumnTypeChoice
+
+
+class SeqvarsOutputHeaderPydantic(pydantic.BaseModel):
+    """Store meta information about the query results."""
+
+    #: Genome release.
+    genome_release: GenomeReleaseChoice
+    #: Versions for each used database or software.
+    versions: dict[str, str]
+    #: The used query settings.
+    query: typing.Optional[SeqvarsCaseQueryPydantic]
+    #: Case UUID.
+    case_uuid: str
+    #: Resources used.
+    resources: typing.Optional[ResourcesUsedPydantic]
+    #: Statistics about results.
+    statistics: typing.Optional[SeqvarsOutputStatisticsPydantic]
+    #: Information about the variant scores in the output.
+    variant_score_columns: list[SeqvarsVariantScoreColumnPydantic] = []
+
+
+class SeqvarsVcfVariantPydantic(pydantic.BaseModel):
+    """Store a single VCF variant."""
+
+    #: Genome release.
+    genome_release: GenomeReleaseChoice
+    #: Chromosome, normalized.
+    chrom: str
+    #: Chromosome number for sorting.
+    chrom_no: int
+    #: 1-based position.
+    pos: int
+    #: Reference allele.
+    ref_allele: str
+    #: Alternative allele.
+    alt_allele: str
+
+
+class GeneIdentityPydantic(pydantic.BaseModel):
+    """Store gene identity information."""
+
+    #: HGNC ID.
+    hgnc_id: str
+    #: HGNC symbol.
+    gene_symbol: str
+
+
+class GeneRelatedConsequencesPydantic(pydantic.BaseModel):
+    """Store gene-related consequences."""
+
+    #: HGVS.c or HGVS.n code of the variant.
+    hgvs_t: str
+    #: HGVS.p code of the variant.
+    hgvs_p: typing.Optional[str]
+    #: Predicted variant consequences.
+    consequences: list[SeqvarsVariantConsequenceChoice]
+
+
+class GeneRelatedPhenotypesPydantic(pydantic.BaseModel):
+    """Phenotype-related information, if any."""
+
+    #: ACMG supplementary finding list.
+    is_acmg_sf: bool = False
+    #: Whether is a known disease gene.
+    is_disease_gene: bool = False
+
+
+class GnomadConstraintsPydantic(pydantic.BaseModel):
+    """Store gnomAD constraints."""
+
+    #: Mis_z score.
+    mis_z: float
+    #: Oe_lof score.
+    oe_lof: float
+    #: Oe_lof_lower score.
+    oe_lof_lower: float
+    #: Oe_lof_upper score (LOEF).
+    oe_lof_upper: float
+    #: Oe_mis score.
+    oe_mis: float
+    #: Oe_mis_lower score.
+    oe_mis_lower: float
+    #: Oe_mis_upper score.
+    oe_mis_upper: float
+    #: PLI score.
+    pli: float
+    #: Syn_z score.
+    syn_z: float
+
+
+class DecipherConstraintsPydantic(pydantic.BaseModel):
+    """Store DECIPHER constraints."""
+
+    #: HI percentile.
+    hi_percentile: float
+    #: HI raw score.
+    hi_index: float
+
+
+class RcnvConstraintsPydantic(pydantic.BaseModel):
+    """Store RCNV constraints."""
+
+    #: Haploinsufficiency score.
+    p_haplo: float
+    #: Triplosensitivity score.
+    p_triplo: float
+
+
+class ShetConstraintsPydantic(pydantic.BaseModel):
+    """Store sHET constraints."""
+
+    #: sHET score.
+    s_het: float
+
+
+class ClingenDosageScoreChoice(str, Enum):
+    """Enumeration of the Clingen dosage score."""
+
+    #: Sufficient evidence for dosage pathogenicity.
+    SUFFICIENT_EVIDENCE_AVAILABLE = "sufficient_evidence_available"
+    #: Some evidence for dosage pathogenicity.
+    SOME_EVIDENCE_AVAILABLE = "some_evidence_available"
+    #: Little evidence for dosage pathogenicity.
+    LITTLE_EVIDENCE = "little_evidence"
+    #: No evidence available.
+    NO_EVIDENCE_AVAILABLE = "no_evidence_available"
+    #: Gene associated with autosomal recessive phenotype.
+    RECESSIVE = "recessive"
+    #: Dosage sensitivity unlikely.
+    UNLIKELY = "unlikely"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class ClingenDosageAnnotationPydantic(pydantic.BaseModel):
+    """Store Clingen dosage annotation."""
+
+    #: Haploinsufficiency score.
+    haplo: ClingenDosageScoreChoice
+    #: Triplosensitivity score.
+    triplo: ClingenDosageScoreChoice
+
+
+class GeneRelatedConstraintsPydantic(pydantic.BaseModel):
+    """Gene-wise constraints."""
+
+    #: gnomAD constraints
+    gnomad: typing.Optional[GnomadConstraintsPydantic] = None
+    #: DECIPHER constraints
+    decipher: typing.Optional[DecipherConstraintsPydantic] = None
+    #: RCNV constraints
+    rcnv: typing.Optional[RcnvConstraintsPydantic] = None
+    #: sHET constraints
+    shet: typing.Optional[ShetConstraintsPydantic] = None
+    #: ClinGen dosage annotation
+    clingen: typing.Optional[ClingenDosageAnnotationPydantic] = None
+
+
+class GeneRelatedAnnotationPydantic(pydantic.BaseModel):
+    """Store gene-related annotation (always for a single gene)."""
+
+    #: Gene ID information.
+    identity: GeneIdentityPydantic
+    #: Gene-related consequences, if any (none if intergenic).
+    consequences: GeneRelatedConsequencesPydantic
+    #: Gene-related phenotype information, if any.
+    phenotypes: GeneRelatedPhenotypesPydantic
+    #: Gene-wise constraints on the gene, if any.
+    constraints: GeneRelatedConstraintsPydantic
+
+
+class SeqvarsNuclearFrequencyPydantic(pydantic.BaseModel):
+    """Store gnomAD and in-house nuclear frequency information."""
+
+    #: Number of covered alleles.
+    an: int = 0
+    #: Number of heterozygous carriers.
+    het: int = 0
+    #: Number of homozygous carriers.
+    homalt: int = 0
+    #: Number of hemizygous carriers.
+    hemialt: int = 0
+    #: Allele frequency.
+    af: float = 0.0
+
+
+class SeqvarsGnomadMitochondrialFrequencyPydantic(pydantic.BaseModel):
+    """Store gnomAD mitochondrial frequency information."""
+
+    #: Number of covered alleles.
+    an: int = 0
+    #: Number of heteroplasmic carriers.
+    het: int = 0
+    #: Number of homoplasmic carriers.
+    homalt: int = 0
+    #: Allele frequency.
+    af: float = 0.0
+
+
+class SeqvarsHelixMtDbFrequencyPydantic(pydantic.BaseModel):
+    """Store HelixMtDb frequency information."""
+
+    #: Number of covered alleles.
+    an: int = 0
+    #: Number of heterozygous carriers in HelixMtDb.
+    het: int = 0
+    #: Number of homozygous carriers in HelixMtDb.
+    homalt: int = 0
+    #: Frequency in HelixMtDb.
+    af: float = 0.0
+
+
+class SeqvarsFrequencyAnnotationPydantic(pydantic.BaseModel):
+    """SPopulation frequency information"""
+
+    #: gnomAD exomes filter.
+    gnomad_exomes: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
+    #: gnomAD genomes filter.
+    gnomad_genomes: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
+    #: gnomAD MT filter.
+    gnomad_mtdna: typing.Optional[SeqvarsGnomadMitochondrialFrequencyPydantic] = None
+    #: HelixMtDb filter.
+    helixmtdb: typing.Optional[SeqvarsHelixMtDbFrequencyPydantic] = None
+    #: In-house filter.
+    inhouse: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
+
+
+class SeqvarsDbIdsPydantic(pydantic.BaseModel):
+    """Store database identifiers."""
+
+    #: dbSNP ID.
+    dbsnp_id: typing.Optional[str] = None
+
+
+class ClinvarAggregateGermlineReviewStatusChoice(str, Enum):
+    """Enumeration describing aggregate germline review status value."""
+
+    #: No classification provided.
+    NO_CLASSIFICATION_PROVIDED = "no_classification_provided"
+    #: No assertion criteria provided.
+    NO_ASSERTION_CRITERIA_PROVIDED = "no_assertion_criteria_provided"
+    #: Criteria provided, single submitter.
+    CRITERIA_PROVIDED_SINGLE_SUBMITTER = "criteria_provided_single_submitter"
+    #: Criteria provided, multiple submitters, no conflicts.
+    CRITERIA_PROVIDED_MULTIPLE_SUBMITTERS_NO_CONFLICTS = (
+        "criteria_provided_multiple_submitters_no_conflicts"
+    )
+    #: Criteria provided, conflicting classifications.
+    CRITERIA_PROVIDED_CONFLICTING_CLASSIFICATIONS = "criteria_provided_conflicting_classifications"
+    #: Reviewed by expert panel.
+    REVIEWED_BY_EXPERT_PANEL = "reviewed_by_expert_panel"
+    #: Practice guideline.
+    PRACTICE_GUIDELINE = "practice_guideline"
+    #: No classifications from unflagged records.
+    NO_CLASSIFICATIONS_FROM_UNFLAGGED_RECORDS = "no_classifications_from_unflagged_records"
+    #: No classification for the single variant.
+    NO_CLASSIFICATION_FOR_THE_SINGLE_VARIANT = "no_classification_for_the_single_variant"
+
+    @classmethod
+    def values(cls) -> list[str]:
+        return list(map(lambda c: c.value, cls))
+
+
+class ClinvarAnnotationPydantic(pydantic.BaseModel):
+    """Store ClinVar-related annotation."""
+
+    #: VCV accession.
+    vcv_accession: str
+    #: Aggregate germline significance description.
+    germline_significance_description: str
+    #: Aggregate germline review status.
+    germline_review_status: ClinvarAggregateGermlineReviewStatusChoice
+    #: Effective (aka "worst") germline significance description.
+    effective_germline_significance_description: str
+
+
+class SeqvarsScoreAnnotationsPydantic(pydantic.BaseModel):
+    """Store the score annotations."""
+
+    #: The score entries.
+    entries: dict[str, str | int | float | None] = {}
+
+
+class SeqvarsVariantRelatedAnnotationPydantic(pydantic.BaseModel):
+    """Store variant-related annotation."""
+
+    #: Database identifiers.
+    dbids: typing.Optional[SeqvarsDbIdsPydantic] = None
+    #: Frequency annotation.
+    frequency: typing.Optional[SeqvarsFrequencyAnnotationPydantic] = None
+    #: ClinVar annotation.
+    clinvar: typing.Optional[ClinvarAnnotationPydantic] = None
+    #: Score annotations.
+    scores: typing.Optional[SeqvarsScoreAnnotationsPydantic] = None
+
+
+class SeqvarsSampleCallInfoPydantic(pydantic.BaseModel):
+    """Store call-related annotation."""
+
+    #: Sample name.
+    sample: str
+    #: Genotype.
+    genotype: typing.Optional[str] = None
+    #: Depth of coverage.
+    dp: typing.Optional[int] = None
+    #: Alternate read depth.
+    ad: typing.Optional[int] = None
+    #: Genotype quality.
+    gq: typing.Optional[float] = None
+    #: Phase set ID.
+    ps: typing.Optional[int] = None
+
+
+class SeqvarsCallRelatedAnnotationPydantic(pydantic.BaseModel):
+    """Store call-related annotation."""
+
+    #: Call information for each sample.
+    call_infos: dict[str, SeqvarsSampleCallInfoPydantic] = {}
+
+
+class SeqvarsVariantAnnotationPydantic(pydantic.BaseModel):
+    """Store the variant annotation payload (always for a single gene)."""
+
+    #: Gene-related annotation.
+    gene: typing.Optional[GeneRelatedAnnotationPydantic] = None
+    #: Variant-related annotation.
+    variant: typing.Optional[SeqvarsVariantRelatedAnnotationPydantic] = None
+    #: Call-related annotation.
+    call: typing.Optional[SeqvarsCallRelatedAnnotationPydantic] = None
+
+
+class SeqvarsOutputRecordPydantic(pydantic.BaseModel):
+    """Store a single output record."""
+
+    #: UUID of the record.
+    uuid: str
+    #: Case UUID.
+    case_uuid: str
+    #: The description.
+    vcf_variant: typing.Optional[SeqvarsVcfVariantPydantic]
+    #: The variant annotation payload.
+    variant_annotation: typing.Optional[SeqvarsVariantAnnotationPydantic]
 
 
 class SeqvarsResultSet(BaseModel):
@@ -1130,7 +1746,13 @@ class SeqvarsResultSet(BaseModel):
     result_row_count = models.IntegerField(null=False, blank=False)
     #: Information about the data sources and versions used in the query, backed by
     #: pydantic model ``DataSourceInfos``.
-    datasource_infos = SchemaField(schema=typing.Optional[DataSourceInfos])
+    datasource_infos = SchemaField(
+        schema=typing.Optional[DataSourceInfosPydantic], default=None, null=True
+    )
+    #: The output header record as written by `seqvars query` into first line.
+    output_header = SchemaField(
+        schema=typing.Optional[SeqvarsOutputHeaderPydantic], default=None, null=True
+    )
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -1146,13 +1768,6 @@ class SeqvarsResultSet(BaseModel):
         return f"SeqvarsResultSet '{self.sodar_uuid}'"
 
 
-class SeqvarsResultRowPayload(pydantic.BaseModel):
-    """Payload for one result row of a seqvar query."""
-
-    # TODO: implement me / infer from protobuf schema
-    foo: int
-
-
 class SeqvarsResultRow(models.Model):
     """One entry in the result set."""
 
@@ -1163,26 +1778,26 @@ class SeqvarsResultRow(models.Model):
     resultset = models.ForeignKey(SeqvarsResultSet, on_delete=models.CASCADE)
 
     #: Genome build
-    release = models.CharField(max_length=32)
+    genome_release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
-    chromosome = models.CharField(max_length=32)
+    chrom = models.CharField(max_length=32)
     #: Chromosome as number
-    chromosome_no = models.IntegerField()
-    #: Variant coordinates - start position
-    start = models.IntegerField()
-    #: Variant coordinates - end position
-    stop = models.IntegerField()
+    chrom_no = models.IntegerField()
+    #: 1-based variant position.
+    pos = models.IntegerField()
     #: Variant coordinates - reference
-    reference = models.CharField(max_length=512)
+    ref_allele = models.CharField(max_length=512)
     #: Variant coordinates - alternative
-    alternative = models.CharField(max_length=512)
+    alt_allele = models.CharField(max_length=512)
 
     #: The payload of the result row, backed by pydantic model
     #: ``ResultRowPayload``.
-    payload = SchemaField(schema=typing.Optional[SeqvarsResultRowPayload])
+    payload = SchemaField(
+        schema=typing.Optional[SeqvarsOutputRecordPydantic], default=None, null=True
+    )
 
     def __str__(self):
         return (
-            f"SeqvarsResultRow '{self.sodar_uuid}' '{self.release}-{self.chromosome}-"
-            f"{self.start}-{self.reference}-{self.alternative}'"
+            f"SeqvarsResultRow '{self.sodar_uuid}' '{self.genome_release}-{self.chrom}-"
+            f"{self.pos}-{self.ref_allele}-{self.alt_allele}'"
         )

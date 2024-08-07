@@ -205,7 +205,7 @@ onMounted(async () => {
 <template>
   <v-app>
     <v-main>
-      <v-container fluid class="pa-0" v-if="!storesLoading">
+      <v-container v-if="!storesLoading" fluid class="pa-0">
         <v-row no-gutters>
           <v-col cols="2" class="pr-3">
             <div style="position: sticky; top: 20px">
@@ -339,7 +339,7 @@ onMounted(async () => {
           </v-col>
         </v-row>
       </v-container>
-      <v-container fluid class="pa-0" v-else>
+      <v-container v-else fluid class="pa-0">
         <v-row no-gutters>
           <v-col cols="12">
             <v-progress-linear indeterminate color="primary" />

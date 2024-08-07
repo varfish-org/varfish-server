@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsGenotypePresets, type(None))
+                    typing.Union, (seqvars.models.SeqvarsGenotypePresetsPydantic, type(None))
                 ),
             ),
         ),
@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsGenotypePresets, type(None))
+                    typing.Union, (seqvars.models.SeqvarsGenotypePresetsPydantic, type(None))
                 ),
             ),
         ),

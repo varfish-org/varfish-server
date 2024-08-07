@@ -529,7 +529,7 @@ class SeqvarsResultSetViewSet(BaseReadOnlyViewSet):
 class SeqvarsResultRowPagination(StandardPagination):
     """Cursor navigation for result rows."""
 
-    ordering = ["-chromosome_no", "start"]
+    ordering = ["chrom_no", "pos"]
 
 
 class SeqvarsResultRowViewSet(BaseReadOnlyViewSet):
