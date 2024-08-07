@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
   SeqvarsGenotypeChoice,
-  SeqvarsSampleGenotypeChoiceList,
+  SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
 
-const model = defineModel<SeqvarsSampleGenotypeChoiceList>({ required: true })
+const model = defineModel<SeqvarsSampleGenotypePydanticList>({ required: true })
 const { index } = defineProps<{ index: number }>()
 
 const ITEMS = {
