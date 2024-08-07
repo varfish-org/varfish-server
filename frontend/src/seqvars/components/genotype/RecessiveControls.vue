@@ -25,7 +25,8 @@ const ITEMS = {
     hide-details
     density="compact"
     @update:model-value="
-      (value: keyof typeof ITEMS) => {
+      (v: string) => {
+        const value = v as keyof typeof ITEMS
         if (value != 'any') {
           const el = model.find((m) => m.genotype === ITEMS[value])
           if (el) el.genotype = 'any'
