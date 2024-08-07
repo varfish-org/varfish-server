@@ -26,6 +26,7 @@ help:
 .PHONY: deps
 deps:
 	pipenv install --dev --categories=packages,dev-packages
+	pip install protolint-bin  # sic, pipenv does not install for some reason
 
 .PHONY: format
 format:	\
