@@ -4,14 +4,7 @@ from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus.test import TestCase
 
 from svs import query_presets
-from svs.query_presets import (
-    GT_CRITERIA_DEFAULT,
-    GT_CRITERIA_HIGH,
-    GT_CRITERIA_PASS,
-    GenotypeCriteriaDefinitions,
-)
-from svs.query_schemas import GenotypeCriteria, TranscriptEffect
-from variants.query_presets import GenotypeChoice
+from svs.query_presets import GT_CRITERIA_DEFAULT, GT_CRITERIA_HIGH, GT_CRITERIA_PASS
 from variants.tests.test_query_presets import PedigreesMixin
 
 

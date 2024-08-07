@@ -52,7 +52,7 @@ class ExportFileBgJobBase(JobModelMessageMixin, models.Model):
     )
 
     class Meta:
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
         abstract = True
 
 

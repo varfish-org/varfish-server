@@ -6,7 +6,7 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 import requests_mock
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
-RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
+RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
 
 class TestBeaconInfoAjaxView(TestProjectAPIPermissionBase):

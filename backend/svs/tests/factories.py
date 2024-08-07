@@ -2,9 +2,7 @@
 
 import datetime
 import typing
-import uuid
 
-import attr
 import attrs
 from bgjobs.models import BackgroundJob
 from bgjobs.tests.factories import BackgroundJobFactory

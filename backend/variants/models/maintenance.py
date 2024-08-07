@@ -35,7 +35,7 @@ class SiteBgJobBase(JobModelMessageMixin, models.Model):
         return "Site-wide Maintenance"
 
     class Meta:
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
         abstract = True
 
 

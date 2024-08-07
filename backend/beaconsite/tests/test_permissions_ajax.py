@@ -1,5 +1,3 @@
-from unittest import skip
-
 import cattr
 from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
@@ -13,7 +11,7 @@ from .factories import SiteFactory
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
     @requests_mock.Mocker()
     def test_get(self, r_mock):
-        _local_site = SiteFactory(role=Site.LOCAL)
+        _local_site = SiteFactory(role=Site.LOCAL)  # noqa: F841
         remote_site = SiteFactory()
         url = reverse(
             "beaconsite:ajax-beacon-info",
@@ -62,7 +60,7 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
 class TestBeaconQueryAjaxView(TestProjectAPIPermissionBase):
     @requests_mock.Mocker()
     def test_get(self, r_mock):
-        _local_site = SiteFactory(role=Site.LOCAL)
+        _local_site = SiteFactory(role=Site.LOCAL)  # noqa: F841
         remote_site = SiteFactory()
         beacon_allele_request = BeaconAlleleRequest(
             assemblyId="GRCh37",

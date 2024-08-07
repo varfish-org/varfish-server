@@ -1914,7 +1914,7 @@ class TestQueryViewSet(ApiViewTestBase):
             [{"settings": {"frequency": {"gnomad_genomes": {"enabled": True}}}}],
         ]
     )
-    def test_patch(self, data: dict[str, Any]):
+    def test_patch(self, data: dict[str, Any]):  # noqa: C901
         keys = [
             "genotype",
             "quality",
@@ -1926,7 +1926,7 @@ class TestQueryViewSet(ApiViewTestBase):
             "clinvar",
         ]
         for key in keys:
-            if not key in data["settings"]:
+            if key not in data["settings"]:
                 if key == "frequency":
                     data["settings"][key] = {
                         "gnomad_genomes": {},

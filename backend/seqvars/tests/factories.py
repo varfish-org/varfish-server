@@ -1,5 +1,3 @@
-import datetime
-
 import django.utils.timezone
 import factory
 
@@ -69,7 +67,6 @@ class SampleGenotypeChoiceFactory(factory.Factory):
 
 
 class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
-    sample_genotypes = factory.Faker("pydantic_field", schema=[SeqvarsSampleGenotypeChoice])
 
     @factory.lazy_attribute
     def sample_genotypes(self):

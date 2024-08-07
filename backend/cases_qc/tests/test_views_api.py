@@ -1,6 +1,4 @@
-import random
 import typing
-import unittest.mock
 
 from django.urls import reverse
 from freezegun import freeze_time
@@ -32,7 +30,7 @@ class CaseQcRetrieveApiViewTest(
     def test_retrieve_existing(self):
         """GET on existing case"""
         caseqc = CaseQcFactory(case__project=self.project)
-        _entry = DragenWgsOverallMeanCovFactory(caseqc=caseqc)
+        _entry = DragenWgsOverallMeanCovFactory(caseqc=caseqc)  # noqa: F841
         extra = self.get_accept_header(None, None)
         with self.login(self.superuser):
             response = self.client.get(

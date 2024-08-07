@@ -1,33 +1,14 @@
 """UI tests for the projectroles app"""
 
-import json
 import os
-import socket
 import time
-from unittest import skipIf
 
 from django.contrib import auth
-from django.test import LiveServerTestCase
 from django.urls import reverse
-from projectroles.models import SODAR_CONSTANTS, Role
-from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
+from projectroles.models import SODAR_CONSTANTS
 import projectroles.tests.test_ui
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.ui import WebDriverWait
-
-from extra_annos.tests.factories import ExtraAnnoFactory, ExtraAnnoFieldFactory
-from variants.tests.factories import (
-    CaseWithVariantSetFactory,
-    ProjectFactory,
-    SampleVariantStatisticsFactory,
-    SmallVariantFactory,
-)
-
-from ..models import update_variant_counts
 
 # SODAR constants
 PROJECT_ROLE_OWNER = SODAR_CONSTANTS["PROJECT_ROLE_OWNER"]

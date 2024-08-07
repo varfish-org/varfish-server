@@ -23,7 +23,7 @@ class IndividualExternalFileTest(TestCase):
 
     def test_create(self):
         self.assertEqual(IndividualExternalFile.objects.count(), 0)
-        _individual_external_file = IndividualExternalFileFactory()
+        _individual_external_file = IndividualExternalFileFactory()  # noqa: F841
         self.assertEqual(IndividualExternalFile.objects.count(), 1)
 
     def test_update(self):
@@ -43,7 +43,7 @@ class PedigreeExternalFileTest(TestCase):
 
     def test_create(self):
         self.assertEqual(PedigreeExternalFile.objects.count(), 0)
-        _pedigree_external_file = PedigreeExternalFileFactory()
+        _pedigree_external_file = PedigreeExternalFileFactory()  # noqa: F841
         self.assertEqual(PedigreeExternalFile.objects.count(), 1)
 
     def test_update(self):
@@ -63,7 +63,7 @@ class IndividualInternalFileTest(TestCase):
 
     def test_create(self):
         self.assertEqual(IndividualInternalFile.objects.count(), 0)
-        _individual_internal_file = IndividualInternalFileFactory()
+        _individual_internal_file = IndividualInternalFileFactory()  # noqa: F841
         self.assertEqual(IndividualInternalFile.objects.count(), 1)
 
     def test_update(self):
@@ -87,7 +87,7 @@ class PedigreeInternalFileTest(TestCase):
 
     def test_create(self):
         self.assertEqual(PedigreeInternalFile.objects.count(), 0)
-        _pedigree_external_file = PedigreeInternalFileFactory()
+        _pedigree_external_file = PedigreeInternalFileFactory()  # noqa: F841
         self.assertEqual(PedigreeInternalFile.objects.count(), 1)
 
     def test_update(self):
