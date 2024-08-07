@@ -5,12 +5,7 @@ from django.db import transaction
 from jsonschema import Draft7Validator
 
 from variants.models.queries import SmallVariantQuery
-from variants.query_schemas import (
-    SCHEMA_QUERY,
-    FormToQueryJsonConverter,
-    QueryJsonToFormConverter,
-    extend_with_default,
-)
+from variants.query_schemas import SCHEMA_QUERY, FormToQueryJsonConverter, extend_with_default
 
 DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 

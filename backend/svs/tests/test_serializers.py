@@ -21,7 +21,7 @@ from svs.tests.factories import (
 from variants.tests.factories import CaseFactory
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
-RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
+RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
 
 class TestBackgroundJobSerializer(TestCase):

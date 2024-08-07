@@ -670,6 +670,7 @@ REST_FRAMEWORK = {
         "knox.auth.TokenAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%SZ",
 }
 
 SPECTACULAR_SETTINGS = {

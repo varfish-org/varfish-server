@@ -2,6 +2,7 @@ from copy import deepcopy
 import json
 import re
 
+from django.conf import settings
 from django.urls import reverse
 import jsonmatch
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
@@ -32,9 +33,9 @@ from variants.tests.factories import (
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
-RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
+RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 class TestCaseListAjaxView(TestProjectAPIPermissionBase):

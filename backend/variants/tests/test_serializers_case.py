@@ -1,35 +1,8 @@
 from django.forms import model_to_dict
 from test_plus import TestCase
 
-from variants.models.presets import (
-    ChromosomePresets,
-    FlagsEtcPresets,
-    FrequencyPresets,
-    ImpactPresets,
-    PresetSet,
-    QualityPresets,
-)
 from variants.serializers import CaseSerializer
-from variants.serializers.presets import (
-    ChromosomePresetsSerializer,
-    FlagsEtcPresetsSerializer,
-    FrequencyPresetsSerializer,
-    ImpactPresetsSerializer,
-    PresetSetSerializer,
-    QualityPresetsSerializer,
-    QuickPresetsSerializer,
-)
-from variants.tests.factories import (
-    CaseFactory,
-    ChromosomePresetsFactory,
-    FlagsEtcPresetsFactory,
-    FrequencyPresetsFactory,
-    ImpactPresetsFactory,
-    PresetSetFactory,
-    ProjectFactory,
-    QualityPresetsFactory,
-    QuickPresetsFactory,
-)
+from variants.tests.factories import CaseFactory, PresetSetFactory, ProjectFactory
 
 
 def fixup_pedigree(pedigree):

@@ -1,6 +1,5 @@
 """Test models and factories"""
 
-from freezegun import freeze_time
 from test_plus.test import TestCase
 
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
@@ -34,7 +33,6 @@ from seqvars.models import (
     SeqvarsSampleGenotypeChoice,
 )
 from seqvars.tests.factories import (
-    SampleGenotypeChoiceFactory,
     SeqvarsPredefinedQueryFactory,
     SeqvarsQueryColumnsConfigFactory,
     SeqvarsQueryExecutionFactory,
@@ -95,12 +93,6 @@ class TestSeqvarsSampleGenotypeChoice(TestCase):
             ],
             SeqvarsSampleGenotypeChoice.values(),
         )
-
-
-class TestSeqvarsSampleGenotypeChoice(TestCase):
-
-    def test_values(self):
-        SampleGenotypeChoiceFactory()
 
 
 class TestSeqvarsQueryPresetsSet(TestCase):
