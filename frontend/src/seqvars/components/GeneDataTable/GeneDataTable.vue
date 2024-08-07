@@ -59,10 +59,12 @@ const columns = ref(
 )
 
 const loading = ref(false)
-const itemsPerPage = ref(20)
+const itemsPerPage = ref(18)
 const searchQuery = ref('')
 const serverItems = ref<GeneItem[]>([])
 const totalItems = ref(data.length)
+
+const emit = defineEmits<{ showDetails: [GeneItem] }>()
 
 async function fakeLoadItems({
   page,
@@ -189,6 +191,7 @@ async function fakeLoadItems({
     class="gene-data-table"
     style="font-size: var(--font-size-xs)"
     @update:options="fakeLoadItems"
+    @click:row="(event: unknown, row: any) => emit('showDetails', row.item)"
   />
 </template>
 

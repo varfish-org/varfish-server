@@ -25,6 +25,8 @@ import QueryList from '@/seqvars/components/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/ui/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/ui/Hr.vue'
 import Item from '@/seqvars/components/ui/Item.vue'
+import SidebarCollapseIcon from '@/seqvars/components/ui/SidebarCollapseIcon.vue'
+import SidebarExpandIcon from '@/seqvars/components/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
 
 const { presetDetails } = defineProps<{
@@ -33,6 +35,9 @@ const { presetDetails } = defineProps<{
 
 const queries = ref<Query[]>([])
 const selectedQueryIndex = ref<number | null>(null)
+const sidebarExpanded = ref(true)
+const selectedGene = ref<any | null>(null)
+
 const selectedQuery = computed({
   get() {
     return selectedQueryIndex.value == null
@@ -107,27 +112,40 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
 </script>
 
 <template>
-  <div style="height: 100vh; display: flex" class="bg-bg">
+  <div style="height: 100vh; display: flex; gap: 8px" class="bg-bg">
     <div
-      style="
-        min-width: 340px;
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-      "
+      :style="{
+        borderRight: '1px solid #eaeaea',
+        minWidth: sidebarExpanded ? '340px' : 'fit-content',
+        height: '100%',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+      }"
     >
       <div
         class="text-ui-control-text"
         style="
           padding: 6px;
           font-weight: bold;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           color: white !important;
           background: #1e3064;
         "
       >
-        NA12878
+        <span v-if="sidebarExpanded"> NA12878 </span>
+        <button
+          type="button"
+          class="sidebar-toggle"
+          @click="sidebarExpanded = !sidebarExpanded"
+        >
+          <SidebarCollapseIcon v-if="sidebarExpanded" />
+          <SidebarExpandIcon v-else />
+        </button>
       </div>
       <div
+        v-if="sidebarExpanded"
         style="height: 100%; display: flex; flex-direction: column; gap: 8px"
       >
         <QueryList
@@ -242,14 +260,44 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           </CollapsibleGroup>
         </template>
       </div>
+      <div v-else>
+        <Item
+          v-for="(_query, index) in queries"
+          :key="index"
+          :selected="selectedQueryIndex == index"
+          style="padding: 4px"
+          @click="() => (selectedQueryIndex = index)"
+        >
+          #{{ index + 1 }}
+        </Item>
+      </div>
     </div>
-    <div style="height: auto; overflow: auto">
+    <v-sheet style="height: auto; overflow: auto" :elevation="2" rounded>
       <GeneDataTable
         v-if="selectedQueryIndex != null"
         :selected-query-index="selectedQueryIndex"
         :preset-details="presetDetails"
         :queries="queries"
+        @show-details="(item) => (selectedGene = item)"
       />
+    </v-sheet>
+
+    <div v-if="selectedGene" style="border-left: 1px solid #d7d7d7">
+      <button @click="selectedGene = null">close</button>
+      <pre>{{ JSON.stringify(selectedGene, null, 2) }}</pre>
     </div>
   </div>
 </template>
+
+<style scoped>
+.sidebar-toggle {
+  padding: 4px;
+  display: flex;
+  &:not(:focus-visible) {
+    outline: none;
+  }
+  &:hover {
+    filter: invert(0.2);
+  }
+}
+</style>
