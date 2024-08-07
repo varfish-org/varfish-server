@@ -11,6 +11,7 @@ const navbarHidden = defineModel('navbarHidden', {
   <v-app-bar color="primary" density="compact">
     <template #prepend>
       <v-app-bar-nav-icon
+        :icon="`mdi-menu-` + (navbarHidden ? `close` : `open`)"
         @click="navbarHidden = !navbarHidden"
       ></v-app-bar-nav-icon>
     </template>
