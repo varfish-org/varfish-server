@@ -21,7 +21,6 @@ exclude_lines = [
 [tool.flake8]
 exclude = [
     "docs",
-    # "tests",
     ".*.py",
     "wrapper.py",
     "src",
