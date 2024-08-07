@@ -1561,6 +1561,7 @@ class TestSeqvarsResultSetSerializer(TestCase):
             # ResultSet
             "queryexecution",
             "datasource_infos",
+            "output_header",
         ]
         expected = model_to_dict(
             self.resultset,
@@ -1591,13 +1592,12 @@ class TestSeqvarsResultRowSerializer(TestCase):
         fields = [
             "sodar_uuid",
             "resultset",
-            "release",
-            "chromosome",
-            "chromosome_no",
-            "start",
-            "stop",
-            "reference",
-            "alternative",
+            "genome_release",
+            "chrom",
+            "chrom_no",
+            "pos",
+            "ref_allele",
+            "alt_allele",
             "payload",
         ]
         expected = model_to_dict(

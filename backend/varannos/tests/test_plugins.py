@@ -34,9 +34,9 @@ class TestVariantsDetailsPlugin(TestCase):
         }
         self.assertDictEqual(result, expected)
 
-    def test_load_details_one(self):
+    def test_load_details_two(self):
         varannosetentry0 = VarAnnoSetEntryFactory(varannoset__title="Foo")
-        _varannosetentry1 = VarAnnoSetEntryFactory(
+        _varannosetentry1 = VarAnnoSetEntryFactory(  # noqa: F841
             varannoset__title="Bar",
             release=varannosetentry0.release,
             chromosome=varannosetentry0.chromosome,

@@ -26,11 +26,13 @@ help:
 .PHONY: deps
 deps:
 	pipenv install --dev --categories=packages,dev-packages
+	pip install protolint-bin  # sic, pipenv does not install for some reason
 
 .PHONY: format
 format:	\
 	format-isort \
-	format-black
+	format-black \
+	format-protolint
 
 .PHONY: format-isort
 format-isort:
@@ -40,11 +42,16 @@ format-isort:
 format-black:
 	pipenv run black --line-length 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
 
+.PHONY: format-protolint
+format-protolint:
+	protolint -fix .
+
 .PHONY: lint
 lint: \
 	lint-isort \
 	lint-black \
-	lint-flake8
+	lint-flake8 \
+	lint-protolint
 	#lint-mypy
 
 .PHONY: lint-isort
@@ -56,8 +63,12 @@ lint-black:
 	pipenv run black --check --line-length 100 --diff --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
 
 .PHONY: lint-flake8
-flake8:
+lint-flake8:
 	pipenv run flake8 --max-line-length 100 .
+
+.PHONY: lint-protolint
+lint-protolint:
+	protolint .
 
 # .PHONY: lint-mypy
 # lint-mypy:
@@ -127,3 +138,35 @@ celery:
 gen-api-schema:
 	pipenv run $(MANAGE) spectacular \
 		--file ./varfish/tests/drf_openapi_schema/varfish_api_schema.yaml
+
+# Download the .proto files and modify them.
+.PHONY: protos-download
+protos-download:
+	mkdir -p protos/seqvars/protos
+	rm -f protos/seqvars/protos/*_p*2*.py
+
+	wget -O protos/seqvars/protos/output.proto \
+		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/main/protos/varfish/v1/seqvars/output.proto
+	wget -O protos/seqvars/protos/query.proto \
+		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/main/protos/varfish/v1/seqvars/query.proto
+
+	mkdir -p seqvars/protos
+	touch seqvars/protos/__init__.py
+
+	sed -i \
+		-e 's|package varfish.v1.seqvars|package seqvars.pbs|' \
+		-e 's|package varfish.v1.seqvars;|package seqvars.pbs|' \
+		-e 's|varfish\.v1\.seqvars\.query|seqvars.pbs.query|' \
+		-e 's|varfish/v1/seqvars|seqvars/protos|' \
+		protos/seqvars/protos/*.proto
+
+	PYTHONPATH=. \
+		protoc \
+		-Iprotos \
+		--python_out=. \
+		--mypy_out=. \
+		protos/seqvars/protos/*.proto
+
+# Build the protobuf Python files, then format.
+.PHONY: protos
+protos: protos-download format lint

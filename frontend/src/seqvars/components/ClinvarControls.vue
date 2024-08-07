@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Query } from '@/seqvars/types'
-import { ClinvarGermlineAggregateDescriptionList } from '@varfish-org/varfish-api/lib'
+import { ClinvarGermlineAggregateDescriptionChoiceList } from '@varfish-org/varfish-api/lib'
 
 import { toggleArrayElement } from './utils'
 
@@ -12,7 +12,7 @@ const GERMLINE_FIELDS = [
   'uncertain_significance',
   'likely_benign',
   'benign',
-] satisfies ClinvarGermlineAggregateDescriptionList[number][]
+] satisfies ClinvarGermlineAggregateDescriptionChoiceList[number][]
 
 const capitalize = (s: string) => s && s[0].toUpperCase() + s.slice(1)
 </script>

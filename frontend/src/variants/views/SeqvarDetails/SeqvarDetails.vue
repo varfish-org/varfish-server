@@ -10,7 +10,7 @@
  * See `StrucvarDetails` for a peer app for structural variants
  */
 
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
@@ -73,6 +73,8 @@ const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const pubtatorStore = usePubtatorStore()
 
+const storesLoading = ref(true)
+
 /** Currently displayed Seqvar. */
 const seqvar = computed<Seqvar | undefined>(() => {
   if (!variantResultSetStore.resultRow) {
@@ -119,6 +121,9 @@ const refreshStores = async () => {
         props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
+      pubtatorStore.initialize(
+        variantResultSetStore.resultRow.payload!.hgnc_symbol,
+      ),
     ])
     await variantDetailsStore.fetchVariantDetails(
       variantResultSetStore.resultRow,
@@ -144,7 +149,7 @@ const refreshStores = async () => {
 
 /** Watch change in properties to reload data. */
 watch(
-  () => [props.resultRowUuid, props.selectedSection],
+  () => props.resultRowUuid,
   async () => {
     await refreshStores()
   },
@@ -157,10 +162,11 @@ watch(
     geneInfoStore.storeState,
     seqvarInfoStore.storeState,
     variantAcmgRatingStore.storeState.state,
-    variantCommentsStore.storeState.state,
+    // exclude variantCommentsStore because it triggers a reload cycle
     variantDetailsStore.storeState.state,
   ],
   () => {
+    storesLoading.value = true
     const completeStoreStates = [StoreState.Active, StoreState.Error]
     const completeStates = [State.Active, State.Error]
     if (
@@ -169,15 +175,23 @@ watch(
       completeStoreStates.includes(geneInfoStore.storeState) &&
       completeStoreStates.includes(seqvarInfoStore.storeState) &&
       completeStates.includes(variantAcmgRatingStore.storeState.state) &&
-      completeStates.includes(variantCommentsStore.storeState.state) &&
       completeStates.includes(variantDetailsStore.storeState.state)
+      // exclude variantCommentsStore because it triggers a reload cycle
     ) {
-      console.log('stores loaded')
-
+      storesLoading.value = false
       setTimeout(() => {
         document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
       }, 500)
     }
+  },
+)
+
+watch(
+  () => props.selectedSection,
+  () => {
+    setTimeout(() => {
+      document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+    }, 0)
   },
 )
 
@@ -191,7 +205,7 @@ onMounted(async () => {
 <template>
   <v-app>
     <v-main>
-      <v-container fluid class="pa-0">
+      <v-container v-if="!storesLoading" fluid class="pa-0">
         <v-row no-gutters>
           <v-col cols="2" class="pr-3">
             <div style="position: sticky; top: 20px">
@@ -322,6 +336,27 @@ onMounted(async () => {
                 <SeqvarVariantValidatorCard :seqvar="seqvarInfoStore.seqvar" />
               </div>
             </template>
+          </v-col>
+        </v-row>
+      </v-container>
+      <v-container v-else fluid class="pa-0">
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-progress-linear indeterminate color="primary" />
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-alert
+              dense
+              outlined
+              elevation="2"
+              type="info"
+              icon="mdi-information"
+              class="m-3 text-light"
+            >
+              Loading variant details ...
+            </v-alert>
           </v-col>
         </v-row>
       </v-container>

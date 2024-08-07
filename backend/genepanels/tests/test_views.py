@@ -3,7 +3,6 @@ from unittest.mock import patch
 from django.urls import reverse
 from parameterized import parameterized
 from requests_mock import Mocker
-from test_plus.test import TestCase
 
 from genepanels.models import GenePanel, GenePanelCategory, GenePanelEntry, GenePanelState
 from genepanels.tests.factories import (

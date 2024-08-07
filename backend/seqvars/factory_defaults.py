@@ -10,17 +10,17 @@ from django.db import models
 from faker import Faker
 
 from seqvars.models import (
-    ClinvarGermlineAggregateDescription,
-    GenomeRegion,
-    GnomadMitochondrialFrequencySettings,
-    GnomadNuclearFrequencySettings,
-    HelixmtDbFrequencySettings,
-    InhouseFrequencySettings,
+    ClinvarGermlineAggregateDescriptionChoice,
+    GenomeRegionPydantic,
+    GnomadMitochondrialFrequencySettingsPydantic,
+    GnomadNuclearFrequencySettingsPydantic,
+    HelixmtDbFrequencySettingsPydantic,
+    InhouseFrequencySettingsPydantic,
     LabeledSortableBaseModel,
     SeqvarsGenotypePresetChoice,
-    SeqvarsGenotypePresets,
+    SeqvarsGenotypePresetsPydantic,
     SeqvarsPredefinedQuery,
-    SeqvarsPrioService,
+    SeqvarsPrioServicePydantic,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
     SeqvarsQueryPresetsConsequence,
@@ -397,10 +397,10 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             date_modified=TIME_VERSION_1_0,
             rank=2,
             label="nuclear chromosomes",
-            genome_regions=[GenomeRegion(chromosome=str(no)) for no in range(1, 23)]
+            genome_regions=[GenomeRegionPydantic(chromosome=str(no)) for no in range(1, 23)]
             + [
-                GenomeRegion(chromosome="X"),
-                GenomeRegion(chromosome="Y"),
+                GenomeRegionPydantic(chromosome="X"),
+                GenomeRegionPydantic(chromosome="Y"),
             ],
         ),
         SeqvarsQueryPresetsLocus(
@@ -409,7 +409,7 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             date_modified=TIME_VERSION_1_0,
             rank=3,
             label="autosomes",
-            genome_regions=[GenomeRegion(chromosome=str(no)) for no in range(1, 23)],
+            genome_regions=[GenomeRegionPydantic(chromosome=str(no)) for no in range(1, 23)],
         ),
         SeqvarsQueryPresetsLocus(
             sodar_uuid=faker.uuid4(),
@@ -418,8 +418,8 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             rank=4,
             label="gonosomes",
             genome_regions=[
-                GenomeRegion(chromosome="X"),
-                GenomeRegion(chromosome="Y"),
+                GenomeRegionPydantic(chromosome="X"),
+                GenomeRegionPydantic(chromosome="Y"),
             ],
         ),
         SeqvarsQueryPresetsLocus(
@@ -429,7 +429,7 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             rank=5,
             label="X chromosome",
             genome_regions=[
-                GenomeRegion(chromosome="X"),
+                GenomeRegionPydantic(chromosome="X"),
             ],
         ),
         SeqvarsQueryPresetsLocus(
@@ -439,7 +439,7 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             rank=6,
             label="Y chromosome",
             genome_regions=[
-                GenomeRegion(chromosome="Y"),
+                GenomeRegionPydantic(chromosome="Y"),
             ],
         ),
         SeqvarsQueryPresetsLocus(
@@ -449,7 +449,7 @@ def create_seqvarsquerypresetslocus(faker: Faker) -> list[SeqvarsQueryPresetsCon
             rank=7,
             label="MT genome",
             genome_regions=[
-                GenomeRegion(chromosome="MT"),
+                GenomeRegionPydantic(chromosome="MT"),
             ],
         ),
     ]
@@ -463,33 +463,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="dominant super strict",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.002,
                 homozygous=0,
                 heterozygous=1,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.002,
                 homozygous=0,
                 heterozygous=1,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
                 carriers=20,
                 homozygous=None,
@@ -503,33 +503,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=2,
             label="dominant strict",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.002,
                 homozygous=0,
                 heterozygous=1,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.002,
                 homozygous=0,
                 heterozygous=1,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
                 carriers=20,
                 homozygous=None,
@@ -543,33 +543,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=3,
             label="dominant relaxed",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.01,
                 homozygous=0,
                 heterozygous=50,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.01,
                 homozygous=0,
                 heterozygous=20,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
                 carriers=20,
                 homozygous=None,
@@ -583,33 +583,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=4,
             label="recessive strict",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.001,
                 homozygous=0,
                 heterozygous=120,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.001,
                 homozygous=0,
                 heterozygous=15,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
                 carriers=20,
                 homozygous=None,
@@ -623,33 +623,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=5,
             label="recessive relaxed",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.01,
                 homozygous=20,
                 heterozygous=0,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=True,
                 frequency=0.01,
                 homozygous=4,
                 heterozygous=150,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
                 carriers=20,
                 homozygous=None,
@@ -663,33 +663,33 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             date_modified=TIME_VERSION_1_0,
             rank=6,
             label="any",
-            gnomad_exomes=GnomadNuclearFrequencySettings(
+            gnomad_exomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
             ),
-            gnomad_genomes=GnomadNuclearFrequencySettings(
+            gnomad_genomes=GnomadNuclearFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
             ),
-            gnomad_mitochondrial=GnomadMitochondrialFrequencySettings(
+            gnomad_mitochondrial=GnomadMitochondrialFrequencySettingsPydantic(
                 enabled=False,
                 frequency=None,
                 heteroplasmic=None,
                 homoplasmic=None,
             ),
-            helixmtdb=HelixmtDbFrequencySettings(
+            helixmtdb=HelixmtDbFrequencySettingsPydantic(
                 enabled=False,
                 heteroplasmic=None,
                 homoplasmic=None,
                 frequency=None,
             ),
-            inhouse=InhouseFrequencySettings(
+            inhouse=InhouseFrequencySettingsPydantic(
                 enabled=False,
                 carriers=None,
                 homozygous=None,
@@ -732,7 +732,7 @@ def create_seqvarsquerypresetsvariantprio(faker: Faker) -> list[SeqvarsQueryPres
             label="CADD",
             variant_prio_enabled=False,
             services=[
-                SeqvarsPrioService(name="cadd", version="1.6"),
+                SeqvarsPrioServicePydantic(name="cadd", version="1.6"),
             ],
         ),
         SeqvarsQueryPresetsVariantPrio(
@@ -743,7 +743,7 @@ def create_seqvarsquerypresetsvariantprio(faker: Faker) -> list[SeqvarsQueryPres
             label="MutationTaster",
             variant_prio_enabled=False,
             services=[
-                SeqvarsPrioService(name="mutationtaster", version="2021"),
+                SeqvarsPrioServicePydantic(name="mutationtaster", version="2021"),
             ],
         ),
     ]
@@ -767,8 +767,8 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
             label="Clinvar P/LP",
             clinvar_presence_required=True,
             clinvar_germline_aggregate_description=[
-                ClinvarGermlineAggregateDescription.PATHOGENIC,
-                ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.LIKELY_PATHOGENIC,
             ],
         ),
         SeqvarsQueryPresetsClinvar(
@@ -779,8 +779,8 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
             label="Clinvar P/LP +conflicting",
             clinvar_presence_required=True,
             clinvar_germline_aggregate_description=[
-                ClinvarGermlineAggregateDescription.PATHOGENIC,
-                ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.LIKELY_PATHOGENIC,
             ],
             allow_conflicting_interpretations=True,
         ),
@@ -792,9 +792,9 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
             label="ClinVar P/LP/VUS +conflicting",
             clinvar_presence_required=True,
             clinvar_germline_aggregate_description=[
-                ClinvarGermlineAggregateDescription.PATHOGENIC,
-                ClinvarGermlineAggregateDescription.LIKELY_PATHOGENIC,
-                ClinvarGermlineAggregateDescription.UNCERTAIN_SIGNIFICANCE,
+                ClinvarGermlineAggregateDescriptionChoice.PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.LIKELY_PATHOGENIC,
+                ClinvarGermlineAggregateDescriptionChoice.UNCERTAIN_SIGNIFICANCE,
             ],
             allow_conflicting_interpretations=True,
         ),
@@ -826,7 +826,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="defaults",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.ANY,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -852,7 +852,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=2,
             label="de novo",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.DE_NOVO,
             ),
             quality=pick_by_label(
@@ -880,7 +880,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=3,
             label="dominant",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.DOMINANT,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -906,7 +906,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=4,
             label="homozygous recessive",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.HOMOZYGOUS_RECESSIVE,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -932,7 +932,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=5,
             label="compound heterozygous",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -958,7 +958,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=6,
             label="recessive",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.RECESSIVE,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -984,7 +984,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=7,
             label="X recessive",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.X_RECESSIVE,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -1010,7 +1010,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=8,
             label="ClinVar pathogenic",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
             quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -1036,7 +1036,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=9,
             label="mitochondrial",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS,
             ),
             quality=pick_by_label("strict", querypresetsversion.seqvarsquerypresetsquality_set),
@@ -1062,7 +1062,7 @@ def create_seqvarspredefined_queries(
             date_modified=TIME_VERSION_1_0,
             rank=10,
             label="whole genome",
-            genotype=SeqvarsGenotypePresets(
+            genotype=SeqvarsGenotypePresetsPydantic(
                 choice=SeqvarsGenotypePresetChoice.ANY,
             ),
             quality=pick_by_label("any", querypresetsversion.seqvarsquerypresetsquality_set),

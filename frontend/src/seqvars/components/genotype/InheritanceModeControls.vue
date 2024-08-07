@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 import {
   SeqvarsGenotypeChoice,
-  SeqvarsSampleGenotypeChoiceList,
+  SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
 
 import CheckButton from '../ui/CheckButton.vue'
@@ -16,7 +16,7 @@ enum InheritanceMode {
   NO_CALL = 'no call',
 }
 
-const model = defineModel<SeqvarsSampleGenotypeChoiceList[number]>({
+const model = defineModel<SeqvarsSampleGenotypePydanticList[number]>({
   required: true,
 })
 
@@ -24,7 +24,7 @@ const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
 
 type GenotypeKey = Exclude<
   SeqvarsGenotypeChoice,
-  'recessive_index' | 'recessive_parent'
+  'recessive_index' | 'recessive_father' | 'recessive_mother'
 >
 type Modes = typeof WILD_TYPE | typeof HET_ALT | typeof HOM_ALT
 const GENOTYPE_TO_INHERITANCE_MODE = {

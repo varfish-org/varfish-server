@@ -3,7 +3,6 @@ import sys
 from bgjobs.models import BackgroundJob
 from django.conf import settings
 from django.db import transaction
-from django.forms import model_to_dict
 from django.middleware.csrf import get_token
 from modelcluster.queryset import FakeQuerySet
 from projectroles.app_settings import AppSettingAPI

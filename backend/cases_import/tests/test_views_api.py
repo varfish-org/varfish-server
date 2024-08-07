@@ -356,7 +356,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
 
     def test_create_action_create_as_state_submitted_fails_invalid_payload(self):
         """POST action=create state=draft payload=<invalid> => fails"""
-        case = CaseFactory(project=self.project)
+        _case = CaseFactory(project=self.project)  # noqa: F841
         self.assertEqual(CaseImportAction.objects.count(), 0)
 
         payload = copy.deepcopy(load_family_payload())
@@ -645,36 +645,6 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         self.assertEquals(caseimportbackgroundjob.caseimportaction.pk, caseimportaction.pk)
 
         mock_run.assert_called_once_with(pk=caseimportbackgroundjob.pk)
-
-    @parameterized.expand(
-        [
-            [CaseImportAction.STATE_RUNNING],
-            [CaseImportAction.STATE_FAILED],
-            [CaseImportAction.STATE_SUCCESS],
-        ]
-    )
-    def test_update_action_create_as_state_other_fails(self, state):
-        """PATCH action=update state=<other> => fail"""
-        self.assertEqual(CaseImportAction.objects.count(), 1)
-
-        extra = self.get_accept_header(None, None)
-        with self.login(self.superuser):
-            response = self.client.patch(
-                reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
-                ),
-                data={
-                    "action": CaseImportAction.ACTION_CREATE,
-                    "state": state,
-                    "payload": load_family_payload(),
-                },
-                format="json",
-                **extra,
-            )
-        self.assertEqual(response.status_code, 400, response.content)
-
-        self.assertEqual(CaseImportAction.objects.count(), 1)
 
     @parameterized.expand(
         [
