@@ -14,8 +14,8 @@ const navbarHidden = defineModel('navbarHidden', {
       <v-btn
         rounded="xl"
         icon=""
-        @click="navbarHidden = !navbarHidden"
         :title="`${navbarHidden ? 'Show' : 'Hide'} the left sidebar.`"
+        @click="navbarHidden = !navbarHidden"
       >
         <iconify-icon
           :icon="`material-symbols:left-panel-${navbarHidden ? 'open' : 'close'}`"

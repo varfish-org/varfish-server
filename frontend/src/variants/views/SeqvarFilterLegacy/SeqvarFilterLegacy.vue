@@ -147,7 +147,7 @@ onMounted(() => {
         >
           <template v-if="!navbarHidden"> Back to Case </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
           Variant Analysis
         </v-list-subheader>
         <v-list-item
@@ -160,7 +160,7 @@ onMounted(() => {
         >
           <template v-if="!navbarHidden"> Go To SV Filtration </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
           <template v-if="!navbarHidden"> Analysis Info </template>
         </v-list-subheader>
         <v-list-item

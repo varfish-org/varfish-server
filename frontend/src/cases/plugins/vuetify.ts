@@ -6,13 +6,7 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 // Composables
-import {
-  type ThemeDefinition,
-  createVuetify,
-  type IconSet,
-  type IconProps,
-  type IconAliases,
-} from 'vuetify'
+import { type ThemeDefinition, createVuetify } from 'vuetify'
 import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'

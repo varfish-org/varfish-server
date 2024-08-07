@@ -38,7 +38,7 @@ const userHasPerms = (perm: string) =>
       >
         <template v-if="!navbarHidden"> Back to Case List </template>
       </v-list-item>
-      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+      <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
         Case Overview
       </v-list-subheader>
       <v-list-item
@@ -70,7 +70,7 @@ const userHasPerms = (perm: string) =>
         <template v-if="!navbarHidden"> Variant Annotation </template>
       </v-list-item>
 
-      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+      <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
         Variant Analysis
       </v-list-subheader>
 
@@ -97,7 +97,7 @@ const userHasPerms = (perm: string) =>
       </v-list-item>
 
       <template v-if="userHasPerms('cases.update_case')">
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
           Case Operations
         </v-list-subheader>
 

@@ -63,7 +63,7 @@ watch(
         >
           <template v-if="!navbarHidden"> Back to Project </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
           Project Overview
         </v-list-subheader>
         <v-list-item
