@@ -6,13 +6,13 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 // Composables
-import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
 import { type ThemeDefinition, createVuetify } from 'vuetify'
+import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '../styles/main.scss'
-import { VNumberInput } from 'vuetify/lib/labs/components.mjs'
 
 const customLightTheme: ThemeDefinition = {
   dark: false,

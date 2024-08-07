@@ -145,43 +145,45 @@ onMounted(() => {
             params: { project: projectUuid, case: caseUuid },
           }"
         >
-          Back to Case
+          <template v-if="!navbarHidden"> Back to Case </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase">
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
           Variant Analysis
         </v-list-subheader>
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-filter-variant"
           :to="{
             name: 'svs-filter',
             params: { case: caseUuid },
           }"
         >
-          Go To SV Filtration
+          <template v-if="!navbarHidden"> Go To SV Filtration </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase">
-          Analysis Info
+        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
+          <template v-if="!navbarHidden"> Analysis Info </template>
         </v-list-subheader>
         <v-list-item
+          :class="{ 'mt-3': navbarHidden }"
           prepend-icon="mdi-button-cursor"
           @click="filterFormVisible = !filterFormVisible"
         >
-          Toggle Form
+          <template v-if="!navbarHidden"> Toggle Form </template>
         </v-list-item>
         <v-list-item
           :prepend-icon="`mdi-numeric-${filtrationComplexityMode}-box-multiple`"
           @click="toggleFiltrationComplexityMode()"
         >
-          Toggle Complexity
+          <template v-if="!navbarHidden"> Toggle Complexity </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-card-text-outline"
           @click="logsVisible = !logsVisible"
         >
-          Toggle Logs
+          <template v-if="!navbarHidden"> Toggle Logs </template>
         </v-list-item>
         <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
-          Filter: Defaults
+          <template v-if="!navbarHidden"> Filter: Defaults </template>
         </v-list-item>
         <v-list-item
           v-else
