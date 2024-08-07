@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.forms import model_to_dict
 from test_plus import TestCase
 
@@ -6,7 +7,6 @@ from variants.models.presets import (
     FlagsEtcPresets,
     FrequencyPresets,
     ImpactPresets,
-    PresetSet,
     QualityPresets,
 )
 from variants.serializers.presets import (
@@ -28,7 +28,7 @@ from variants.tests.factories import (
     QuickPresetsFactory,
 )
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 class TestFrequencyPresetsSerializer(TestCase):

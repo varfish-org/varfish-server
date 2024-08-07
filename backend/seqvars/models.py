@@ -40,8 +40,8 @@ class GnomadNuclearFrequencySettingsPydantic(pydantic.BaseModel):
     """Settings for gnomAD nuclear frequency filtering."""
 
     enabled: bool = False
-    homozygous: int | None = None
     heterozygous: int | None = None
+    homozygous: int | None = None
     hemizygous: int | None = None
     frequency: float | None = None
 
@@ -894,8 +894,10 @@ class SeqvarsGenotypeChoice(str, Enum):
     VARIANT = "variant"
     #: Recessive index.
     RECESSIVE_INDEX = "recessive_index"
-    #: Recessive parent.
-    RECESSIVE_PARENT = "recessive_parent"
+    #: Recessive father.
+    RECESSIVE_FATHER = "recessive_father"
+    #: Recessive mother.
+    RECESSIVE_MOTHER = "recessive_mother"
 
     @classmethod
     def values(cls) -> list[str]:

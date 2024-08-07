@@ -7,12 +7,7 @@ import tempfile
 from bgjobs.models import BackgroundJob
 from test_plus.test import TestCase
 
-from svs.models import (
-    ImportStructuralVariantBgJob,
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantSet,
-)
+from svs.models import ImportStructuralVariantBgJob, StructuralVariant, StructuralVariantSet
 from svs.tasks import run_import_structural_variants_bg_job
 from svs.tests.factories import StructuralVariantGeneAnnotationFactory
 from variants.models import Case

@@ -89,7 +89,7 @@ class SmallVariantQueryBase(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
 
     def is_prioritization_enabled(self):
         """Return whether prioritization is enabled in this query."""
@@ -174,7 +174,7 @@ class SmallVariantQueryResultSet(models.Model):
         return self.smallvariantquery.case.project
 
     class Meta:
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
 
 
 class SmallVariantQueryResultRow(models.Model):

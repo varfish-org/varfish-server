@@ -1,44 +1,38 @@
 <script setup lang="ts">
-import { SeqvarsSampleGenotypeChoiceList } from '@varfish-org/varfish-api/lib'
+import {
+  SeqvarsGenotypeChoice,
+  SeqvarsSampleGenotypeChoiceList,
+} from '@varfish-org/varfish-api/lib'
 
 const model = defineModel<SeqvarsSampleGenotypeChoiceList>({ required: true })
 const { index } = defineProps<{ index: number }>()
+
+const ITEMS = {
+  any: 'any',
+  index: 'recessive_index',
+  mother: 'recessive_mother',
+  father: 'recessive_father',
+} satisfies Record<string, SeqvarsGenotypeChoice>
 </script>
 
 <template>
-  <v-radio-group
-    inline
-    :hide-details="true"
+  <v-select
     :model-value="
-      { recessive_index: 'index', recessive_parent: 'parent' }[
-        model[index].genotype as never
-      ] ?? ''
+      Object.entries(ITEMS).find(([, v]) => v === model[index].genotype)?.[0] ??
+      'any'
     "
+    :items="Object.keys(ITEMS)"
+    hide-details
+    density="compact"
     @update:model-value="
-      (value: any) => {
-        if (value === 'index') {
-          const el = model.find((m) => m.genotype === 'recessive_index')
-          if (el) el.genotype = 'any'
-        } else if (
-          value === 'parent' &&
-          model.filter((m) => m.genotype === 'recessive_parent').length > 1
-        ) {
-          const el = model.find((m) => m.genotype === 'recessive_parent')
+      (v: string) => {
+        const value = v as keyof typeof ITEMS
+        if (value != 'any') {
+          const el = model.find((m) => m.genotype === ITEMS[value])
           if (el) el.genotype = 'any'
         }
-
-        model[index].genotype = (
-          {
-            index: 'recessive_index',
-            parent: 'recessive_parent',
-            '': 'any',
-          } as const
-        )[value as never]
+        model[index].genotype = ITEMS[value]
       }
     "
-  >
-    <v-radio label="None" value=""></v-radio>
-    <v-radio label="Index" value="index"></v-radio>
-    <v-radio label="Parent" value="parent"></v-radio>
-  </v-radio-group>
+  />
 </template>

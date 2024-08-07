@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.forms import model_to_dict
 from test_plus import TestCase
 
@@ -22,7 +23,7 @@ from variants.tests.factories import (
 )
 from variants.tests.test_views_api import transmogrify_pedigree
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 class TestCaseCommentSerializer(TestCase):

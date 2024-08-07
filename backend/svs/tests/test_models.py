@@ -83,14 +83,14 @@ class TestCleanupVariantSets(TestCase):
 
 class TestBackgroundSv(TestCase):
     def testConstruction(self):
-        _variant = BackgroundSvFactory()
+        _variant = BackgroundSvFactory()  # noqa: F841
         self.assertEqual(BackgroundSvSet.objects.count(), 1)
         self.assertEqual(BackgroundSv.objects.count(), 1)
 
 
 class TestBackgroundSvSet(TestCase):
     def testConstruction(self):
-        _variant_set = BackgroundSvSetFactory()
+        _variant_set = BackgroundSvSetFactory()  # noqa: F841
         self.assertEqual(BackgroundSv.objects.count(), 0)
         self.assertEqual(BackgroundSvSet.objects.count(), 1)
 
@@ -98,7 +98,7 @@ class TestBackgroundSvSet(TestCase):
 class TestFilterSvBgJob(TestCase):
     def testConstruction(self):
         user = self.make_user("superuser")
-        _filtersvbgjob = FilterSvBgJobFactory(user=user)
+        _filtersvbgjob = FilterSvBgJobFactory(user=user)  # noqa: F841
         self.assertEqual(FilterSvBgJob.objects.count(), 1)
         self.assertEqual(SvQuery.objects.count(), 1)
 
@@ -107,7 +107,7 @@ class TestSvQueryResultSet(TestCase):
     def testConstruction(self):
         user = self.make_user("superuser")
         filtersvbgjob = FilterSvBgJobFactory(user=user)
-        _svqueryresultset = SvQueryResultSetFactory(svquery=filtersvbgjob.svquery)
+        _svqueryresultset = SvQueryResultSetFactory(svquery=filtersvbgjob.svquery)  # noqa: F841
         self.assertEqual(SvQueryResultSet.objects.count(), 1)
 
 
@@ -116,5 +116,5 @@ class TestSvQueryResultRow(TestCase):
         user = self.make_user("superuser")
         filtersvbgjob = FilterSvBgJobFactory(user=user)
         svqueryresultset = SvQueryResultSetFactory(svquery=filtersvbgjob.svquery)
-        _svqueryresultrow = SvQueryResultRowFactory(svqueryresultset=svqueryresultset)
+        _svqueryresultrow = SvQueryResultRowFactory(svqueryresultset=svqueryresultset)  # noqa: F841
         self.assertEqual(SvQueryResultRow.objects.count(), 1)

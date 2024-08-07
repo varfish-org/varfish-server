@@ -24,7 +24,7 @@ const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
 
 type GenotypeKey = Exclude<
   SeqvarsGenotypeChoice,
-  'recessive_index' | 'recessive_parent'
+  'recessive_index' | 'recessive_father' | 'recessive_mother'
 >
 type Modes = typeof WILD_TYPE | typeof HET_ALT | typeof HOM_ALT
 const GENOTYPE_TO_INHERITANCE_MODE = {

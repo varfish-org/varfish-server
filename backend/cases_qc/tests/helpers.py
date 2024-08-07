@@ -1,7 +1,6 @@
 import datetime
 import json
 import random
-import sys
 import typing
 from unittest import mock
 import uuid
@@ -10,8 +9,8 @@ import factory
 
 # Import factories here so all classes have been declared here and we
 # can reset their counters in ResetFactoryCountersMixin.
-import cases.tests.factories
-import cases_qc.tests.factories
+import cases.tests.factories  # noqa: F401
+import cases_qc.tests.factories  # noqa: F401
 
 
 def extract_from_dict(vals: typing.Any, keys: typing.Iterable[str]) -> dict[str, typing.Any]:
@@ -38,7 +37,7 @@ class FlattenEncoder(json.JSONEncoder):
         if isinstance(obj, uuid.UUID):
             return str(obj)
         elif isinstance(obj, datetime.datetime):
-            return obj.isoformat()
+            return obj.isoformat(timepsec="seconds")
         elif isinstance(obj, datetime.date):
             return obj.isoformat()
         return json.JSONEncoder.default(self, obj)

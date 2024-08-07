@@ -50,26 +50,10 @@ test.describe('genotype (recessive)', () => {
       .click()
   })
 
-  test('index radios are mutually exclusive', async ({ page }) => {
-    await page
-      .locator('input[type="radio"][aria-label="Index"]:not(:checked)')
-      .first()
-      .click()
-    await expect(
-      page.locator('input[type="radio"][aria-label="Index"]:checked'),
-    ).toHaveCount(1)
-  })
-
-  test('only two parent radios can be selected', async ({ page }) => {
-    const parentRadios = page.locator(
-      'input[type="radio"][aria-label="Parent"]',
-    )
-    expect(await parentRadios.count()).toBe(3)
-    for (const parent of await parentRadios.all()) {
-      await parent.click()
-    }
-    await expect(await parentRadios.and(page.locator(':checked'))).toHaveCount(
-      2,
-    )
+  test('index selects are mutually exclusive', async ({ page }) => {
+    await expect(page.locator('input[value="index"]')).toHaveCount(1)
+    await page.locator('.v-select:has-text("father")').first().click()
+    await page.locator('.v-list-item-title:has-text("index")').click()
+    await expect(page.locator('input[value="index"]')).toHaveCount(1)
   })
 })

@@ -1,6 +1,3 @@
-from unittest.mock import patch
-
-from django.conf import settings
 from django.forms import model_to_dict
 from test_plus.test import TestCase
 

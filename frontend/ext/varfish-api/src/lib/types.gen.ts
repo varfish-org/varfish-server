@@ -1292,15 +1292,15 @@ export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
 export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
     gnomad_exomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
     gnomad_genomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
@@ -1957,7 +1957,7 @@ export type SeqvarsFrequencyAnnotationPydantic = {
 /**
  * Store genotype choice of a ``SampleGenotype``.
  */
-export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_parent';
+export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 'non_hom' | 'variant' | 'recessive_index' | 'recessive_father' | 'recessive_mother';
 
 /**
  * Presets value for the chosen genotype.
@@ -2293,15 +2293,15 @@ export type SeqvarsQueryPresetsConsequenceRequest = {
 export type SeqvarsQueryPresetsFrequency = {
     gnomad_exomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
     gnomad_genomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
@@ -2341,15 +2341,15 @@ export type SeqvarsQueryPresetsFrequency = {
 export type SeqvarsQueryPresetsFrequencyRequest = {
     gnomad_exomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
     gnomad_genomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
@@ -2782,15 +2782,15 @@ export type SeqvarsQuerySettingsDetailsRequest = {
 export type SeqvarsQuerySettingsFrequency = {
     gnomad_exomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
     gnomad_genomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
@@ -2834,15 +2834,15 @@ export type SeqvarsQuerySettingsFrequencyPydantic = {
 export type SeqvarsQuerySettingsFrequencyRequest = {
     gnomad_exomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;
     gnomad_genomes?: {
     enabled?: boolean;
-    homozygous?: number | null;
     heterozygous?: number | null;
+    homozygous?: number | null;
     hemizygous?: number | null;
     frequency?: number | null;
 } | null | null;

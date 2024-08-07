@@ -70,6 +70,7 @@ class SampleGenotypeChoiceFactory(factory.Factory):
 
 
 class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
+
     @factory.lazy_attribute
     def sample_genotypes(self):
         return [SampleGenotypeChoiceFactory() for _ in range(3)]

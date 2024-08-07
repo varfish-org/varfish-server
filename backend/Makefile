@@ -62,7 +62,7 @@ lint-black:
 	pipenv run black --check --line-length 100 --diff --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' .
 
 .PHONY: lint-flake8
-flake8:
+lint-flake8:
 	pipenv run flake8 --max-line-length 100 .
 
 .PHONY: lint-protolint
