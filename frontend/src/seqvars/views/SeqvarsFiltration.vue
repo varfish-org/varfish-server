@@ -10,6 +10,7 @@ import {
 import { copy } from '@/varfish/helpers'
 
 import { GENOTYPE_PRESETS } from '@/seqvars/components/genotype/constants'
+import GeneDataTable from '@/seqvars/components/GeneDataTable/GeneDataTable.vue'
 import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
 import {
   createGenotypeFromPreset,
@@ -109,10 +110,10 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
   <div style="height: 100vh; display: flex" class="bg-bg">
     <div
       style="
-        padding-right: 8px;
-        min-width: 250px;
+        min-width: 340px;
         height: 100%;
         overflow-y: auto;
+        overflow-x: hidden;
       "
     >
       <div
@@ -132,7 +133,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         <QueryList
           v-if="queries.length > 0"
           :selected-index="selectedQueryIndex"
-          :presets="presetDetails"
+          :preset-details="presetDetails"
           :queries="queries"
           @update:selected-index="(index) => (selectedQueryIndex = index)"
           @remove="(index) => queries.splice(index, 1)"
@@ -242,6 +243,13 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         </template>
       </div>
     </div>
-    <div>TODO</div>
+    <div style="height: auto; overflow: auto">
+      <GeneDataTable
+        v-if="selectedQueryIndex != null"
+        :selected-query-index="selectedQueryIndex"
+        :preset-details="presetDetails"
+        :queries="queries"
+      />
+    </div>
   </div>
 </template>

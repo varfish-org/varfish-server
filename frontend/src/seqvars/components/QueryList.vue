@@ -2,6 +2,7 @@
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 
 import { Query } from '@/seqvars/types'
+import { getQueryLabel } from '@/seqvars/utils'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -11,21 +12,11 @@ import ItemButton from './ui/ItemButton.vue'
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,
 })
-const { presets, queries } = defineProps<{
-  presets: SeqvarsQueryPresetsSetVersionDetails
+const { presetDetails, queries } = defineProps<{
+  presetDetails: SeqvarsQueryPresetsSetVersionDetails
   queries: Query[]
 }>()
 defineEmits<{ remove: [index: number]; revert: [] }>()
-
-function getQueryLabel(query: Query, index: number) {
-  const presetLabel = presets.seqvarspredefinedquery_set.find(
-    (pq) => pq.sodar_uuid === query.predefinedquery,
-  )?.label
-  const othersCount = queries
-    .slice(0, index)
-    .filter((q) => q.predefinedquery === query.predefinedquery).length
-  return `${presetLabel} ${othersCount > 0 ? `(${othersCount})` : ''}`
-}
 </script>
 
 <template>
@@ -33,7 +24,7 @@ function getQueryLabel(query: Query, index: number) {
     title="Results"
     :summary="
       selectedIndex
-        ? `#${selectedIndex + 1} ${getQueryLabel(queries[selectedIndex], selectedIndex)}`
+        ? `#${selectedIndex + 1} ${getQueryLabel({ presetDetails, queries, index: selectedIndex })}`
         : undefined
     "
   >
@@ -45,8 +36,8 @@ function getQueryLabel(query: Query, index: number) {
         :modified="
           !!query &&
           !matchesPredefinedQuery(
-            presets,
-            presets.seqvarspredefinedquery_set.find(
+            presetDetails,
+            presetDetails.seqvarspredefinedquery_set.find(
               (pq) => pq.sodar_uuid === query.predefinedquery,
             )!,
             query,
@@ -57,7 +48,7 @@ function getQueryLabel(query: Query, index: number) {
       >
         <template #default>
           #{{ index + 1 }}
-          {{ getQueryLabel(query, index) }}
+          {{ getQueryLabel({ presetDetails, queries, index }) }}
         </template>
         <template #extra>
           <ItemButton @click="$emit('remove', index)"
