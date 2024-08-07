@@ -413,7 +413,25 @@ class PresetSetManager(models.Manager):
 
     def create_as_copy_of_other_preset_set(self, other, **kwargs):
         """Create as a copy of the other presets set."""
-        return other.make_clone(attrs={**kwargs})
+        clone = other.make_clone(attrs={**kwargs})
+        quickpresets_other = list(other.quickpresets_set.all().order_by("id"))
+        quickpresets_clone = list(clone.quickpresets_set.all().order_by("id"))
+        mapping = {
+            preset: {
+                "other": list(getattr(other, f"{preset}presets_set").all().order_by("id")),
+                "clone": list(getattr(clone, f"{preset}presets_set").all().order_by("id")),
+            }
+            for preset in ("frequency", "impact", "quality", "chromosome", "flagsetc")
+        }
+
+        for n, quickpreset_other in enumerate(quickpresets_other):
+            for preset in mapping.keys():
+                for i, o in enumerate(mapping[preset]["other"]):
+                    if getattr(quickpreset_other, preset) == o:
+                        setattr(quickpresets_clone[n], preset, mapping[preset]["clone"][i])
+            quickpresets_clone[n].save()
+
+        return clone
 
 
 class PresetSet(CloneMixin, models.Model):
