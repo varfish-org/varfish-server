@@ -52,6 +52,7 @@ from variants.serializers import (
     SvAnnotationReleaseInfoSerializer,
 )
 from variants.tasks import delete_case_bg_job
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 
 class CasePagination(PageNumberPagination):
@@ -59,7 +60,15 @@ class CasePagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 1000
 
-
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name='order_by', type=str),
+            OpenApiParameter(name='order_dir', type=str),
+            OpenApiParameter(name='q', type=str),
+        ]
+    )
+)
 class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
     """
     List all cases in the current project.

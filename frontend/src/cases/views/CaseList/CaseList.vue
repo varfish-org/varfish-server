@@ -7,6 +7,7 @@ import { Tab } from './types'
 import QueryPresets from '@/variants/components/QueryPresets.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useProjectStore } from '@/cases/stores/project/store'
@@ -25,6 +26,13 @@ const projectStore = useProjectStore()
 
 // Whether to hide the navigation bar; component state.
 const navbarHidden = ref<boolean>(false)
+/** Messages to display in VSnackbarQueue; component state. */
+const messages = ref<SnackbarMessage[]>([])
+
+/** Event handler for queueing message in VSnackbarQueue. */
+const queueMessage = (message: SnackbarMessage) => {
+  messages.value.push(message)
+}
 
 // Initialize case list store on mount.
 onMounted(() => {
@@ -44,7 +52,11 @@ watch(
 <template>
   <v-app id="case-list">
     <v-main>
-      <TheAppBar v-model:navbar-hidden="navbarHidden" />
+      <TheAppBar
+        :show-left-panel-button="true"
+        :show-right-panel-button="false"
+        v-model:hide-left-panel="navbarHidden"
+      />
       <TheNavBar :navbar-hidden="navbarHidden">
         <v-list-item
           prepend-icon="mdi-arrow-left"
@@ -56,7 +68,7 @@ watch(
           Project Overview
         </v-list-subheader>
         <v-list-item
-          :class="{ 'mt-3': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
           prepend-icon="mdi-format-list-bulleted-square"
           :to="{
             name: 'case-list',
@@ -95,7 +107,7 @@ watch(
       </TheNavBar>
       <div class="pa-3">
         <div v-if="props.currentTab === Tab.CASE_LIST">
-          <CaseListTable :project-uuid="projectUuid" />
+          <CaseListTable :project-uuid="projectUuid" @message="queueMessage" />
         </div>
         <div v-else-if="props.currentTab === Tab.QUALITY_CONTROL">
           <CaseListQc />
@@ -108,5 +120,10 @@ watch(
         </div>
       </div>
     </v-main>
+    <v-snackbar-queue
+      v-model="messages"
+      timer="5000"
+      close-on-content-click
+    ></v-snackbar-queue>
   </v-app>
 </template>

@@ -55,7 +55,11 @@ watch(
 <template>
   <v-app id="seqvars-presets-sets">
     <v-main>
-      <TheAppBar v-model:navbar-hidden="navbarHidden" />
+      <TheAppBar
+        :show-left-panel-button="true"
+        :show-right-panel-button="false"
+        v-model:hide-left-panel="navbarHidden"
+      />
       <TheNavBar :navbar-hidden="navbarHidden">
         <v-list-item
           prepend-icon="mdi-arrow-left"
@@ -67,7 +71,7 @@ watch(
           Project Overview
         </v-list-subheader>
         <v-list-item
-          :class="{ 'mt-3': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
           prepend-icon="mdi-format-list-bulleted-square"
           :to="{
             name: 'case-list',

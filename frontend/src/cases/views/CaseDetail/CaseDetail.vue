@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
 import CaseDetailPane from './CaseDetailPane.vue'
-import { ref } from 'vue'
+import { onBeforeMount, ref, watch } from 'vue'
 
 const paneRef = ref<typeof CaseDetailPane | undefined>(undefined)
 
@@ -16,18 +17,41 @@ const props = defineProps<{
   currentTab: string
 }>()
 
+const caseDetailsStore = useCaseDetailsStore()
 const caseListStore = useCaseListStore()
 
-// Whether to hide the navigation bar; component state.
+/** Whether to hide the navigation bar; component state. */
 const navbarHidden = ref<boolean>(false)
 
+/** Returns whether the user has the given permissions. */
 const userHasPerms = (perm: string) =>
   caseListStore.userPerms && caseListStore.userPerms.includes(perm)
+
+/** Refresh the stores. */
+const refreshStores = async () => {
+  if (!props.caseUuid) {
+    return
+  }
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
+}
+
+// Initialize (=refresh) stores when mounted.
+onBeforeMount(async () => refreshStores())
+
+// Refresh stores when the case UUID changes.
+watch(
+  () => props.caseUuid,
+  async () => refreshStores(),
+)
 </script>
 
 <template>
   <v-app id="case-detail">
-    <TheAppBar v-model:navbar-hidden="navbarHidden" />
+    <TheAppBar
+      :show-left-panel-button="true"
+      :show-right-panel-button="false"
+      v-model:hide-left-panel="navbarHidden"
+    />
     <TheNavBar :navbar-hidden="navbarHidden">
       <v-list-item
         prepend-icon="mdi-arrow-left"
@@ -42,7 +66,7 @@ const userHasPerms = (perm: string) =>
         Case Overview
       </v-list-subheader>
       <v-list-item
-        :class="{ 'mt-3': navbarHidden }"
+        :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
         prepend-icon="mdi-account"
         :to="{
           name: 'case-detail-overview',
@@ -70,31 +94,70 @@ const userHasPerms = (perm: string) =>
         <template v-if="!navbarHidden"> Variant Annotation </template>
       </v-list-item>
 
-      <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
-        Variant Analysis
-      </v-list-subheader>
+      <template v-if="!caseDetailsStore.caseObj">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+          Variant Analysis
+        </v-list-subheader>
+        <v-skeleton-loader
+          loading
+          type="list-item, list-item"
+          class="bg-background"
+        />
+      </template>
+      <template v-else-if="caseDetailsStore.caseObj.case_version == 1">
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+          Variant Analysis
+        </v-list-subheader>
 
-      <v-list-item
-        :class="{ 'mt-3': navbarHidden }"
-        prepend-icon="mdi-filter"
-        append-icon="mdi-arrow-right"
-        :to="{
-          name: 'variants-filter',
-          params: { case: caseUuid },
-        }"
-      >
-        <template v-if="!navbarHidden"> Filter Variants </template>
-      </v-list-item>
-      <v-list-item
-        prepend-icon="mdi-filter-variant"
-        append-icon="mdi-arrow-right"
-        :to="{
-          name: 'svs-filter',
-          params: { case: caseUuid },
-        }"
-      >
-        <template v-if="!navbarHidden"> Filter SVs </template>
-      </v-list-item>
+        <v-list-item
+          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          prepend-icon="mdi-filter"
+          append-icon="mdi-arrow-right"
+          :to="{
+            name: 'variants-filter',
+            params: { case: caseUuid },
+          }"
+        >
+          <template v-if="!navbarHidden"> Filter Variants </template>
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-filter-variant"
+          append-icon="mdi-arrow-right"
+          :to="{
+            name: 'svs-filter',
+            params: { case: caseUuid },
+          }"
+        >
+          <template v-if="!navbarHidden"> Filter SVs </template>
+        </v-list-item>
+      </template>
+      <template v-else>
+        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+          Variant Analysis (V2)
+        </v-list-subheader>
+
+        <v-list-item
+          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          prepend-icon="mdi-filter"
+          append-icon="mdi-arrow-right"
+          :to="{
+            name: 'seqvars-query',
+            params: { projectUuid, caseUuid },
+          }"
+        >
+          <template v-if="!navbarHidden"> Filter Variants </template>
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-filter-variant"
+          append-icon="mdi-arrow-right"
+          :data-x-to="{
+            name: 'strucvars-filter',
+            params: { project: projectUuid, case: caseUuid },
+          }"
+        >
+          <template v-if="!navbarHidden"> Filter SVs </template>
+        </v-list-item>
+      </template>
 
       <template v-if="userHasPerms('cases.update_case')">
         <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
@@ -102,7 +165,7 @@ const userHasPerms = (perm: string) =>
         </v-list-subheader>
 
         <v-list-item
-          :class="{ 'mt-3': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
           prepend-icon="mdi-filter-settings"
           link
           @click="paneRef!.handleEditQueryPresetsClicked()"

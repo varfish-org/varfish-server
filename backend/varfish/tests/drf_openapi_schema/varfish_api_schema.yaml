@@ -856,6 +856,14 @@ paths:
 
         **Returns:** List of project details (see :py:class:`CaseRetrieveApiView`)
       parameters:
+      - in: query
+        name: order_by
+        schema:
+          type: string
+      - in: query
+        name: order_dir
+        schema:
+          type: string
       - name: page
         required: false
         in: query
@@ -874,6 +882,10 @@ paths:
           type: string
           pattern: ^[0-9a-f-]+$
         required: true
+      - in: query
+        name: q
+        schema:
+          type: string
       tags:
       - cases
       security:
