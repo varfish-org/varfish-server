@@ -59,10 +59,12 @@ const columns = ref(
 )
 
 const loading = ref(false)
-const itemsPerPage = ref(20)
+const itemsPerPage = ref(18)
 const searchQuery = ref('')
 const serverItems = ref<GeneItem[]>([])
 const totalItems = ref(data.length)
+
+const emit = defineEmits<{ showDetails: [GeneItem] }>()
 
 async function fakeLoadItems({
   page,
@@ -180,7 +182,10 @@ async function fakeLoadItems({
   <v-data-table-server
     v-model:items-per-page="itemsPerPage"
     density="compact"
-    :headers="columns.filter((c) => c.enabled)"
+    :headers="[
+      ...columns.filter((c) => c.enabled),
+      { title: 'actions', key: 'actions', align: 'end', sortable: false },
+    ]"
     :items="serverItems"
     :items-length="totalItems"
     :loading="loading"
@@ -189,7 +194,15 @@ async function fakeLoadItems({
     class="gene-data-table"
     style="font-size: var(--font-size-xs)"
     @update:options="fakeLoadItems"
-  />
+    @click:row="(event: unknown, row: any) => emit('showDetails', row.item)"
+  >
+    <!-- eslint-disable-next-line vue/valid-v-slot -->
+    <template #item.actions="{ item }">
+      <v-icon class="me-2" size="small" @click="emit('showDetails', item)">
+        mdi-arrow-right
+      </v-icon>
+    </template>
+  </v-data-table-server>
 </template>
 
 <style>
