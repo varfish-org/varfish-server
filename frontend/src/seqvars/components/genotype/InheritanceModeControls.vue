@@ -20,6 +20,8 @@ const model = defineModel<SeqvarsSampleGenotypePydanticList[number]>({
   required: true,
 })
 
+const props = defineProps<{ legend: string }>()
+
 const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
 
 type GenotypeKey = Exclude<
@@ -73,7 +75,8 @@ const ANY_ITEMS_WITH_LABELS = [
 </script>
 
 <template>
-  <div style="display: flex; gap: 8px">
+  <fieldset style="display: flex; gap: 8px">
+    <legend style="display: none">{{ props.legend }}</legend>
     <div style="display: flex; gap: 4px">
       <CheckButton
         :model-value="model.genotype == 'any'"
@@ -86,18 +89,20 @@ const ANY_ITEMS_WITH_LABELS = [
               : [...modes, ...ANY_ITEMS_WITH_LABELS.map(([item]) => item)],
           )
         "
-        >any</CheckButton
       >
+        any
+      </CheckButton>
 
       <CheckButton
         v-for="[key, label] in ANY_ITEMS_WITH_LABELS"
         :key="key"
         :model-value="modes.has(key)"
         @update:model-value="toggleModes(key)"
-        >{{ label }}</CheckButton
       >
+        {{ label }}
+      </CheckButton>
     </div>
 
     <CheckButton v-model="model.include_no_call">no call</CheckButton>
-  </div>
+  </fieldset>
 </template>

@@ -196,6 +196,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           >
             <div
               role="listbox"
+              aria-label="Genotype presets"
               style="width: 100%; display: flex; flex-direction: column"
             >
               <Item
@@ -233,6 +234,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           >
             <div
               role="listbox"
+              :aria-label="`${group.title} presets`"
               style="width: 100%; display: flex; flex-direction: column"
             >
               <Item

@@ -74,6 +74,7 @@ const recessiveMode = computed<RecessiveModeEnum>({
         <InheritanceModeControls
           v-if="recessiveMode == 'disabled'"
           v-model="model.genotype.sample_genotype_choices![index]"
+          :legend="choice.sample"
         />
         <RecessiveControls
           v-else-if="model.genotype.sample_genotype_choices"
