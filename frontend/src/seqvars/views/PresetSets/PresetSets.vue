@@ -56,9 +56,9 @@ watch(
   <v-app id="seqvars-presets-sets">
     <v-main>
       <TheAppBar
+        v-model:show-left-panel="navbarShown"
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-        v-model:show-left-panel="navbarShown"
       />
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item

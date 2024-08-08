@@ -62,9 +62,9 @@ export class FilterGroup<
     return `seqvarsquerypresets${this.id}_set` as const
   }
 
-  matchesPreset(presetDetails: PresetDetails, query: Query): boolean {
-    if (!isKeyOfObject(this.presetSetKey, presetDetails)) return false
-    const preset = presetDetails[this.presetSetKey].find(
+  matchesPreset(presetsDetails: PresetDetails, query: Query): boolean {
+    if (!isKeyOfObject(this.presetSetKey, presetsDetails)) return false
+    const preset = presetsDetails[this.presetSetKey].find(
       (p) =>
         isKeyOfObject(this.queryPresetKey, query) &&
         p.sodar_uuid === query[this.queryPresetKey],
@@ -197,23 +197,23 @@ export const createQualityFromPreset = (
 })
 
 export const matchesQualityPreset = (
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails,
+  presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
   query: Query,
 ) => {
-  const preset = presetDetails.seqvarsquerypresetsquality_set.find(
+  const preset = presetsDetails.seqvarsquerypresetsquality_set.find(
     (p) => p.sodar_uuid === query.qualitypresets,
   )
   return !!preset && isEqual(query.quality, createQualityFromPreset(preset))
 }
 
 export const matchesPredefinedQuery = (
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails,
+  presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
   pq: SeqvarsPredefinedQuery,
   query: Query,
 ) =>
   matchesGenotypePreset(pq.genotype?.choice, query) &&
   GROUPS.every((group) =>
     group.id == 'quality'
-      ? matchesQualityPreset(presetDetails, query)
-      : group.matchesPreset(presetDetails, query),
+      ? matchesQualityPreset(presetsDetails, query)
+      : group.matchesPreset(presetsDetails, query),
   )

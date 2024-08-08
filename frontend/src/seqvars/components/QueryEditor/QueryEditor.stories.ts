@@ -19,7 +19,7 @@ export const Example: Story = {
     setup() {
       return { fixture }
     },
-    template: '<QueryEditor :presetDetails="fixture"  />',
+    template: '<QueryEditor :presetsDetails="fixture"  />',
   }),
   parameters: {
     msw: {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
 import VResizeDrawer from '@wdns/vuetify-resize-drawer'
 import { ref } from 'vue'
 
@@ -15,26 +14,29 @@ const pinned = ref<boolean>(false)
 
 <template>
   <v-resize-drawer
+    v-model="showSheet"
     location="right"
     temporary
     :scrim="!pinned"
-    v-model="showSheet"
     resizable
     save-width
     touchless
     min-width="200px"
+    max-width="80%"
+    width-snapback
     handle-icon="mdi-drag"
     handle-position="bottom"
+    storage-name="seqvars-details-drawer"
   >
-    <template v-slot:prepend>
+    <template #prepend>
       <div class="text-right">
-        <v-btn icon="" @click="pinned = !pinned" size="small">
+        <v-btn icon="" size="small" @click="pinned = !pinned">
           <v-icon
             :icon="pinned ? 'mdi-pin' : 'mdi-pin-outline'"
             :class="{ 'pin-icon-rotate': !pinned }"
           />
         </v-btn>
-        <v-btn icon="" @click="showSheet = false" size="small">
+        <v-btn icon="" size="small" @click="showSheet = false">
           <v-icon icon="mdi-close" />
         </v-btn>
       </div>

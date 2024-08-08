@@ -48,9 +48,9 @@ watch(
 <template>
   <v-app id="case-detail">
     <TheAppBar
+      v-model:show-left-panel="navbarShown"
       :show-left-panel-button="true"
       :show-right-panel-button="false"
-      v-model:show-left-panel="navbarShown"
     />
     <TheNavBar :navbar-shown="navbarShown">
       <v-list-item
@@ -95,7 +95,7 @@ watch(
       </v-list-item>
 
       <template v-if="!caseDetailsStore.caseObj">
-        <v-list-subheader class="text-uppercase" v-if="navbarShown">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Variant Analysis
         </v-list-subheader>
         <v-skeleton-loader
@@ -105,7 +105,7 @@ watch(
         />
       </template>
       <template v-else-if="caseDetailsStore.caseObj.case_version == 1">
-        <v-list-subheader class="text-uppercase" v-if="navbarShown">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Variant Analysis
         </v-list-subheader>
 
@@ -132,7 +132,7 @@ watch(
         </v-list-item>
       </template>
       <template v-else>
-        <v-list-subheader class="text-uppercase" v-if="navbarShown">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Variant Analysis (V2)
         </v-list-subheader>
 

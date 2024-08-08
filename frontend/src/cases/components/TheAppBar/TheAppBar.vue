@@ -31,7 +31,7 @@ const showRightPanel = defineModel('showRightPanel', {
 
 <template>
   <v-app-bar color="primary" density="compact">
-    <template #prepend v-if="showLeftPanelButton">
+    <template v-if="showLeftPanelButton" #prepend>
       <v-btn
         rounded="xl"
         icon
@@ -54,7 +54,7 @@ const showRightPanel = defineModel('showRightPanel', {
       </slot>
     </v-app-bar-title>
 
-    <template #append v-if="showRightPanelButton">
+    <template v-if="showRightPanelButton" #append>
       <slot name="append"> </slot>
       <v-btn
         rounded="xl"

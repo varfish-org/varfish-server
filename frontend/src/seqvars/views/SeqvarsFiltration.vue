@@ -27,8 +27,8 @@ import Hr from '@/seqvars/components/ui/Hr.vue'
 import Item from '@/seqvars/components/ui/Item.vue'
 import { Query } from '@/seqvars/types'
 
-const { presetDetails } = defineProps<{
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails
+const { presetsDetails } = defineProps<{
+  presetsDetails: SeqvarsQueryPresetsSetVersionDetails
 }>()
 
 const queries = ref<Query[]>([])
@@ -48,7 +48,7 @@ const selectedQuery = computed({
 })
 
 const selectedPredefinedQuery = computed(() =>
-  presetDetails.seqvarspredefinedquery_set.find(
+  presetsDetails.seqvarspredefinedquery_set.find(
     (pq) => pq.sodar_uuid === selectedQuery.value?.predefinedquery,
   ),
 )
@@ -59,7 +59,7 @@ const getGenotypeLabel = (key: SeqvarsGenotypePresetChoice) =>
 const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   const presetFields = Object.fromEntries(
     GROUPS.flatMap((group) => {
-      const preset = presetDetails[group.presetSetKey].find(
+      const preset = presetsDetails[group.presetSetKey].find(
         (p) => p.sodar_uuid === pq[group.id],
       )
       return [
@@ -133,13 +133,13 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         <QueryList
           v-if="queries.length > 0"
           :selected-index="selectedQueryIndex"
-          :preset-details="presetDetails"
+          :presets-details="presetsDetails"
           :queries="queries"
           @update:selected-index="(index) => (selectedQueryIndex = index)"
           @remove="(index) => queries.splice(index, 1)"
           @revert="
             () => {
-              const pq = presetDetails.seqvarspredefinedquery_set.find(
+              const pq = presetsDetails.seqvarspredefinedquery_set.find(
                 (p) => p.sodar_uuid === selectedQuery?.predefinedquery,
               )!
               selectedQuery = createQuery(pq)
@@ -147,12 +147,12 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           "
         />
         <PredefinedQueryList
-          :presets="presetDetails"
+          :presets="presetsDetails"
           :selected-id="selectedQuery?.predefinedquery"
           :query="selectedQuery"
           @update:selected-id="
             (id) => {
-              const pq = presetDetails.seqvarspredefinedquery_set.find(
+              const pq = presetsDetails.seqvarspredefinedquery_set.find(
                 (p) => p.sodar_uuid === id,
               )!
               selectedQuery = createQuery(pq)
@@ -208,7 +208,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             :key="group.id"
             :title="group.title"
             :summary="
-              presetDetails[group.presetSetKey].find(
+              presetsDetails[group.presetSetKey].find(
                 (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
               )?.label
             "
@@ -218,7 +218,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
               style="width: 100%; display: flex; flex-direction: column"
             >
               <Item
-                v-for="preset in presetDetails[group.presetSetKey]"
+                v-for="preset in presetsDetails[group.presetSetKey]"
                 :key="preset.sodar_uuid"
                 :selected="
                   preset.sodar_uuid == selectedQuery[group.queryPresetKey]
@@ -227,8 +227,8 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                   !(
                     selectedPredefinedQuery &&
                     (group.id == 'quality'
-                      ? matchesQualityPreset(presetDetails, selectedQuery)
-                      : group.matchesPreset(presetDetails, selectedQuery))
+                      ? matchesQualityPreset(presetsDetails, selectedQuery)
+                      : group.matchesPreset(presetsDetails, selectedQuery))
                   )
                 "
                 @click="() => setToPreset(group, preset)"
@@ -247,7 +247,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
       <GeneDataTable
         v-if="selectedQueryIndex != null"
         :selected-query-index="selectedQueryIndex"
-        :preset-details="presetDetails"
+        :presets-details="presetsDetails"
         :queries="queries"
       />
     </div>

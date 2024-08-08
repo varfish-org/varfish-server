@@ -3,16 +3,16 @@ import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/l
 import { Query } from '@/seqvars/types'
 
 export function getQueryLabel({
-  presetDetails,
+  presetsDetails,
   queries,
   index,
 }: {
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails
+  presetsDetails: SeqvarsQueryPresetsSetVersionDetails
   queries: Query[]
   index: number
 }) {
   const query = queries.at(index)
-  const presetLabel = presetDetails.seqvarspredefinedquery_set.find(
+  const presetLabel = presetsDetails.seqvarspredefinedquery_set.find(
     (pq) => pq.sodar_uuid === query?.predefinedquery,
   )?.label
   const othersCount = queries
