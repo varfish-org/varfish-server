@@ -25,7 +25,7 @@ const caseListStore = useCaseListStore()
 const projectStore = useProjectStore()
 
 // Whether to hide the navigation bar; component state.
-const navbarHidden = ref<boolean>(false)
+const navbarShown = ref<boolean>(true)
 /** Messages to display in VSnackbarQueue; component state. */
 const messages = ref<SnackbarMessage[]>([])
 
@@ -55,27 +55,27 @@ watch(
       <TheAppBar
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-        v-model:hide-left-panel="navbarHidden"
+        v-model:show-left-panel="navbarShown"
       />
-      <TheNavBar :navbar-hidden="navbarHidden">
+      <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"
           :href="`/project/${projectStore.projectUuid}`"
         >
-          <template v-if="!navbarHidden"> Back to Project </template>
+          <template v-if="navbarShown"> Back to Project </template>
         </v-list-item>
-        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Project Overview
         </v-list-subheader>
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-format-list-bulleted-square"
           :to="{
             name: 'case-list',
             params: { project: projectStore.projectUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Case List </template>
+          <template v-if="navbarShown"> Case List </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-chart-multiple"
@@ -84,7 +84,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Quality Control </template>
+          <template v-if="navbarShown"> Quality Control </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-filter-settings"
@@ -93,7 +93,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Query Presets </template>
+          <template v-if="navbarShown"> Query Presets </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-numeric-2-box-multiple-outline"
@@ -102,7 +102,7 @@ watch(
             params: { project: projectStore.projectUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Query Presets (V2) </template>
+          <template v-if="navbarShown"> Query Presets (V2) </template>
         </v-list-item>
       </TheNavBar>
       <div class="pa-3">

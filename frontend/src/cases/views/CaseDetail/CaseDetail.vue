@@ -21,7 +21,7 @@ const caseDetailsStore = useCaseDetailsStore()
 const caseListStore = useCaseListStore()
 
 /** Whether to hide the navigation bar; component state. */
-const navbarHidden = ref<boolean>(false)
+const navbarShown = ref<boolean>(true)
 
 /** Returns whether the user has the given permissions. */
 const userHasPerms = (perm: string) =>
@@ -50,9 +50,9 @@ watch(
     <TheAppBar
       :show-left-panel-button="true"
       :show-right-panel-button="false"
-      v-model:hide-left-panel="navbarHidden"
+      v-model:show-left-panel="navbarShown"
     />
-    <TheNavBar :navbar-hidden="navbarHidden">
+    <TheNavBar :navbar-shown="navbarShown">
       <v-list-item
         prepend-icon="mdi-arrow-left"
         :to="{
@@ -60,20 +60,20 @@ watch(
           params: { project: props.projectUuid },
         }"
       >
-        <template v-if="!navbarHidden"> Back to Case List </template>
+        <template v-if="navbarShown"> Back to Case List </template>
       </v-list-item>
-      <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
+      <v-list-subheader v-if="navbarShown" class="text-uppercase">
         Case Overview
       </v-list-subheader>
       <v-list-item
-        :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+        :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
         prepend-icon="mdi-account"
         :to="{
           name: 'case-detail-overview',
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        <template v-if="!navbarHidden"> Overview </template>
+        <template v-if="navbarShown"> Overview </template>
       </v-list-item>
       <v-list-item
         prepend-icon="mdi-chart-multiple"
@@ -82,7 +82,7 @@ watch(
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        <template v-if="!navbarHidden"> Quality Control </template>
+        <template v-if="navbarShown"> Quality Control </template>
       </v-list-item>
       <v-list-item
         prepend-icon="mdi-bookmark-multiple"
@@ -91,11 +91,11 @@ watch(
           params: { project: projectUuid, case: caseUuid },
         }"
       >
-        <template v-if="!navbarHidden"> Variant Annotation </template>
+        <template v-if="navbarShown"> Variant Annotation </template>
       </v-list-item>
 
       <template v-if="!caseDetailsStore.caseObj">
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader class="text-uppercase" v-if="navbarShown">
           Variant Analysis
         </v-list-subheader>
         <v-skeleton-loader
@@ -105,12 +105,12 @@ watch(
         />
       </template>
       <template v-else-if="caseDetailsStore.caseObj.case_version == 1">
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader class="text-uppercase" v-if="navbarShown">
           Variant Analysis
         </v-list-subheader>
 
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-filter"
           append-icon="mdi-arrow-right"
           :to="{
@@ -118,7 +118,7 @@ watch(
             params: { case: caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Filter Variants </template>
+          <template v-if="navbarShown"> Filter Variants </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-filter-variant"
@@ -128,16 +128,16 @@ watch(
             params: { case: caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Filter SVs </template>
+          <template v-if="navbarShown"> Filter SVs </template>
         </v-list-item>
       </template>
       <template v-else>
-        <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
+        <v-list-subheader class="text-uppercase" v-if="navbarShown">
           Variant Analysis (V2)
         </v-list-subheader>
 
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-filter"
           append-icon="mdi-arrow-right"
           :to="{
@@ -145,7 +145,7 @@ watch(
             params: { projectUuid, caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Filter Variants </template>
+          <template v-if="navbarShown"> Filter Variants </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-filter-variant"
@@ -155,50 +155,50 @@ watch(
             params: { project: projectUuid, case: caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Filter SVs </template>
+          <template v-if="navbarShown"> Filter SVs </template>
         </v-list-item>
       </template>
 
       <template v-if="userHasPerms('cases.update_case')">
-        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Case Operations
         </v-list-subheader>
 
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-filter-settings"
           link
           @click="paneRef!.handleEditQueryPresetsClicked()"
         >
-          <template v-if="!navbarHidden"> Edit Query Presets </template>
+          <template v-if="navbarShown"> Edit Query Presets </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-comment-plus"
           link
           @click="paneRef!.handleAddCaseCommentClicked()"
         >
-          <template v-if="!navbarHidden"> Add Comment </template>
+          <template v-if="navbarShown"> Add Comment </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-square-edit-outline"
           link
           @click="paneRef!.handleEditCaseStatusClicked()"
         >
-          <template v-if="!navbarHidden"> Edit Status </template>
+          <template v-if="navbarShown"> Edit Status </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-playlist-edit"
           link
           @click="paneRef!.handleEditCaseNotesClicked()"
         >
-          <template v-if="!navbarHidden"> Edit Notes </template>
+          <template v-if="navbarShown"> Edit Notes </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-file-document-edit"
           link
           @click="paneRef!.handleEditPedigreeClicked()"
         >
-          <template v-if="!navbarHidden"> Edit Pedigree </template>
+          <template v-if="navbarShown"> Edit Pedigree </template>
         </v-list-item>
         <v-list-item
           v-if="userHasPerms('cases.delete_case')"
@@ -208,7 +208,7 @@ watch(
           class="dropdown-item text-danger"
           @click="paneRef!.handleDestroyCaseClicked()"
         >
-          <template v-if="!navbarHidden"> Delete Case </template>
+          <template v-if="navbarShown"> Delete Case </template>
         </v-list-item>
       </template>
     </TheNavBar>

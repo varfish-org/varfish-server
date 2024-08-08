@@ -3,10 +3,10 @@
 const props = withDefaults(
   defineProps<{
     /** Whether the navigation bar is hidden. */
-    navbarHidden: boolean
+    navbarShown: boolean
   }>(),
   {
-    navbarHidden: false,
+    navbarShown: true,
   },
 )
 </script>
@@ -16,7 +16,7 @@ const props = withDefaults(
     floating
     permanent
     color="grey-lighten-3"
-    :rail="navbarHidden"
+    :rail="!navbarShown"
   >
     <v-list density="compact">
       <slot></slot>

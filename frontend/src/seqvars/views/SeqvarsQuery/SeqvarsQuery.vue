@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { useCaseListStore } from '@/cases/stores/caseList'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
+import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
+import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
+import { useProjectStore } from '@/cases/stores/project'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   /** The project UUID. */
   projectUuid?: string
@@ -12,17 +20,53 @@ const props = defineProps<{
   caseUuid?: string
 }>()
 
-const caseListStore = useCaseListStore()
-
 /** Whether to hide the navigation bar; component state. */
-const navbarHidden = ref<boolean>(false)
+const navbarShown = ref<boolean>(true)
 /** Whether to hide the variant details pane; component state. */
-const detailsHidden = ref<boolean>(true)
+const detailsShown = ref<boolean>(false)
 // Messages to display in VSnackbarQueue; component state. */
 const messages = ref<SnackbarMessage[]>([])
 
-const userHasPerms = (perm: string) =>
-  caseListStore.userPerms && caseListStore.userPerms.includes(perm)
+const caseDetailsStore = useCaseDetailsStore()
+const projectStore = useProjectStore()
+const seqvarsPresetsStore = useSeqvarsPresetsStore()
+
+/** (Re-)initialize the stores. */
+const initializeStores = async () => {
+  await Promise.all([
+    (async () => {
+      if (props.projectUuid && props.caseUuid) {
+        await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
+      }
+    })(),
+    projectStore.initialize(props.projectUuid),
+    seqvarsPresetsStore.initialize(props.projectUuid),
+  ])
+}
+
+/** The currently selected preset set for the case. */
+const selectedPresetSetVersion = computed<
+  SeqvarsQueryPresetsSetVersionDetails | undefined
+>(() => {
+  return seqvarsPresetsStore.presetSetVersions.values().next()?.value
+})
+
+/** Event handler for queueing message in VSnackbarQueue. */
+const queueMessage = (message: SnackbarMessage) => {
+  messages.value.push(message)
+}
+
+// Initialize case list store on mount.
+onMounted(async () => {
+  await initializeStores()
+})
+// Re-initialize case list store when the project changes.
+watch(
+  () => [props.projectUuid, props.caseUuid],
+  async () => {
+    await initializeStores()
+  },
+)
 </script>
 
 <template>
@@ -30,47 +74,60 @@ const userHasPerms = (perm: string) =>
     <TheAppBar
       :show-left-panel-button="true"
       :show-right-panel-button="true"
-      v-model:hide-left-panel="navbarHidden"
-      v-model:hide-right-panel="detailsHidden"
-    />
-    <TheNavBar :navbar-hidden="navbarHidden">
-      <v-list-item
-        prepend-icon="mdi-arrow-left"
-        :to="{
-          name: 'case-detail-overview',
-          params: { project: projectUuid, case: caseUuid },
-        }"
-      >
-        <template v-if="!navbarHidden"> Back to Case </template>
-      </v-list-item>
-
-      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
-        Variant Analysis (V2)
-      </v-list-subheader>
-      <v-list-item
-        prepend-icon="mdi-filter-variant"
-        :data-x-to="{
-          name: 'strucvars-query',
-          params: { case: caseUuid },
-        }"
-      >
-        <template v-if="!navbarHidden"> Go To SV Filtration </template>
-      </v-list-item>
-
-      <v-list-subheader class="text-uppercase" v-if="!navbarHidden">
-        Variant Analysis (V2)
-      </v-list-subheader>
+      v-model:show-left-panel="navbarShown"
+      v-model:show-right-panel="detailsShown"
+      :title="
+        caseDetailsStore.caseObj?.name
+          ? `VarFish - ${caseDetailsStore.caseObj?.name}`
+          : undefined
+      "
+    >
+      <template #append>
+        <v-btn
+          icon="mdi-arrow-left"
+          :to="{
+            name: 'case-detail-overview',
+            params: { project: projectUuid, case: caseUuid },
+          }"
+          title="Back to Case"
+        />
+        <v-btn
+          icon="mdi-filter-variant"
+          :data-x-to="{
+            name: 'strucvars-query',
+            params: { case: caseUuid },
+          }"
+          title="SV filtration for this case"
+        />
+      </template>
+    </TheAppBar>
+    <TheNavBar :navbar-shown="navbarShown">
+      <v-skeleton-loader
+        v-if="!selectedPresetSetVersion"
+        type="list-item, list-item, list-item"
+        class="bg-background"
+              ></v-skeleton-loader>
+      <template v-else>
+        <QueryEditor
+          :collapsed="!navbarShown"
+          :presets-details="selectedPresetSetVersion"
+          @message="queueMessage"
+        />
+      </template>
     </TheNavBar>
-    <div class="pa-3">
-      <v-main>
-        <!-- <CaseDetailPane
-          ref="paneRef"
-          :project-uuid="props.projectUuid"
-          :case-uuid="props.caseUuid"
-          :current-tab="props.currentTab"
-        /> -->
-      </v-main>
-    </div>
+    <v-main>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec
+        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
+        ultricies. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec
+        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
+        ultricies. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec
+        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
+        ultricies. Nullam nec purus nec nunc
+      </div>
+    </v-main>
+    <SeqvarDetails v-model:show-sheet="detailsShown" />
+
     <v-snackbar-queue
       v-model="messages"
       timer="5000"

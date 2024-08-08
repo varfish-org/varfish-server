@@ -111,7 +111,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     name: 'seqvars-query',
-    path: '/-/cases/:project/seqvars/querys/:case',
+    path: '/-/cases/:project/seqvars/queries/:case',
     component: SeqvarsQuery,
     props: (route: RouteLocationNormalized) => ({
       projectUuid: route.params.project,

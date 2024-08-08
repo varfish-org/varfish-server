@@ -16,7 +16,14 @@ const { presetDetails, queries } = defineProps<{
   presetDetails: SeqvarsQueryPresetsSetVersionDetails
   queries: Query[]
 }>()
-defineEmits<{ remove: [index: number]; revert: [] }>()
+
+/** This component's events. */
+defineEmits<{
+  /** Remove the given query. */
+  remove: [index: number];
+  /** Revert modifications. */
+  revert: []
+}>()
 </script>
 
 <template>

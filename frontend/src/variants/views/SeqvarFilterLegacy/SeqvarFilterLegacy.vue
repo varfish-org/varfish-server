@@ -23,7 +23,7 @@ const caseListStore = useCaseListStore()
 const projectStore = useProjectStore()
 
 // Whether to hide the navigation bar; component state.
-const navbarHidden = ref<boolean>(false)
+const navbarShown = ref<boolean>(true)
 
 const filterFormVisible = ref<boolean>(true)
 const logsVisible = ref<boolean>(false)
@@ -139,9 +139,9 @@ onMounted(() => {
       <TheAppBar
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-        v-model:hide-left-panel="navbarHidden"
+        v-model:show-left-panel="navbarShown"
       />
-      <TheNavBar :navbar-hidden="navbarHidden">
+      <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"
           :to="{
@@ -149,45 +149,45 @@ onMounted(() => {
             params: { project: projectUuid, case: caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Back to Case </template>
+          <template v-if="navbarShown"> Back to Case </template>
         </v-list-item>
-        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Variant Analysis
         </v-list-subheader>
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-filter-variant"
           :to="{
             name: 'svs-filter',
             params: { case: caseUuid },
           }"
         >
-          <template v-if="!navbarHidden"> Go To SV Filtration </template>
+          <template v-if="navbarShown"> Go To SV Filtration </template>
         </v-list-item>
-        <v-list-subheader v-if="!navbarHidden" class="text-uppercase">
-          <template v-if="!navbarHidden"> Analysis Info </template>
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
+          <template v-if="navbarShown"> Analysis Info </template>
         </v-list-subheader>
         <v-list-item
-          :class="{ 'pt-3 mt-1 border-t-thin': navbarHidden }"
+          :class="{ 'pt-3 mt-1 border-t-thin': !navbarShown }"
           prepend-icon="mdi-button-cursor"
           @click="filterFormVisible = !filterFormVisible"
         >
-          <template v-if="!navbarHidden"> Toggle Form </template>
+          <template v-if="navbarShown"> Toggle Form </template>
         </v-list-item>
         <v-list-item
           :prepend-icon="`mdi-numeric-${filtrationComplexityMode}-box-multiple`"
           @click="toggleFiltrationComplexityMode()"
         >
-          <template v-if="!navbarHidden"> Toggle Complexity </template>
+          <template v-if="navbarShown"> Toggle Complexity </template>
         </v-list-item>
         <v-list-item
           prepend-icon="mdi-card-text-outline"
           @click="logsVisible = !logsVisible"
         >
-          <template v-if="!navbarHidden"> Toggle Logs </template>
+          <template v-if="navbarShown"> Toggle Logs </template>
         </v-list-item>
         <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
-          <template v-if="!navbarHidden"> Filter: Defaults </template>
+          <template v-if="navbarShown"> Filter: Defaults </template>
         </v-list-item>
         <v-list-item
           v-else
