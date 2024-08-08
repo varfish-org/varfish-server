@@ -45,12 +45,27 @@ const model = defineModel<Query>({ required: true })
         >{{ item.sample }}</label
       >
 
-      <Input v-model="item.min_dp_het" style="grid-column: 2; width: 32px" />
-      <Input v-model="item.min_dp_hom" style="width: 32px" />
-      <Input v-model="item.min_ab_het" style="width: 32px" />
-      <Input v-model="item.min_gq" style="width: 32px" />
-      <Input v-model="item.min_ad" style="width: 32px" />
-      <Input v-model="item.max_ad" style="width: 32px" />
+      <fieldset style="display: contents">
+        <legend style="display: none">{{ item.sample }}</legend>
+        <Input
+          v-model="item.min_dp_het"
+          aria-label="min DP het"
+          style="grid-column: 2; width: 32px"
+        />
+        <Input
+          v-model="item.min_dp_hom"
+          aria-label="max DP hom"
+          style="width: 32px"
+        />
+        <Input
+          v-model="item.min_ab_het"
+          aria-label="min AB"
+          style="width: 32px"
+        />
+        <Input v-model="item.min_gq" aria-label="min GQ" style="width: 32px" />
+        <Input v-model="item.min_ad" aria-label="min AD" style="width: 32px" />
+        <Input v-model="item.max_ad" aria-label="max AD" style="width: 32px" />
+      </fieldset>
     </template>
   </div>
 </template>

@@ -6,6 +6,82 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
+test('preset values are set correctly,', async ({ page }) => {
+  await page.getByLabel('Create query based on de novo').click()
+
+  // genotype
+  await expect(
+    page.locator(
+      '[aria-label="Genotype presets"] [aria-selected="true"]:has-text("de novo")',
+    ),
+  ).toBeVisible()
+  await expect(
+    page.locator(
+      '.v-select:has(label:has-text("recessive")):has-text("disabled")',
+    ),
+  ).toBeVisible()
+
+  await expect(page.locator('#index')).toBeChecked()
+  await expect(
+    page.locator(
+      'fieldset:has(legend:has-text("index")) [aria-checked="true"]',
+    ),
+  ).toContainText(['1/0', '1/1'])
+
+  await expect(page.locator('#father')).toBeChecked()
+  await expect(
+    page.locator(
+      'fieldset:has(legend:has-text("father")) [aria-checked="true"]',
+    ),
+  ).toContainText('0/0')
+
+  await expect(page.locator('#mother')).toBeChecked()
+  await expect(
+    page.locator(
+      'fieldset:has(legend:has-text("mother")) [aria-checked="true"]',
+    ),
+  ).toContainText('0/0')
+
+  // frequency
+  await expect(
+    page.locator(
+      '[aria-label="Frequency presets"] [aria-selected="true"]:has-text("dominant strict")',
+    ),
+  ).toBeVisible()
+  await expect(page.locator("[id='gnomAd exomes']")).toBeChecked()
+  await expect(page.locator("[id='gnomAd genomes']")).toBeChecked()
+  await expect(page.locator("[id='gnomAd mitochondrial']")).toBeChecked({
+    checked: false,
+  })
+  await expect(page.locator("[id='in-house DB']")).toBeChecked()
+  await expect(page.locator('#HelixMTdb')).toBeChecked({ checked: false })
+
+  // effects
+  await expect(
+    page.locator(
+      '[aria-label="Effects presets"] [aria-selected="true"]:has-text("AA change + splicing")',
+    ),
+  ).toBeVisible()
+  await expect(page.locator('input[aria-label="non-coding"]')).toBeChecked({
+    checked: false,
+  })
+  await expect(page.locator('input[aria-label="missense"]')).toBeChecked()
+
+  // quality
+  await expect(
+    page.locator(
+      '[aria-label="Quality presets"] [aria-selected="true"]:has-text("super strict")',
+    ),
+  ).toBeVisible()
+  const section = await page.locator('[aria-label="Quality"]')
+  for (const loc of await section.locator('[aria-label="min DP het"]').all()) {
+    await expect(loc).toHaveValue('10')
+  }
+  for (const loc of await section.locator('[aria-label="max DP hom"]').all()) {
+    await expect(loc).toHaveValue('5')
+  }
+})
+
 test('modified genotype preset is marked', async ({ page }) => {
   page.locator('button[aria-label="Create query based on dominant"]').click()
 

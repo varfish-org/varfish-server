@@ -27,7 +27,7 @@ const isOpen = ref(true)
         <div v-if="!isOpen">{{ summary }}</div>
       </div>
     </summary>
-    <div style="display: flex">
+    <div style="display: flex" :aria-label="props.title">
       <button type="button" class="side-toggle" @click="isOpen = !isOpen">
         <div class="indicator"></div>
       </button>
