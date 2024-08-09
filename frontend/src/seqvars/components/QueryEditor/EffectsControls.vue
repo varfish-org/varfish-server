@@ -5,14 +5,24 @@ import {
   SeqvarsVariantTypeChoiceList,
 } from '@varfish-org/varfish-api/lib'
 
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { Query } from '@/seqvars/types'
 
 import CheckButton from './ui/CheckButton.vue'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Input from './ui/Input.vue'
-import { toggleArrayElement } from './utils'
+import { toggleArrayElement } from '../utils'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 
 const VARIANT_TYPES = {
   snv: 'SNV',
@@ -74,6 +84,8 @@ const CUSTOMIZATION = {
 >
 
 const model = defineModel<Query>({ required: true })
+
+const detailsOpen = ref<boolean>(false)
 
 const maxExonDistance = computed({
   get: () => model.value.consequence.max_distance_to_exon,
@@ -155,7 +167,7 @@ const maxExonDistance = computed({
       />
     </div>
 
-    <CollapsibleGroup title="Customize effects">
+    <CollapsibleGroup v-model:is-open="detailsOpen" title="Customize effects">
       <div style="display: flex; flex-direction: column; gap: 8px">
         <div v-for="(fields, title) in CUSTOMIZATION">
           {{ title }}

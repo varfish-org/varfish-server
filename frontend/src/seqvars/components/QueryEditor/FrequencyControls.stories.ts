@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import fixture from '../../views/fixture.SeqvarsFiltration.json'
+import presetsDetails from '@/seqvars/views/presetsDetails.SeqvarsFiltration.json'
 import FrequencyControls from './FrequencyControls.vue'
 
 const meta: Meta<typeof FrequencyControls> = {
@@ -17,7 +17,7 @@ export const Example: Story = {
   render: () => ({
     components: { FrequencyControls },
     setup() {
-      const model = ref(fixture.seqvarsquerypresetsfrequency_set[3])
+      const model = ref(presetsDetails.seqvarsquerypresetsfrequency_set[3])
       return { model }
     },
     template:

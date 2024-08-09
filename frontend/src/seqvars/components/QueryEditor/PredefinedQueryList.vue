@@ -56,7 +56,9 @@ defineEmits<{
         v-for="pq in presets.seqvarspredefinedquery_set"
         :key="pq.sodar_uuid"
         :selected="pq.sodar_uuid === selectedId"
-        :modified="!!query && !matchesPredefinedQuery(pedigree, presets, pq, query)"
+        :modified="
+          !!query && !matchesPredefinedQuery(pedigree, presets, pq, query)
+        "
         @click="selectedId = pq.sodar_uuid"
         @revert="selectedId = pq.sodar_uuid"
       >

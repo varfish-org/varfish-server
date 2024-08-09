@@ -150,7 +150,7 @@ const parseGenes = async () => {
     }
   }
   if (invalidGenes.length > 0) {
-    genesErrors.value = 'Some genome regions could not be parsed.'
+    genesErrors.value = 'Some genes could not be found.'
   }
   genesText.value = invalidGenes.join(' ')
 }

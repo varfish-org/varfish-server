@@ -20,7 +20,8 @@ export const Example: Story = {
     setup() {
       return { presetsDetails, pedigreeObj }
     },
-    template: '<SeqvarsFiltration :presets-details="presetsDetails" :pedigree-obj="pedigreeObj"  />',
+    template:
+      '<SeqvarsFiltration :presets-details="presetsDetails" :pedigree-obj="pedigreeObj"  />',
   }),
   parameters: {
     msw: {

@@ -8,12 +8,9 @@ import {
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 
-import {
-  GENOTYPE_PRESETS,
-  Pedigree,
-} from '@/seqvars/components/genotype/constants'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/constants'
 import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
-import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
+import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
 import {
   createGenotypeFromPreset,
   createQualityFromPreset,
@@ -21,12 +18,12 @@ import {
   GROUPS,
   matchesGenotypePreset,
   matchesQualityPreset,
-} from '@/seqvars/components/groups'
-import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
-import QueryList from '@/seqvars/components/QueryList.vue'
-import CollapsibleGroup from '@/seqvars/components/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/ui/Hr.vue'
-import Item from '@/seqvars/components/ui/Item.vue'
+} from '@/seqvars/components/QueryEditor/groups'
+import PredefinedQueryList from '@/seqvars/components/QueryEditor/PredefinedQueryList.vue'
+import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import { Query } from '@/seqvars/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { getQueryLabel } from '@/seqvars/utils'
@@ -173,7 +170,10 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
 </script>
 
 <template>
-  <div style="height: 100%; overflow-y: auto; overflow-x: hidden" v-if="pedigree">
+  <div
+    v-if="pedigree"
+    style="height: 100%; overflow-y: auto; overflow-x: hidden"
+  >
     <QueryList
       v-if="!!pedigree && queries.length > 0"
       :selected-index="selectedQueryIndex"
@@ -181,8 +181,10 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
       :queries="queries"
       :pedigree="pedigree"
       :hints-enabled="hintsEnabled"
-      @update:selected-index="(index) => (selectedQueryIndex = index)"
-      @remove="(index) => queries.splice(index, 1)"
+      @update:selected-index="
+        (index: number | null) => (selectedQueryIndex = index)
+      "
+      @remove="(index: number) => queries.splice(index, 1)"
       @revert="
         () => {
           // try {
@@ -228,7 +230,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
       :query="selectedQuery"
       :pedigree="pedigree"
       @update:selected-id="
-        (id) => {
+        (id?: string) => {
           // try {
           const pq = presetsDetails.seqvarspredefinedquery_set.find(
             (p) => p.sodar_uuid === id,
@@ -244,7 +246,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
         }
       "
       @add-query="
-        (pq) => {
+        (pq: SeqvarsPredefinedQuery) => {
           // try {
           const query = createQuery(pq)
           queries.push(query)
@@ -265,6 +267,8 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
     <template v-if="selectedQuery">
       <CollapsibleGroup
         title="Genotype"
+        :hints-enabled="hintsEnabled"
+        hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
         :summary="
           selectedQuery.genotypepresets?.choice
             ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
@@ -279,7 +283,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
         >
           <Item
             v-for="key in Object.keys(
-              GENOTYPE_PRESETS,
+              GENOTYPE_PRESET_TO_RECESSIVE_MODE,
             ) as SeqvarsGenotypePresetChoice[]"
             :key="key"
             :selected="selectedQuery.genotypepresets?.choice == key"
@@ -306,6 +310,8 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
         v-for="group in GROUPS"
         :key="group.id"
         :title="group.title"
+        :hint="group.hint"
+        :hints-enabled="hintsEnabled"
         :summary="
           presetsDetails[group.presetSetKey].find(
             (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
@@ -352,7 +358,11 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
           </Item>
         </div>
         <Hr />
-        <component :is="group.Component" v-model="selectedQuery" />
+        <component
+          :is="group.Component"
+          v-model="selectedQuery"
+          :hints-enabled="hintsEnabled"
+        />
       </CollapsibleGroup>
     </template>
   </div>

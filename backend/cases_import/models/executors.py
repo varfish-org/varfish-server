@@ -1189,8 +1189,12 @@ class CaseImportBackgroundJobExecutor:
             individual = Individual.objects.create(
                 pedigree=pedigree,
                 name=person.individual_id,
-                father=person.paternal_id if person.paternal_id and person.paternal_id != "0" else None,
-                mother=person.maternal_id if person.maternal_id and person.maternal_id != "0" else None,
+                father=(
+                    person.paternal_id if person.paternal_id and person.paternal_id != "0" else None
+                ),
+                mother=(
+                    person.maternal_id if person.maternal_id and person.maternal_id != "0" else None
+                ),
                 sex=SEX_MAP[person.sex],
                 karyotypic_sex=karyotypic_sex[person.individual_id],
                 assay=assay[person.individual_id],

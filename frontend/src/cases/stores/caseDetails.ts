@@ -17,7 +17,6 @@ import { useCaseListStore } from '@/cases/stores/caseList'
 import { displayName } from '@/varfish/helpers'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { useCtxStore } from '@/varfish/stores/ctx'
-import { networkInterfaces } from 'os'
 
 /** Alias definition of Case type; to be defined later. */
 export type Case = any

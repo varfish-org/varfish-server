@@ -55,7 +55,8 @@ class PedigreeSerializer(serializers.ModelSerializer):
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
     #: Serialize ``individuals``
     individual_set = IndividualSerializer(
-        many=True, read_only=True,
+        many=True,
+        read_only=True,
     )
 
     class Meta:

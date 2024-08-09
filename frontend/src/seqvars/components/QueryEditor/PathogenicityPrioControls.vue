@@ -2,6 +2,17 @@
 import { Query } from '@/seqvars/types'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
+import { ref } from 'vue'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 
 const ITEMS = [
   {
@@ -14,6 +25,8 @@ const ITEMS = [
   },
 ]
 
+const detailsOpen = ref<boolean>(false)
+
 const model = defineModel<Query>({ required: true })
 </script>
 
@@ -23,7 +36,10 @@ const model = defineModel<Query>({ required: true })
     Enable pathogenicity-based priorization
   </label>
 
-  <CollapsibleGroup title="Phenotype similarity algorithm">
+  <CollapsibleGroup
+    v-model:is-open="detailsOpen"
+    title="Phenotype similarity algorithm"
+  >
     <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
       <div
         role="listbox"

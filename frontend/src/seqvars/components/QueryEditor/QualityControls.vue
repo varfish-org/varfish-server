@@ -3,6 +3,17 @@ import { Query } from '@/seqvars/types'
 
 import Input from './ui/Input.vue'
 import SmallText from './ui/SmallText.vue'
+import AbbrHint from './ui/AbbrHint.vue'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 
 const model = defineModel<Query>({ required: true })
 </script>
@@ -16,12 +27,54 @@ const model = defineModel<Query>({ required: true })
       gap: 4px;
     "
   >
-    <SmallText style="grid-column: 2">min<br />DP het</SmallText>
-    <SmallText>max<br />DP hom</SmallText>
-    <SmallText>min<br />AB</SmallText>
-    <SmallText>min<br />GQ</SmallText>
-    <SmallText>min<br />AD</SmallText>
-    <SmallText>max<br />AD</SmallText>
+    <SmallText style="grid-column: 2">
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Minimal depth of coverage for het. genotypes."
+      >
+        min<br />DP het
+      </AbbrHint>
+    </SmallText>
+    <SmallText>
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Minimal depth of coverage for hom. genotypes."
+      >
+        min<br />DP hom
+      </AbbrHint>
+    </SmallText>
+    <SmallText>
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Minimal allelic balance for het. genotypes."
+      >
+        min<br />AB
+      </AbbrHint>
+    </SmallText>
+    <SmallText>
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Minimal genotype quality for any genotype."
+      >
+        min<br />GQ
+      </AbbrHint>
+    </SmallText>
+    <SmallText>
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Minimal number of reads showing alternate allele for any genotype."
+      >
+        min<br />AD
+      </AbbrHint>
+    </SmallText>
+    <SmallText>
+      <AbbrHint
+        :hints-enabled="hintsEnabled"
+        hint="Maximal number of reads showing alternate allele for any genotype (useful for parents in de novo search)."
+      >
+        max<br />AD
+      </AbbrHint>
+    </SmallText>
 
     <template
       v-for="(item, index) in model.quality.sample_quality_filters"

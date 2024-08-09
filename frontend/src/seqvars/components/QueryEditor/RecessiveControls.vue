@@ -4,9 +4,24 @@ import {
   SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
 
-const model = defineModel<SeqvarsSampleGenotypePydanticList>({ required: true })
-const { index } = defineProps<{ index: number }>()
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Name of the sample. */
+    sampleName: string
+    /** Index of the field. */
+    index: number
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  {
+    hintsEnabled: false,
+  },
+)
 
+const model = defineModel<SeqvarsSampleGenotypePydanticList>({ required: true })
+
+/** Mapping from label to genotype choice. */
 const ITEMS = {
   any: 'any',
   index: 'recessive_index',
@@ -22,8 +37,10 @@ const ITEMS = {
       'any'
     "
     :items="Object.keys(ITEMS)"
+    :label="`for &quot;${sampleName}&quot;`"
     hide-details
     density="compact"
+    variant="outlined"
     @update:model-value="
       (v: string) => {
         const value = v as keyof typeof ITEMS

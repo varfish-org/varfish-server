@@ -9,12 +9,9 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { copy } from '@/varfish/helpers'
 
-import {
-  GENOTYPE_PRESETS,
-  Pedigree,
-} from '@/seqvars/components/genotype/constants'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/constants'
 import GeneDataTable from '@/seqvars/components/GeneDataTable/GeneDataTable.vue'
-import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
+import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
 import {
   createGenotypeFromPreset,
   createQualityFromPreset,
@@ -22,14 +19,14 @@ import {
   GROUPS,
   matchesGenotypePreset,
   matchesQualityPreset,
-} from '@/seqvars/components/groups'
+} from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
-import CollapsibleGroup from '@/seqvars/components/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/ui/Hr.vue'
-import Item from '@/seqvars/components/ui/Item.vue'
-import SidebarCollapseIcon from '@/seqvars/components/ui/SidebarCollapseIcon.vue'
-import SidebarExpandIcon from '@/seqvars/components/ui/SidebarExpandIcon.vue'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
+import SidebarCollapseIcon from '@/seqvars/components/QueryEditor/ui/SidebarCollapseIcon.vue'
+import SidebarExpandIcon from '@/seqvars/components/QueryEditor/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 
@@ -164,8 +161,10 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :presets-details="presetsDetails"
           :queries="queries"
           :pedigree="pedigree"
-          @update:selected-index="(index) => (selectedQueryIndex = index)"
-          @remove="(index) => queries.splice(index, 1)"
+          @update:selected-index="
+            (index: number) => (selectedQueryIndex = index)
+          "
+          @remove="(index: number) => queries.splice(index, 1)"
           @revert="
             () => {
               const pq = presetsDetails.seqvarspredefinedquery_set.find(
@@ -181,7 +180,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :query="selectedQuery"
           :pedigree="pedigree"
           @update:selected-id="
-            (id) => {
+            (id: string) => {
               const pq = presetsDetails.seqvarspredefinedquery_set.find(
                 (p) => p.sodar_uuid === id,
               )!
@@ -189,7 +188,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             }
           "
           @add-query="
-            (pq) => {
+            (pq: SeqvarsPredefinedQuery) => {
               const query = createQuery(pq)
               queries.push(query)
               selectedQueryIndex = queries.length - 1
@@ -213,7 +212,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             >
               <Item
                 v-for="key in Object.keys(
-                  GENOTYPE_PRESETS,
+                  GENOTYPE_PRESET_TO_RECESSIVE_MODE,
                 ) as SeqvarsGenotypePresetChoice[]"
                 :key="key"
                 :selected="selectedQuery.genotypepresets?.choice == key"
@@ -239,6 +238,8 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             v-for="group in GROUPS"
             :key="group.id"
             :title="group.title"
+            :hint="group.hint"
+            :hints-enabled="true"
             :summary="
               presetsDetails[group.presetSetKey].find(
                 (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],

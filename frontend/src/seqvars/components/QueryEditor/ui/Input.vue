@@ -6,6 +6,7 @@ const props = defineProps<{
   style?: CSSProperties
   type?: 'text' | 'number'
   ariaLabel?: string
+  step?: number
 }>()
 const model = defineModel<string | number | null>()
 </script>
@@ -17,6 +18,7 @@ const model = defineModel<string | number | null>()
       v-model="model"
       :aria-label="props.ariaLabel"
       :type="props.type ?? 'text'"
+      :step="props.step"
     />
     <slot name="after"></slot>
   </div>

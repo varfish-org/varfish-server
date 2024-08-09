@@ -2,8 +2,17 @@
 import { Query } from '@/seqvars/types'
 import { ClinvarGermlineAggregateDescriptionChoiceList } from '@varfish-org/varfish-api/lib'
 
-import { toggleArrayElement } from './utils'
+import { toggleArrayElement } from '../utils'
 
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 const model = defineModel<Query>({ required: true })
 
 const GERMLINE_FIELDS = [

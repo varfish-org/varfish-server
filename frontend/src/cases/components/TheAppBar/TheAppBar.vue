@@ -51,7 +51,10 @@ const showRightPanel = defineModel('showRightPanel', {
       <slot name="title">
         <div class="d-flex">
           <template v-if="loading">
-            <v-progress-circular indeterminate color="white"></v-progress-circular>
+            <v-progress-circular
+              indeterminate
+              color="white"
+            ></v-progress-circular>
           </template>
           <template v-else>
             <VarFishLogo />

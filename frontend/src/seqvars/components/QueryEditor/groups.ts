@@ -3,28 +3,25 @@ import { Component } from 'vue'
 
 import { LocalFields, Query } from '@/seqvars/types'
 import {
-  SeqvarsGenotypeChoice,
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
-  SeqvarsQuerySettingsGenotype,
   SeqvarsQuerySettingsGenotypeRequest,
-  SeqvarsQuerySettingsQuality,
   SeqvarsQuerySettingsQualityRequest,
-  SeqvarsSampleQualitySettingsPydantic,
 } from '@varfish-org/varfish-api/lib'
 
 import ClinvarControls from './ClinvarControls.vue'
 import EffectsControls from './EffectsControls.vue'
-import FrequencyControls from './frequency/FrequencyControls.vue'
-import { GENOTYPE_PRESETS } from './genotype/constants'
-import LocusControls from './locus/LocusControls.vue'
+import FrequencyControls from './FrequencyControls.vue'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from './constants'
+import LocusControls from './LocusControls.vue'
 import PathogenicityPrioControls from './PathogenicityPrioControls.vue'
 import PhenotypePrioControls from './PhenotypePrioControls.vue'
 import QualityControls from './QualityControls.vue'
-import { isKeyOfObject } from './utils'
+import { isKeyOfObject } from '../utils'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
+import { presetChoiceToGenotypeChoice } from './lib'
 
 type PresetDetails = SeqvarsQueryPresetsSetVersionDetails
 
@@ -48,17 +45,20 @@ export class FilterGroup<
   title: string
   getCompareFields: GetCompareFields<Id, Preset>
   Component: Component
+  hint?: string
 
   constructor(params: {
     id: Id
     title: string
     getCompareFields: GetCompareFields<Id, Preset>
     Component: Component
+    hint?: string
   }) {
     this.id = params.id
     this.title = params.title
     this.getCompareFields = params.getCompareFields
     this.Component = params.Component
+    this.hint = params.hint
   }
 
   get queryPresetKey() {
@@ -166,18 +166,11 @@ export const createGenotypeFromPreset = (
   pedigree: PedigreeObj,
   choice?: SeqvarsGenotypePresetChoice | null,
 ): SeqvarsQuerySettingsGenotypeRequest => {
-  const sampleNames = pedigree.individual_set.map(
-    (individual) => individual.name,
-  )
-  const preset = GENOTYPE_PRESETS[choice ?? 'any']
+  const choice$ = choice ?? 'any'
+  const recessiveMode = GENOTYPE_PRESET_TO_RECESSIVE_MODE[choice$]
   const result: SeqvarsQuerySettingsGenotypeRequest = {
-    recessive_mode: preset.recessiveMode,
-    sample_genotype_choices: sampleNames.map((sample) => ({
-      enabled: true,
-      sample,
-      genotype: 'any' as SeqvarsGenotypeChoice,
-      include_no_call: false,
-    })),
+    recessive_mode: recessiveMode,
+    sample_genotype_choices: presetChoiceToGenotypeChoice(pedigree, choice$),
   }
   return result
 }
