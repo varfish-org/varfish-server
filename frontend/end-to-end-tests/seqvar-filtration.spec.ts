@@ -83,7 +83,7 @@ test('preset values are set correctly,', async ({ page }) => {
 })
 
 test('modified genotype preset is marked', async ({ page }) => {
-  page.locator('button[aria-label="Create query based on dominant"]').click()
+  page.locator('button[title="Create query based on dominant"]').click()
 
   const selectedGenotypePreset = page.locator(
     '[aria-selected="true"]:below(:text("Genotype")):has-text("dominant")',
@@ -98,9 +98,7 @@ test('modified genotype preset is marked', async ({ page }) => {
 
 test.describe('genotype', () => {
   test.beforeEach(async ({ page }) => {
-    await page
-      .locator('button[aria-label="Create query based on de novo"]')
-      .click()
+    await page.locator('button[title="Create query based on de novo"]').click()
   })
 
   test('any is checked when all types are checked', async ({ page }) => {
