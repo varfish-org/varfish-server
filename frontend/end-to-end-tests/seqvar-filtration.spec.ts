@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('preset values are set correctly,', async ({ page }) => {
-  await page.getByLabel('Create query based on de novo').click()
+  await page.getByTitle('Create query based on de novo').click()
 
   // genotype
   await expect(
