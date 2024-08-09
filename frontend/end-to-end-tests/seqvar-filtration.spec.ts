@@ -46,7 +46,7 @@ test.describe('genotype', () => {
 test.describe('genotype (recessive)', () => {
   test.beforeEach(async ({ page }) => {
     await page
-      .locator('button[aria-label="Create query based on recessive"]')
+      .locator('button[title="Create query based on recessive"]')
       .click()
   })
 

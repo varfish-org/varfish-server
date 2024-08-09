@@ -6,6 +6,7 @@
     "build": "vite build --emptyOutDir",
     "test:unit": "vitest run",
     "test:unit:nocov": "vitest run",
+    "test:e2e": "playwright test",
     "lint": "eslint . --fix --max-warnings 0",
     "type-check": "vue-tsc --noEmit --composite false",
     "prettier-check": "npx prettier --check src/*/** tests/*/**",

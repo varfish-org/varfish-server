@@ -1,4 +1,5 @@
 /components.d.ts
+/test-results
 
 !/src
 !/ext/varfish-api/src/lib
