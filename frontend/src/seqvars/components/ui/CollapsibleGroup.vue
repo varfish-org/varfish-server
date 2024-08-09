@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = defineProps<{ title: string; summary?: string }>()
+import HintButton from './HintButton.vue'
+
+const props = withDefaults(
+  defineProps<{
+    title: string
+    summary?: string
+    hintsEnabled?: boolean
+    hint?: string
+  }>(),
+  { hintsEnabled: false },
+)
 const isOpen = ref(true)
 </script>
 
@@ -23,6 +33,9 @@ const isOpen = ref(true)
       <div style="display: flex; flex-direction: column">
         <div class="group-title" style="margin-top: 1px">
           {{ props.title }}
+          <span v-if="hintsEnabled && hint" class="ml-auto">
+            <HintButton :text="hint" size="x-small" />
+          </span>
         </div>
         <div v-if="!isOpen">{{ summary }}</div>
       </div>

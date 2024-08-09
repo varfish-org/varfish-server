@@ -11,20 +11,37 @@ import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
 
-const { presets, query } = defineProps<{
-  presets: SeqvarsQueryPresetsSetVersionDetails
-  query: Query | null
-}>()
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** The presets version to use. */
+    presets: SeqvarsQueryPresetsSetVersionDetails
+    /** The query that is being modified. */
+    query: Query | null
+    /** Whether hints are enabled. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
+
+/** Currently selected predefined query, if any. */
 const selectedId = defineModel<string | undefined>('selectedId', {
   required: true,
 })
 
-defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
+/** This component's events. */
+defineEmits<{
+  /** Create a query based on the predefined query. */
+  addQuery: [preset: SeqvarsPredefinedQuery]
+}>()
 </script>
 
 <template>
   <CollapsibleGroup
-    title="Presets"
+    title="Predefined Queries"
+    :hints-enabled="hintsEnabled"
+    hint="Create a new query using the buttons on the right. Selected predefined query settings for custom query."
     :summary="
       presets.seqvarspredefinedquery_set.find(
         (pq) => pq.sodar_uuid === selectedId,
@@ -41,12 +58,14 @@ defineEmits<{ addQuery: [preset: SeqvarsPredefinedQuery] }>()
         @revert="selectedId = pq.sodar_uuid"
       >
         <template #default>{{ pq.label }}</template>
-        <template #extra
-          ><ItemButton
-            :aria-label="`Create query based on ${pq.label}`"
+        <template #extra>
+          <ItemButton
+            :title="`Create query based on ${pq.label}`"
             @click="$emit('addQuery', pq)"
-            ><i-bi-filter style="font-size: 0.9em" /></ItemButton
-        ></template>
+          >
+            <v-icon icon="mdi-filter-variant-plus" size="xs" />
+          </ItemButton>
+        </template>
       </Item>
     </div>
   </CollapsibleGroup>

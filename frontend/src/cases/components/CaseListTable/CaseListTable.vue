@@ -1,27 +1,33 @@
 <script setup lang="ts">
-import { CaseListClient } from '@/cases/api/caseListClient'
+import { client } from '@hey-api/client-fetch'
+import { CasesService } from '@varfish-org/varfish-api/lib'
 import { useCaseListStore } from '@/cases/stores/caseList'
-import { useCtxStore } from '@/varfish/stores/ctx'
 import debounce from 'lodash.debounce'
 import { onMounted, ref } from 'vue'
 import { formatLargeInt, formatTimeAgo } from '@/varfish/helpers'
 import { Case, SortBy } from './types'
 import { getIndividuals } from './lib'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
+/** Props used in this component. */
 const props = defineProps<{
   projectUuid?: string
 }>()
 
-const ctxStore = useCtxStore()
-const caseListStore = useCaseListStore()
+/** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  message: [message: SnackbarMessage]
+}>()
 
-const caseListClient = new CaseListClient(ctxStore.csrfToken)
+const caseListStore = useCaseListStore()
 
 const headers = [
   { title: '#', key: 'index', width: 50, sortable: false },
   { title: 'Case Name', key: 'name', width: 100, sortable: true },
   { title: 'Status', key: 'status', width: 100, sortable: true },
   { title: 'Individuals', key: 'individuals' },
+  { title: 'Case Version', key: 'case_version', sortable: true, width: 100 },
   { title: 'Small Vars', key: 'num_small_vars', sortable: true, width: 100 },
   { title: 'SVs', key: 'num_svs', sortable: true, width: 100 },
   { title: 'Creation', key: 'date_created', width: 150 },
@@ -64,14 +70,27 @@ const loadItems = async ({
     sortBy.length > 0 ? (sortBy[0].order === 'desc' ? 'desc' : 'asc') : 'asc'
 
   loading.value = true
-  const response = await caseListClient.listCase(props.projectUuid, {
-    pageNo: page - 1,
-    pageSize: itemsPerPage,
-    orderBy,
-    orderDir,
-    queryString: search.value,
+  const response = await CasesService.casesApiCaseListList({
+    client,
+    path: { project: props.projectUuid },
+    query: {
+      page,
+      pageSize: itemsPerPage,
+      order_by: orderBy,
+      order_dir: orderDir,
+      q: search.value,
+    },
   })
-  tableRows.value = response.results.map(transmogrify)
+  // Bail out and notify parent if there was an error.
+  if (!response.data) {
+    emit('message', {
+      text: 'Failed to load cases',
+      color: 'error',
+    })
+    return
+  }
+
+  tableRows.value = (response.data.results ?? []).map(transmogrify)
   loading.value = false
 }
 

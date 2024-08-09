@@ -4,6 +4,7 @@ from bgjobs.models import BackgroundJob
 from django.conf import settings
 from django.db import transaction
 from django.middleware.csrf import get_token
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from modelcluster.queryset import FakeQuerySet
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views_api import (
@@ -60,6 +61,15 @@ class CasePagination(PageNumberPagination):
     max_page_size = 1000
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name="order_by", type=str),
+            OpenApiParameter(name="order_dir", type=str),
+            OpenApiParameter(name="q", type=str),
+        ]
+    )
+)
 class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
     """
     List all cases in the current project.

@@ -2,6 +2,7 @@ import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
 import StrucvarFilterLegacy from '@/svs/views/StrucvarFilterLegacy/StrucvarFilterLegacy.vue'
 import { useHistoryStore } from '@/varfish/stores/history'
 import SeqvarFilterLegacy from '@/variants/views/SeqvarFilterLegacy/SeqvarFilterLegacy.vue'
+import SeqvarsQuery from '@/seqvars/views/SeqvarsQuery/SeqvarsQuery.vue'
 import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
 import {
   RouteLocationNormalized,
@@ -106,6 +107,15 @@ const routes: RouteRecordRaw[] = [
       projectUuid: route.params.project,
       caseUuid: route.params.case,
       currentTab: 'browser',
+    }),
+  },
+  {
+    name: 'seqvars-query',
+    path: '/-/cases/:project/seqvars/queries/:case',
+    component: SeqvarsQuery,
+    props: (route: RouteLocationNormalized) => ({
+      projectUuid: route.params.project,
+      caseUuid: route.params.case,
     }),
   },
   {

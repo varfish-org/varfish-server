@@ -96,6 +96,8 @@ const badgeStatusColor = computed(() => {
             Reference Genome
           </span>
           <span class="col-3"> {{ caseObj.release }} </span>
+          <span class="col-3 text-nowrap font-weight-bold"> Case Version </span>
+          <span class="col-3"> {{ caseObj.case_version }} </span>
         </div>
       </li>
       <li class="list-group-item pl-2">

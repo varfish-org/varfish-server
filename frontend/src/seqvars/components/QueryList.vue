@@ -12,19 +12,36 @@ import ItemButton from './ui/ItemButton.vue'
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,
 })
-const { presetDetails, queries } = defineProps<{
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails
-  queries: Query[]
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    presetsDetails: SeqvarsQueryPresetsSetVersionDetails
+    queries: Query[]
+    hintsEnabled?: boolean
+  }>(),
+  {
+    hintsEnabled: false,
+  },
+)
+
+/** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  /** Remove the given query. */
+  remove: [index: number]
+  /** Revert modifications. */
+  revert: []
 }>()
-defineEmits<{ remove: [index: number]; revert: [] }>()
 </script>
 
 <template>
   <CollapsibleGroup
     title="Results"
+    :hints-enabled="hintsEnabled"
+    hinte="XXX"
     :summary="
       selectedIndex
-        ? `#${selectedIndex + 1} ${getQueryLabel({ presetDetails, queries, index: selectedIndex })}`
+        ? `#${selectedIndex + 1} ${getQueryLabel({ presetsDetails, queries, index: selectedIndex })}`
         : undefined
     "
   >
@@ -36,8 +53,8 @@ defineEmits<{ remove: [index: number]; revert: [] }>()
         :modified="
           !!query &&
           !matchesPredefinedQuery(
-            presetDetails,
-            presetDetails.seqvarspredefinedquery_set.find(
+            presetsDetails,
+            presetsDetails.seqvarspredefinedquery_set.find(
               (pq) => pq.sodar_uuid === query.predefinedquery,
             )!,
             query,
@@ -47,13 +64,13 @@ defineEmits<{ remove: [index: number]; revert: [] }>()
         @revert="$emit('revert')"
       >
         <template #default>
-          #{{ index + 1 }}
-          {{ getQueryLabel({ presetDetails, queries, index }) }}
+          <v-icon :icon="`mdi-numeric-${index + 1}-box-outline`" size="small" />
+          {{ getQueryLabel({ presetsDetails, queries, index }) }}
         </template>
         <template #extra>
-          <ItemButton @click="$emit('remove', index)"
-            ><i-mdi-close-box-outline
-          /></ItemButton>
+          <ItemButton title="Delete query" @click="$emit('remove', index)">
+            <v-icon icon="mdi-delete" size="xs" />
+          </ItemButton>
         </template>
       </Item>
     </div>

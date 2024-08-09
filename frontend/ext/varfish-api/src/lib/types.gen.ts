@@ -3545,6 +3545,8 @@ export type CasesApiCaseListListData = {
         project: string;
     };
     query?: {
+        order_by?: string;
+        order_dir?: string;
         /**
          * A page number within the paginated result set.
          */
@@ -3553,6 +3555,7 @@ export type CasesApiCaseListListData = {
          * Number of results to return per page.
          */
         page_size?: number;
+        q?: string;
     };
 };
 

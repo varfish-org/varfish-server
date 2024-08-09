@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import ItemButton from './ItemButton.vue'
-import ModifiedIcon from './ModifiedIcon.vue'
+import { Icon } from '@iconify/vue'
 
+/** This component's props. */
 const props = withDefaults(
-  defineProps<{ selected?: boolean; modified?: boolean }>(),
+  defineProps<{
+    /** Whether the item is selected. */
+    selected?: boolean
+    /** Whether the item has been modified. */
+    modified?: boolean
+  }>(),
   { selected: false, modified: false },
 )
-const emit = defineEmits<{ revert: [] }>()
+
+/** This component's events. */
+const emit = defineEmits<{
+  /** Revert modifications for this item. */
+  revert: []
+}>()
 </script>
 
 <template>
@@ -15,15 +26,20 @@ const emit = defineEmits<{ revert: [] }>()
       <slot />
     </button>
     <div style="display: flex; align-items: center">
-      <ModifiedIcon
+      <Icon
         v-if="props.selected && props.modified"
+        icon="mdi:alpha-m-box-outline"
+        color="#DC9E00"
         :data-test-modified="props.modified && props.selected ? '' : undefined"
+        title="There are modifications that you could revert."
       />
       <ItemButton
         v-if="props.selected && props.modified"
+        title="Revert modifications"
         @click="() => emit('revert')"
-        ><i-fluent-arrow-undo-20-regular style="font-size: 0.9em"
-      /></ItemButton>
+      >
+        <v-icon icon="mdi-undo-variant" size="xs" />
+      </ItemButton>
       <slot name="extra"></slot>
     </div>
   </div>

@@ -1,25 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { delay, http, HttpResponse } from 'msw'
 
-import fixture from './fixture.SeqvarsFiltration.json'
-import SeqvarsFiltration from './SeqvarsFiltration.vue'
+import fixture from './fixture.QueryEditor.json'
+import QueryEditor from './QueryEditor.vue'
 
-const meta: Meta<typeof SeqvarsFiltration> = {
-  title: 'Seqvars / Seqvars Filtration',
-  component: SeqvarsFiltration,
+const meta: Meta<typeof QueryEditor> = {
+  title: 'Seqvars / Query Editor',
+  component: QueryEditor,
 }
 
 export default meta
 
-type Story = StoryObj<typeof SeqvarsFiltration>
+type Story = StoryObj<typeof QueryEditor>
 
 export const Example: Story = {
   render: () => ({
-    components: { SeqvarsFiltration },
+    components: { QueryEditor },
     setup() {
       return { fixture }
     },
-    template: '<SeqvarsFiltration :presetsDetails="fixture"  />',
+    template: '<QueryEditor :presetsDetails="fixture"  />',
   }),
   parameters: {
     msw: {

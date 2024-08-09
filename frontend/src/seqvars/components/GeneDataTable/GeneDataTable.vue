@@ -30,7 +30,7 @@ type GeneItem = {
 
 const props = defineProps<{
   selectedQueryIndex: number
-  presetDetails: SeqvarsQueryPresetsSetVersionDetails
+  presetsDetails: SeqvarsQueryPresetsSetVersionDetails
   queries: Query[]
 }>()
 

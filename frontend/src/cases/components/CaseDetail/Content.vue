@@ -42,7 +42,7 @@ const caseQcStore = useCaseQcStore()
   <div
     v-if="props.currentTab === Tabs.overview"
     id="case-list"
-    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    class="border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
     role="tabpanel"
   >
     <PaneCase
@@ -61,7 +61,7 @@ const caseQcStore = useCaseQcStore()
   <div
     v-if="props.currentTab === Tabs.qc && caseDetailsStore.caseObj"
     id="case-list"
-    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    class="border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
     role="tabpanel"
   >
     <LegacyPaneQc v-if="caseDetailsStore.caseObj?.case_version !== 2" />
@@ -70,7 +70,7 @@ const caseQcStore = useCaseQcStore()
   <div
     v-if="props.currentTab === Tabs.annotation"
     id="case-list"
-    class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+    class="border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
     role="tabpanel"
   >
     <Suspense>
