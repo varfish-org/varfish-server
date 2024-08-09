@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import HintButton from './HintButton.vue'
 
 const props = withDefaults(
@@ -12,7 +10,8 @@ const props = withDefaults(
   }>(),
   { hintsEnabled: false },
 )
-const isOpen = ref(true)
+
+const isOpen = defineModel<boolean>('isOpen', { default: true })
 </script>
 
 <template>

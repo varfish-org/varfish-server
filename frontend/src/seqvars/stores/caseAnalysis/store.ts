@@ -64,7 +64,7 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
       await loadCaseAnalyses()
       await loadCaseAnalysisSessions()
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.state = State.Error
       storeState.message = `Error loading case analysis / sessions: ${e}`
     } finally {

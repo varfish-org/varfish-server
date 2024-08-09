@@ -7,10 +7,10 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { copy } from '@/varfish/helpers'
 
-import { GENOTYPE_PRESETS } from '@/seqvars/components/genotype/constants'
-import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/constants'
+import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
+import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
 import {
   createGenotypeFromPreset,
   createQualityFromPreset,
@@ -18,15 +18,17 @@ import {
   GROUPS,
   matchesGenotypePreset,
   matchesQualityPreset,
-} from '@/seqvars/components/groups'
-import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
-import QueryList from '@/seqvars/components/QueryList.vue'
-import CollapsibleGroup from '@/seqvars/components/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/ui/Hr.vue'
-import Item from '@/seqvars/components/ui/Item.vue'
+} from '@/seqvars/components/QueryEditor/groups'
+import PredefinedQueryList from '@/seqvars/components/QueryEditor/PredefinedQueryList.vue'
+import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import { Query } from '@/seqvars/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { getQueryLabel } from '@/seqvars/utils'
+import { PedigreeObj, useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { copy } from '@/varfish/helpers'
 
 /** This component's props. */
 const props = withDefaults(
@@ -56,9 +58,21 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
+// The case detail store to use; assumed to be initialized on the outside.
+const caseDetailStore = useCaseDetailsStore()
+
+/** Provide the `PedigreeObj` from the `caseDetailStore`. */
+const pedigree = computed<PedigreeObj | undefined | null>(
+  () => caseDetailStore.caseObj?.pedigree_obj as PedigreeObj,
+)
+
+/** The list of queries; component state. */
 const queries = ref<Query[]>([])
+/** The index of the currently selected query; component state. */
 const selectedQueryIndex = ref<number | null>(null)
-const selectedQuery = computed({
+
+/** The currently selected query; manages `selectedQueryIndex`. */
+const selectedQuery = computed<Query | null>({
   get() {
     return selectedQueryIndex.value == null
       ? null
@@ -72,16 +86,28 @@ const selectedQuery = computed({
   },
 })
 
+/**
+ * The currently selected predefined query.  This is used to compute differences
+ * and revert back to.
+ */
 const selectedPredefinedQuery = computed(() =>
   props.presetsDetails.seqvarspredefinedquery_set.find(
     (pq) => pq.sodar_uuid === selectedQuery.value?.predefinedquery,
   ),
 )
 
-const getGenotypeLabel = (key: SeqvarsGenotypePresetChoice) =>
-  key == 'any' ? 'any mode' : key.toLowerCase().split('_').join(' ')
-
+/**
+ * Create a new `Query` object based on the given `SeqvarsPredefinedQuery`.
+ *
+ * This happens on the client side only.
+ *
+ * @throws Error if there was a problem with creating the query.
+ */
 const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
+  if (!pedigree.value) {
+    throw new Error('Pedigree not available')
+  }
+
   const presetFields = Object.fromEntries(
     GROUPS.flatMap((group) => {
       const preset = props.presetsDetails[group.presetSetKey].find(
@@ -92,7 +118,10 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
         [
           group.id,
           group.id == 'quality'
-            ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+            ? createQualityFromPreset(
+                pedigree.value!,
+                preset as SeqvarsQueryPresetsQuality,
+              )
             : preset,
         ],
       ]
@@ -102,12 +131,16 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   return copy({
     ...presetFields,
     predefinedquery: pq.sodar_uuid,
-    genotype: createGenotypeFromPreset(choice),
+    genotype: createGenotypeFromPreset(pedigree.value, choice),
     genotypepresets: { choice },
   })
 }
 
-const setToPreset = <G extends (typeof GROUPS)[number]>(
+/**
+ * Revert the given preset group to the given preset.
+ */
+const revertToPresets = <G extends (typeof GROUPS)[number]>(
+  pedigree: PedigreeObj,
   group: G,
   preset: G extends FilterGroup<any, any, infer Preset> ? Preset : never,
 ) => {
@@ -117,36 +150,55 @@ const setToPreset = <G extends (typeof GROUPS)[number]>(
   selectedQuery.value[`${group.id}presets`] = preset.sodar_uuid
   const value =
     group.id == 'quality'
-      ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+      ? createQualityFromPreset(pedigree, preset as SeqvarsQueryPresetsQuality)
       : preset
   selectedQuery.value[group.id] = copy(value)
 }
 
-const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
-  if (!selectedQuery.value) {
+/**
+ * Revert the genotype to the given preset choice.
+ */
+const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
+  if (!selectedQuery.value || !pedigree.value) {
     return
   }
-  selectedQuery.value.genotype = copy(createGenotypeFromPreset(choice))
+  selectedQuery.value.genotype = copy(
+    createGenotypeFromPreset(pedigree.value, choice),
+  )
   selectedQuery.value.genotypepresets = { choice }
 }
 </script>
 
 <template>
-  <div style="height: 100%; overflow-y: auto; overflow-x: hidden">
+  <div
+    v-if="pedigree"
+    style="height: 100%; overflow-y: auto; overflow-x: hidden"
+  >
     <QueryList
-      v-if="queries.length > 0"
+      v-if="!!pedigree && queries.length > 0"
       :selected-index="selectedQueryIndex"
       :presets-details="presetsDetails"
       :queries="queries"
+      :pedigree="pedigree"
       :hints-enabled="hintsEnabled"
-      @update:selected-index="(index) => (selectedQueryIndex = index)"
-      @remove="(index) => queries.splice(index, 1)"
+      @update:selected-index="
+        (index: number | null) => (selectedQueryIndex = index)
+      "
+      @remove="(index: number) => queries.splice(index, 1)"
       @revert="
         () => {
+          // try {
           const pq = presetsDetails.seqvarspredefinedquery_set.find(
             (p) => p.sodar_uuid === selectedQuery?.predefinedquery,
           )!
           selectedQuery = createQuery(pq)
+          // } catch (e) {
+          //   console.error(e)
+          //   emit('message', {
+          //     text: 'Failed to revert query to presets.',
+          //     color: 'error',
+          //   })
+          // }
         }
       "
     />
@@ -157,12 +209,12 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
       :to="teleportToWhenCollapsed"
     >
       <v-list-subheader v-if="teleportedQueriesLabels" class="text-uppercase">
-        Queries
+        Queries / Results
       </v-list-subheader>
       <v-divider v-else class="mt-1 mb-1"></v-divider>
 
       <v-list-item
-        v-for="(query, index) in queries"
+        v-for="(_query, index) in queries"
         :key="index"
         :variant="selectedQueryIndex === index ? 'tonal' : undefined"
         :title="getQueryLabel({ presetsDetails, queries, index })"
@@ -176,29 +228,52 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
       :presets="presetsDetails"
       :selected-id="selectedQuery?.predefinedquery"
       :query="selectedQuery"
+      :pedigree="pedigree"
       @update:selected-id="
-        (id) => {
+        (id?: string) => {
+          // try {
           const pq = presetsDetails.seqvarspredefinedquery_set.find(
             (p) => p.sodar_uuid === id,
           )!
           selectedQuery = createQuery(pq)
+          // } catch (e) {
+          //   console.error(e)
+          //   emit('message', {
+          //     text: 'Failed to update query to presets.',
+          //     color: 'error',
+          //   })
+          // }
         }
       "
       @add-query="
-        (pq) => {
+        (pq: SeqvarsPredefinedQuery) => {
+          // try {
           const query = createQuery(pq)
           queries.push(query)
           selectedQueryIndex = queries.length - 1
+          // } catch (e) {
+          //   console.error(e)
+          //   emit('message', {
+          //     text: 'Failed to add query from presets.',
+          //     color: 'error',
+          //   })
+          // }
         }
       "
     />
 
+    <v-divider class="my-3" />
+
     <template v-if="selectedQuery">
       <CollapsibleGroup
         title="Genotype"
+        :hints-enabled="hintsEnabled"
+        hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
         :summary="
           selectedQuery.genotypepresets?.choice
-            ? getGenotypeLabel(selectedQuery.genotypepresets?.choice)
+            ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
+                selectedQuery.genotypepresets?.choice
+              ]
             : ''
         "
       >
@@ -208,24 +283,26 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         >
           <Item
             v-for="key in Object.keys(
-              GENOTYPE_PRESETS,
+              GENOTYPE_PRESET_TO_RECESSIVE_MODE,
             ) as SeqvarsGenotypePresetChoice[]"
             :key="key"
             :selected="selectedQuery.genotypepresets?.choice == key"
             :modified="
+              !!pedigree &&
               selectedPredefinedQuery &&
               !matchesGenotypePreset(
+                pedigree,
                 selectedQuery.genotypepresets?.choice,
                 selectedQuery,
               )
             "
-            @click="() => setGenotypeToPreset(key)"
-            @revert="() => setGenotypeToPreset(key)"
+            @click="() => revertGenotypeToPresets(key)"
+            @revert="() => revertGenotypeToPresets(key)"
           >
-            {{ getGenotypeLabel(key) }}
+            {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
           </Item>
         </div>
-        <Hr />
+        <v-divider class="my-2" />
         <GenotypeControls v-model="selectedQuery" />
       </CollapsibleGroup>
 
@@ -233,6 +310,8 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         v-for="group in GROUPS"
         :key="group.id"
         :title="group.title"
+        :hint="group.hint"
+        :hints-enabled="hintsEnabled"
         :summary="
           presetsDetails[group.presetSetKey].find(
             (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
@@ -249,20 +328,41 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             :selected="preset.sodar_uuid == selectedQuery[group.queryPresetKey]"
             :modified="
               !(
+                !!pedigree &&
                 selectedPredefinedQuery &&
                 (group.id == 'quality'
-                  ? matchesQualityPreset(presetsDetails, selectedQuery)
+                  ? matchesQualityPreset(
+                      pedigree,
+                      presetsDetails,
+                      selectedQuery,
+                    )
                   : group.matchesPreset(presetsDetails, selectedQuery))
               )
             "
-            @click="() => setToPreset(group, preset)"
-            @revert="() => setToPreset(group, preset)"
+            @click="
+              () => {
+                if (pedigree) {
+                  revertToPresets(pedigree, group, preset)
+                }
+              }
+            "
+            @revert="
+              () => {
+                if (pedigree) {
+                  revertToPresets(pedigree, group, preset)
+                }
+              }
+            "
           >
             {{ preset.label }}
           </Item>
         </div>
         <Hr />
-        <component :is="group.Component" v-model="selectedQuery" />
+        <component
+          :is="group.Component"
+          v-model="selectedQuery"
+          :hints-enabled="hintsEnabled"
+        />
       </CollapsibleGroup>
     </template>
   </div>

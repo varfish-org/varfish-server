@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 
-import Input from '../ui/Input.vue'
+import Input from '../QueryEditor/ui/Input.vue'
 
 type ValueOf<T> = T[keyof T]
 
@@ -20,7 +20,12 @@ const getNumberComputedForKeys = (...keys: AllKeys<typeof model.value>[]) =>
     get() {
       for (const key of keys) {
         if (key in model.value) {
-          return model.value[key as never] as number
+          if (key === 'frequency') {
+            // displayed as percentage, stored as fraction
+            return (model.value[key as never] as number) * 100.0
+          } else {
+            return model.value[key as never] as number
+          }
         }
       }
       return null
@@ -28,8 +33,16 @@ const getNumberComputedForKeys = (...keys: AllKeys<typeof model.value>[]) =>
     set(value) {
       for (const key of keys) {
         if (key in model.value) {
-          ;(model.value as any)[key] =
-            !value || Number.isNaN(Number(value)) ? null : Number(value)
+          if (key === 'frequency') {
+            // displayed as percentage, stored as fraction
+            ;(model.value as any)[key] =
+              !value || Number.isNaN(Number(value))
+                ? null
+                : Number(value / 100.0)
+          } else {
+            ;(model.value as any)[key] =
+              !value || Number.isNaN(Number(value)) ? null : Number(value)
+          }
           break
         }
       }
@@ -60,6 +73,7 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
     v-model="freq"
     :aria-label="'frequency' in model ? 'frequency' : 'carriers'"
     style="grid-column: 2; margin-right: 8px; width: 56px"
+    :step="0.1"
   >
     <template v-if="'frequency' in model" #after>%</template></Input
   >
@@ -68,12 +82,14 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
     aria-label="heterozygous"
     type="number"
     style="width: 40px"
+    :step="1"
   />
   <Input
     v-model="hom"
     aria-label="homozygous"
     type="number"
     style="width: 40px"
+    :step="1"
   />
   <Input
     v-if="'hemizygous' in model"
@@ -81,6 +97,7 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
     aria-label="hemizygous"
     type="number"
     style="width: 40px"
+    :step="1"
   />
   <span v-else />
 </template>

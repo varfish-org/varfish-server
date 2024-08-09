@@ -51,6 +51,7 @@ watch(
       v-model:show-left-panel="navbarShown"
       :show-left-panel-button="true"
       :show-right-panel-button="false"
+      :loading="!caseDetailsStore.caseObj"
     />
     <TheNavBar :navbar-shown="navbarShown">
       <v-list-item

@@ -8,6 +8,7 @@ import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,
@@ -16,6 +17,7 @@ const selectedIndex = defineModel<number | null>('selectedIndex', {
 const props = withDefaults(
   defineProps<{
     presetsDetails: SeqvarsQueryPresetsSetVersionDetails
+    pedigree: PedigreeObj
     queries: Query[]
     hintsEnabled?: boolean
   }>(),
@@ -36,9 +38,9 @@ const emit = defineEmits<{
 
 <template>
   <CollapsibleGroup
-    title="Results"
+    title="Queries / Results"
     :hints-enabled="hintsEnabled"
-    hinte="XXX"
+    hint="Here you can find the queries and their results."
     :summary="
       selectedIndex
         ? `#${selectedIndex + 1} ${getQueryLabel({ presetsDetails, queries, index: selectedIndex })}`
@@ -53,6 +55,7 @@ const emit = defineEmits<{
         :modified="
           !!query &&
           !matchesPredefinedQuery(
+            pedigree,
             presetsDetails,
             presetsDetails.seqvarspredefinedquery_set.find(
               (pq) => pq.sodar_uuid === query.predefinedquery,

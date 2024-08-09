@@ -1,12 +1,5 @@
-<script lang="ts">
-export interface ItemData {
-  id: string
-  label: string | null
-  sublabel: string
-}
-</script>
-
 <script setup lang="ts">
+import { ItemData } from './lib'
 import SelectItem from './SelectItem.vue'
 
 const model = defineModel<ItemData[]>({

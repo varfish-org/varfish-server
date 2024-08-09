@@ -9,9 +9,9 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { copy } from '@/varfish/helpers'
 
-import { GENOTYPE_PRESETS } from '@/seqvars/components/genotype/constants'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/constants'
 import GeneDataTable from '@/seqvars/components/GeneDataTable/GeneDataTable.vue'
-import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
+import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
 import {
   createGenotypeFromPreset,
   createQualityFromPreset,
@@ -19,18 +19,20 @@ import {
   GROUPS,
   matchesGenotypePreset,
   matchesQualityPreset,
-} from '@/seqvars/components/groups'
+} from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
-import CollapsibleGroup from '@/seqvars/components/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/ui/Hr.vue'
-import Item from '@/seqvars/components/ui/Item.vue'
-import SidebarCollapseIcon from '@/seqvars/components/ui/SidebarCollapseIcon.vue'
-import SidebarExpandIcon from '@/seqvars/components/ui/SidebarExpandIcon.vue'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
+import SidebarCollapseIcon from '@/seqvars/components/QueryEditor/ui/SidebarCollapseIcon.vue'
+import SidebarExpandIcon from '@/seqvars/components/QueryEditor/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
-const { presetsDetails } = defineProps<{
+const { presetsDetails, pedigree } = defineProps<{
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
+  pedigree: PedigreeObj
 }>()
 
 const queries = ref<Query[]>([])
@@ -72,7 +74,10 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
         [
           group.id,
           group.id == 'quality'
-            ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+            ? createQualityFromPreset(
+                pedigree,
+                preset as SeqvarsQueryPresetsQuality,
+              )
             : preset,
         ],
       ]
@@ -82,7 +87,7 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   return copy({
     ...presetFields,
     predefinedquery: pq.sodar_uuid,
-    genotype: createGenotypeFromPreset(choice),
+    genotype: createGenotypeFromPreset(pedigree, choice),
     genotypepresets: { choice },
   })
 }
@@ -97,7 +102,7 @@ const setToPreset = <G extends (typeof GROUPS)[number]>(
   selectedQuery.value[`${group.id}presets`] = preset.sodar_uuid
   const value =
     group.id == 'quality'
-      ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+      ? createQualityFromPreset(pedigree, preset as SeqvarsQueryPresetsQuality)
       : preset
   selectedQuery.value[group.id] = copy(value)
 }
@@ -106,7 +111,9 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
   if (!selectedQuery.value) {
     return
   }
-  selectedQuery.value.genotype = copy(createGenotypeFromPreset(choice))
+  selectedQuery.value.genotype = copy(
+    createGenotypeFromPreset(pedigree, choice),
+  )
   selectedQuery.value.genotypepresets = { choice }
 }
 </script>
@@ -153,8 +160,11 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :selected-index="selectedQueryIndex"
           :presets-details="presetsDetails"
           :queries="queries"
-          @update:selected-index="(index) => (selectedQueryIndex = index)"
-          @remove="(index) => queries.splice(index, 1)"
+          :pedigree="pedigree"
+          @update:selected-index="
+            (index: number) => (selectedQueryIndex = index)
+          "
+          @remove="(index: number) => queries.splice(index, 1)"
           @revert="
             () => {
               const pq = presetsDetails.seqvarspredefinedquery_set.find(
@@ -168,8 +178,9 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :presets="presetsDetails"
           :selected-id="selectedQuery?.predefinedquery"
           :query="selectedQuery"
+          :pedigree="pedigree"
           @update:selected-id="
-            (id) => {
+            (id: string) => {
               const pq = presetsDetails.seqvarspredefinedquery_set.find(
                 (p) => p.sodar_uuid === id,
               )!
@@ -177,7 +188,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             }
           "
           @add-query="
-            (pq) => {
+            (pq: SeqvarsPredefinedQuery) => {
               const query = createQuery(pq)
               queries.push(query)
               selectedQueryIndex = queries.length - 1
@@ -201,13 +212,14 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             >
               <Item
                 v-for="key in Object.keys(
-                  GENOTYPE_PRESETS,
+                  GENOTYPE_PRESET_TO_RECESSIVE_MODE,
                 ) as SeqvarsGenotypePresetChoice[]"
                 :key="key"
                 :selected="selectedQuery.genotypepresets?.choice == key"
                 :modified="
                   selectedPredefinedQuery &&
                   !matchesGenotypePreset(
+                    pedigree,
                     selectedQuery.genotypepresets?.choice,
                     selectedQuery,
                   )
@@ -226,6 +238,8 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             v-for="group in GROUPS"
             :key="group.id"
             :title="group.title"
+            :hint="group.hint"
+            :hints-enabled="true"
             :summary="
               presetsDetails[group.presetSetKey].find(
                 (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
@@ -247,7 +261,11 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                   !(
                     selectedPredefinedQuery &&
                     (group.id == 'quality'
-                      ? matchesQualityPreset(presetsDetails, selectedQuery)
+                      ? matchesQualityPreset(
+                          pedigree,
+                          presetsDetails,
+                          selectedQuery,
+                        )
                       : group.matchesPreset(presetsDetails, selectedQuery))
                   )
                 "

@@ -7,7 +7,19 @@ import {
   SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
 
-import CheckButton from '../ui/CheckButton.vue'
+import CheckButton from '../QueryEditor/ui/CheckButton.vue'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Any legend to display. */
+    legend: string
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 
 enum InheritanceMode {
   WILD_TYPE = 'wild-type',
@@ -19,8 +31,6 @@ enum InheritanceMode {
 const model = defineModel<SeqvarsSampleGenotypePydanticList[number]>({
   required: true,
 })
-
-const props = defineProps<{ legend: string }>()
 
 const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
 

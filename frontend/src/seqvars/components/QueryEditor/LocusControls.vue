@@ -3,9 +3,23 @@ import { isDeepEqual, partition, uniqueWith } from 'remeda'
 import { computed, ref, watch } from 'vue'
 
 import { Query } from '@/seqvars/types'
-import { queryHPO_Terms } from '../utils'
-import { parseGenomeRegion } from './genome-region'
-import { genomeRegionToString } from './genome-region'
+import {
+  parseGenomeRegion,
+  genomeRegionToString,
+} from '@/seqvars/components/PresetsEditor/lib'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
+import { GenePydanticList } from '@varfish-org/varfish-api/lib'
+
+/** This component's props. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = withDefaults(
+  defineProps<{
+    /** Whether to enable hints. */
+    hintsEnabled?: boolean
+  }>(),
+  { hintsEnabled: false },
+)
 
 const model = defineModel<Query>({ required: true })
 const hasGenes = computed(() => model.value.locus.genes!.length > 0)
@@ -49,19 +63,81 @@ async function parseAndStore() {
     textAreaValue.value = errors.map((e) => e.text).join('\n')
     textAreaErrorMessages.value = errors.map((e) => e.message)
   } else {
-    const results = await Promise.all(
-      words.map(async (word) => {
-        const results = await queryHPO_Terms(word)
-        return results.at(0) ?? { missing: word }
-      }),
-    )
-    const [genes, missing] = partition(results, (v) => 'label' in v)
-    model.value.locus.genes = genes.map((g) => ({
-      hgnc_id: g.term_id,
-      symbol: g.label,
-    }))
-    textAreaValue.value = missing.map((m) => m.missing).join('\n')
-    textAreaErrorMessages.value = missing.length > 0 ? ['No results'] : []
+    /** Store with application context, such as CSRF token. */
+    const ctxStore = useCtxStore()
+    // Annonars client to use.
+    const annonarsClient = new AnnonarsApiClient(ctxStore.csrfToken)
+
+    // Lookup genes with annonars, add to data and/or generate error message.
+    const foundGenes = await annonarsClient.lookupGenes(words)
+    console.log(foundGenes)
+
+    // Helper function that registers a `GeneNames` with a set of identifiers.
+    const registerIdentifier = (geneNames: GeneNames, seenSet: Set<string>) => {
+      seenSet.add(geneNames.hgnc_id)
+      seenSet.add(geneNames.symbol)
+      if (geneNames.ensembl_gene_id) {
+        seenSet.add(geneNames.ensembl_gene_id)
+      }
+      if (geneNames.ncbi_gene_id) {
+        seenSet.add(`${geneNames.ncbi_gene_id}`)
+      }
+    }
+
+    // Collect list of seen identifiers.
+    const seen = new Set<string>()
+    for (const gene of foundGenes) {
+      registerIdentifier(gene, seen)
+    }
+    // Collect list of already present identifiers.
+    for (const gene of model.value.locus.genes ?? []) {
+      registerIdentifier(
+        { ...gene, name: gene.symbol!, alias_name: [], alias_symbol: [] },
+        seen,
+      )
+    }
+
+    /** Helper type to unpack, e.g., `Array<T1 | T2>`. */
+    type _Unpacked<T> = T extends (infer U)[] ? U : T
+
+    // Copy-convert the found genes over to the data, removing duplicates.
+    const genes = new Array<_Unpacked<GenePydanticList>>()
+    genes.push(...(model.value.locus.genes ?? []))
+    const alreadyAdded = new Set<string>()
+    for (const gene of foundGenes) {
+      if (
+        alreadyAdded.has(gene.hgnc_id) ||
+        alreadyAdded.has(gene.symbol) ||
+        (gene.ensembl_gene_id && alreadyAdded.has(gene.ensembl_gene_id)) ||
+        (gene.ncbi_gene_id && alreadyAdded.has(gene.ncbi_gene_id))
+      ) {
+        continue
+      }
+      registerIdentifier(gene, alreadyAdded)
+
+      genes.push({
+        hgnc_id: gene.hgnc_id,
+        symbol: gene.symbol,
+        name: gene.name,
+        ensembl_id: gene.ensembl_gene_id ?? undefined,
+        entrez_id: gene.ncbi_gene_id ? parseInt(gene.ncbi_gene_id) : undefined,
+      })
+    }
+
+    // Helpfully, sort genes by symbol.
+    genes.sort((a, b) => a.symbol.localeCompare(b.symbol))
+    model.value.locus.genes = genes
+
+    // Copy the genes that were not found over back to the text area.
+    const invalidGenes: string[] = []
+    for (const gene of words) {
+      if (!seen.has(gene)) {
+        invalidGenes.push(gene)
+      }
+    }
+    textAreaErrorMessages.value =
+      invalidGenes.length > 0 ? ['Some genes could not be found.'] : []
+    textAreaValue.value = invalidGenes.join(' ')
   }
   parsing.value = false
 }
@@ -79,7 +155,7 @@ async function parseAndStore() {
           justify-content: space-between;
         "
       >
-        {{ hasGenes ? 'Gene List' : 'Gene Regions' }}
+        {{ hasGenes ? 'Gene List' : 'Genome Regions' }}
         <v-btn
           size="small"
           density="compact"
@@ -131,7 +207,7 @@ async function parseAndStore() {
               "
             >
               {{
-                'chromosome' in item ? genomeRegionToString(item) : item.hgnc_id
+                'chromosome' in item ? genomeRegionToString(item) : item.symbol
               }}
             </v-chip>
           </div>
@@ -154,7 +230,7 @@ async function parseAndStore() {
       :key="index"
       size="small"
     >
-      {{ 'chromosome' in item ? genomeRegionToString(item) : item.hgnc_id }}
+      {{ 'chromosome' in item ? genomeRegionToString(item) : item.symbol }}
     </v-chip>
   </div>
 </template>

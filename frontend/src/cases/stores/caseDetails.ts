@@ -51,6 +51,30 @@ export type CaseSvAnnotationReleaseInfos = any
 /** Alias definition of GenotypeMapping type; to be defined later. */
 export type GenotypeMapping = any
 
+/** Type for the individuals in PedigreeObj */
+export interface Individual {
+  sodar_uuid: string
+  pedigree: string
+  date_created: string
+  date_modified: string
+  name: string
+  father?: string | null
+  mother?: string | null
+  sex: 'unknown' | 'male' | 'female' | 'other'
+  karyotypic_sex: 'unknown' | 'XX' | 'XY' | 'other'
+  affected: boolean
+  assay: 'wgs' | 'wes' | 'panel_seq'
+}
+
+/** Type for the pedigree_obj member */
+export interface PedigreeObj {
+  sodar_uuid: string
+  case: string
+  date_created: string
+  date_modified: string
+  individual_set: Individual[]
+}
+
 export const useCaseDetailsStore = defineStore('caseDetails', () => {
   // store dependencies
 
