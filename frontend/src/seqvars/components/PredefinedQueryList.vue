@@ -10,6 +10,7 @@ import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,6 +18,8 @@ const props = withDefaults(
   defineProps<{
     /** The presets version to use. */
     presets: SeqvarsQueryPresetsSetVersionDetails
+    /** The pedigree. */
+    pedigree: PedigreeObj
     /** The query that is being modified. */
     query: Query | null
     /** Whether hints are enabled. */
@@ -53,7 +56,7 @@ defineEmits<{
         v-for="pq in presets.seqvarspredefinedquery_set"
         :key="pq.sodar_uuid"
         :selected="pq.sodar_uuid === selectedId"
-        :modified="!!query && !matchesPredefinedQuery(presets, pq, query)"
+        :modified="!!query && !matchesPredefinedQuery(pedigree, presets, pq, query)"
         @click="selectedId = pq.sodar_uuid"
         @revert="selectedId = pq.sodar_uuid"
       >

@@ -259,8 +259,6 @@ const fillData = () => {
  * @param rankDelta The delta to apply to the rank, if any.
  */
 const updateLocusPresets = async (rankDelta: number = 0) => {
-  console.log('update locus presets')
-
   // Guard against missing/readonly/non-draft preset set version or missing locus.
   if (
     props.locusPresets === undefined ||

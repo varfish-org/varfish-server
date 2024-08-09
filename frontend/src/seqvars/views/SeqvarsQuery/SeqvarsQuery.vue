@@ -88,6 +88,7 @@ watch(
           ? `VarFish - ${caseDetailsStore.caseObj?.name}`
           : undefined
       "
+      :loading="!selectedPresetSetVersion"
     />
 
     <TheNavBar :navbar-shown="navbarShown">
