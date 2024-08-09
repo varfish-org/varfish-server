@@ -19,7 +19,6 @@ describe('QcTableVarStats.vue', () => {
 
   // TODO Fix me
   test('test with data data', async () => {
-    // console.log(caseDetailsStoreData.caseVariantStats)
     const varStats = Object.entries(caseDetailsStoreData.caseVariantStats).map(
       ([name, stats]) => {
         return {

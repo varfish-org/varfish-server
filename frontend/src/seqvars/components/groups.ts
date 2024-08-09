@@ -3,21 +3,28 @@ import { Component } from 'vue'
 
 import { LocalFields, Query } from '@/seqvars/types'
 import {
+  SeqvarsGenotypeChoice,
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
+  SeqvarsQuerySettingsGenotype,
+  SeqvarsQuerySettingsGenotypeRequest,
+  SeqvarsQuerySettingsQuality,
+  SeqvarsQuerySettingsQualityRequest,
+  SeqvarsSampleQualitySettingsPydantic,
 } from '@varfish-org/varfish-api/lib'
 
 import ClinvarControls from './ClinvarControls.vue'
 import EffectsControls from './EffectsControls.vue'
 import FrequencyControls from './frequency/FrequencyControls.vue'
-import { GENOTYPE_PRESETS, Pedigree } from './genotype/constants'
+import { GENOTYPE_PRESETS } from './genotype/constants'
 import LocusControls from './locus/LocusControls.vue'
 import PathogenicityPrioControls from './PathogenicityPrioControls.vue'
 import PhenotypePrioControls from './PhenotypePrioControls.vue'
 import QualityControls from './QualityControls.vue'
 import { isKeyOfObject } from './utils'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 type PresetDetails = SeqvarsQueryPresetsSetVersionDetails
 
@@ -156,20 +163,23 @@ export const GROUPS = [
 ]
 
 export const createGenotypeFromPreset = (
+  pedigree: PedigreeObj,
   choice?: SeqvarsGenotypePresetChoice | null,
-) => {
+): SeqvarsQuerySettingsGenotypeRequest => {
+  const sampleNames = pedigree.individual_set.map(
+    (individual) => individual.name,
+  )
   const preset = GENOTYPE_PRESETS[choice ?? 'any']
-  return {
+  const result: SeqvarsQuerySettingsGenotypeRequest = {
     recessive_mode: preset.recessiveMode,
-    sample_genotype_choices: (['index', 'father', 'mother'] as Pedigree[]).map(
-      (sample) => ({
-        enabled: true,
-        sample,
-        genotype: preset.samples[sample],
-        include_no_call: false,
-      }),
-    ),
+    sample_genotype_choices: sampleNames.map((sample) => ({
+      enabled: true,
+      sample,
+      genotype: 'any' as SeqvarsGenotypeChoice,
+      include_no_call: false,
+    })),
   }
+  return result
 }
 
 const getGenotypeCompareField = (v: Query['genotype']) => [
@@ -178,42 +188,55 @@ const getGenotypeCompareField = (v: Query['genotype']) => [
 ]
 
 export const matchesGenotypePreset = (
+  pedigree: PedigreeObj,
   presetChoice: SeqvarsGenotypePresetChoice | null | undefined,
   query: Query,
-) =>
-  isEqual(
+): boolean => {
+  return isEqual(
     getGenotypeCompareField(query.genotype),
-    getGenotypeCompareField(createGenotypeFromPreset(presetChoice)),
+    getGenotypeCompareField(createGenotypeFromPreset(pedigree, presetChoice)),
   )
+}
 
 export const createQualityFromPreset = (
+  pedigree: PedigreeObj,
   preset: SeqvarsQueryPresetsQuality,
-) => ({
-  ...preset,
-  sample_quality_filters: ['index', 'father', 'mother'].map((sample) => ({
-    sample,
+): SeqvarsQuerySettingsQualityRequest => {
+  const sampleNames = pedigree.individual_set.map(
+    (individual) => individual.name,
+  )
+  return {
     ...preset,
-  })),
-})
+    sample_quality_filters: sampleNames.map((sample) => ({
+      sample,
+      ...preset,
+    })),
+  }
+}
 
 export const matchesQualityPreset = (
+  pedigree: PedigreeObj,
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
   query: Query,
-) => {
+): boolean => {
   const preset = presetsDetails.seqvarsquerypresetsquality_set.find(
     (p) => p.sodar_uuid === query.qualitypresets,
   )
-  return !!preset && isEqual(query.quality, createQualityFromPreset(preset))
+  return (
+    !!preset &&
+    isEqual(query.quality, createQualityFromPreset(pedigree, preset))
+  )
 }
 
 export const matchesPredefinedQuery = (
+  pedigree: PedigreeObj,
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
   pq: SeqvarsPredefinedQuery,
   query: Query,
-) =>
-  matchesGenotypePreset(pq.genotype?.choice, query) &&
+): boolean =>
+  matchesGenotypePreset(pedigree, pq.genotype?.choice, query) &&
   GROUPS.every((group) =>
     group.id == 'quality'
-      ? matchesQualityPreset(presetsDetails, query)
+      ? matchesQualityPreset(pedigree, presetsDetails, query)
       : group.matchesPreset(presetsDetails, query),
   )

@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { delay, http, HttpResponse } from 'msw'
 
-import fixture from './fixture.SeqvarsFiltration.json'
+import pedigreeObj from './pedigreeObj.SeqvarsFiltration.json'
+import presetsDetails from './presetsDetails.SeqvarsFiltration.json'
 import SeqvarsFiltration from './SeqvarsFiltration.vue'
 
 const meta: Meta<typeof SeqvarsFiltration> = {
@@ -17,9 +18,9 @@ export const Example: Story = {
   render: () => ({
     components: { SeqvarsFiltration },
     setup() {
-      return { fixture }
+      return { presetsDetails, pedigreeObj }
     },
-    template: '<SeqvarsFiltration :presetsDetails="fixture"  />',
+    template: '<SeqvarsFiltration :presets-details="presetsDetails" :pedigree-obj="pedigreeObj"  />',
   }),
   parameters: {
     msw: {

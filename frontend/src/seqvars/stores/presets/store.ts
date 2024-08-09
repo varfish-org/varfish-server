@@ -92,7 +92,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
         Promise.all([loadPresets(), loadFactoryDefaultsPresets()]),
       )
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.message = `Error loading presets: ${e}`
     }
   }

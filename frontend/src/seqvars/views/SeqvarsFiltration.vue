@@ -9,7 +9,10 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { copy } from '@/varfish/helpers'
 
-import { GENOTYPE_PRESETS } from '@/seqvars/components/genotype/constants'
+import {
+  GENOTYPE_PRESETS,
+  Pedigree,
+} from '@/seqvars/components/genotype/constants'
 import GeneDataTable from '@/seqvars/components/GeneDataTable/GeneDataTable.vue'
 import GenotypeControls from '@/seqvars/components/genotype/GenotypeControls.vue'
 import {
@@ -28,9 +31,11 @@ import Item from '@/seqvars/components/ui/Item.vue'
 import SidebarCollapseIcon from '@/seqvars/components/ui/SidebarCollapseIcon.vue'
 import SidebarExpandIcon from '@/seqvars/components/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
-const { presetsDetails } = defineProps<{
+const { presetsDetails, pedigree } = defineProps<{
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
+  pedigree: PedigreeObj
 }>()
 
 const queries = ref<Query[]>([])
@@ -72,7 +77,10 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
         [
           group.id,
           group.id == 'quality'
-            ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+            ? createQualityFromPreset(
+                pedigree,
+                preset as SeqvarsQueryPresetsQuality,
+              )
             : preset,
         ],
       ]
@@ -82,7 +90,7 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   return copy({
     ...presetFields,
     predefinedquery: pq.sodar_uuid,
-    genotype: createGenotypeFromPreset(choice),
+    genotype: createGenotypeFromPreset(pedigree, choice),
     genotypepresets: { choice },
   })
 }
@@ -97,7 +105,7 @@ const setToPreset = <G extends (typeof GROUPS)[number]>(
   selectedQuery.value[`${group.id}presets`] = preset.sodar_uuid
   const value =
     group.id == 'quality'
-      ? createQualityFromPreset(preset as SeqvarsQueryPresetsQuality)
+      ? createQualityFromPreset(pedigree, preset as SeqvarsQueryPresetsQuality)
       : preset
   selectedQuery.value[group.id] = copy(value)
 }
@@ -106,7 +114,9 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
   if (!selectedQuery.value) {
     return
   }
-  selectedQuery.value.genotype = copy(createGenotypeFromPreset(choice))
+  selectedQuery.value.genotype = copy(
+    createGenotypeFromPreset(pedigree, choice),
+  )
   selectedQuery.value.genotypepresets = { choice }
 }
 </script>
@@ -153,6 +163,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :selected-index="selectedQueryIndex"
           :presets-details="presetsDetails"
           :queries="queries"
+          :pedigree="pedigree"
           @update:selected-index="(index) => (selectedQueryIndex = index)"
           @remove="(index) => queries.splice(index, 1)"
           @revert="
@@ -168,6 +179,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           :presets="presetsDetails"
           :selected-id="selectedQuery?.predefinedquery"
           :query="selectedQuery"
+          :pedigree="pedigree"
           @update:selected-id="
             (id) => {
               const pq = presetsDetails.seqvarspredefinedquery_set.find(
@@ -208,6 +220,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                 :modified="
                   selectedPredefinedQuery &&
                   !matchesGenotypePreset(
+                    pedigree,
                     selectedQuery.genotypepresets?.choice,
                     selectedQuery,
                   )
@@ -247,7 +260,11 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                   !(
                     selectedPredefinedQuery &&
                     (group.id == 'quality'
-                      ? matchesQualityPreset(presetsDetails, selectedQuery)
+                      ? matchesQualityPreset(
+                          pedigree,
+                          presetsDetails,
+                          selectedQuery,
+                        )
                       : group.matchesPreset(presetsDetails, selectedQuery))
                   )
                 "

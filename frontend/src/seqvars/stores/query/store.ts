@@ -88,7 +88,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     try {
       storeState.serverInteractions += 1
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.state = State.Error
       storeState.message = `Error loading presets: ${e}`
     } finally {
