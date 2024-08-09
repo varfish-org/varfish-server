@@ -27,14 +27,14 @@ const emit = defineEmits<{
     </button>
     <div style="display: flex; align-items: center">
       <Icon
-        v-if="props.selected && props.modified"
+        v-if="props.modified"
         icon="mdi:alpha-m-box-outline"
         color="#DC9E00"
         :data-test-modified="props.modified && props.selected ? '' : undefined"
         title="There are modifications that you could revert."
       />
       <ItemButton
-        v-if="props.selected && props.modified"
+        v-if="props.modified"
         title="Revert modifications"
         @click="() => emit('revert')"
       >
