@@ -20,6 +20,7 @@ import {
   matchesQualityPreset,
 } from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/QueryEditor/PredefinedQueryList.vue'
+import PresetSummaryItem from '@/seqvars/components/QueryEditor/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
@@ -277,18 +278,9 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
             : ''
         "
       >
-        <div
-          role="listbox"
-          style="width: 100%; display: flex; flex-direction: column"
-        >
+        <template v-if="selectedQuery.genotypepresets?.choice" #summary>
           <Item
-            v-for="key in Object.keys(
-              GENOTYPE_PRESET_TO_RECESSIVE_MODE,
-            ) as SeqvarsGenotypePresetChoice[]"
-            :key="key"
-            :selected="selectedQuery.genotypepresets?.choice == key"
             :modified="
-              !!pedigree &&
               selectedPredefinedQuery &&
               !matchesGenotypePreset(
                 pedigree,
@@ -296,14 +288,49 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
                 selectedQuery,
               )
             "
-            @click="() => revertGenotypeToPresets(key)"
-            @revert="() => revertGenotypeToPresets(key)"
+            @revert="
+              () =>
+                revertGenotypeToPresets(selectedQuery!.genotypepresets?.choice!)
+            "
+            >
+            {{
+              SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
+                (pedigree, selectedQuery.genotypepresets?.choice)
+              ]
+            }}
+            </Item>
+        </template>
+
+        <template #default>
+          <div
+            role="listbox"
+            style="width: 100%; display: flex; flex-direction: column"
           >
-            {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
-          </Item>
-        </div>
-        <v-divider class="my-2" />
-        <GenotypeControls v-model="selectedQuery" />
+            <Item
+              v-for="key in Object.keys(
+                GENOTYPE_PRESET_TO_RECESSIVE_MODE,
+              ) as SeqvarsGenotypePresetChoice[]"
+              :key="key"
+              :selected="selectedQuery.genotypepresets?.choice === key"
+              :modified="
+                !!pedigree &&
+                selectedQuery.genotypepresets?.choice === key &&
+                selectedPredefinedQuery &&
+                !matchesGenotypePreset(
+                  pedigree,
+                  selectedQuery.genotypepresets?.choice,
+                  selectedQuery,
+                )
+              "
+              @click="() => revertGenotypeToPresets(key)"
+              @revert="() => revertGenotypeToPresets(key)"
+            >
+              {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
+            </Item>
+          </div>
+          <v-divider class="my-2" />
+          <GenotypeControls v-model="selectedQuery" />
+        </template>
       </CollapsibleGroup>
 
       <CollapsibleGroup
@@ -318,51 +345,68 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
           )?.label
         "
       >
-        <div
-          role="listbox"
-          style="width: 100%; display: flex; flex-direction: column"
-        >
-          <Item
-            v-for="preset in presetsDetails[group.presetSetKey]"
-            :key="preset.sodar_uuid"
-            :selected="preset.sodar_uuid == selectedQuery[group.queryPresetKey]"
-            :modified="
-              !(
-                !!pedigree &&
-                selectedPredefinedQuery &&
-                (group.id == 'quality'
-                  ? matchesQualityPreset(
-                      pedigree,
-                      presetsDetails,
-                      selectedQuery,
-                    )
-                  : group.matchesPreset(presetsDetails, selectedQuery))
+        <template #summary>
+          <PresetSummaryItem
+            :presets-details="presetsDetails"
+            :query="selectedQuery"
+            :group="group"
+            :preset="
+              presetsDetails[group.presetSetKey].find(
+                (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
               )
             "
-            @click="
-              () => {
-                if (pedigree) {
-                  revertToPresets(pedigree, group, preset)
-                }
-              }
-            "
-            @revert="
-              () => {
-                if (pedigree) {
-                  revertToPresets(pedigree, group, preset)
-                }
-              }
-            "
+            @revert="(preset: any) => { if (pedigree) { revertToPresets(pedigree, group, preset) } }"
+          />
+        </template>
+        <template #default>
+          <div
+            role="listbox"
+            style="width: 100%; display: flex; flex-direction: column"
           >
-            {{ preset.label }}
-          </Item>
-        </div>
-        <Hr />
-        <component
-          :is="group.Component"
-          v-model="selectedQuery"
-          :hints-enabled="hintsEnabled"
-        />
+            <Item
+              v-for="preset in presetsDetails[group.presetSetKey]"
+              :key="preset.sodar_uuid"
+              :selected="
+                preset.sodar_uuid == selectedQuery[group.queryPresetKey]
+              "
+              :modified="
+                !(
+                  !!pedigree &&
+                  selectedPredefinedQuery &&
+                  (group.id == 'quality'
+                    ? matchesQualityPreset(
+                        pedigree,
+                        presetsDetails,
+                        selectedQuery,
+                      )
+                    : group.matchesPreset(presetsDetails, selectedQuery))
+                )
+              "
+              @click="
+                () => {
+                  if (pedigree) {
+                    revertToPresets(pedigree, group, preset)
+                  }
+                }
+              "
+              @revert="
+                () => {
+                  if (pedigree) {
+                    revertToPresets(pedigree, group, preset)
+                  }
+                }
+              "
+            >
+              {{ preset.label }}
+            </Item>
+          </div>
+          <Hr />
+          <component
+            :is="group.Component"
+            v-model="selectedQuery"
+            :hints-enabled="hintsEnabled"
+          />
+        </template>
       </CollapsibleGroup>
     </template>
   </div>

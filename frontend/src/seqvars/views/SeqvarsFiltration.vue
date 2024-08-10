@@ -21,6 +21,7 @@ import {
   matchesQualityPreset,
 } from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
+import PresetSummaryItem from '@/seqvars/components/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
@@ -197,25 +198,9 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
         />
 
         <template v-if="selectedQuery">
-          <CollapsibleGroup
-            title="Genotype"
-            :summary="
-              selectedQuery.genotypepresets?.choice
-                ? getGenotypeLabel(selectedQuery.genotypepresets?.choice)
-                : ''
-            "
-          >
-            <div
-              role="listbox"
-              aria-label="Genotype presets"
-              style="width: 100%; display: flex; flex-direction: column"
-            >
+          <CollapsibleGroup title="Genotype">
+            <template v-if="selectedQuery.genotypepresets?.choice" #summary>
               <Item
-                v-for="key in Object.keys(
-                  GENOTYPE_PRESET_TO_RECESSIVE_MODE,
-                ) as SeqvarsGenotypePresetChoice[]"
-                :key="key"
-                :selected="selectedQuery.genotypepresets?.choice == key"
                 :modified="
                   selectedPredefinedQuery &&
                   !matchesGenotypePreset(
@@ -224,14 +209,46 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                     selectedQuery,
                   )
                 "
-                @click="() => setGenotypeToPreset(key)"
-                @revert="() => setGenotypeToPreset(key)"
+                @revert="
+                  () =>
+                    setGenotypeToPreset(selectedQuery!.genotypepresets?.choice!)
+                "
+                >{{
+                  getGenotypeLabel(selectedQuery.genotypepresets?.choice)
+                }}</Item
               >
-                {{ getGenotypeLabel(key) }}
-              </Item>
-            </div>
-            <Hr />
-            <GenotypeControls v-model="selectedQuery" />
+            </template>
+            <template #default>
+              <div
+                role="listbox"
+                aria-label="Genotype presets"
+                style="width: 100%; display: flex; flex-direction: column"
+              >
+                <Item
+                  v-for="key in Object.keys(
+                    GENOTYPE_PRESET_TO_RECESSIVE_MODE,
+                  ) as SeqvarsGenotypePresetChoice[]"
+                  :key="key"
+                  :selected="selectedQuery.genotypepresets?.choice == key"
+                  :modified="
+                    selectedQuery.genotypepresets?.choice == key &&
+                    selectedPredefinedQuery &&
+                    !matchesGenotypePreset(
+                      pedigree,
+                      selectedQuery.genotypepresets?.choice,
+                      selectedQuery,
+                    )
+                  "
+                  @click="() => setGenotypeToPreset(key)"
+                  @revert="() => setGenotypeToPreset(key)"
+                >
+                  {{ getGenotypeLabel(key) }}
+                </Item>
+              </div>
+
+              <Hr />
+              <GenotypeControls v-model="selectedQuery" />
+            </template>
           </CollapsibleGroup>
 
           <CollapsibleGroup
@@ -240,43 +257,52 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
             :title="group.title"
             :hint="group.hint"
             :hints-enabled="true"
-            :summary="
-              presetsDetails[group.presetSetKey].find(
-                (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
-              )?.label
-            "
           >
-            <div
-              role="listbox"
-              :aria-label="`${group.title} presets`"
-              style="width: 100%; display: flex; flex-direction: column"
-            >
-              <Item
-                v-for="preset in presetsDetails[group.presetSetKey]"
-                :key="preset.sodar_uuid"
-                :selected="
-                  preset.sodar_uuid == selectedQuery[group.queryPresetKey]
+            <template #summary>
+              <PresetSummaryItem
+                :presets-details="presetsDetails"
+                :query="selectedQuery"
+                :group="group"
+                :preset="
+                  presetsDetails[group.presetSetKey].find(
+                    (p) =>
+                      p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
+                  )
                 "
-                :modified="
-                  !(
-                    selectedPredefinedQuery &&
-                    (group.id == 'quality'
+                @revert="(preset) => setToPreset(group, preset)"
+              />
+            </template>
+            <template #default>
+              <div
+                role="listbox"
+                :aria-label="`${group.title} presets`"
+                style="width: 100%; display: flex; flex-direction: column"
+              >
+                <Item
+                  v-for="preset in presetsDetails[group.presetSetKey]"
+                  :key="preset.sodar_uuid"
+                  :selected="
+                    preset.sodar_uuid == selectedQuery[group.queryPresetKey]
+                  "
+                  :modified="
+                    preset.sodar_uuid == selectedQuery[group.queryPresetKey] &&
+                    !(group.id == 'quality'
                       ? matchesQualityPreset(
                           pedigree,
                           presetsDetails,
                           selectedQuery,
                         )
                       : group.matchesPreset(presetsDetails, selectedQuery))
-                  )
-                "
-                @click="() => setToPreset(group, preset)"
-                @revert="() => setToPreset(group, preset)"
-              >
-                {{ preset.label }}
-              </Item>
-            </div>
-            <Hr />
-            <component :is="group.Component" v-model="selectedQuery" />
+                  "
+                  @click="() => setToPreset(group, preset)"
+                  @revert="() => setToPreset(group, preset)"
+                >
+                  {{ preset.label }}
+                </Item>
+              </div>
+              <Hr />
+              <component :is="group.Component" v-model="selectedQuery" />
+            </template>
           </CollapsibleGroup>
         </template>
       </div>

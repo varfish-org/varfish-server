@@ -159,7 +159,6 @@ watch(
       <v-skeleton-loader
         v-if="!selectedPresetSetVersion"
         type="list-item, list-item, list-item"
-        class="bg-background"
       ></v-skeleton-loader>
       <template v-else>
         <QueryEditor

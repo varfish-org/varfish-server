@@ -4,7 +4,6 @@ import HintButton from './HintButton.vue'
 const props = withDefaults(
   defineProps<{
     title: string
-    summary?: string
     hintsEnabled?: boolean
     hint?: string
   }>(),
@@ -29,14 +28,16 @@ const isOpen = defineModel<boolean>('isOpen', { default: true })
         size="small"
         style="opacity: 0.4"
       ></v-icon>
-      <div style="display: flex; flex-direction: column">
+      <div style="display: flex; flex-direction: column; width: 100%">
         <div class="group-title" style="margin-top: 1px">
           {{ props.title }}
           <span v-if="hintsEnabled && hint" class="ml-auto">
             <HintButton :text="hint" size="x-small" />
           </span>
         </div>
-        <div v-if="!isOpen">{{ summary }}</div>
+        <div v-if="!isOpen">
+          <slot name="summary" />
+        </div>
       </div>
     </summary>
     <div style="display: flex" :aria-label="props.title">

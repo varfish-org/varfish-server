@@ -11,6 +11,7 @@ import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
+import { computed } from 'vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,9 +29,16 @@ const props = withDefaults(
   { hintsEnabled: false },
 )
 
-/** Currently selected predefined query, if any. */
+/** Currently selected predefined query UUID, if any. */
 const selectedId = defineModel<string | undefined>('selectedId', {
   required: true,
+})
+
+/** Currently selected predefined query, if any.*/
+const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(() => {
+  return props.presets.seqvarspredefinedquery_set.find(
+    (pq) => pq.sodar_uuid === selectedId.value,
+  )
 })
 
 /** This component's events. */
@@ -51,27 +59,47 @@ defineEmits<{
       )?.label
     "
   >
-    <div style="width: 100%; display: flex; flex-direction: column">
+    <template #summary>
       <Item
-        v-for="pq in presets.seqvarspredefinedquery_set"
-        :key="pq.sodar_uuid"
-        :selected="pq.sodar_uuid === selectedId"
-        :modified="
-          !!query && !matchesPredefinedQuery(pedigree, presets, pq, query)
-        "
-        @click="selectedId = pq.sodar_uuid"
-        @revert="selectedId = pq.sodar_uuid"
-      >
-        <template #default>{{ pq.label }}</template>
-        <template #extra>
-          <ItemButton
-            :title="`Create query based on ${pq.label}`"
-            @click="$emit('addQuery', pq)"
+      :modified="
+            !!query &&
+            !!selectedPredefinedQuery &&
+            !matchesPredefinedQuery(pedigree, presets, selectedPredefinedQuery, query)
+          "
+          @revert="() => { if (selectedPredefinedQuery) { selectedId = selectedPredefinedQuery.sodar_uuid }}"
           >
-            <v-icon icon="mdi-filter-variant-plus" size="xs" />
-          </ItemButton>
-        </template>
-      </Item>
-    </div>
+            {{
+              presets.seqvarspredefinedquery_set.find(
+        (pq) => pq.sodar_uuid === selectedId,
+      )?.label
+            }}
+            </Item>
+    </template>
+    <template #default>
+      <div style="width: 100%; display: flex; flex-direction: column">
+        <Item
+          v-for="pq in presets.seqvarspredefinedquery_set"
+          :key="pq.sodar_uuid"
+          :selected="pq.sodar_uuid === selectedId"
+          :modified="
+            !!query &&
+            pq.sodar_uuid === selectedId &&
+            !matchesPredefinedQuery(pedigree, presets, pq, query)
+          "
+          @click="selectedId = pq.sodar_uuid"
+          @revert="selectedId = pq.sodar_uuid"
+        >
+          <template #default>{{ pq.label }}</template>
+          <template #extra>
+            <ItemButton
+              :title="`Create query based on ${pq.label}`"
+              @click="$emit('addQuery', pq)"
+            >
+              <v-icon icon="mdi-filter-variant-plus" size="xs" />
+            </ItemButton>
+          </template>
+        </Item>
+      </div>
+    </template>
   </CollapsibleGroup>
 </template>
