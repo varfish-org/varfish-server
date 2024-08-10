@@ -377,6 +377,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
                 preset.sodar_uuid == selectedQuery[group.queryPresetKey]
               "
               :modified="
+                preset.sodar_uuid == selectedQuery[group.queryPresetKey] &&
                 !(
                   !!pedigree &&
                   selectedPredefinedQuery &&

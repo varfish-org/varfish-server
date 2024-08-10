@@ -34,30 +34,50 @@ const capitalize = (s: string) => s && s[0].toUpperCase() + s.slice(1)
     density="compact"
   />
 
-  <div style="padding-left: 16px">
-    <v-checkbox
-      v-for="field in GERMLINE_FIELDS"
-      :key="field"
-      :label="capitalize(field.split('_').join(' '))"
-      :model-value="
-        model.clinvar.clinvar_germline_aggregate_description?.includes(field)
-      "
-      :hide-details="true"
-      density="compact"
-      @update:model-value="
-        toggleArrayElement(
-          model.clinvar.clinvar_germline_aggregate_description,
-          field,
-        )
-      "
-    />
-
-    <v-checkbox
-      v-model="model.clinvar.allow_conflicting_interpretations"
-      label="Allow conflicting interpretations"
-      :hide-details="true"
-      density="compact"
-      style="margin-top: 8px"
-    />
-  </div>
+  <v-row class="d-flex align-center flex-row my-2">
+    <v-col cols="auto">
+      <v-btn-toggle
+        multiple
+        color="primary"
+        variant="outlined"
+        divided
+        density="default"
+        v-model="model.clinvar.clinvar_germline_aggregate_description"
+      >
+        <v-btn icon title="Pathogenic" value="pathogenic"> P </v-btn>
+        <v-btn icon title="Likely pathogenic" value="likely_pathogenic">
+          LP
+        </v-btn>
+        <v-btn
+          icon
+          title="Uncertain significance"
+          value="uncertain_significance"
+        >
+          VUS
+        </v-btn>
+        <v-btn icon title="Likely benign" value="likely_benign"> LB </v-btn>
+        <v-btn icon title="Benign" value="benign"> B </v-btn>
+      </v-btn-toggle>
+    </v-col>
+    <v-col>
+      <v-btn-toggle
+        color="primary"
+        variant="outlined"
+        divided
+        density="default"
+        v-model="model.clinvar.allow_conflicting_interpretations"
+      >
+      <v-btn
+        icon="mdi-head-flash"
+        title="Allow conflicts"
+        :value="true"
+        @click.prevent.stop="
+          // sic! need to convert undefined to false
+          model.clinvar.allow_conflicting_interpretations =
+            !!model.clinvar.allow_conflicting_interpretations
+        "
+      />
+      </v-btn-toggle>
+    </v-col>
+  </v-row>
 </template>
