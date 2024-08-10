@@ -4,11 +4,13 @@ import { Query } from '@/seqvars/types'
 
 import { GROUPS, matchesQualityPreset } from './groups'
 import Item from './ui/Item.vue'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 type Preset =
   SeqvarsQueryPresetsSetVersionDetails[(typeof GROUPS)[number]['presetSetKey']][0]
 
 defineProps<{
+  pedigree: PedigreeObj
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
   group: (typeof GROUPS)[number]
   preset?: Preset
@@ -23,7 +25,7 @@ defineEmits<{ revert: [preset: Preset] }>()
     :modified="
       preset.sodar_uuid == query[group.queryPresetKey] &&
       !(group.id == 'quality'
-        ? matchesQualityPreset(presetsDetails, query)
+        ? matchesQualityPreset(pedigree, presetsDetails, query)
         : group.matchesPreset(presetsDetails, query))
     "
     @revert="() => preset && $emit('revert', preset)"

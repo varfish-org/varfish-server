@@ -35,11 +35,13 @@ const selectedId = defineModel<string | undefined>('selectedId', {
 })
 
 /** Currently selected predefined query, if any.*/
-const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(() => {
-  return props.presets.seqvarspredefinedquery_set.find(
-    (pq) => pq.sodar_uuid === selectedId.value,
-  )
-})
+const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
+  () => {
+    return props.presets.seqvarspredefinedquery_set.find(
+      (pq) => pq.sodar_uuid === selectedId.value,
+    )
+  },
+)
 
 /** This component's events. */
 defineEmits<{
@@ -61,19 +63,30 @@ defineEmits<{
   >
     <template #summary>
       <Item
-      :modified="
-            !!query &&
-            !!selectedPredefinedQuery &&
-            !matchesPredefinedQuery(pedigree, presets, selectedPredefinedQuery, query)
-          "
-          @revert="() => { if (selectedPredefinedQuery) { selectedId = selectedPredefinedQuery.sodar_uuid }}"
-          >
-            {{
-              presets.seqvarspredefinedquery_set.find(
-        (pq) => pq.sodar_uuid === selectedId,
-      )?.label
-            }}
-            </Item>
+        :modified="
+          !!query &&
+          !!selectedPredefinedQuery &&
+          !matchesPredefinedQuery(
+            pedigree,
+            presets,
+            selectedPredefinedQuery,
+            query,
+          )
+        "
+        @revert="
+          () => {
+            if (selectedPredefinedQuery) {
+              selectedId = selectedPredefinedQuery.sodar_uuid
+            }
+          }
+        "
+      >
+        {{
+          presets.seqvarspredefinedquery_set.find(
+            (pq) => pq.sodar_uuid === selectedId,
+          )?.label
+        }}
+      </Item>
     </template>
     <template #default>
       <div style="width: 100%; display: flex; flex-direction: column">

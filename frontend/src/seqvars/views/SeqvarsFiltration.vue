@@ -21,7 +21,7 @@ import {
   matchesQualityPreset,
 } from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
-import PresetSummaryItem from '@/seqvars/components/PresetSummaryItem.vue'
+import PresetSummaryItem from '@/seqvars/components/QueryEditor/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
@@ -260,6 +260,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
           >
             <template #summary>
               <PresetSummaryItem
+                :pedigree="pedigree"
                 :presets-details="presetsDetails"
                 :query="selectedQuery"
                 :group="group"
@@ -269,7 +270,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                       p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
                   )
                 "
-                @revert="(preset) => setToPreset(group, preset)"
+                @revert="(preset: any) => setToPreset(group, preset)"
               />
             </template>
             <template #default>

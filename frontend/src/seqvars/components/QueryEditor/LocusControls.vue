@@ -28,6 +28,12 @@ const choice = ref<keyof typeof model.value.locus>(
   hasGenes.value ? 'genes' : 'genome_regions',
 )
 
+const LABEL_REGIONS =
+  'Space-separated genome regions, e.g., 1 X MT chr1 chr3:1,000,000-2,000,000.'
+const LABEL_GENES =
+  'Space-separated symbols, HGNC, ENSEMBL, or Entrez ID, e.g., BRCA1 HGNC:1100 ENSG00000012048 672.'
+
+const showDialog = ref<boolean>(false)
 const textAreaValue = ref('')
 const textAreaErrorMessages = ref<string[]>([])
 const parsing = ref(false)
@@ -144,44 +150,100 @@ async function parseAndStore() {
 </script>
 
 <template>
-  <v-dialog max-width="500">
-    <template #activator="{ props: activatorProps }">
-      <div
-        style="
-          margin-top: 4px;
-          display: flex;
-          gap: 4px;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
-        {{ hasGenes ? 'Gene List' : 'Genome Regions' }}
+  <v-sheet class="pr-1 pt-1 mb-1 bg-transparent">
+    <div class="d-flex align-center justify-space-between ga-4">
+      <span class="text-caption text-uppercase pb-1">
+        <template v-if="model.locus.genes?.length"> Gene List </template>
+        <template v-else-if="model.locus.genome_regions?.length">
+          Genome Regions
+        </template>
+        <template v-else> Gene List / Genome Regions </template>
+      </span>
+
+      <div>
+        <v-btn
+          v-if="
+            !!model.locus.genes?.length || !!model.locus.genome_regions?.length
+          "
+          size="small"
+          density="compact"
+          variant="plain"
+          prepend-icon="mdi-close-circle-multiple"
+          text="Clear"
+          class="pr-2"
+          @click="
+            () => {
+              model.locus.genes = []
+              model.locus.genome_regions = []
+            }
+          "
+        />
         <v-btn
           size="small"
           density="compact"
           variant="plain"
           prepend-icon="mdi-tune-variant"
-          v-bind="activatorProps"
           text="Edit"
+          class="px-1"
+          @click="showDialog = true"
         />
       </div>
-    </template>
+    </div>
 
-    <template #default="{ isActive }">
-      <v-card title="Locus Configuration">
+    <div>
+      <template v-if="model.locus.genes?.length">
+        <v-chip
+          v-for="(item, index) in model.locus.genes"
+          :key="item.hgnc_id"
+          size="small"
+          class="mr-1 mb-1"
+          closable
+          @click:close="model.locus.genes.splice(index, 1)"
+        >
+          {{ item.symbol }}
+        </v-chip>
+      </template>
+
+      <template v-else-if="model.locus.genome_regions?.length">
+        <v-chip
+          v-for="(item, index) in model.locus.genome_regions"
+          :key="genomeRegionToString(item)"
+          size="small"
+          class="mr-1 mb-1"
+          closable
+          @click:close="model.locus.genome_regions.splice(index, 1)"
+        >
+          {{ genomeRegionToString(item) }}
+        </v-chip>
+      </template>
+
+      <template v-else>
+        <div
+          class="text-caption text-center font-italic text-grey-darken-2 py-1"
+        >
+          None Selected
+        </div>
+      </template>
+    </div>
+  </v-sheet>
+
+  <v-dialog v-model="showDialog" max-width="600">
+    <template #default>
+      <v-card title="Edit Genes / Genome Regions">
         <v-card-text style="display: flex; flex-direction: column; gap: 8px">
           <v-radio-group v-model="choice" inline :hide-details="true">
             <v-radio label="Gene list" value="genes" />
-            <v-radio label="Genomic regions" value="genome_regions" />
+            <v-radio label="Genome regions" value="genome_regions" />
           </v-radio-group>
 
           <v-textarea
             v-model="textAreaValue"
-            :label="choice == 'genome_regions' ? 'Regions' : 'Genes'"
+            :label="choice == 'genome_regions' ? LABEL_REGIONS : LABEL_GENES"
             :hide-details="textAreaErrorMessages.length == 0"
             :error="textAreaErrorMessages.length > 0"
             :messages="textAreaErrorMessages"
             :disabled="parsing"
+            variant="outlined"
           />
 
           <v-btn
@@ -191,46 +253,51 @@ async function parseAndStore() {
             @click="parseAndStore"
           />
 
-          <div style="display: flex; gap: 4px; flex-wrap: wrap">
-            <v-chip
-              v-for="(item, index) in choice == 'genes'
-                ? model.locus.genes
-                : model.locus.genome_regions"
-              :key="index"
-              size="small"
-              closable
-              @click:close="
-                (choice == 'genes'
-                  ? model.locus.genes
-                  : model.locus.genome_regions
-                )?.splice(index, 1)
+          <v-sheet class="border-sm border-black px-2 pt-2 pb-1">
+            <template
+              v-if="
+                !!model.locus.genes?.length ||
+                !!model.locus.genome_regions?.length
               "
             >
-              {{
-                'chromosome' in item ? genomeRegionToString(item) : item.symbol
-              }}
-            </v-chip>
-          </div>
+              <v-chip
+                v-for="(item, index) in choice == 'genes'
+                  ? model.locus.genes
+                  : model.locus.genome_regions"
+                :key="index"
+                size="small"
+                closable
+                class="mr-1 mb-1"
+                @click:close="
+                  (choice == 'genes'
+                    ? model.locus.genes
+                    : model.locus.genome_regions
+                  )?.splice(index, 1)
+                "
+              >
+                {{
+                  'chromosome' in item
+                    ? genomeRegionToString(item)
+                    : item.symbol
+                }}
+              </v-chip>
+            </template>
+            <template v-else>
+              <div
+                class="text-body-2 text-center font-italic text-grey-darken-2 py-1"
+              >
+                None Selected
+              </div>
+            </template>
+          </v-sheet>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn text="Close Dialog" @click="isActive.value = false" />
+          <v-btn text="Close Dialog" @click="showDialog = false" />
         </v-card-actions>
       </v-card>
     </template>
   </v-dialog>
-
-  <div style="max-width: 280px; display: flex; gap: 4px; flex-wrap: wrap">
-    <v-chip
-      v-for="(item, index) in hasGenes
-        ? model.locus.genes
-        : model.locus.genome_regions"
-      :key="index"
-      size="small"
-    >
-      {{ 'chromosome' in item ? genomeRegionToString(item) : item.symbol }}
-    </v-chip>
-  </div>
 </template>

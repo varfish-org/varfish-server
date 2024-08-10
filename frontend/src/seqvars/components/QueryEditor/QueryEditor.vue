@@ -292,13 +292,13 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
               () =>
                 revertGenotypeToPresets(selectedQuery!.genotypepresets?.choice!)
             "
-            >
+          >
             {{
               SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
                 (pedigree, selectedQuery.genotypepresets?.choice)
               ]
             }}
-            </Item>
+          </Item>
         </template>
 
         <template #default>
@@ -347,6 +347,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
       >
         <template #summary>
           <PresetSummaryItem
+            :pedigree="pedigree"
             :presets-details="presetsDetails"
             :query="selectedQuery"
             :group="group"
@@ -355,7 +356,13 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
                 (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
               )
             "
-            @revert="(preset: any) => { if (pedigree) { revertToPresets(pedigree, group, preset) } }"
+            @revert="
+              (preset: any) => {
+                if (pedigree) {
+                  revertToPresets(pedigree, group, preset)
+                }
+              }
+            "
           />
         </template>
         <template #default>
