@@ -87,62 +87,72 @@ const model = defineModel<Query>({ required: true })
 
 const detailsOpen = ref<boolean>(false)
 
-const maxExonDistance = computed({
+const maxExonDistance = computed<number | null | undefined>({
   get: () => model.value.consequence.max_distance_to_exon,
-  set(value) {
-    model.value.consequence.max_distance_to_exon = value
+  set(value: string | number | null | undefined) {
+    if (value === null || value === undefined || value === '') {
+      model.value.consequence.max_distance_to_exon = null
+    } else {
+      model.value.consequence.max_distance_to_exon = parseInt(`${value}`)
+    }
   },
 })
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 8px">
-    <div>
-      <label style="margin: 0; font-size: var(--font-size-sm)" for="max-exon">
-        Max distance to next exon</label
-      >
-      <div
-        style="
-          display: flex;
-          flex-direction: row;
-          gap: 8px;
-          align-items: center;
-        "
-      >
-        <CheckButton
-          :model-value="maxExonDistance == null || maxExonDistance == undefined"
-          @update:model-value="maxExonDistance = null"
-        >
-          any
-        </CheckButton>
-        <CheckButton
-          :model-value="maxExonDistance == 20"
-          @update:model-value="maxExonDistance = 20"
-        >
-          20
-        </CheckButton>
-        <CheckButton
-          :model-value="maxExonDistance == 100"
-          @update:model-value="maxExonDistance = 100"
-        >
-          100
-        </CheckButton>
-        <Input
-          id="max-exon"
-          v-model="maxExonDistance"
-          type="number"
-          style="max-width: 100px"
-        />
-      </div>
+  <div class="d-flex flex-column ga-2">
+    <div class="mt-2">
+      <div class="text-body-2">Max distance to next exon</div>
+      <v-row class="align-center" justify="start" no-gutters>
+        <!-- Button Group -->
+        <v-col cols="auto" class="pt-0">
+          <v-btn-group density="compact" color="primary" divided>
+            <v-btn
+              class="px-0"
+              :variant="maxExonDistance === null ? 'flat' : 'outlined'"
+              @click="maxExonDistance = null"
+            >
+              any
+            </v-btn>
+            <v-btn
+              class="px-0"
+              :variant="maxExonDistance == 20 ? 'flat' : 'outlined'"
+              @click="maxExonDistance = 20"
+            >
+              20
+            </v-btn>
+            <v-btn
+              class="px-0"
+              :variant="maxExonDistance == 100 ? 'flat' : 'outlined'"
+              @click="maxExonDistance = 100"
+            >
+              100
+            </v-btn>
+          </v-btn-group>
+        </v-col>
+
+        <!-- Text Field -->
+        <v-col cols="auto" class="pl-3 pt-0">
+          <v-text-field
+            v-model="maxExonDistance"
+            density="compact"
+            variant="outlined"
+            size="small"
+            hide-details
+            class="exon-distance-text-field"
+          />
+        </v-col>
+      </v-row>
     </div>
 
     <div>
-      <div>Variant Type</div>
+      <div class="text-body-2">Variant Type</div>
       <v-checkbox
         v-for="(label, key) in VARIANT_TYPES"
         :key="key"
         :label="label"
         :hide-details="true"
+        color="primary"
         density="compact"
         :model-value="model.consequence.variant_types?.includes(key)"
         @update:model-value="
@@ -152,12 +162,13 @@ const maxExonDistance = computed({
     </div>
 
     <div>
-      <div>Transcript Type</div>
+      <div class="text-body-2">Transcript Type</div>
       <v-checkbox
         v-for="(label, key) in TRANSCRIPT_TYPES"
         :key="key"
         :label="label"
         :hide-details="true"
+        color="primary"
         density="compact"
         style="font-size: var(--font-size-sm)"
         :model-value="model.consequence.transcript_types?.includes(key)"
@@ -170,12 +181,13 @@ const maxExonDistance = computed({
     <CollapsibleGroup v-model:is-open="detailsOpen" title="Customize effects">
       <div style="display: flex; flex-direction: column; gap: 8px">
         <div v-for="(fields, title) in CUSTOMIZATION">
-          {{ title }}
+          <div class="text-body-2">{{ title }}</div>
 
           <v-checkbox
             v-for="(label, key) in fields"
             :key="key"
             :label="label"
+            color="primary"
             :hide-details="true"
             density="compact"
             style="font-size: var(--font-size-sm)"
@@ -189,3 +201,16 @@ const maxExonDistance = computed({
     </CollapsibleGroup>
   </div>
 </template>
+
+<style>
+.exon-distance-text-field .v-field__input {
+  min-height: 24px !important;
+  padding-block-start: 6px !important;
+  padding-block-end: 6px !important;
+  padding-bottom: 6px !important;
+  padding-top: 6px !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  max-width: 40px;
+}
+</style>

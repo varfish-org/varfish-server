@@ -80,26 +80,17 @@ const model = defineModel<Query>({ required: true })
       v-for="(item, index) in model.quality.sample_quality_filters"
       :key="index"
     >
-      <div>
-        <input
-          :id="`quality-sample-${index}`"
-          v-model="item.filter_active"
-          type="checkbox"
-        />
-      </div>
-      <label
-        :for="`quality-sample-${index}`"
-        style="
-          margin: 0;
-          grid-column: span 6;
-          display: flex;
-          align-items: center;
-        "
-        >{{ item.sample }}</label
-      >
+      <v-checkbox
+        v-model="item.filter_active"
+        color="primary"
+        :label="item.sample"
+        class="d-flex align-items-center ga-4"
+        style="grid-column: span 7"
+        density="compact"
+      />
 
       <fieldset style="display: contents">
-        <legend style="display: none">{{ item.sample }}</legend>
+        <div style="width: 25px"></div>
         <Input
           v-model="item.min_dp_het"
           aria-label="min DP het"
