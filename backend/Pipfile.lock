@@ -3601,16 +3601,16 @@
         },
         "protolint-bin": {
             "hashes": [
-                "sha256:1d973ab24fcc17e3214be070a9db71254e8ec1e1af69976cdaf647a040680dd8",
-                "sha256:5f563a07362637b9e6a64a0ec237ff329d193d59910694c8153eef74a98df3d7",
-                "sha256:7375ab1cb68f6d5db18bd40ebf0eae1b70c2024be1dc973cf0fb12f9cce080b9",
-                "sha256:88c72bab529e4fa9baf75472a8fb95bda10fddcd3ebdabe15efb4defebddd91d",
-                "sha256:c504e2f391cf4fa58ebb19cad7f6a2f0c0a561b6a5a7ffdac2cb9033eae0df30",
-                "sha256:d416e7bbfdeb88ecea5f67b426e6717f1fa0b98a00e07aad0217a7c8bffc94a0",
-                "sha256:fefef89e7f3639c80ee439be56a601321605ec92329f96cc8c3c3aaa1217a905"
+                "sha256:2d8d9b177b35914d720c517b44c11b57b2f87a08060364987446c95c347dc7a8",
+                "sha256:323328f9762c85c8e39adf206f29f40aa683e220fb5cc008d2b943d93bc47786",
+                "sha256:40bf7b45ebe0708395193586ca1a30ab05886117c85d8fd5a9a04494a64017ea",
+                "sha256:4fa4c9bdfcf752897f16198b1ae2fe64d8b990b85093e9d721d893af6d163ed2",
+                "sha256:542005dfd34e824407434e41458cb123dcc0284756a53dc91293ed077512009d",
+                "sha256:8d2042e84ebab417eabe7732c06505fd67a046faeab19db5291b345678ecd25f",
+                "sha256:ab398cf652d73cfa7af085fbdd8126c1daf6297e3f8b97d064fe473b5bb6b6b3"
             ],
             "index": "pypi",
-            "version": "==0.50.4"
+            "version": "==0.50.5"
         },
         "ptyprocess": {
             "hashes": [
