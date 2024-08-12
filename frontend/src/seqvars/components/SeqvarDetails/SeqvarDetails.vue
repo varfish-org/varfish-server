@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VResizeDrawer from '@wdns/vuetify-resize-drawer'
-import { ref } from 'vue'
+import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
 
 /** Model with boolean that defines visibility. */
 const showSheet = defineModel('showSheet', {
@@ -8,8 +8,12 @@ const showSheet = defineModel('showSheet', {
   default: false,
 })
 
-/** Whether the drawer is pinned (otherwise, will close when outside is clicked); component state. */
-const pinned = ref<boolean>(false)
+const props = defineProps<{
+  /** The project UUID. */
+  projectUuid: string
+  resultRowUuid: string
+  selectedSection?: string
+}>()
 </script>
 
 <template>
@@ -17,7 +21,7 @@ const pinned = ref<boolean>(false)
     v-model="showSheet"
     location="right"
     temporary
-    :scrim="!pinned"
+    :scrim="false"
     resizable
     save-width
     touchless
@@ -30,19 +34,25 @@ const pinned = ref<boolean>(false)
   >
     <template #prepend>
       <div class="text-right">
-        <v-btn icon="" size="small" @click="pinned = !pinned">
+        <!-- TODO: model not updated if closed via scrim click (bug in VNavigationDrawer)-->
+        <!-- <v-btn icon="" size="small" @click="pinned = !pinned">
           <v-icon
             :icon="pinned ? 'mdi-pin' : 'mdi-pin-outline'"
             :class="{ 'pin-icon-rotate': !pinned }"
           />
-        </v-btn>
+        </v-btn> -->
         <v-btn icon="" size="small" @click="showSheet = false">
           <v-icon icon="mdi-close" />
         </v-btn>
       </div>
     </template>
-
     <v-divider></v-divider>
+    <SeqvarDetails
+      :project-uuid="props.projectUuid"
+      :result-row-uuid="props.resultRowUuid"
+      :selected-section="props.selectedSection"
+      :hide-back-button="true"
+    />
   </v-resize-drawer>
 </template>
 

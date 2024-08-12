@@ -1,7 +1,6 @@
 <script setup>
 import $ from 'jquery'
 import { watch, onMounted, nextTick, onBeforeMount } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { State } from '@/varfish/storeUtils'
 import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
@@ -26,8 +25,6 @@ const props = defineProps({
 
 const ctxStore = useCtxStore()
 
-const router = useRouter()
-
 const variantQueryStore = useVariantQueryStore()
 const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
@@ -35,15 +32,16 @@ const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 
+/**
+ * Define the emitted events.
+ */
+const emit = defineEmits([
+  /** Variant has been selected. */
+  'variantSelected',
+])
+
 const showDetails = async (event) => {
-  variantQueryStore.lastPosition = document.querySelector('div#app').scrollTop
-  router.push({
-    name: 'seqvar-details',
-    params: {
-      row: event.smallvariantresultrow,
-      selectedSection: event.selectedSection ?? null,
-    },
-  })
+  emit('variantSelected', event)
 }
 
 /** Whether the form is visible. */

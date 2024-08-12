@@ -18,7 +18,7 @@ import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   /** The project UUID. */
-  projectUuid?: string
+  projectUuid: string
   /** The case UUID. */
   caseUuid?: string
 }>()
@@ -182,7 +182,11 @@ watch(
         ultricies. Nullam nec purus nec nunc
       </div>
     </v-main>
-    <SeqvarDetails v-model:show-sheet="detailsShown" />
+    <SeqvarDetails
+      v-model:show-sheet="detailsShown"
+      :project-uuid="projectUuid"
+      :result-row-uuid="caseDetailsStore.caseObj?.sodar_uuid"
+    />
 
     <v-snackbar-queue
       v-model="messages"

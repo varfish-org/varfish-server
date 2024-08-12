@@ -20,6 +20,8 @@ const props = defineProps<{
   hgncId?: string
   /** The case UUID (for navigation). */
   caseUuid?: string
+  /** Whether to hide the back button. */
+  hideBackButton?: boolean
 }>()
 
 /** Global router instance. */
@@ -58,6 +60,13 @@ const initStores = async () => {
   }
 }
 
+const jumpToSection = (sectionId: string) => {
+  const el = document.getElementById(sectionId)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 // Initialize when mounted and when props change.
 onMounted(initStores)
 watch(() => [props.seqvar, props.hgncId], initStores)
@@ -67,7 +76,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
   <div>
     <v-list v-model:opened="openedTopLevel" density="compact" rounded="lg">
       <!-- Navigate back in history -->
-      <div class="px-2 pb-3">
+      <div v-if="!props.hideBackButton" class="px-2 pb-3">
         <v-btn
           block
           rounded="xs"
@@ -116,7 +125,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
             :id="`${section.id}-nav`"
             :key="section.id"
             density="compact"
-            @click="router.push({ params: { selectedSection: section.id } })"
+            @click="jumpToSection(section.id)"
           >
             <v-list-item-title class="text-no-break">
               {{ section.title }}
@@ -150,7 +159,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
           :id="`${section.id}-nav`"
           :key="section.id"
           density="compact"
-          @click="router.push({ params: { selectedSection: section.id } })"
+          @click="jumpToSection(section.id)"
         >
           <v-list-item-title class="text-no-break">
             {{ section.title }}

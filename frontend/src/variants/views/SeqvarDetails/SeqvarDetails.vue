@@ -56,6 +56,8 @@ const props = defineProps<{
   resultRowUuid: string
   /** Identifier of the selected section. */
   selectedSection?: string
+  /** Hide back button */
+  hideBackButton?: boolean
 }>()
 
 // Store-related
@@ -213,6 +215,7 @@ onMounted(async () => {
                 :seqvar="seqvarInfoStore.seqvar"
                 :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId"
                 :case-uuid="variantResultSetStore.caseUuid ?? undefined"
+                :hide-back-button="props.hideBackButton"
               />
             </div>
           </v-col>
@@ -342,7 +345,7 @@ onMounted(async () => {
       <v-container v-else fluid class="pa-0">
         <v-row no-gutters>
           <v-col cols="12">
-            <v-progress-linear indeterminate color="primary" />
+            <v-progress-linear indeterminate color="blue-lighten-1" />
           </v-col>
         </v-row>
         <v-row no-gutters>

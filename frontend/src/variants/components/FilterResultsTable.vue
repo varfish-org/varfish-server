@@ -795,12 +795,12 @@ watch(
         <template #item-homozygous="{ sodar_uuid, payload }">
           <div
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
           >
             {{ displayHomozygousContent(payload) }}
           </div>
         </template>
-        <template #item-constraints="{ payload }">
+        <template #item-constraints="{ sodar_uuid, payload }">
           <div
             role="button"
             @click.prevent="showVariantDetails(sodar_uuid, 'gene-overview')"
