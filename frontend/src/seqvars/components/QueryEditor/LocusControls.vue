@@ -230,7 +230,7 @@ async function parseAndStore() {
   <v-dialog v-model="showDialog" max-width="600">
     <template #default>
       <v-card title="Edit Genes / Genome Regions">
-        <v-card-text style="display: flex; flex-direction: column; gap: 8px">
+        <v-card-text class="d-flex flex-column ga-2">
           <v-radio-group v-model="choice" inline :hide-details="true">
             <v-radio label="Gene list" value="genes" />
             <v-radio label="Genome regions" value="genome_regions" />

@@ -7,23 +7,26 @@ import IconDiamondFill from '~icons/bi/diamond-fill'
 import IconSquare from '~icons/bi/square'
 import IconSquareFill from '~icons/bi/square-fill'
 
-import { Affected, SexAssignedAtBirth } from './constants'
+import { Sex } from '@/cases/stores/caseDetails'
 
 type IconFC = FunctionalComponent<SVGAttributes>
 
-const ICONS: Record<SexAssignedAtBirth, [IconFC, IconFC]> = {
-  [SexAssignedAtBirth.MALE]: [IconSquare, IconSquareFill],
-  [SexAssignedAtBirth.FEMALE]: [IconCircle, IconCircleFill],
-  [SexAssignedAtBirth.UNDEFINED]: [IconDiamond, IconDiamondFill],
+const ICONS: Record<Sex, [IconFC, IconFC]> = {
+  ['male']: [IconSquare, IconSquareFill],
+  ['female']: [IconCircle, IconCircleFill],
+  ['unknown']: [IconDiamond, IconDiamondFill],
+  ['other']: [IconDiamond, IconDiamondFill],
 }
 
-export default defineComponent<{ sex: SexAssignedAtBirth; affected: Affected }>(
+export default defineComponent<{ sex?: Sex; affected?: boolean }>(
   ({ sex, affected }) => {
     return () =>
-      h(ICONS[sex][affected == Affected.UNAFFECTED ? 0 : 1], {
+      h(ICONS[sex ?? 'unknown'][affected !== true ? 0 : 1], {
         style: {
           'font-size': '0.6em',
-          ...(affected == Affected.UNDEFINED ? { color: 'gray' } : {}),
+          ...(['unknown', 'other'].includes(sex ?? 'unknown')
+            ? { color: 'gray' }
+            : {}),
         },
       })
   },

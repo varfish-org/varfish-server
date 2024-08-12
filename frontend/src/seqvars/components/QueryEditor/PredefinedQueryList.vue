@@ -44,9 +44,11 @@ const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
 )
 
 /** This component's events. */
-defineEmits<{
+const emit = defineEmits<{
   /** Create a query based on the predefined query. */
   addQuery: [preset: SeqvarsPredefinedQuery]
+  /** Revert modifications. */
+  revert: []
 }>()
 </script>
 
@@ -73,13 +75,7 @@ defineEmits<{
             query,
           )
         "
-        @revert="
-          () => {
-            if (selectedPredefinedQuery) {
-              selectedId = selectedPredefinedQuery.sodar_uuid
-            }
-          }
-        "
+        @revert="$emit('revert')"
       >
         {{
           presets.seqvarspredefinedquery_set.find(
@@ -100,7 +96,7 @@ defineEmits<{
             !matchesPredefinedQuery(pedigree, presets, pq, query)
           "
           @click="selectedId = pq.sodar_uuid"
-          @revert="selectedId = pq.sodar_uuid"
+          @revert="$emit('revert')"
         >
           <template #default>{{ pq.label }}</template>
           <template #extra>

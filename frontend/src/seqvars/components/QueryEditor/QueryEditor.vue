@@ -23,11 +23,9 @@ import PredefinedQueryList from '@/seqvars/components/QueryEditor/PredefinedQuer
 import PresetSummaryItem from '@/seqvars/components/QueryEditor/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import { Query } from '@/seqvars/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-import { getQueryLabel } from '@/seqvars/utils'
 import { PedigreeObj, useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { copy } from '@/varfish/helpers'
 
@@ -72,6 +70,11 @@ const queries = ref<Query[]>([])
 /** The index of the currently selected query; component state. */
 const selectedQueryIndex = ref<number | null>(null)
 
+/** Whether to show the query update dialog. */
+const showUpdateDialog = ref<boolean>(false)
+/** The query title in update dialog. */
+const updateDialogTitle = ref<string>('')
+
 /** The currently selected query; manages `selectedQueryIndex`. */
 const selectedQuery = computed<Query | null>({
   get() {
@@ -104,7 +107,10 @@ const selectedPredefinedQuery = computed(() =>
  *
  * @throws Error if there was a problem with creating the query.
  */
-const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
+const createQuery = (
+  pq: SeqvarsPredefinedQuery,
+  options?: { label?: string },
+): Query => {
   if (!pedigree.value) {
     throw new Error('Pedigree not available')
   }
@@ -129,8 +135,26 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
     }),
   ) as Pick<Query, (typeof GROUPS)[number]['id']> & Partial<Query>
   const choice = pq.genotype?.choice
+
+  let label
+  if (options?.label) {
+    label = options.label
+  } else {
+    label = pq.label
+    const queryLabels = queries.value.map((q) => q.label)
+    console.log('queryLabels', queryLabels, pq.label)
+    for (let i = 2; ; i++) {
+      if (queryLabels.includes(label)) {
+        label = `${pq.label} (${i})`
+      } else {
+        break
+      }
+    }
+  }
+
   return copy({
     ...presetFields,
+    label,
     predefinedquery: pq.sodar_uuid,
     genotype: createGenotypeFromPreset(pedigree.value, choice),
     genotypepresets: { choice },
@@ -168,13 +192,26 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
   )
   selectedQuery.value.genotypepresets = { choice }
 }
+
+/** Reverts the currently selected query to the given preset. */
+const revertQueryToPresets = async () => {
+  // try {
+  const pq = props.presetsDetails.seqvarspredefinedquery_set.find(
+    (p) => p.sodar_uuid === selectedQuery?.value?.predefinedquery,
+  )!
+  selectedQuery.value = createQuery(pq, { label: pq.label })
+  // } catch (e) {
+  //   console.error(e)
+  //   emit('message', {
+  //     text: 'Failed to revert query to presets.',
+  //     color: 'error',
+  //   })
+  // }
+}
 </script>
 
 <template>
-  <div
-    v-if="pedigree"
-    style="height: 100%; overflow-y: auto; overflow-x: hidden"
-  >
+  <div v-if="pedigree" class="h-100 overflow-y-auto overflow-x-hidden pr-2">
     <QueryList
       v-if="!!pedigree && queries.length > 0"
       :selected-index="selectedQueryIndex"
@@ -186,20 +223,11 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
         (index: number | null) => (selectedQueryIndex = index)
       "
       @remove="(index: number) => queries.splice(index, 1)"
-      @revert="
-        () => {
-          // try {
-          const pq = presetsDetails.seqvarspredefinedquery_set.find(
-            (p) => p.sodar_uuid === selectedQuery?.predefinedquery,
-          )!
-          selectedQuery = createQuery(pq)
-          // } catch (e) {
-          //   console.error(e)
-          //   emit('message', {
-          //     text: 'Failed to revert query to presets.',
-          //     color: 'error',
-          //   })
-          // }
+      @revert="revertQueryToPresets"
+      @updateQuery="
+        (index: number) => {
+          updateDialogTitle = queries.at(index)?.label ?? ''
+          showUpdateDialog = true
         }
       "
     />
@@ -218,7 +246,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
         v-for="(_query, index) in queries"
         :key="index"
         :variant="selectedQueryIndex === index ? 'tonal' : undefined"
-        :title="getQueryLabel({ presetsDetails, queries, index })"
+        :title="queries[index].label"
         :prepend-icon="'mdi-numeric-' + (index + 1) + '-box-outline'"
         @click="selectedQueryIndex = index"
       />
@@ -231,21 +259,23 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
       :query="selectedQuery"
       :pedigree="pedigree"
       @update:selected-id="
-        (id?: string) => {
-          // try {
-          const pq = presetsDetails.seqvarspredefinedquery_set.find(
-            (p) => p.sodar_uuid === id,
-          )!
-          selectedQuery = createQuery(pq)
-          // } catch (e) {
-          //   console.error(e)
-          //   emit('message', {
-          //     text: 'Failed to update query to presets.',
-          //     color: 'error',
-          //   })
-          // }
-        }
+        () => {}
+        // (id?: string) => {
+        //   // try {
+        //   const pq = presetsDetails.seqvarspredefinedquery_set.find(
+        //     (p) => p.sodar_uuid === id,
+        //   )!
+        //   selectedQuery = createQuery(pq)
+        //   // } catch (e) {
+        //   //   console.error(e)
+        //   //   emit('message', {
+        //   //     text: 'Failed to update query to presets.',
+        //   //     color: 'error',
+        //   //   })
+        //   // }
+        // }
       "
+      @revert="revertQueryToPresets"
       @add-query="
         (pq: SeqvarsPredefinedQuery) => {
           // try {
@@ -329,7 +359,7 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
             </Item>
           </div>
           <v-divider class="my-2" />
-          <GenotypeControls v-model="selectedQuery" />
+          <GenotypeControls v-model="selectedQuery" :pedigree="pedigree" />
         </template>
       </CollapsibleGroup>
 
@@ -408,7 +438,9 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
               {{ preset.label }}
             </Item>
           </div>
-          <Hr />
+
+          <v-divider class="my-2" />
+
           <component
             :is="group.Component"
             v-model="selectedQuery"
@@ -418,4 +450,58 @@ const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
       </CollapsibleGroup>
     </template>
   </div>
+
+  <!-- Dialog to update query. -->
+  <v-dialog v-model="showUpdateDialog" max-width="600">
+    <template #default>
+      <v-card>
+        <v-card-title class="d-flex justify-space-between align-center">
+          <div class="text-h5 text-medium-emphasis ps-2">
+            Update Query Title
+          </div>
+
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            @click="showUpdateDialog = false"
+          ></v-btn>
+        </v-card-title>
+        <v-divider class="mb-4"></v-divider>
+
+        <v-card-text>
+          <v-text-field
+            variant="outlined"
+            label="Query title"
+            v-model="updateDialogTitle"
+          />
+        </v-card-text>
+
+        <v-divider class="mt-2"></v-divider>
+        <v-card-actions class="my-2 d-flex justify-end">
+          <v-btn
+            class="text-none"
+            rounded="xl"
+            text="Cancel"
+            @click="showUpdateDialog = false"
+          ></v-btn>
+
+          <v-btn
+            class="text-none"
+            color="primary"
+            rounded="xl"
+            text="Send"
+            variant="flat"
+            @click="
+              () => {
+                if (selectedQuery !== null) {
+                  selectedQuery.label = updateDialogTitle
+                  showUpdateDialog = false
+                }
+              }
+            "
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </template>
+  </v-dialog>
 </template>

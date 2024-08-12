@@ -137,7 +137,6 @@ const maxExonDistance = computed<number | null | undefined>({
             v-model="maxExonDistance"
             density="compact"
             variant="outlined"
-            size="small"
             hide-details
             class="exon-distance-text-field"
           />
@@ -170,7 +169,6 @@ const maxExonDistance = computed<number | null | undefined>({
         :hide-details="true"
         color="primary"
         density="compact"
-        style="font-size: var(--font-size-sm)"
         :model-value="model.consequence.transcript_types?.includes(key)"
         @update:model-value="
           toggleArrayElement(model.consequence.transcript_types, key)
@@ -190,7 +188,6 @@ const maxExonDistance = computed<number | null | undefined>({
             color="primary"
             :hide-details="true"
             density="compact"
-            style="font-size: var(--font-size-sm)"
             :model-value="model.consequence.variant_consequences?.includes(key)"
             @update:model-value="
               toggleArrayElement(model.consequence.variant_consequences, key)
@@ -211,6 +208,6 @@ const maxExonDistance = computed<number | null | undefined>({
   padding-top: 6px !important;
   padding-left: 6px !important;
   padding-right: 6px !important;
-  max-width: 40px;
+  max-width: 60px;
 }
 </style>

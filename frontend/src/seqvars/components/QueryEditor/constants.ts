@@ -24,7 +24,7 @@ export type PedigreeInheritanceMode = Record<Pedigree, SeqvarsGenotypeChoice>
 export const GENOTYPE_PRESET_TO_RECESSIVE_MODE = {
   de_novo: 'disabled',
   dominant: 'disabled',
-  homozygous_recessive: 'disabled',
+  homozygous_recessive: 'homozygous_recessive',
   affected_carriers: 'disabled',
   any: 'disabled',
   compound_heterozygous_recessive: 'comphet_recessive',

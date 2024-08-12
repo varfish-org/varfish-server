@@ -246,8 +246,8 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                 </Item>
               </div>
 
-              <Hr />
-              <GenotypeControls v-model="selectedQuery" />
+              <v-divider class="my-2" />
+              <GenotypeControls v-model="selectedQuery" :pedigree="pedigree" />
             </template>
           </CollapsibleGroup>
 
@@ -301,7 +301,7 @@ const setGenotypeToPreset = (choice: SeqvarsGenotypePresetChoice) => {
                   {{ preset.label }}
                 </Item>
               </div>
-              <Hr />
+              <v-divider class="my-2" />
               <component :is="group.Component" v-model="selectedQuery" />
             </template>
           </CollapsibleGroup>

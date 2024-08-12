@@ -1,118 +1,163 @@
 <script setup lang="ts">
-import isEqual from 'fast-deep-equal/es6'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
-import {
-  SeqvarsGenotypeChoice,
-  SeqvarsSampleGenotypePydanticList,
-} from '@varfish-org/varfish-api/lib'
-
-import CheckButton from '../QueryEditor/ui/CheckButton.vue'
+import { SeqvarsGenotypeChoice } from '@varfish-org/varfish-api/lib'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
-    /** Any legend to display. */
-    legend: string
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-enum InheritanceMode {
-  WILD_TYPE = 'wild-type',
-  HET_ALT = 'het. alt.',
-  HOM_ALT = 'hom. alt.',
-  NO_CALL = 'no call',
-}
-
-const model = defineModel<SeqvarsSampleGenotypePydanticList[number]>({
+/** Model for "include no-call". */
+const includeNoCall = defineModel<boolean | undefined>('includeNoCall')
+/** Model for "genotype". */
+const genotype = defineModel<SeqvarsGenotypeChoice>('genotype', {
   required: true,
 })
 
-const { WILD_TYPE, HET_ALT, HOM_ALT } = InheritanceMode
+/**
+ * Stores value before "any" is selected for 'click any when already selected'
+ * behaviour; component state. */
+const genotypeBeforeAny = ref<SeqvarsGenotypeChoice>('ref')
 
-type GenotypeKey = Exclude<
-  SeqvarsGenotypeChoice,
-  'recessive_index' | 'recessive_father' | 'recessive_mother'
->
-type Modes = typeof WILD_TYPE | typeof HET_ALT | typeof HOM_ALT
-const GENOTYPE_TO_INHERITANCE_MODE = {
-  any: [WILD_TYPE, HET_ALT, HOM_ALT],
-  ref: [WILD_TYPE],
-  het: [HET_ALT],
-  hom: [HOM_ALT],
-  non_hom: [WILD_TYPE, HET_ALT],
-  variant: [HET_ALT, HOM_ALT],
-  non_het: [WILD_TYPE, HOM_ALT],
-} satisfies Record<GenotypeKey, Modes[]>
-const modes = computed({
+/** The items displayed in the button group. */
+type Item = 'any' | 'ref' | 'het' | 'hom' | 'no_call'
+
+/** Provide a `Items[]` interface for managing `model.value.genotype`. */
+const items = computed<Item[]>({
   get() {
-    const { genotype } = model.value
-    return new Set(
-      genotype in GENOTYPE_TO_INHERITANCE_MODE
-        ? GENOTYPE_TO_INHERITANCE_MODE[genotype as GenotypeKey]
-        : [],
-    )
+    const result: Item[] = includeNoCall.value ? ['no_call'] : []
+    switch (genotype.value) {
+      case 'any':
+        result.push(...(['any', 'ref', 'het', 'hom'] as Item[]))
+        break
+      case 'ref':
+        result.push(...(['ref'] as Item[]))
+        break
+      case 'het':
+        result.push(...(['het'] as Item[]))
+        break
+      case 'hom':
+        result.push(...(['hom'] as Item[]))
+        break
+      case 'non_het':
+        result.push(...(['ref', 'hom'] as Item[]))
+        break
+      case 'non_hom':
+        result.push(...(['ref', 'het'] as Item[]))
+        break
+      case 'variant':
+        result.push(...(['het', 'hom'] as Item[]))
+        break
+      case 'recessive_index':
+      case 'recessive_father':
+      case 'recessive_mother':
+      default:
+        throw new Error(`Invalid genotype value: ${genotype.value}`)
+    }
+    return result
   },
-  set(value) {
-    const entry = Object.entries(GENOTYPE_TO_INHERITANCE_MODE).find(([, m]) =>
-      isEqual(new Set(m), value),
-    )
-    if (entry) {
-      model.value.genotype = entry[0] as SeqvarsGenotypeChoice
+  set(values) {
+    // Obtain sorted copy of array.
+    let tmp = Array.from(values)
+    tmp.sort()
+    // Check for `no_call` and remove from array.
+    includeNoCall.value = tmp.includes('no_call')
+    tmp = tmp.filter((i) => i !== 'no_call')
+    // Pop `any` if it is present.
+    const hasAny = tmp.includes('any')
+    tmp = tmp.filter((i) => i !== 'any')
+
+    const joint = tmp.join('+')
+    switch (joint) {
+      case 'het+hom+ref':
+        genotype.value = 'any'
+        break
+      case 'ref':
+        genotype.value = 'ref'
+        break
+      case 'het':
+        genotype.value = 'het'
+        break
+      case 'hom':
+        genotype.value = 'hom'
+        break
+      case 'hom+ref':
+        genotype.value = 'non_het'
+        break
+      case 'het+ref':
+        genotype.value = 'non_hom'
+        break
+      case 'het+hom':
+        genotype.value = 'variant'
+        break
+      case '': // do not allow to deselect all
+        break
+      default:
+        throw new Error(`Invalid genotype value: ${joint}`)
     }
   },
 })
-
-const toggleModes = (key: Modes) => {
-  const newModes = new Set(modes.value)
-  if (newModes.has(key)) {
-    newModes.delete(key)
-  } else {
-    newModes.add(key)
-  }
-  modes.value = newModes
-}
-
-const ANY_ITEMS_WITH_LABELS = [
-  [WILD_TYPE, '0/0'],
-  [HET_ALT, '1/0'],
-  [HOM_ALT, '1/1'],
-] satisfies [InheritanceMode, string][]
 </script>
 
 <template>
-  <fieldset style="display: flex; gap: 8px">
-    <legend style="display: none">{{ props.legend }}</legend>
-    <div style="display: flex; gap: 4px">
-      <CheckButton
-        :model-value="model.genotype == 'any'"
-        @update:model-value="
-          modes = new Set(
-            model.genotype == 'any'
-              ? [...modes].filter(
-                  (i) => !ANY_ITEMS_WITH_LABELS.some(([item]) => item === i),
-                )
-              : [...modes, ...ANY_ITEMS_WITH_LABELS.map(([item]) => item)],
-          )
+  <div class="w-100 d-flex pt-1">
+    <v-btn-toggle
+      multiple
+      color="primary"
+      variant="outlined"
+      divided
+      density="default"
+      v-model="items"
+    >
+      <v-btn
+        icon
+        title="any"
+        value="any"
+        class="pa-0"
+        @click.stop="
+          () => {
+            if (genotype === 'any') {
+              genotype = genotypeBeforeAny
+            } else {
+              genotype = 'any'
+            }
+          }
+        "
+        @click.capture="
+          () => {
+            if (genotype != 'any') {
+              genotypeBeforeAny = genotype
+            }
+          }
         "
       >
         any
-      </CheckButton>
+      </v-btn>
+      <v-btn icon title="wt / ref" value="ref" class="pa-0"> 0/0 </v-btn>
+      <v-btn icon title="het." value="het" class="pa-0"> 0/1 </v-btn>
+      <v-btn icon title="hom. / hemi. alt" value="hom" class="pa-0">
+        1/1
+      </v-btn>
+    </v-btn-toggle>
 
-      <CheckButton
-        v-for="[key, label] in ANY_ITEMS_WITH_LABELS"
-        :key="key"
-        :model-value="modes.has(key)"
-        @update:model-value="toggleModes(key)"
-      >
-        {{ label }}
-      </CheckButton>
-    </div>
-
-    <CheckButton v-model="model.include_no_call">no call</CheckButton>
-  </fieldset>
+    <v-btn-toggle
+      multiple
+      color="primary"
+      variant="outlined"
+      divided
+      density="default"
+      v-model="items"
+      class="ml-3 mb-2"
+    >
+      <v-btn icon title="allow no call" value="no_call" class="pa-0">
+        ./.
+      </v-btn>
+    </v-btn-toggle>
+  </div>
 </template>

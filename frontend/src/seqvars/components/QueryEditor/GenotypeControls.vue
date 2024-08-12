@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { RecessiveModeEnum } from '@varfish-org/varfish-api/lib'
 import { Query } from '@/seqvars/types'
 
-import { Affected, SexAssignedAtBirth } from './constants'
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import RecessiveControls from './RecessiveControls.vue'
 import SexAffectedIcon from './SexAffectedIcon'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The pedigree of the case that is analyzed. */
+    pedigree: PedigreeObj
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
@@ -20,12 +24,6 @@ const props = withDefaults(
 )
 
 const model = defineModel<Query>({ required: true })
-
-const AFFECTED_STATUSES = [
-  Affected.AFFECTED,
-  Affected.UNAFFECTED,
-  Affected.UNDEFINED,
-]
 
 const recessiveMode = computed<RecessiveModeEnum>({
   get: () => model.value.genotype.recessive_mode ?? 'disabled',
@@ -53,23 +51,105 @@ const RECESSIVE_MODE_ITEMS: { title: string; value: RecessiveModeEnum }[] = [
     value: 'recessive',
   },
 ]
+
+/** Coerce genotypes skipping the given sample name. */
+const coerceRecessiveMarkers = async (skipSample: string) => {
+  const seen = new Set<string>()
+  if (model.value.genotype.sample_genotype_choices !== undefined) {
+    for (const choice of model.value.genotype.sample_genotype_choices) {
+      if (choice.sample === skipSample) {
+        seen.add(choice.genotype)
+        break
+      }
+    }
+  }
+  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+    if (choice.sample !== skipSample) {
+      if (seen.has(choice.genotype)) {
+        choice.genotype = 'any'
+      }
+      seen.add(choice.genotype)
+    }
+  }
+}
+
+/**
+ * Resets the recessive marker genotypes to non-recessive value "any".
+ *
+ * Must be called when switching to "disabled" recessive mode as the recessive
+ * role markers are not valid as genotypes.
+ */
+const resetRecessiveMarkersToGenotypes = async () => {
+  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+    if (
+      ['recessive_index', 'recessive_father', 'recessive_mother'].includes(
+        choice.genotype,
+      )
+    ) {
+      choice.genotype = 'any'
+    }
+  }
+}
+
+/**
+ * Resets the genotypes to value "any"
+ *
+ * The opposite of `resetRecessiveMarkersToGenotypes()`.
+ */
+const resetGenotypesToRecessiveMarkers = async () => {
+  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+    if (
+      !['recessive_index', 'recessive_father', 'recessive_mother'].includes(
+        choice.genotype,
+      )
+    ) {
+      choice.genotype = 'any'
+    }
+  }
+}
+
+watch(
+  () => recessiveMode.value,
+  async (newValue, oldValue) => {
+    if (oldValue !== 'disabled' && newValue === 'disabled') {
+      await resetRecessiveMarkersToGenotypes()
+    } else if (oldValue === 'disabled' && newValue !== 'disabled') {
+      await resetGenotypesToRecessiveMarkers()
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
-    <v-select
-      v-model="recessiveMode"
-      label="Recessive Mode"
-      density="compact"
-      variant="outlined"
-      :hide-details="true"
-      :items="RECESSIVE_MODE_ITEMS"
-    />
+  <div class="w-100 d-flex flex-column ga-2">
+    <CollapsibleGroup
+      title="Recessive Mode"
+      :hints-enabled="hintsEnabled"
+      hint="To find biallelic variants beyond homozygous ones in the index, you can use one of the recessive modes."
+      :summary="
+        RECESSIVE_MODE_ITEMS.find((item) => item.value === recessiveMode)
+          ?.title ?? 'NONE'
+      "
+    >
+      <template #default>
+        <Item
+          v-for="(item, index) in RECESSIVE_MODE_ITEMS"
+          :key="index"
+          :selected="recessiveMode === item.value"
+          @click="() => (recessiveMode = item.value)"
+        >
+          {{ item.title }}
+        </Item>
+      </template>
+    </CollapsibleGroup>
+
+    <v-divider class="pb-1" />
 
     <div
       v-for="(choice, index) in model.genotype.sample_genotype_choices"
       :key="index"
-      style="display: flex; flex-direction: row; align-items: start; gap: 4px"
+      class="w-100 d-flex flex-row align-start ga-2"
     >
       <input
         :id="choice.sample"
@@ -77,7 +157,11 @@ const RECESSIVE_MODE_ITEMS: { title: string; value: RecessiveModeEnum }[] = [
         type="checkbox"
         style="margin-top: 6px"
       />
-      <div style="display: flex; flex-direction: column">
+
+      <div
+        class="w-100 d-flex flex-column"
+        v-if="choice !== undefined && choice.genotype !== undefined"
+      >
         <label
           :for="choice.sample"
           style="margin-bottom: 0; display: flex; align-items: center; gap: 8px"
@@ -85,26 +169,31 @@ const RECESSIVE_MODE_ITEMS: { title: string; value: RecessiveModeEnum }[] = [
 
           <SexAffectedIcon
             :sex="
-              choice.sample === 'father'
-                ? SexAssignedAtBirth.MALE
-                : choice.sample === 'mother'
-                  ? SexAssignedAtBirth.FEMALE
-                  : SexAssignedAtBirth.UNDEFINED
+              pedigree.individual_set.find(
+                (sample) => sample.name === choice.sample,
+              )?.sex
             "
-            :affected="AFFECTED_STATUSES[(Math.random() * 3) | 0]"
+            :affected="
+              pedigree.individual_set.find(
+                (sample) => sample.name === choice.sample,
+              )?.affected
+            "
           />
         </label>
 
         <InheritanceModeControls
           v-if="recessiveMode === 'disabled'"
-          v-model="model.genotype.sample_genotype_choices![index]"
-          :legend="choice.sample"
+          v-model:genotype="choice.genotype"
+          v-model:include-no-call="choice.include_no_call"
         />
+
         <RecessiveControls
           v-else-if="model.genotype.sample_genotype_choices"
-          v-model="model.genotype.sample_genotype_choices!"
+          v-model:genotype="choice.genotype"
+          v-model:include-no-call="choice.include_no_call"
           :index="index"
           :sample-name="choice.sample"
+          @update-genotype="() => coerceRecessiveMarkers(choice.sample)"
         />
       </div>
     </div>

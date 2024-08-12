@@ -3,7 +3,9 @@ import {
   SeqvarsGenotypeChoice,
   SeqvarsSampleGenotypePydanticList,
 } from '@varfish-org/varfish-api/lib'
+import { computed } from 'vue'
 
+/** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
@@ -19,37 +21,78 @@ const props = withDefaults(
   },
 )
 
-const model = defineModel<SeqvarsSampleGenotypePydanticList>({ required: true })
+/** This component's emit. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  /** Update the genotype for the sample. */
+  updateGenotype: [sample: string, genotype: SeqvarsGenotypeChoice]
+}>()
 
-/** Mapping from label to genotype choice. */
-const ITEMS = {
-  any: 'any',
-  index: 'recessive_index',
-  mother: 'recessive_mother',
-  father: 'recessive_father',
-} satisfies Record<string, SeqvarsGenotypeChoice>
+/** The items displayed in the button group. */
+type Item = 'any' | 'recessive_index' | 'recessive_mother' | 'recessive_father'
+
+/** Model for "include no-call". */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const includeNoCall = defineModel<boolean | undefined>('includeNoCall')
+/** Model for "genotype". */
+const genotype = defineModel<SeqvarsGenotypeChoice>('genotype', {
+  required: true,
+})
+
+/** Provide a `Items` interface for managing `model.value.genotype`. */
+const items = computed<Item>({
+  get() {
+    switch (genotype.value) {
+      case 'any':
+        return 'any'
+      case 'recessive_index':
+      case 'recessive_father':
+      case 'recessive_mother':
+        return genotype.value
+      case 'ref':
+      case 'het':
+      case 'hom':
+      case 'non_het':
+      case 'non_hom':
+      case 'variant':
+      default:
+        throw new Error(`Invalid genotype value: ${genotype.value}`)
+    }
+  },
+  set(value) {
+    genotype.value = value
+    emit('updateGenotype', props.sampleName, value)
+  },
+})
 </script>
 
 <template>
-  <v-select
-    :model-value="
-      Object.entries(ITEMS).find(([, v]) => v === model[index].genotype)?.[0] ??
-      'any'
-    "
-    :items="Object.keys(ITEMS)"
-    :label="`for &quot;${sampleName}&quot;`"
-    hide-details
-    density="compact"
-    variant="outlined"
-    @update:model-value="
-      (v: string) => {
-        const value = v as keyof typeof ITEMS
-        if (value != 'any') {
-          const el = model.find((m) => m.genotype === ITEMS[value])
-          if (el) el.genotype = 'any'
-        }
-        model[index].genotype = ITEMS[value]
-      }
-    "
-  />
+  <div class="w-100 d-flex pt-1">
+    <v-btn-toggle
+      color="primary"
+      variant="outlined"
+      divided
+      density="default"
+      v-model="items"
+    >
+      <v-btn title="index" value="recessive_index" class="px-1"> index </v-btn>
+      <v-btn title="father" value="recessive_father" class="px-1">
+        father
+      </v-btn>
+      <v-btn title="mother" value="recessive_mother" class="px-1">
+        mother
+      </v-btn>
+    </v-btn-toggle>
+
+    <v-btn-toggle
+      color="primary"
+      variant="outlined"
+      divided
+      density="default"
+      v-model="items"
+      class="ml-3"
+    >
+      <v-btn title="any" value="any" class="px-1"> any </v-btn>
+    </v-btn-toggle>
+  </div>
 </template>

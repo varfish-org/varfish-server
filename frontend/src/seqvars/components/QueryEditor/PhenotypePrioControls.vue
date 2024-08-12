@@ -49,31 +49,39 @@ async function onSearch(query: string) {
 </script>
 
 <template>
-  <label style="display: flex; max-width: 260px">
-    <v-checkbox-btn v-model="model.phenotypeprio.phenotype_prio_enabled" />
-    Enable phenotype-based priorization</label
-  >
+  <v-checkbox
+    v-model="model.phenotypeprio.phenotype_prio_enabled"
+    density="compact"
+    label="Enable phenotype-based priorization"
+    color="primary"
+    hide-details
+    class="my-2"
+  />
 
   <CollapsibleGroup
     v-model:is-open="detailsOpen"
     title="Phenotype similarity algorithm"
-    :summary="selectedItem"
   >
-    <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
-      <div
-        role="listbox"
-        style="width: 100%; display: flex; flex-direction: column"
-      >
-        <Item
-          v-for="(label, key) in ITEMS"
-          :key="key"
-          :selected="model.phenotypeprio.phenotype_prio_algorithm == key"
-          @click="() => (model.phenotypeprio.phenotype_prio_algorithm = key)"
+    <template #summary>
+      {{ selectedItem }}
+    </template>
+    <template #default>
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
+        <div
+          role="listbox"
+          style="width: 100%; display: flex; flex-direction: column"
         >
-          {{ label }}
-        </Item>
+          <Item
+            v-for="(label, key) in ITEMS"
+            :key="key"
+            :selected="model.phenotypeprio.phenotype_prio_algorithm == key"
+            @click="() => (model.phenotypeprio.phenotype_prio_algorithm = key)"
+          >
+            {{ label }}
+          </Item>
+        </div>
       </div>
-    </div>
+    </template>
   </CollapsibleGroup>
 
   <SelectBox

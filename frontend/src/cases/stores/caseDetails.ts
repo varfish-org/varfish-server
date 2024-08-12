@@ -51,6 +51,15 @@ export type CaseSvAnnotationReleaseInfos = any
 /** Alias definition of GenotypeMapping type; to be defined later. */
 export type GenotypeMapping = any
 
+/** Type for the sex of an individual. */
+export type Sex = 'unknown' | 'male' | 'female' | 'other'
+
+/** Type for the karyotypic sex of an individual. */
+export type KaryotypicSex = 'unknown' | 'XX' | 'XY' | 'other'
+
+/** Type for an assay. */
+export type Assay = 'wgs' | 'wes' | 'panel_seq'
+
 /** Type for the individuals in PedigreeObj */
 export interface Individual {
   sodar_uuid: string
@@ -60,10 +69,10 @@ export interface Individual {
   name: string
   father?: string | null
   mother?: string | null
-  sex: 'unknown' | 'male' | 'female' | 'other'
-  karyotypic_sex: 'unknown' | 'XX' | 'XY' | 'other'
+  sex: Sex
+  karyotypic_sex: KaryotypicSex
   affected: boolean
-  assay: 'wgs' | 'wes' | 'panel_seq'
+  assay: Assay
 }
 
 /** Type for the pedigree_obj member */

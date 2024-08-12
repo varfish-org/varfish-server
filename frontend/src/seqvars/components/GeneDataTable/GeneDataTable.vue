@@ -4,7 +4,6 @@ import { ref } from 'vue'
 
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { Query } from '@/seqvars/types'
-import { getQueryLabel } from '@/seqvars/utils'
 
 import data from './fixture.GeneDataTable.json'
 
@@ -112,7 +111,7 @@ async function fakeLoadItems({
   >
     <div>
       #{{ props.selectedQueryIndex + 1 }}
-      {{ getQueryLabel({ ...props, index: props.selectedQueryIndex }) }}
+      {{ props.queries[props.selectedQueryIndex].label }}
     </div>
     <v-dialog max-width="500">
       <template #activator="{ props: activatorProps }">

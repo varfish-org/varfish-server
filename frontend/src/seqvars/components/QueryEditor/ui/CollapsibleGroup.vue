@@ -6,6 +6,7 @@ const props = withDefaults(
     title: string
     hintsEnabled?: boolean
     hint?: string
+    summary?: string
   }>(),
   { hintsEnabled: false },
 )
@@ -30,13 +31,17 @@ const isOpen = defineModel<boolean>('isOpen', { default: true })
       ></v-icon>
       <div style="display: flex; flex-direction: column; width: 100%">
         <div class="group-title" style="margin-top: 1px">
-          {{ props.title }}
-          <span v-if="hintsEnabled && hint" class="ml-auto">
-            <HintButton :text="hint" size="x-small" />
-          </span>
+          <slot name="title">
+            {{ props.title }}
+            <span v-if="hintsEnabled && hint" class="ml-auto">
+              <HintButton :text="hint" size="x-small" />
+            </span>
+          </slot>
         </div>
         <div v-if="!isOpen">
-          <slot name="summary" />
+          <slot name="summary">
+            {{ props.summary }}
+          </slot>
         </div>
       </div>
     </summary>
