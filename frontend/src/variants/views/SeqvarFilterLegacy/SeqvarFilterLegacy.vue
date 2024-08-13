@@ -11,10 +11,12 @@ import { useProjectStore } from '@/cases/stores/project/store'
 import { useCtxStore } from '@/varfish/stores/ctx'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   /** The project UUID. */
-  projectUuid?: string
+  projectUuid: string
   /** The case UUID. */
   caseUuid?: string
 }>()
@@ -22,8 +24,12 @@ const props = defineProps<{
 const caseListStore = useCaseListStore()
 const projectStore = useProjectStore()
 
-// Whether to hide the navigation bar; component state.
+/** Whether to hide the navigation bar; component state. */
 const navbarShown = ref<boolean>(true)
+/** Whether to hide the variant details pane; component state. */
+const detailsShown = ref<boolean>(false)
+/** Whether to open the details in details sheet; component state. */
+const detailsInSheet = ref<boolean>(false)
 
 const filterFormVisible = ref<boolean>(true)
 const logsVisible = ref<boolean>(false)
@@ -41,6 +47,8 @@ watch(
     projectStore.initialize(newValue)
   },
 )
+
+const router = useRouter()
 
 const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -74,6 +82,30 @@ const toggleFiltrationComplexityMode = () => {
     case 'dev':
       variantQueryStore.filtrationComplexityMode = 'simple'
       break
+  }
+}
+
+const resultRowUuid = ref<string | null>(null)
+const selectedSection = ref<string | null>(null)
+
+const showDetails = async (event: {
+  smallvariantresultrow: string
+  selectedSection: string
+}) => {
+  // @ts-ignore
+  variantQueryStore.lastPosition = document.querySelector('div#app').scrollTop
+  if (detailsInSheet.value) {
+    detailsShown.value = true
+    resultRowUuid.value = event.smallvariantresultrow
+    selectedSection.value = event.selectedSection ?? null
+  } else {
+    router.push({
+      name: 'seqvar-details',
+      params: {
+        row: event.smallvariantresultrow,
+        selectedSection: event.selectedSection ?? null,
+      },
+    })
   }
 }
 
@@ -138,9 +170,16 @@ onMounted(() => {
     <v-main>
       <TheAppBar
         v-model:show-left-panel="navbarShown"
+        v-model:show-right-panel="detailsShown"
         :show-left-panel-button="true"
-        :show-right-panel-button="false"
+        :show-right-panel-button="true"
+        :title="
+          caseDetailsStore.caseObj?.name
+            ? `VarFish - ${caseDetailsStore.caseObj?.name}`
+            : undefined
+        "
       />
+
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"
@@ -186,6 +225,12 @@ onMounted(() => {
         >
           <template v-if="navbarShown"> Toggle Logs </template>
         </v-list-item>
+        <v-list-item
+          :prepend-icon="`mdi-window-${detailsInSheet ? 'restore' : 'maximize'}`"
+          @click="detailsInSheet = !detailsInSheet"
+        >
+          <template v-if="navbarShown"> Toggle Details Sheet </template>
+        </v-list-item>
         <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
           <template v-if="navbarShown"> Filter: Defaults </template>
         </v-list-item>
@@ -209,6 +254,14 @@ onMounted(() => {
         v-model:query-logs-visible="logsVisible"
         :project-uuid="props.projectUuid"
         :case-uuid="props.caseUuid"
+        @variant-selected="showDetails"
+      />
+
+      <SeqvarDetails
+        v-if="resultRowUuid"
+        v-model:show-sheet="detailsShown"
+        :project-uuid="props.projectUuid"
+        :result-row-uuid="resultRowUuid ?? ''"
       />
     </v-main>
   </v-app>
