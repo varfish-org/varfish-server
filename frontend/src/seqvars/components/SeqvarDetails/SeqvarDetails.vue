@@ -22,7 +22,7 @@ const props = defineProps<{
     location="right"
     temporary
     :scrim="false"
-    resizable
+    :resizable="true"
     save-width
     touchless
     min-width="200px"
@@ -41,9 +41,7 @@ const props = defineProps<{
             :class="{ 'pin-icon-rotate': !pinned }"
           />
         </v-btn> -->
-        <v-btn icon="" size="small" @click="showSheet = false">
-          <v-icon icon="mdi-close" />
-        </v-btn>
+        <v-btn icon="mdi-close" size="small" @click="showSheet = false" />
       </div>
     </template>
     <v-divider></v-divider>

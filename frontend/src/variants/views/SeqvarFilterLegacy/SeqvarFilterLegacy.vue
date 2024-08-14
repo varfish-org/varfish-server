@@ -225,12 +225,12 @@ onMounted(() => {
         >
           <template v-if="navbarShown"> Toggle Logs </template>
         </v-list-item>
-        <!-- <v-list-item
+        <v-list-item
           :prepend-icon="`mdi-window-${detailsInSheet ? 'restore' : 'maximize'}`"
           @click="detailsInSheet = !detailsInSheet"
         >
           <template v-if="navbarShown"> Toggle Details Sheet </template>
-        </v-list-item> -->
+        </v-list-item>
         <v-list-item v-if="!presetSetUuid" prepend-icon="mdi-factory" link>
           <template v-if="navbarShown"> Filter: Defaults </template>
         </v-list-item>
