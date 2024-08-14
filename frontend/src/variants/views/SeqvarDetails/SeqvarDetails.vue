@@ -96,7 +96,7 @@ const seqvar = computed<Seqvar | undefined>(() => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
-  if (props.resultRowUuid && props.selectedSection) {
+  if (props.resultRowUuid) {
     await variantResultSetStore.initialize()
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
     if (!variantResultSetStore.caseUuid) {
@@ -160,11 +160,8 @@ watch(
 watch(
   () => [
     variantResultSetStore.storeState.state,
-    pubtatorStore.storeState,
     geneInfoStore.storeState,
     seqvarInfoStore.storeState,
-    variantAcmgRatingStore.storeState.state,
-    // exclude variantCommentsStore because it triggers a reload cycle
     variantDetailsStore.storeState.state,
   ],
   () => {
@@ -173,12 +170,9 @@ watch(
     const completeStates = [State.Active, State.Error]
     if (
       completeStates.includes(variantResultSetStore.storeState.state) &&
-      completeStoreStates.includes(pubtatorStore.storeState) &&
       completeStoreStates.includes(geneInfoStore.storeState) &&
       completeStoreStates.includes(seqvarInfoStore.storeState) &&
-      completeStates.includes(variantAcmgRatingStore.storeState.state) &&
       completeStates.includes(variantDetailsStore.storeState.state)
-      // exclude variantCommentsStore because it triggers a reload cycle
     ) {
       storesLoading.value = false
       setTimeout(() => {
