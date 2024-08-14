@@ -96,6 +96,8 @@ const seqvar = computed<Seqvar | undefined>(() => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
+  console.log('Refreshing stores')
+  console.log(props.resultRowUuid)
   if (props.resultRowUuid) {
     await variantResultSetStore.initialize()
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
@@ -153,6 +155,7 @@ const refreshStores = async () => {
 watch(
   () => props.resultRowUuid,
   async () => {
+    console.log('watch: resultRowUuid changed')
     await refreshStores()
   },
 )
@@ -168,6 +171,10 @@ watch(
     storesLoading.value = true
     const completeStoreStates = [StoreState.Active, StoreState.Error]
     const completeStates = [State.Active, State.Error]
+    console.log('1', variantResultSetStore.storeState.state)
+    console.log('2', geneInfoStore.storeState)
+    console.log('3', seqvarInfoStore.storeState)
+    console.log('4', variantDetailsStore.storeState.state)
     if (
       completeStates.includes(variantResultSetStore.storeState.state) &&
       completeStoreStates.includes(geneInfoStore.storeState) &&
@@ -194,6 +201,7 @@ watch(
 /** When mounted, scroll to the selected element if any.
  */
 onMounted(async () => {
+  console.log('On mounted')
   await refreshStores()
 })
 </script>
