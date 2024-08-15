@@ -334,6 +334,7 @@ def run_sv_query_bg_job(pk):  # noqa: C901
 
         # Dump the SVs to a TSV file for processing by the worker
         filter_job.add_log_entry("Dumping SVs and query to temporary files ...")
+        os.makedirs(tmpdir, exist_ok=True)
         with open(os.path.join(tmpdir, "query.json"), "wt") as outputf:
             # Replace empty value strings by None, works around issue with empty string
             # rather than numbers.
@@ -486,9 +487,9 @@ def run_sv_query_bg_job(pk):  # noqa: C901
         filter_job.add_log_entry("... done creating result set and importing worker results")
 
     try:
-        with TemporaryDirectory() as tmpdir:
-            with filter_job.marks():
-                _inner(tmpdir)
+        tmpdir = "/tmp/debug/{}".format(uuid.uuid4())
+        with filter_job.marks():
+            _inner(tmpdir)
     except Exception as e:  # generic failure
         query_model.query_state = SvQuery.QueryState.FAILED
         query_model.query_state_msg = str(e)
