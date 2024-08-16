@@ -142,7 +142,6 @@ const createQuery = (
   } else {
     label = pq.label
     const queryLabels = queries.value.map((q) => q.label)
-    console.log('queryLabels', queryLabels, pq.label)
     for (let i = 2; ; i++) {
       if (queryLabels.includes(label)) {
         label = `${pq.label} (${i})`
@@ -300,6 +299,23 @@ const revertQueryToPresets = async () => {
         title="Genotype"
         :hints-enabled="hintsEnabled"
         hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
+        :modified="
+          !!selectedPredefinedQuery?.genotype?.choice &&
+          !!selectedQuery?.genotypepresets?.choice &&
+          selectedQuery?.genotypepresets?.choice !=
+            selectedPredefinedQuery?.genotype?.choice
+        "
+        @revert="
+          () => {
+            if (
+              !!selectedPredefinedQuery?.genotype &&
+              !!selectedQuery?.genotypepresets?.choice
+            ) {
+              selectedPredefinedQuery.genotype.choice =
+                selectedQuery.genotypepresets?.choice
+            }
+          }
+        "
         :summary="
           selectedQuery.genotypepresets?.choice
             ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
@@ -311,7 +327,7 @@ const revertQueryToPresets = async () => {
         <template v-if="selectedQuery.genotypepresets?.choice" #summary>
           <Item
             :modified="
-              selectedPredefinedQuery &&
+              !!selectedPredefinedQuery &&
               !matchesGenotypePreset(
                 pedigree,
                 selectedQuery.genotypepresets?.choice,
@@ -374,6 +390,22 @@ const revertQueryToPresets = async () => {
             (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
           )?.label
         "
+        :modified="
+          !!selectedPredefinedQuery?.[group.id] &&
+          presetsDetails[group.presetSetKey].find(
+            (p) => p.sodar_uuid === selectedQuery?.[group.queryPresetKey],
+          )?.sodar_uuid !== selectedPredefinedQuery?.[group.id]
+        "
+        @revert="
+          () => {
+            const preset = presetsDetails[group.presetSetKey].find(
+              (p) => p.sodar_uuid === selectedPredefinedQuery?.[group.id],
+            )
+            if (!!pedigree && !!preset) {
+              revertToPresets(pedigree, group, preset)
+            }
+          }
+        "
       >
         <template #summary>
           <PresetSummaryItem
@@ -388,7 +420,7 @@ const revertQueryToPresets = async () => {
             "
             @revert="
               (preset: any) => {
-                if (pedigree) {
+                if (!!pedigree) {
                   revertToPresets(pedigree, group, preset)
                 }
               }

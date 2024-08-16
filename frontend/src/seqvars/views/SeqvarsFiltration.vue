@@ -30,6 +30,7 @@ import SidebarCollapseIcon from '@/seqvars/components/QueryEditor/ui/SidebarColl
 import SidebarExpandIcon from '@/seqvars/components/QueryEditor/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
+import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
 
 const { presetsDetails, pedigree } = defineProps<{
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
@@ -87,6 +88,7 @@ const createQuery = (pq: SeqvarsPredefinedQuery): Query => {
   const choice = pq.genotype?.choice
   return copy({
     ...presetFields,
+    label: presetFields.label ?? pq.label,
     predefinedquery: pq.sodar_uuid,
     genotype: createGenotypeFromPreset(pedigree, choice),
     genotypepresets: { choice },
