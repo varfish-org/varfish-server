@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { Query } from '@/seqvars/types'
-import {
-  ClinvarGermlineAggregateDescriptionChoice,
-  ClinvarGermlineAggregateDescriptionChoiceList,
-} from '@varfish-org/varfish-api/lib'
+import { ClinvarGermlineAggregateDescriptionChoice } from '@varfish-org/varfish-api/lib'
 
-import { toggleArrayElement } from '../utils'
 import { computed } from 'vue'
 
 /** This component's props. */
@@ -72,12 +68,12 @@ const choiceValue = computed<Choices[]>({
       Annotate with ClinVar assessments
     </div>
     <v-btn-toggle
+      v-model="choiceValue"
       multiple
       color="primary"
       variant="outlined"
       divided
       density="default"
-      v-model="choiceValue"
       class="ml-1 mb-2"
     >
       <v-btn icon title="Pathogenic" value="pathogenic" class="pa-0"> P </v-btn>

@@ -24,13 +24,11 @@ import PredefinedQueryList from '@/seqvars/components/PredefinedQueryList.vue'
 import PresetSummaryItem from '@/seqvars/components/QueryEditor/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryList.vue'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
-import Hr from '@/seqvars/components/QueryEditor/ui/Hr.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import SidebarCollapseIcon from '@/seqvars/components/QueryEditor/ui/SidebarCollapseIcon.vue'
 import SidebarExpandIcon from '@/seqvars/components/QueryEditor/ui/SidebarExpandIcon.vue'
 import { Query } from '@/seqvars/types'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
-import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
 
 const { presetsDetails, pedigree } = defineProps<{
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails

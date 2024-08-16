@@ -228,8 +228,21 @@ export const matchesPredefinedQuery = (
   query: Query,
 ): boolean =>
   matchesGenotypePreset(pedigree, pq.genotype?.choice, query) &&
-  GROUPS.every((group) =>
-    group.id == 'quality'
-      ? matchesQualityPreset(pedigree, presetsDetails, query)
-      : group.matchesPreset(presetsDetails, query),
-  )
+  GROUPS.every((group) => {
+    // Check whether the lower-level values match.
+    const valuesMatch =
+      group.id == 'quality'
+        ? matchesQualityPreset(pedigree, presetsDetails, query)
+        : group.matchesPreset(presetsDetails, query)
+    // Check that the selected category entry matches the one from the
+    // used predefined query.
+    const predefinedQuery = presetsDetails.seqvarspredefinedquery_set.find(
+      (p) => p.sodar_uuid === pq.sodar_uuid,
+    )
+    const categoriesMatch =
+      !!predefinedQuery?.[group.id] &&
+      !!query?.[group.queryPresetKey] &&
+      predefinedQuery[group.id] === query[group.queryPresetKey]
+    // Return AND of both checks.
+    return valuesMatch && categoriesMatch
+  })

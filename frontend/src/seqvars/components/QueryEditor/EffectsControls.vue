@@ -9,9 +9,7 @@ import { computed, ref } from 'vue'
 
 import { Query } from '@/seqvars/types'
 
-import CheckButton from './ui/CheckButton.vue'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
-import Input from './ui/Input.vue'
 import { toggleArrayElement } from '../utils'
 
 /** This component's props. */

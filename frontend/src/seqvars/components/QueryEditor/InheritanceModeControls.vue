@@ -70,7 +70,6 @@ const items = computed<Item[]>({
     includeNoCall.value = tmp.includes('no_call')
     tmp = tmp.filter((i) => i !== 'no_call')
     // Pop `any` if it is present.
-    const hasAny = tmp.includes('any')
     tmp = tmp.filter((i) => i !== 'any')
 
     const joint = tmp.join('+')
@@ -108,12 +107,12 @@ const items = computed<Item[]>({
 <template>
   <div class="w-100 d-flex pt-1">
     <v-btn-toggle
+      v-model="items"
       multiple
       color="primary"
       variant="outlined"
       divided
       density="default"
-      v-model="items"
     >
       <v-btn
         icon
@@ -147,12 +146,12 @@ const items = computed<Item[]>({
     </v-btn-toggle>
 
     <v-btn-toggle
+      v-model="items"
       multiple
       color="primary"
       variant="outlined"
       divided
       density="default"
-      v-model="items"
       class="ml-3 mb-2"
     >
       <v-btn icon title="allow no call" value="no_call" class="pa-0">

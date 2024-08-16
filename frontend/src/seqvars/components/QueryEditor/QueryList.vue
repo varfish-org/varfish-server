@@ -44,8 +44,8 @@ const emit = defineEmits<{
     hint="Here you can find the queries and their results."
   >
     <template
-      #summary
       v-if="selectedIndex !== null && selectedIndex < queries.length"
+      #summary
     >
       <v-icon
         :icon="`mdi-numeric-${selectedIndex + 1}-box-outline`"

@@ -44,6 +44,7 @@ const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
 )
 
 /** This component's events. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
   /** Create a query based on the predefined query. */
   addQuery: [preset: SeqvarsPredefinedQuery]
@@ -57,11 +58,6 @@ const emit = defineEmits<{
     title="Predefined Queries"
     :hints-enabled="hintsEnabled"
     hint="Create a new query using the buttons on the right. Selected predefined query settings for custom query."
-    :summary="
-      presets.seqvarspredefinedquery_set.find(
-        (pq) => pq.sodar_uuid === selectedId,
-      )?.label
-    "
   >
     <template #summary>
       <Item

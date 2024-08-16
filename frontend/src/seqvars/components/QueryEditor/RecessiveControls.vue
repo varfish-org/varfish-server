@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  SeqvarsGenotypeChoice,
-  SeqvarsSampleGenotypePydanticList,
-} from '@varfish-org/varfish-api/lib'
+import { SeqvarsGenotypeChoice } from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
 
 /** This component's props. */
@@ -69,11 +66,11 @@ const items = computed<Item>({
 <template>
   <div class="w-100 d-flex pt-1">
     <v-btn-toggle
+      v-model="items"
       color="primary"
       variant="outlined"
       divided
       density="default"
-      v-model="items"
     >
       <v-btn title="index" value="recessive_index" class="px-1"> index </v-btn>
       <v-btn title="father" value="recessive_father" class="px-1">
@@ -85,11 +82,11 @@ const items = computed<Item>({
     </v-btn-toggle>
 
     <v-btn-toggle
+      v-model="items"
       color="primary"
       variant="outlined"
       divided
       density="default"
-      v-model="items"
       class="ml-3"
     >
       <v-btn title="any" value="any" class="px-1"> any </v-btn>

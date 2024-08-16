@@ -159,8 +159,8 @@ watch(
       />
 
       <div
-        class="w-100 d-flex flex-column"
         v-if="choice !== undefined && choice.genotype !== undefined"
+        class="w-100 d-flex flex-column"
       >
         <label
           :for="choice.sample"

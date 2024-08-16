@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import HintButton from './HintButton.vue'
-import ItemButton from './ItemButton.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -64,11 +63,11 @@ const isOpen = defineModel<boolean>('isOpen', { default: true })
                   />
                   <v-btn
                     icon="mdi-undo-variant"
-                    @click="() => emit('revert')"
                     title="Select default preset."
                     size="xs"
                     variant="text"
                     class="rounded-0"
+                    @click="() => emit('revert')"
                   />
                 </template>
                 <span v-if="hintsEnabled && hint" class="ml-auto">

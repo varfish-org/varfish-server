@@ -76,7 +76,6 @@ async function parseAndStore() {
 
     // Lookup genes with annonars, add to data and/or generate error message.
     const foundGenes = await annonarsClient.lookupGenes(words)
-    console.log(foundGenes)
 
     // Helper function that registers a `GeneNames` with a set of identifiers.
     const registerIdentifier = (geneNames: GeneNames, seenSet: Set<string>) => {

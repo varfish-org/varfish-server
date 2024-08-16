@@ -223,7 +223,7 @@ const revertQueryToPresets = async () => {
       "
       @remove="(index: number) => queries.splice(index, 1)"
       @revert="revertQueryToPresets"
-      @updateQuery="
+      @update-query="
         (index: number) => {
           updateDialogTitle = queries.at(index)?.label ?? ''
           showUpdateDialog = true
@@ -305,6 +305,13 @@ const revertQueryToPresets = async () => {
           selectedQuery?.genotypepresets?.choice !=
             selectedPredefinedQuery?.genotype?.choice
         "
+        :summary="
+          selectedQuery.genotypepresets?.choice
+            ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
+                selectedQuery.genotypepresets?.choice
+              ]
+            : ''
+        "
         @revert="
           () => {
             if (
@@ -315,13 +322,6 @@ const revertQueryToPresets = async () => {
                 selectedQuery.genotypepresets?.choice
             }
           }
-        "
-        :summary="
-          selectedQuery.genotypepresets?.choice
-            ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
-                selectedQuery.genotypepresets?.choice
-              ]
-            : ''
         "
       >
         <template v-if="selectedQuery.genotypepresets?.choice" #summary>
@@ -502,9 +502,9 @@ const revertQueryToPresets = async () => {
 
         <v-card-text>
           <v-text-field
+            v-model="updateDialogTitle"
             variant="outlined"
             label="Query title"
-            v-model="updateDialogTitle"
           />
         </v-card-text>
 
