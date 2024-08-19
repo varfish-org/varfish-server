@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
+  SeqvarsQueryExecution,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
@@ -67,6 +68,8 @@ const pedigree = computed<PedigreeObj | undefined | null>(
 
 /** The list of queries; component state. */
 const queries = ref<Query[]>([])
+/** The list of query executions; component state. */
+const queryExecutions = ref<SeqvarsQueryExecution[]>([])
 /** The index of the currently selected query; component state. */
 const selectedQueryIndex = ref<number | null>(null)
 
@@ -216,6 +219,7 @@ const revertQueryToPresets = async () => {
       :selected-index="selectedQueryIndex"
       :presets-details="presetsDetails"
       :queries="queries"
+      :query-executions="queryExecutions"
       :pedigree="pedigree"
       :hints-enabled="hintsEnabled"
       @update:selected-index="
@@ -280,6 +284,18 @@ const revertQueryToPresets = async () => {
           // try {
           const query = createQuery(pq)
           queries.push(query)
+          queryExecutions.push({
+            sodar_uuid: '',
+            date_created: '',
+            date_modified: '',
+            state: 'running',
+            complete_percent: null,
+            start_time: null,
+            end_time: null,
+            elapsed_seconds: null,
+            query: '',
+            querysettings: '',
+          })
           selectedQueryIndex = queries.length - 1
           // } catch (e) {
           //   console.error(e)

@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+import {
+  SeqvarsQueryExecution,
+  SeqvarsQueryExecutionStateEnum,
+  SeqvarsQueryPresetsSetVersionDetails,
+} from '@varfish-org/varfish-api/lib'
+import { zip } from '@/variants/components/AcmgRatingCard/lib'
 
 import { Query } from '@/seqvars/types'
 
@@ -18,6 +23,7 @@ const props = withDefaults(
     presetsDetails: SeqvarsQueryPresetsSetVersionDetails
     pedigree: PedigreeObj
     queries: Query[]
+    queryExecutions: SeqvarsQueryExecution[]
     hintsEnabled?: boolean
   }>(),
   {
@@ -34,6 +40,10 @@ const emit = defineEmits<{
   updateQuery: [index: number]
   /** Revert modifications. */
   revert: []
+  /** Start query. */
+  start: [index: number]
+  /** Stop / cancel query. */
+  stop: [index: number]
 }>()
 </script>
 
@@ -56,7 +66,7 @@ const emit = defineEmits<{
     <template #default>
       <div style="width: 100%; display: flex; flex-direction: column">
         <Item
-          v-for="(query, index) in queries"
+          v-for="([query, queryExec], index) in zip(queries, queryExecutions)"
           :key="index"
           :selected="index === selectedIndex"
           :modified="
@@ -78,17 +88,84 @@ const emit = defineEmits<{
               :icon="`mdi-numeric-${index + 1}-box-outline`"
               size="small"
             />
-            {{ queries[index]?.label }}
+            <span :title="`execution state: ${queryExec.state}`">
+              {{ queries[index]?.label }}
+
+              <v-chip
+                variant="outlined"
+                size="x-small"
+                density="compact"
+                class="px-1 py-2"
+                :class="{
+                  'bg-grey': ['initial', 'queued'].includes(queryExec.state),
+                  'bg-primary': queryExec.state === 'running',
+                  'bg-error': ['failed', 'canceled'].includes(queryExec.state),
+                  'bg-success': queryExec.state === 'done',
+                }"
+              >
+                {{ queryExec.state }}
+
+                <template v-if="queryExec.state === 'running'">
+                  <v-progress-circular
+                    indeterminate
+                    size="10"
+                    width="2"
+                    class="ml-1"
+                  />
+                </template>
+                <template
+                  v-if="['failed', 'canceled'].includes(queryExec.state)"
+                >
+                  <v-icon icon="mdi-close" class="pl-1" size="10" />
+                </template>
+                <template v-if="queryExec.state === 'done'">
+                  <v-icon icon="mdi-check" class="pl-1" size="10" />
+                </template>
+              </v-chip>
+            </span>
           </template>
           <template #extra>
             <ItemButton
+              title="Start query"
+              @click="$emit('start', index)"
+              v-if="
+                ['initial', 'failed', 'canceled', 'done'].includes(
+                  queryExec.state,
+                )
+              "
+            >
+              <v-icon icon="mdi-play" size="18" />
+            </ItemButton>
+            <ItemButton
+              title="Cancel query"
+              @click="$emit('stop', index)"
+              v-if="['queued', 'running'].includes(queryExec.state)"
+            >
+              <v-icon icon="mdi-stop" size="18" />
+            </ItemButton>
+
+            <ItemButton
               title="Update query title"
+              :disabled="['queued', 'running'].includes(queryExec.state)"
               @click="$emit('updateQuery', index)"
             >
-              <v-icon icon="mdi-pencil" size="xs" />
+              <v-icon
+                :disabled="['queued', 'running'].includes(queryExec.state)"
+                icon="mdi-pencil"
+                size="xs"
+              />
             </ItemButton>
-            <ItemButton title="Delete query" @click="$emit('remove', index)">
-              <v-icon icon="mdi-delete" size="xs" />
+
+            <ItemButton
+              title="Delete query"
+              :disabled="['queued', 'running'].includes(queryExec.state)"
+              @click="$emit('remove', index)"
+            >
+              <v-icon
+                :disabled="['queued', 'running'].includes(queryExec.state)"
+                icon="mdi-delete"
+                size="xs"
+              />
             </ItemButton>
           </template>
         </Item>

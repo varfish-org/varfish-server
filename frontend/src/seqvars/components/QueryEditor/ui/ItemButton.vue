@@ -1,5 +1,17 @@
+<script setup lang="ts">
+import { defineProps, withDefaults } from 'vue'
+
+const props = withDefaults(
+  defineProps<{
+    /** Whether the button is disabled. */
+    disabled?: boolean
+  }>(),
+  { disabled: false },
+)
+</script>
+
 <template>
-  <button type="button"><slot></slot></button>
+  <button :disabled="disabled" type="button"><slot></slot></button>
 </template>
 
 <style scoped>
