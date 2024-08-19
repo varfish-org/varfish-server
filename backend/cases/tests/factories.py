@@ -121,7 +121,7 @@ class PedigreeRelatednessFactory(factory.django.DjangoModelFactory):
 class IndividualSetFactory(factory.RelatedFactory):
     def __init__(self, **defaults):
         super().__init__(
-            factory="cases.tests.factories.IndividualFactory",
+            factory="cases.tests.factories.IndividualWithExistingPedigreeFactory",
             **defaults,
         )
 
@@ -175,14 +175,11 @@ class PedigreeFactory(factory.django.DjangoModelFactory):
         model = Pedigree
 
 
-class IndividualFactory(factory.django.DjangoModelFactory):
+class IndividualWithExistingPedigreeFactory(factory.django.DjangoModelFactory):
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
-    pedigree = factory.SubFactory(
-        PedigreeFactory, individual_set=None  # prevent infinite recursion
-    )
     name = factory.Sequence(lambda n: f"individual-{n}")
     father = None
     mother = None
@@ -194,3 +191,9 @@ class IndividualFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Individual
+
+
+class IndividualFactory(IndividualWithExistingPedigreeFactory):
+    pedigree = factory.SubFactory(
+        PedigreeFactory, individual_set=None  # prevent infinite recursion
+    )
