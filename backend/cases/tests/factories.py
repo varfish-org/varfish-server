@@ -118,12 +118,58 @@ class PedigreeRelatednessFactory(factory.django.DjangoModelFactory):
         model = PedigreeRelatedness
 
 
+class IndividualSetFactory(factory.RelatedFactory):
+    def __init__(self, **defaults):
+        super().__init__(
+            factory="cases.tests.factories.IndividualFactory",
+            **defaults,
+        )
+
+    def call(self, instance, step, context):
+        parent = super()
+        _ = step
+        result = []
+        for member in instance.case.pedigree:
+            inner_context = factory.declarations.PostGenerationContext(
+                value_provided=context.value_provided,
+                value=context.value,
+                extra={
+                    **context.extra,
+                    **{
+                        "pedigree_id": instance.id,
+                        "name": member["patient"],
+                        "father": None if member["father"] == "0" else member["father"],
+                        "mother": None if member["mother"] == "0" else member["mother"],
+                        "affected": member["affected"] == 2,
+                        "sex": {
+                            0: Individual.SEX_UNKNOWN,
+                            1: Individual.SEX_MALE,
+                            2: Individual.SEX_FEMALE,
+                        }[member["sex"]],
+                        "karyotypic_sex": {
+                            0: Individual.KARYOTYPE_OTHER,
+                            1: Individual.KARYOTYPE_XY,
+                            2: Individual.KARYOTYPE_XX,
+                        }[member["sex"]],
+                        "assay": Individual.ASSAY_WES,
+                        "enrichmentkit": None,
+                    },
+                },
+            )
+            result.append(parent.call(instance, step, inner_context))
+        return result
+
+    class Meta:
+        model = Individual
+
+
 class PedigreeFactory(factory.django.DjangoModelFactory):
     sodar_uuid = factory.Faker("uuid4")
     date_created = factory.LazyFunction(datetime.datetime.now)
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
-    case = factory.SubFactory(CaseFactory)
+    case = factory.SubFactory(CaseFactory, pedigree_obj=None)  # prevent infinite recursion
+    individual_set = IndividualSetFactory()
 
     class Meta:
         model = Pedigree
@@ -134,7 +180,9 @@ class IndividualFactory(factory.django.DjangoModelFactory):
     date_created = factory.LazyFunction(datetime.datetime.now)
     date_modified = factory.LazyFunction(datetime.datetime.now)
 
-    pedigree = factory.SubFactory(PedigreeFactory)
+    pedigree = factory.SubFactory(
+        PedigreeFactory, individual_set=None  # prevent infinite recursion
+    )
     name = factory.Sequence(lambda n: f"individual-{n}")
     father = None
     mother = None

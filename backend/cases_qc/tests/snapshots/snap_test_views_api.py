@@ -37,15 +37,15 @@ snapshots["CaseQcRetrieveApiViewTest::test_retrieve_existing 1"] = {
             "date_modified": "2012-01-14T12:00:01Z",
             "metrics": [
                 {
-                    "entry": "offer",
-                    "name": "begin",
-                    "section": "wait",
+                    "entry": "science",
+                    "name": "offer",
+                    "section": "rate",
                     "value": 42,
                     "value_float": 3.14,
                 }
             ],
             "sample": "index_000-N1-DNA1-WES1",
-            "sodar_uuid": "bd9c66b3-ad3c-4d6d-9a3d-1fa7bc8960a9",
+            "sodar_uuid": "b74d0fb1-32e7-4629-8fad-c1a606cb0fb3",
         }
     ],
     "ngsbits_mappingqcmetrics": [],

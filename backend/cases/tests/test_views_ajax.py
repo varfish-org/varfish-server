@@ -118,8 +118,8 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
 
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
         with self.login(self.user_contributor):
-            # NB(2023-09-23): A call to listing all cases via AJAX triggered 47 queries, only 1 for fetching the cases.
-            with self.assertNumQueriesLessThan(48):
+            # NB(2024-08-19): A call to listing all cases via AJAX triggered 67 queries, only 1 for fetching the cases.
+            with self.assertNumQueriesLessThan(68):
                 response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

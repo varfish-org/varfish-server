@@ -515,6 +515,9 @@ class CaseFactory(CoreCaseFactory):
 
     latest_variant_set = None
     latest_structural_variant_set = None
+    pedigree_obj = factory.RelatedFactory(
+        "cases.tests.factories.PedigreeFactory", factory_related_name="case"
+    )
 
     class Meta:
         model = Case

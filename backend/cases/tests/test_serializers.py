@@ -78,6 +78,7 @@ class TestCaseSerializer(TestCase):
                 "name",
                 "index",
                 "pedigree",
+                "pedigree_obj",
                 "notes",
                 "state",
                 "status",

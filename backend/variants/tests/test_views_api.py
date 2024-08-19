@@ -8,6 +8,7 @@ from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from cases_qc.tests.helpers import flatten_via_json
 from svs.tests.factories import SvQueryResultSetFactory
+from variants.models.case import Case
 
 from ..query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
 from .factories import (
@@ -33,6 +34,35 @@ def transmogrify_pedigree(pedigree):
     ]
 
 
+def pedigree_obj_from_case(case: Case):
+    frozen_timestamp = "2012-01-14T12:00:01Z"
+    individual_set = []
+    for individual in case.pedigree_obj.individual_set.all():
+        individual_set.append(
+            {
+                "sodar_uuid": str(individual.sodar_uuid),
+                "name": individual.name,
+                "pedigree": str(individual.pedigree.sodar_uuid),
+                "affected": individual.affected,
+                "assay": individual.assay,
+                "date_created": frozen_timestamp,
+                "date_modified": frozen_timestamp,
+                "father": individual.father,
+                "mother": individual.mother,
+                "sex": individual.sex,
+                "karyotypic_sex": individual.karyotypic_sex,
+            }
+        )
+    result = {
+        "sodar_uuid": str(case.pedigree_obj.sodar_uuid),
+        "case": str(case.sodar_uuid),
+        "date_created": frozen_timestamp,
+        "date_modified": frozen_timestamp,
+        "individual_set": individual_set,
+    }
+    return result
+
+
 @freeze_time("2012-01-14 12:00:01")
 class TestCaseApiViews(ApiViewTestBase):
     """Tests for Case API views."""
@@ -47,13 +77,17 @@ class TestCaseApiViews(ApiViewTestBase):
         self.svqueryresultset = SvQueryResultSetFactory(case=self.case, svquery=None)
 
     def _expected_case_data(self, case=None, legacy=False):
+        frozen_timestamp = "2012-01-14T12:00:01Z"
         case = case or self.case
         result = {
             "sodar_uuid": str(case.sodar_uuid),
+            "date_created": frozen_timestamp,
+            "date_modified": frozen_timestamp,
             "caseqc": None,
             "name": case.name,
             "index": case.index,
             "pedigree": transmogrify_pedigree(case.pedigree),
+            "pedigree_obj": pedigree_obj_from_case(case),
             "num_small_vars": case.num_small_vars,
             "num_svs": case.num_svs,
             "project": case.project.sodar_uuid,
@@ -130,10 +164,7 @@ class TestCaseApiViews(ApiViewTestBase):
             expected = [self._expected_case_data()]
             response_content = []
             for entry in response.data["results"]:  # remove some warts
-                entry = dict(entry)
-                entry.pop("date_created")  # complex; not worth testing
-                entry.pop("date_modified")  # the same
-                response_content.append(entry)
+                response_content.append(dict(entry))
             self.assertEquals(flatten_via_json(response_content), flatten_via_json(expected))
 
     def _test_retrieve_with_invalid_x(self, media_type=None, version=None):
@@ -165,8 +196,6 @@ class TestCaseApiViews(ApiViewTestBase):
 
             expected = self._expected_case_data(legacy=True)
             expected.pop("state")
-            response.data.pop("date_created")  # complex; not worth testing
-            response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
             self.assertEqual(flatten_via_json(expected), flatten_via_json(response.data))
 

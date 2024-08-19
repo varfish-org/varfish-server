@@ -140,13 +140,6 @@ class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
         else:
             return None
 
-    def get_pedigree(self, obj) -> dict[str, int | float | str | None] | None:
-        """Obtain the pedigree for this case and serialize it."""
-        if not obj.pedigree_obj:
-            return None
-        else:
-            return PedigreeSerializer(obj.pedigree_obj).data
-
     class Meta:
         model = Case
         exclude = (
@@ -168,6 +161,7 @@ class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "state",
             "caseqc",
             "pedigree",
+            "pedigree_obj",
         )
 
 
