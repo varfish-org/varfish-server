@@ -315,11 +315,12 @@ const revertQueryToPresets = async () => {
         @revert="
           () => {
             if (
-              !!selectedPredefinedQuery?.genotype &&
-              !!selectedQuery?.genotypepresets?.choice
+              !!selectedQuery?.genotypepresets?.choice &&
+              !!selectedPredefinedQuery?.genotype?.choice
             ) {
-              selectedPredefinedQuery.genotype.choice =
-                selectedQuery.genotypepresets?.choice
+              selectedQuery.genotypepresets.choice =
+                selectedPredefinedQuery.genotype.choice
+              revertGenotypeToPresets(selectedQuery.genotypepresets.choice)
             }
           }
         "
@@ -375,7 +376,11 @@ const revertQueryToPresets = async () => {
             </Item>
           </div>
           <v-divider class="my-2" />
-          <GenotypeControls v-model="selectedQuery" :pedigree="pedigree" />
+          <GenotypeControls
+            v-model="selectedQuery"
+            :pedigree="pedigree"
+            :hints-enabled="hintsEnabled"
+          />
         </template>
       </CollapsibleGroup>
 
