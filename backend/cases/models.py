@@ -110,6 +110,9 @@ class Individual(models.Model):
         EnrichmentKit, on_delete=models.PROTECT, null=True, blank=True
     )
 
+    class Meta:
+        ordering = ["date_created", "name"]
+
 
 class TermCore(models.Model):
     """Abstract model used for terms associated with an ``Individual``."""
@@ -132,6 +135,7 @@ class TermCore(models.Model):
     excluded = models.BooleanField(default=False)
 
     class Meta:
+        ordering = ["term_label", "term_id"]
         unique_together = (("individual", "term_id"),)
         abstract = True
 

@@ -8,7 +8,7 @@ import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
 import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
-import HintButton from '@/seqvars/components/ui/HintButton.vue'
+import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import { useProjectStore } from '@/cases/stores/project'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
@@ -88,6 +88,7 @@ watch(
           ? `VarFish - ${caseDetailsStore.caseObj?.name}`
           : undefined
       "
+      :loading="!selectedPresetSetVersion"
     />
 
     <TheNavBar :navbar-shown="navbarShown">
@@ -158,7 +159,6 @@ watch(
       <v-skeleton-loader
         v-if="!selectedPresetSetVersion"
         type="list-item, list-item, list-item"
-        class="bg-background"
       ></v-skeleton-loader>
       <template v-else>
         <QueryEditor

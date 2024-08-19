@@ -672,6 +672,7 @@ class ImportUpdateTest(ExecutorTestMixin, TestCaseSnapshot, TestCase):
         self.case = CaseFactory(
             project=self.project,
             name=self.caseimportaction.payload["pedigree"]["persons"][0]["familyId"],
+            pedigree_obj=None,
         )
         self.pedigree = PedigreeFactory(case=self.case)
         self.keep_invidual = IndividualFactory(

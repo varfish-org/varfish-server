@@ -10,4 +10,4 @@ export type LocalFields<T> = Omit<
   | 'presetssetversion'
 >
 
-export type Query = LocalFields<SeqvarsQuerySettingsDetails>
+export type Query = LocalFields<SeqvarsQuerySettingsDetails> & { label: string }

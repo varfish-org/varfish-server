@@ -124,6 +124,15 @@ class CoreCaseSerializerMixin:
         # TODO: can go away after renaming
         return [{{"name": "patient"}.get(k, k): v for k, v in m.items()} for m in pedigree]
 
+    def get_pedigree(self, obj) -> dict[str, int | float | str | None] | None:
+        """Obtain the pedigree for this case and serialize it."""
+        from cases.serializers import PedigreeSerializer  # noqa: F811
+
+        if not obj.pedigree_obj:
+            return None
+        else:
+            return PedigreeSerializer(obj.pedigree_obj).data
+
 
 class CasePhenotypeTermsSerializer(SODARModelSerializer):
     #: Serialize the case as its SODAR UUID.
@@ -158,6 +167,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model."""
 
     pedigree = serializers.models.JSONField()
+    pedigree_obj = serializers.SerializerMethodField("get_pedigree")
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
     annotationreleaseinfo_set = AnnotationReleaseInfoSerializer(many=True, read_only=True)
     svannotationreleaseinfo_set = SvAnnotationReleaseInfoSerializer(many=True, read_only=True)
@@ -273,6 +283,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "name",
             "index",
             "pedigree",
+            "pedigree_obj",
             "num_small_vars",
             "num_svs",
             "project",

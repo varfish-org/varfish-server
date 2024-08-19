@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.forms import model_to_dict
+from freezegun import freeze_time
 from test_plus import TestCase
 
 from cases.serializers import (
@@ -21,7 +22,7 @@ from variants.tests.factories import (
     SampleVariantStatisticsFactory,
     SmallVariantQueryResultSetFactory,
 )
-from variants.tests.test_views_api import transmogrify_pedigree
+from variants.tests.test_views_api import pedigree_obj_from_case, transmogrify_pedigree
 
 TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
@@ -55,6 +56,7 @@ class TestCaseGeneAnnotationSerializer(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestCaseSerializer(TestCase):
     def setUp(self):
         super().setUp()
@@ -78,6 +80,7 @@ class TestCaseSerializer(TestCase):
                 "name",
                 "index",
                 "pedigree",
+                "pedigree_obj",
                 "notes",
                 "state",
                 "status",
@@ -91,6 +94,7 @@ class TestCaseSerializer(TestCase):
         )
         expected["caseqc"] = None
         expected["pedigree"] = transmogrify_pedigree(expected["pedigree"])
+        expected["pedigree_obj"] = pedigree_obj_from_case(self.case)
         expected["project"] = self.case.project.sodar_uuid
         expected["sodar_uuid"] = str(self.case.sodar_uuid)
         expected["sex_errors"] = {}
@@ -116,7 +120,7 @@ class TestCaseSerializer(TestCase):
             "result_row_count": self.svqueryresultset.result_row_count,
             "case": self.svqueryresultset.case.sodar_uuid,
         }
-        self.assertDictEqual(flatten_via_json(serializer.data), flatten_via_json(expected))
+        self.assertDictEqual(flatten_via_json(expected), flatten_via_json(serializer.data))
 
 
 class TestCaseAlignmentStatsSerializer(TestCase):

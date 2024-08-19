@@ -20,6 +20,7 @@ const drawerShown = defineModel<boolean>('drawerShown', {
     handle-icon="mdi-drag"
     handle-position="bottom"
     storage-name="seqvars-query-editor-drawer"
+    color="grey-lighten-3"
   >
     <slot></slot>
   </v-resize-drawer>

@@ -43,7 +43,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   const factoryDefaultPresetSetUuids = reactive<string[]>([])
   /** The preset sets by UUID. */
   const presetSets = reactive<Map<string, SeqvarsQueryPresetsSet>>(new Map())
-  /** The preset set versions by UUID. */
+  /** The presetpresetSetVersions set versions by UUID. */
   const presetSetVersions = reactive<
     Map<string, SeqvarsQueryPresetsSetVersionDetails>
   >(new Map())
@@ -92,7 +92,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
         Promise.all([loadPresets(), loadFactoryDefaultsPresets()]),
       )
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.message = `Error loading presets: ${e}`
     }
   }
@@ -173,7 +173,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
       if (detailResponse.data !== undefined) {
         presetSetVersions.set(
           detailResponse.data.sodar_uuid,
-          detailResponse.data,
+          Object.freeze(detailResponse.data),
         )
       }
     }

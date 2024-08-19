@@ -12,12 +12,7 @@ const props = withDefaults(
 </script>
 
 <template>
-  <v-navigation-drawer
-    floating
-    permanent
-    color="grey-lighten-3"
-    :rail="!navbarShown"
-  >
+  <v-navigation-drawer permanent color="grey-lighten-3" :rail="!navbarShown">
     <v-list density="compact">
       <slot></slot>
     </v-list>
