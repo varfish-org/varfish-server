@@ -805,8 +805,36 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
         return f"SeqvarsPredefinedQuery '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsManager(models.Manager):
+    """Manager for ``SeqvarsQuerySettings``."""
+
+    def from_predefinedquery(
+        self,
+        *,
+        session: CaseAnalysisSession,
+        predefinedquery: SeqvarsPredefinedQuery,
+    ) -> "SeqvarsQuerySettings":
+        return super().create(
+            session=session,
+            presetssetversion=predefinedquery.presetssetversion,
+            predefinedquery=predefinedquery,
+            genotypepresets=predefinedquery.genotype,
+            qualitypresets=predefinedquery.quality,
+            frequencypresets=predefinedquery.frequency,
+            consequencepresets=predefinedquery.consequence,
+            locuspresets=predefinedquery.locus,
+            phenotypepriopresets=predefinedquery.phenotypeprio,
+            variantpriopresets=predefinedquery.variantprio,
+            clinvarpresets=predefinedquery.clinvar,
+            columnspresets=predefinedquery.columns,
+        )
+
+
 class SeqvarsQuerySettings(BaseModel):
     """The query settings for a case."""
+
+    #: Custom manager with ``from_predefinedquery()``.
+    objects = SeqvarsQuerySettingsManager()
 
     #: The owning ``CaseAnalysisSession``.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
@@ -1070,6 +1098,22 @@ class SeqvarsQuerySettingsClinvar(SeqvarsClinvarSettingsBase, SeqvarsQuerySettin
         return f"SeqvarsQuerySettingsClinvar '{self.sodar_uuid}'"
 
 
+class SeqvarsQueryColumnsConfigManager(models.Manager):
+    """Manager for ``SeqvarsQueryColumnsConfig``."""
+
+    def from_predefinedquery(
+        self,
+        *,
+        predefinedquery: SeqvarsPredefinedQuery,
+    ) -> "SeqvarsQueryColumnsConfig":
+        if predefinedquery.columns.column_settings:
+            return super().create(
+                column_settings=predefinedquery.columns.column_settings,
+            )
+        else:
+            return super().create(column_settings=[])
+
+
 class SeqvarsQueryColumnsConfig(SeqvarsColumnsSettingsBase, BaseModel):
     """Per-query (not execution) configuration of columns.
 
@@ -1078,12 +1122,57 @@ class SeqvarsQueryColumnsConfig(SeqvarsColumnsSettingsBase, BaseModel):
     editable after query execution.
     """
 
+    #: Custom manager with ``from_predefinedquery()``.
+    objects = SeqvarsQueryColumnsConfigManager()
+
     def __str__(self):
         return f"SeqvarsQueryColumnsConfig '{self.sodar_uuid}'"
 
 
+class SeqvarsQueryManager(models.Manager):
+    """Custom manager for ``SeqvarsQuery``.
+
+    Specifically, adds functionality to create a new query from a predefined
+    query.
+    """
+
+    @transaction.atomic
+    def from_predefinedquery(
+        self,
+        *,
+        session: CaseAnalysisSession,
+        predefinedquery: SeqvarsPredefinedQuery,
+        label: typing.Optional[str] = None,
+    ) -> "SeqvarsQuery":
+        """Create a new query from a predefined query."""
+        query = SeqvarsQuery.objects.create(
+            rank=self._pick_query_rank(session),
+            label=label or predefinedquery.label,
+            session=session,
+            settings=SeqvarsQuerySettings.objects.from_predefinedquery(
+                session=session,
+                predefinedquery=predefinedquery
+            ),
+            columnsconfig=SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
+                predefinedquery=predefinedquery
+            ),
+        )
+        return query
+
+    def _pick_query_rank(self, session: CaseAnalysisSession) -> int:
+        """Obtain a new rank for a query in ``session``."""
+        rank = 1
+        for query in session.seqvarsquery_set.all():
+            if query.rank >= rank:
+                rank = query.rank + 1
+        return rank
+
+
 class SeqvarsQuery(BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
+
+    #: Override the manager so we can easily create from predefined queries.
+    objects = SeqvarsQueryManager()
 
     #: An integer rank for manual sorting in UI.
     rank = models.IntegerField()

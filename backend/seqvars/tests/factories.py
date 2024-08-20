@@ -346,6 +346,8 @@ class SeqvarsPredefinedQueryFactory(QueryPresetsBaseFactory):
 
     included_in_sop = False
 
+    columns = factory.SubFactory(SeqvarsQueryPresetsColumnsFactory)
+
     class Meta:
         model = SeqvarsPredefinedQuery
 

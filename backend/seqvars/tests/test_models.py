@@ -2,6 +2,7 @@
 
 from test_plus.test import TestCase
 
+from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
 from seqvars.models import (
     SeqvarsGenotypeChoice,
@@ -274,6 +275,17 @@ class TestSeqvarsQuerySettings(TestCase):
             querysettings.__str__(),
         )
 
+    def test_from_predefinedquery(self):
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        session = CaseAnalysisSessionFactory()
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        querysettings = SeqvarsQuerySettings.objects.from_predefinedquery(
+            session=session,
+            predefinedquery=predefinedquery,
+        )
+        _ = querysettings
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+
 
 class TestSeqvarsQuerySettingsGenotype(TestCase):
 
@@ -431,6 +443,21 @@ class TestSeqvarsQuery(TestCase):
             query.__str__(),
         )
 
+    def test_from_predefinedquery(self):
+        session = CaseAnalysisSessionFactory()
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        self.assertEqual(SeqvarsQuery.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        query = SeqvarsQuery.objects.from_predefinedquery(
+            session=session,
+            predefinedquery=predefinedquery,
+        )
+        _ = query
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+
 
 class TestSeqvarsQueryColumnsConfig(TestCase):
 
@@ -445,6 +472,15 @@ class TestSeqvarsQueryColumnsConfig(TestCase):
             f"SeqvarsQueryColumnsConfig '{columnsconfig.sodar_uuid}'",
             columnsconfig.__str__(),
         )
+
+    def test_from_predefinedquery(self):
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
+        columnsconfig = SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
+            predefinedquery=predefinedquery,
+        )
+        _ = columnsconfig
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
 
 
 class TestSeqvarsQueryExecution(TestCase):
