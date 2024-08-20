@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { zip, pairwise } from './lib'
+
+import { pairwise, zip } from './lib'
 
 describe('zip', () => {
   test('zips two arrays together', () => {

@@ -1,5 +1,6 @@
-import CaseDetailPaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailPaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import caseListStoreData from '../../../data/caseListStoreData.json'

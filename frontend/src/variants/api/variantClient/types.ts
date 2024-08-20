@@ -1,6 +1,6 @@
 import {
-  SeqvarImpl,
   type Seqvar,
+  SeqvarImpl,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /**

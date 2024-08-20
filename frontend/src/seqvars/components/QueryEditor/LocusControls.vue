@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { GenePydanticList } from '@varfish-org/varfish-api/lib'
 import { isDeepEqual, partition, uniqueWith } from 'remeda'
 import { computed, ref, watch } from 'vue'
 
-import { Query } from '@/seqvars/types'
 import {
-  parseGenomeRegion,
   genomeRegionToString,
+  parseGenomeRegion,
 } from '@/seqvars/components/PresetsEditor/lib'
-import { useCtxStore } from '@/varfish/stores/ctx'
+import { Query } from '@/seqvars/types'
 import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
-import { GenePydanticList } from '@varfish-org/varfish-api/lib'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

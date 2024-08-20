@@ -1,8 +1,9 @@
-import { PedigreeObj } from '@/cases/stores/caseDetails'
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsSampleGenotypePydantic,
 } from '@varfish-org/varfish-api/lib'
+
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 /**
  * Compute the longest path from a member to a founder in the pedigree.

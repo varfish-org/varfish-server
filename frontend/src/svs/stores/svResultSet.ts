@@ -1,14 +1,13 @@
 /**
  * Store with the result set and result set UUID of an SV query.
  */
-
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
 import { SvClient } from '@/svs/api/strucvarClient'
-import { VariantClient } from '@/variants/api/variantClient'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { VariantClient } from '@/variants/api/variantClient'
 
 export const useSvResultSetStore = defineStore('svResultSet', () => {
   // store dependencies

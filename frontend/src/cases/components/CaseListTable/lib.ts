@@ -1,4 +1,5 @@
 import { displayName } from '@/varfish/helpers'
+
 import { PedigreeMember } from './types'
 
 /** Get comma-separated string with individual names. */

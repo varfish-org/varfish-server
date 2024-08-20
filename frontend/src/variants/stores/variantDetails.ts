@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { AnnonarsApiClient } from '@/varfish/api/annonars'
 import { MehariApiClient } from '@/varfish/api/mehari'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 type SmallVariant = any

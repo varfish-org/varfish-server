@@ -2,12 +2,11 @@
  *
  * Holds the major app state as well as the overall case list.
  */
-
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
 import { CaseListClient } from '@/cases/api/caseListClient'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of Project type; to be defined later. */

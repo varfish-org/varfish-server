@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /** Display summary read statistics for all samples in a table.
  */
+import { computed } from 'vue'
+
 import { type SampleReadStats } from '@/cases_qc/api/types'
 import SimpleCard from '@/varfish/components/SimpleCard.vue'
-import { computed } from 'vue'
 
 export interface Props {
   sampleNames: string[]

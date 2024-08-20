@@ -1,6 +1,4 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
+import { RequestResult } from '@hey-api/client-fetch'
 import {
   PatchedSeqvarsQueryPresetsSetRequest,
   SeqvarsPredefinedQuery,
@@ -16,9 +14,13 @@ import {
   SeqvarsQueryPresetsVariantPrio,
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { computed, reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
-import { PresetSetVersionState, EditableState } from './types'
-import { RequestResult } from '@hey-api/client-fetch'
+import { State, StoreState } from '@/varfish/storeUtils'
+
+import { EditableState, PresetSetVersionState } from './types'
 
 /**
  * Store for the seqvars query presets.

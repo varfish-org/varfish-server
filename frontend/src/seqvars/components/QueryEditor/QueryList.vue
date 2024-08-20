@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { Query } from '@/seqvars/types'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { watch, onMounted, computed, ref } from 'vue'
-import { useCaseListStore } from '@/cases/stores/caseList'
-import { useProjectStore } from '@/cases/stores/project/store'
-import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { computed, onMounted, ref, watch } from 'vue'
 
-import SvFilterApp from '@/svs/components/SvFilterApp.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { useProjectStore } from '@/cases/stores/project/store'
+import SvFilterApp from '@/svs/components/SvFilterApp.vue'
+import { useSvQueryStore } from '@/svs/stores/svQuery'
 
 const props = defineProps<{
   /** The project UUID. */

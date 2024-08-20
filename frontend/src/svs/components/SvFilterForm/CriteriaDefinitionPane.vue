@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch, computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 // Define the component's props.
 const props = defineProps({

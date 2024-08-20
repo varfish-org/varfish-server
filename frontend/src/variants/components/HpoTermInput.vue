@@ -1,4 +1,5 @@
 <script setup>
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 import Multiselect from '@vueform/multiselect'
 import { onMounted, ref, watch } from 'vue'
 
@@ -7,7 +8,6 @@ import {
   hpoInheritance,
 } from '@/variants/components/HpoTermInput.values'
 import { declareWrapper } from '@/variants/helpers'
-import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 
 const vigunoClient = new VigunoClient()
 

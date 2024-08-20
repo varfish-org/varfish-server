@@ -1,5 +1,5 @@
-import { ref } from 'vue'
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { ref } from 'vue'
 
 import InheritanceModeControls from './InheritanceModeControls.vue'
 

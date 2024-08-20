@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
+
 const { style } = defineProps<{ style?: CSSProperties }>()
 </script>
 <template>

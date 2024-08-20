@@ -1,7 +1,8 @@
-import FilterFormGenotypePaneModal from '@/variants/components/FilterForm/GenotypePaneModal.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 import { reactive } from 'vue'
+
+import FilterFormGenotypePaneModal from '@/variants/components/FilterForm/GenotypePaneModal.vue'
 
 const querySettings = reactive({
   recessive_index: null,

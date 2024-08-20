@@ -1,8 +1,8 @@
 <script setup>
 /** Editor component for the query preset set properties.
  */
-
 import { computed } from 'vue'
+
 import { randomString } from '@/varfish/common'
 
 /** Define props. */

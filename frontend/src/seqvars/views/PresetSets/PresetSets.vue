@@ -3,10 +3,10 @@ import { onMounted, ref, watch } from 'vue'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import PresetsEditor from '@/seqvars/components/PresetsEditor/PresetsEditor.vue'
-
 import { useProjectStore } from '@/cases/stores/project/store'
+import PresetsEditor from '@/seqvars/components/PresetsEditor/PresetsEditor.vue'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+
 import { type SnackbarMessage } from './lib'
 
 const props = defineProps<{

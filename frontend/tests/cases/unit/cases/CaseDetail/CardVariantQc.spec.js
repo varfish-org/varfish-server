@@ -1,5 +1,6 @@
-import CaseDetailCardVariantQc from '@/cases/components/CaseDetail/CardVariantQc.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailCardVariantQc from '@/cases/components/CaseDetail/CardVariantQc.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'

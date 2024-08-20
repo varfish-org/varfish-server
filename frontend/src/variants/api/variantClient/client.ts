@@ -1,5 +1,7 @@
-import { ClientBase } from '@/varfish/apiUtils'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+
+import { ClientBase } from '@/varfish/apiUtils'
+
 import { AcmgRating, AcmgRating$Api, AcmgRatingPage$Api } from './types'
 
 type QuickPresets = any

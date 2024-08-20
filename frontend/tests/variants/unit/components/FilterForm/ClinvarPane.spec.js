@@ -1,6 +1,7 @@
-import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
 
 describe('FilterFormClinvarPane.vue', () => {
   test('clinvar pane all unchecked', () => {

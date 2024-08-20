@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { onMounted, watch } from 'vue'
+import { computed } from 'vue'
 
-import SeqvarsFiltration from './views/SeqvarsFiltration.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+
 import { useCaseAnalysisStore } from './stores/caseAnalysis'
 import { useSeqvarsPresetsStore } from './stores/presets'
 import { useSeqvarsQueryStore } from './stores/query'
-import { computed } from 'vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import SeqvarsFiltration from './views/SeqvarsFiltration.vue'
 
 const appContext = JSON.parse(
   document

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { computed } from 'vue'
 
 import CaseDetailsFlagIcon from '@/cases/components/CaseDetail/FlagIcon.vue'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
 
 // Store-related.
 

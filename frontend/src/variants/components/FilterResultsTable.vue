@@ -1,36 +1,37 @@
 <script setup>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import $ from 'jquery'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
 
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import {
   displayName,
-  formatLargeInt,
   formatFloat,
+  formatLargeInt,
   truncateText,
 } from '@/varfish/helpers'
-import { getAcmgBadge } from '@/variants/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { VariantClient } from '@/variants/api/variantClient'
 import ColumnControl from '@/variants/components/ColumnControl.vue'
 import ExportResults from '@/variants/components/ExportResults.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
-import { copy } from '@/variants/helpers'
 import {
-  DisplayConstraints,
-  DisplayFrequencies,
-  DisplayColumnsToText,
-  DisplayDetails,
   DisplayColumns,
+  DisplayColumnsToText,
+  DisplayConstraints,
+  DisplayDetails,
+  DisplayFrequencies,
 } from '@/variants/enums'
-import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { useCtxStore } from '@/varfish/stores/ctx'
+import { getAcmgBadge } from '@/variants/helpers'
+import { copy } from '@/variants/helpers'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 /**
  * The component's props.

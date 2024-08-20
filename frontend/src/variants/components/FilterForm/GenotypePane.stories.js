@@ -1,9 +1,10 @@
-import FilterFormGenotypePane from '@/variants/components/FilterForm/GenotypePane.vue'
 import singletonCaseData from '@tests/variants/data/case-singleton.json'
 import trioCaseData from '@tests/variants/data/case-trio.json'
 import querySettingsSingleton from '@tests/variants/data/query-settings-singleton.json'
 import querySettingsTrio from '@tests/variants/data/query-settings-trio.json'
 import { reactive } from 'vue'
+
+import FilterFormGenotypePane from '@/variants/components/FilterForm/GenotypePane.vue'
 
 export default {
   title: 'Variants / Filter Form Genotype',

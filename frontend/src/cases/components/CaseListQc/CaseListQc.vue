@@ -1,14 +1,14 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 
+import { downloadPerSampleMetrics, downloadRelatedness } from '@/cases/common'
+import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
+import QcPlotDepthHet from '@/cases/components/CaseDetail/QcPlotDepthHet.vue'
+import QcPlotRelatedness from '@/cases/components/CaseDetail/QcPlotRelatedness.vue'
+import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCasesQcStore } from '@/cases/stores/caseListQc'
-import QcPlotRelatedness from '@/cases/components/CaseDetail/QcPlotRelatedness.vue'
-import QcPlotDepthHet from '@/cases/components/CaseDetail/QcPlotDepthHet.vue'
-import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
-import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
 import Overlay from '@/varfish/components/Overlay.vue'
-import { downloadPerSampleMetrics, downloadRelatedness } from '@/cases/common'
 
 // Store-related.
 

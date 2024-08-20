@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+
 import VarFishLogo from '@/varfish/components/VarFishLogo.vue'
 
 /** The props used in this component. */

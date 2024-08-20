@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { computed } from 'vue'
 
 /** The component's props. */
 const props = defineProps<{

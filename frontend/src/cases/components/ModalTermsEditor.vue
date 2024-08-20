@@ -8,14 +8,13 @@
  * or use the Promise returned by show with its resolve function.  Both the event and the resolve
  * function will be passed the input and the "props.extraData" value.
  */
-
-import { onMounted, computed, reactive, ref } from 'vue'
-
-import ModalBase from '@/varfish/components/ModalBase.vue'
-import HpoTermInput from '@/variants/components/HpoTermInput.vue'
-import { randomString } from '@/varfish/common'
 import { useVuelidate } from '@vuelidate/core'
+import { computed, onMounted, reactive, ref } from 'vue'
+
+import { randomString } from '@/varfish/common'
+import ModalBase from '@/varfish/components/ModalBase.vue'
 import { copy } from '@/varfish/helpers'
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
 
 const props = defineProps({
   title: {

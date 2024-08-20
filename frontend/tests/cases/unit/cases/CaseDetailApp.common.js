@@ -1,9 +1,9 @@
 /** Common code for the CaseDetail*.spec.js tests. */
-
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { vi } from 'vitest'
+
+import { useCaseListStore } from '@/cases/stores/caseList'
 
 import { quoteattr } from '../../helpers'
 

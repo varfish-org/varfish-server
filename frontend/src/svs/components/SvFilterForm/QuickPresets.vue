@@ -1,10 +1,11 @@
 <script setup>
 import isEqual from 'fast-deep-equal'
-import { onMounted, computed, ref } from 'vue'
-import { copy } from '@/varfish/helpers'
+import { computed, onMounted, ref } from 'vue'
+
 import { useSvQueryStore } from '@/svs/stores/svQuery'
-import { useCtxStore } from '@/varfish/stores/ctx'
 import { randomString } from '@/varfish/common'
+import { copy } from '@/varfish/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 const ctxStore = useCtxStore()
 const svQueryStore = useSvQueryStore()

@@ -1,15 +1,16 @@
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
+import { defineStore } from 'pinia'
+import { nextTick, reactive, ref } from 'vue'
+
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { VariantClient } from '@/variants/api/variantClient'
-import { apiQueryStateToQueryState, QueryStates } from '@/variants/enums'
+import { QueryStates, apiQueryStateToQueryState } from '@/variants/enums'
 import { copy } from '@/variants/helpers'
 import { previousQueryDetailsToQuerySettings } from '@/variants/stores/variantQuery.funcs'
 import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
-import { useCtxStore } from '@/varfish/stores/ctx'
-import { defineStore } from 'pinia'
-import { nextTick, reactive, ref } from 'vue'
-import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */

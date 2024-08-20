@@ -1,6 +1,7 @@
-import cohortsApi from '@/cohorts/api/cohorts'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
+
+import cohortsApi from '@/cohorts/api/cohorts'
 
 import accessibleProjectsCasesResponse from '../../data/accessibleProjectsCasesResponse.json'
 import createCohortCaseResponses from '../../data/createCohortCaseResponses.json'
