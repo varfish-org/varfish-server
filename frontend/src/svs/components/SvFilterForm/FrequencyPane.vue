@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { numeric, integer, minValue, maxValue } from '@vuelidate/validators'
+import { integer, maxValue, minValue, numeric } from '@vuelidate/validators'
+import { computed, onMounted } from 'vue'
 
 // Define the component's props.
 const props = defineProps({

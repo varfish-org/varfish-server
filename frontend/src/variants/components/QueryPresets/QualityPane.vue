@@ -1,8 +1,8 @@
 <script setup>
 // eslint-disable
+
 /** Editor component for quality.
  */
-
 import { randomString } from '@/varfish/common'
 
 /** Define props. */

@@ -1,19 +1,20 @@
-import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
-import StrucvarFilterLegacy from '@/svs/views/StrucvarFilterLegacy/StrucvarFilterLegacy.vue'
-import { useHistoryStore } from '@/varfish/stores/history'
-import SeqvarFilterLegacy from '@/variants/views/SeqvarFilterLegacy/SeqvarFilterLegacy.vue'
-import SeqvarsQuery from '@/seqvars/views/SeqvarsQuery/SeqvarsQuery.vue'
-import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
+import { nextTick } from 'vue'
 import {
   RouteLocationNormalized,
   RouteLocationNormalizedLoaded,
+  RouteRecordRaw,
   createRouter,
   createWebHistory,
-  RouteRecordRaw,
 } from 'vue-router'
-import { nextTick } from 'vue'
-import { useCtxStore } from '@/varfish/stores/ctx/store'
+
 import { Tab as CaseListTab } from '@/cases/views/CaseList/types'
+import SeqvarsQuery from '@/seqvars/views/SeqvarsQuery/SeqvarsQuery.vue'
+import StrucvarDetails from '@/svs/views/StrucvarDetails/StrucvarDetails.vue'
+import StrucvarFilterLegacy from '@/svs/views/StrucvarFilterLegacy/StrucvarFilterLegacy.vue'
+import { useCtxStore } from '@/varfish/stores/ctx/store'
+import { useHistoryStore } from '@/varfish/stores/history'
+import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
+import SeqvarFilterLegacy from '@/variants/views/SeqvarFilterLegacy/SeqvarFilterLegacy.vue'
 
 const CaseDetail = () => import('@/cases/views/CaseDetail/CaseDetail.vue')
 const CaseList = () => import('@/cases/views/CaseList/CaseList.vue')

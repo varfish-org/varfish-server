@@ -3,15 +3,15 @@ import {
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
+import { computed } from 'vue'
 
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { Query } from '@/seqvars/types'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
-import { computed } from 'vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

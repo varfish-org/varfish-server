@@ -1,7 +1,8 @@
-import App from '@/cohorts/App.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+
+import App from '@/cohorts/App.vue'
 
 import cohortsState from '../data/cohortsStoreData.json'
 import { quoteattr } from '../helpers'

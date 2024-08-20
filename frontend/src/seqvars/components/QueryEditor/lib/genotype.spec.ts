@@ -1,14 +1,16 @@
+import {
+  SeqvarsGenotypeChoice,
+  SeqvarsGenotypePresetChoice,
+} from '@varfish-org/varfish-api/lib'
 import { describe, expect, test } from 'vitest'
+
+import { Individual, PedigreeObj } from '@/cases/stores/caseDetails'
+
 import {
   computeFounderPathLengths,
   pickIndexFromPedigree,
   presetChoiceToGenotypeChoice,
 } from './genotypes'
-import { Individual, PedigreeObj } from '@/cases/stores/caseDetails'
-import {
-  SeqvarsGenotypeChoice,
-  SeqvarsGenotypePresetChoice,
-} from '@varfish-org/varfish-api/lib'
 
 // Helper to make pedigres of various shapes.
 const makePedigree = (options: {

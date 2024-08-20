@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ItemData } from './lib'
 import SelectItem from './SelectItem.vue'
+import { ItemData } from './lib'
 
 const model = defineModel<ItemData[]>({
   required: true,

@@ -2,9 +2,10 @@
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
 
 import { Query } from '@/seqvars/types'
-import SmallText from './ui/SmallText.vue'
-import AbbrHint from './ui/AbbrHint.vue'
+
 import FrequencyControlRow from './FrequencyControlRow.vue'
+import AbbrHint from './ui/AbbrHint.vue'
+import SmallText from './ui/SmallText.vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

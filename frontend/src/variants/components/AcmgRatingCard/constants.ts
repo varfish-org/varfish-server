@@ -1,4 +1,5 @@
 import { AcmgRating } from '@/variants/api/variantClient'
+
 import { Category, Criterion } from './types'
 
 /** Labels for `Category`. */

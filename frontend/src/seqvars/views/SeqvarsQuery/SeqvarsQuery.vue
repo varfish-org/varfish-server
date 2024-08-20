@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { computed, onMounted, ref, watch } from 'vue'
-import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useProjectStore } from '@/cases/stores/project'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
+import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
 import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
-import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
-import { useProjectStore } from '@/cases/stores/project'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,7 +44,7 @@ const seqvarsQueryStore = useSeqvarsQueryStore()
 const initializeStores = async () => {
   await Promise.all([
     (async () => {
-      if (props.projectUuid && props.caseUuid) {
+      if (!!props.caseUuid) {
         await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
       }
     })(),

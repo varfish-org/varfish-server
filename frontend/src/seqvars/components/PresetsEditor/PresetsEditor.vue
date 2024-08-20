@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsSelect.vue'
 import QueryPresetsEditor from '@/seqvars/components/PresetsEditor/QueryPresetsEditor.vue'
+import QueryPresetsSelect from '@/seqvars/components/PresetsEditor/QueryPresetsSelect.vue'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */

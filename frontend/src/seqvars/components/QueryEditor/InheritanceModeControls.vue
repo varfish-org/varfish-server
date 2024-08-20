@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
 import { SeqvarsGenotypeChoice } from '@varfish-org/varfish-api/lib'
+import { computed, ref } from 'vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

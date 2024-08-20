@@ -1,7 +1,8 @@
-import CohortList from '@/cohorts/components/CohortList.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+
+import CohortList from '@/cohorts/components/CohortList.vue'
 
 import cohortsState from '../../data/cohortsStoreData.json'
 import listCohortResponse from '../../data/listCohortResponse.json'

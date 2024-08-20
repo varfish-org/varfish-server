@@ -1,9 +1,9 @@
 <script setup>
-import PaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
-import PaneQc from '@/cases_qc/components/PaneQc.vue'
-import LegacyPaneQc from '@/cases/components/CaseDetail/PaneQc.vue'
 import PaneAnnotations from '@/cases/components/CaseDetail/PaneAnnotations.vue'
+import PaneCase from '@/cases/components/CaseDetail/PaneCase.vue'
+import LegacyPaneQc from '@/cases/components/CaseDetail/PaneQc.vue'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import PaneQc from '@/cases_qc/components/PaneQc.vue'
 import { useCaseQcStore } from '@/cases_qc/stores/caseQc'
 
 const props = defineProps({

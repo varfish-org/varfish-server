@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
@@ -8,26 +6,27 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
+import { computed, ref } from 'vue'
 
-import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/lib/constants'
-import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
+import { PedigreeObj, useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
-import {
-  createGenotypeFromPreset,
-  createQualityFromPreset,
-  FilterGroup,
-  GROUPS,
-  matchesGenotypePreset,
-  matchesQualityPreset,
-} from '@/seqvars/components/QueryEditor/groups'
 import PredefinedQueryList from '@/seqvars/components/QueryEditor/PredefinedQueryList.vue'
 import PresetSummaryItem from '@/seqvars/components/QueryEditor/PresetSummaryItem.vue'
 import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
+import {
+  FilterGroup,
+  GROUPS,
+  createGenotypeFromPreset,
+  createQualityFromPreset,
+  matchesGenotypePreset,
+  matchesQualityPreset,
+} from '@/seqvars/components/QueryEditor/groups'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/lib/constants'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
+import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
 import { Query } from '@/seqvars/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-import { PedigreeObj, useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { copy } from '@/varfish/helpers'
 
 /** This component's props. */

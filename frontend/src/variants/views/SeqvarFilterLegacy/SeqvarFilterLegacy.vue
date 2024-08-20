@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { watch, onMounted, ref, computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import FilterApp from '@/variants/components/FilterApp.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
-
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useProjectStore } from '@/cases/stores/project/store'
-import { useCtxStore } from '@/varfish/stores/ctx'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
-import { useRouter } from 'vue-router'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
+import FilterApp from '@/variants/components/FilterApp.vue'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 
 const props = defineProps<{
   /** The project UUID. */

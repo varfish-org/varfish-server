@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { client } from '@hey-api/client-fetch'
 import { CasesService } from '@varfish-org/varfish-api/lib'
-import { useCaseListStore } from '@/cases/stores/caseList'
 import debounce from 'lodash.debounce'
 import { onMounted, ref } from 'vue'
-import { formatLargeInt, formatTimeAgo } from '@/varfish/helpers'
-import { Case, SortBy } from './types'
-import { getIndividuals } from './lib'
+
+import { useCaseListStore } from '@/cases/stores/caseList'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { formatLargeInt, formatTimeAgo } from '@/varfish/helpers'
+
+import { getIndividuals } from './lib'
+import { Case, SortBy } from './types'
 
 /** Props used in this component. */
 const props = defineProps<{

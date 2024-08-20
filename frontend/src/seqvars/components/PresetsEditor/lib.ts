@@ -2,7 +2,8 @@ import {
   GenomeRegionPydanticList,
   SeqvarsGenotypePresetChoice,
 } from '@varfish-org/varfish-api/lib'
-import { computed, ref, Ref } from 'vue'
+import { Ref, computed, ref } from 'vue'
+
 import { formatLargeInt } from '@/varfish/helpers'
 
 // Source: https://dev.to/razi91/using-v-model-with-custom-setters-4hni

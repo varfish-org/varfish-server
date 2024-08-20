@@ -1,10 +1,11 @@
 <script setup>
+import { useVuelidate } from '@vuelidate/core'
+import { computed, getCurrentInstance, nextTick, reactive } from 'vue'
+
 import { displayName } from '@/varfish/helpers'
-import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
 import FilterFormGenotypePaneModal from '@/variants/components/FilterForm/GenotypePaneModal.vue'
-import { computed, nextTick, reactive, getCurrentInstance } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 
 /** Define component's props. */
 const props = defineProps({

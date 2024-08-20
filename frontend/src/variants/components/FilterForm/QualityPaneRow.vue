@@ -1,14 +1,15 @@
 <script setup>
-import { declareWrapper } from '@/variants/helpers'
-import { displayName } from '@/varfish/helpers'
-import { onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
+import { onMounted } from 'vue'
+
+import { displayName } from '@/varfish/helpers'
 import {
-  numericKeys,
-  failValues,
-  rules,
   allKeys,
+  failValues,
+  numericKeys,
+  rules,
 } from '@/variants/components/FilterForm/QualityPane.values'
+import { declareWrapper } from '@/variants/helpers'
 
 const props = defineProps({
   index: Number,

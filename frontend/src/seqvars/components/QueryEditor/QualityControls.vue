@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Query } from '@/seqvars/types'
 
+import AbbrHint from './ui/AbbrHint.vue'
 import Input from './ui/Input.vue'
 import SmallText from './ui/SmallText.vue'
-import AbbrHint from './ui/AbbrHint.vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

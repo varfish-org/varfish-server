@@ -5,15 +5,15 @@
  *
  * - `caseDetailsStore`
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { VariantClient } from '@/variants/api/variantClient'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { VariantClient } from '@/variants/api/variantClient'
 
 /** Alias definition of SmallVariantFlags type; to be defined later. */
 type SmallVariantFlags = any

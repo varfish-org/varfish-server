@@ -1,7 +1,6 @@
 /**
  * Constants used in the `QueryEditor` component.
  */
-
 import {
   RecessiveModeEnum,
   SeqvarsGenotypePresetChoice,

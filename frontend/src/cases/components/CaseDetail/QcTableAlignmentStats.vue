@@ -1,8 +1,9 @@
 <script setup>
-import { State } from '@/varfish/storeUtils'
+import { computed } from 'vue'
+
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { displayName, formatLargeInt } from '@/varfish/helpers'
-import { computed } from 'vue'
+import { State } from '@/varfish/storeUtils'
 
 const caseDetailsStore = useCaseDetailsStore()
 

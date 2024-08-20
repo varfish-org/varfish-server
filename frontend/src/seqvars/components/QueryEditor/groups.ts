@@ -1,7 +1,3 @@
-import isEqual from 'fast-deep-equal/es6'
-import { Component } from 'vue'
-
-import { LocalFields, Query } from '@/seqvars/types'
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
@@ -10,18 +6,22 @@ import {
   SeqvarsQuerySettingsGenotypeRequest,
   SeqvarsQuerySettingsQualityRequest,
 } from '@varfish-org/varfish-api/lib'
+import isEqual from 'fast-deep-equal/es6'
+import { Component } from 'vue'
 
+import { PedigreeObj } from '@/cases/stores/caseDetails'
+import { LocalFields, Query } from '@/seqvars/types'
+
+import { isKeyOfObject } from '../utils'
 import ClinvarControls from './ClinvarControls.vue'
 import EffectsControls from './EffectsControls.vue'
 import FrequencyControls from './FrequencyControls.vue'
-import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from './lib/constants'
 import LocusControls from './LocusControls.vue'
 import PathogenicityPrioControls from './PathogenicityPrioControls.vue'
 import PhenotypePrioControls from './PhenotypePrioControls.vue'
 import QualityControls from './QualityControls.vue'
-import { isKeyOfObject } from '../utils'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { presetChoiceToGenotypeChoice } from './lib'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from './lib/constants'
 
 type PresetDetails = SeqvarsQueryPresetsSetVersionDetails
 

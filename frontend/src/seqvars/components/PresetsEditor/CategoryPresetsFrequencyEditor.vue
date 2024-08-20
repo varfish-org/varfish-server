@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsFrequency } from '@varfish-org/varfish-api/lib'
-import { computed, onMounted, ref, watch } from 'vue'
-import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-import { GnomadFreqs, MitochondrialFreqs, InhouseFreqs } from './types'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { VForm } from 'vuetify/lib/components/index.mjs'
-import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import debounce from 'lodash.debounce'
+import { computed, onMounted, ref, watch } from 'vue'
+import { VForm } from 'vuetify/lib/components/index.mjs'
+
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+
 import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
+import { GnomadFreqs, InhouseFreqs, MitochondrialFreqs } from './types'
 
 /** This component's props. */
 const props = withDefaults(

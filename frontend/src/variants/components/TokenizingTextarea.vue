@@ -1,5 +1,6 @@
 <script setup>
 // eslint-disable
+
 /**
  * A text area that allows for "semi-structured" input of value.
  *
@@ -15,10 +16,9 @@
  *
  * - https://codersblock.com/blog/highlight-text-inside-a-textarea/
  */
-
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import debounce from 'lodash.debounce'
 import isEqual from 'fast-deep-equal'
+import debounce from 'lodash.debounce'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 /** Props of the component. */
 const props = defineProps({

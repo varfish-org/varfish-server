@@ -6,14 +6,12 @@
  *
  * - `caseListStore`
  */
-
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
+import { reactive, ref } from 'vue'
 
 import { CaseListClient } from '@/cases/api/caseListClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of CaseListQcValues type; to be defined later. */

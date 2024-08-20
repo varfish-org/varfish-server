@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import {
   SeqvarsQueryExecution,
-  SeqvarsQueryExecutionStateEnum,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { zip } from '@/variants/components/AcmgRatingCard/lib'
 
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { Query } from '@/seqvars/types'
+import { zip } from '@/variants/components/AcmgRatingCard/lib'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 const selectedIndex = defineModel<number | null>('selectedIndex', {
   required: true,
@@ -126,20 +125,20 @@ const emit = defineEmits<{
           </template>
           <template #extra>
             <ItemButton
-              title="Start query"
-              @click="$emit('start', index)"
               v-if="
                 ['initial', 'failed', 'canceled', 'done'].includes(
                   queryExec.state,
                 )
               "
+              title="Start query"
+              @click="$emit('start', index)"
             >
               <v-icon icon="mdi-play" size="18" />
             </ItemButton>
             <ItemButton
+              v-if="['queued', 'running'].includes(queryExec.state)"
               title="Cancel query"
               @click="$emit('stop', index)"
-              v-if="['queued', 'running'].includes(queryExec.state)"
             >
               <v-icon icon="mdi-stop" size="18" />
             </ItemButton>

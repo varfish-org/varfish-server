@@ -1,16 +1,16 @@
 /**
  * Pinia store for handling per-variant ACMG rating.
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { SvClient, AcmgRating, strucvarEqual } from '@/svs/api/strucvarClient'
 import {
   LinearStrucvar,
   LinearStrucvarImpl,
   Strucvar,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { AcmgRating, SvClient, strucvarEqual } from '@/svs/api/strucvarClient'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useSvAcmgRatingStore = defineStore('svAcmgRating', () => {

@@ -1,12 +1,13 @@
 <script setup>
 import Multiselect from '@vueform/multiselect'
-import {
-  DisplayFrequencies,
-  DisplayConstraints,
-  DisplayColumns,
-  DisplayDetails,
-} from '@/variants/enums'
 import { computed } from 'vue'
+
+import {
+  DisplayColumns,
+  DisplayConstraints,
+  DisplayDetails,
+  DisplayFrequencies,
+} from '@/variants/enums'
 
 const props = defineProps({
   // model props

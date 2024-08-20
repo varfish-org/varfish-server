@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { watch, onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
-import CaseListTable from '@/cases/components/CaseListTable/CaseListTable.vue'
 import CaseListQc from '@/cases/components/CaseListQc/CaseListQc.vue'
-import { Tab } from './types'
-import QueryPresets from '@/variants/components/QueryPresets.vue'
+import CaseListTable from '@/cases/components/CaseListTable/CaseListTable.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useProjectStore } from '@/cases/stores/project/store'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import QueryPresets from '@/variants/components/QueryPresets.vue'
+
+import { Tab } from './types'
 
 const props = defineProps<{
   /** The project UUID. */

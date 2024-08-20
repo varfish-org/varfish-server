@@ -2,15 +2,16 @@
 /**
  * Display navigation sidebard for seqvar details view.
  */
-
-import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
-import { jumpToLocus } from './lib'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { SECTIONS } from './constants'
+
 import { useHistoryStore } from '@/varfish/stores/history'
+
+import { SECTIONS } from './constants'
+import { jumpToLocus } from './lib'
 
 /** The component's props. */
 const props = defineProps<{

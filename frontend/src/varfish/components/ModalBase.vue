@@ -1,10 +1,9 @@
 <script setup>
 /** A simple bootstrap-driven modal.
  */
-
-import { ref } from 'vue'
-import $ from 'jquery'
 import 'bootstrap/dist/js/bootstrap.bundle'
+import $ from 'jquery'
+import { ref } from 'vue'
 
 /** Define the props. */
 const props = defineProps({

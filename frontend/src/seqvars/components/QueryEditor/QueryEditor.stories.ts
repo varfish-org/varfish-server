@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { delay, http, HttpResponse } from 'msw'
+import { HttpResponse, delay, http } from 'msw'
 
-import fixture from './fixture.QueryEditor.json'
 import QueryEditor from './QueryEditor.vue'
+import fixture from './fixture.QueryEditor.json'
 
 const meta: Meta<typeof QueryEditor> = {
   title: 'Seqvars / Query Editor',

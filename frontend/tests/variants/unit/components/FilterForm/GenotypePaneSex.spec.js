@@ -1,6 +1,7 @@
-import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 
 describe('FilterFormGenotypePaneSex.vue', () => {
   test('genotype sex male', () => {
