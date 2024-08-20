@@ -1150,8 +1150,7 @@ class SeqvarsQueryManager(models.Manager):
             label=label or predefinedquery.label,
             session=session,
             settings=SeqvarsQuerySettings.objects.from_predefinedquery(
-                session=session,
-                predefinedquery=predefinedquery
+                session=session, predefinedquery=predefinedquery
             ),
             columnsconfig=SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
                 predefinedquery=predefinedquery

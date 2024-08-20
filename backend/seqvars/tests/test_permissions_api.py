@@ -2127,6 +2127,9 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_401, 401, method="DELETE", cleanup_method=cleanup)
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
+    def test_create_from(self):
+        self.fail("Not implemented")
+
 
 class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):
 

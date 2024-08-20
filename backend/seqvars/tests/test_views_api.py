@@ -2033,6 +2033,66 @@ class TestQueryViewSet(ApiViewTestBase):
 
         self.assertEqual(SeqvarsQuery.objects.count(), 0)
 
+    def test_create_from(self):
+        self.fail("Not implemented")
+        # self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        # self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        # self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        # with self.login(self.superuser):
+        #     settings = SeqvarsQuerySettingsSerializer(
+        #         SeqvarsQuerySettingsFactory.build(),
+        #     ).data
+        #     settings["frequency"] = SeqvarsQuerySettingsFrequencySerializer(
+        #         SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
+        #     ).data
+        #     settings["genotype"] = SeqvarsQuerySettingsGenotypeSerializer(
+        #         SeqvarsQuerySettingsGenotypeFactory.build(querysettings=None)
+        #     ).data
+        #     settings["quality"] = SeqvarsQuerySettingsQualitySerializer(
+        #         SeqvarsQuerySettingsQualityFactory.build(querysettings=None)
+        #     ).data
+        #     settings["consequence"] = SeqvarsQuerySettingsConsequenceSerializer(
+        #         SeqvarsQuerySettingsConsequenceFactory.build(querysettings=None)
+        #     ).data
+        #     settings["locus"] = SeqvarsQuerySettingsLocusSerializer(
+        #         SeqvarsQuerySettingsLocusFactory.build(querysettings=None)
+        #     ).data
+        #     settings["frequency"] = SeqvarsQuerySettingsFrequencySerializer(
+        #         SeqvarsQuerySettingsFrequencyFactory.build(querysettings=None)
+        #     ).data
+        #     settings["phenotypeprio"] = SeqvarsQuerySettingsPhenotypePrioSerializer(
+        #         SeqvarsQuerySettingsPhenotypePrioFactory.build(querysettings=None)
+        #     ).data
+        #     settings["variantprio"] = SeqvarsQuerySettingsVariantPrioSerializer(
+        #         SeqvarsQuerySettingsVariantPrioFactory.build(querysettings=None)
+        #     ).data
+        #     settings["clinvar"] = SeqvarsQuerySettingsClinvarSerializer(
+        #         SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
+        #     ).data
+
+        #     columnsconfig = SeqvarsQueryColumnsConfigSerializer(
+        #         SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
+        #     ).data
+
+        #     response = self.client.post(
+        #         reverse(
+        #             "seqvars:api-query-list",
+        #             kwargs={
+        #                 "session": self.session.sodar_uuid,
+        #             },
+        #         ),
+        #         data={
+        #             "label": "test label",
+        #             "settings": settings,
+        #             "columnsconfig": columnsconfig,
+        #         },
+        #         format="json",
+        #     )
+        # self.assertEqual(response.status_code, 201, response.content)
+        # self.assertEqual(SeqvarsQuery.objects.count(), 2)
+        # self.assertEqual(SeqvarsQuerySettings.objects.count(), 2)
+        # self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 2)
+
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryExecutionViewSet(ApiViewTestBase):
