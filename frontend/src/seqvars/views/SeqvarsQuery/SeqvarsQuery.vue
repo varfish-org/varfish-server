@@ -13,6 +13,7 @@ import { useProjectStore } from '@/cases/stores/project'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,6 +38,7 @@ const messages = ref<SnackbarMessage[]>([])
 const caseDetailsStore = useCaseDetailsStore()
 const projectStore = useProjectStore()
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
+const seqvarsQueryStore = useSeqvarsQueryStore()
 
 /** (Re-)initialize the stores. */
 const initializeStores = async () => {

@@ -1,3 +1,7 @@
+/**
+ * Helper code for handling genotype presets, includes pedigree handling.
+ */
+
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 import {
   SeqvarsGenotypePresetChoice,

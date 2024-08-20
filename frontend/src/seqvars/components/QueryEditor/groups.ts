@@ -14,7 +14,7 @@ import {
 import ClinvarControls from './ClinvarControls.vue'
 import EffectsControls from './EffectsControls.vue'
 import FrequencyControls from './FrequencyControls.vue'
-import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from './constants'
+import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from './lib/constants'
 import LocusControls from './LocusControls.vue'
 import PathogenicityPrioControls from './PathogenicityPrioControls.vue'
 import PhenotypePrioControls from './PhenotypePrioControls.vue'

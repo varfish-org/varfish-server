@@ -5,6 +5,8 @@ import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQuery,
   SeqvarsQueryColumnsConfig,
+  SeqvarsQueryDetails,
+  SeqvarsQueryDetailsRequest,
   SeqvarsQueryExecution,
   SeqvarsQuerySettingsDetails,
   SeqvarsService,
@@ -32,7 +34,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
   const queryPresetsVersionUuid = ref<string | undefined>(undefined)
 
   /** The seqvar queries by UUID. */
-  const seqvarQueries = reactive<Map<string, SeqvarsQuery>>(new Map())
+  const seqvarQueries = reactive<Map<string, SeqvarsQueryDetails>>(new Map())
   /** The seqvar query columns configuration by UUID. */
   const seqvarQueryColumnsConfigs = reactive<
     Map<string, SeqvarsQueryColumnsConfig>
@@ -116,8 +118,25 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
         query: { cursor, page_size: 100 },
       })
       if (response.data && response.data.results) {
-        for (const query of response.data.results) {
-          seqvarQueries.set(query.sodar_uuid, query)
+        const responseDetails = await Promise.all(
+          response.data.results.map((query) =>
+            SeqvarsService.seqvarsApiQueryRetrieve({
+              client,
+              path: { query: query.sodar_uuid, session },
+            }),
+          ),
+        )
+        for (const responseDetail of responseDetails) {
+          if (responseDetail.data) {
+            seqvarQueries.set(
+              responseDetail.data.sodar_uuid,
+              responseDetail.data,
+            )
+          } else {
+            throw new Error(
+              `Problem fetching query details: ${responseDetail.error}`,
+            )
+          }
         }
 
         if (response.data.next) {
@@ -176,6 +195,76 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
   }
 
   /**
+   * Create a new seqvars query.
+   *
+   * This will register the query in the store and return its UUID.
+   *
+   * @param query The query details.
+   * @returns The UUID of the new query.
+   * @throws Error if there was an issue with the API call.
+   */
+  const createSeqvarsQuery = async (
+    query: SeqvarsQueryDetailsRequest,
+  ): Promise<string> => {
+    if (!sessionUuid.value) {
+      throw new Error('sessionUuid is undefined')
+    }
+    const session: string = sessionUuid.value
+
+    const response = await storeState.execAsync(async () =>
+      SeqvarsService.seqvarsApiQueryCreate({
+        client,
+        path: {
+          session,
+        },
+        body: query,
+      }),
+    )
+    if (!!response.data) {
+      const queryUuid = response.data.sodar_uuid
+      seqvarQueries.set(queryUuid, response.data)
+      return queryUuid
+    } else {
+      throw new Error(`Problem creating query : ${response.error}`)
+    }
+  }
+
+  /**
+   * Update a seqvars query.
+   *
+   * @param query The query details for updating.
+   * @throws Error if there was an issue with the API call.
+   */
+  const updateSeqvarsQuery = async (
+    query: SeqvarsQueryDetails,
+  ): Promise<void> => {
+    if (!seqvarQueries.has(query.sodar_uuid)) {
+      throw new Error(`Query ${query.sodar_uuid} not found`)
+    }
+    if (!sessionUuid.value) {
+      throw new Error('sessionUuid is undefined')
+    }
+    const session: string = sessionUuid.value
+
+    const response = await storeState.execAsync(async () =>
+      SeqvarsService.seqvarsApiQueryUpdate({
+        client,
+        path: {
+          session,
+          query: query.sodar_uuid,
+        },
+        body: query,
+      }),
+    )
+    if (!!response.data) {
+      const queryUuid = response.data.sodar_uuid
+      seqvarQueries.set(queryUuid, response.data)
+    } else {
+      throw new Error(`Problem creating query : ${response.error}`)
+    }
+  }
+
+  /**
    * Clear the store.
    *
    * This can be useful against artifacts in the UI.
@@ -204,6 +293,8 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     seqvarsQueryExecutions,
     // methods
     initialize,
+    createSeqvarsQuery,
+    updateSeqvarsQuery,
     $reset,
   }
 })
