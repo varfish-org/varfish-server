@@ -3,7 +3,6 @@ import {
   SeqvarsQueryDetails,
   SeqvarsQueryDetailsRequest,
   SeqvarsQueryExecution,
-  SeqvarsQuerySettingsDetails,
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
 import { acceptHMRUpdate, defineStore } from 'pinia'
@@ -39,10 +38,8 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
   const seqvarQueryColumnsConfigs = reactive<
     Map<string, SeqvarsQueryColumnsConfig>
   >(new Map())
-  /** The seqvars query settings by UUID. */
-  const seqvarsQuerySettings = reactive<
-    Map<string, SeqvarsQuerySettingsDetails>
-  >(new Map())
+  /** The seqvars queries by UUID. */
+  const seqvarsQueries = reactive<Map<string, SeqvarsQueryDetails>>(new Map())
   /** The seqvars query executions by UUID. */
   const seqvarsQueryExecutions = reactive<Map<string, SeqvarsQueryExecution>>(
     new Map(),
@@ -162,10 +159,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     )
     for (const response of responses) {
       if (response.data) {
-        seqvarsQuerySettings.set(
-          response.data.settings.sodar_uuid,
-          response.data.settings,
-        )
+        seqvarsQueries.set(response.data.settings.sodar_uuid, response.data)
         seqvarQueryColumnsConfigs.set(
           response.data.columnsconfig.sodar_uuid,
           response.data.columnsconfig,
@@ -289,7 +283,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     queryPresetsUuid: queryPresetsVersionUuid,
     seqvarQueries,
     seqvarQueryColumnsConfigs,
-    seqvarsQuerySettings,
+    seqvarsQuerySettings: seqvarsQueries,
     seqvarsQueryExecutions,
     // methods
     initialize,

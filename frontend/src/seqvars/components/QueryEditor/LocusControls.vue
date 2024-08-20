@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { GenePydanticList } from '@varfish-org/varfish-api/lib'
+import {
+  GenePydanticList,
+  SeqvarsQueryDetails,
+} from '@varfish-org/varfish-api/lib'
 import { isDeepEqual, partition, uniqueWith } from 'remeda'
 import { computed, ref, watch } from 'vue'
 
@@ -7,7 +10,6 @@ import {
   genomeRegionToString,
   parseGenomeRegion,
 } from '@/seqvars/components/PresetsEditor/lib'
-import { Query } from '@/seqvars/types'
 import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
@@ -21,10 +23,10 @@ const props = withDefaults(
   { hintsEnabled: false },
 )
 
-const model = defineModel<Query>({ required: true })
-const hasGenes = computed(() => model.value.locus.genes!.length > 0)
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
+const hasGenes = computed(() => model.value.settings.locus.genes!.length > 0)
 
-const choice = ref<keyof typeof model.value.locus>(
+const choice = ref<keyof typeof model.value.settings.locus>(
   hasGenes.value ? 'genes' : 'genome_regions',
 )
 
@@ -42,9 +44,9 @@ watch(choice, (choiceValue) => {
   textAreaErrorMessages.value = []
 
   if (choiceValue == 'genes') {
-    model.value.locus.genome_regions = []
+    model.value.settings.locus.genome_regions = []
   } else {
-    model.value.locus.genes = []
+    model.value.settings.locus.genes = []
   }
 })
 
@@ -62,8 +64,8 @@ async function parseAndStore() {
       }
     })
     const [regions, errors] = partition(results, (v) => 'chromosome' in v)
-    model.value.locus.genome_regions = uniqueWith(
-      [...(model.value.locus.genome_regions ?? []), ...regions],
+    model.value.settings.locus.genome_regions = uniqueWith(
+      [...(model.value.settings.locus.genome_regions ?? []), ...regions],
       isDeepEqual,
     )
     textAreaValue.value = errors.map((e) => e.text).join('\n')
@@ -95,7 +97,7 @@ async function parseAndStore() {
       registerIdentifier(gene, seen)
     }
     // Collect list of already present identifiers.
-    for (const gene of model.value.locus.genes ?? []) {
+    for (const gene of model.value.settings.locus.genes ?? []) {
       registerIdentifier(
         { ...gene, name: gene.symbol!, alias_name: [], alias_symbol: [] },
         seen,
@@ -107,7 +109,7 @@ async function parseAndStore() {
 
     // Copy-convert the found genes over to the data, removing duplicates.
     const genes = new Array<_Unpacked<GenePydanticList>>()
-    genes.push(...(model.value.locus.genes ?? []))
+    genes.push(...(model.value.settings.locus.genes ?? []))
     const alreadyAdded = new Set<string>()
     for (const gene of foundGenes) {
       if (
@@ -131,7 +133,7 @@ async function parseAndStore() {
 
     // Helpfully, sort genes by symbol.
     genes.sort((a, b) => a.symbol.localeCompare(b.symbol))
-    model.value.locus.genes = genes
+    model.value.settings.locus.genes = genes
 
     // Copy the genes that were not found over back to the text area.
     const invalidGenes: string[] = []
@@ -152,8 +154,10 @@ async function parseAndStore() {
   <v-sheet class="pr-1 pt-1 mb-1 bg-transparent">
     <div class="d-flex align-center justify-space-between ga-4">
       <span class="text-caption text-uppercase pb-1">
-        <template v-if="model.locus.genes?.length"> Gene List </template>
-        <template v-else-if="model.locus.genome_regions?.length">
+        <template v-if="model.settings.locus.genes?.length">
+          Gene List
+        </template>
+        <template v-else-if="model.settings.locus.genome_regions?.length">
           Genome Regions
         </template>
         <template v-else> Gene List / Genome Regions </template>
@@ -162,7 +166,8 @@ async function parseAndStore() {
       <div>
         <v-btn
           v-if="
-            !!model.locus.genes?.length || !!model.locus.genome_regions?.length
+            !!model.settings.locus.genes?.length ||
+            !!model.settings.locus.genome_regions?.length
           "
           size="small"
           density="compact"
@@ -172,8 +177,8 @@ async function parseAndStore() {
           class="pr-2"
           @click="
             () => {
-              model.locus.genes = []
-              model.locus.genome_regions = []
+              model.settings.locus.genes = []
+              model.settings.locus.genome_regions = []
             }
           "
         />
@@ -190,27 +195,27 @@ async function parseAndStore() {
     </div>
 
     <div>
-      <template v-if="model.locus.genes?.length">
+      <template v-if="model.settings.locus.genes?.length">
         <v-chip
-          v-for="(item, index) in model.locus.genes"
+          v-for="(item, index) in model.settings.locus.genes"
           :key="item.hgnc_id"
           size="small"
           class="mr-1 mb-1"
           closable
-          @click:close="model.locus.genes.splice(index, 1)"
+          @click:close="model.settings.locus.genes.splice(index, 1)"
         >
           {{ item.symbol }}
         </v-chip>
       </template>
 
-      <template v-else-if="model.locus.genome_regions?.length">
+      <template v-else-if="model.settings.locus.genome_regions?.length">
         <v-chip
-          v-for="(item, index) in model.locus.genome_regions"
+          v-for="(item, index) in model.settings.locus.genome_regions"
           :key="genomeRegionToString(item)"
           size="small"
           class="mr-1 mb-1"
           closable
-          @click:close="model.locus.genome_regions.splice(index, 1)"
+          @click:close="model.settings.locus.genome_regions.splice(index, 1)"
         >
           {{ genomeRegionToString(item) }}
         </v-chip>
@@ -255,22 +260,22 @@ async function parseAndStore() {
           <v-sheet class="border-sm border-black px-2 pt-2 pb-1">
             <template
               v-if="
-                !!model.locus.genes?.length ||
-                !!model.locus.genome_regions?.length
+                !!model.settings.locus.genes?.length ||
+                !!model.settings.locus.genome_regions?.length
               "
             >
               <v-chip
                 v-for="(item, index) in choice == 'genes'
-                  ? model.locus.genes
-                  : model.locus.genome_regions"
+                  ? model.settings.locus.genes
+                  : model.settings.locus.genome_regions"
                 :key="index"
                 size="small"
                 closable
                 class="mr-1 mb-1"
                 @click:close="
                   (choice == 'genes'
-                    ? model.locus.genes
-                    : model.locus.genome_regions
+                    ? model.settings.locus.genes
+                    : model.settings.locus.genome_regions
                   )?.splice(index, 1)
                 "
               >

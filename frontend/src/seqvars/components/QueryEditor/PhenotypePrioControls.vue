@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
 import { computed, ref } from 'vue'
-
-import { Query } from '@/seqvars/types'
 
 import { queryHPO_Terms } from '../utils'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -29,12 +28,13 @@ const ITEMS = {
 
 const selectedItem = computed<string | undefined>(() => {
   const [[_, value]] = Object.entries(ITEMS).filter(
-    ([key, _]) => key === model.value.phenotypeprio?.phenotype_prio_algorithm,
+    ([key, _]) =>
+      key === model.value.settings.phenotypeprio?.phenotype_prio_algorithm,
   )
   return value
 })
 
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 
 const detailsOpen = ref<boolean>(false)
 
@@ -51,7 +51,7 @@ async function onSearch(query: string) {
 
 <template>
   <v-checkbox
-    v-model="model.phenotypeprio.phenotype_prio_enabled"
+    v-model="model.settings.phenotypeprio.phenotype_prio_enabled"
     density="compact"
     label="Enable phenotype-based priorization"
     color="primary"
@@ -75,8 +75,13 @@ async function onSearch(query: string) {
           <Item
             v-for="(label, key) in ITEMS"
             :key="key"
-            :selected="model.phenotypeprio.phenotype_prio_algorithm == key"
-            @click="() => (model.phenotypeprio.phenotype_prio_algorithm = key)"
+            :selected="
+              model.settings.phenotypeprio.phenotype_prio_algorithm == key
+            "
+            @click="
+              () =>
+                (model.settings.phenotypeprio.phenotype_prio_algorithm = key)
+            "
           >
             {{ label }}
           </Item>
@@ -88,7 +93,7 @@ async function onSearch(query: string) {
   <SelectBox
     :items="items"
     :model-value="
-      (model.phenotypeprio.terms ?? []).map((t) => ({
+      (model.settings.phenotypeprio.terms ?? []).map((t) => ({
         id: t.term.term_id,
         label: t.term.label,
         sublabel: t.term.term_id,
@@ -98,7 +103,7 @@ async function onSearch(query: string) {
     @update:search="onSearch"
     @update:model-value="
       (items: ItemData[]) => {
-        model.phenotypeprio.terms = items.map((i) => ({
+        model.settings.phenotypeprio.terms = items.map((i) => ({
           term: { label: i.label, term_id: i.id },
         }))
       }

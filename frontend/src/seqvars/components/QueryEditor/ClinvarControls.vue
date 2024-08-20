@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ClinvarGermlineAggregateDescriptionChoice } from '@varfish-org/varfish-api/lib'
+import {
+  ClinvarGermlineAggregateDescriptionChoice,
+  SeqvarsQueryDetails,
+} from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
-
-import { Query } from '@/seqvars/types'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -13,7 +14,7 @@ const props = withDefaults(
   }>(),
   { hintsEnabled: false },
 )
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 
 type Choices =
   | ClinvarGermlineAggregateDescriptionChoice
@@ -30,12 +31,12 @@ const GERMLINE_FIELDS = [
 const choiceValue = computed<Choices[]>({
   get: () => {
     const result: Choices[] = []
-    if (model.value.clinvar.allow_conflicting_interpretations) {
+    if (model.value.settings.clinvar.allow_conflicting_interpretations) {
       result.push('allow_conflicting_interpretations')
     }
     for (const field of GERMLINE_FIELDS) {
       if (
-        model.value.clinvar.clinvar_germline_aggregate_description?.includes(
+        model.value.settings.clinvar.clinvar_germline_aggregate_description?.includes(
           field,
         )
       ) {
@@ -45,12 +46,12 @@ const choiceValue = computed<Choices[]>({
     return result
   },
   set: (value: Choices[]) => {
-    model.value.clinvar.allow_conflicting_interpretations = value.includes(
-      'allow_conflicting_interpretations',
-    )
-    model.value.clinvar.clinvar_germline_aggregate_description = value.filter(
-      (v) => v !== 'allow_conflicting_interpretations',
-    ) as ClinvarGermlineAggregateDescriptionChoice[]
+    model.value.settings.clinvar.allow_conflicting_interpretations =
+      value.includes('allow_conflicting_interpretations')
+    model.value.settings.clinvar.clinvar_germline_aggregate_description =
+      value.filter(
+        (v) => v !== 'allow_conflicting_interpretations',
+      ) as ClinvarGermlineAggregateDescriptionChoice[]
   },
 })
 </script>
@@ -58,7 +59,7 @@ const choiceValue = computed<Choices[]>({
 <template>
   <div class="mt-2">
     <v-checkbox
-      v-model="model.clinvar.clinvar_presence_required"
+      v-model="model.settings.clinvar.clinvar_presence_required"
       color="primary"
       label="Require ClinVar assessment"
       hide-details

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
   SeqvarsPredefinedQuery,
+  SeqvarsQueryDetails,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
-import { Query } from '@/seqvars/types'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -22,7 +22,7 @@ const props = withDefaults(
     /** The pedigree. */
     pedigree: PedigreeObj
     /** The query that is being modified. */
-    query: Query | null
+    query: SeqvarsQueryDetails | null
     /** Whether hints are enabled. */
     hintsEnabled?: boolean
   }>(),
@@ -68,7 +68,7 @@ const emit = defineEmits<{
             pedigree,
             presets,
             selectedPredefinedQuery,
-            query,
+            query.settings,
           )
         "
         @revert="$emit('revert')"
@@ -89,7 +89,7 @@ const emit = defineEmits<{
           :modified="
             !!query &&
             pq.sodar_uuid === selectedId &&
-            !matchesPredefinedQuery(pedigree, presets, pq, query)
+            !matchesPredefinedQuery(pedigree, presets, pq, query.settings)
           "
           @click="selectedId = pq.sodar_uuid"
           @revert="$emit('revert')"

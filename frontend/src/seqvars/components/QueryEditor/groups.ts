@@ -3,6 +3,8 @@ import {
   SeqvarsPredefinedQuery,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
+  SeqvarsQuerySettingsDetails,
+  SeqvarsQuerySettingsDetailsRequest,
   SeqvarsQuerySettingsGenotypeRequest,
   SeqvarsQuerySettingsQualityRequest,
 } from '@varfish-org/varfish-api/lib'
@@ -10,7 +12,6 @@ import isEqual from 'fast-deep-equal/es6'
 import { Component } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
-import { LocalFields, Query } from '@/seqvars/types'
 
 import { isKeyOfObject } from '../utils'
 import ClinvarControls from './ClinvarControls.vue'
@@ -28,10 +29,20 @@ type PresetDetails = SeqvarsQueryPresetsSetVersionDetails
 const getPresetSetKey = <S extends string>(id: S) =>
   `seqvarsquerypresets${id}_set` as const
 
-type QueryKey = keyof Query & keyof SeqvarsPredefinedQuery
+type LocalFields<T> = Omit<
+  { [K in keyof T]: T[K] extends object ? LocalFields<T[K]> : T[K] },
+  | 'sodar_uuid'
+  | 'date_created'
+  | 'date_modified'
+  | 'querysettings'
+  | 'session'
+  | 'presetssetversion'
+>
 
-type GetCompareFields<Id extends keyof Query, Preset> = (
-  v: LocalFields<Query[Id]> & Preset,
+type QueryKey = keyof SeqvarsQuerySettingsDetails & keyof SeqvarsPredefinedQuery
+
+type GetCompareFields<Id extends keyof SeqvarsQuerySettingsDetails, Preset> = (
+  v: LocalFields<SeqvarsQuerySettingsDetails[Id]> & Preset,
 ) => unknown[]
 
 export class FilterGroup<
@@ -39,7 +50,7 @@ export class FilterGroup<
   PresetSetKey extends ReturnType<typeof getPresetSetKey<Id>>,
   Preset extends PresetSetKey extends keyof PresetDetails
     ? PresetDetails[PresetSetKey][number]
-    : LocalFields<Query[Id]>,
+    : LocalFields<SeqvarsQuerySettingsDetails[Id]>,
 > {
   id: Id
   title: string
@@ -69,7 +80,10 @@ export class FilterGroup<
     return `seqvarsquerypresets${this.id}_set` as const
   }
 
-  matchesPreset(presetsDetails: PresetDetails, query: Query): boolean {
+  matchesPreset(
+    presetsDetails: PresetDetails,
+    query: SeqvarsQuerySettingsDetails,
+  ): boolean {
     if (!isKeyOfObject(this.presetSetKey, presetsDetails)) return false
     const preset = presetsDetails[this.presetSetKey].find(
       (p) =>
@@ -175,15 +189,16 @@ export const createGenotypeFromPreset = (
   return result
 }
 
-const getGenotypeCompareField = (v: Query['genotype']) => [
-  v.recessive_mode,
-  v.sample_genotype_choices,
-]
+const getGenotypeCompareField = (
+  v:
+    | SeqvarsQuerySettingsDetails['genotype']
+    | SeqvarsQuerySettingsDetailsRequest['genotype'],
+) => [v.recessive_mode, v.sample_genotype_choices]
 
 export const matchesGenotypePreset = (
   pedigree: PedigreeObj,
   presetChoice: SeqvarsGenotypePresetChoice | null | undefined,
-  query: Query,
+  query: SeqvarsQuerySettingsDetails,
 ): boolean => {
   return isEqual(
     getGenotypeCompareField(query.genotype),
@@ -210,7 +225,7 @@ export const createQualityFromPreset = (
 export const matchesQualityPreset = (
   pedigree: PedigreeObj,
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
-  query: Query,
+  query: SeqvarsQuerySettingsDetails,
 ): boolean => {
   const preset = presetsDetails.seqvarsquerypresetsquality_set.find(
     (p) => p.sodar_uuid === query.qualitypresets,
@@ -225,7 +240,7 @@ export const matchesPredefinedQuery = (
   pedigree: PedigreeObj,
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
   pq: SeqvarsPredefinedQuery,
-  query: Query,
+  query: SeqvarsQuerySettingsDetails,
 ): boolean =>
   matchesGenotypePreset(pedigree, pq.genotype?.choice, query) &&
   GROUPS.every((group) => {
