@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { SeqvarsPredefinedQuery } from '@varfish-org/varfish-api/lib'
-import { GENOTYPE_PRESET_LABELS } from './lib'
-import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { computed, onMounted, ref, watch } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
+
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+
+import { GENOTYPE_PRESET_LABELS } from './lib'
+import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 
 /** This component's props. */
 const props = withDefaults(

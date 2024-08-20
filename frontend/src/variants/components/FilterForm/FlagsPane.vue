@@ -1,9 +1,9 @@
 <script setup>
 import VariantDetailsFlagsIndicator from '@/varfish/components/VariantDetails/FlagsIndicator.vue'
 import {
-  simpleFlags,
   flagNames,
   flagValues,
+  simpleFlags,
 } from '@/variants/components/FilterForm/FlagsPane.fields'
 
 const props = defineProps({

@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { swapIndices } from 'remeda'
 import { ref } from 'vue'
 
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { Query } from '@/seqvars/types'
 
 import data from './fixture.GeneDataTable.json'

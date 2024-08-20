@@ -1,9 +1,9 @@
 <script setup>
-import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
-import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
-import { displayName } from '@/varfish/helpers'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { displayName } from '@/varfish/helpers'
+import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 
 /** Define emits. */
 const emit = defineEmits(['editPedigreeClick'])

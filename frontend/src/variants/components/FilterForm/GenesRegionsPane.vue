@@ -2,12 +2,13 @@
 /**
  * Definition of the filter form tab for genes and regions.
  */
-
-import { computed, onMounted, ref } from 'vue'
 import Multiselect from '@vueform/multiselect'
-import { useCtxStore } from '@/varfish/stores/ctx'
+import { computed, onMounted, ref } from 'vue'
 
+import { useCtxStore } from '@/varfish/stores/ctx'
 import TokenizingTextarea from '@/variants/components/TokenizingTextarea.vue'
+
+import { regexRegion } from './GenesRegionsPane.lib'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -58,16 +59,6 @@ const loadingGenePanelCategories = ref(true)
 const genomicsEnglandPanels = ref([])
 // genomics england confidence
 const genomicsEnglandConfidence = ref(3)
-
-/** Regular expression for validating a genomic region. */
-const regexRegion = new RegExp(
-  '^' + // start
-    '(?<chrom>(chr)?' + // open chrom
-    '(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|MT)' + // chrom name
-    ')' + // close chrom
-    '(:(?<start>(\\d+(,\\d+)*))-(?<stop>(\\d+(,\\d+)*)))?' + // optional range
-    '$', // end
-)
 
 /** Load Genome England PanelApp presets. */
 const loadPanelPage = async (page) => {

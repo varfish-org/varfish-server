@@ -7,11 +7,12 @@
 import '@mdi/font/css/materialdesignicons.css'
 // Composables
 import { type ThemeDefinition, createVuetify } from 'vuetify'
-import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
-import { VNumberInput } from 'vuetify/labs/VNumberInput'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
+import { VSnackbarQueue } from 'vuetify/labs/VSnackbarQueue'
+
 import '../styles/main.scss'
 
 const customLightTheme: ThemeDefinition = {

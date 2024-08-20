@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import ItemButton from './ItemButton.vue'
 import { Icon } from '@iconify/vue'
+
+import ItemButton from './ItemButton.vue'
 
 /** This component's props. */
 const props = withDefaults(

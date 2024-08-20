@@ -1,5 +1,4 @@
 import { FunctionalComponent, SVGAttributes, defineComponent, h } from 'vue'
-
 import IconCircle from '~icons/bi/circle'
 import IconCircleFill from '~icons/bi/circle-fill'
 import IconDiamond from '~icons/bi/diamond'

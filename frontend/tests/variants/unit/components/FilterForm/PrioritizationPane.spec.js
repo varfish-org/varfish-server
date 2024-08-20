@@ -1,6 +1,7 @@
-import FilterFormPrioritizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormPrioritizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 
 describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization prefilled', () => {

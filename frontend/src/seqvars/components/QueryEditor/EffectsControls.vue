@@ -4,13 +4,12 @@ import {
   SeqvarsVariantConsequenceChoiceList,
   SeqvarsVariantTypeChoiceList,
 } from '@varfish-org/varfish-api/lib'
-
 import { computed, ref } from 'vue'
 
 import { Query } from '@/seqvars/types'
 
-import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import { toggleArrayElement } from '../utils'
+import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

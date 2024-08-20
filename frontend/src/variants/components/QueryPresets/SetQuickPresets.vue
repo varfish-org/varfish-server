@@ -1,7 +1,6 @@
 <script setup>
 /** Editor component for quick presets.
  */
-
 import { randomString } from '@/varfish/common'
 
 /** Define props. */

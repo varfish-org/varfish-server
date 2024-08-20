@@ -1,14 +1,13 @@
 /**
  * Store with the result set and result set UUID of an variant query.
  */
-
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { VariantClient } from '@/variants/api/variantClient'
 import { DisplayColumns } from '@/variants/enums'
-import { useCtxStore } from '@/varfish/stores/ctx'
 
 export const useVariantResultSetStore = defineStore('variantResultSet', () => {
   // store dependencies

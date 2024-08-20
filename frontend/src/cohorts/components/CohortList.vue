@@ -1,14 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-import Toast from '@/varfish/components/Toast.vue'
-
 import { connectTopRowControls } from '@/cohorts/common'
 import Header from '@/cohorts/components/CohortList/Header.vue'
 import Table from '@/cohorts/components/CohortList/Table.vue'
 import ModalCohortEditor from '@/cohorts/components/ModalCohortEditor.vue'
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
 import Overlay from '@/varfish/components/Overlay.vue'
+import Toast from '@/varfish/components/Toast.vue'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({})

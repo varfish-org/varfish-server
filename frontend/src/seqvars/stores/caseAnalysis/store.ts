@@ -1,12 +1,13 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
 import {
   CaseAnalysis,
   CaseAnalysisSession,
   CasesAnalysisService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
+import { State, StoreState } from '@/varfish/storeUtils'
 
 /**
  * Store for the case analysis (and case analysis session).

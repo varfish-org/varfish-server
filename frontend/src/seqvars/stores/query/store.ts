@@ -1,7 +1,3 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQuery,
   SeqvarsQueryColumnsConfig,
@@ -9,7 +5,12 @@ import {
   SeqvarsQuerySettingsDetails,
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { State, StoreState } from '@/varfish/storeUtils'
 
 /**
  * Store for the seqvars queries.

@@ -1,6 +1,7 @@
-import FilterFormFlagsPane from '@/variants/components/FilterForm/FlagsPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormFlagsPane from '@/variants/components/FilterForm/FlagsPane.vue'
 
 import querySettingsSingleton from '../../../data/query-settings-singleton.json'
 

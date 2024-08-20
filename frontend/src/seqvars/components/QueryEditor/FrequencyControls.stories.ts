@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import presetsDetails from './presetsDetails.FrequencyControls.json'
 import FrequencyControls from './FrequencyControls.vue'
+import presetsDetails from './presetsDetails.FrequencyControls.json'
 
 const meta: Meta<typeof FrequencyControls> = {
   title: 'Seqvars / Frequency Controls',

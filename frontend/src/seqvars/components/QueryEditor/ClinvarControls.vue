@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Query } from '@/seqvars/types'
 import { ClinvarGermlineAggregateDescriptionChoice } from '@varfish-org/varfish-api/lib'
-
 import { computed } from 'vue'
+
+import { Query } from '@/seqvars/types'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

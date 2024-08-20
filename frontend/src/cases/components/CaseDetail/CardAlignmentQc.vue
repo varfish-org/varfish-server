@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { State } from '@/varfish/storeUtils'
 import { displayName, formatLargeInt } from '@/varfish/helpers'
+import { State } from '@/varfish/storeUtils'
 
 // Store-related.
 

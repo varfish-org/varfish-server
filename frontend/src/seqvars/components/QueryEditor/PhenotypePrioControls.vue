@@ -2,11 +2,12 @@
 import { computed, ref } from 'vue'
 
 import { Query } from '@/seqvars/types'
+
+import { queryHPO_Terms } from '../utils'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import SelectBox from './ui/SelectBox.vue'
 import { type ItemData } from './ui/lib'
-import { queryHPO_Terms } from '../utils'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

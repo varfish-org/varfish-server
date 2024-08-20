@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import { Query } from '@/seqvars/types'
+
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
-import { ref } from 'vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

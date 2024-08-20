@@ -2,13 +2,14 @@
  *
  * Holds the major app state.
  */
-
-import { uuidv4 } from '@/cohorts/helpers'
-import cohortsApi from '@/cohorts/api/cohorts'
-import { useCtxStore } from '@/varfish/stores/ctx'
 import difference from 'lodash/difference'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+
+import cohortsApi from '@/cohorts/api/cohorts'
+import { uuidv4 } from '@/cohorts/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
 export const StoreState = Object.freeze({
   initial: 'initial',
   initializing: 'initializing',

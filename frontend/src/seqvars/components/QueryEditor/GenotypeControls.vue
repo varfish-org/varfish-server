@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { RecessiveModeEnum } from '@varfish-org/varfish-api/lib'
 import { computed, watch } from 'vue'
 
-import { RecessiveModeEnum } from '@varfish-org/varfish-api/lib'
+import { PedigreeObj } from '@/cases/stores/caseDetails'
+import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
+import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import { Query } from '@/seqvars/types'
 
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import RecessiveControls from './RecessiveControls.vue'
 import SexAffectedIcon from './SexAffectedIcon'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
-import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
-import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

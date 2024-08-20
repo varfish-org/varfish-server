@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
+import { computed } from 'vue'
 
 import Input from '../QueryEditor/ui/Input.vue'
 

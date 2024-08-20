@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { jumpToLocus } from './lib'
+import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { SECTIONS } from './constants'
+
 import { useHistoryStore } from '@/varfish/stores/history'
-import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
+
+import { SECTIONS } from './constants'
+import { jumpToLocus } from './lib'
 
 /** The component's props. */
 const props = defineProps<{

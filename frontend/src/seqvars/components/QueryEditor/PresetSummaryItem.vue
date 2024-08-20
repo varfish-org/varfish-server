@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+
+import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { Query } from '@/seqvars/types'
 
 import { GROUPS, matchesQualityPreset } from './groups'
 import Item from './ui/Item.vue'
-import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 type Preset =
   SeqvarsQueryPresetsSetVersionDetails[(typeof GROUPS)[number]['presetSetKey']][0]

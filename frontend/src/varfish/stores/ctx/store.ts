@@ -1,11 +1,13 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { SodarUser } from './types'
 import {
   CasesService,
   UserAndGlobalSettings,
 } from '@varfish-org/varfish-api/lib'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
+
+import { SodarUser } from './types'
 
 /**
  * Returns the value of a cookie.

@@ -1,15 +1,14 @@
 <script setup>
-import 'vue3-easy-data-table/dist/style.css'
-import EasyDataTable from 'vue3-easy-data-table'
-import { onMounted, ref, watch } from 'vue'
 import debounce from 'lodash.debounce'
-
-import { formatTimeAgo } from '@/varfish/helpers'
-import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
-import Toast from '@/varfish/components/Toast.vue'
+import { onMounted, ref, watch } from 'vue'
+import EasyDataTable from 'vue3-easy-data-table'
+import 'vue3-easy-data-table/dist/style.css'
 
 import ModalCohortEditor from '@/cohorts/components/ModalCohortEditor.vue'
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
+import Toast from '@/varfish/components/Toast.vue'
+import { formatTimeAgo } from '@/varfish/helpers'
 
 const cohortsStore = useCohortsStore()
 
