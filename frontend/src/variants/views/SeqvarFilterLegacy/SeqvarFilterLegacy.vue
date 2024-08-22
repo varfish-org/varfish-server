@@ -7,7 +7,7 @@ import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useProjectStore } from '@/cases/stores/project/store'
-import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
+import SeqvarDetailsDrawer from '@/seqvars/components/SeqvarDetailsDrawer/SeqvarDetailsDrawer.vue'
 import { useCtxStore } from '@/varfish/stores/ctx'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import FilterApp from '@/variants/components/FilterApp.vue'
@@ -256,7 +256,7 @@ onMounted(() => {
         @variant-selected="showDetails"
       />
 
-      <SeqvarDetails
+      <SeqvarDetailsDrawer
         v-if="resultRowUuid"
         v-model:show-sheet="detailsShown"
         :project-uuid="props.projectUuid"

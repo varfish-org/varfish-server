@@ -10,7 +10,7 @@ import { useProjectStore } from '@/cases/stores/project'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
 import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
-import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
+import SeqvarDetailsDrawer from '@/seqvars/components/SeqvarDetailsDrawer/SeqvarDetailsDrawer.vue'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -182,7 +182,7 @@ watch(
         ultricies. Nullam nec purus nec nunc
       </div>
     </v-main>
-    <SeqvarDetails
+    <SeqvarDetailsDrawer
       v-model:show-sheet="detailsShown"
       :project-uuid="projectUuid"
       :result-row-uuid="caseDetailsStore.caseObj?.sodar_uuid"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import VResizeDrawer from '@wdns/vuetify-resize-drawer'
 
-import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
+import SeqvarDetailsInner from '@/variants/views/SeqvarDetails/SeqvarDetailsInner.vue'
 
 /** Model with boolean that defines visibility. */
 const showSheet = defineModel('showSheet', {
@@ -46,12 +46,14 @@ const props = defineProps<{
       </div>
     </template>
     <v-divider></v-divider>
-    <SeqvarDetails
-      :project-uuid="props.projectUuid"
-      :result-row-uuid="props.resultRowUuid"
-      :selected-section="props.selectedSection"
-      :hide-back-button="true"
-    />
+    <div class="ml-3">
+      <SeqvarDetailsInner
+        :project-uuid="props.projectUuid"
+        :result-row-uuid="props.resultRowUuid"
+        :selected-section="props.selectedSection"
+        :hide-back-button="true"
+      />
+    </div>
   </v-resize-drawer>
 </template>
 
