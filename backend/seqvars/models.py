@@ -912,35 +912,35 @@ class SeqvarsQuerySettings(BaseModel):
     )
     #: The chosen quality presets.
     qualitypresets = models.ForeignKey(
-        SeqvarsQueryPresetsQuality, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsQuality, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen frequency presets.
     frequencypresets = models.ForeignKey(
-        SeqvarsQueryPresetsFrequency, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsFrequency, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen consequence presets.
     consequencepresets = models.ForeignKey(
-        SeqvarsQueryPresetsConsequence, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsConsequence, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen locus presets.
     locuspresets = models.ForeignKey(
-        SeqvarsQueryPresetsLocus, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsLocus, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen phenotype priorization presets.
     phenotypepriopresets = models.ForeignKey(
-        SeqvarsQueryPresetsPhenotypePrio, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsPhenotypePrio, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen variant priorization presets.
     variantpriopresets = models.ForeignKey(
-        SeqvarsQueryPresetsVariantPrio, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsVariantPrio, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen clinvar presets.
     clinvarpresets = models.ForeignKey(
-        SeqvarsQueryPresetsClinvar, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsClinvar, on_delete=models.PROTECT, null=True, blank=True
     )
     #: The chosen columns presets.
     columnspresets = models.ForeignKey(
-        SeqvarsQueryPresetsColumns, on_delete=models.SET_NULL, null=True, blank=True
+        SeqvarsQueryPresetsColumns, on_delete=models.PROTECT, null=True, blank=True
     )
 
     def __str__(self):
@@ -1227,10 +1227,8 @@ class SeqvarsQuerySettingsGenotypeManager(models.Manager):
         querysettings: SeqvarsQuerySettings,
         genotypepresets: SeqvarsGenotypePresetsPydantic,
     ) -> "SeqvarsQuerySettingsGenotype":
-        recessive_mode = (
-            PRESETS_CHOICE_TO_RECESSIVE_MODE.get(
-                genotypepresets.choice, SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED
-            ),
+        recessive_mode = PRESETS_CHOICE_TO_RECESSIVE_MODE.get(
+            genotypepresets.choice, SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED
         )
         sample_genotype_choices = self.__class__._preset_choice_to_genotype_choice(
             pedigree=pedigree,
@@ -1635,7 +1633,7 @@ class SeqvarsQuery(BaseModel):
     #: Owning/containing session.
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Query settings to be edited in the next query execution.
-    settings = models.OneToOneField(SeqvarsQuerySettings, on_delete=models.PROTECT)
+    settings = models.OneToOneField(SeqvarsQuerySettings, on_delete=models.CASCADE)
     #: The columns configuration of the query.
     columnsconfig = models.OneToOneField(SeqvarsQueryColumnsConfig, on_delete=models.PROTECT)
 
@@ -1645,6 +1643,11 @@ class SeqvarsQuery(BaseModel):
             return self.session.caseanalysis.case
         except AttributeError:
             return None
+
+    def delete(self, *args, **kwargs):
+        """Override ``delete()`` to also delete ``self.settings``."""
+        self.settings.delete()
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"SeqvarsQuery '{self.sodar_uuid}'"
@@ -1689,7 +1692,7 @@ class SeqvarsQueryExecution(BaseModel):
     #: The owning/containing query.
     query = models.ForeignKey(SeqvarsQuery, on_delete=models.CASCADE)
     #: Effective query settings of execution.
-    querysettings = models.ForeignKey(SeqvarsQuerySettings, on_delete=models.PROTECT)
+    querysettings = models.ForeignKey(SeqvarsQuerySettings, on_delete=models.CASCADE)
 
     @property
     def case(self) -> typing.Optional[Case]:
