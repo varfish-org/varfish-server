@@ -20,3 +20,6 @@ export const GENOTYPE_PRESET_TO_RECESSIVE_MODE: Record<
   recessive: 'recessive',
   x_recessive: 'recessive',
 }
+
+/** Debounce wait value for query updates. */
+export const QUERY_DEBOUNCE_WAIT = 500

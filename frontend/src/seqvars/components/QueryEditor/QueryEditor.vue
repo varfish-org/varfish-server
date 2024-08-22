@@ -3,13 +3,13 @@ import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
   SeqvarsQueryDetails,
-  SeqvarsQueryDetailsRequest,
-  SeqvarsQueryExecution,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
-  SeqvarsQuerySettingsDetails,
 } from '@varfish-org/varfish-api/lib'
-import { computed, ref } from 'vue'
+import { diff } from 'deep-object-diff'
+import isEqual from 'fast-deep-equal/es6'
+import { debounce } from 'lodash'
+import { computed, ref, toRaw, watch } from 'vue'
 
 import { PedigreeObj, useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import GenotypeControls from '@/seqvars/components/QueryEditor/GenotypeControls.vue'
@@ -24,13 +24,18 @@ import {
   matchesGenotypePreset,
   matchesQualityPreset,
 } from '@/seqvars/components/QueryEditor/groups'
-import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/lib/constants'
+import {
+  GENOTYPE_PRESET_TO_RECESSIVE_MODE,
+  QUERY_DEBOUNCE_WAIT,
+} from '@/seqvars/components/QueryEditor/lib/constants'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
 import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
 import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { copy } from '@/varfish/helpers'
+
+import { AnyObject, deepCopyAndOmit } from './lib'
 
 /** This component's props. */
 const props = withDefaults(
@@ -88,148 +93,149 @@ const selectedQuery = computed<SeqvarsQueryDetails | undefined>({
 })
 
 /**
- * The currently selected predefined query.  This is used to compute differences
- * and revert back to.
+ * The original predefined query that the currently selected query is based on.
  */
-const selectedPredefinedQuery = computed(() =>
-  props.presetsDetails.seqvarspredefinedquery_set.find(
-    (pq) => pq.sodar_uuid === selectedQuery.value?.settings.predefinedquery,
-  ),
+// TODO: here we don't know why its not set...
+const baselinePredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
+  () =>
+    props.presetsDetails.seqvarspredefinedquery_set.find(
+      (pq) => pq.sodar_uuid === selectedQuery.value?.settings.predefinedquery,
+    ),
 )
 
 /**
- * Create a new `Query` object based on the given `SeqvarsPredefinedQuery`.
- *
- * The function first creates a `SeqvarsQueryDetails` on the client side.  This
- * is then saved to the server using the `seqvarsQueryStore`.
- *
- * @throws Error if there was a problem with creating the query.
+ * Create a new query based on the given predefined query.
  */
-const createQuery = async (
-  pq: SeqvarsPredefinedQuery,
-  options?: { label?: string },
-) => {
-  if (!pedigree.value) {
-    throw new Error('Pedigree not available')
-  }
-
-  const presetFields = Object.fromEntries(
-    GROUPS.flatMap((group) => {
-      const preset = props.presetsDetails[group.presetSetKey].find(
-        (p) => p.sodar_uuid === pq[group.id],
-      )
-      return [
-        [group.queryPresetKey, pq[group.id]],
-        [
-          group.id,
-          group.id == 'quality'
-            ? createQualityFromPreset(
-                pedigree.value!,
-                preset as SeqvarsQueryPresetsQuality,
-              )
-            : preset,
-        ],
-      ]
-    }),
-  ) as Pick<SeqvarsQuerySettingsDetails, (typeof GROUPS)[number]['id']> &
-    Partial<SeqvarsQuerySettingsDetails>
-  const choice = pq.genotype?.choice
-
-  // Pick unique label.
-  let label
-  if (options?.label) {
-    label = options.label
-  } else {
-    label = pq.label
-    const queryLabels = Array.from(
-      seqvarsQueryStore.seqvarQueries.values(),
-    ).map((q) => q.label)
-    for (let i = 2; ; i++) {
-      if (queryLabels.includes(label)) {
-        label = `${pq.label} (${i})`
-      } else {
-        break
-      }
-    }
-  }
-  // Pick a next rank.
-  const rank = Math.max(
-    1,
-    ...Array.from(seqvarsQueryStore.seqvarQueries.values()).map(
-      (q) => q.rank ?? 0,
-    ),
+const createQuery = async (pq: SeqvarsPredefinedQuery) => {
+  let label = pq.label
+  const queryLabels = Array.from(seqvarsQueryStore.seqvarQueries.values()).map(
+    (q) => q.label,
   )
-  const result: SeqvarsQueryDetailsRequest = {
-    rank,
-    label,
-    settings: {
-      genotypepresets: undefined,
-      qualitypresets: undefined,
-      consequencepresets: undefined,
-      locuspresets: undefined,
-      frequencypresets: undefined,
-      phenotypepriopresets: undefined,
-      variantpriopresets: undefined,
-      clinvarpresets: undefined,
-      genotype: {
-        recessive_mode: undefined,
-        sample_genotype_choices: undefined,
-      },
-      quality: {
-        sample_quality_filters: undefined,
-      },
-      consequence: {
-        variant_types: undefined,
-        transcript_types: undefined,
-        variant_consequences: undefined,
-        max_distance_to_exon: undefined,
-      },
-      locus: {
-        genes: undefined,
-        gene_panels: undefined,
-        genome_regions: undefined,
-      },
-      frequency: {
-        gnomad_exomes: undefined,
-        gnomad_genomes: undefined,
-        gnomad_mitochondrial: undefined,
-        helixmtdb: undefined,
-        inhouse: undefined,
-      },
-      phenotypeprio: {
-        phenotype_prio_enabled: undefined,
-        phenotype_prio_algorithm: undefined,
-        terms: undefined,
-      },
-      variantprio: {
-        variant_prio_enabled: undefined,
-        services: undefined,
-      },
-      clinvar: {
-        clinvar_presence_required: undefined,
-        clinvar_germline_aggregate_description: undefined,
-        allow_conflicting_interpretations: undefined,
-      },
-    },
-    columnsconfig: {
-      column_settings: [],
-    },
+  let i = 2 // sic, need to place outside loop in `<template>`
+  for (; queryLabels.includes(label); i++) {
+    label = `${pq.label} (${i})`
   }
-  return result
 
-  return copy({
-    ...presetFields,
-    label,
-    predefinedquery: pq.sodar_uuid,
-    genotype: createGenotypeFromPreset(pedigree.value, choice),
-    genotypepresets: { choice },
-  })
+  try {
+    selectedQueryUuid.value =
+      await seqvarsQueryStore.copySeqvarsQueryFromPreset(pq.sodar_uuid, label)
+    emit('message', {
+      text: `Created new query: ${selectedQuery.value?.label}`,
+      color: 'success',
+    })
+  } catch (e) {
+    emit('message', {
+      text: `Failed to create new query: ${e}`,
+      color: 'error',
+    })
+  }
 }
 
 /**
- * Revert the given preset group to the given preset.
+ * Update the query's label.
+ *
+ * @param label The new label to set.
+ * @returns Whether the update was successful.
+ * @throws Error if the query could not be updated.
  */
-const revertToPresets = <G extends (typeof GROUPS)[number]>(
+const updateQueryLabel = async (label: string): Promise<boolean> => {
+  if (!!selectedQuery.value) {
+    selectedQuery.value.label = label
+    try {
+      await seqvarsQueryStore.updateSeqvarsQuery(selectedQuery.value)
+      emit('message', {
+        text: 'Query updated successfully.',
+        color: 'success',
+      })
+      return true
+    } catch (e) {
+      emit('message', {
+        text: `Failed to update query: ${e}`,
+        color: 'error',
+      })
+    }
+  }
+  return false
+}
+
+/**
+ * Revert the currently selected query's genotype.
+ */
+const revertGenotypeToPresets = async () => {
+  if (
+    !!selectedQuery.value?.settings.genotypepresets?.choice &&
+    !!baselinePredefinedQuery.value?.genotype?.choice
+  ) {
+    selectedQuery.value.settings.genotypepresets.choice =
+      baselinePredefinedQuery.value.genotype.choice
+    updateGenotypeToPresets(selectedQuery.value.settings.genotypepresets.choice)
+  }
+}
+
+/**
+ * Revert the currently selected query's settings in a group/category
+ * to its original presets'
+ */
+const revertGroupToPresets = async (group: (typeof GROUPS)[number]) => {
+  const preset = props.presetsDetails[group.presetSetKey].find(
+    (p) => p.sodar_uuid === baselinePredefinedQuery.value?.[group.id],
+  )
+  if (!!pedigree.value && !!preset) {
+    revertCategoryToPresets(pedigree.value, group, preset)
+  }
+}
+
+/**
+ * Reverts the currently selected query's settings to its original presets'
+ * value.
+ */
+const revertQueryToPresets = async () => {
+  if (!!selectedQuery.value?.settings?.genotypepresets?.choice) {
+    revertGenotypeToPresets()
+  }
+  for (const group of Object.values(GROUPS)) {
+    revertGroupToPresets(group)
+  }
+}
+
+/**
+ * Set the genotype according to the given preset choice.
+ *
+ * Used both for setting the genotype from a preset and for reverting the
+ * genotype to the preset.
+ */
+const updateGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
+  if (!selectedQuery.value || !pedigree.value) {
+    return
+  }
+  selectedQuery.value.settings.genotype = {
+    ...selectedQuery.value.settings.genotype,
+    ...copy(createGenotypeFromPreset(pedigree.value, choice)),
+  }
+  selectedQuery.value.settings.genotypepresets = { choice }
+}
+
+/**
+ * Updates the selected query UUID.
+ *
+ * When undefined or cannot be found in store's seqvar queries then update to
+ * the first one.
+ */
+const updateSelectedQueryUuid = () => {
+  if (
+    !selectedQueryUuid.value ||
+    !seqvarsQueryStore.seqvarQueries.has(selectedQueryUuid.value)
+  ) {
+    selectedQueryUuid.value = seqvarsQueryStore.seqvarQueries
+      .values()
+      .next()?.value?.sodar_uuid
+  }
+}
+
+/**
+ * Revert the given preset category/group to the given preset.
+ */
+const revertCategoryToPresets = <G extends (typeof GROUPS)[number]>(
   pedigree: PedigreeObj,
   group: G,
   preset: G extends FilterGroup<any, any, infer Preset> ? Preset : never,
@@ -237,62 +243,124 @@ const revertToPresets = <G extends (typeof GROUPS)[number]>(
   if (!selectedQuery.value) {
     return
   }
-  selectedQuery.value[`${group.id}presets`] = preset.sodar_uuid
+  selectedQuery.value.settings[`${group.id}presets`] = preset.sodar_uuid
   const value =
     group.id == 'quality'
       ? createQualityFromPreset(pedigree, preset as SeqvarsQueryPresetsQuality)
       : preset
-  selectedQuery.value[group.id] = copy(value)
+  selectedQuery.value.settings[group.id] = {
+    ...selectedQuery.value.settings[group.id],
+    ...copy(value),
+  }
+}
+
+/** The last state of selected query that has been seen. */
+const selectedQueryPrev = ref<SeqvarsQueryDetails | undefined>(undefined)
+
+/**
+ * Update the currently selected query if set and different from `selectedQueryPrev`.
+ */
+const updateSelectedQuery = async () => {
+  /**
+   * Helper that strips irrelevant keys from the objects.
+   */
+  const strip = (obj: AnyObject) =>
+    deepCopyAndOmit(obj, [
+      // dates can change on updates / recreation
+      'date_created',
+      'date_modified',
+      // recreated on updates in the library for nested updates we use
+      'sodar_uuid',
+      'querysettings',
+    ])
+
+  if (!selectedQuery.value) {
+    // Guard against no selected query.
+    return
+  } else if (
+    !selectedQueryPrev.value ||
+    selectedQuery.value!.sodar_uuid !== selectedQueryPrev.value.sodar_uuid
+  ) {
+    // Guard against no previous query or query identity/UUID change.
+    selectedQueryPrev.value = structuredClone(toRaw(selectedQuery.value))
+    return
+  }
+
+  // Passed all guard statements, check if the contents actually changed.
+  if (!isEqual(strip(selectedQuery.value), strip(selectedQueryPrev.value))) {
+    selectedQueryPrev.value = structuredClone(toRaw(selectedQuery.value))
+    await seqvarsQueryStore.updateSeqvarsQuery(selectedQuery.value!)
+  }
 }
 
 /**
- * Revert the genotype to the given preset choice.
+ * Update the currently selected query in the store -- debounced.
+ *
+ * Used for updating settings so that the UI does not lag.
  */
-const revertGenotypeToPresets = (choice: SeqvarsGenotypePresetChoice) => {
-  if (!selectedQuery.value || !pedigree.value) {
-    return
-  }
-  selectedQuery.value.genotype = copy(
-    createGenotypeFromPreset(pedigree.value, choice),
-  )
-  selectedQuery.value.genotypepresets = { choice }
-}
+const updateSelectedQueryDebounced = debounce(
+  updateSelectedQuery,
+  QUERY_DEBOUNCE_WAIT,
+  { leading: true, trailing: true },
+)
 
-/** Reverts the currently selected query to the given preset. */
-const revertQueryToPresets = async () => {
-  // try {
-  const pq = props.presetsDetails.seqvarspredefinedquery_set.find(
-    (p) => p.sodar_uuid === selectedQuery?.value?.predefinedquery,
-  )!
-  selectedQuery.value = createQuery(pq, { label: pq.label })
-  // } catch (e) {
-  //   console.error(e)
-  //   emit('message', {
-  //     text: 'Failed to revert query to presets.',
-  //     color: 'error',
-  //   })
-  // }
-}
+// Observe changes in the queries and update the selected query UUID accordingly.
+watch(
+  () => [seqvarsQueryStore.seqvarQueries.values()],
+  () => updateSelectedQueryUuid(),
+)
+
+// Observe changes in the currently selected query (deeply) and update the query
+// on the server accordingly.
+watch(
+  () => selectedQuery,
+  () => updateSelectedQueryDebounced(),
+  { deep: true },
+)
 </script>
 
 <template>
   <div v-if="pedigree" class="h-100 overflow-y-auto overflow-x-hidden pr-2">
     <QueryList
-      v-if="!!pedigree && queries.length > 0"
+      v-if="!!pedigree && seqvarsQueryStore.seqvarQueries.size > 0"
       :selected-query-uuid="selectedQueryUuid"
       :presets-details="presetsDetails"
-      :queries="queries"
-      :query-executions="queryExecutions"
+      :queries="seqvarsQueryStore.seqvarQueries"
+      :query-executions="seqvarsQueryStore.seqvarsQueryExecutions"
       :pedigree="pedigree"
       :hints-enabled="hintsEnabled"
-      @update:selected-index="
-        (index: number | null) => (selectedQueryIndex = index)
+      @update:selected-query-uuid="
+        (queryUuid: string) => {
+          selectedQueryUuid = queryUuid
+        }
       "
-      @remove="(index: number) => queries.splice(index, 1)"
+      @remove="
+        async (queryUuid: string) => {
+          const seqvarsQuery = seqvarsQueryStore.seqvarQueries.get(queryUuid)
+          if (!seqvarsQuery) {
+            console.error('Query not found:', queryUuid)
+            return
+          }
+          try {
+            await seqvarsQueryStore.deleteSeqvarsQuery(queryUuid)
+            emit('message', {
+              text: `Deleted query: ${seqvarsQuery.label}`,
+              color: 'success',
+            })
+          } catch (e) {
+            emit('message', {
+              text: `Failed to delete query: ${e}`,
+              color: 'error',
+            })
+          }
+        }
+      "
       @revert="revertQueryToPresets"
       @update-query="
-        (index: number) => {
-          updateDialogTitle = queries.at(index)?.label ?? ''
+        (queryUuid: string) => {
+          selectedQueryUuid = queryUuid
+          updateDialogTitle =
+            seqvarsQueryStore.seqvarQueries.get(queryUuid)?.label ?? ''
           showUpdateDialog = true
         }
       "
@@ -300,7 +368,11 @@ const revertQueryToPresets = async () => {
 
     <!-- Teleport out the query list when hidden. -->
     <Teleport
-      v-if="collapsed && teleportToWhenCollapsed && queries.length > 0"
+      v-if="
+        collapsed &&
+        teleportToWhenCollapsed &&
+        seqvarsQueryStore.seqvarQueries.size > 0
+      "
       :to="teleportToWhenCollapsed"
     >
       <v-list-subheader v-if="teleportedQueriesLabels" class="text-uppercase">
@@ -309,12 +381,16 @@ const revertQueryToPresets = async () => {
       <v-divider v-else class="mt-1 mb-1"></v-divider>
 
       <v-list-item
-        v-for="(_query, index) in queries"
-        :key="index"
-        :variant="selectedQueryIndex === index ? 'tonal' : undefined"
-        :title="queries[index].label"
+        v-for="(query, index) in seqvarsQueryStore.seqvarQueries.values()"
+        :key="query.sodar_uuid"
+        :variant="
+          !!selectedQuery && selectedQueryUuid === query.sodar_uuid
+            ? 'tonal'
+            : undefined
+        "
+        :title="query.label"
         :prepend-icon="'mdi-numeric-' + (index + 1) + '-box-outline'"
-        @click="selectedQueryIndex = index"
+        @click="selectedQueryUuid = query.sodar_uuid"
       />
     </Teleport>
 
@@ -324,51 +400,8 @@ const revertQueryToPresets = async () => {
       :selected-id="selectedQuery?.settings.predefinedquery"
       :query="selectedQuery"
       :pedigree="pedigree"
-      @update:selected-id="
-        () => {}
-        // (id?: string) => {
-        //   // try {
-        //   const pq = presetsDetails.seqvarspredefinedquery_set.find(
-        //     (p) => p.sodar_uuid === id,
-        //   )!
-        //   selectedQuery = createQuery(pq)
-        //   // } catch (e) {
-        //   //   console.error(e)
-        //   //   emit('message', {
-        //   //     text: 'Failed to update query to presets.',
-        //   //     color: 'error',
-        //   //   })
-        //   // }
-        // }
-      "
       @revert="revertQueryToPresets"
-      @add-query="
-        (pq: SeqvarsPredefinedQuery) => {
-          // try {
-          const query = createQuery(pq)
-          queries.push(query)
-          queryExecutions.push({
-            sodar_uuid: '',
-            date_created: '',
-            date_modified: '',
-            state: 'running',
-            complete_percent: null,
-            start_time: null,
-            end_time: null,
-            elapsed_seconds: null,
-            query: '',
-            querysettings: '',
-          })
-          selectedQueryIndex = queries.length - 1
-          // } catch (e) {
-          //   console.error(e)
-          //   emit('message', {
-          //     text: 'Failed to add query from presets.',
-          //     color: 'error',
-          //   })
-          // }
-        }
-      "
+      @add-query="createQuery"
     />
 
     <v-divider class="my-3" />
@@ -379,10 +412,10 @@ const revertQueryToPresets = async () => {
         :hints-enabled="hintsEnabled"
         hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
         :modified="
-          !!selectedPredefinedQuery?.genotype?.choice &&
+          !!baselinePredefinedQuery?.genotype?.choice &&
           !!selectedQuery?.settings.genotypepresets?.choice &&
-          selectedQuery?.settings.genotypepresets?.choice !=
-            selectedPredefinedQuery?.genotype?.choice
+          selectedQuery?.settings.genotypepresets?.choice !==
+            baselinePredefinedQuery?.genotype?.choice
         "
         :summary="
           selectedQuery.settings.genotypepresets?.choice
@@ -391,20 +424,7 @@ const revertQueryToPresets = async () => {
               ]
             : ''
         "
-        @revert="
-          () => {
-            if (
-              !!selectedQuery?.settings.genotypepresets?.choice &&
-              !!selectedPredefinedQuery?.genotype?.choice
-            ) {
-              selectedQuery.settings.genotypepresets.choice =
-                selectedPredefinedQuery.genotype.choice
-              revertGenotypeToPresets(
-                selectedQuery.settings.genotypepresets.choice,
-              )
-            }
-          }
-        "
+        @revert="revertGenotypeToPresets"
       >
         <template
           v-if="selectedQuery.settings.genotypepresets?.choice"
@@ -412,7 +432,7 @@ const revertQueryToPresets = async () => {
         >
           <Item
             :modified="
-              !!selectedPredefinedQuery &&
+              !!baselinePredefinedQuery &&
               !matchesGenotypePreset(
                 pedigree,
                 selectedQuery.settings.genotypepresets?.choice,
@@ -421,7 +441,7 @@ const revertQueryToPresets = async () => {
             "
             @revert="
               () =>
-                revertGenotypeToPresets(
+                updateGenotypeToPresets(
                   selectedQuery!.settings.genotypepresets?.choice!,
                 )
             "
@@ -448,15 +468,15 @@ const revertQueryToPresets = async () => {
               :modified="
                 !!pedigree &&
                 selectedQuery.settings.genotypepresets?.choice === key &&
-                selectedPredefinedQuery &&
+                baselinePredefinedQuery &&
                 !matchesGenotypePreset(
                   pedigree,
                   selectedQuery.settings.genotypepresets?.choice,
                   selectedQuery.settings,
                 )
               "
-              @click="() => revertGenotypeToPresets(key)"
-              @revert="() => revertGenotypeToPresets(key)"
+              @click="() => updateGenotypeToPresets(key)"
+              @revert="() => updateGenotypeToPresets(key)"
             >
               {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
             </Item>
@@ -483,22 +503,13 @@ const revertQueryToPresets = async () => {
           )?.label
         "
         :modified="
-          !!selectedPredefinedQuery?.[group.id] &&
+          !!baselinePredefinedQuery?.[group.id] &&
           presetsDetails[group.presetSetKey].find(
             (p) =>
               p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
-          )?.sodar_uuid !== selectedPredefinedQuery?.[group.id]
+          )?.sodar_uuid !== baselinePredefinedQuery?.[group.id]
         "
-        @revert="
-          () => {
-            const preset = presetsDetails[group.presetSetKey].find(
-              (p) => p.sodar_uuid === selectedPredefinedQuery?.[group.id],
-            )
-            if (!!pedigree && !!preset) {
-              revertToPresets(pedigree, group, preset)
-            }
-          }
-        "
+        @revert="() => revertGroupToPresets(group)"
       >
         <template #summary>
           <PresetSummaryItem
@@ -516,7 +527,7 @@ const revertQueryToPresets = async () => {
             @revert="
               (preset: any) => {
                 if (!!pedigree) {
-                  revertToPresets(pedigree, group, preset)
+                  revertCategoryToPresets(pedigree, group, preset)
                 }
               }
             "
@@ -539,7 +550,7 @@ const revertQueryToPresets = async () => {
                   selectedQuery.settings[group.queryPresetKey] &&
                 !(
                   !!pedigree &&
-                  selectedPredefinedQuery &&
+                  baselinePredefinedQuery &&
                   (group.id == 'quality'
                     ? matchesQualityPreset(
                         pedigree,
@@ -555,14 +566,14 @@ const revertQueryToPresets = async () => {
               @click="
                 () => {
                   if (pedigree) {
-                    revertToPresets(pedigree, group, preset)
+                    revertCategoryToPresets(pedigree, group, preset)
                   }
                 }
               "
               @revert="
                 () => {
                   if (pedigree) {
-                    revertToPresets(pedigree, group, preset)
+                    revertCategoryToPresets(pedigree, group, preset)
                   }
                 }
               "
@@ -621,12 +632,11 @@ const revertQueryToPresets = async () => {
             class="text-none"
             color="primary"
             rounded="xl"
-            text="Send"
+            text="Save"
             variant="flat"
             @click="
-              () => {
-                if (selectedQuery !== null) {
-                  selectedQuery.label = updateDialogTitle
+              async () => {
+                if (await updateQueryLabel(updateDialogTitle)) {
                   showUpdateDialog = false
                 }
               }

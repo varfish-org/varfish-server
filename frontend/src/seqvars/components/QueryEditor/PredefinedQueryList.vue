@@ -14,31 +14,27 @@ import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
 
 /** This component's props. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
     /** The presets version to use. */
     presets: SeqvarsQueryPresetsSetVersionDetails
     /** The pedigree. */
     pedigree: PedigreeObj
-    /** The query that is being modified. */
-    query: SeqvarsQueryDetails | null
+    /** The query that is being modified, if any selected. */
+    query?: SeqvarsQueryDetails
     /** Whether hints are enabled. */
     hintsEnabled?: boolean
+    /** The currently selected query UUID. */
+    selectedId?: string
   }>(),
   { hintsEnabled: false },
 )
-
-/** Currently selected predefined query UUID, if any. */
-const selectedId = defineModel<string | undefined>('selectedId', {
-  required: true,
-})
 
 /** Currently selected predefined query, if any.*/
 const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
   () => {
     return props.presets.seqvarspredefinedquery_set.find(
-      (pq) => pq.sodar_uuid === selectedId.value,
+      (pq) => pq.sodar_uuid === props.selectedId,
     )
   },
 )
@@ -91,7 +87,6 @@ const emit = defineEmits<{
             pq.sodar_uuid === selectedId &&
             !matchesPredefinedQuery(pedigree, presets, pq, query.settings)
           "
-          @click="selectedId = pq.sodar_uuid"
           @revert="$emit('revert')"
         >
           <template #default>{{ pq.label }}</template>

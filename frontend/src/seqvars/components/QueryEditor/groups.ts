@@ -214,10 +214,15 @@ export const createQualityFromPreset = (
     (individual) => individual.name,
   )
   return {
-    ...preset,
     sample_quality_filters: sampleNames.map((sample) => ({
       sample,
-      ...preset,
+      filter_active: preset.filter_active ?? false,
+      min_dp_het: preset.min_dp_het ?? null,
+      min_dp_hom: preset.min_dp_hom ?? null,
+      min_ab_het: preset.min_ab_het ?? null,
+      min_gq: preset.min_gq ?? null,
+      min_ad: preset.min_ad ?? null,
+      max_ad: preset.max_ad ?? null,
     })),
   }
 }
@@ -232,7 +237,10 @@ export const matchesQualityPreset = (
   )
   return (
     !!preset &&
-    isEqual(query.quality, createQualityFromPreset(pedigree, preset))
+    isEqual(
+      query.quality.sample_quality_filters,
+      createQualityFromPreset(pedigree, preset).sample_quality_filters,
+    )
   )
 }
 
@@ -246,7 +254,7 @@ export const matchesPredefinedQuery = (
   GROUPS.every((group) => {
     // Check whether the lower-level values match.
     const valuesMatch =
-      group.id == 'quality'
+      group.id === 'quality'
         ? matchesQualityPreset(pedigree, presetsDetails, query)
         : group.matchesPreset(presetsDetails, query)
     // Check that the selected category entry matches the one from the

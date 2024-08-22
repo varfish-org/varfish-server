@@ -74,7 +74,12 @@ const initializeStores = async () => {
 const selectedPresetSetVersionDetails = computed<
   SeqvarsQueryPresetsSetVersionDetails | undefined
 >(() => {
-  return seqvarsPresetsStore.presetSetVersions.values().next()?.value
+  return Array.from(seqvarsPresetsStore.presetSetVersions.values()).filter(
+    (entry) =>
+      !seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
+        entry.presetsset.sodar_uuid,
+      ),
+  )[0]
 })
 
 /** Event handler for queueing message in VSnackbarQueue. */
@@ -210,11 +215,11 @@ watch(
         ultricies. Nullam nec purus nec nunc
       </div>
     </v-main>
-    <SeqvarDetails
+    <!-- <SeqvarDetails
       v-model:show-sheet="detailsShown"
       :project-uuid="projectUuid"
       :result-row-uuid="caseDetailsStore.caseObj?.sodar_uuid"
-    />
+    /> -->
 
     <v-snackbar-queue
       v-model="messages"

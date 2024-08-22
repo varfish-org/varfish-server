@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  SeqvarsPredefinedQuery,
   SeqvarsQueryDetails,
   SeqvarsQueryExecution,
   SeqvarsQueryPresetsSetVersionDetails,
@@ -79,7 +80,18 @@ const queryUuidToIndex = computed<Map<string, number>>(() => {
   return result
 })
 
-/** Helper that returns the query's execution UUID, if any. */
+/** Helper that provides a map from predefined query UUID to object. */
+const predefinedQueryByUuid = computed<Map<string, SeqvarsPredefinedQuery>>(
+  () =>
+    new Map(
+      props.presetsDetails.seqvarspredefinedquery_set.map((pq) => [
+        pq.sodar_uuid,
+        pq,
+      ]),
+    ),
+)
+
+/** Helper that returns the query's execution for a query UUID, if any. */
 const queryExecution = (
   queryUuid: string,
 ): SeqvarsQueryExecution | undefined => {
@@ -113,17 +125,16 @@ const queryExecutionState = (queryUuid: string) => {
     <template #default>
       <div style="width: 100%; display: flex; flex-direction: column">
         <Item
-          v-for="query in queries.values()"
+          v-for="(query, index) in queries.values()"
           :key="query.sodar_uuid"
           :selected="query.sodar_uuid === selectedQueryUuid"
           :modified="
             !!query &&
+            !!predefinedQueryByUuid.get(query.settings.predefinedquery) &&
             !matchesPredefinedQuery(
               pedigree,
               presetsDetails,
-              presetsDetails.seqvarspredefinedquery_set.find(
-                (pq) => pq.sodar_uuid === query.settings.predefinedquery,
-              )!,
+              predefinedQueryByUuid.get(query.settings.predefinedquery)!,
               query.settings,
             )
           "
@@ -132,7 +143,7 @@ const queryExecutionState = (queryUuid: string) => {
         >
           <template #default>
             <v-icon
-              :icon="`mdi-numeric-${queryUuidToIndex.get(selectedQueryUuid ?? '') ?? 0}-box-outline`"
+              :icon="`mdi-numeric-${index + 1}-box-outline`"
               size="small"
             />
             <span
