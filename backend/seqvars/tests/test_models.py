@@ -38,7 +38,6 @@ from seqvars.models import (
     SeqvarsResultRow,
     SeqvarsResultSet,
 )
-from seqvars.serializers import SeqvarsQuerySettingsSerializer
 from seqvars.tests.factories import (
     SeqvarsPredefinedQueryFactory,
     SeqvarsQueryColumnsConfigFactory,
@@ -286,15 +285,28 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         predefinedquery = SeqvarsPredefinedQueryFactory()
         session = CaseAnalysisSessionFactory()
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
         querysettings = SeqvarsQuerySettings.objects.from_predefinedquery(
             session=session,
             predefinedquery=predefinedquery,
         )
         _ = querysettings
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
-
-        querysettings_ser = SeqvarsQuerySettingsSerializer(querysettings).data
-        self.assertMatchSnapshot(querysettings_ser)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
 
 
 class TestSeqvarsQuerySettingsGenotype(TestCaseSnapshot, TestCase):
