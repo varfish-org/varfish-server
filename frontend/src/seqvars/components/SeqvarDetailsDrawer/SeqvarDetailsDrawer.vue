@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import VResizeDrawer from '@wdns/vuetify-resize-drawer'
 
-import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
+import SeqvarDetailsInner from '@/variants/views/SeqvarDetails/SeqvarDetailsInner.vue'
 
 /** Model with boolean that defines visibility. */
 const showSheet = defineModel('showSheet', {
@@ -23,7 +23,7 @@ const props = defineProps<{
     location="right"
     temporary
     :scrim="false"
-    resizable
+    :resizable="true"
     save-width
     touchless
     min-width="200px"
@@ -42,18 +42,18 @@ const props = defineProps<{
             :class="{ 'pin-icon-rotate': !pinned }"
           />
         </v-btn> -->
-        <v-btn icon="" size="small" @click="showSheet = false">
-          <v-icon icon="mdi-close" />
-        </v-btn>
+        <v-btn icon="mdi-close" size="small" @click="showSheet = false" />
       </div>
     </template>
     <v-divider></v-divider>
-    <SeqvarDetails
-      :project-uuid="props.projectUuid"
-      :result-row-uuid="props.resultRowUuid"
-      :selected-section="props.selectedSection"
-      :hide-back-button="true"
-    />
+    <div class="ml-3">
+      <SeqvarDetailsInner
+        :project-uuid="props.projectUuid"
+        :result-row-uuid="props.resultRowUuid"
+        :selected-section="props.selectedSection"
+        :hide-back-button="true"
+      />
+    </div>
   </v-resize-drawer>
 </template>
 
