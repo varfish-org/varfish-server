@@ -2,6 +2,7 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
+from seqvars.factory_defaults import create_seqvarspresetsset_short_read_exome_legacy
 from seqvars.models import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
@@ -2128,7 +2129,67 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
     def test_create_from(self):
-        self.fail("Not implemented")
+        # TODO: change after https://github.com/varfish-org/varfish-server/issues/1920
+        presetsset_factory = create_seqvarspresetsset_short_read_exome_legacy()
+        presetsset = presetsset_factory.clone_with_latest_version(project=self.project)
+        version = presetsset.versions.all()[0]
+        predefinedquery = version.seqvarspredefinedquery_set.all()[0]
+
+        url = reverse(
+            "seqvars:api-query-create-from",
+            kwargs={
+                "session": self.session.sodar_uuid,
+            },
+        )
+        good_users = [
+            self.superuser,
+            self.user_owner,
+            self.user_delegate,
+            self.user_contributor,
+        ]
+        bad_users_401 = [self.anonymous]
+        bad_users_403 = [self.user_no_roles, self.user_guest, self.user_finder_cat]
+
+        data = {
+            "predefinedquery": predefinedquery.sodar_uuid,
+            "label": "test label",
+        }
+
+        query_uuid = self.query.sodar_uuid
+
+        def cleanup():
+            for obj in SeqvarsQuery.objects.exclude(settings__sodar_uuid=query_uuid):
+                obj.delete()
+            for obj in SeqvarsQuerySettings.objects.exclude(sodar_uuid=query_uuid):
+                obj.delete()
+
+        self.assert_response(
+            url,
+            good_users,
+            200,
+            method="POST",
+            data=data,
+            req_kwargs={"format": "json"},
+            cleanup_method=cleanup,
+        )
+        self.assert_response(
+            url,
+            bad_users_401,
+            401,
+            method="POST",
+            data=data,
+            req_kwargs={"format": "json"},
+            cleanup_method=cleanup,
+        )
+        self.assert_response(
+            url,
+            bad_users_403,
+            403,
+            method="POST",
+            data=data,
+            req_kwargs={"format": "json"},
+            cleanup_method=cleanup,
+        )
 
 
 class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):

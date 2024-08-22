@@ -2041,6 +2041,7 @@ class TestQueryViewSet(ApiViewTestBase):
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
         with self.login(self.superuser):
+            # TODO: change after https://github.com/varfish-org/varfish-server/issues/1920
             presetsset_factory = create_seqvarspresetsset_short_read_exome_legacy()
             presetsset = presetsset_factory.clone_with_latest_version(project=self.project)
             version = presetsset.versions.all()[0]
