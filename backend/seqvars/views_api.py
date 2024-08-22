@@ -1,4 +1,5 @@
 import sys
+import typing
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
@@ -462,13 +463,15 @@ class SeqvarsQueryViewSet(BaseViewSet):
     }
 
     @extend_schema(request=SeqvarsQueryCreateFromSerializer)
-    @action(methods=["post"], detail=True)
+    @action(methods=["post"], detail=False)
     def create_from(self, *args, **kwargs):
         """Create a new seqvars query from a predefined query."""
         source = None
+        predefinedquery_uuid: str = self.request.data["predefinedquery"]
+        label: typing.Optional[str] = self.request.data.get("label")
         try:
             # TODO: check permissions on the source's project
-            source = SeqvarsPredefinedQuery.objects.get(sodar_uuid=kwargs["predefinedquery"])
+            source = SeqvarsPredefinedQuery.objects.get(sodar_uuid=predefinedquery_uuid)
         except ObjectDoesNotExist:
             for presetsset in (
                 create_seqvarspresetsset_short_read_genome(),
@@ -477,7 +480,7 @@ class SeqvarsQueryViewSet(BaseViewSet):
             ):
                 for version in presetsset.versions.all():
                     for predefinedquery in version.seqvarspredefinedquery_set.all():
-                        if str(predefinedquery.sodar_uuid) == kwargs["predefinedquery"]:
+                        if str(predefinedquery.sodar_uuid) == predefinedquery_uuid:
                             source = predefinedquery
                             break
         if not source:
@@ -486,7 +489,7 @@ class SeqvarsQueryViewSet(BaseViewSet):
         instance = SeqvarsQuery.objects.from_predefinedquery(
             session=CaseAnalysisSession.objects.get(sodar_uuid=self.kwargs["session"]),
             predefinedquery=source,
-            label=kwargs.get("label"),
+            label=label,
         )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)

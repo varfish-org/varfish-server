@@ -198,19 +198,15 @@ jobs:
           make lint
         working-directory: backend
 
-#       # TODO: re-enable once we use sodar-core 1.0 and the error is fixed
-#       - name: Check for OpenAPI schema changes.
-#         run: |
-#           pipenv run python manage.py generateschema \
-#           | grep -v ^Loading \
-#           | grep -v '^The ' \
-#           > /tmp/varfish_api_schema.yaml
-# 
-#           diff \
-#             varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
-#             /tmp/varfish_api_schema.yaml
-#         shell: bash -euo pipefail {0}
-#         working-directory: backend
+      - name: Check for OpenAPI schema changes
+        run: |
+          pipenv run manage.py spectacular \
+            --file /tmp/varfish_api_schema.yaml
+          diff \
+            varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+            /tmp/varfish_api_schema.yaml
+        shell: bash -euo pipefail {0}
+        working-directory: backend
 
   Node-Lint:
     runs-on: ubuntu-latest

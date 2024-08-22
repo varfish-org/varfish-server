@@ -28,9 +28,27 @@ from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 import pydantic
 
+from cases.models import Individual, Pedigree
 from cases_analysis.models import CaseAnalysisSession
 from variants.models.case import Case
 from variants.models.projectroles import Project
+
+#: Express "ExtendsBaseModel extends pydantic.BaseModel"
+ExtendsBaseModel = typing.TypeVar("ExtendsBaseModel", bound=pydantic.BaseModel)
+
+
+def copy_model(value: typing.Optional[ExtendsBaseModel]) -> typing.Optional[ExtendsBaseModel]:
+    """Call ``model_dump()`` on ``value`` unless it is ``None``."""
+    if value is None:
+        return None
+    else:
+        return value.model_copy()
+
+
+def copy_list(values: list[ExtendsBaseModel]) -> list[ExtendsBaseModel]:
+    """Return ``model_dump()` result on each item of ``values``."""
+    return [item.model_copy() for item in values]
+
 
 #: User model.
 User = get_user_model()
@@ -495,6 +513,7 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     def clone_with_latest_version(
         self, *, project: Project, label: typing.Optional[str] = None
     ) -> "SeqvarsQueryPresetsSet":
+        """Clone the presets set with the latest version into the given ``project``."""
         # Get label of presets set to create (use given label by default).
         for i in range(0, 100):
             if i == 0 and not label:
@@ -808,16 +827,18 @@ class SeqvarsPredefinedQuery(SeqvarsQueryPresetsBase):
 class SeqvarsQuerySettingsManager(models.Manager):
     """Manager for ``SeqvarsQuerySettings``."""
 
+    @transaction.atomic
     def from_predefinedquery(
         self,
         *,
         session: CaseAnalysisSession,
         predefinedquery: SeqvarsPredefinedQuery,
     ) -> "SeqvarsQuerySettings":
-        return super().create(
+        querysettings = super().create(
             session=session,
             presetssetversion=predefinedquery.presetssetversion,
             predefinedquery=predefinedquery,
+            # foreign keys / references to category presets
             genotypepresets=predefinedquery.genotype,
             qualitypresets=predefinedquery.quality,
             frequencypresets=predefinedquery.frequency,
@@ -828,6 +849,36 @@ class SeqvarsQuerySettingsManager(models.Manager):
             clinvarpresets=predefinedquery.clinvar,
             columnspresets=predefinedquery.columns,
         )
+        # create related records
+        SeqvarsQuerySettingsGenotype.objects.from_presets(
+            pedigree=session.case.pedigree_obj,
+            querysettings=querysettings,
+            genotypepresets=predefinedquery.genotype,
+        )
+        SeqvarsQuerySettingsQuality.objects.from_presets(
+            pedigree=session.case.pedigree_obj,
+            querysettings=querysettings,
+            qualitypresets=predefinedquery.quality,
+        )
+        SeqvarsQuerySettingsFrequency.objects.from_presets(
+            querysettings=querysettings, frequencypresets=predefinedquery.frequency
+        )
+        SeqvarsQuerySettingsConsequence.objects.from_presets(
+            querysettings=querysettings, consequencepresets=predefinedquery.consequence
+        )
+        SeqvarsQuerySettingsLocus.objects.from_presets(
+            querysettings=querysettings, locuspresets=predefinedquery.locus
+        )
+        SeqvarsQuerySettingsPhenotypePrio.objects.from_presets(
+            querysettings=querysettings, phenotypepriopresets=predefinedquery.phenotypeprio
+        )
+        SeqvarsQuerySettingsVariantPrio.objects.from_presets(
+            querysettings=querysettings, variantpriopresets=predefinedquery.variantprio
+        )
+        SeqvarsQuerySettingsClinvar.objects.from_presets(
+            querysettings=querysettings, clinvarpresets=predefinedquery.clinvar
+        )
+        return querysettings
 
 
 class SeqvarsQuerySettings(BaseModel):
@@ -945,8 +996,258 @@ class SeqvarsSampleGenotypePydantic(pydantic.BaseModel):
     enabled: bool = True
 
 
+#: Mapping from presets choice to recessive mode.
+PRESETS_CHOICE_TO_RECESSIVE_MODE: dict[SeqvarsGenotypePresetChoice, str] = {
+    SeqvarsGenotypePresetChoice.ANY: "disabled",
+    SeqvarsGenotypePresetChoice.DE_NOVO: "disabled",
+    SeqvarsGenotypePresetChoice.DOMINANT: "disabled",
+    SeqvarsGenotypePresetChoice.HOMOZYGOUS_RECESSIVE: "homozygous_recessive",
+    SeqvarsGenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE: "comphet_recessive",
+    SeqvarsGenotypePresetChoice.RECESSIVE: "recessive",
+    SeqvarsGenotypePresetChoice.X_RECESSIVE: "recessive",
+    SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS: "disabled",
+}
+
+
+class SeqvarsQuerySettingsGenotypeManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    @classmethod
+    def _compute_founder_path_lengths(
+        cls,
+        *,
+        pedigree: Pedigree,
+    ) -> dict[str, int]:
+        """Compute mapping from sample name to length of longest path to a founder."""
+        result = {}
+        members: list[Individual] = list(pedigree.individual_set.all())
+        member_names = {member.name for member in members}
+
+        # Detect the case where we would make no progress - father/mother set but unknown.
+        for member in members:
+            if (member.father not in (None, "", "0") and member.father not in member_names) or (
+                member.mother not in (None, "", "0") and member.mother not in member_names
+            ):
+                raise ValueError("Unknown father/mother set but not in pedigree")
+
+        # Process all pedigree members, building a map of member name to longest path.
+        iteration = 0
+        to_process = set(member_names)
+        while len(result) < len(members):
+            iteration += 1
+            if iteration > len(members):
+                raise ValueError("Infinite loop over pedigree members detected")
+
+            to_remove = set()
+            for member_name in to_process:
+                member_obj = next((m for m in members if m.name == member_name), None)
+                if not member_obj:
+                    raise ValueError(f"Could not find member {member_name}")
+                if (not member_obj.father or member_obj.father == "0") and (
+                    not member_obj.mother or member_obj.mother == "0"
+                ):
+                    result[member_name] = 0
+                    to_remove.add(member_name)
+                elif (
+                    member_obj.father
+                    and result.get(member_obj.father) is not None
+                    and member_obj.mother
+                    and result.get(member_obj.mother) is not None
+                ):
+                    result[member_name] = (
+                        max(
+                            result.get(member_obj.father),
+                            result.get(member_obj.mother),
+                        )
+                        + 1
+                    )
+                    to_remove.add(member_name)
+            for member in to_remove:
+                to_process.remove(member)
+
+        return result
+
+    @classmethod
+    def _pick_index_from_pedigree(cls, *, pedigree: Pedigree) -> typing.Optional[str]:
+        """Pick index from the pedigree.
+
+        The following heuristic is used. In the case of more than one match, use the first one found.
+
+        - Compute the longest path of the individual to a founder (individual without any parents).
+        - Pick affected individual with the longest path.
+        - If there are no affected individual, pick first unaffected with the longest path.
+        """
+        founder_path_lengths = cls._compute_founder_path_lengths(pedigree=pedigree)
+        if not founder_path_lengths:
+            raise ValueError("No individual in pedigree")
+
+        longest_path_length = max(founder_path_lengths.values())
+        first_longest_found: typing.Optional[str] = None
+        for individual in typing.cast(typing.Iterable[Individual], pedigree.individual_set.all()):
+            member_name = individual.name
+            path_length = founder_path_lengths.get(member_name)
+            if path_length == longest_path_length:
+                if first_longest_found is None:
+                    first_longest_found = member_name
+                if individual.affected:
+                    return member_name
+        return first_longest_found
+
+    @classmethod
+    def _preset_choice_to_genotype_choice(
+        cls,
+        *,
+        pedigree: Pedigree,
+        genotypepresets: SeqvarsGenotypePresetsPydantic,
+    ) -> list[SeqvarsSampleGenotypePydantic]:
+        """Compute the genotype choice (for input to query engine) from pedigree and genotype
+        presets choice.
+        """
+
+        members: list[Individual] = list(pedigree.individual_set.all())
+        member_names = [m.name for m in members]
+        is_affected: dict[str, bool] = {m.name: m.affected for m in members}
+        index_name = cls._pick_index_from_pedigree(pedigree=pedigree)
+        index = next((m for m in members if m.name == index_name), None)
+        if not index:
+            raise ValueError("Could not find index in pedigree")
+        father_name = next(
+            (m.name for m in members if m.name == index.father),
+            None,
+        )
+        mother_name = next(
+            (m.name for m in members if m.name == index.mother),
+            None,
+        )
+
+        if genotypepresets.choice == SeqvarsGenotypePresetChoice.ANY:
+            return [
+                SeqvarsSampleGenotypePydantic(
+                    sample=sample_name,
+                    genotype=SeqvarsGenotypeChoice.ANY,
+                    enabled=True,
+                    include_no_call=False,
+                )
+                for sample_name in member_names
+            ]
+        elif genotypepresets.choice == SeqvarsGenotypePresetChoice.DE_NOVO:
+            return [
+                SeqvarsSampleGenotypePydantic(
+                    sample=sample_name,
+                    genotype=(
+                        SeqvarsGenotypeChoice.VARIANT
+                        if sample_name == index_name
+                        else SeqvarsGenotypeChoice.REF
+                    ),
+                    enabled=True,
+                    include_no_call=False,
+                )
+                for sample_name in member_names
+            ]
+        elif genotypepresets.choice == SeqvarsGenotypePresetChoice.DOMINANT:
+            return [
+                SeqvarsSampleGenotypePydantic(
+                    sample=sample_name,
+                    genotype=(
+                        SeqvarsGenotypeChoice.HET
+                        if is_affected.get(sample_name, False)
+                        else SeqvarsGenotypeChoice.REF
+                    ),
+                    enabled=True,
+                    include_no_call=False,
+                )
+                for sample_name in member_names
+            ]
+        elif genotypepresets.choice in [
+            SeqvarsGenotypePresetChoice.HOMOZYGOUS_RECESSIVE,
+            SeqvarsGenotypePresetChoice.COMPOUND_HETEROZYGOUS_RECESSIVE,
+            SeqvarsGenotypePresetChoice.RECESSIVE,
+            SeqvarsGenotypePresetChoice.X_RECESSIVE,
+        ]:
+            result = []
+            for member_name in member_names:
+                if member_name == index_name:
+                    result.append(
+                        SeqvarsSampleGenotypePydantic(
+                            sample=member_name,
+                            genotype=SeqvarsGenotypeChoice.RECESSIVE_INDEX,
+                            enabled=True,
+                            include_no_call=False,
+                        )
+                    )
+                elif member_name == father_name:
+                    result.append(
+                        SeqvarsSampleGenotypePydantic(
+                            sample=member_name,
+                            genotype=SeqvarsGenotypeChoice.RECESSIVE_FATHER,
+                            enabled=True,
+                            include_no_call=False,
+                        )
+                    )
+                elif member_name == mother_name:
+                    result.append(
+                        SeqvarsSampleGenotypePydantic(
+                            sample=member_name,
+                            genotype=SeqvarsGenotypeChoice.RECESSIVE_MOTHER,
+                            enabled=True,
+                            include_no_call=False,
+                        )
+                    )
+                else:
+                    result.append(
+                        SeqvarsSampleGenotypePydantic(
+                            sample=member_name,
+                            genotype=SeqvarsGenotypeChoice.ANY,
+                            enabled=True,
+                            include_no_call=False,
+                        )
+                    )
+            return result
+        elif genotypepresets.choice == SeqvarsGenotypePresetChoice.AFFECTED_CARRIERS:
+            return [
+                SeqvarsSampleGenotypePydantic(
+                    sample=sample_name,
+                    genotype=(
+                        SeqvarsGenotypeChoice.VARIANT
+                        if is_affected.get(sample_name, False)
+                        else SeqvarsGenotypeChoice.REF
+                    ),
+                    enabled=True,
+                    include_no_call=False,
+                )
+                for sample_name in member_names
+            ]
+        else:
+            raise ValueError(f"Unknown genotype presets choice: {genotypepresets.choice}")
+
+    def from_presets(
+        self,
+        *,
+        pedigree: Pedigree,
+        querysettings: SeqvarsQuerySettings,
+        genotypepresets: SeqvarsGenotypePresetsPydantic,
+    ) -> "SeqvarsQuerySettingsGenotype":
+        recessive_mode = (
+            PRESETS_CHOICE_TO_RECESSIVE_MODE.get(
+                genotypepresets.choice, SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED
+            ),
+        )
+        sample_genotype_choices = self.__class__._preset_choice_to_genotype_choice(
+            pedigree=pedigree,
+            genotypepresets=genotypepresets,
+        )
+        return super().create(
+            querysettings=querysettings,
+            recessive_mode=recessive_mode,
+            sample_genotype_choices=sample_genotype_choices,
+        )
+
+
 class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample genotype filtration."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsGenotypeManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1003,8 +1304,41 @@ class SeqvarsSampleQualityFilterPydantic(pydantic.BaseModel):
     max_ad: typing.Optional[int] = None
 
 
+class SeqvarsQuerySettingsQualityManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        pedigree: Pedigree,
+        querysettings: SeqvarsQuerySettings,
+        qualitypresets: SeqvarsQueryPresetsQuality,
+    ) -> "SeqvarsQuerySettingsQuality":
+        return super().create(
+            querysettings=querysettings,
+            sample_quality_filters=[
+                SeqvarsSampleQualityFilterPydantic(
+                    sample=individual.name,
+                    filter_active=qualitypresets.filter_active,
+                    min_dp_het=qualitypresets.min_dp_het,
+                    min_dp_hom=qualitypresets.min_dp_hom,
+                    min_ab_het=qualitypresets.min_ab_het,
+                    min_gq=qualitypresets.min_gq,
+                    min_ad=qualitypresets.min_ad,
+                    max_ad=qualitypresets.max_ad,
+                )
+                for individual in typing.cast(
+                    typing.Iterable[Individual], pedigree.individual_set.all()
+                )
+            ],
+        )
+
+
 class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample quality filtration."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsQualityManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1020,10 +1354,31 @@ class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
         return f"SeqvarsQuerySettingsQuality '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsConsequenceManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        querysettings: SeqvarsQuerySettings,
+        consequencepresets: SeqvarsQueryPresetsConsequence,
+    ) -> "SeqvarsQuerySettingsConsequence":
+        return super().create(
+            querysettings=querysettings,
+            variant_types=list(consequencepresets.variant_types),
+            transcript_types=list(consequencepresets.transcript_types),
+            variant_consequences=list(consequencepresets.variant_consequences),
+            max_distance_to_exon=consequencepresets.max_distance_to_exon,
+        )
+
+
 class SeqvarsQuerySettingsConsequence(
     SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Presets for consequence-related settings within a ``QuerySettingsSet``."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsConsequenceManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1034,8 +1389,28 @@ class SeqvarsQuerySettingsConsequence(
         return f"SeqvarsQuerySettingsConsequence '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsLocusManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        querysettings: SeqvarsQuerySettings,
+        locuspresets: SeqvarsQueryPresetsLocus,
+    ) -> "SeqvarsQuerySettingsLocus":
+        return super().create(
+            querysettings=querysettings,
+            genes=copy_list(locuspresets.genes),
+            gene_panels=copy_list(locuspresets.gene_panels),
+            genome_regions=copy_list(locuspresets.genome_regions),
+        )
+
+
 class SeqvarsQuerySettingsLocus(SeqvarsLocusSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Presets for locus-related settings within a ``QuerySettingsSet``."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsLocusManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1046,8 +1421,27 @@ class SeqvarsQuerySettingsLocus(SeqvarsLocusSettingsBase, SeqvarsQuerySettingsCa
         return f"SeqvarsQuerySettingsLocus '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsFrequencyManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self, *, querysettings: SeqvarsQuerySettings, frequencypresets: SeqvarsQueryPresetsFrequency
+    ) -> "SeqvarsQuerySettingsFrequency":
+        return super().create(
+            querysettings=querysettings,
+            gnomad_exomes=copy_model(frequencypresets.gnomad_exomes),
+            gnomad_genomes=copy_model(frequencypresets.gnomad_genomes),
+            gnomad_mitochondrial=copy_model(frequencypresets.gnomad_mitochondrial),
+            helixmtdb=copy_model(frequencypresets.helixmtdb),
+            inhouse=copy_model(frequencypresets.inhouse),
+        )
+
+
 class SeqvarsQuerySettingsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Query settings in the frequency category."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsFrequencyManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1058,10 +1452,30 @@ class SeqvarsQuerySettingsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQuerySe
         return f"SeqvarsQuerySettingsFrequency '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsPhenotypePrioManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        querysettings: SeqvarsQuerySettings,
+        phenotypepriopresets: SeqvarsQueryPresetsPhenotypePrio,
+    ) -> "SeqvarsQuerySettingsPhenotypePrio":
+        return super().create(
+            querysettings=querysettings,
+            phenotype_prio_enabled=phenotypepriopresets.phenotype_prio_enabled,
+            phenotype_prio_algorithm=phenotypepriopresets.phenotype_prio_algorithm,
+            terms=copy_list(phenotypepriopresets.terms),
+        )
+
+
 class SeqvarsQuerySettingsPhenotypePrio(
     SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsPhenotypePrioManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1072,10 +1486,28 @@ class SeqvarsQuerySettingsPhenotypePrio(
         return f"SeqvarsQuerySettingsPhenotypePrio '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsVariantPrioManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        querysettings: SeqvarsQuerySettings,
+        variantpriopresets: SeqvarsQueryPresetsVariantPrio,
+    ) -> "SeqvarsQuerySettingsVariantPrio":
+        return super().create(
+            querysettings=querysettings,
+            services=copy_list(variantpriopresets.services),
+        )
+
+
 class SeqvarsQuerySettingsVariantPrio(
     SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Query settings in the variant priorization category."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsVariantPrioManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
@@ -1086,8 +1518,30 @@ class SeqvarsQuerySettingsVariantPrio(
         return f"SeqvarsQuerySettingsVariantPrio '{self.sodar_uuid}'"
 
 
+class SeqvarsQuerySettingsClinvarManager(models.Manager):
+    """Custom manager that allows easy creation from presets."""
+
+    def from_presets(
+        self,
+        *,
+        querysettings: SeqvarsQuerySettings,
+        clinvarpresets: SeqvarsQueryPresetsClinvar,
+    ) -> "SeqvarsQuerySettingsClinvar":
+        return super().create(
+            querysettings=querysettings,
+            clinvar_presence_required=clinvarpresets.clinvar_presence_required,
+            clinvar_germline_aggregate_description=list(
+                clinvarpresets.clinvar_germline_aggregate_description
+            ),
+            allow_conflicting_interpretations=clinvarpresets.allow_conflicting_interpretations,
+        )
+
+
 class SeqvarsQuerySettingsClinvar(SeqvarsClinvarSettingsBase, SeqvarsQuerySettingsCategoryBase):
     """Query settings in the variant priorization category."""
+
+    #: Custom manager with ``from_presets()``.
+    objects = SeqvarsQuerySettingsClinvarManager()
 
     #: The owning ``QuerySettings``.
     querysettings = models.OneToOneField(
