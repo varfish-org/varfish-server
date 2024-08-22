@@ -337,10 +337,16 @@ export type CaseSerializerNg = {
     readonly caseqc: {
         [key: string]: (number | string | null);
     } | null;
+    /**
+     * Obtain the pedigree for this case and serialize it.
+     */
+    readonly pedigree_obj: {
+        [key: string]: (number | string | null);
+    } | null;
     readonly release: string | null;
     name: string;
     index: string;
-    pedigree: unknown;
+    readonly pedigree: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -373,7 +379,6 @@ export type CaseSerializerNg = {
 export type CaseSerializerNgRequest = {
     name: string;
     index: string;
-    pedigree: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -1139,7 +1144,6 @@ export type PatchedCasePhenotypeTermsRequest = {
 export type PatchedCaseSerializerNgRequest = {
     name?: string;
     index?: string;
-    pedigree?: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -2117,6 +2121,14 @@ export type SeqvarsQueryColumnsConfig = {
  */
 export type SeqvarsQueryColumnsConfigRequest = {
     column_settings?: SeqvarsColumnConfigPydanticList;
+};
+
+/**
+ * Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
+ */
+export type SeqvarsQueryCreateFromRequest = {
+    predefinedquery: string;
+    label: string;
 };
 
 /**
@@ -4082,6 +4094,17 @@ export type SeqvarsApiQueryDestroyResponse = void;
 
 export type SeqvarsApiQueryDestroyError = unknown;
 
+export type SeqvarsApiQueryCreateFromCreateData = {
+    body: SeqvarsQueryCreateFromRequest;
+    path: {
+        session: string;
+    };
+};
+
+export type SeqvarsApiQueryCreateFromCreateResponse = SeqvarsQueryDetails;
+
+export type SeqvarsApiQueryCreateFromCreateError = unknown;
+
 export type SeqvarsApiQueryexecutionListData = {
     path: {
         query: string;
@@ -5647,6 +5670,14 @@ export type $OpenApiTs = {
                  * No response body
                  */
                 '204': void;
+            };
+        };
+    };
+    '/seqvars/api/query/{session}/create_from/': {
+        post: {
+            req: SeqvarsApiQueryCreateFromCreateData;
+            res: {
+                '200': SeqvarsQueryDetails;
             };
         };
     };

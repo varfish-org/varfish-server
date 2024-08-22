@@ -1,10 +1,16 @@
 """Test models and factories"""
 
+from freezegun import freeze_time
+from parameterized import parameterized
+from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus.test import TestCase
 
+from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
 from seqvars.models import (
     SeqvarsGenotypeChoice,
+    SeqvarsGenotypePresetChoice,
+    SeqvarsGenotypePresetsPydantic,
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryColumnsConfig,
@@ -258,7 +264,8 @@ class TestSeqvarsQueryPresetsColumns(TestCase):
         )
 
 
-class TestSeqvarsQuerySettings(TestCase):
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
@@ -274,8 +281,35 @@ class TestSeqvarsQuerySettings(TestCase):
             querysettings.__str__(),
         )
 
+    def test_from_predefinedquery(self):
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        session = CaseAnalysisSessionFactory()
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
+        querysettings = SeqvarsQuerySettings.objects.from_predefinedquery(
+            session=session,
+            predefinedquery=predefinedquery,
+        )
+        _ = querysettings
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
 
-class TestSeqvarsQuerySettingsGenotype(TestCase):
+
+class TestSeqvarsQuerySettingsGenotype(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 0)
@@ -289,8 +323,31 @@ class TestSeqvarsQuerySettingsGenotype(TestCase):
             genotype.__str__(),
         )
 
+    @parameterized.expand([[value] for value in SeqvarsGenotypePresetChoice.values()])
+    def test_from_presets(self, genotypepresets_choice: SeqvarsGenotypePresetChoice):
+        session = CaseAnalysisSessionFactory()
+        # Make individual names predictable.
+        for idx, individual in enumerate(session.case.pedigree_obj.individual_set.all()):
+            individual.name = f"IND_{idx}"
+            individual.save()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        genotypepresets = SeqvarsGenotypePresetsPydantic(choice=genotypepresets_choice)
 
-class TestSeqvarsQuerySettingsQuality(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 0)
+        genotypesettings = SeqvarsQuerySettingsGenotype.objects.from_presets(
+            pedigree=session.case.pedigree_obj,
+            querysettings=querysettings,
+            genotypepresets=genotypepresets,
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 1)
+        self.assertMatchSnapshot(
+            [v.model_dump(mode="json") for v in genotypesettings.sample_genotype_choices],
+            "sample_genotype_choices",
+        )
+
+
+class TestSeqvarsQuerySettingsQuality(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
@@ -304,8 +361,30 @@ class TestSeqvarsQuerySettingsQuality(TestCase):
             quality.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        # Make individual names predictable.
+        for idx, individual in enumerate(session.case.pedigree_obj.individual_set.all()):
+            individual.name = f"IND_{idx}"
+            individual.save()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        qualitypresets = SeqvarsQueryPresetsQualityFactory()
 
-class TestSeqvarsQuerySettingsFrequency(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
+        qualitysettings = SeqvarsQuerySettingsQuality.objects.from_presets(
+            pedigree=session.case.pedigree_obj,
+            querysettings=querysettings,
+            qualitypresets=qualitypresets,
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
+        self.assertMatchSnapshot(
+            [v.model_dump(mode="json") for v in qualitysettings.sample_quality_filters],
+            "sample_quality_filters",
+        )
+
+
+class TestSeqvarsQuerySettingsFrequency(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
@@ -319,8 +398,28 @@ class TestSeqvarsQuerySettingsFrequency(TestCase):
             frequency.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        frequencypresets = SeqvarsQueryPresetsFrequencyFactory()
 
-class TestSeqvarsQuerySettingsConsequence(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 0)
+        frequencysettings = SeqvarsQuerySettingsFrequency.objects.from_presets(
+            querysettings=querysettings, frequencypresets=frequencypresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        for key in (
+            "gnomad_exomes",
+            "gnomad_genomes",
+            "gnomad_mitochondrial",
+            "helixmtdb",
+            "inhouse",
+        ):
+            self.assertMatchSnapshot(getattr(frequencysettings, key).model_dump(mode="json"), key)
+
+
+class TestSeqvarsQuerySettingsConsequence(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 0)
@@ -334,8 +433,30 @@ class TestSeqvarsQuerySettingsConsequence(TestCase):
             consequence.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        consequencepresets = SeqvarsQueryPresetsConsequenceFactory()
 
-class TestSeqvarsQuerySettingsLocus(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 0)
+        consequencesettings = SeqvarsQuerySettingsConsequence.objects.from_presets(
+            querysettings=querysettings, consequencepresets=consequencepresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 1)
+        for key in (
+            "variant_types",
+            "transcript_types",
+            "variant_consequences",
+            "max_distance_to_exon",
+        ):
+            if key == "max_distance_to_exon":
+                self.assertMatchSnapshot(getattr(consequencesettings, key), key)
+            else:
+                self.assertMatchSnapshot([str(v) for v in getattr(consequencesettings, key)], key)
+
+
+class TestSeqvarsQuerySettingsLocus(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 0)
@@ -349,8 +470,28 @@ class TestSeqvarsQuerySettingsLocus(TestCase):
             locus.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        locuspresets = SeqvarsQueryPresetsLocusFactory()
 
-class TestSeqvarsQuerySettingsPhenotypePrio(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 0)
+        locussettings = SeqvarsQuerySettingsLocus.objects.from_presets(
+            querysettings=querysettings, locuspresets=locuspresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 1)
+        for key in (
+            "genes",
+            "gene_panels",
+            "genome_regions",
+        ):
+            self.assertMatchSnapshot(
+                [x.model_dump(mode="json") for x in getattr(locussettings, key)], key
+            )
+
+
+class TestSeqvarsQuerySettingsPhenotypePrio(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
@@ -364,8 +505,28 @@ class TestSeqvarsQuerySettingsPhenotypePrio(TestCase):
             phenotypeprio.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        phenotypepriopresets = SeqvarsQueryPresetsPhenotypePrioFactory()
 
-class TestSeqvarsQuerySettingsVariantPrio(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
+        phenotypepriosettings = SeqvarsQuerySettingsPhenotypePrio.objects.from_presets(
+            querysettings=querysettings, phenotypepriopresets=phenotypepriopresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
+        for key in (
+            "phenotype_prio_enabled",
+            "phenotype_prio_algorithm",
+        ):
+            self.assertMatchSnapshot(getattr(phenotypepriosettings, key), key)
+        self.assertMatchSnapshot(
+            [x.model_dump(mode="json") for x in phenotypepriosettings.terms], "terms"
+        )
+
+
+class TestSeqvarsQuerySettingsVariantPrio(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 0)
@@ -379,8 +540,24 @@ class TestSeqvarsQuerySettingsVariantPrio(TestCase):
             variantprio.__str__(),
         )
 
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        variantpriopresets = SeqvarsQueryPresetsVariantPrioFactory()
 
-class TestSeqvarsQuerySettingsClinvar(TestCase):
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 0)
+        variantpriosettings = SeqvarsQuerySettingsVariantPrio.objects.from_presets(
+            querysettings=querysettings, variantpriopresets=variantpriopresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 1)
+        self.assertMatchSnapshot(variantpriosettings.variant_prio_enabled, "variant_prio_enabled")
+        self.assertMatchSnapshot(
+            [v.model_dump(mode="json") for v in variantpriosettings.services], "services"
+        )
+
+
+class TestSeqvarsQuerySettingsClinvar(TestCaseSnapshot, TestCase):
 
     def test_create(self):
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
@@ -393,6 +570,27 @@ class TestSeqvarsQuerySettingsClinvar(TestCase):
             f"SeqvarsQuerySettingsClinvar '{clinvar.sodar_uuid}'",
             clinvar.__str__(),
         )
+
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        clinvarpresets = SeqvarsQueryPresetsClinvarFactory()
+
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
+        clinvarsettings = SeqvarsQuerySettingsClinvar.objects.from_presets(
+            querysettings=querysettings, clinvarpresets=clinvarpresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
+        for key in (
+            "clinvar_presence_required",
+            "clinvar_germline_aggregate_description",
+            "allow_conflicting_interpretations",
+        ):
+            if key == "clinvar_germline_aggregate_description":
+                self.assertMatchSnapshot([str(v) for v in getattr(clinvarsettings, key)], key)
+            else:
+                self.assertMatchSnapshot(getattr(clinvarsettings, key), key)
 
 
 class TestSeqvarsPredefinedQuery(TestCase):
@@ -431,6 +629,21 @@ class TestSeqvarsQuery(TestCase):
             query.__str__(),
         )
 
+    def test_from_predefinedquery(self):
+        session = CaseAnalysisSessionFactory()
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        self.assertEqual(SeqvarsQuery.objects.count(), 0)
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
+        query = SeqvarsQuery.objects.from_predefinedquery(
+            session=session,
+            predefinedquery=predefinedquery,
+        )
+        _ = query
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+
 
 class TestSeqvarsQueryColumnsConfig(TestCase):
 
@@ -445,6 +658,15 @@ class TestSeqvarsQueryColumnsConfig(TestCase):
             f"SeqvarsQueryColumnsConfig '{columnsconfig.sodar_uuid}'",
             columnsconfig.__str__(),
         )
+
+    def test_from_predefinedquery(self):
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
+        columnsconfig = SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
+            predefinedquery=predefinedquery,
+        )
+        _ = columnsconfig
+        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
 
 
 class TestSeqvarsQueryExecution(TestCase):
