@@ -131,7 +131,8 @@ const createQuery = async (
         ],
       ]
     }),
-  ) as Pick<SeqvarsQuerySettingsDetails, (typeof GROUPS)[number]['id']> & Partial<SeqvarsQuerySettingsDetails>
+  ) as Pick<SeqvarsQuerySettingsDetails, (typeof GROUPS)[number]['id']> &
+    Partial<SeqvarsQuerySettingsDetails>
   const choice = pq.genotype?.choice
 
   // Pick unique label.
@@ -140,7 +141,9 @@ const createQuery = async (
     label = options.label
   } else {
     label = pq.label
-    const queryLabels = Array.from(seqvarsQueryStore.seqvarQueries.values()).map((q) => q.label)
+    const queryLabels = Array.from(
+      seqvarsQueryStore.seqvarQueries.values(),
+    ).map((q) => q.label)
     for (let i = 2; ; i++) {
       if (queryLabels.includes(label)) {
         label = `${pq.label} (${i})`
@@ -150,8 +153,13 @@ const createQuery = async (
     }
   }
   // Pick a next rank.
-  let rank = Math.max(1, ...Array.from(seqvarsQueryStore.seqvarQueries.values()).map((q) => q.rank ?? 0))
-  let result: SeqvarsQueryDetailsRequest = {
+  const rank = Math.max(
+    1,
+    ...Array.from(seqvarsQueryStore.seqvarQueries.values()).map(
+      (q) => q.rank ?? 0,
+    ),
+  )
+  const result: SeqvarsQueryDetailsRequest = {
     rank,
     label,
     settings: {
@@ -165,47 +173,47 @@ const createQuery = async (
       clinvarpresets: undefined,
       genotype: {
         recessive_mode: undefined,
-        sample_genotype_choices: undefined
+        sample_genotype_choices: undefined,
       },
       quality: {
-        sample_quality_filters: undefined
+        sample_quality_filters: undefined,
       },
       consequence: {
         variant_types: undefined,
         transcript_types: undefined,
         variant_consequences: undefined,
-        max_distance_to_exon: undefined
+        max_distance_to_exon: undefined,
       },
       locus: {
         genes: undefined,
         gene_panels: undefined,
-        genome_regions: undefined
+        genome_regions: undefined,
       },
       frequency: {
         gnomad_exomes: undefined,
         gnomad_genomes: undefined,
         gnomad_mitochondrial: undefined,
         helixmtdb: undefined,
-        inhouse: undefined
+        inhouse: undefined,
       },
       phenotypeprio: {
         phenotype_prio_enabled: undefined,
         phenotype_prio_algorithm: undefined,
-        terms: undefined
+        terms: undefined,
       },
       variantprio: {
         variant_prio_enabled: undefined,
-        services: undefined
+        services: undefined,
       },
       clinvar: {
         clinvar_presence_required: undefined,
         clinvar_germline_aggregate_description: undefined,
-        allow_conflicting_interpretations: undefined
-      }
+        allow_conflicting_interpretations: undefined,
+      },
     },
     columnsconfig: {
-      column_settings: []
-    }
+      column_settings: [],
+    },
   }
   return result
 

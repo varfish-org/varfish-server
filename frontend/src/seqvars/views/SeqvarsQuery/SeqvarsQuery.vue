@@ -113,7 +113,10 @@ watch(
           ? `VarFish - ${caseDetailsStore.caseObj?.name}`
           : undefined
       "
-      :loading="!selectedPresetSetVersionDetails || seqvarsQueryStore.storeState.serverInteractions > 0"
+      :loading="
+        !selectedPresetSetVersionDetails ||
+        seqvarsQueryStore.storeState.serverInteractions > 0
+      "
     />
 
     <TheNavBar :navbar-shown="navbarShown">
