@@ -1,12 +1,13 @@
 <script setup>
 import isEqual from 'fast-deep-equal'
-import { onMounted, watch, computed, reactive, ref } from 'vue'
-import { copy } from '@/variants/helpers'
-import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { randomString } from '@/varfish/common'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
+import { copy } from '@/variants/helpers'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 
 const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()

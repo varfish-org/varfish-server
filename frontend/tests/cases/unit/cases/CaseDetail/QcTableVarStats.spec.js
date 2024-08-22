@@ -1,5 +1,6 @@
-import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
@@ -19,7 +20,6 @@ describe('QcTableVarStats.vue', () => {
 
   // TODO Fix me
   test('test with data data', async () => {
-    // console.log(caseDetailsStoreData.caseVariantStats)
     const varStats = Object.entries(caseDetailsStoreData.caseVariantStats).map(
       ([name, stats]) => {
         return {

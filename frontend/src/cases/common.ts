@@ -1,10 +1,11 @@
+import { computed } from 'vue'
+
 import {
-  useCaseDetailsStore,
   CaseVariantStatsEntry,
+  useCaseDetailsStore,
 } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { State } from '@/varfish/storeUtils'
-import { computed } from 'vue'
 
 export const overlayShow = computed(() => {
   const caseListStore = useCaseListStore()

@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 
 import { displayName } from '@/varfish/helpers'
-import { ResultRow } from './types'
+
 import { GET_FIELD_MAP as GT_FIELD_MAP, identity } from './constants'
+import { ResultRow } from './types'
 
 /** This component's props. */
 const props = defineProps<{

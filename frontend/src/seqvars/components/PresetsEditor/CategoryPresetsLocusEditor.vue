@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { SeqvarsQueryPresetsLocus } from '@varfish-org/varfish-api/lib'
-import { genomeRegionToString, GenomeRegion, parseGenomeRegion } from './lib'
-import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { computed, onMounted, ref, watch } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
+
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
-import { useCtxStore } from '@/varfish/stores/ctx'
+import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
+import { GenomeRegion, genomeRegionToString, parseGenomeRegion } from './lib'
+import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -150,7 +152,7 @@ const parseGenes = async () => {
     }
   }
   if (invalidGenes.length > 0) {
-    genesErrors.value = 'Some genome regions could not be parsed.'
+    genesErrors.value = 'Some genes could not be found.'
   }
   genesText.value = invalidGenes.join(' ')
 }
@@ -259,8 +261,6 @@ const fillData = () => {
  * @param rankDelta The delta to apply to the rank, if any.
  */
 const updateLocusPresets = async (rankDelta: number = 0) => {
-  console.log('update locus presets')
-
   // Guard against missing/readonly/non-draft preset set version or missing locus.
   if (
     props.locusPresets === undefined ||

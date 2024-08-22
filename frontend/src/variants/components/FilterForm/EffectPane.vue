@@ -1,14 +1,15 @@
 <script setup>
-import {
-  variantTypesFields,
-  transcriptTypeFields,
-  effectGroupsFields,
-  detailedEffectGroups,
-  effectGroups,
-} from '@/variants/components/FilterForm/EffectPane.fields'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
 import { computed, onMounted } from 'vue'
+
+import {
+  detailedEffectGroups,
+  effectGroups,
+  effectGroupsFields,
+  transcriptTypeFields,
+  variantTypesFields,
+} from '@/variants/components/FilterForm/EffectPane.fields'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

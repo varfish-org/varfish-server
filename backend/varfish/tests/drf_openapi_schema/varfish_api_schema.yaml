@@ -2634,6 +2634,42 @@ paths:
       responses:
         '204':
           description: No response body
+  /seqvars/api/query/{session}/create_from/:
+    post:
+      operationId: seqvars_api_query_create_from_create
+      description: Create a new seqvars query from a predefined query.
+      parameters:
+      - in: path
+        name: session
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - seqvars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/SeqvarsQueryDetails'
+          description: ''
   /seqvars/api/queryexecution/{query}/:
     get:
       operationId: seqvars_api_queryexecution_list
@@ -4421,7 +4457,7 @@ paths:
   /seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/:
     post:
       operationId: seqvars_api_querypresetsset_copy_from_create
-      description: Create a copy/clone of the given queryset.
+      description: Create a copy/clone of the given preset set.
       parameters:
       - in: path
         name: project
@@ -6077,6 +6113,18 @@ components:
 
             If there is no such record then return ``None``.
           readOnly: true
+        pedigree_obj:
+          type: object
+          additionalProperties:
+            oneOf:
+            - type: integer
+            - type: number
+              format: double
+            - type: string
+            nullable: true
+          nullable: true
+          description: Obtain the pedigree for this case and serialize it.
+          readOnly: true
         release:
           type: string
           readOnly: true
@@ -6087,7 +6135,8 @@ components:
         index:
           type: string
           maxLength: 512
-        pedigree: {}
+        pedigree:
+          readOnly: true
         notes:
           type: string
           nullable: true
@@ -6142,6 +6191,7 @@ components:
       - num_small_vars
       - num_svs
       - pedigree
+      - pedigree_obj
       - presetset
       - project
       - release
@@ -6166,7 +6216,6 @@ components:
           type: string
           minLength: 1
           maxLength: 512
-        pedigree: {}
         notes:
           type: string
           nullable: true
@@ -6186,7 +6235,6 @@ components:
       required:
       - index
       - name
-      - pedigree
     CaseSerializerNgStateEnum:
       enum:
       - importing
@@ -7949,7 +7997,6 @@ components:
           type: string
           minLength: 1
           maxLength: 512
-        pedigree: {}
         notes:
           type: string
           nullable: true
@@ -10236,6 +10283,20 @@ components:
       properties:
         column_settings:
           $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
+    SeqvarsQueryCreateFromRequest:
+      type: object
+      description: Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
+      properties:
+        predefinedquery:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - label
+      - predefinedquery
     SeqvarsQueryDetails:
       type: object
       description: |-

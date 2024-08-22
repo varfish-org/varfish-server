@@ -1,8 +1,8 @@
 <script setup>
-import HpoTermInput from '@/variants/components/HpoTermInput.vue'
-
-import { declareWrapper } from '@/variants/helpers'
 import { useVuelidate } from '@vuelidate/core'
+
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
+import { declareWrapper } from '@/variants/helpers'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

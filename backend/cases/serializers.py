@@ -4,7 +4,7 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from cases.models import GlobalSettings, UserAndGlobalSettings, UserSettings
+from cases.models import GlobalSettings, Individual, Pedigree, UserAndGlobalSettings, UserSettings
 from cases_qc.models import CaseQc
 from cases_qc.serializers import CaseQcSerializer
 from svs.serializers import SvQueryResultSetSerializer
@@ -20,6 +20,55 @@ from variants.models import (
 from variants.serializers import CoreCaseSerializerMixin, SmallVariantQueryResultSetSerializer
 
 _app_settings = AppSettingAPI()
+
+
+class IndividualSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Individual`` model."""
+
+    #: Serialize ``pedigree`` as its ``sodar_uuid``.
+    pedigree = serializers.ReadOnlyField(source="pedigree.sodar_uuid")
+    #: Serialize the ``enrichmentkit`` as its ``sodar_uuid``.
+    enrichmentkit = serializers.ReadOnlyField(source="enrichmentkit.sodar_uuid")
+
+    class Meta:
+        model = Individual
+        fields = [
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "pedigree",
+            "name",
+            "father",
+            "mother",
+            "affected",
+            "sex",
+            "karyotypic_sex",
+            "assay",
+            "enrichmentkit",
+        ]
+
+
+class PedigreeSerializer(serializers.ModelSerializer):
+    """Serializer for the ``Pedigree`` model."""
+
+    #: Serialize ``case`` as its ``sodar_uuid``.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+    #: Serialize ``individuals``
+    individual_set = IndividualSerializer(
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = Pedigree
+        fields = [
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case",
+            "individual_set",
+        ]
+        read_only_fields = fields
 
 
 class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
@@ -41,6 +90,8 @@ class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     svqueryresultset = serializers.SerializerMethodField()
     #: Serialize latest ``CaseQc`` in active state.
     caseqc = serializers.SerializerMethodField()
+    #: Serialize pedigree from method call.
+    pedigree_obj = serializers.SerializerMethodField("get_pedigree")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,6 +160,8 @@ class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "presetset",  # made writable in to_internal_value
             "state",
             "caseqc",
+            "pedigree",
+            "pedigree_obj",
         )
 
 

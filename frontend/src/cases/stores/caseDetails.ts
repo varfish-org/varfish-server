@@ -6,17 +6,15 @@
  *
  * - `caseListStore`
  */
-
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
 
 import { CaseClient } from '@/cases/api/caseClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { displayName } from '@/varfish/helpers'
-import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Alias definition of Case type; to be defined later. */
 export type Case = any
@@ -50,6 +48,39 @@ export type CaseAnnotationReleaseInfos = any
 export type CaseSvAnnotationReleaseInfos = any
 /** Alias definition of GenotypeMapping type; to be defined later. */
 export type GenotypeMapping = any
+
+/** Type for the sex of an individual. */
+export type Sex = 'unknown' | 'male' | 'female' | 'other'
+
+/** Type for the karyotypic sex of an individual. */
+export type KaryotypicSex = 'unknown' | 'XX' | 'XY' | 'other'
+
+/** Type for an assay. */
+export type Assay = 'wgs' | 'wes' | 'panel_seq'
+
+/** Type for the individuals in PedigreeObj */
+export interface Individual {
+  sodar_uuid: string
+  pedigree: string
+  date_created: string
+  date_modified: string
+  name: string
+  father?: string | null
+  mother?: string | null
+  sex: Sex
+  karyotypic_sex: KaryotypicSex
+  affected: boolean
+  assay: Assay
+}
+
+/** Type for the pedigree_obj member */
+export interface PedigreeObj {
+  sodar_uuid: string
+  case: string
+  date_created: string
+  date_modified: string
+  individual_set: Individual[]
+}
 
 export const useCaseDetailsStore = defineStore('caseDetails', () => {
   // store dependencies

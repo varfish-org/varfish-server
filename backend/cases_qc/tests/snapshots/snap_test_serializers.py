@@ -21,7 +21,7 @@ snapshots["SerializerTest::test_load_01 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -31,7 +31,7 @@ snapshots["SerializerTest::test_load_02 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -42,7 +42,7 @@ snapshots["SerializerTest::test_load_03 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -53,7 +53,7 @@ snapshots["SerializerTest::test_load_04 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
     "sample": "index_000-N1-DNA1-WES1",
@@ -65,7 +65,7 @@ snapshots["SerializerTest::test_load_05 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "keys": [37, 40, 41],
-    "region_name": "wait",
+    "region_name": "discover",
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
     "values": [1, 100, 101],
@@ -76,7 +76,7 @@ snapshots["SerializerTest::test_load_06 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
     "sample": "index_000-N1-DNA1-WES1",
@@ -88,7 +88,7 @@ snapshots["SerializerTest::test_load_07 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "region_name": "",
     "sample": "index_000-N1-DNA1-WES1",
@@ -100,7 +100,7 @@ snapshots["SerializerTest::test_load_08 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -111,7 +111,7 @@ snapshots["SerializerTest::test_load_09 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -121,7 +121,7 @@ snapshots["SerializerTest::test_load_10 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -131,7 +131,7 @@ snapshots["SerializerTest::test_load_11 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -142,7 +142,7 @@ snapshots["SerializerTest::test_load_12 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -153,7 +153,7 @@ snapshots["SerializerTest::test_load_13 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -162,7 +162,7 @@ snapshots["SerializerTest::test_load_14 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "metrics": [{"contig_len": 12345, "contig_name": "wait", "cov": 3.0}],
+    "metrics": [{"contig_len": 12345, "contig_name": "discover", "cov": 3.0}],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -172,7 +172,7 @@ snapshots["SerializerTest::test_load_15 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -206,7 +206,7 @@ snapshots["SerializerTest::test_load_18 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "metrics": [
-        {"entry": "offer", "name": "begin", "section": "wait", "value": 42, "value_float": 3.14}
+        {"entry": "early", "name": "mouth", "section": "discover", "value": 42, "value_float": 3.14}
     ],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -215,74 +215,98 @@ snapshots["SerializerTest::test_load_18 1"] = {
 snapshots["SerializerTest::test_load_19 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "chk": [
-        {
-            "qualities_crc32": "knowledge",
-            "read_names_crc32": "begin",
-            "sequences_crc32": "performance",
-        }
+        {"qualities_crc32": "agreement", "read_names_crc32": "mouth", "sequences_crc32": "play"}
     ],
-    "cov": [{"count": 9863, "value": 8279}],
+    "cov": [{"count": 9654, "value": 7359}],
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "fbc": [
         {
-            "cycle": 1084,
+            "cycle": 7019,
             "percentages": [
-                -89827297893.7517,
-                9649191672.73579,
-                -919.440592919024,
-                66612908200.1489,
-                2.2251691342586,
-                50432.8573276057,
-                713328.773869166,
+                148532577.534277,
+                1932138724758.19,
+                -76.676914130792,
+                -69352.4047709743,
                 -5573.39133818601,
-            ],
-        }
-    ],
-    "ffq": [{"counts": [5925, 1139, 3733, 1307, 1654, 4554, 5977], "cycle": 6201}],
-    "frl": [{"count": 9891, "value": 5635}],
-    "gcd": [
-        {
-            "dp_percentile_10": 0.3460967357,
-            "dp_percentile_25": 0.30640404287,
-            "dp_percentile_50": 0.98,
-            "dp_percentile_75": 0.1628231594989,
-            "dp_percentile_90": 0.6022674,
-            "gc_content": 0.8,
-            "unique_seq_percentiles": 0.7536477,
-        }
-    ],
-    "idd": [{"dels": 2045, "ins": 8785, "length": 7527}],
-    "isize": [
-        {
-            "insert_size": 520,
-            "pairs_inward": 1535,
-            "pairs_other": 3811,
-            "pairs_outward": 3582,
-            "pairs_total": 488,
-        }
-    ],
-    "lbc": [
-        {
-            "cycle": 7123,
-            "percentages": [
-                -70454522783883.2,
+                -965174036082.736,
+                532342.979926683,
                 -8.27992917375175,
                 579153816.999816,
                 -64042.8365197,
                 -3.33896130686746,
                 -1218980537952.97,
                 -605362105548.169,
-                -222086.997413271,
+            ],
+        }
+    ],
+    "ffq": [
+        {
+            "counts": [
+                1139,
+                3733,
+                1307,
+                1654,
+                4554,
+                5977,
+                6065,
+                3432,
+                1169,
+                8751,
+                2677,
+                6216,
+                9125,
+            ],
+            "cycle": 5925,
+        }
+    ],
+    "frl": [{"count": 8785, "value": 7527}],
+    "gcd": [
+        {
+            "dp_percentile_10": 0.163032,
+            "dp_percentile_25": 0.1674,
+            "dp_percentile_50": 0.12,
+            "dp_percentile_75": 0.633052,
+            "dp_percentile_90": 0.95647,
+            "gc_content": 0.99458,
+            "unique_seq_percentiles": 0.7437586875258,
+        }
+    ],
+    "idd": [{"dels": 4803, "ins": 9044, "length": 1291}],
+    "isize": [
+        {
+            "insert_size": 9195,
+            "pairs_inward": 8928,
+            "pairs_other": 3611,
+            "pairs_outward": 6873,
+            "pairs_total": 3257,
+        }
+    ],
+    "lbc": [
+        {
+            "cycle": 4342,
+            "percentages": [
+                41716798182.6537,
+                -2030113.33273328,
+                -4048238267651.75,
+                88818668867694.0,
+                5814782857409.9,
+                -9510074682.17342,
+                -59302748061.3119,
+                -7448994987743.52,
+                1.56663763865583,
+                31.3346602396672,
+                -305730753142.473,
+                7.77454821598574,
             ],
         }
     ],
     "lfq": [
-        {"counts": [3432, 1169, 8751, 2677, 6216, 9125, 5313, 3752, 5168, 4386], "cycle": 2664}
+        {"counts": [3752, 5168, 4386, 3456, 3483, 6482, 2340, 2287, 9197, 9577], "cycle": 3598}
     ],
-    "lrl": [{"count": 711, "value": 4333}],
+    "lrl": [{"count": 6201, "value": 2045}],
     "sample": "index_000-N1-DNA1-WES1",
-    "sn": [{"key": "wait", "value": 8935}],
+    "sn": [{"key": "discover", "value": 3811}],
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
@@ -292,44 +316,42 @@ snapshots["SerializerTest::test_load_20 1"] = {
     "date_modified": "2012-01-14T12:00:01Z",
     "gcc": [
         {
-            "cycle": 3811,
+            "cycle": 3611,
             "percentages": [
-                750800.697808098,
-                -36890615212.106,
-                -348.168697172873,
-                -13.6683367452945,
-                -648245888.27737,
-                -549.416278088865,
-                -869693.674996843,
+                97.2808074611645,
+                -166944844.225772,
+                1702438824573.45,
+                -5695.7429141456,
+                74093639.4918715,
                 92349.298737106,
                 -10.4096777394726,
                 -60855700.6120868,
                 -224956459.702729,
                 623.187410804707,
+                -297982492151.947,
             ],
         }
     ],
-    "gcf": [{"count": 6912, "gc_content": 0.634036506}],
-    "gcl": [{"count": 3582, "gc_content": 0.1}],
+    "gcf": [{"count": 9863, "gc_content": 0.8279}],
+    "gcl": [{"count": 6873, "gc_content": 0.8}],
     "gct": [
         {
-            "cycle": 8751,
+            "cycle": 9125,
             "percentages": [
-                -4528972.85899313,
-                -916.52894468092,
-                5535001295567.27,
-                -19175900.4443951,
-                -80517811206.7019,
-                148532577.534277,
-                1932138724758.19,
-                -76.676914130792,
-                -69352.4047709743,
+                3.4517540243371,
+                -8883684.3539704,
+                -89827297893.7517,
+                9649191672.73579,
+                -919.440592919024,
+                66612908200.1489,
+                2.2251691342586,
+                50432.8573276057,
             ],
         }
     ],
-    "ic": [{"cycle": 1827, "dels_fwd": 7123, "dels_rev": 7433, "ins_fwd": 4808, "ins_rev": 2591}],
-    "mapq": [{"count": 5573, "value": 4371}],
-    "rl": [{"count": 8797, "value": 1876}],
+    "ic": [{"cycle": 1876, "dels_fwd": 4371, "dels_rev": 1827, "ins_fwd": 8797, "ins_rev": 5573}],
+    "mapq": [{"count": 188, "value": 9064}],
+    "rl": [{"count": 4119, "value": 8669}],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
@@ -339,40 +361,40 @@ snapshots["SerializerTest::test_load_21 1"] = {
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "qc_fail": {
-        "duplicates": 106,
-        "duplicates_primary": 2615,
-        "fragment_first": 2547,
-        "fragment_last": 3527,
-        "mapped": 6924,
-        "mapped_primary": 5574,
-        "paired": 4552,
-        "primary": 7359,
-        "properly_paired": 5514,
-        "secondary": 9654,
-        "singletons": 1519,
-        "supplementary": 4557,
-        "total": 3611,
-        "with_itself_and_mate_mapped": 1674,
-        "with_mate_mapped_to_different_chr": 6224,
-        "with_mate_mapped_to_different_chr_mapq5": 1584,
+        "duplicates": 5514,
+        "duplicates_primary": 1674,
+        "fragment_first": 5881,
+        "fragment_last": 5635,
+        "mapped": 1519,
+        "mapped_primary": 6224,
+        "paired": 1584,
+        "primary": 4552,
+        "properly_paired": 9891,
+        "secondary": 2547,
+        "singletons": 711,
+        "supplementary": 3527,
+        "total": 5574,
+        "with_itself_and_mate_mapped": 4333,
+        "with_mate_mapped_to_different_chr": 7527,
+        "with_mate_mapped_to_different_chr_mapq5": 8785,
     },
     "qc_pass": {
-        "duplicates": 520,
-        "duplicates_primary": 488,
-        "fragment_first": 8279,
-        "fragment_last": 9863,
-        "mapped": 1535,
-        "mapped_primary": 3582,
-        "paired": 3811,
-        "primary": 1424,
-        "properly_paired": 434,
-        "secondary": 9674,
-        "singletons": 3257,
-        "supplementary": 6912,
-        "total": 8935,
-        "with_itself_and_mate_mapped": 9195,
-        "with_mate_mapped_to_different_chr": 8928,
-        "with_mate_mapped_to_different_chr_mapq5": 6873,
+        "duplicates": 434,
+        "duplicates_primary": 9195,
+        "fragment_first": 3611,
+        "fragment_last": 7359,
+        "mapped": 3257,
+        "mapped_primary": 8928,
+        "paired": 6873,
+        "primary": 3811,
+        "properly_paired": 9654,
+        "secondary": 8279,
+        "singletons": 106,
+        "supplementary": 9863,
+        "total": 3582,
+        "with_itself_and_mate_mapped": 4557,
+        "with_mate_mapped_to_different_chr": 2615,
+        "with_mate_mapped_to_different_chr_mapq5": 6924,
     },
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
@@ -382,26 +404,26 @@ snapshots["SerializerTest::test_load_22 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"contig_len": 8935, "contig_name": "wait", "mapped": 1424, "unmapped": 9674}],
+    "records": [{"contig_len": 3811, "contig_name": "discover", "mapped": 8279, "unmapped": 9863}],
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
 }
 
 snapshots["SerializerTest::test_load_23 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
-    "chrom_counts": [{"chrom_name": "begin", "normalized_counts": 0.136505587}],
+    "chrom_counts": [{"chrom_name": "mouth", "normalized_counts": 0.241052919}],
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
-    "summary": [{"key": "wait", "value": 8935}],
+    "summary": [{"key": "discover", "value": 3811}],
 }
 
 snapshots["SerializerTest::test_load_24 1"] = {
     "caseqc": "23b8c1e9-3924-46de-beb1-3b9046685257",
     "date_created": "2012-01-14T12:00:01Z",
     "date_modified": "2012-01-14T12:00:01Z",
-    "records": [{"key": "wait", "value": 0.634036506}],
+    "records": [{"key": "discover", "value": 0.9195}],
     "region_name": "WGS",
     "sample": "index_000-N1-DNA1-WES1",
     "sodar_uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",

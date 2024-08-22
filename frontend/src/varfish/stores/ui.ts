@@ -1,9 +1,8 @@
 /**
  * Helper store that allows user to manipulate the UIs.
  */
-
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export const useUiStore = defineStore('ui', () => {
   /** Whether the UI is maximized */

@@ -1,8 +1,9 @@
-import CohortListTable from '@/cohorts/components/CohortList/Table.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount, shallowMount } from '@vue/test-utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+
+import CohortListTable from '@/cohorts/components/CohortList/Table.vue'
 
 import accessibleProjectsCasesResponse from '../../../data/accessibleProjectsCasesResponse.json'
 import cohortsState from '../../../data/cohortsStoreData.json'

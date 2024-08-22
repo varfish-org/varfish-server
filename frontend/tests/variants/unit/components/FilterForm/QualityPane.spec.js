@@ -1,7 +1,8 @@
-import FilterFormQualityPane from '@/variants/components/FilterForm/QualityPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 import { reactive } from 'vue'
+
+import FilterFormQualityPane from '@/variants/components/FilterForm/QualityPane.vue'
 
 import singletonCaseData from '../../../data/case-singleton.json'
 import trioCaseData from '../../../data/case-trio.json'

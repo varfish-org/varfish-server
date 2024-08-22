@@ -1,11 +1,12 @@
-import { uuidv4 } from '@/cohorts/helpers'
-import cohortsApi from '@/cohorts/api/cohorts'
-import { useCohortsStore } from '@/cohorts/stores/cohorts'
-import { useCtxStore } from '@/varfish/stores/ctx'
-import { State, StoreState } from '@/varfish/storeUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
+
+import cohortsApi from '@/cohorts/api/cohorts'
+import { uuidv4 } from '@/cohorts/helpers'
+import { useCohortsStore } from '@/cohorts/stores/cohorts'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 import accessibleProjectsCasesResponse from '../../data/accessibleProjectsCasesResponse.json'
 import createCohortCaseResponses from '../../data/createCohortCaseResponses.json'

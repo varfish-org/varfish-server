@@ -1,31 +1,30 @@
 <script setup>
 // eslint-disable
+
 /** Component for editing a single preset set.
  *
  * Displays the list of preset category entries on the left as an accordion.
  *
  * The individual preset categories are editable via child components.
  */
-import { computed, onMounted, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
-
 import Sortable from 'sortablejs'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { useCaseListStore } from '@/cases/stores/caseList'
-import { useCtxStore } from '@/varfish/stores/ctx'
-import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
-
 import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
 import ModalInput from '@/varfish/components/ModalInput.vue'
 import Toast from '@/varfish/components/Toast.vue'
-import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
-import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
 import FilterFormEffectPane from '@/variants/components/FilterForm/EffectPane.vue'
 import FilterFormFlagsPane from '@/variants/components/FilterForm/FlagsPane.vue'
-import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
+import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
+import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
+import QueryPresetsQualityPane from '@/variants/components/QueryPresets/QualityPane.vue'
 import QueryPresetsSetProperties from '@/variants/components/QueryPresets/SetProperties.vue'
 import QueryPresetsSetQuickPresets from '@/variants/components/QueryPresets/SetQuickPresets.vue'
-import QueryPresetsQualityPane from '@/variants/components/QueryPresets/QualityPane.vue'
+import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])

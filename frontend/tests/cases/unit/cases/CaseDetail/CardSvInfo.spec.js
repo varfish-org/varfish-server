@@ -1,5 +1,6 @@
-import CaseDetailCardSvInfo from '@/cases/components/CaseDetail/CardSvInfo.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailCardSvInfo from '@/cases/components/CaseDetail/CardSvInfo.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'

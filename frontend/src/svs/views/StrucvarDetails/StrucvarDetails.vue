@@ -9,45 +9,42 @@
  *
  * See `SeqvarDetails` for a peer app for sequence variants
  */
-
-import { onMounted, watch, ref, computed } from 'vue'
-import { svLocus } from './lib'
-
-import { useSvDetailsStore } from '@/svs/stores/svDetails'
-import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
-import { useSvCommentsStore } from '@/svs/stores/svComments'
-import { useSvResultSetStore } from '@/svs/stores/svResultSet'
-import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
-
-import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
-import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
-import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
-import { useCtxStore } from '@/varfish/stores/ctx'
-
-import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
-import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
-import StrucvarGenotypeCallCard from '@/svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
-
+import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
+import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
+import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
+import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
+import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
+import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
+import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
+import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
+import StrucvarGeneListCard from '@bihealth/reev-frontend-lib/components/StrucvarGeneListCard/StrucvarGeneListCard.vue'
+import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
 import {
   BreakendStrucvarImpl,
   LinearStrucvarImpl,
   Strucvar,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import StrucvarGeneListCard from '@bihealth/reev-frontend-lib/components/StrucvarGeneListCard/StrucvarGeneListCard.vue'
-import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
-import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
-import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
-import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
-import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
-import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
-import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
-import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
-import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
-import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { State } from '@/varfish/storeUtils'
 import { StoreState } from '@bihealth/reev-frontend-lib/stores'
+import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
+import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
+import { computed, onMounted, ref, watch } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
+import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
+import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
+import StrucvarGenotypeCallCard from '@/svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvCommentsStore } from '@/svs/stores/svComments'
+import { useSvDetailsStore } from '@/svs/stores/svDetails'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
+import { State } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
+import { svLocus } from './lib'
 
 const props = defineProps<{
   /** Project UUID. */

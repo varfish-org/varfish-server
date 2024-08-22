@@ -1,7 +1,8 @@
-import FilterFormGenotypePane from '@/variants/components/FilterForm/GenotypePane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
 import { reactive } from 'vue'
+
+import FilterFormGenotypePane from '@/variants/components/FilterForm/GenotypePane.vue'
 
 import singletonCaseData from '../../../data/case-singleton.json'
 import trioCaseData from '../../../data/case-trio.json'

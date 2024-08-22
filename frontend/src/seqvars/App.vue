@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { onMounted, watch } from 'vue'
+import { computed } from 'vue'
 
-import SeqvarsFiltration from './views/SeqvarsFiltration.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+
 import { useCaseAnalysisStore } from './stores/caseAnalysis'
 import { useSeqvarsPresetsStore } from './stores/presets'
 import { useSeqvarsQueryStore } from './stores/query'
-import { computed } from 'vue'
+import SeqvarsFiltration from './views/SeqvarsFiltration.vue'
 
 const appContext = JSON.parse(
   document
@@ -15,6 +17,7 @@ const appContext = JSON.parse(
 
 const props = defineProps<{ caseUuid: string }>()
 
+const caseDetailsStore = useCaseDetailsStore()
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
 const caseAnalysisStore = useCaseAnalysisStore()
 const seqvarsQueryStore = useSeqvarsQueryStore()
@@ -28,6 +31,10 @@ const refreshStores = async () => {
     await Promise.all([
       (async () => {
         await Promise.all([
+          caseDetailsStore.initialize(
+            appContext.project.sodar_uuid,
+            props.caseUuid,
+          ),
           seqvarsPresetsStore.initialize(appContext.project.sodar_uuid),
           caseAnalysisStore.initialize(
             appContext.project.sodar_uuid,
@@ -61,5 +68,9 @@ const presetsDetails = computed(() =>
 </script>
 
 <template>
-  <SeqvarsFiltration v-if="presetsDetails" :presets-details="presetsDetails" />
+  <SeqvarsFiltration
+    v-if="!!caseDetailsStore.caseObj.pedigree_obj && presetsDetails"
+    :presets-details="presetsDetails"
+    :pedigree="caseDetailsStore.caseObj.pedigree_obj"
+  />
 </template>

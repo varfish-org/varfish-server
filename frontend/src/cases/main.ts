@@ -1,7 +1,9 @@
-import App from '@/cases/App.vue'
-import { createApp, nextTick } from 'vue'
-import { registerPlugins } from './plugins'
 import 'bootstrap'
+import { createApp, nextTick } from 'vue'
+
+import App from '@/cases/App.vue'
+
+import { registerPlugins } from './plugins'
 
 declare global {
   interface Window {

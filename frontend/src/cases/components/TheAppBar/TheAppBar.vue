@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+
 import VarFishLogo from '@/varfish/components/VarFishLogo.vue'
 
 /** The props used in this component. */
@@ -12,8 +13,10 @@ const props = withDefaults(
     showRightPanelButton?: boolean
     /** The string to display as the title. */
     title?: string
+    /** Whether to display the loading indicator. */
+    loading?: boolean
   }>(),
-  { title: 'VarFish' },
+  { title: 'VarFish', loading: false },
 )
 
 /** Whether to show the left panel button. */
@@ -48,7 +51,15 @@ const showRightPanel = defineModel('showRightPanel', {
     <v-app-bar-title>
       <slot name="title">
         <div class="d-flex">
-          <VarFishLogo />
+          <template v-if="loading">
+            <v-progress-circular
+              indeterminate
+              color="white"
+            ></v-progress-circular>
+          </template>
+          <template v-else>
+            <VarFishLogo />
+          </template>
           <div class="pl-2">{{ title }}</div>
         </div>
       </slot>

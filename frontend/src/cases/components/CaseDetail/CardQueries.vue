@@ -1,9 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-
+import { useCaseListStore } from '@/cases/stores/caseList'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Define emits. */

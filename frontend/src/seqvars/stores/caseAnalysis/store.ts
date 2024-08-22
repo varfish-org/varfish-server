@@ -1,12 +1,13 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
 import {
   CaseAnalysis,
   CaseAnalysisSession,
   CasesAnalysisService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
+import { State, StoreState } from '@/varfish/storeUtils'
 
 /**
  * Store for the case analysis (and case analysis session).
@@ -64,7 +65,7 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
       await loadCaseAnalyses()
       await loadCaseAnalysisSessions()
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.state = State.Error
       storeState.message = `Error loading case analysis / sessions: ${e}`
     } finally {

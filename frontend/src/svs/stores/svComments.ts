@@ -5,15 +5,15 @@
  *
  * - `caseDetailsStore`
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { SvClient } from '@/svs/api/strucvarClient'
-import { reciprocalOverlap } from '@/varfish/helpers'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { SvClient } from '@/svs/api/strucvarClient'
+import { reciprocalOverlap } from '@/varfish/helpers'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of StructuralVariantComment type; to be defined later. */

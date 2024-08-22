@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import VResizeDrawer from '@wdns/vuetify-resize-drawer'
+
 import SeqvarDetails from '@/variants/views/SeqvarDetails/SeqvarDetails.vue'
 
 /** Model with boolean that defines visibility. */

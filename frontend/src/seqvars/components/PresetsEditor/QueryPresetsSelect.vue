@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
 import {
   SeqvarsQueryPresetsSet,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { useRouter } from 'vue-router'
 import {
   EditableState,
   getEditableStateLabel,

@@ -1,3 +1,9 @@
+import {
+  type LinearStrucvar,
+  LinearStrucvarImpl,
+  Strucvar,
+} from '@bihealth/reev-frontend-lib/lib/genomicVars'
+
 export type QuickPresets = any
 export type InheritancePresets = any
 export type CategoryPresets = any
@@ -8,11 +14,6 @@ export type SvQueryResultRow = any
 export type SvComment = any
 export type SvFlags = any
 export type SvAcmgRating = any
-import {
-  LinearStrucvarImpl,
-  Strucvar,
-  type LinearStrucvar,
-} from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 /**
  * Encode the list arguments.

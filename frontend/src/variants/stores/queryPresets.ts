@@ -5,14 +5,13 @@
  *
  * - `caseListStore`
  */
-
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
-import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 // type FrequencyPresets = any
 // type ImpactPresets = any

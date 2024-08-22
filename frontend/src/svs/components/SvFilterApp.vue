@@ -1,21 +1,20 @@
 <script setup>
 import $ from 'jquery'
-import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
+import { nextTick, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { State } from '@/varfish/storeUtils'
-import { useSvQueryStore } from '@/svs/stores/svQuery'
-import { useSvResultSetStore } from '@/svs/stores/svResultSet'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { updateUserSetting } from '@/varfish/userSettings'
-import { QueryStates, QueryStateToText } from '@/variants/enums'
-
 import SvFilterForm from '@/svs/components/SvFilterForm.vue'
 import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
-import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
+import { useSvCommentsStore } from '@/svs/stores/svComments'
+import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import { State } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
+import { updateUserSetting } from '@/varfish/userSettings'
+import { QueryStateToText, QueryStates } from '@/variants/enums'
 
 const props = defineProps({
   /** The project UUID. */

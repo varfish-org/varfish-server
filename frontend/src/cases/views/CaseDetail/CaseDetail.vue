@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useCaseListStore } from '@/cases/stores/caseList'
+import { onBeforeMount, ref, watch } from 'vue'
+
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCaseListStore } from '@/cases/stores/caseList'
+
 import CaseDetailPane from './CaseDetailPane.vue'
-import { onBeforeMount, ref, watch } from 'vue'
 
 const paneRef = ref<typeof CaseDetailPane | undefined>(undefined)
 
@@ -51,6 +53,7 @@ watch(
       v-model:show-left-panel="navbarShown"
       :show-left-panel-button="true"
       :show-right-panel-button="false"
+      :loading="!caseDetailsStore.caseObj"
     />
     <TheNavBar :navbar-shown="navbarShown">
       <v-list-item

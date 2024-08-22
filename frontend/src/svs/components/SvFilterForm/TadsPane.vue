@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
+import { computed, onMounted } from 'vue'
 
 // Define the component's props.
 const props = defineProps({

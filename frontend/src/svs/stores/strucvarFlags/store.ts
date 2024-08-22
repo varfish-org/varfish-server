@@ -1,15 +1,15 @@
 /**
  * Pinia store for handling per-SV flags.
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { SvClient, SvFlags } from '@/svs/api/strucvarClient'
-import { bndInsOverlap, reciprocalOverlap } from '@/varfish/helpers'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { SvClient, SvFlags } from '@/svs/api/strucvarClient'
+import { bndInsOverlap, reciprocalOverlap } from '@/varfish/helpers'
+import { State, StoreState } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of StructuralVariant type; to be defined later. */

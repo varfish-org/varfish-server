@@ -1,7 +1,3 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import {
   SeqvarsQuery,
   SeqvarsQueryColumnsConfig,
@@ -9,7 +5,12 @@ import {
   SeqvarsQuerySettingsDetails,
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { State, StoreState } from '@/varfish/storeUtils'
 
 /**
  * Store for the seqvars queries.
@@ -88,7 +89,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     try {
       storeState.serverInteractions += 1
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.state = State.Error
       storeState.message = `Error loading presets: ${e}`
     } finally {

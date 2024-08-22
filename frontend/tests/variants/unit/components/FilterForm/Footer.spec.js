@@ -1,7 +1,8 @@
 import { createTestingPinia } from '@pinia/testing'
-import FilterFormFooter from '@/variants/components/FilterForm/Footer.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
+
+import FilterFormFooter from '@/variants/components/FilterForm/Footer.vue'
 
 import variantQueryStore from '../../../data/filter-query-store.json'
 

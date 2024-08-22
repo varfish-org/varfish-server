@@ -1,6 +1,4 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
-import { StoreState, State } from '@/varfish/storeUtils'
+import { RequestResult } from '@hey-api/client-fetch'
 import {
   PatchedSeqvarsQueryPresetsSetRequest,
   SeqvarsPredefinedQuery,
@@ -16,9 +14,13 @@ import {
   SeqvarsQueryPresetsVariantPrio,
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
+import { acceptHMRUpdate, defineStore } from 'pinia'
+import { computed, reactive, ref } from 'vue'
+
 import { client } from '@/cases/plugins/heyApi'
-import { PresetSetVersionState, EditableState } from './types'
-import { RequestResult } from '@hey-api/client-fetch'
+import { State, StoreState } from '@/varfish/storeUtils'
+
+import { EditableState, PresetSetVersionState } from './types'
 
 /**
  * Store for the seqvars query presets.
@@ -43,7 +45,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
   const factoryDefaultPresetSetUuids = reactive<string[]>([])
   /** The preset sets by UUID. */
   const presetSets = reactive<Map<string, SeqvarsQueryPresetsSet>>(new Map())
-  /** The preset set versions by UUID. */
+  /** The presetpresetSetVersions set versions by UUID. */
   const presetSetVersions = reactive<
     Map<string, SeqvarsQueryPresetsSetVersionDetails>
   >(new Map())
@@ -92,7 +94,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
         Promise.all([loadPresets(), loadFactoryDefaultsPresets()]),
       )
     } catch (e) {
-      console.log('error', e)
+      console.error('error', e)
       storeState.message = `Error loading presets: ${e}`
     }
   }
@@ -173,7 +175,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
       if (detailResponse.data !== undefined) {
         presetSetVersions.set(
           detailResponse.data.sodar_uuid,
-          detailResponse.data,
+          Object.freeze(detailResponse.data),
         )
       }
     }

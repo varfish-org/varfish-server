@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
-import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
-import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
-import CategoryPresetsFrequencyEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsFrequencyEditor.vue'
-import CategoryPresetsConsequenceEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsConsequenceEditor.vue'
-import CategoryPresetsLocusEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsLocusEditor.vue'
-import CategoryPresetsPhenotypePrioEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsPhenotypePrioEditor.vue'
-import CategoryPresetsVariantPrioEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsVariantPrioEditor.vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+
 import CategoryPresetsClinvarEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsClinvarEditor.vue'
 import CategoryPresetsColumnsEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsColumnsEditor.vue'
+import CategoryPresetsConsequenceEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsConsequenceEditor.vue'
+import CategoryPresetsFrequencyEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsFrequencyEditor.vue'
+import CategoryPresetsLocusEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsLocusEditor.vue'
+import CategoryPresetsPhenotypePrioEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsPhenotypePrioEditor.vue'
 import CategoryPresetsPredefinedQueriesEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsPredefinedQueriesEditor.vue'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
+import CategoryPresetsVariantPrioEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsVariantPrioEditor.vue'
+import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
+import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { EditableState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+
 import { PresetsCategory, PresetsCategoryInfo } from './lib'
 
 /** Props used in this component. */

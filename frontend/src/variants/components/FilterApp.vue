@@ -1,20 +1,19 @@
 <script setup>
 import $ from 'jquery'
-import { watch, onMounted, nextTick, onBeforeMount } from 'vue'
+import { nextTick, onBeforeMount, onMounted, watch } from 'vue'
 
-import { State } from '@/varfish/storeUtils'
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State } from '@/varfish/storeUtils'
 import { useCtxStore } from '@/varfish/stores/ctx'
 import { updateUserSetting } from '@/varfish/userSettings'
-import { QueryStates, QueryStateToText } from '@/variants/enums'
-
 import FilterForm from '@/variants/components/FilterForm.vue'
 import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
+import { QueryStateToText, QueryStates } from '@/variants/enums'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 const props = defineProps({
   /** The project UUID. */

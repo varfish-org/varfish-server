@@ -1,13 +1,13 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
+import { computed, onMounted } from 'vue'
 
 import {
-  txEffectFields,
   svSubTypeGroups,
-  svTypeGroups,
   svTypeFields,
+  svTypeGroups,
+  txEffectFields,
 } from '@/svs/components/SvFilterForm/ImpactPane.fields'
 
 // Define the component's props.

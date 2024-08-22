@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { State } from '@/varfish/storeUtils'
-import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
-import { computed, onMounted, ref, toRaw, watch } from 'vue'
 import {
   LinearStrucvar,
   Strucvar,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { computed, onMounted, ref, toRaw, watch } from 'vue'
+
 import {
   AcmgRating,
-  strucvarAssign,
   acmgRatingEqual,
+  strucvarAssign,
 } from '@/svs/api/strucvarClient'
+import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
+import { State } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
 import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
 import { acmgColor, acmgLabel } from './lib'
-import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** This component's props. */
 const props = defineProps<{

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import AlignmentsSummaryCard from '@/cases_qc/components/PaneQc/AlignmentsSummaryCard.vue'
+import { type VarfishStats } from '@/cases_qc/api/types'
 import AlignmentsCoverageCard from '@/cases_qc/components/PaneQc/AlignmentsCoverageCard.vue'
 import AlignmentsFragmentHistCard from '@/cases_qc/components/PaneQc/AlignmentsFragmentHistCard.vue'
+import AlignmentsSummaryCard from '@/cases_qc/components/PaneQc/AlignmentsSummaryCard.vue'
 import ReadsCard from '@/cases_qc/components/PaneQc/ReadsCard.vue'
 import SeqvarCard from '@/cases_qc/components/PaneQc/SeqvarCard.vue'
 import StrucvarCard from '@/cases_qc/components/PaneQc/StrucvarCard.vue'
-import { type VarfishStats } from '@/cases_qc/api/types'
 
 export interface Props {
   stats?: VarfishStats | null

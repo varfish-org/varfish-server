@@ -1,21 +1,23 @@
-import { ClientBase } from '@/varfish/apiUtils'
-import {
-  QuickPresets,
-  InheritancePresets,
-  CategoryPresets,
-  QuerySettingsShortcuts,
-  CaseSvQuery,
-  SvQueryResultSet,
-  ListArgs,
-  SvQueryResultRow,
-  SvComment,
-  SvAcmgRating,
-  SvFlags,
-  AcmgRating$Api,
-  AcmgRating,
-  AcmgRatingPage$Api,
-} from './types'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+
+import { ClientBase } from '@/varfish/apiUtils'
+
+import {
+  AcmgRating,
+  AcmgRating$Api,
+  AcmgRatingPage$Api,
+  CaseSvQuery,
+  CategoryPresets,
+  InheritancePresets,
+  ListArgs,
+  QuerySettingsShortcuts,
+  QuickPresets,
+  SvAcmgRating,
+  SvComment,
+  SvFlags,
+  SvQueryResultRow,
+  SvQueryResultSet,
+} from './types'
 
 /**
  * Class for accessing the SV REST API.

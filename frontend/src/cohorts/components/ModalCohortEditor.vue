@@ -8,13 +8,13 @@
  * or use the Promise returned by show with its resolve function.  Both the event and the resolve
  * function will be passed the input and the "props.extraData" value.
  */
-
-import { onMounted, reactive, ref, computed } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
+import { helpers } from '@vuelidate/validators'
+import { computed, onMounted, reactive, ref } from 'vue'
 
-import ModalBase from '@/varfish/components/ModalBase.vue'
 import { randomString } from '@/varfish/common'
+import ModalBase from '@/varfish/components/ModalBase.vue'
 import { copy } from '@/varfish/helpers'
 
 const props = defineProps({
@@ -116,8 +116,6 @@ const onCancel = () => {
     hide()
   }
 }
-
-import { helpers } from '@vuelidate/validators'
 
 const selectAtLeastTwoCases = helpers.withMessage(
   'Select at least two cases',

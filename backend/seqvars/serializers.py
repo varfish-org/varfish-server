@@ -1070,6 +1070,15 @@ class SeqvarsQueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseMod
         read_only_fields = fields
 
 
+class SeqvarsQueryCreateFromSerializer(serializers.Serializer):
+    """Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``."""
+
+    #: UUID of the ``SeqvarsPredefinedQuery`` to create the settings from.
+    predefinedquery = serializers.UUIDField(required=True)
+    #: The label to use.
+    label = serializers.CharField(max_length=128, required=True)
+
+
 class SeqvarsQuerySerializer(BaseModelSerializer):
     """Serializer for ``Query``."""
 
