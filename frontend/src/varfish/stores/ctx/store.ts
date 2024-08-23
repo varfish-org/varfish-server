@@ -1,6 +1,6 @@
 import {
-  CasesService,
   UserAndGlobalSettings,
+  casesApiUserAndGlobalSettingsRetrieve,
 } from '@varfish-org/varfish-api/lib'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -82,7 +82,7 @@ export const useCtxStore = defineStore('ctx', () => {
    * Load the current user and global settings.
    */
   const loadUserAndGlobalSettings = async () => {
-    const response = await CasesService.casesApiUserAndGlobalSettingsRetrieve()
+    const response = await casesApiUserAndGlobalSettingsRetrieve()
     if (response.data) {
       userAndGlobalSettings.value = response.data
     }

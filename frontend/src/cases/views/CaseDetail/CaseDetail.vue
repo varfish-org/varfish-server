@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { onBeforeMount, ref, watch } from 'vue'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
@@ -8,8 +9,7 @@ import { useCaseListStore } from '@/cases/stores/caseList'
 
 import CaseDetailPane from './CaseDetailPane.vue'
 
-const paneRef = ref<typeof CaseDetailPane | undefined>(undefined)
-
+/** This component's props. */
 const props = defineProps<{
   /** The project UUID. */
   projectUuid: string
@@ -18,6 +18,9 @@ const props = defineProps<{
   /** The current tab. */
   currentTab: string
 }>()
+
+/** Reference to the `CaseDetailPane` to trigger events, e.g., for showing editor dialogs. */
+const paneRef = ref<typeof CaseDetailPane | undefined>(undefined)
 
 const caseDetailsStore = useCaseDetailsStore()
 const caseListStore = useCaseListStore()
@@ -226,4 +229,5 @@ watch(
       </v-main>
     </div>
   </v-app>
+  <VueQueryDevtools />
 </template>

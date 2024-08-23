@@ -3,7 +3,13 @@ import {
   SeqvarsQueryDetails,
   SeqvarsQueryDetailsRequest,
   SeqvarsQueryExecution,
-  SeqvarsService,
+  seqvarsApiQueryCreate,
+  seqvarsApiQueryCreateFromCreate,
+  seqvarsApiQueryDestroy,
+  seqvarsApiQueryList,
+  seqvarsApiQueryPartialUpdate,
+  seqvarsApiQueryRetrieve,
+  seqvarsApiQueryexecutionList,
 } from '@varfish-org/varfish-api/lib'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { reactive, ref, toRaw } from 'vue'
@@ -111,7 +117,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     do {
       const response = await storeState.execAsync(
         async () =>
-          await SeqvarsService.seqvarsApiQueryList({
+          await seqvarsApiQueryList({
             client,
             path: { session },
             query: { cursor, page_size: 100 },
@@ -123,7 +129,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
           async () =>
             await Promise.all(
               results.map((query) =>
-                SeqvarsService.seqvarsApiQueryRetrieve({
+                seqvarsApiQueryRetrieve({
                   client,
                   path: { query: query.sodar_uuid, session },
                 }),
@@ -160,7 +166,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
       async () =>
         await Promise.all(
           Array.from(seqvarQueries.values()).map(({ sodar_uuid: query }) =>
-            SeqvarsService.seqvarsApiQueryRetrieve({
+            seqvarsApiQueryRetrieve({
               client,
               path: { session, query },
             }),
@@ -188,7 +194,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
       const query = seqvarQuery.sodar_uuid
       const response = await storeState.execAsync(
         async () =>
-          await SeqvarsService.seqvarsApiQueryexecutionList({
+          await seqvarsApiQueryexecutionList({
             path: { query },
             query: { page_size: 1 },
           }),
@@ -219,7 +225,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     const session: string = sessionUuid.value
 
     const response = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQueryCreate({
+      seqvarsApiQueryCreate({
         client,
         path: {
           session,
@@ -254,7 +260,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     const session: string = sessionUuid.value
 
     const response = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQueryCreateFromCreate({
+      seqvarsApiQueryCreateFromCreate({
         client,
         path: {
           session,
@@ -298,7 +304,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     seqvarQueries.set(query.sodar_uuid, query)
 
     const response = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQueryPartialUpdate({
+      seqvarsApiQueryPartialUpdate({
         client,
         path: {
           session,
@@ -328,7 +334,7 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
 
     const response = await storeState.execAsync(
       async () =>
-        await SeqvarsService.seqvarsApiQueryDestroy({
+        await seqvarsApiQueryDestroy({
           client,
           path: {
             query,

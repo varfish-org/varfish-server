@@ -21,6 +21,7 @@ from rest_framework.generics import (
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
 
 from cases.models import ExtraAnnoFieldInfo, GlobalSettings, UserAndGlobalSettings, UserSettings
 from cases.serializers import (
@@ -29,6 +30,7 @@ from cases.serializers import (
     CaseGeneAnnotationSerializer,
     CaseSerializerNg,
     PedigreeRelatednessSerializer,
+    RecordCountSerializer,
     SampleVariantStatisticsSerializer,
     UserAndGlobalSettingsSerializer,
 )
@@ -59,6 +61,47 @@ class CasePagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
     max_page_size = 1000
+
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name="q", type=str),
+        ],
+        responses=RecordCountSerializer,
+    )
+)
+class CaseCountApiView(SODARAPIBaseProjectMixin, RetrieveAPIView):
+    """Return the number of cases, potentially filtered."""
+
+    permission_classes = [SODARAPIProjectPermission]
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    serializer_class = RecordCountSerializer
+
+    def get(self, request, *args, **kwargs):
+        return Response({"count": self.get_queryset().count()})
+
+    def get_queryset(self):
+        # Use ``select_related()`` so we do not have to explicitely fetch projects and preset sets for serializing as
+        # projects.sodar_uuid and presetset.sodar_uuid.
+        qs = Case.objects.filter(project__sodar_uuid=self.kwargs["project"])
+        if self.request.GET.get("q"):
+            qs = qs.filter(name__icontains=self.request.GET.get("q"))
+        order_by_str = self.request.query_params.get("order_by", "")
+        if order_by_str:
+            order_dir = self.request.query_params.get("order_dir", "asc")
+            order_by = order_by_str.split(",")
+            if order_dir == "desc":
+                qs = qs.order_by(*[f"-{value}" for value in order_by])
+            else:
+                qs = qs.order_by(*order_by)
+        qs = qs.select_related("project", "presetset")
+        return qs
+
+    def get_permission_required(self):
+        return "cases.view_data"
 
 
 @extend_schema_view(

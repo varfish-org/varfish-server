@@ -12,7 +12,45 @@ import {
   SeqvarsQueryPresetsSet,
   SeqvarsQueryPresetsSetVersionDetails,
   SeqvarsQueryPresetsVariantPrio,
-  SeqvarsService,
+  seqvarsApiPredefinedqueryCreate,
+  seqvarsApiPredefinedqueryDestroy,
+  seqvarsApiPredefinedqueryPartialUpdate,
+  seqvarsApiQuerypresetsclinvarCreate,
+  seqvarsApiQuerypresetsclinvarDestroy,
+  seqvarsApiQuerypresetsclinvarPartialUpdate,
+  seqvarsApiQuerypresetscolumnsCreate,
+  seqvarsApiQuerypresetscolumnsDestroy,
+  seqvarsApiQuerypresetscolumnsPartialUpdate,
+  seqvarsApiQuerypresetsconsequenceCreate,
+  seqvarsApiQuerypresetsconsequenceDestroy,
+  seqvarsApiQuerypresetsconsequencePartialUpdate,
+  seqvarsApiQuerypresetsfactorydefaultsList,
+  seqvarsApiQuerypresetsfactorydefaultsRetrieve,
+  seqvarsApiQuerypresetsfrequencyCreate,
+  seqvarsApiQuerypresetsfrequencyDestroy,
+  seqvarsApiQuerypresetsfrequencyPartialUpdate,
+  seqvarsApiQuerypresetslocusCreate,
+  seqvarsApiQuerypresetslocusDestroy,
+  seqvarsApiQuerypresetslocusPartialUpdate,
+  seqvarsApiQuerypresetsphenotypeprioCreate,
+  seqvarsApiQuerypresetsphenotypeprioDestroy,
+  seqvarsApiQuerypresetsphenotypeprioPartialUpdate,
+  seqvarsApiQuerypresetsqualityCreate,
+  seqvarsApiQuerypresetsqualityDestroy,
+  seqvarsApiQuerypresetsqualityPartialUpdate,
+  seqvarsApiQuerypresetssetCopyFromCreate,
+  seqvarsApiQuerypresetssetDestroy,
+  seqvarsApiQuerypresetssetList,
+  seqvarsApiQuerypresetssetPartialUpdate,
+  seqvarsApiQuerypresetssetRetrieve,
+  seqvarsApiQuerypresetssetversionCopyFromCreate,
+  seqvarsApiQuerypresetssetversionDestroy,
+  seqvarsApiQuerypresetssetversionList,
+  seqvarsApiQuerypresetssetversionPartialUpdate,
+  seqvarsApiQuerypresetssetversionRetrieve,
+  seqvarsApiQuerypresetsvariantprioCreate,
+  seqvarsApiQuerypresetsvariantprioDestroy,
+  seqvarsApiQuerypresetsvariantprioPartialUpdate,
 } from '@varfish-org/varfish-api/lib'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
@@ -114,7 +152,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     do {
       const project = projectUuid.value
       const response = await storeState.execAsync(async () =>
-        SeqvarsService.seqvarsApiQuerypresetssetList({
+        seqvarsApiQuerypresetssetList({
           client,
           path: { project },
           query: { cursor, page_size: 100 },
@@ -141,7 +179,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const versionListResponses = await storeState.execAsync(async () =>
       Promise.all(
         tmpPresetsSet.map(({ sodar_uuid: querypresetsset }) =>
-          SeqvarsService.seqvarsApiQuerypresetssetversionList({
+          seqvarsApiQuerypresetssetversionList({
             client,
             path: { querypresetsset },
             query: { page_size: 100 },
@@ -157,7 +195,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
       if (listResponse.data && listResponse.data.results?.length) {
         for (const version of listResponse.data.results) {
           versionDetailResponses.push(
-            SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
+            seqvarsApiQuerypresetssetversionRetrieve({
               client,
               path: {
                 querypresetsset: version.presetsset,
@@ -190,7 +228,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const tmpPresetsSet: SeqvarsQueryPresetsSet[] = []
     do {
       const response = await storeState.execAsync(async () =>
-        SeqvarsService.seqvarsApiQuerypresetsfactorydefaultsList({
+        seqvarsApiQuerypresetsfactorydefaultsList({
           client,
           query: { cursor, page_size: 100 },
         }),
@@ -218,7 +256,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const responses = await storeState.execAsync(async () =>
       Promise.all(
         tmpPresetsSet.map(({ sodar_uuid: querypresetsset }) =>
-          SeqvarsService.seqvarsApiQuerypresetsfactorydefaultsRetrieve({
+          seqvarsApiQuerypresetsfactorydefaultsRetrieve({
             client,
             path: { querypresetsset },
           }),
@@ -262,7 +300,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // Update the preset set via API.
     const project = projectUuid.value
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetPartialUpdate({
+      seqvarsApiQuerypresetssetPartialUpdate({
         client,
         body,
         path: {
@@ -277,7 +315,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Fetch the updated presets set.
     const retrieveResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetRetrieve({
+      seqvarsApiQuerypresetssetRetrieve({
         client,
         path: {
           project,
@@ -313,7 +351,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // Create new presets set copy via API.
     const project = projectUuid.value
     const copyFromResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetCopyFromCreate({
+      seqvarsApiQuerypresetssetCopyFromCreate({
         client,
         path: {
           project,
@@ -330,7 +368,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     presetSets.set(presetsSet.sodar_uuid, presetsSet)
     // Retrieve the presets set versions and store them.
     const versionListResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionList({
+      seqvarsApiQuerypresetssetversionList({
         client,
         path: { querypresetsset: presetsSet.sodar_uuid },
         query: { page_size: 100 },
@@ -345,7 +383,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     >[] = []
     for (const version of versionListResponse.data.results ?? []) {
       versionDetailResponses.push(
-        SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
+        seqvarsApiQuerypresetssetversionRetrieve({
           client,
           path: {
             querypresetsset: version.presetsset,
@@ -396,7 +434,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // Delete the preset set via API.
     const project = projectUuid.value
     await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetDestroy({
+      seqvarsApiQuerypresetssetDestroy({
         client,
         path: {
           project,
@@ -419,7 +457,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create new version via API.
     const copyFromResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionCopyFromCreate({
+      seqvarsApiQuerypresetssetversionCopyFromCreate({
         client,
         path: {
           querypresetsset: origVersion.presetsset.sodar_uuid,
@@ -437,7 +475,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // First, list the versions (assuming there are <100).
     const querypresetsset = origVersion.presetsset.sodar_uuid
     const versionListResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionList({
+      seqvarsApiQuerypresetssetversionList({
         client,
         path: { querypresetsset },
         query: { page_size: 100 },
@@ -451,7 +489,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     if (versionListResponse.data && versionListResponse.data.results?.length) {
       for (const version of versionListResponse.data.results) {
         versionDetailResponses.push(
-          SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
+          seqvarsApiQuerypresetssetversionRetrieve({
             client,
             path: {
               querypresetsset: version.presetsset,
@@ -490,7 +528,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Publish the version via API.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionPartialUpdate({
+      seqvarsApiQuerypresetssetversionPartialUpdate({
         client,
         body: {
           status: PresetSetVersionState.ACTIVE,
@@ -507,7 +545,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Fetch the updated version.
     const retrieveResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionRetrieve({
+      seqvarsApiQuerypresetssetversionRetrieve({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -540,7 +578,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetssetversionDestroy({
+      seqvarsApiQuerypresetssetversionDestroy({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -575,7 +613,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsqualityCreate({
+      seqvarsApiQuerypresetsqualityCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -617,7 +655,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsqualityPartialUpdate({
+      seqvarsApiQuerypresetsqualityPartialUpdate({
         client,
         path: {
           querypresetsquality: body.sodar_uuid,
@@ -662,7 +700,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsqualityDestroy({
+      seqvarsApiQuerypresetsqualityDestroy({
         client,
         path: {
           querypresetsquality: uuid,
@@ -702,7 +740,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsfrequencyCreate({
+      seqvarsApiQuerypresetsfrequencyCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -744,7 +782,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsfrequencyPartialUpdate({
+      seqvarsApiQuerypresetsfrequencyPartialUpdate({
         client,
         path: {
           querypresetsfrequency: body.sodar_uuid,
@@ -790,7 +828,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsfrequencyDestroy({
+      seqvarsApiQuerypresetsfrequencyDestroy({
         client,
         path: {
           querypresetsfrequency: uuid,
@@ -831,7 +869,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsconsequenceCreate({
+      seqvarsApiQuerypresetsconsequenceCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -873,7 +911,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsconsequencePartialUpdate({
+      seqvarsApiQuerypresetsconsequencePartialUpdate({
         client,
         path: {
           querypresetsconsequence: body.sodar_uuid,
@@ -923,7 +961,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsconsequenceDestroy({
+      seqvarsApiQuerypresetsconsequenceDestroy({
         client,
         path: {
           querypresetsconsequence: uuid,
@@ -964,7 +1002,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetslocusCreate({
+      seqvarsApiQuerypresetslocusCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1006,7 +1044,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetslocusPartialUpdate({
+      seqvarsApiQuerypresetslocusPartialUpdate({
         client,
         path: {
           querypresetslocus: body.sodar_uuid,
@@ -1051,7 +1089,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetslocusDestroy({
+      seqvarsApiQuerypresetslocusDestroy({
         client,
         path: {
           querypresetslocus: uuid,
@@ -1092,7 +1130,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsphenotypeprioCreate({
+      seqvarsApiQuerypresetsphenotypeprioCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1134,7 +1172,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsphenotypeprioPartialUpdate({
+      seqvarsApiQuerypresetsphenotypeprioPartialUpdate({
         client,
         path: {
           querypresetsphenotypeprio: body.sodar_uuid,
@@ -1184,7 +1222,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsphenotypeprioDestroy({
+      seqvarsApiQuerypresetsphenotypeprioDestroy({
         client,
         path: {
           querypresetsphenotypeprio: uuid,
@@ -1225,7 +1263,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsvariantprioCreate({
+      seqvarsApiQuerypresetsvariantprioCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1267,7 +1305,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsvariantprioPartialUpdate({
+      seqvarsApiQuerypresetsvariantprioPartialUpdate({
         client,
         path: {
           querypresetsvariantprio: body.sodar_uuid,
@@ -1317,7 +1355,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsvariantprioDestroy({
+      seqvarsApiQuerypresetsvariantprioDestroy({
         client,
         path: {
           querypresetsvariantprio: uuid,
@@ -1358,7 +1396,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsclinvarCreate({
+      seqvarsApiQuerypresetsclinvarCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1400,7 +1438,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsclinvarPartialUpdate({
+      seqvarsApiQuerypresetsclinvarPartialUpdate({
         client,
         path: {
           querypresetsclinvar: body.sodar_uuid,
@@ -1445,7 +1483,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetsclinvarDestroy({
+      seqvarsApiQuerypresetsclinvarDestroy({
         client,
         path: {
           querypresetsclinvar: uuid,
@@ -1486,7 +1524,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetscolumnsCreate({
+      seqvarsApiQuerypresetscolumnsCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1528,7 +1566,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetscolumnsPartialUpdate({
+      seqvarsApiQuerypresetscolumnsPartialUpdate({
         client,
         path: {
           querypresetscolumns: body.sodar_uuid,
@@ -1573,7 +1611,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQuerypresetscolumnsDestroy({
+      seqvarsApiQuerypresetscolumnsDestroy({
         client,
         path: {
           querypresetscolumns: uuid,
@@ -1614,7 +1652,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Create on the server.
     const createResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiPredefinedqueryCreate({
+      seqvarsApiPredefinedqueryCreate({
         client,
         path: {
           querypresetsset: version.presetsset.sodar_uuid,
@@ -1656,7 +1694,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Update on the server.
     const updateResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiPredefinedqueryPartialUpdate({
+      seqvarsApiPredefinedqueryPartialUpdate({
         client,
         path: {
           predefinedquery: body.sodar_uuid,
@@ -1701,7 +1739,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
     // Delete on the server.
     const deleteResponse = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiPredefinedqueryDestroy({
+      seqvarsApiPredefinedqueryDestroy({
         client,
         path: {
           predefinedquery: uuid,

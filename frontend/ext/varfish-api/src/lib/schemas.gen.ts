@@ -4472,6 +4472,17 @@ export const $RecessiveModeEnum = {
 * \`recessive\` - recessive`
 } as const;
 
+export const $RecordCount = {
+    type: 'object',
+    description: 'Serializer for the record count.',
+    properties: {
+        count: {
+            type: 'integer'
+        }
+    },
+    required: ['count']
+} as const;
+
 export const $RegionCoverageStats = {
     description: 'Per-region QC stats for alignment.',
     properties: {

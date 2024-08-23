@@ -1,7 +1,8 @@
 import {
   CaseAnalysis,
   CaseAnalysisSession,
-  CasesAnalysisService,
+  casesAnalysisApiCaseanalysisList,
+  casesAnalysisApiCaseanalysissessionList,
 } from '@varfish-org/varfish-api/lib'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
@@ -86,23 +87,22 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
     // Paginate through all case analyses of the case.
     let cursor: string | undefined = undefined
     do {
-      const response =
-        await CasesAnalysisService.casesAnalysisApiCaseanalysisList({
-          client,
-          path: { case: caseUuid.value },
-          query: { cursor, page_size: 100 },
-        })
+      const response = await casesAnalysisApiCaseanalysisList({
+        client,
+        path: { case: caseUuid.value },
+        query: { cursor, page_size: 100 },
+      })
       if (response.data && response.data.results) {
         for (const caseAnalysis of response.data.results) {
           caseAnalyses.set(caseAnalysis.sodar_uuid, caseAnalysis)
         }
 
-        if (response.data.next) {
+        if (!!response.data.next) {
           const tmpCursor = new URL(response.data.next).searchParams.get(
             'cursor',
           )
           if (tmpCursor !== null) {
-            cursor = tmpCursor
+            cursor = tmpCursor as string | undefined
           }
         }
       }
@@ -121,12 +121,11 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
     // Paginate through all case analyses of the case.
     let cursor: string | undefined = undefined
     do {
-      const response =
-        await CasesAnalysisService.casesAnalysisApiCaseanalysissessionList({
-          client,
-          path: { case: caseUuid.value },
-          query: { cursor, page_size: 100 },
-        })
+      const response = await casesAnalysisApiCaseanalysissessionList({
+        client,
+        path: { case: caseUuid.value },
+        query: { cursor, page_size: 100 },
+      })
       if (response.data && response.data.results) {
         for (const caseAnalysisSession of response.data.results) {
           caseAnalysisSessions.set(
@@ -140,7 +139,7 @@ export const useCaseAnalysisStore = defineStore('caseAnalysis', () => {
             'cursor',
           )
           if (tmpCursor !== null) {
-            cursor = tmpCursor
+            cursor = tmpCursor as string | undefined
           }
         }
       }

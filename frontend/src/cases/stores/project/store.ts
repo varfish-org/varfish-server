@@ -1,7 +1,11 @@
-import { client } from '@hey-api/client-fetch'
-import { Project, ProjectService } from '@varfish-org/varfish-api/lib'
+import {
+  Project,
+  projectApiRetrieveRetrieve,
+} from '@varfish-org/varfish-api/lib'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+
+import { client } from '@/cases/plugins/heyApi'
 
 /**
  * Store to provide information on the current project.
@@ -43,7 +47,7 @@ export const useProjectStore = defineStore('project', () => {
       throw new Error('projectUuid is undefined')
     }
 
-    const response = await ProjectService.projectApiRetrieveRetrieve({
+    const response = await projectApiRetrieveRetrieve({
       client,
       path: { project: projectUuid.value },
     })

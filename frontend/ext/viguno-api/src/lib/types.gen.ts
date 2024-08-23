@@ -11,7 +11,7 @@ export type HpoTerm = {
     /**
      * The term name (optional).
      */
-    term_name?: string | null;
+    term_name?: (string) | null;
 };
 
 /**
@@ -117,7 +117,7 @@ export type ResultGene = {
     /**
      * The HGNC ID.
      */
-    hgnc_id?: string | null;
+    hgnc_id?: (string) | null;
 };
 
 /**
@@ -166,7 +166,7 @@ export type SimilarityMethod = 'distance-gene' | 'graph-ic' | 'information-coeff
  * Detailed term scores.
  */
 export type TermDetails = {
-    term_query?: (HpoTerm) | null;
+    term_query?: ((HpoTerm) | null);
     term_gene: HpoTerm;
     /**
      * The similarity score.
@@ -193,11 +193,11 @@ export type HpoGenesData = {
         /**
          * The gene ID to search for.
          */
-        gene_id?: string | null;
+        gene_id?: (string) | null;
         /**
          * The gene symbol to search for.
          */
-        gene_symbol?: string | null;
+        gene_symbol?: (string) | null;
         /**
          * Whether to include HPO terms.
          */
@@ -205,7 +205,7 @@ export type HpoGenesData = {
         /**
          * The match mode.
          */
-        match_?: (Match) | null;
+        match_?: ((Match) | null);
         /**
          * Maximal number of results to return.
          */
@@ -213,7 +213,7 @@ export type HpoGenesData = {
     };
 };
 
-export type HpoGenesResponse = Result;
+export type HpoGenesResponse = (Result);
 
 export type HpoGenesError = unknown;
 
@@ -226,11 +226,11 @@ export type HpoOmimsData = {
         /**
          * Whether case is insentivie, default is `false`.
          */
-        ignore_case?: boolean | null;
+        ignore_case?: (boolean) | null;
         /**
          * The match mode, default is `Match::Exact`.
          */
-        match_?: (Match) | null;
+        match_?: ((Match) | null);
         /**
          * Maximal number of results to return.
          */
@@ -238,15 +238,15 @@ export type HpoOmimsData = {
         /**
          * The disease name to search for.
          */
-        name?: string | null;
+        name?: (string) | null;
         /**
          * The OMIM ID to search for.
          */
-        omim_id?: string | null;
+        omim_id?: (string) | null;
     };
 };
 
-export type HpoOmimsResponse = Result;
+export type HpoOmimsResponse = (Result);
 
 export type HpoOmimsError = unknown;
 
@@ -267,7 +267,7 @@ export type HpoSimTermGeneData = {
     };
 };
 
-export type HpoSimTermGeneResponse = Result;
+export type HpoSimTermGeneResponse = (Result);
 
 export type HpoSimTermGeneError = unknown;
 
@@ -296,7 +296,7 @@ export type HpoSimTermTermData = {
     };
 };
 
-export type HpoSimTermTermResponse = Result;
+export type HpoSimTermTermResponse = (Result);
 
 export type HpoSimTermTermError = unknown;
 
@@ -313,72 +313,14 @@ export type HpoTermsData = {
         /**
          * The term name to search for.
          */
-        name?: string | null;
+        name?: (string) | null;
         /**
          * The term ID to search for.
          */
-        term_id?: string | null;
+        term_id?: (string) | null;
     };
 };
 
-export type HpoTermsResponse = Result;
+export type HpoTermsResponse = (Result);
 
 export type HpoTermsError = unknown;
-
-export type $OpenApiTs = {
-    '/hpo/genes': {
-        get: {
-            req: HpoGenesData;
-            res: {
-                /**
-                 * The query was successful.
-                 */
-                '200': Result;
-            };
-        };
-    };
-    '/hpo/omims': {
-        get: {
-            req: HpoOmimsData;
-            res: {
-                /**
-                 * The query was successful.
-                 */
-                '200': Result;
-            };
-        };
-    };
-    '/hpo/sim/term-gene': {
-        get: {
-            req: HpoSimTermGeneData;
-            res: {
-                /**
-                 * The query was successful.
-                 */
-                '200': Result;
-            };
-        };
-    };
-    '/hpo/sim/term-term': {
-        get: {
-            req: HpoSimTermTermData;
-            res: {
-                /**
-                 * The query was successful.
-                 */
-                '200': Result;
-            };
-        };
-    };
-    '/hpo/terms': {
-        get: {
-            req: HpoTermsData;
-            res: {
-                /**
-                 * The query was successful.
-                 */
-                '200': Result;
-            };
-        };
-    };
-};

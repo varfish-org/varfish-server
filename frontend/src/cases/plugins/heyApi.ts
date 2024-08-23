@@ -9,5 +9,4 @@ export const client = createClient({
 /** Client for the Viguno API. */
 export const vigunoClient = createClient({
   baseUrl: '/proxy/varfish/viguno/',
-  global: false,
 })

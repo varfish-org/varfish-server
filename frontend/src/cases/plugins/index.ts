@@ -1,3 +1,4 @@
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import type { App } from 'vue'
 
 import { router } from '../router'
@@ -8,5 +9,5 @@ import { vuetify } from './vuetify'
 
 export async function registerPlugins(app: App) {
   setupBackendUrls()
-  app.use(pinia).use(vuetify).use(router)
+  app.use(pinia).use(vuetify).use(router).use(VueQueryPlugin)
 }
