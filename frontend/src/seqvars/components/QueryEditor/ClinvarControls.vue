@@ -5,8 +5,6 @@ import {
 } from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
 
-import { Query } from '@/seqvars/types'
-
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(

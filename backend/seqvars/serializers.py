@@ -64,6 +64,31 @@ from seqvars.models import (
 )
 
 
+class SodarUuidWritableNestedModelSerializer(WritableNestedModelSerializer):
+    """Adjusted version of ``WritableNestedModelSerializer`` that allows to work with
+    ``sodar_uuid`` rather than ``pk`.
+
+    NB that this is a simple workaround as we use UUIDs in the URLS in addition to
+    primary keys in the objects themselves.  We inherited this probelm from SODAR
+    and sodar-core.  The workaround is not complete yet for ``drf_writable_nested``
+    but it works nicely for our use case.
+    """
+
+    def _get_related_pk(self, data, model_class):
+        """Override to allow looking up via ``sodar_uuid`` first."""
+        pk = super()._get_related_pk(data, model_class)
+        if pk:
+            return pk
+
+        sodar_uuid = data.get("sodar_uuid")
+        if sodar_uuid:
+            try:
+                return model_class.objects.get(sodar_uuid=sodar_uuid).pk
+            except model_class.DoesNotExist:
+                pass  # swallow; will return None
+        return None
+
+
 class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """Serializer for ``FrequencySettingsBase``.
 
@@ -887,6 +912,10 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     clinvarpresets = serializers.ReadOnlyField(
         source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
     )
+    #: Serialize ``columnspresets`` as its ``sodar_uuid``.
+    columnspresets = serializers.ReadOnlyField(
+        source="columnspresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
 
     #: Serialize ``genotype`` as its ``sodar_uuid``.
     genotype = serializers.ReadOnlyField(source="genotype.sodar_uuid")
@@ -925,6 +954,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
             "phenotypepriopresets",
             "variantpriopresets",
             "clinvarpresets",
+            "columnspresets",
             "genotype",
             "quality",
             "consequence",
@@ -938,7 +968,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
 
 
 class SeqvarsQuerySettingsDetailsSerializer(
-    SeqvarsQuerySettingsSerializer, WritableNestedModelSerializer
+    SeqvarsQuerySettingsSerializer, SodarUuidWritableNestedModelSerializer
 ):
     """Serializer for ``QuerySettings`` (for ``*-detail``).
 
@@ -973,6 +1003,10 @@ class SeqvarsQuerySettingsDetailsSerializer(
     #: Serialize ``clinvarpresets`` as its ``sodar_uuid``.
     clinvarpresets = serializers.UUIDField(
         source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``columnspresets`` as its ``sodar_uuid``.
+    columnspresets = serializers.UUIDField(
+        source="columnspresets.sodar_uuid", required=False, allow_null=True, default=None
     )
 
     #: Nested serialization of the genotype settings.
@@ -1036,6 +1070,12 @@ class SeqvarsQuerySettingsDetailsSerializer(
             if clinvarpresets_uuid:
                 data["clinvarpresets"] = SeqvarsQueryPresetsClinvar.objects.get(
                     sodar_uuid=clinvarpresets_uuid
+                )
+        if "columnspresets" in data:
+            columnspresets_uuid = data.pop("columnspresets")["sodar_uuid"]
+            if columnspresets_uuid:
+                data["columnspresets"] = SeqvarsQueryPresetsColumns.objects.get(
+                    sodar_uuid=columnspresets_uuid
                 )
 
         return data
@@ -1110,7 +1150,7 @@ class SeqvarsQuerySerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, WritableNestedModelSerializer):
+class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, SodarUuidWritableNestedModelSerializer):
     """Serializer for ``Query`` (for ``*-detail``).
 
     For retrieve, update, or delete operations, we also render the nested query settings

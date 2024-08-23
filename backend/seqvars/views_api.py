@@ -2,6 +2,7 @@ import sys
 import typing
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.utils import extend_schema
@@ -462,8 +463,13 @@ class SeqvarsQueryViewSet(BaseViewSet):
         "create_from": SeqvarsQueryDetailsSerializer,
     }
 
+    # def partial_update(self, *args, **kwargs):
+    #     import pdb; pdb.set_trace()
+    #     return super().partial_update(*args, **kwargs)
+
     @extend_schema(request=SeqvarsQueryCreateFromSerializer)
     @action(methods=["post"], detail=False)
+    @transaction.atomic()
     def create_from(self, *args, **kwargs):
         """Create a new seqvars query from a predefined query."""
         source = None

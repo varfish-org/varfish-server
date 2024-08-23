@@ -6,7 +6,7 @@ import {
   SeqvarsService,
 } from '@varfish-org/varfish-api/lib'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 
 import { client } from '@/cases/plugins/heyApi'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
@@ -291,8 +291,14 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
     }
     const session: string = sessionUuid.value
 
+    // We perform an optimistic update here.
+    const origQuery = structuredClone(
+      toRaw(seqvarQueries.get(query.sodar_uuid))!,
+    )
+    seqvarQueries.set(query.sodar_uuid, query)
+
     const response = await storeState.execAsync(async () =>
-      SeqvarsService.seqvarsApiQueryUpdate({
+      SeqvarsService.seqvarsApiQueryPartialUpdate({
         client,
         path: {
           session,
@@ -301,10 +307,9 @@ export const useSeqvarsQueryStore = defineStore('seqvarsQuery', () => {
         body: query,
       }),
     )
-    if (!!response.data) {
-      const queryUuid = response.data.sodar_uuid
-      seqvarQueries.set(queryUuid, response.data)
-    } else {
+    if (!response.data) {
+      // Revert the change on problems and throw.
+      seqvarQueries.set(origQuery.sodar_uuid, origQuery)
       throw new Error(`Problem creating query : ${response.error}`)
     }
   }

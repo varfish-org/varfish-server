@@ -6,7 +6,6 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { diff } from 'deep-object-diff'
 import isEqual from 'fast-deep-equal/es6'
 import { debounce } from 'lodash'
 import { computed, ref, toRaw, watch } from 'vue'
@@ -85,6 +84,10 @@ const updateDialogTitle = ref<string>('')
 /** The currently selected query; manages `selectedQueryUuid`. */
 const selectedQuery = computed<SeqvarsQueryDetails | undefined>({
   get() {
+    // console.log('asdfasdfasdf',
+    // selectedQueryUuid.value,
+    // seqvarsQueryStore.seqvarQueries.get(selectedQueryUuid.value ?? ''),
+    // seqvarsQueryStore.seqvarQueries.get(selectedQueryUuid.value ?? '')?.settings?.predefinedquery)
     return seqvarsQueryStore.seqvarQueries.get(selectedQueryUuid.value ?? '')
   },
   set(newValue) {
