@@ -960,6 +960,27 @@ perform serialization of nested attributes and thus does not trigger a large que
 If there is no such record then return \`\`None\`\`.`,
             readOnly: true
         },
+        pedigree_obj: {
+            type: 'object',
+            additionalProperties: {
+                oneOf: [
+                    {
+                        type: 'integer'
+                    },
+                    {
+                        type: 'number',
+                        format: 'double'
+                    },
+                    {
+                        type: 'string'
+                    }
+                ],
+                nullable: true
+            },
+            nullable: true,
+            description: 'Obtain the pedigree for this case and serialize it.',
+            readOnly: true
+        },
         release: {
             type: 'string',
             readOnly: true,
@@ -973,7 +994,9 @@ If there is no such record then return \`\`None\`\`.`,
             type: 'string',
             maxLength: 512
         },
-        pedigree: {},
+        pedigree: {
+            readOnly: true
+        },
         notes: {
             type: 'string',
             nullable: true
@@ -1033,7 +1056,7 @@ If there is no such record then return \`\`None\`\`.`,
             description: 'Number of structural variants, empty if no structural variants have been imported'
         }
     },
-    required: ['caseqc', 'date_created', 'date_modified', 'index', 'name', 'num_small_vars', 'num_svs', 'pedigree', 'presetset', 'project', 'release', 'sex_errors', 'smallvariantqueryresultset', 'sodar_uuid', 'state', 'svqueryresultset']
+    required: ['caseqc', 'date_created', 'date_modified', 'index', 'name', 'num_small_vars', 'num_svs', 'pedigree', 'pedigree_obj', 'presetset', 'project', 'release', 'sex_errors', 'smallvariantqueryresultset', 'sodar_uuid', 'state', 'svqueryresultset']
 } as const;
 
 export const $CaseSerializerNgRequest = {
@@ -1053,7 +1076,6 @@ perform serialization of nested attributes and thus does not trigger a large que
             minLength: 1,
             maxLength: 512
         },
-        pedigree: {},
         notes: {
             type: 'string',
             nullable: true
@@ -1076,7 +1098,7 @@ perform serialization of nested attributes and thus does not trigger a large que
             minimum: -2147483648
         }
     },
-    required: ['index', 'name', 'pedigree']
+    required: ['index', 'name']
 } as const;
 
 export const $CaseSerializerNgStateEnum = {
@@ -3260,7 +3282,6 @@ perform serialization of nested attributes and thus does not trigger a large que
             minLength: 1,
             maxLength: 512
         },
-        pedigree: {},
         notes: {
             type: 'string',
             nullable: true
@@ -4181,6 +4202,11 @@ owned category settings.`,
             nullable: true
         },
         clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        columnspresets: {
             type: 'string',
             format: 'uuid',
             nullable: true
@@ -6339,6 +6365,23 @@ export const $SeqvarsQueryColumnsConfigRequest = {
     }
 } as const;
 
+export const $SeqvarsQueryCreateFromRequest = {
+    type: 'object',
+    description: 'Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.',
+    properties: {
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid'
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        }
+    },
+    required: ['label', 'predefinedquery']
+} as const;
+
 export const $SeqvarsQueryDetails = {
     type: 'object',
     description: `Serializer for \`\`Query\`\` (for \`\`*-detail\`\`).
@@ -8310,6 +8353,12 @@ export const $SeqvarsQuerySettings = {
             readOnly: true,
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
         genotype: {
             type: 'string',
             format: 'uuid',
@@ -8351,7 +8400,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'clinvarpresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
+    required: ['clinvar', 'clinvarpresets', 'columnspresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -8640,6 +8689,11 @@ owned category settings.`,
             format: 'uuid',
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -8732,6 +8786,11 @@ owned category settings.`,
             nullable: true
         },
         clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        columnspresets: {
             type: 'string',
             format: 'uuid',
             nullable: true

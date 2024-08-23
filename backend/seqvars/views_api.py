@@ -1,6 +1,8 @@
 import sys
+import typing
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.utils import extend_schema
@@ -19,6 +21,7 @@ from seqvars.factory_defaults import (
     create_seqvarspresetsset_short_read_genome,
 )
 from seqvars.models import (
+    SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryExecution,
     SeqvarsQueryPresetsSet,
@@ -29,6 +32,7 @@ from seqvars.models import (
 )
 from seqvars.serializers import (
     SeqvarsPredefinedQuerySerializer,
+    SeqvarsQueryCreateFromSerializer,
     SeqvarsQueryDetailsSerializer,
     SeqvarsQueryExecutionDetailsSerializer,
     SeqvarsQueryExecutionSerializer,
@@ -190,7 +194,7 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
     @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
     @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
-        """Create a copy/clone of the given queryset."""
+        """Create a copy/clone of the given preset set."""
         source = None
         try:
             source = self.get_queryset().get(sodar_uuid=kwargs["querypresetsset"])
@@ -456,7 +460,45 @@ class SeqvarsQueryViewSet(BaseViewSet):
         "update": SeqvarsQueryDetailsSerializer,
         "partial_update": SeqvarsQueryDetailsSerializer,
         "delete": SeqvarsQueryDetailsSerializer,
+        "create_from": SeqvarsQueryDetailsSerializer,
     }
+
+    # def partial_update(self, *args, **kwargs):
+    #     import pdb; pdb.set_trace()
+    #     return super().partial_update(*args, **kwargs)
+
+    @extend_schema(request=SeqvarsQueryCreateFromSerializer)
+    @action(methods=["post"], detail=False)
+    @transaction.atomic()
+    def create_from(self, *args, **kwargs):
+        """Create a new seqvars query from a predefined query."""
+        source = None
+        predefinedquery_uuid: str = self.request.data["predefinedquery"]
+        label: typing.Optional[str] = self.request.data.get("label")
+        try:
+            # TODO: check permissions on the source's project
+            source = SeqvarsPredefinedQuery.objects.get(sodar_uuid=predefinedquery_uuid)
+        except ObjectDoesNotExist:
+            for presetsset in (
+                create_seqvarspresetsset_short_read_genome(),
+                create_seqvarspresetsset_short_read_exome_modern(),
+                create_seqvarspresetsset_short_read_exome_legacy(),
+            ):
+                for version in presetsset.versions.all():
+                    for predefinedquery in version.seqvarspredefinedquery_set.all():
+                        if str(predefinedquery.sodar_uuid) == predefinedquery_uuid:
+                            source = predefinedquery
+                            break
+        if not source:
+            raise ObjectDoesNotExist
+
+        instance = SeqvarsQuery.objects.from_predefinedquery(
+            session=CaseAnalysisSession.objects.get(sodar_uuid=self.kwargs["session"]),
+            predefinedquery=source,
+            label=label,
+        )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def get_queryset(self):
         """Return queryset with all ``Query`` records for the given case

@@ -16,6 +16,8 @@ from seqvars.models import (
     InhouseFrequencySettingsPydantic,
     SeqvarsColumnConfigPydantic,
     SeqvarsGenotypeChoice,
+    SeqvarsGenotypePresetChoice,
+    SeqvarsGenotypePresetsPydantic,
     SeqvarsOutputRecordPydantic,
     SeqvarsPredefinedQuery,
     SeqvarsPrioServicePydantic,
@@ -273,6 +275,14 @@ class SeqvarsQueryPresetsSetVersionFactory(BaseModelFactory):
         model = SeqvarsQueryPresetsSetVersion
 
 
+class SeqvarsGenotypePresetsPydanticFactory(factory.Factory):
+
+    choice = SeqvarsGenotypePresetChoice.ANY
+
+    class Meta:
+        model = SeqvarsGenotypePresetsPydantic
+
+
 class QueryPresetsBaseFactory(LabeledSortableBaseFactory):
 
     presetssetversion = factory.SubFactory(SeqvarsQueryPresetsSetVersionFactory)
@@ -345,6 +355,16 @@ class SeqvarsQueryPresetsColumnsFactory(ColumnsSettingsBaseFactory, QueryPresets
 class SeqvarsPredefinedQueryFactory(QueryPresetsBaseFactory):
 
     included_in_sop = False
+
+    genotype = SeqvarsGenotypePresetsPydanticFactory()
+    quality = factory.SubFactory(SeqvarsQueryPresetsQualityFactory)
+    frequency = factory.SubFactory(SeqvarsQueryPresetsFrequencyFactory)
+    consequence = factory.SubFactory(SeqvarsQueryPresetsConsequenceFactory)
+    locus = factory.SubFactory(SeqvarsQueryPresetsLocusFactory)
+    phenotypeprio = factory.SubFactory(SeqvarsQueryPresetsPhenotypePrioFactory)
+    variantprio = factory.SubFactory(SeqvarsQueryPresetsVariantPrioFactory)
+    clinvar = factory.SubFactory(SeqvarsQueryPresetsClinvarFactory)
+    columns = factory.SubFactory(SeqvarsQueryPresetsColumnsFactory)
 
     class Meta:
         model = SeqvarsPredefinedQuery

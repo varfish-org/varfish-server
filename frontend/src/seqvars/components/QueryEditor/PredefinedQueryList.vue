@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
   SeqvarsPredefinedQuery,
+  SeqvarsQueryDetails,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
-import { Query } from '@/seqvars/types'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -14,31 +14,27 @@ import Item from './ui/Item.vue'
 import ItemButton from './ui/ItemButton.vue'
 
 /** This component's props. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
     /** The presets version to use. */
     presets: SeqvarsQueryPresetsSetVersionDetails
     /** The pedigree. */
     pedigree: PedigreeObj
-    /** The query that is being modified. */
-    query: Query | null
+    /** The query that is being modified, if any selected. */
+    query?: SeqvarsQueryDetails
     /** Whether hints are enabled. */
     hintsEnabled?: boolean
+    /** The currently selected query UUID. */
+    selectedId?: string
   }>(),
   { hintsEnabled: false },
 )
-
-/** Currently selected predefined query UUID, if any. */
-const selectedId = defineModel<string | undefined>('selectedId', {
-  required: true,
-})
 
 /** Currently selected predefined query, if any.*/
 const selectedPredefinedQuery = computed<SeqvarsPredefinedQuery | undefined>(
   () => {
     return props.presets.seqvarspredefinedquery_set.find(
-      (pq) => pq.sodar_uuid === selectedId.value,
+      (pq) => pq.sodar_uuid === props.selectedId,
     )
   },
 )
@@ -68,7 +64,7 @@ const emit = defineEmits<{
             pedigree,
             presets,
             selectedPredefinedQuery,
-            query,
+            query.settings,
           )
         "
         @revert="$emit('revert')"
@@ -89,9 +85,8 @@ const emit = defineEmits<{
           :modified="
             !!query &&
             pq.sodar_uuid === selectedId &&
-            !matchesPredefinedQuery(pedigree, presets, pq, query)
+            !matchesPredefinedQuery(pedigree, presets, pq, query.settings)
           "
-          @click="selectedId = pq.sodar_uuid"
           @revert="$emit('revert')"
         >
           <template #default>{{ pq.label }}</template>

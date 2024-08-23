@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
-
-import { Query } from '@/seqvars/types'
+import {
+  SeqvarsQueryDetails,
+  SeqvarsQuerySettingsFrequency,
+} from '@varfish-org/varfish-api/lib'
 
 import FrequencyControlRow from './FrequencyControlRow.vue'
 import AbbrHint from './ui/AbbrHint.vue'
@@ -17,7 +18,7 @@ const props = withDefaults(
   { hintsEnabled: false },
 )
 
-const model = defineModel<Query>({
+const model = defineModel<SeqvarsQueryDetails>({
   required: true,
 })
 </script>
@@ -89,7 +90,7 @@ const model = defineModel<Query>({
       :key="name"
     >
       <FrequencyControlRow
-        v-model="model.frequency[key]!"
+        v-model="model.settings.frequency[key]!"
         :name="name"
         :size="size"
       />

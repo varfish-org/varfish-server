@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Query } from '@/seqvars/types'
+import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
 
 import AbbrHint from './ui/AbbrHint.vue'
 import Input from './ui/Input.vue'
@@ -15,7 +15,7 @@ const props = withDefaults(
   { hintsEnabled: false },
 )
 
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 </script>
 
 <template>
@@ -77,7 +77,7 @@ const model = defineModel<Query>({ required: true })
     </SmallText>
 
     <template
-      v-for="(item, index) in model.quality.sample_quality_filters"
+      v-for="(item, index) in model.settings.quality.sample_quality_filters"
       :key="index"
     >
       <v-checkbox

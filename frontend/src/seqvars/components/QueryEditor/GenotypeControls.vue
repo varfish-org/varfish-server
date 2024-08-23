@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { RecessiveModeEnum } from '@varfish-org/varfish-api/lib'
+import {
+  RecessiveModeEnum,
+  SeqvarsQueryDetails,
+} from '@varfish-org/varfish-api/lib'
 import { computed, watch } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
-import { Query } from '@/seqvars/types'
 
 import InheritanceModeControls from './InheritanceModeControls.vue'
 import RecessiveControls from './RecessiveControls.vue'
@@ -23,12 +25,12 @@ const props = withDefaults(
   { hintsEnabled: false },
 )
 
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 
 const recessiveMode = computed<RecessiveModeEnum>({
-  get: () => model.value.genotype.recessive_mode ?? 'disabled',
+  get: () => model.value.settings.genotype.recessive_mode ?? 'disabled',
   set: (value) => {
-    model.value.genotype.recessive_mode = value
+    model.value.settings.genotype.recessive_mode = value
   },
 })
 
@@ -55,15 +57,17 @@ const RECESSIVE_MODE_ITEMS: { title: string; value: RecessiveModeEnum }[] = [
 /** Coerce genotypes skipping the given sample name. */
 const coerceRecessiveMarkers = async (skipSample: string) => {
   const seen = new Set<string>()
-  if (model.value.genotype.sample_genotype_choices !== undefined) {
-    for (const choice of model.value.genotype.sample_genotype_choices) {
+  if (model.value.settings.genotype.sample_genotype_choices !== undefined) {
+    for (const choice of model.value.settings.genotype
+      .sample_genotype_choices) {
       if (choice.sample === skipSample) {
         seen.add(choice.genotype)
         break
       }
     }
   }
-  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+  for (const choice of model.value.settings.genotype.sample_genotype_choices ??
+    []) {
     if (choice.sample !== skipSample) {
       if (seen.has(choice.genotype)) {
         choice.genotype = 'any'
@@ -80,7 +84,8 @@ const coerceRecessiveMarkers = async (skipSample: string) => {
  * role markers are not valid as genotypes.
  */
 const resetRecessiveMarkersToGenotypes = async () => {
-  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+  for (const choice of model.value.settings.genotype.sample_genotype_choices ??
+    []) {
     if (
       ['recessive_index', 'recessive_father', 'recessive_mother'].includes(
         choice.genotype,
@@ -97,7 +102,8 @@ const resetRecessiveMarkersToGenotypes = async () => {
  * The opposite of `resetRecessiveMarkersToGenotypes()`.
  */
 const resetGenotypesToRecessiveMarkers = async () => {
-  for (const choice of model.value.genotype.sample_genotype_choices ?? []) {
+  for (const choice of model.value.settings.genotype.sample_genotype_choices ??
+    []) {
     if (
       !['recessive_index', 'recessive_father', 'recessive_mother'].includes(
         choice.genotype,
@@ -147,7 +153,7 @@ watch(
     <v-divider class="pb-1" />
 
     <div
-      v-for="(choice, index) in model.genotype.sample_genotype_choices"
+      v-for="(choice, index) in model.settings.genotype.sample_genotype_choices"
       :key="index"
       class="w-100 d-flex flex-row align-start ga-2"
     >
@@ -188,7 +194,7 @@ watch(
         />
 
         <RecessiveControls
-          v-else-if="model.genotype.sample_genotype_choices"
+          v-else-if="model.settings.genotype.sample_genotype_choices"
           v-model:genotype="choice.genotype"
           v-model:include-no-call="choice.include_no_call"
           :index="index"

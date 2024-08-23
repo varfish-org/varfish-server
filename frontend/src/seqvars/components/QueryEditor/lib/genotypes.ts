@@ -1,3 +1,6 @@
+/**
+ * Helper code for handling genotype presets, includes pedigree handling.
+ */
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsSampleGenotypePydantic,
@@ -23,12 +26,12 @@ export const computeFounderPathLengths = (
   // unknown.
   for (const memberObj of pedigree.individual_set) {
     if (
-      !!memberObj.father &&
-      memberObj.father !== '0' &&
-      !memberNames.has(memberObj.father) &&
-      !!memberObj.mother &&
-      memberObj.mother !== '0' &&
-      !memberNames.has(memberObj.mother)
+      (!!memberObj.father &&
+        memberObj.father !== '0' &&
+        !memberNames.has(memberObj.father)) ||
+      (!!memberObj.mother &&
+        memberObj.mother !== '0' &&
+        !memberNames.has(memberObj.mother))
     ) {
       throw new Error(
         `Could not find father ${memberObj.father} or mother ${memberObj.mother} for member ${memberObj.name}`,

@@ -337,10 +337,16 @@ export type CaseSerializerNg = {
     readonly caseqc: {
         [key: string]: (number | string | null);
     } | null;
+    /**
+     * Obtain the pedigree for this case and serialize it.
+     */
+    readonly pedigree_obj: {
+        [key: string]: (number | string | null);
+    } | null;
     readonly release: string | null;
     name: string;
     index: string;
-    pedigree: unknown;
+    readonly pedigree: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -373,7 +379,6 @@ export type CaseSerializerNg = {
 export type CaseSerializerNgRequest = {
     name: string;
     index: string;
-    pedigree: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -1139,7 +1144,6 @@ export type PatchedCasePhenotypeTermsRequest = {
 export type PatchedCaseSerializerNgRequest = {
     name?: string;
     index?: string;
-    pedigree?: unknown;
     notes?: string | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
@@ -1422,6 +1426,7 @@ export type PatchedSeqvarsQuerySettingsDetailsRequest = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype?: SeqvarsQuerySettingsGenotypeRequest;
     quality?: SeqvarsQuerySettingsQualityRequest;
     consequence?: SeqvarsQuerySettingsConsequenceRequest;
@@ -2120,6 +2125,14 @@ export type SeqvarsQueryColumnsConfigRequest = {
 };
 
 /**
+ * Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
+ */
+export type SeqvarsQueryCreateFromRequest = {
+    predefinedquery: string;
+    label: string;
+};
+
+/**
  * Serializer for ``Query`` (for ``*-detail``).
  *
  * For retrieve, update, or delete operations, we also render the nested query settings
@@ -2641,6 +2654,7 @@ export type SeqvarsQuerySettings = {
     readonly phenotypepriopresets: string | null;
     readonly variantpriopresets: string | null;
     readonly clinvarpresets: string | null;
+    readonly columnspresets: string | null;
     readonly genotype: string;
     readonly quality: string;
     readonly consequence: string;
@@ -2739,6 +2753,7 @@ export type SeqvarsQuerySettingsDetails = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotype;
     quality: SeqvarsQuerySettingsQuality;
     consequence: SeqvarsQuerySettingsConsequence;
@@ -2766,6 +2781,7 @@ export type SeqvarsQuerySettingsDetailsRequest = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotypeRequest;
     quality: SeqvarsQuerySettingsQualityRequest;
     consequence: SeqvarsQuerySettingsConsequenceRequest;
@@ -4081,6 +4097,17 @@ export type SeqvarsApiQueryDestroyData = {
 export type SeqvarsApiQueryDestroyResponse = void;
 
 export type SeqvarsApiQueryDestroyError = unknown;
+
+export type SeqvarsApiQueryCreateFromCreateData = {
+    body: SeqvarsQueryCreateFromRequest;
+    path: {
+        session: string;
+    };
+};
+
+export type SeqvarsApiQueryCreateFromCreateResponse = SeqvarsQueryDetails;
+
+export type SeqvarsApiQueryCreateFromCreateError = unknown;
 
 export type SeqvarsApiQueryexecutionListData = {
     path: {
@@ -5647,6 +5674,14 @@ export type $OpenApiTs = {
                  * No response body
                  */
                 '204': void;
+            };
+        };
+    };
+    '/seqvars/api/query/{session}/create_from/': {
+        post: {
+            req: SeqvarsApiQueryCreateFromCreateData;
+            res: {
+                '200': SeqvarsQueryDetails;
             };
         };
     };

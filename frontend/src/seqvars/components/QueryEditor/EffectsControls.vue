@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import {
+  SeqvarsQueryDetails,
   SeqvarsTranscriptTypeChoiceList,
   SeqvarsVariantConsequenceChoiceList,
   SeqvarsVariantTypeChoiceList,
 } from '@varfish-org/varfish-api/lib'
 import { computed, ref } from 'vue'
-
-import { Query } from '@/seqvars/types'
 
 import { toggleArrayElement } from '../utils'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -80,17 +79,19 @@ const CUSTOMIZATION = {
   Partial<Record<SeqvarsVariantConsequenceChoiceList[number], string>>
 >
 
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 
 const detailsOpen = ref<boolean>(false)
 
 const maxExonDistance = computed<number | null | undefined>({
-  get: () => model.value.consequence.max_distance_to_exon,
+  get: () => model.value.settings.consequence.max_distance_to_exon,
   set(value: string | number | null | undefined) {
     if (value === null || value === undefined || value === '') {
-      model.value.consequence.max_distance_to_exon = null
+      model.value.settings.consequence.max_distance_to_exon = null
     } else {
-      model.value.consequence.max_distance_to_exon = parseInt(`${value}`)
+      model.value.settings.consequence.max_distance_to_exon = parseInt(
+        `${value}`,
+      )
     }
   },
 })
@@ -150,9 +151,9 @@ const maxExonDistance = computed<number | null | undefined>({
         :hide-details="true"
         color="primary"
         density="compact"
-        :model-value="model.consequence.variant_types?.includes(key)"
+        :model-value="model.settings.consequence.variant_types?.includes(key)"
         @update:model-value="
-          toggleArrayElement(model.consequence.variant_types, key)
+          toggleArrayElement(model.settings.consequence.variant_types, key)
         "
       />
     </div>
@@ -166,9 +167,11 @@ const maxExonDistance = computed<number | null | undefined>({
         :hide-details="true"
         color="primary"
         density="compact"
-        :model-value="model.consequence.transcript_types?.includes(key)"
+        :model-value="
+          model.settings.consequence.transcript_types?.includes(key)
+        "
         @update:model-value="
-          toggleArrayElement(model.consequence.transcript_types, key)
+          toggleArrayElement(model.settings.consequence.transcript_types, key)
         "
       />
     </div>
@@ -185,9 +188,14 @@ const maxExonDistance = computed<number | null | undefined>({
             color="primary"
             :hide-details="true"
             density="compact"
-            :model-value="model.consequence.variant_consequences?.includes(key)"
+            :model-value="
+              model.settings.consequence.variant_consequences?.includes(key)
+            "
             @update:model-value="
-              toggleArrayElement(model.consequence.variant_consequences, key)
+              toggleArrayElement(
+                model.settings.consequence.variant_consequences,
+                key,
+              )
             "
           />
         </div>

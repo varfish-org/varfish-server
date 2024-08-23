@@ -2634,6 +2634,42 @@ paths:
       responses:
         '204':
           description: No response body
+  /seqvars/api/query/{session}/create_from/:
+    post:
+      operationId: seqvars_api_query_create_from_create
+      description: Create a new seqvars query from a predefined query.
+      parameters:
+      - in: path
+        name: session
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - seqvars
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SeqvarsQueryCreateFromRequest'
+        required: true
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/SeqvarsQueryDetails'
+          description: ''
   /seqvars/api/queryexecution/{query}/:
     get:
       operationId: seqvars_api_queryexecution_list
@@ -4421,7 +4457,7 @@ paths:
   /seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/:
     post:
       operationId: seqvars_api_querypresetsset_copy_from_create
-      description: Create a copy/clone of the given queryset.
+      description: Create a copy/clone of the given preset set.
       parameters:
       - in: path
         name: project
@@ -8579,6 +8615,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
         quality:
@@ -10247,6 +10287,20 @@ components:
       properties:
         column_settings:
           $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
+    SeqvarsQueryCreateFromRequest:
+      type: object
+      description: Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
+      properties:
+        predefinedquery:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - label
+      - predefinedquery
     SeqvarsQueryDetails:
       type: object
       description: |-
@@ -11714,6 +11768,11 @@ components:
           format: uuid
           readOnly: true
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
         genotype:
           type: string
           format: uuid
@@ -11749,6 +11808,7 @@ components:
       required:
       - clinvar
       - clinvarpresets
+      - columnspresets
       - consequence
       - consequencepresets
       - date_created
@@ -11982,6 +12042,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
         quality:
@@ -12059,6 +12123,10 @@ components:
           format: uuid
           nullable: true
         clinvarpresets:
+          type: string
+          format: uuid
+          nullable: true
+        columnspresets:
           type: string
           format: uuid
           nullable: true
