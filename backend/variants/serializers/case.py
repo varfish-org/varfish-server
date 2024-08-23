@@ -126,12 +126,13 @@ class CoreCaseSerializerMixin:
 
     def get_pedigree(self, obj) -> dict[str, int | float | str | None] | None:
         """Obtain the pedigree for this case and serialize it."""
+        from cases.models import Pedigree  # noqa: F811
         from cases.serializers import PedigreeSerializer  # noqa: F811
 
-        if not obj.pedigree_obj:
-            return None
-        else:
+        try:
             return PedigreeSerializer(obj.pedigree_obj).data
+        except Pedigree.DoesNotExist:
+            return None
 
 
 class CasePhenotypeTermsSerializer(SODARModelSerializer):
