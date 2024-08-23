@@ -1426,6 +1426,7 @@ export type PatchedSeqvarsQuerySettingsDetailsRequest = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype?: SeqvarsQuerySettingsGenotypeRequest;
     quality?: SeqvarsQuerySettingsQualityRequest;
     consequence?: SeqvarsQuerySettingsConsequenceRequest;
@@ -2653,6 +2654,7 @@ export type SeqvarsQuerySettings = {
     readonly phenotypepriopresets: string | null;
     readonly variantpriopresets: string | null;
     readonly clinvarpresets: string | null;
+    readonly columnspresets: string | null;
     readonly genotype: string;
     readonly quality: string;
     readonly consequence: string;
@@ -2751,6 +2753,7 @@ export type SeqvarsQuerySettingsDetails = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotype;
     quality: SeqvarsQuerySettingsQuality;
     consequence: SeqvarsQuerySettingsConsequence;
@@ -2778,6 +2781,7 @@ export type SeqvarsQuerySettingsDetailsRequest = {
     phenotypepriopresets?: string | null;
     variantpriopresets?: string | null;
     clinvarpresets?: string | null;
+    columnspresets?: string | null;
     genotype: SeqvarsQuerySettingsGenotypeRequest;
     quality: SeqvarsQuerySettingsQualityRequest;
     consequence: SeqvarsQuerySettingsConsequenceRequest;

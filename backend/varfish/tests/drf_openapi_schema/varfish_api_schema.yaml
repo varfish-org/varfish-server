@@ -8615,6 +8615,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
         quality:
@@ -11764,6 +11768,11 @@ components:
           format: uuid
           readOnly: true
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
         genotype:
           type: string
           format: uuid
@@ -11799,6 +11808,7 @@ components:
       required:
       - clinvar
       - clinvarpresets
+      - columnspresets
       - consequence
       - consequencepresets
       - date_created
@@ -12032,6 +12042,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        columnspresets:
+          type: string
+          format: uuid
+          nullable: true
         genotype:
           $ref: '#/components/schemas/SeqvarsQuerySettingsGenotype'
         quality:
@@ -12109,6 +12123,10 @@ components:
           format: uuid
           nullable: true
         clinvarpresets:
+          type: string
+          format: uuid
+          nullable: true
+        columnspresets:
           type: string
           format: uuid
           nullable: true
