@@ -4206,6 +4206,11 @@ owned category settings.`,
             format: 'uuid',
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
         },
@@ -8348,6 +8353,12 @@ export const $SeqvarsQuerySettings = {
             readOnly: true,
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
         genotype: {
             type: 'string',
             format: 'uuid',
@@ -8389,7 +8400,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'clinvarpresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
+    required: ['clinvar', 'clinvarpresets', 'columnspresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -8678,6 +8689,11 @@ owned category settings.`,
             format: 'uuid',
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -8770,6 +8786,11 @@ owned category settings.`,
             nullable: true
         },
         clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        columnspresets: {
             type: 'string',
             format: 'uuid',
             nullable: true

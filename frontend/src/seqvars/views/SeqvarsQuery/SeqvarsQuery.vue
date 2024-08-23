@@ -10,8 +10,9 @@ import { useProjectStore } from '@/cases/stores/project'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
 import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
-import SeqvarDetails from '@/seqvars/components/SeqvarDetails/SeqvarDetails.vue'
+import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** This component's props. */
@@ -37,25 +38,47 @@ const messages = ref<SnackbarMessage[]>([])
 const caseDetailsStore = useCaseDetailsStore()
 const projectStore = useProjectStore()
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
+const seqvarsQueryStore = useSeqvarsQueryStore()
+const caseAnalysisStore = useCaseAnalysisStore()
 
 /** (Re-)initialize the stores. */
 const initializeStores = async () => {
   await Promise.all([
     (async () => {
-      if (props.projectUuid && props.caseUuid) {
+      if (!!props.caseUuid) {
         await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
+        await caseAnalysisStore.initialize(props.projectUuid, props.caseUuid)
       }
     })(),
     projectStore.initialize(props.projectUuid),
     seqvarsPresetsStore.initialize(props.projectUuid),
   ])
+  if (
+    !!props.caseUuid &&
+    !!caseAnalysisStore.currentAnalysis &&
+    !!caseAnalysisStore.currentSession &&
+    !!selectedPresetSetVersionDetails.value
+  ) {
+    await seqvarsQueryStore.initialize(
+      props.projectUuid,
+      props.caseUuid,
+      caseAnalysisStore.currentAnalysis?.sodar_uuid,
+      caseAnalysisStore.currentSession?.sodar_uuid,
+      selectedPresetSetVersionDetails.value.sodar_uuid,
+    )
+  }
 }
 
 /** The currently selected preset set for the case. */
-const selectedPresetSetVersion = computed<
+const selectedPresetSetVersionDetails = computed<
   SeqvarsQueryPresetsSetVersionDetails | undefined
 >(() => {
-  return seqvarsPresetsStore.presetSetVersions.values().next()?.value
+  return Array.from(seqvarsPresetsStore.presetSetVersions.values()).filter(
+    (entry) =>
+      !seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
+        entry.presetsset.sodar_uuid,
+      ),
+  )[0]
 })
 
 /** Event handler for queueing message in VSnackbarQueue. */
@@ -69,7 +92,13 @@ onMounted(async () => {
 })
 // Re-initialize case list store when the project changes.
 watch(
-  () => [props.projectUuid, props.caseUuid],
+  () => [
+    props.projectUuid,
+    props.caseUuid,
+    caseAnalysisStore.currentAnalysis,
+    caseAnalysisStore.currentSession,
+    selectedPresetSetVersionDetails.value,
+  ],
   async () => {
     await initializeStores()
   },
@@ -88,7 +117,10 @@ watch(
           ? `VarFish - ${caseDetailsStore.caseObj?.name}`
           : undefined
       "
-      :loading="!selectedPresetSetVersion"
+      :loading="
+        !selectedPresetSetVersionDetails ||
+        seqvarsQueryStore.storeState.serverInteractions > 0
+      "
     />
 
     <TheNavBar :navbar-shown="navbarShown">
@@ -157,13 +189,13 @@ watch(
 
     <QueryEditorDrawer :drawer-shown="queryEditorShown">
       <v-skeleton-loader
-        v-if="!selectedPresetSetVersion"
+        v-if="!selectedPresetSetVersionDetails"
         type="list-item, list-item, list-item"
       ></v-skeleton-loader>
       <template v-else>
         <QueryEditor
           :collapsed="!queryEditorShown"
-          :presets-details="selectedPresetSetVersion"
+          :presets-details="selectedPresetSetVersionDetails"
           :hints-enabled="hintsEnabled"
           teleport-to-when-collapsed="#seqvar-queries-teleport-pad"
           :teleported-queries-labels="navbarShown"
@@ -182,11 +214,11 @@ watch(
         ultricies. Nullam nec purus nec nunc
       </div>
     </v-main>
-    <SeqvarDetails
+    <!-- <SeqvarDetails
       v-model:show-sheet="detailsShown"
       :project-uuid="projectUuid"
       :result-row-uuid="caseDetailsStore.caseObj?.sodar_uuid"
-    />
+    /> -->
 
     <v-snackbar-queue
       v-model="messages"

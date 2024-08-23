@@ -1,3 +1,6 @@
+/**
+ * Helper code for handling genotype presets, includes pedigree handling.
+ */
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsSampleGenotypePydantic,

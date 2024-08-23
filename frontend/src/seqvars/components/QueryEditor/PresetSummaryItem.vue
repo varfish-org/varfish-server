@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+import {
+  SeqvarsQueryDetails,
+  SeqvarsQueryPresetsSetVersionDetails,
+} from '@varfish-org/varfish-api/lib'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
-import { Query } from '@/seqvars/types'
 
 import { GROUPS, matchesQualityPreset } from './groups'
 import Item from './ui/Item.vue'
@@ -15,7 +17,7 @@ defineProps<{
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
   group: (typeof GROUPS)[number]
   preset?: Preset
-  query: Query
+  query: SeqvarsQueryDetails
 }>()
 defineEmits<{ revert: [preset: Preset] }>()
 </script>
@@ -24,10 +26,10 @@ defineEmits<{ revert: [preset: Preset] }>()
   <Item
     v-if="preset"
     :modified="
-      preset.sodar_uuid == query[group.queryPresetKey] &&
+      preset.sodar_uuid == query.settings[group.queryPresetKey] &&
       !(group.id == 'quality'
-        ? matchesQualityPreset(pedigree, presetsDetails, query)
-        : group.matchesPreset(presetsDetails, query))
+        ? matchesQualityPreset(pedigree, presetsDetails, query.settings)
+        : group.matchesPreset(presetsDetails, query.settings))
     "
     @revert="() => preset && $emit('revert', preset)"
   >

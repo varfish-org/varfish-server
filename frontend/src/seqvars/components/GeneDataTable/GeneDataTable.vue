@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
+import {
+  SeqvarsQueryDetails,
+  SeqvarsQueryPresetsSetVersionDetails,
+} from '@varfish-org/varfish-api/lib'
 import { swapIndices } from 'remeda'
 import { ref } from 'vue'
-
-import { Query } from '@/seqvars/types'
 
 import data from './fixture.GeneDataTable.json'
 
@@ -30,7 +31,7 @@ type GeneItem = {
 const props = defineProps<{
   selectedQueryIndex: number
   presetsDetails: SeqvarsQueryPresetsSetVersionDetails
-  queries: Query[]
+  queries: SeqvarsQueryDetails[]
 }>()
 
 const columns = ref(

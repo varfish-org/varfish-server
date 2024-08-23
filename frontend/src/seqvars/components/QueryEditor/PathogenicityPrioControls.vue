@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
 import { ref } from 'vue'
-
-import { Query } from '@/seqvars/types'
 
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
@@ -29,12 +28,12 @@ const ITEMS = [
 
 const detailsOpen = ref<boolean>(false)
 
-const model = defineModel<Query>({ required: true })
+const model = defineModel<SeqvarsQueryDetails>({ required: true })
 </script>
 
 <template>
   <v-checkbox
-    v-model="model.variantprio.variant_prio_enabled"
+    v-model="model.settings.variantprio.variant_prio_enabled"
     density="compact"
     label="Enable pathogenicity-based priorization"
     color="primary"
@@ -47,7 +46,7 @@ const model = defineModel<Query>({ required: true })
     title="Phenotype similarity algorithm"
   >
     <template #summary>
-      {{ model.variantprio.services?.[0]?.name }}
+      {{ model.settings.variantprio.services?.[0]?.name }}
     </template>
 
     <template #default>
@@ -60,9 +59,11 @@ const model = defineModel<Query>({ required: true })
             v-for="item in ITEMS"
             :key="item.name"
             :selected="
-              model.variantprio.services?.some((s) => s.name == item.name)
+              model.settings.variantprio.services?.some(
+                (s) => s.name == item.name,
+              )
             "
-            @click="() => (model.variantprio.services = [item])"
+            @click="() => (model.settings.variantprio.services = [item])"
           >
             {{ item.name }}
           </Item>
