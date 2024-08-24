@@ -28,7 +28,7 @@ export type AppSetting = {
      * Project SODAR UUID
      */
     readonly project: string;
-    readonly user: SODARUser;
+    readonly user: (SODARUser);
     /**
      * Name of the setting
      */
@@ -40,7 +40,7 @@ export type AppSetting = {
     /**
      * Value of the setting
      */
-    readonly value: string | null;
+    readonly value: (string) | null;
     /**
      * Setting visibility in forms
      */
@@ -70,7 +70,7 @@ export type BcftoolsStatsIddRecordList = Array<{
     length: number;
     sites: number;
     gts: number;
-    mean_vaf: number | null;
+    mean_vaf: (number | null);
 }>;
 
 /**
@@ -92,7 +92,7 @@ export type BcftoolsStatsMetrics = {
 };
 
 export type BcftoolsStatsQualRecordList = Array<{
-    qual: number | null;
+    qual: (number | null);
     snps: number;
     ts: number;
     tv: number;
@@ -111,7 +111,7 @@ export type BcftoolsStatsSisRecordList = Array<{
 
 export type BcftoolsStatsSnRecordList = Array<{
     key: string;
-    value: number | string | null;
+    value: (number | string | null);
 }>;
 
 export type BcftoolsStatsStRecordList = Array<{
@@ -324,10 +324,10 @@ export type CaseSerializerNg = {
         [key: string]: Array<(string)>;
     };
     readonly smallvariantqueryresultset: {
-        [key: string]: (number | string | null);
+        [key: string]: ((number | string) | null);
     };
     readonly svqueryresultset: {
-        [key: string]: (number | string | null);
+        [key: string]: ((number | string) | null);
     };
     /**
      * Obtain the latest CaseQC for this in active state and serialize it.
@@ -335,19 +335,19 @@ export type CaseSerializerNg = {
      * If there is no such record then return ``None``.
      */
     readonly caseqc: {
-        [key: string]: (number | string | null);
+        [key: string]: ((number | string) | null);
     } | null;
     /**
      * Obtain the pedigree for this case and serialize it.
      */
     readonly pedigree_obj: {
-        [key: string]: (number | string | null);
+        [key: string]: ((number | string) | null);
     } | null;
-    readonly release: string | null;
+    readonly release: (string) | null;
     name: string;
     index: string;
     readonly pedigree: unknown;
-    notes?: string | null;
+    notes?: (string) | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
     /**
@@ -359,15 +359,15 @@ export type CaseSerializerNg = {
      */
     readonly date_modified: string;
     case_version?: number;
-    readonly state: CaseSerializerNgStateEnum | NullEnum | null;
+    readonly state: ((CaseSerializerNgStateEnum | NullEnum) | null);
     /**
      * Number of small variants, empty if no small variants have been imported
      */
-    readonly num_small_vars: number | null;
+    readonly num_small_vars: (number) | null;
     /**
      * Number of structural variants, empty if no structural variants have been imported
      */
-    readonly num_svs: number | null;
+    readonly num_svs: (number) | null;
 };
 
 /**
@@ -379,7 +379,7 @@ export type CaseSerializerNg = {
 export type CaseSerializerNgRequest = {
     name: string;
     index: string;
-    notes?: string | null;
+    notes?: (string) | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
     case_version?: number;
@@ -457,7 +457,7 @@ export type CraminoMetrics = {
 
 export type CraminoSummaryRecordList = Array<{
     key: string;
-    value: number | string;
+    value: (number | string);
 }>;
 
 /**
@@ -614,11 +614,11 @@ export type DragenStyleCoverageList = Array<{
 }>;
 
 export type DragenStyleMetricList = Array<{
-    section: string | null;
-    entry: string | null;
-    name: string | null;
-    value: number | string | null;
-    value_float?: number | null;
+    section: (string | null);
+    entry: (string | null);
+    name: (string | null);
+    value: (number | string | null);
+    value_float?: (number | null);
 }>;
 
 /**
@@ -764,7 +764,7 @@ export type EnrichmentKit = {
     /**
      * Optional description of the enrichment kit
      */
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -782,7 +782,7 @@ export type EnrichmentKitRequest = {
     /**
      * Optional description of the enrichment kit
      */
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -816,7 +816,7 @@ export type GenePanel = {
      * * `active` - active
      * * `retired` - retired
      */
-    readonly state: GenePanelStateEnum;
+    readonly state: (GenePanelStateEnum);
     /**
      * Major version of the gene panel (by identifier)
      */
@@ -832,7 +832,7 @@ export type GenePanel = {
     /**
      * Description of the panel
      */
-    readonly description: string | null;
+    readonly description: (string) | null;
 };
 
 /**
@@ -846,8 +846,8 @@ export type GenePanelCategory = {
     /**
      * Optional description of the category
      */
-    readonly description: string | null;
-    readonly genepanel_set: GenePanel;
+    readonly description: (string) | null;
+    readonly genepanel_set: (GenePanel);
 };
 
 export type GenePanelPydanticList = Array<{
@@ -872,9 +872,9 @@ export type GenePanelStateEnum = 'draft' | 'active' | 'retired';
 export type GenePydanticList = Array<{
     hgnc_id: string;
     symbol: string;
-    name?: string | null;
-    entrez_id?: number | null;
-    ensembl_id?: string | null;
+    name?: (string | null);
+    entrez_id?: (number | null);
+    ensembl_id?: (string | null);
 }>;
 
 /**
@@ -892,7 +892,7 @@ export type GeneRelatedAnnotationPydantic = {
  */
 export type GeneRelatedConsequencesPydantic = {
     hgvs_t: string;
-    hgvs_p: string | null;
+    hgvs_p: (string | null);
     consequences: Array<SeqvarsVariantConsequenceChoice>;
 };
 
@@ -900,11 +900,11 @@ export type GeneRelatedConsequencesPydantic = {
  * Gene-wise constraints.
  */
 export type GeneRelatedConstraintsPydantic = {
-    gnomad?: GnomadConstraintsPydantic | null;
-    decipher?: DecipherConstraintsPydantic | null;
-    rcnv?: RcnvConstraintsPydantic | null;
-    shet?: ShetConstraintsPydantic | null;
-    clingen?: ClingenDosageAnnotationPydantic | null;
+    gnomad?: (GnomadConstraintsPydantic | null);
+    decipher?: (DecipherConstraintsPydantic | null);
+    rcnv?: (RcnvConstraintsPydantic | null);
+    shet?: (ShetConstraintsPydantic | null);
+    clingen?: (ClingenDosageAnnotationPydantic | null);
 };
 
 /**
@@ -920,12 +920,12 @@ export type GeneRelatedPhenotypesPydantic = {
  */
 export type GenomeRegionPydantic = {
     chromosome: string;
-    range?: OneBasedRangePydantic | null;
+    range?: (OneBasedRangePydantic | null);
 };
 
 export type GenomeRegionPydanticList = Array<{
     chromosome: string;
-    range?: OneBasedRangePydantic | null;
+    range?: (OneBasedRangePydantic | null);
 }>;
 
 /**
@@ -959,7 +959,7 @@ export type GnomadConstraintsPydantic = {
  */
 export type InsertSizeStats = {
     insert_size_mean: number;
-    insert_size_median: number | null;
+    insert_size_median: (number | null);
     insert_size_stddev: number;
     insert_size_histogram: Array<Array<(number)>>;
 };
@@ -979,7 +979,7 @@ export type NgsbitsMappingqcMetrics = {
 
 export type NgsbitsMappingqcRecordList = Array<{
     key: string;
-    value: number | string | null;
+    value: (number | string | null);
 }>;
 
 export type NullEnum = unknown;
@@ -993,124 +993,124 @@ export type OneBasedRangePydantic = {
 };
 
 export type PaginatedCaseAnalysisList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<CaseAnalysis>;
 };
 
 export type PaginatedCaseAnalysisSessionList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<CaseAnalysisSession>;
 };
 
 export type PaginatedCaseImportActionList = {
     count?: number;
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<CaseImportAction>;
 };
 
 export type PaginatedCaseSerializerNgList = {
     count?: number;
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<CaseSerializerNg>;
 };
 
 export type PaginatedSeqvarsPredefinedQueryList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsPredefinedQuery>;
 };
 
 export type PaginatedSeqvarsQueryExecutionList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryExecution>;
 };
 
 export type PaginatedSeqvarsQueryList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQuery>;
 };
 
 export type PaginatedSeqvarsQueryPresetsClinvarList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsClinvar>;
 };
 
 export type PaginatedSeqvarsQueryPresetsColumnsList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsColumns>;
 };
 
 export type PaginatedSeqvarsQueryPresetsConsequenceList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsConsequence>;
 };
 
 export type PaginatedSeqvarsQueryPresetsFrequencyList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsFrequency>;
 };
 
 export type PaginatedSeqvarsQueryPresetsLocusList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsLocus>;
 };
 
 export type PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsPhenotypePrio>;
 };
 
 export type PaginatedSeqvarsQueryPresetsQualityList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsQuality>;
 };
 
 export type PaginatedSeqvarsQueryPresetsSetList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsSet>;
 };
 
 export type PaginatedSeqvarsQueryPresetsSetVersionList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsSetVersion>;
 };
 
 export type PaginatedSeqvarsQueryPresetsVariantPrioList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsVariantPrio>;
 };
 
 export type PaginatedSeqvarsQuerySettingsList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsQuerySettings>;
 };
 
 export type PaginatedSeqvarsResultRowList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsResultRow>;
 };
 
 export type PaginatedSeqvarsResultSetList = {
-    next?: string | null;
-    previous?: string | null;
+    next?: (string) | null;
+    previous?: (string) | null;
     results?: Array<SeqvarsResultSet>;
 };
 
@@ -1144,7 +1144,7 @@ export type PatchedCasePhenotypeTermsRequest = {
 export type PatchedCaseSerializerNgRequest = {
     name?: string;
     index?: string;
-    notes?: string | null;
+    notes?: (string) | null;
     status?: CaseStatusEnum;
     tags?: Array<(string)> | null;
     case_version?: number;
@@ -1165,7 +1165,7 @@ export type PatchedEnrichmentKitRequest = {
     /**
      * Optional description of the enrichment kit
      */
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1182,15 +1182,15 @@ export type PatchedProjectRequest = {
      * * `CATEGORY` - Category
      * * `PROJECT` - Project
      */
-    type?: TypeEnum;
+    type?: (TypeEnum);
     /**
      * Project SODAR UUID
      */
-    parent?: string | null;
+    parent?: (string) | null;
     /**
      * Short project description
      */
-    description?: string | null;
+    description?: (string) | null;
     readme?: string;
     /**
      * Allow public guest access for the project, also including unauthenticated users if allowed on the site
@@ -1219,19 +1219,19 @@ export type PatchedRoleAssignmentRequest = {
 export type PatchedSeqvarsPredefinedQueryRequest = {
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
     included_in_sop?: boolean;
-    genotype?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    quality?: string | null;
-    frequency?: string | null;
-    consequence?: string | null;
-    locus?: string | null;
-    phenotypeprio?: string | null;
-    variantprio?: string | null;
-    clinvar?: string | null;
-    columns?: string | null;
+    genotype?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    quality?: (string) | null;
+    frequency?: (string) | null;
+    consequence?: (string) | null;
+    locus?: (string) | null;
+    phenotypeprio?: (string) | null;
+    variantprio?: (string) | null;
+    clinvar?: (string) | null;
+    columns?: (string) | null;
 };
 
 /**
@@ -1258,7 +1258,7 @@ export type PatchedSeqvarsQueryPresetsClinvarRequest = {
     allow_conflicting_interpretations?: boolean;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1270,7 +1270,7 @@ export type PatchedSeqvarsQueryPresetsColumnsRequest = {
     column_settings?: SeqvarsColumnConfigPydanticList;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1282,10 +1282,10 @@ export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
-    max_distance_to_exon?: number | null;
+    max_distance_to_exon?: (number) | null;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1294,42 +1294,42 @@ export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
-    gnomad_exomes?: {
+    gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_genomes?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_mitochondrial?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_mitochondrial?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    helixmtdb?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    inhouse?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    inhouse?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    carriers?: number | null;
-} | null | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    carriers?: (number | null);
+} | null) | null);
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1343,7 +1343,7 @@ export type PatchedSeqvarsQueryPresetsLocusRequest = {
     genome_regions?: GenomeRegionPydanticList;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1353,11 +1353,11 @@ export type PatchedSeqvarsQueryPresetsLocusRequest = {
  */
 export type PatchedSeqvarsQueryPresetsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
-    phenotype_prio_algorithm?: string | null;
+    phenotype_prio_algorithm?: (string) | null;
     terms?: TermPresencePydanticList;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1368,14 +1368,14 @@ export type PatchedSeqvarsQueryPresetsPhenotypePrioRequest = {
 export type PatchedSeqvarsQueryPresetsQualityRequest = {
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
     filter_active?: boolean;
-    min_dp_het?: number | null;
-    min_dp_hom?: number | null;
-    min_ab_het?: number | null;
-    min_gq?: number | null;
-    min_ad?: number | null;
-    max_ad?: number | null;
+    min_dp_het?: (number) | null;
+    min_dp_hom?: (number) | null;
+    min_ab_het?: (number) | null;
+    min_gq?: (number) | null;
+    min_ad?: (number) | null;
+    max_ad?: (number) | null;
 };
 
 /**
@@ -1384,7 +1384,7 @@ export type PatchedSeqvarsQueryPresetsQualityRequest = {
 export type PatchedSeqvarsQueryPresetsSetRequest = {
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1406,7 +1406,7 @@ export type PatchedSeqvarsQueryPresetsVariantPrioRequest = {
     services?: SeqvarsPrioServicePydanticList;
     rank?: number;
     label?: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -1416,17 +1416,17 @@ export type PatchedSeqvarsQueryPresetsVariantPrioRequest = {
  * owned category settings.
  */
 export type PatchedSeqvarsQuerySettingsDetailsRequest = {
-    genotypepresets?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    qualitypresets?: string | null;
-    consequencepresets?: string | null;
-    locuspresets?: string | null;
-    frequencypresets?: string | null;
-    phenotypepriopresets?: string | null;
-    variantpriopresets?: string | null;
-    clinvarpresets?: string | null;
-    columnspresets?: string | null;
+    genotypepresets?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    qualitypresets?: (string) | null;
+    consequencepresets?: (string) | null;
+    locuspresets?: (string) | null;
+    frequencypresets?: (string) | null;
+    phenotypepriopresets?: (string) | null;
+    variantpriopresets?: (string) | null;
+    clinvarpresets?: (string) | null;
+    columnspresets?: (string) | null;
     genotype?: SeqvarsQuerySettingsGenotypeRequest;
     quality?: SeqvarsQuerySettingsQualityRequest;
     consequence?: SeqvarsQuerySettingsConsequenceRequest;
@@ -1451,7 +1451,7 @@ export type PatchedTargetBedFileRequest = {
      * * `grch37` - GRCh37
      * * `grch38` - GRCh38
      */
-    genome_release?: GenomeReleaseEnum;
+    genome_release?: (GenomeReleaseEnum);
 };
 
 /**
@@ -1468,15 +1468,15 @@ export type Project = {
      * * `CATEGORY` - Category
      * * `PROJECT` - Project
      */
-    type?: TypeEnum;
+    type?: (TypeEnum);
     /**
      * Project SODAR UUID
      */
-    parent: string | null;
+    parent: (string) | null;
     /**
      * Short project description
      */
-    description?: string | null;
+    description?: (string) | null;
     readme?: string;
     /**
      * Allow public guest access for the project, also including unauthenticated users if allowed on the site
@@ -1503,7 +1503,7 @@ export type ProjectInvite = {
      * Name of role
      */
     role: string;
-    readonly issuer: SODARUser;
+    readonly issuer: (SODARUser);
     /**
      * DateTime of invite creation
      */
@@ -1551,15 +1551,15 @@ export type ProjectRequest = {
      * * `CATEGORY` - Category
      * * `PROJECT` - Project
      */
-    type?: TypeEnum;
+    type?: (TypeEnum);
     /**
      * Project SODAR UUID
      */
-    parent: string | null;
+    parent: (string) | null;
     /**
      * Short project description
      */
-    description?: string | null;
+    description?: (string) | null;
     readme?: string;
     /**
      * Allow public guest access for the project, also including unauthenticated users if allowed on the site
@@ -1583,6 +1583,13 @@ export type RcnvConstraintsPydantic = {
  * * `recessive` - recessive
  */
 export type RecessiveModeEnum = 'disabled' | 'comphet_recessive' | 'homozygous_recessive' | 'recessive';
+
+/**
+ * Serializer for the record count.
+ */
+export type RecordCount = {
+    count: number;
+};
 
 /**
  * Per-region QC stats for alignment.
@@ -1610,8 +1617,8 @@ export type RegionVariantStats = {
  * Store resource usage information.
  */
 export type ResourcesUsedPydantic = {
-    start_time?: string | null;
-    end_time?: string | null;
+    start_time?: (string | null);
+    end_time?: (string | null);
     memory_used?: number;
 };
 
@@ -1642,7 +1649,7 @@ export type RoleAssignmentNestedList = {
      * Name of role
      */
     role: string;
-    readonly user: SODARUser;
+    readonly user: (SODARUser);
     readonly sodar_uuid: string;
 };
 
@@ -1717,8 +1724,8 @@ export type SampleReadStatsList = Array<{
     read_length_histogram: Array<Array<(number)>>;
     total_reads: number;
     total_yield: number;
-    fragment_first: number | null;
-    fragment_last: number | null;
+    fragment_first: (number | null);
+    fragment_last: (number | null);
 }>;
 
 export type SampleSeqvarStatsList = Array<{
@@ -1891,7 +1898,7 @@ export type SamtoolsStatsMainMetrics = {
 
 export type SamtoolsStatsSnRecordList = Array<{
     key: string;
-    value: number | string | null;
+    value: (number | string | null);
 }>;
 
 /**
@@ -1925,18 +1932,18 @@ export type SeqvarsCallRelatedAnnotationPydantic = {
  * Pydantic representation of ``SeqvarsCaseQuery``.
  */
 export type SeqvarsCaseQueryPydantic = {
-    genotype?: SeqvarsQuerySettingsGenotypePydantic | null;
-    quality?: SeqvarsQuerySettingsQualityPydantic | null;
-    frequency?: SeqvarsQuerySettingsFrequencyPydantic | null;
-    consequence?: SeqvarsQuerySettingsConsequencePydantic | null;
-    locus?: SeqvarsQuerySettingsLocusPydantic | null;
-    clinvar?: SeqvarsQuerySettingsClinvarPydantic | null;
+    genotype?: (SeqvarsQuerySettingsGenotypePydantic | null);
+    quality?: (SeqvarsQuerySettingsQualityPydantic | null);
+    frequency?: (SeqvarsQuerySettingsFrequencyPydantic | null);
+    consequence?: (SeqvarsQuerySettingsConsequencePydantic | null);
+    locus?: (SeqvarsQuerySettingsLocusPydantic | null);
+    clinvar?: (SeqvarsQuerySettingsClinvarPydantic | null);
 };
 
 export type SeqvarsColumnConfigPydanticList = Array<{
     name: string;
     label: string;
-    description?: string | null;
+    description?: (string | null);
     width: number;
     visible: boolean;
 }>;
@@ -1945,18 +1952,18 @@ export type SeqvarsColumnConfigPydanticList = Array<{
  * Store database identifiers.
  */
 export type SeqvarsDbIdsPydantic = {
-    dbsnp_id?: string | null;
+    dbsnp_id?: (string | null);
 };
 
 /**
  * SPopulation frequency information
  */
 export type SeqvarsFrequencyAnnotationPydantic = {
-    gnomad_exomes?: SeqvarsNuclearFrequencyPydantic | null;
-    gnomad_genomes?: SeqvarsNuclearFrequencyPydantic | null;
-    gnomad_mtdna?: SeqvarsGnomadMitochondrialFrequencyPydantic | null;
-    helixmtdb?: SeqvarsHelixMtDbFrequencyPydantic | null;
-    inhouse?: SeqvarsNuclearFrequencyPydantic | null;
+    gnomad_exomes?: (SeqvarsNuclearFrequencyPydantic | null);
+    gnomad_genomes?: (SeqvarsNuclearFrequencyPydantic | null);
+    gnomad_mtdna?: (SeqvarsGnomadMitochondrialFrequencyPydantic | null);
+    helixmtdb?: (SeqvarsHelixMtDbFrequencyPydantic | null);
+    inhouse?: (SeqvarsNuclearFrequencyPydantic | null);
 };
 
 /**
@@ -1984,9 +1991,9 @@ export type SeqvarsGnomadMitochondrialFrequencyPydantic = {
  */
 export type SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
 };
 
 /**
@@ -2004,9 +2011,9 @@ export type SeqvarsHelixMtDbFrequencyPydantic = {
  */
 export type SeqvarsHelixMtDbFrequencySettingsPydantic = {
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
 };
 
 /**
@@ -2025,10 +2032,10 @@ export type SeqvarsNuclearFrequencyPydantic = {
  */
 export type SeqvarsNuclearFrequencySettingsPydantic = {
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
 };
 
 /**
@@ -2051,20 +2058,20 @@ export type SeqvarsPredefinedQuery = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
     included_in_sop?: boolean;
-    genotype?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    quality?: string | null;
-    frequency?: string | null;
-    consequence?: string | null;
-    locus?: string | null;
-    phenotypeprio?: string | null;
-    variantprio?: string | null;
-    clinvar?: string | null;
-    columns?: string | null;
+    genotype?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    quality?: (string) | null;
+    frequency?: (string) | null;
+    consequence?: (string) | null;
+    locus?: (string) | null;
+    phenotypeprio?: (string) | null;
+    variantprio?: (string) | null;
+    clinvar?: (string) | null;
+    columns?: (string) | null;
 };
 
 /**
@@ -2073,19 +2080,19 @@ export type SeqvarsPredefinedQuery = {
 export type SeqvarsPredefinedQueryRequest = {
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     included_in_sop?: boolean;
-    genotype?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    quality?: string | null;
-    frequency?: string | null;
-    consequence?: string | null;
-    locus?: string | null;
-    phenotypeprio?: string | null;
-    variantprio?: string | null;
-    clinvar?: string | null;
-    columns?: string | null;
+    genotype?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    quality?: (string) | null;
+    frequency?: (string) | null;
+    consequence?: (string) | null;
+    locus?: (string) | null;
+    phenotypeprio?: (string) | null;
+    variantprio?: (string) | null;
+    clinvar?: (string) | null;
+    columns?: (string) | null;
 };
 
 export type SeqvarsPrioServicePydanticList = Array<{
@@ -2169,11 +2176,11 @@ export type SeqvarsQueryExecution = {
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
-    readonly state: SeqvarsQueryExecutionStateEnum;
-    readonly complete_percent: number | null;
-    readonly start_time: string | null;
-    readonly end_time: string | null;
-    readonly elapsed_seconds: number | null;
+    readonly state: (SeqvarsQueryExecutionStateEnum);
+    readonly complete_percent: (number) | null;
+    readonly start_time: (string) | null;
+    readonly end_time: (string) | null;
+    readonly elapsed_seconds: (number) | null;
     readonly query: string;
     readonly querysettings: string;
 };
@@ -2185,11 +2192,11 @@ export type SeqvarsQueryExecutionDetails = {
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
-    readonly state: SeqvarsQueryExecutionStateEnum;
-    readonly complete_percent: number | null;
-    readonly start_time: string | null;
-    readonly end_time: string | null;
-    readonly elapsed_seconds: number | null;
+    readonly state: (SeqvarsQueryExecutionStateEnum);
+    readonly complete_percent: (number) | null;
+    readonly start_time: (string) | null;
+    readonly end_time: (string) | null;
+    readonly elapsed_seconds: (number) | null;
     readonly query: string;
     querysettings: SeqvarsQuerySettingsDetails;
 };
@@ -2218,7 +2225,7 @@ export type SeqvarsQueryPresetsClinvar = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2233,7 +2240,7 @@ export type SeqvarsQueryPresetsClinvarRequest = {
     allow_conflicting_interpretations?: boolean;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2248,7 +2255,7 @@ export type SeqvarsQueryPresetsColumns = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2261,7 +2268,7 @@ export type SeqvarsQueryPresetsColumnsRequest = {
     column_settings?: SeqvarsColumnConfigPydanticList;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2273,13 +2280,13 @@ export type SeqvarsQueryPresetsConsequence = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
-    max_distance_to_exon?: number | null;
+    max_distance_to_exon?: (number) | null;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2292,10 +2299,10 @@ export type SeqvarsQueryPresetsConsequenceRequest = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
-    max_distance_to_exon?: number | null;
+    max_distance_to_exon?: (number) | null;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2304,45 +2311,45 @@ export type SeqvarsQueryPresetsConsequenceRequest = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequency = {
-    gnomad_exomes?: {
+    gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_genomes?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_mitochondrial?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_mitochondrial?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    helixmtdb?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    inhouse?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    inhouse?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    carriers?: number | null;
-} | null | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    carriers?: (number | null);
+} | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2352,42 +2359,42 @@ export type SeqvarsQueryPresetsFrequency = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequencyRequest = {
-    gnomad_exomes?: {
+    gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_genomes?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_mitochondrial?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_mitochondrial?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    helixmtdb?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    inhouse?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    inhouse?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    carriers?: number | null;
-} | null | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    carriers?: (number | null);
+} | null) | null);
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2404,7 +2411,7 @@ export type SeqvarsQueryPresetsLocus = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2419,7 +2426,7 @@ export type SeqvarsQueryPresetsLocusRequest = {
     genome_regions?: GenomeRegionPydanticList;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2429,14 +2436,14 @@ export type SeqvarsQueryPresetsLocusRequest = {
  */
 export type SeqvarsQueryPresetsPhenotypePrio = {
     phenotype_prio_enabled?: boolean;
-    phenotype_prio_algorithm?: string | null;
+    phenotype_prio_algorithm?: (string) | null;
     terms?: TermPresencePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2447,11 +2454,11 @@ export type SeqvarsQueryPresetsPhenotypePrio = {
  */
 export type SeqvarsQueryPresetsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
-    phenotype_prio_algorithm?: string | null;
+    phenotype_prio_algorithm?: (string) | null;
     terms?: TermPresencePydanticList;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2465,15 +2472,15 @@ export type SeqvarsQueryPresetsQuality = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
     filter_active?: boolean;
-    min_dp_het?: number | null;
-    min_dp_hom?: number | null;
-    min_ab_het?: number | null;
-    min_gq?: number | null;
-    min_ad?: number | null;
-    max_ad?: number | null;
+    min_dp_het?: (number) | null;
+    min_dp_hom?: (number) | null;
+    min_ab_het?: (number) | null;
+    min_gq?: (number) | null;
+    min_ad?: (number) | null;
+    max_ad?: (number) | null;
 };
 
 /**
@@ -2484,14 +2491,14 @@ export type SeqvarsQueryPresetsQuality = {
 export type SeqvarsQueryPresetsQualityRequest = {
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     filter_active?: boolean;
-    min_dp_het?: number | null;
-    min_dp_hom?: number | null;
-    min_ab_het?: number | null;
-    min_gq?: number | null;
-    min_ad?: number | null;
-    max_ad?: number | null;
+    min_dp_het?: (number) | null;
+    min_dp_hom?: (number) | null;
+    min_ab_het?: (number) | null;
+    min_gq?: (number) | null;
+    min_ad?: (number) | null;
+    max_ad?: (number) | null;
 };
 
 /**
@@ -2503,7 +2510,7 @@ export type SeqvarsQueryPresetsSet = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     /**
      * Project SODAR UUID
      */
@@ -2526,7 +2533,7 @@ export type SeqvarsQueryPresetsSetDetails = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     /**
      * Project SODAR UUID
      */
@@ -2540,7 +2547,7 @@ export type SeqvarsQueryPresetsSetDetails = {
 export type SeqvarsQueryPresetsSetRequest = {
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2554,7 +2561,7 @@ export type SeqvarsQueryPresetsSetVersion = {
     version_major?: number;
     version_minor?: number;
     status?: string;
-    readonly signed_off_by: SODARUser;
+    readonly signed_off_by: (SODARUser);
 };
 
 /**
@@ -2567,11 +2574,11 @@ export type SeqvarsQueryPresetsSetVersionDetails = {
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
-    readonly presetsset: SeqvarsQueryPresetsSet;
+    readonly presetsset: (SeqvarsQueryPresetsSet);
     version_major?: number;
     version_minor?: number;
     status?: string;
-    readonly signed_off_by: SODARUser;
+    readonly signed_off_by: (SODARUser);
     readonly seqvarsquerypresetsquality_set: Array<SeqvarsQueryPresetsQuality>;
     readonly seqvarsquerypresetsfrequency_set: Array<SeqvarsQueryPresetsFrequency>;
     readonly seqvarsquerypresetsconsequence_set: Array<SeqvarsQueryPresetsConsequence>;
@@ -2617,7 +2624,7 @@ export type SeqvarsQueryPresetsVariantPrio = {
     readonly date_modified: string;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
     readonly presetssetversion: string;
 };
 
@@ -2631,7 +2638,7 @@ export type SeqvarsQueryPresetsVariantPrioRequest = {
     services?: SeqvarsPrioServicePydanticList;
     rank?: number;
     label: string;
-    description?: string | null;
+    description?: (string) | null;
 };
 
 /**
@@ -2644,17 +2651,17 @@ export type SeqvarsQuerySettings = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
-    genotypepresets?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    readonly qualitypresets: string | null;
-    readonly consequencepresets: string | null;
-    readonly locuspresets: string | null;
-    readonly frequencypresets: string | null;
-    readonly phenotypepriopresets: string | null;
-    readonly variantpriopresets: string | null;
-    readonly clinvarpresets: string | null;
-    readonly columnspresets: string | null;
+    genotypepresets?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    readonly qualitypresets: (string) | null;
+    readonly consequencepresets: (string) | null;
+    readonly locuspresets: (string) | null;
+    readonly frequencypresets: (string) | null;
+    readonly phenotypepriopresets: (string) | null;
+    readonly variantpriopresets: (string) | null;
+    readonly clinvarpresets: (string) | null;
+    readonly columnspresets: (string) | null;
     readonly genotype: string;
     readonly quality: string;
     readonly consequence: string;
@@ -2703,7 +2710,7 @@ export type SeqvarsQuerySettingsConsequence = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
-    max_distance_to_exon?: number | null;
+    max_distance_to_exon?: (number) | null;
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2717,7 +2724,7 @@ export type SeqvarsQuerySettingsConsequencePydantic = {
     variant_types?: Array<SeqvarsVariantTypeChoice>;
     transcript_types?: Array<SeqvarsTranscriptTypeChoice>;
     consequences?: Array<SeqvarsVariantConsequenceChoice>;
-    max_dist_to_exon?: number | null;
+    max_dist_to_exon?: (number | null);
 };
 
 /**
@@ -2727,7 +2734,7 @@ export type SeqvarsQuerySettingsConsequenceRequest = {
     variant_types?: SeqvarsVariantTypeChoiceList;
     transcript_types?: SeqvarsTranscriptTypeChoiceList;
     variant_consequences?: SeqvarsVariantConsequenceChoiceList;
-    max_distance_to_exon?: number | null;
+    max_distance_to_exon?: (number) | null;
 };
 
 /**
@@ -2743,17 +2750,17 @@ export type SeqvarsQuerySettingsDetails = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
-    genotypepresets?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    qualitypresets?: string | null;
-    consequencepresets?: string | null;
-    locuspresets?: string | null;
-    frequencypresets?: string | null;
-    phenotypepriopresets?: string | null;
-    variantpriopresets?: string | null;
-    clinvarpresets?: string | null;
-    columnspresets?: string | null;
+    genotypepresets?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    qualitypresets?: (string) | null;
+    consequencepresets?: (string) | null;
+    locuspresets?: (string) | null;
+    frequencypresets?: (string) | null;
+    phenotypepriopresets?: (string) | null;
+    variantpriopresets?: (string) | null;
+    clinvarpresets?: (string) | null;
+    columnspresets?: (string) | null;
     genotype: SeqvarsQuerySettingsGenotype;
     quality: SeqvarsQuerySettingsQuality;
     consequence: SeqvarsQuerySettingsConsequence;
@@ -2771,17 +2778,17 @@ export type SeqvarsQuerySettingsDetails = {
  * owned category settings.
  */
 export type SeqvarsQuerySettingsDetailsRequest = {
-    genotypepresets?: {
-    choice?: SeqvarsGenotypePresetChoice | null;
-} | null | null;
-    qualitypresets?: string | null;
-    consequencepresets?: string | null;
-    locuspresets?: string | null;
-    frequencypresets?: string | null;
-    phenotypepriopresets?: string | null;
-    variantpriopresets?: string | null;
-    clinvarpresets?: string | null;
-    columnspresets?: string | null;
+    genotypepresets?: (({
+    choice?: (SeqvarsGenotypePresetChoice | null);
+} | null) | null);
+    qualitypresets?: (string) | null;
+    consequencepresets?: (string) | null;
+    locuspresets?: (string) | null;
+    frequencypresets?: (string) | null;
+    phenotypepriopresets?: (string) | null;
+    variantpriopresets?: (string) | null;
+    clinvarpresets?: (string) | null;
+    columnspresets?: (string) | null;
     genotype: SeqvarsQuerySettingsGenotypeRequest;
     quality: SeqvarsQuerySettingsQualityRequest;
     consequence: SeqvarsQuerySettingsConsequenceRequest;
@@ -2796,39 +2803,39 @@ export type SeqvarsQuerySettingsDetailsRequest = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequency = {
-    gnomad_exomes?: {
+    gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_genomes?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_mitochondrial?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_mitochondrial?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    helixmtdb?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    inhouse?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    inhouse?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    carriers?: number | null;
-} | null | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    carriers?: (number | null);
+} | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2839,48 +2846,48 @@ export type SeqvarsQuerySettingsFrequency = {
  * Pydantic representation of ``SeqvarsQuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequencyPydantic = {
-    nuclear?: SeqvarsNuclearFrequencySettingsPydantic | null;
-    gnomad_mtdna?: SeqvarsGnomadMitochondrialFrequencySettingsPydantic | null;
-    helixmtdb?: SeqvarsHelixMtDbFrequencySettingsPydantic | null;
+    nuclear?: (SeqvarsNuclearFrequencySettingsPydantic | null);
+    gnomad_mtdna?: (SeqvarsGnomadMitochondrialFrequencySettingsPydantic | null);
+    helixmtdb?: (SeqvarsHelixMtDbFrequencySettingsPydantic | null);
 };
 
 /**
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequencyRequest = {
-    gnomad_exomes?: {
+    gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_genomes?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    frequency?: number | null;
-} | null | null;
-    gnomad_mitochondrial?: {
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    gnomad_mitochondrial?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    helixmtdb?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: number | null;
-    homoplasmic?: number | null;
-    frequency?: number | null;
-} | null | null;
-    inhouse?: {
+    heteroplasmic?: (number | null);
+    homoplasmic?: (number | null);
+    frequency?: (number | null);
+} | null) | null);
+    inhouse?: (({
     enabled?: boolean;
-    heterozygous?: number | null;
-    homozygous?: number | null;
-    hemizygous?: number | null;
-    carriers?: number | null;
-} | null | null;
+    heterozygous?: (number | null);
+    homozygous?: (number | null);
+    hemizygous?: (number | null);
+    carriers?: (number | null);
+} | null) | null);
 };
 
 /**
@@ -2891,7 +2898,7 @@ export type SeqvarsQuerySettingsGenotype = {
     readonly date_created: string;
     readonly date_modified: string;
     readonly querysettings: string;
-    recessive_mode?: RecessiveModeEnum;
+    recessive_mode?: (RecessiveModeEnum);
     sample_genotype_choices?: SeqvarsSampleGenotypePydanticList;
 };
 
@@ -2899,7 +2906,7 @@ export type SeqvarsQuerySettingsGenotype = {
  * Pydantic representation of ``SeqvarsQuerySettingsGenotype``.
  */
 export type SeqvarsQuerySettingsGenotypePydantic = {
-    recessive_mode?: SeqvarsRecessiveModeChoice;
+    recessive_mode?: (SeqvarsRecessiveModeChoice);
     sample_genotypes?: Array<SeqvarsSampleGenotypePydantic>;
 };
 
@@ -2907,7 +2914,7 @@ export type SeqvarsQuerySettingsGenotypePydantic = {
  * Serializer for ``QuerySettingsGenotype``.
  */
 export type SeqvarsQuerySettingsGenotypeRequest = {
-    recessive_mode?: RecessiveModeEnum;
+    recessive_mode?: (RecessiveModeEnum);
     sample_genotype_choices?: SeqvarsSampleGenotypePydanticList;
 };
 
@@ -2946,7 +2953,7 @@ export type SeqvarsQuerySettingsLocusRequest = {
  */
 export type SeqvarsQuerySettingsPhenotypePrio = {
     phenotype_prio_enabled?: boolean;
-    phenotype_prio_algorithm?: string | null;
+    phenotype_prio_algorithm?: (string) | null;
     terms?: TermPresencePydanticList;
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2959,7 +2966,7 @@ export type SeqvarsQuerySettingsPhenotypePrio = {
  */
 export type SeqvarsQuerySettingsPhenotypePrioRequest = {
     phenotype_prio_enabled?: boolean;
-    phenotype_prio_algorithm?: string | null;
+    phenotype_prio_algorithm?: (string) | null;
     terms?: TermPresencePydanticList;
 };
 
@@ -3025,12 +3032,12 @@ export type SeqvarsResultRow = {
     readonly pos: number;
     readonly ref_allele: string;
     readonly alt_allele: string;
-    payload: {
+    payload: ({
     uuid: string;
     case_uuid: string;
-    vcf_variant: SeqvarsVcfVariantPydantic | null;
-    variant_annotation: SeqvarsVariantAnnotationPydantic | null;
-} | null;
+    vcf_variant: (SeqvarsVcfVariantPydantic | null);
+    variant_annotation: (SeqvarsVariantAnnotationPydantic | null);
+} | null);
 };
 
 /**
@@ -3047,17 +3054,17 @@ export type SeqvarsResultSet = {
     datasource_infos: {
         infos?: Array<DataSourceInfoPydantic>;
     };
-    output_header: {
+    output_header: ({
     genome_release: GenomeReleaseChoice;
     versions: {
         [key: string]: (string);
     };
-    query: SeqvarsCaseQueryPydantic | null;
+    query: (SeqvarsCaseQueryPydantic | null);
     case_uuid: string;
-    resources: ResourcesUsedPydantic | null;
-    statistics: SeqvarsOutputStatisticsPydantic | null;
+    resources: (ResourcesUsedPydantic | null);
+    statistics: (SeqvarsOutputStatisticsPydantic | null);
     variant_score_columns?: Array<SeqvarsVariantScoreColumnPydantic>;
-} | null;
+} | null);
 };
 
 /**
@@ -3065,11 +3072,11 @@ export type SeqvarsResultSet = {
  */
 export type SeqvarsSampleCallInfoPydantic = {
     sample: string;
-    genotype?: string | null;
-    dp?: number | null;
-    ad?: number | null;
-    gq?: number | null;
-    ps?: number | null;
+    genotype?: (string | null);
+    dp?: (number | null);
+    ad?: (number | null);
+    gq?: (number | null);
+    ps?: (number | null);
 };
 
 /**
@@ -3092,12 +3099,12 @@ export type SeqvarsSampleGenotypePydanticList = Array<{
 export type SeqvarsSampleQualityFilterPydanticList = Array<{
     sample: string;
     filter_active?: boolean;
-    min_dp_het?: number | null;
-    min_dp_hom?: number | null;
-    min_ab_het?: number | null;
-    min_gq?: number | null;
-    min_ad?: number | null;
-    max_ad?: number | null;
+    min_dp_het?: (number | null);
+    min_dp_hom?: (number | null);
+    min_ab_het?: (number | null);
+    min_gq?: (number | null);
+    min_ad?: (number | null);
+    max_ad?: (number | null);
 }>;
 
 /**
@@ -3106,12 +3113,12 @@ export type SeqvarsSampleQualityFilterPydanticList = Array<{
 export type SeqvarsSampleQualitySettingsPydantic = {
     sample: string;
     filter_active?: boolean;
-    min_dp_het?: number | null;
-    min_dp_hom?: number | null;
-    min_gq?: number | null;
-    min_ab?: number | null;
-    min_ad?: number | null;
-    max_ad?: number | null;
+    min_dp_het?: (number | null);
+    min_dp_hom?: (number | null);
+    min_gq?: (number | null);
+    min_ab?: (number | null);
+    min_ad?: (number | null);
+    max_ad?: (number | null);
 };
 
 /**
@@ -3134,9 +3141,9 @@ export type SeqvarsTranscriptTypeChoiceList = Array<('coding' | 'non_coding')>;
  * Store the variant annotation payload (always for a single gene).
  */
 export type SeqvarsVariantAnnotationPydantic = {
-    gene?: GeneRelatedAnnotationPydantic | null;
-    variant?: SeqvarsVariantRelatedAnnotationPydantic | null;
-    call?: SeqvarsCallRelatedAnnotationPydantic | null;
+    gene?: (GeneRelatedAnnotationPydantic | null);
+    variant?: (SeqvarsVariantRelatedAnnotationPydantic | null);
+    call?: (SeqvarsCallRelatedAnnotationPydantic | null);
 };
 
 /**
@@ -3150,10 +3157,10 @@ export type SeqvarsVariantConsequenceChoiceList = Array<('transcript_ablation' |
  * Store variant-related annotation.
  */
 export type SeqvarsVariantRelatedAnnotationPydantic = {
-    dbids?: SeqvarsDbIdsPydantic | null;
-    frequency?: SeqvarsFrequencyAnnotationPydantic | null;
-    clinvar?: ClinvarAnnotationPydantic | null;
-    scores?: SeqvarsScoreAnnotationsPydantic | null;
+    dbids?: (SeqvarsDbIdsPydantic | null);
+    frequency?: (SeqvarsFrequencyAnnotationPydantic | null);
+    clinvar?: (ClinvarAnnotationPydantic | null);
+    scores?: (SeqvarsScoreAnnotationsPydantic | null);
 };
 
 /**
@@ -3162,7 +3169,7 @@ export type SeqvarsVariantRelatedAnnotationPydantic = {
 export type SeqvarsVariantScoreColumnPydantic = {
     name: string;
     label: string;
-    description?: string | null;
+    description?: (string | null);
     type: SevarsVariantScoreColumnTypeChoice;
 };
 
@@ -3234,7 +3241,7 @@ export type TargetBedFile = {
      * * `grch37` - GRCh37
      * * `grch38` - GRCh38
      */
-    genome_release?: GenomeReleaseEnum;
+    genome_release?: (GenomeReleaseEnum);
 };
 
 /**
@@ -3251,12 +3258,12 @@ export type TargetBedFileRequest = {
      * * `grch37` - GRCh37
      * * `grch38` - GRCh38
      */
-    genome_release?: GenomeReleaseEnum;
+    genome_release?: (GenomeReleaseEnum);
 };
 
 export type TermPresencePydanticList = Array<{
     term: TermPydantic;
-    excluded?: boolean | null;
+    excluded?: (boolean | null);
 }>;
 
 /**
@@ -3264,7 +3271,7 @@ export type TermPresencePydanticList = Array<{
  */
 export type TermPydantic = {
     term_id: string;
-    label: string | null;
+    label: (string | null);
 };
 
 /**
@@ -3281,7 +3288,7 @@ export type UserAndGlobalSettings = {
      * Transient information about user settings.
      */
     user_settings: {
-        umd_predictor_api_token: string | null;
+        umd_predictor_api_token: (string | null);
         ga4gh_beacon_network_widget_enabled?: boolean;
     };
     /**
@@ -3323,7 +3330,7 @@ export type CasesAnalysisApiCaseanalysisListData = {
     };
 };
 
-export type CasesAnalysisApiCaseanalysisListResponse = PaginatedCaseAnalysisList;
+export type CasesAnalysisApiCaseanalysisListResponse = (PaginatedCaseAnalysisList);
 
 export type CasesAnalysisApiCaseanalysisListError = unknown;
 
@@ -3334,7 +3341,7 @@ export type CasesAnalysisApiCaseanalysisRetrieveData = {
     };
 };
 
-export type CasesAnalysisApiCaseanalysisRetrieveResponse = CaseAnalysis;
+export type CasesAnalysisApiCaseanalysisRetrieveResponse = (CaseAnalysis);
 
 export type CasesAnalysisApiCaseanalysisRetrieveError = unknown;
 
@@ -3354,7 +3361,7 @@ export type CasesAnalysisApiCaseanalysissessionListData = {
     };
 };
 
-export type CasesAnalysisApiCaseanalysissessionListResponse = PaginatedCaseAnalysisSessionList;
+export type CasesAnalysisApiCaseanalysissessionListResponse = (PaginatedCaseAnalysisSessionList);
 
 export type CasesAnalysisApiCaseanalysissessionListError = unknown;
 
@@ -3365,7 +3372,7 @@ export type CasesAnalysisApiCaseanalysissessionRetrieveData = {
     };
 };
 
-export type CasesAnalysisApiCaseanalysissessionRetrieveResponse = CaseAnalysisSession;
+export type CasesAnalysisApiCaseanalysissessionRetrieveResponse = (CaseAnalysisSession);
 
 export type CasesAnalysisApiCaseanalysissessionRetrieveError = unknown;
 
@@ -3385,7 +3392,7 @@ export type CasesImportApiCaseImportActionListCreateListData = {
     };
 };
 
-export type CasesImportApiCaseImportActionListCreateListResponse = PaginatedCaseImportActionList;
+export type CasesImportApiCaseImportActionListCreateListResponse = (PaginatedCaseImportActionList);
 
 export type CasesImportApiCaseImportActionListCreateListError = unknown;
 
@@ -3396,7 +3403,7 @@ export type CasesImportApiCaseImportActionListCreateCreateData = {
     };
 };
 
-export type CasesImportApiCaseImportActionListCreateCreateResponse = CaseImportAction;
+export type CasesImportApiCaseImportActionListCreateCreateResponse = (CaseImportAction);
 
 export type CasesImportApiCaseImportActionListCreateCreateError = unknown;
 
@@ -3406,7 +3413,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData = {
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse = CaseImportAction;
+export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse = (CaseImportAction);
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveError = unknown;
 
@@ -3417,7 +3424,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData = {
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse = CaseImportAction;
+export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse = (CaseImportAction);
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError = unknown;
 
@@ -3428,7 +3435,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateResponse = CaseImportAction;
+export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateResponse = (CaseImportAction);
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateError = unknown;
 
@@ -3438,7 +3445,7 @@ export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyData = {
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyResponse = void;
+export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyResponse = (void);
 
 export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyError = unknown;
 
@@ -3448,7 +3455,7 @@ export type CasesQcApiCaseqcRetrieveRetrieveData = {
     };
 };
 
-export type CasesQcApiCaseqcRetrieveRetrieveResponse = CaseQc;
+export type CasesQcApiCaseqcRetrieveRetrieveResponse = (CaseQc);
 
 export type CasesQcApiCaseqcRetrieveRetrieveError = unknown;
 
@@ -3458,7 +3465,7 @@ export type CasesQcApiVarfishstatsRetrieveRetrieveData = {
     };
 };
 
-export type CasesQcApiVarfishstatsRetrieveRetrieveResponse = VarfishStats;
+export type CasesQcApiVarfishstatsRetrieveRetrieveResponse = (VarfishStats);
 
 export type CasesQcApiVarfishstatsRetrieveRetrieveError = unknown;
 
@@ -3468,7 +3475,7 @@ export type CasesApiAnnotationReleaseInfoListListData = {
     };
 };
 
-export type CasesApiAnnotationReleaseInfoListListResponse = Array<AnnotationReleaseInfo>;
+export type CasesApiAnnotationReleaseInfoListListResponse = (Array<AnnotationReleaseInfo>);
 
 export type CasesApiAnnotationReleaseInfoListListError = unknown;
 
@@ -3478,7 +3485,7 @@ export type CasesApiCaseCommentListCreateListData = {
     };
 };
 
-export type CasesApiCaseCommentListCreateListResponse = Array<CaseComment>;
+export type CasesApiCaseCommentListCreateListResponse = (Array<CaseComment>);
 
 export type CasesApiCaseCommentListCreateListError = unknown;
 
@@ -3489,7 +3496,7 @@ export type CasesApiCaseCommentListCreateCreateData = {
     };
 };
 
-export type CasesApiCaseCommentListCreateCreateResponse = CaseComment;
+export type CasesApiCaseCommentListCreateCreateResponse = (CaseComment);
 
 export type CasesApiCaseCommentListCreateCreateError = unknown;
 
@@ -3499,7 +3506,7 @@ export type CasesApiCasePhenotypeTermsListCreateListData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsListCreateListResponse = Array<CasePhenotypeTerms>;
+export type CasesApiCasePhenotypeTermsListCreateListResponse = (Array<CasePhenotypeTerms>);
 
 export type CasesApiCasePhenotypeTermsListCreateListError = unknown;
 
@@ -3510,7 +3517,7 @@ export type CasesApiCasePhenotypeTermsListCreateCreateData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsListCreateCreateResponse = CasePhenotypeTerms;
+export type CasesApiCasePhenotypeTermsListCreateCreateResponse = (CasePhenotypeTerms);
 
 export type CasesApiCasePhenotypeTermsListCreateCreateError = unknown;
 
@@ -3520,7 +3527,7 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveResponse = CasePhenotypeTerms;
+export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveResponse = (CasePhenotypeTerms);
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveError = unknown;
 
@@ -3531,7 +3538,7 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse = CasePhenotypeTerms;
+export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse = (CasePhenotypeTerms);
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError = unknown;
 
@@ -3542,7 +3549,7 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse = CasePhenotypeTerms;
+export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse = (CasePhenotypeTerms);
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateError = unknown;
 
@@ -3552,9 +3559,22 @@ export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData = {
     };
 };
 
-export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse = void;
+export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse = (void);
 
 export type CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyError = unknown;
+
+export type CasesApiCaseCountRetrieveData = {
+    path: {
+        project: string;
+    };
+    query?: {
+        q?: string;
+    };
+};
+
+export type CasesApiCaseCountRetrieveResponse = (RecordCount);
+
+export type CasesApiCaseCountRetrieveError = unknown;
 
 export type CasesApiCaseListListData = {
     path: {
@@ -3575,7 +3595,7 @@ export type CasesApiCaseListListData = {
     };
 };
 
-export type CasesApiCaseListListResponse = PaginatedCaseSerializerNgList;
+export type CasesApiCaseListListResponse = (PaginatedCaseSerializerNgList);
 
 export type CasesApiCaseListListError = unknown;
 
@@ -3585,7 +3605,7 @@ export type CasesApiCaseRetrieveUpdateDestroyRetrieveData = {
     };
 };
 
-export type CasesApiCaseRetrieveUpdateDestroyRetrieveResponse = CaseSerializerNg;
+export type CasesApiCaseRetrieveUpdateDestroyRetrieveResponse = (CaseSerializerNg);
 
 export type CasesApiCaseRetrieveUpdateDestroyRetrieveError = unknown;
 
@@ -3596,7 +3616,7 @@ export type CasesApiCaseRetrieveUpdateDestroyUpdateData = {
     };
 };
 
-export type CasesApiCaseRetrieveUpdateDestroyUpdateResponse = CaseSerializerNg;
+export type CasesApiCaseRetrieveUpdateDestroyUpdateResponse = (CaseSerializerNg);
 
 export type CasesApiCaseRetrieveUpdateDestroyUpdateError = unknown;
 
@@ -3607,7 +3627,7 @@ export type CasesApiCaseRetrieveUpdateDestroyPartialUpdateData = {
     };
 };
 
-export type CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse = CaseSerializerNg;
+export type CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse = (CaseSerializerNg);
 
 export type CasesApiCaseRetrieveUpdateDestroyPartialUpdateError = unknown;
 
@@ -3617,7 +3637,7 @@ export type CasesApiCaseRetrieveUpdateDestroyDestroyData = {
     };
 };
 
-export type CasesApiCaseRetrieveUpdateDestroyDestroyResponse = void;
+export type CasesApiCaseRetrieveUpdateDestroyDestroyResponse = (void);
 
 export type CasesApiCaseRetrieveUpdateDestroyDestroyError = unknown;
 
@@ -3627,19 +3647,19 @@ export type CasesApiSvAnnotationReleaseInfoListListData = {
     };
 };
 
-export type CasesApiSvAnnotationReleaseInfoListListResponse = Array<SvAnnotationReleaseInfo>;
+export type CasesApiSvAnnotationReleaseInfoListListResponse = (Array<SvAnnotationReleaseInfo>);
 
 export type CasesApiSvAnnotationReleaseInfoListListError = unknown;
 
-export type CasesApiUserAndGlobalSettingsRetrieveResponse = UserAndGlobalSettings;
+export type CasesApiUserAndGlobalSettingsRetrieveResponse = (UserAndGlobalSettings);
 
 export type CasesApiUserAndGlobalSettingsRetrieveError = unknown;
 
-export type GenepanelsApiGenepanelCategoryListListResponse = Array<GenePanelCategory>;
+export type GenepanelsApiGenepanelCategoryListListResponse = (Array<GenePanelCategory>);
 
 export type GenepanelsApiGenepanelCategoryListListError = unknown;
 
-export type GenepanelsApiLookupGenepanelRetrieveResponse = GenePanel;
+export type GenepanelsApiLookupGenepanelRetrieveResponse = (GenePanel);
 
 export type GenepanelsApiLookupGenepanelRetrieveError = unknown;
 
@@ -3647,7 +3667,7 @@ export type ProjectApiCreateCreateData = {
     body: ProjectRequest;
 };
 
-export type ProjectApiCreateCreateResponse = Project;
+export type ProjectApiCreateCreateResponse = (Project);
 
 export type ProjectApiCreateCreateError = unknown;
 
@@ -3658,7 +3678,7 @@ export type ProjectApiInvitesCreateCreateData = {
     };
 };
 
-export type ProjectApiInvitesCreateCreateResponse = ProjectInvite;
+export type ProjectApiInvitesCreateCreateResponse = (ProjectInvite);
 
 export type ProjectApiInvitesCreateCreateError = unknown;
 
@@ -3668,7 +3688,7 @@ export type ProjectApiInvitesListListData = {
     };
 };
 
-export type ProjectApiInvitesListListResponse = Array<ProjectInvite>;
+export type ProjectApiInvitesListListResponse = (Array<ProjectInvite>);
 
 export type ProjectApiInvitesListListError = unknown;
 
@@ -3678,7 +3698,7 @@ export type ProjectApiInvitesResendCreateData = {
     };
 };
 
-export type ProjectApiInvitesResendCreateResponse = unknown;
+export type ProjectApiInvitesResendCreateResponse = (unknown);
 
 export type ProjectApiInvitesResendCreateError = unknown;
 
@@ -3688,11 +3708,11 @@ export type ProjectApiInvitesRevokeCreateData = {
     };
 };
 
-export type ProjectApiInvitesRevokeCreateResponse = unknown;
+export type ProjectApiInvitesRevokeCreateResponse = (unknown);
 
 export type ProjectApiInvitesRevokeCreateError = unknown;
 
-export type ProjectApiListRetrieveResponse = unknown;
+export type ProjectApiListRetrieveResponse = (unknown);
 
 export type ProjectApiListRetrieveError = unknown;
 
@@ -3702,7 +3722,7 @@ export type ProjectApiRemoteGetRetrieveData = {
     };
 };
 
-export type ProjectApiRemoteGetRetrieveResponse = unknown;
+export type ProjectApiRemoteGetRetrieveResponse = (unknown);
 
 export type ProjectApiRemoteGetRetrieveError = unknown;
 
@@ -3712,7 +3732,7 @@ export type ProjectApiRetrieveRetrieveData = {
     };
 };
 
-export type ProjectApiRetrieveRetrieveResponse = Project;
+export type ProjectApiRetrieveRetrieveResponse = (Project);
 
 export type ProjectApiRetrieveRetrieveError = unknown;
 
@@ -3723,7 +3743,7 @@ export type ProjectApiRolesCreateCreateData = {
     };
 };
 
-export type ProjectApiRolesCreateCreateResponse = RoleAssignment;
+export type ProjectApiRolesCreateCreateResponse = (RoleAssignment);
 
 export type ProjectApiRolesCreateCreateError = unknown;
 
@@ -3733,7 +3753,7 @@ export type ProjectApiRolesDestroyDestroyData = {
     };
 };
 
-export type ProjectApiRolesDestroyDestroyResponse = void;
+export type ProjectApiRolesDestroyDestroyResponse = (void);
 
 export type ProjectApiRolesDestroyDestroyError = unknown;
 
@@ -3743,7 +3763,7 @@ export type ProjectApiRolesOwnerTransferCreateData = {
     };
 };
 
-export type ProjectApiRolesOwnerTransferCreateResponse = unknown;
+export type ProjectApiRolesOwnerTransferCreateResponse = (unknown);
 
 export type ProjectApiRolesOwnerTransferCreateError = unknown;
 
@@ -3754,7 +3774,7 @@ export type ProjectApiRolesUpdateUpdateData = {
     };
 };
 
-export type ProjectApiRolesUpdateUpdateResponse = RoleAssignment;
+export type ProjectApiRolesUpdateUpdateResponse = (RoleAssignment);
 
 export type ProjectApiRolesUpdateUpdateError = unknown;
 
@@ -3765,7 +3785,7 @@ export type ProjectApiRolesUpdatePartialUpdateData = {
     };
 };
 
-export type ProjectApiRolesUpdatePartialUpdateResponse = RoleAssignment;
+export type ProjectApiRolesUpdatePartialUpdateResponse = (RoleAssignment);
 
 export type ProjectApiRolesUpdatePartialUpdateError = unknown;
 
@@ -3775,11 +3795,11 @@ export type ProjectApiSettingsRetrieveRetrieveData = {
     };
 };
 
-export type ProjectApiSettingsRetrieveRetrieveResponse = AppSetting;
+export type ProjectApiSettingsRetrieveRetrieveResponse = (AppSetting);
 
 export type ProjectApiSettingsRetrieveRetrieveError = unknown;
 
-export type ProjectApiSettingsRetrieveUserRetrieveResponse = AppSetting;
+export type ProjectApiSettingsRetrieveUserRetrieveResponse = (AppSetting);
 
 export type ProjectApiSettingsRetrieveUserRetrieveError = unknown;
 
@@ -3789,11 +3809,11 @@ export type ProjectApiSettingsSetCreateData = {
     };
 };
 
-export type ProjectApiSettingsSetCreateResponse = unknown;
+export type ProjectApiSettingsSetCreateResponse = (unknown);
 
 export type ProjectApiSettingsSetCreateError = unknown;
 
-export type ProjectApiSettingsSetUserCreateResponse = unknown;
+export type ProjectApiSettingsSetUserCreateResponse = (unknown);
 
 export type ProjectApiSettingsSetUserCreateError = unknown;
 
@@ -3804,7 +3824,7 @@ export type ProjectApiUpdateUpdateData = {
     };
 };
 
-export type ProjectApiUpdateUpdateResponse = Project;
+export type ProjectApiUpdateUpdateResponse = (Project);
 
 export type ProjectApiUpdateUpdateError = unknown;
 
@@ -3815,19 +3835,19 @@ export type ProjectApiUpdatePartialUpdateData = {
     };
 };
 
-export type ProjectApiUpdatePartialUpdateResponse = Project;
+export type ProjectApiUpdatePartialUpdateResponse = (Project);
 
 export type ProjectApiUpdatePartialUpdateError = unknown;
 
-export type ProjectApiUsersCurrentRetrieveResponse = SODARUser;
+export type ProjectApiUsersCurrentRetrieveResponse = (SODARUser);
 
 export type ProjectApiUsersCurrentRetrieveError = unknown;
 
-export type ProjectApiUsersListListResponse = Array<SODARUser>;
+export type ProjectApiUsersListListResponse = (Array<SODARUser>);
 
 export type ProjectApiUsersListListError = unknown;
 
-export type SeqmetaApiEnrichmentkitListCreateListResponse = Array<EnrichmentKit>;
+export type SeqmetaApiEnrichmentkitListCreateListResponse = (Array<EnrichmentKit>);
 
 export type SeqmetaApiEnrichmentkitListCreateListError = unknown;
 
@@ -3835,7 +3855,7 @@ export type SeqmetaApiEnrichmentkitListCreateCreateData = {
     body: EnrichmentKitRequest;
 };
 
-export type SeqmetaApiEnrichmentkitListCreateCreateResponse = EnrichmentKit;
+export type SeqmetaApiEnrichmentkitListCreateCreateResponse = (EnrichmentKit);
 
 export type SeqmetaApiEnrichmentkitListCreateCreateError = unknown;
 
@@ -3845,7 +3865,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData = {
     };
 };
 
-export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveResponse = EnrichmentKit;
+export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveResponse = (EnrichmentKit);
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveError = unknown;
 
@@ -3856,7 +3876,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData = {
     };
 };
 
-export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse = EnrichmentKit;
+export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse = (EnrichmentKit);
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError = unknown;
 
@@ -3867,7 +3887,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData = {
     };
 };
 
-export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse = EnrichmentKit;
+export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse = (EnrichmentKit);
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateError = unknown;
 
@@ -3877,7 +3897,7 @@ export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData = {
     };
 };
 
-export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse = void;
+export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse = (void);
 
 export type SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyError = unknown;
 
@@ -3887,7 +3907,7 @@ export type SeqmetaApiTargetbedfileListCreateListData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileListCreateListResponse = Array<TargetBedFile>;
+export type SeqmetaApiTargetbedfileListCreateListResponse = (Array<TargetBedFile>);
 
 export type SeqmetaApiTargetbedfileListCreateListError = unknown;
 
@@ -3898,7 +3918,7 @@ export type SeqmetaApiTargetbedfileListCreateCreateData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileListCreateCreateResponse = TargetBedFile;
+export type SeqmetaApiTargetbedfileListCreateCreateResponse = (TargetBedFile);
 
 export type SeqmetaApiTargetbedfileListCreateCreateError = unknown;
 
@@ -3908,7 +3928,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveResponse = TargetBedFile;
+export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveResponse = (TargetBedFile);
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveError = unknown;
 
@@ -3919,7 +3939,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse = TargetBedFile;
+export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse = (TargetBedFile);
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError = unknown;
 
@@ -3930,7 +3950,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse = TargetBedFile;
+export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse = (TargetBedFile);
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateError = unknown;
 
@@ -3940,7 +3960,7 @@ export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData = {
     };
 };
 
-export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse = void;
+export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse = (void);
 
 export type SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError = unknown;
 
@@ -3960,7 +3980,7 @@ export type SeqvarsApiPredefinedqueryListData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryListResponse = PaginatedSeqvarsPredefinedQueryList;
+export type SeqvarsApiPredefinedqueryListResponse = (PaginatedSeqvarsPredefinedQueryList);
 
 export type SeqvarsApiPredefinedqueryListError = unknown;
 
@@ -3971,7 +3991,7 @@ export type SeqvarsApiPredefinedqueryCreateData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryCreateResponse = SeqvarsPredefinedQuery;
+export type SeqvarsApiPredefinedqueryCreateResponse = (SeqvarsPredefinedQuery);
 
 export type SeqvarsApiPredefinedqueryCreateError = unknown;
 
@@ -3982,7 +4002,7 @@ export type SeqvarsApiPredefinedqueryRetrieveData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryRetrieveResponse = SeqvarsPredefinedQuery;
+export type SeqvarsApiPredefinedqueryRetrieveResponse = (SeqvarsPredefinedQuery);
 
 export type SeqvarsApiPredefinedqueryRetrieveError = unknown;
 
@@ -3994,7 +4014,7 @@ export type SeqvarsApiPredefinedqueryUpdateData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryUpdateResponse = SeqvarsPredefinedQuery;
+export type SeqvarsApiPredefinedqueryUpdateResponse = (SeqvarsPredefinedQuery);
 
 export type SeqvarsApiPredefinedqueryUpdateError = unknown;
 
@@ -4006,7 +4026,7 @@ export type SeqvarsApiPredefinedqueryPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryPartialUpdateResponse = SeqvarsPredefinedQuery;
+export type SeqvarsApiPredefinedqueryPartialUpdateResponse = (SeqvarsPredefinedQuery);
 
 export type SeqvarsApiPredefinedqueryPartialUpdateError = unknown;
 
@@ -4017,7 +4037,7 @@ export type SeqvarsApiPredefinedqueryDestroyData = {
     };
 };
 
-export type SeqvarsApiPredefinedqueryDestroyResponse = void;
+export type SeqvarsApiPredefinedqueryDestroyResponse = (void);
 
 export type SeqvarsApiPredefinedqueryDestroyError = unknown;
 
@@ -4037,7 +4057,7 @@ export type SeqvarsApiQueryListData = {
     };
 };
 
-export type SeqvarsApiQueryListResponse = PaginatedSeqvarsQueryList;
+export type SeqvarsApiQueryListResponse = (PaginatedSeqvarsQueryList);
 
 export type SeqvarsApiQueryListError = unknown;
 
@@ -4048,7 +4068,7 @@ export type SeqvarsApiQueryCreateData = {
     };
 };
 
-export type SeqvarsApiQueryCreateResponse = SeqvarsQueryDetails;
+export type SeqvarsApiQueryCreateResponse = (SeqvarsQueryDetails);
 
 export type SeqvarsApiQueryCreateError = unknown;
 
@@ -4059,7 +4079,7 @@ export type SeqvarsApiQueryRetrieveData = {
     };
 };
 
-export type SeqvarsApiQueryRetrieveResponse = SeqvarsQueryDetails;
+export type SeqvarsApiQueryRetrieveResponse = (SeqvarsQueryDetails);
 
 export type SeqvarsApiQueryRetrieveError = unknown;
 
@@ -4071,7 +4091,7 @@ export type SeqvarsApiQueryUpdateData = {
     };
 };
 
-export type SeqvarsApiQueryUpdateResponse = SeqvarsQueryDetails;
+export type SeqvarsApiQueryUpdateResponse = (SeqvarsQueryDetails);
 
 export type SeqvarsApiQueryUpdateError = unknown;
 
@@ -4083,7 +4103,7 @@ export type SeqvarsApiQueryPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQueryPartialUpdateResponse = SeqvarsQueryDetails;
+export type SeqvarsApiQueryPartialUpdateResponse = (SeqvarsQueryDetails);
 
 export type SeqvarsApiQueryPartialUpdateError = unknown;
 
@@ -4094,7 +4114,7 @@ export type SeqvarsApiQueryDestroyData = {
     };
 };
 
-export type SeqvarsApiQueryDestroyResponse = void;
+export type SeqvarsApiQueryDestroyResponse = (void);
 
 export type SeqvarsApiQueryDestroyError = unknown;
 
@@ -4105,7 +4125,7 @@ export type SeqvarsApiQueryCreateFromCreateData = {
     };
 };
 
-export type SeqvarsApiQueryCreateFromCreateResponse = SeqvarsQueryDetails;
+export type SeqvarsApiQueryCreateFromCreateResponse = (SeqvarsQueryDetails);
 
 export type SeqvarsApiQueryCreateFromCreateError = unknown;
 
@@ -4125,7 +4145,7 @@ export type SeqvarsApiQueryexecutionListData = {
     };
 };
 
-export type SeqvarsApiQueryexecutionListResponse = PaginatedSeqvarsQueryExecutionList;
+export type SeqvarsApiQueryexecutionListResponse = (PaginatedSeqvarsQueryExecutionList);
 
 export type SeqvarsApiQueryexecutionListError = unknown;
 
@@ -4136,7 +4156,7 @@ export type SeqvarsApiQueryexecutionRetrieveData = {
     };
 };
 
-export type SeqvarsApiQueryexecutionRetrieveResponse = SeqvarsQueryExecutionDetails;
+export type SeqvarsApiQueryexecutionRetrieveResponse = (SeqvarsQueryExecutionDetails);
 
 export type SeqvarsApiQueryexecutionRetrieveError = unknown;
 
@@ -4156,7 +4176,7 @@ export type SeqvarsApiQuerypresetsclinvarListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarListResponse = PaginatedSeqvarsQueryPresetsClinvarList;
+export type SeqvarsApiQuerypresetsclinvarListResponse = (PaginatedSeqvarsQueryPresetsClinvarList);
 
 export type SeqvarsApiQuerypresetsclinvarListError = unknown;
 
@@ -4167,7 +4187,7 @@ export type SeqvarsApiQuerypresetsclinvarCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarCreateResponse = SeqvarsQueryPresetsClinvar;
+export type SeqvarsApiQuerypresetsclinvarCreateResponse = (SeqvarsQueryPresetsClinvar);
 
 export type SeqvarsApiQuerypresetsclinvarCreateError = unknown;
 
@@ -4178,7 +4198,7 @@ export type SeqvarsApiQuerypresetsclinvarRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarRetrieveResponse = SeqvarsQueryPresetsClinvar;
+export type SeqvarsApiQuerypresetsclinvarRetrieveResponse = (SeqvarsQueryPresetsClinvar);
 
 export type SeqvarsApiQuerypresetsclinvarRetrieveError = unknown;
 
@@ -4190,7 +4210,7 @@ export type SeqvarsApiQuerypresetsclinvarUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarUpdateResponse = SeqvarsQueryPresetsClinvar;
+export type SeqvarsApiQuerypresetsclinvarUpdateResponse = (SeqvarsQueryPresetsClinvar);
 
 export type SeqvarsApiQuerypresetsclinvarUpdateError = unknown;
 
@@ -4202,7 +4222,7 @@ export type SeqvarsApiQuerypresetsclinvarPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarPartialUpdateResponse = SeqvarsQueryPresetsClinvar;
+export type SeqvarsApiQuerypresetsclinvarPartialUpdateResponse = (SeqvarsQueryPresetsClinvar);
 
 export type SeqvarsApiQuerypresetsclinvarPartialUpdateError = unknown;
 
@@ -4213,7 +4233,7 @@ export type SeqvarsApiQuerypresetsclinvarDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsclinvarDestroyResponse = void;
+export type SeqvarsApiQuerypresetsclinvarDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsclinvarDestroyError = unknown;
 
@@ -4233,7 +4253,7 @@ export type SeqvarsApiQuerypresetscolumnsListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsListResponse = PaginatedSeqvarsQueryPresetsColumnsList;
+export type SeqvarsApiQuerypresetscolumnsListResponse = (PaginatedSeqvarsQueryPresetsColumnsList);
 
 export type SeqvarsApiQuerypresetscolumnsListError = unknown;
 
@@ -4244,7 +4264,7 @@ export type SeqvarsApiQuerypresetscolumnsCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsCreateResponse = SeqvarsQueryPresetsColumns;
+export type SeqvarsApiQuerypresetscolumnsCreateResponse = (SeqvarsQueryPresetsColumns);
 
 export type SeqvarsApiQuerypresetscolumnsCreateError = unknown;
 
@@ -4255,7 +4275,7 @@ export type SeqvarsApiQuerypresetscolumnsRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsRetrieveResponse = SeqvarsQueryPresetsColumns;
+export type SeqvarsApiQuerypresetscolumnsRetrieveResponse = (SeqvarsQueryPresetsColumns);
 
 export type SeqvarsApiQuerypresetscolumnsRetrieveError = unknown;
 
@@ -4267,7 +4287,7 @@ export type SeqvarsApiQuerypresetscolumnsUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsUpdateResponse = SeqvarsQueryPresetsColumns;
+export type SeqvarsApiQuerypresetscolumnsUpdateResponse = (SeqvarsQueryPresetsColumns);
 
 export type SeqvarsApiQuerypresetscolumnsUpdateError = unknown;
 
@@ -4279,7 +4299,7 @@ export type SeqvarsApiQuerypresetscolumnsPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsPartialUpdateResponse = SeqvarsQueryPresetsColumns;
+export type SeqvarsApiQuerypresetscolumnsPartialUpdateResponse = (SeqvarsQueryPresetsColumns);
 
 export type SeqvarsApiQuerypresetscolumnsPartialUpdateError = unknown;
 
@@ -4290,7 +4310,7 @@ export type SeqvarsApiQuerypresetscolumnsDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetscolumnsDestroyResponse = void;
+export type SeqvarsApiQuerypresetscolumnsDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetscolumnsDestroyError = unknown;
 
@@ -4310,7 +4330,7 @@ export type SeqvarsApiQuerypresetsconsequenceListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequenceListResponse = PaginatedSeqvarsQueryPresetsConsequenceList;
+export type SeqvarsApiQuerypresetsconsequenceListResponse = (PaginatedSeqvarsQueryPresetsConsequenceList);
 
 export type SeqvarsApiQuerypresetsconsequenceListError = unknown;
 
@@ -4321,7 +4341,7 @@ export type SeqvarsApiQuerypresetsconsequenceCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequenceCreateResponse = SeqvarsQueryPresetsConsequence;
+export type SeqvarsApiQuerypresetsconsequenceCreateResponse = (SeqvarsQueryPresetsConsequence);
 
 export type SeqvarsApiQuerypresetsconsequenceCreateError = unknown;
 
@@ -4332,7 +4352,7 @@ export type SeqvarsApiQuerypresetsconsequenceRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequenceRetrieveResponse = SeqvarsQueryPresetsConsequence;
+export type SeqvarsApiQuerypresetsconsequenceRetrieveResponse = (SeqvarsQueryPresetsConsequence);
 
 export type SeqvarsApiQuerypresetsconsequenceRetrieveError = unknown;
 
@@ -4344,7 +4364,7 @@ export type SeqvarsApiQuerypresetsconsequenceUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequenceUpdateResponse = SeqvarsQueryPresetsConsequence;
+export type SeqvarsApiQuerypresetsconsequenceUpdateResponse = (SeqvarsQueryPresetsConsequence);
 
 export type SeqvarsApiQuerypresetsconsequenceUpdateError = unknown;
 
@@ -4356,7 +4376,7 @@ export type SeqvarsApiQuerypresetsconsequencePartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequencePartialUpdateResponse = SeqvarsQueryPresetsConsequence;
+export type SeqvarsApiQuerypresetsconsequencePartialUpdateResponse = (SeqvarsQueryPresetsConsequence);
 
 export type SeqvarsApiQuerypresetsconsequencePartialUpdateError = unknown;
 
@@ -4367,7 +4387,7 @@ export type SeqvarsApiQuerypresetsconsequenceDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsconsequenceDestroyResponse = void;
+export type SeqvarsApiQuerypresetsconsequenceDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsconsequenceDestroyError = unknown;
 
@@ -4384,7 +4404,7 @@ export type SeqvarsApiQuerypresetsfactorydefaultsListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfactorydefaultsListResponse = PaginatedSeqvarsQueryPresetsSetList;
+export type SeqvarsApiQuerypresetsfactorydefaultsListResponse = (PaginatedSeqvarsQueryPresetsSetList);
 
 export type SeqvarsApiQuerypresetsfactorydefaultsListError = unknown;
 
@@ -4394,7 +4414,7 @@ export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse = SeqvarsQueryPresetsSetDetails;
+export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse = (SeqvarsQueryPresetsSetDetails);
 
 export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveError = unknown;
 
@@ -4414,7 +4434,7 @@ export type SeqvarsApiQuerypresetsfrequencyListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyListResponse = PaginatedSeqvarsQueryPresetsFrequencyList;
+export type SeqvarsApiQuerypresetsfrequencyListResponse = (PaginatedSeqvarsQueryPresetsFrequencyList);
 
 export type SeqvarsApiQuerypresetsfrequencyListError = unknown;
 
@@ -4425,7 +4445,7 @@ export type SeqvarsApiQuerypresetsfrequencyCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyCreateResponse = SeqvarsQueryPresetsFrequency;
+export type SeqvarsApiQuerypresetsfrequencyCreateResponse = (SeqvarsQueryPresetsFrequency);
 
 export type SeqvarsApiQuerypresetsfrequencyCreateError = unknown;
 
@@ -4436,7 +4456,7 @@ export type SeqvarsApiQuerypresetsfrequencyRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyRetrieveResponse = SeqvarsQueryPresetsFrequency;
+export type SeqvarsApiQuerypresetsfrequencyRetrieveResponse = (SeqvarsQueryPresetsFrequency);
 
 export type SeqvarsApiQuerypresetsfrequencyRetrieveError = unknown;
 
@@ -4448,7 +4468,7 @@ export type SeqvarsApiQuerypresetsfrequencyUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyUpdateResponse = SeqvarsQueryPresetsFrequency;
+export type SeqvarsApiQuerypresetsfrequencyUpdateResponse = (SeqvarsQueryPresetsFrequency);
 
 export type SeqvarsApiQuerypresetsfrequencyUpdateError = unknown;
 
@@ -4460,7 +4480,7 @@ export type SeqvarsApiQuerypresetsfrequencyPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse = SeqvarsQueryPresetsFrequency;
+export type SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse = (SeqvarsQueryPresetsFrequency);
 
 export type SeqvarsApiQuerypresetsfrequencyPartialUpdateError = unknown;
 
@@ -4471,7 +4491,7 @@ export type SeqvarsApiQuerypresetsfrequencyDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsfrequencyDestroyResponse = void;
+export type SeqvarsApiQuerypresetsfrequencyDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsfrequencyDestroyError = unknown;
 
@@ -4491,7 +4511,7 @@ export type SeqvarsApiQuerypresetslocusListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusListResponse = PaginatedSeqvarsQueryPresetsLocusList;
+export type SeqvarsApiQuerypresetslocusListResponse = (PaginatedSeqvarsQueryPresetsLocusList);
 
 export type SeqvarsApiQuerypresetslocusListError = unknown;
 
@@ -4502,7 +4522,7 @@ export type SeqvarsApiQuerypresetslocusCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusCreateResponse = SeqvarsQueryPresetsLocus;
+export type SeqvarsApiQuerypresetslocusCreateResponse = (SeqvarsQueryPresetsLocus);
 
 export type SeqvarsApiQuerypresetslocusCreateError = unknown;
 
@@ -4513,7 +4533,7 @@ export type SeqvarsApiQuerypresetslocusRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusRetrieveResponse = SeqvarsQueryPresetsLocus;
+export type SeqvarsApiQuerypresetslocusRetrieveResponse = (SeqvarsQueryPresetsLocus);
 
 export type SeqvarsApiQuerypresetslocusRetrieveError = unknown;
 
@@ -4525,7 +4545,7 @@ export type SeqvarsApiQuerypresetslocusUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusUpdateResponse = SeqvarsQueryPresetsLocus;
+export type SeqvarsApiQuerypresetslocusUpdateResponse = (SeqvarsQueryPresetsLocus);
 
 export type SeqvarsApiQuerypresetslocusUpdateError = unknown;
 
@@ -4537,7 +4557,7 @@ export type SeqvarsApiQuerypresetslocusPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusPartialUpdateResponse = SeqvarsQueryPresetsLocus;
+export type SeqvarsApiQuerypresetslocusPartialUpdateResponse = (SeqvarsQueryPresetsLocus);
 
 export type SeqvarsApiQuerypresetslocusPartialUpdateError = unknown;
 
@@ -4548,7 +4568,7 @@ export type SeqvarsApiQuerypresetslocusDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetslocusDestroyResponse = void;
+export type SeqvarsApiQuerypresetslocusDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetslocusDestroyError = unknown;
 
@@ -4568,7 +4588,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioListResponse = PaginatedSeqvarsQueryPresetsPhenotypePrioList;
+export type SeqvarsApiQuerypresetsphenotypeprioListResponse = (PaginatedSeqvarsQueryPresetsPhenotypePrioList);
 
 export type SeqvarsApiQuerypresetsphenotypeprioListError = unknown;
 
@@ -4579,7 +4599,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioCreateResponse = SeqvarsQueryPresetsPhenotypePrio;
+export type SeqvarsApiQuerypresetsphenotypeprioCreateResponse = (SeqvarsQueryPresetsPhenotypePrio);
 
 export type SeqvarsApiQuerypresetsphenotypeprioCreateError = unknown;
 
@@ -4590,7 +4610,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse = SeqvarsQueryPresetsPhenotypePrio;
+export type SeqvarsApiQuerypresetsphenotypeprioRetrieveResponse = (SeqvarsQueryPresetsPhenotypePrio);
 
 export type SeqvarsApiQuerypresetsphenotypeprioRetrieveError = unknown;
 
@@ -4602,7 +4622,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioUpdateResponse = SeqvarsQueryPresetsPhenotypePrio;
+export type SeqvarsApiQuerypresetsphenotypeprioUpdateResponse = (SeqvarsQueryPresetsPhenotypePrio);
 
 export type SeqvarsApiQuerypresetsphenotypeprioUpdateError = unknown;
 
@@ -4614,7 +4634,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse = SeqvarsQueryPresetsPhenotypePrio;
+export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse = (SeqvarsQueryPresetsPhenotypePrio);
 
 export type SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError = unknown;
 
@@ -4625,7 +4645,7 @@ export type SeqvarsApiQuerypresetsphenotypeprioDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsphenotypeprioDestroyResponse = void;
+export type SeqvarsApiQuerypresetsphenotypeprioDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsphenotypeprioDestroyError = unknown;
 
@@ -4645,7 +4665,7 @@ export type SeqvarsApiQuerypresetsqualityListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityListResponse = PaginatedSeqvarsQueryPresetsQualityList;
+export type SeqvarsApiQuerypresetsqualityListResponse = (PaginatedSeqvarsQueryPresetsQualityList);
 
 export type SeqvarsApiQuerypresetsqualityListError = unknown;
 
@@ -4656,7 +4676,7 @@ export type SeqvarsApiQuerypresetsqualityCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityCreateResponse = SeqvarsQueryPresetsQuality;
+export type SeqvarsApiQuerypresetsqualityCreateResponse = (SeqvarsQueryPresetsQuality);
 
 export type SeqvarsApiQuerypresetsqualityCreateError = unknown;
 
@@ -4667,7 +4687,7 @@ export type SeqvarsApiQuerypresetsqualityRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityRetrieveResponse = SeqvarsQueryPresetsQuality;
+export type SeqvarsApiQuerypresetsqualityRetrieveResponse = (SeqvarsQueryPresetsQuality);
 
 export type SeqvarsApiQuerypresetsqualityRetrieveError = unknown;
 
@@ -4679,7 +4699,7 @@ export type SeqvarsApiQuerypresetsqualityUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityUpdateResponse = SeqvarsQueryPresetsQuality;
+export type SeqvarsApiQuerypresetsqualityUpdateResponse = (SeqvarsQueryPresetsQuality);
 
 export type SeqvarsApiQuerypresetsqualityUpdateError = unknown;
 
@@ -4691,7 +4711,7 @@ export type SeqvarsApiQuerypresetsqualityPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityPartialUpdateResponse = SeqvarsQueryPresetsQuality;
+export type SeqvarsApiQuerypresetsqualityPartialUpdateResponse = (SeqvarsQueryPresetsQuality);
 
 export type SeqvarsApiQuerypresetsqualityPartialUpdateError = unknown;
 
@@ -4702,7 +4722,7 @@ export type SeqvarsApiQuerypresetsqualityDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsqualityDestroyResponse = void;
+export type SeqvarsApiQuerypresetsqualityDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsqualityDestroyError = unknown;
 
@@ -4722,7 +4742,7 @@ export type SeqvarsApiQuerypresetssetListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetListResponse = PaginatedSeqvarsQueryPresetsSetList;
+export type SeqvarsApiQuerypresetssetListResponse = (PaginatedSeqvarsQueryPresetsSetList);
 
 export type SeqvarsApiQuerypresetssetListError = unknown;
 
@@ -4733,7 +4753,7 @@ export type SeqvarsApiQuerypresetssetCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetCreateResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetCreateResponse = (SeqvarsQueryPresetsSet);
 
 export type SeqvarsApiQuerypresetssetCreateError = unknown;
 
@@ -4744,7 +4764,7 @@ export type SeqvarsApiQuerypresetssetRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetRetrieveResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetRetrieveResponse = (SeqvarsQueryPresetsSet);
 
 export type SeqvarsApiQuerypresetssetRetrieveError = unknown;
 
@@ -4756,7 +4776,7 @@ export type SeqvarsApiQuerypresetssetUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetUpdateResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetUpdateResponse = (SeqvarsQueryPresetsSet);
 
 export type SeqvarsApiQuerypresetssetUpdateError = unknown;
 
@@ -4768,7 +4788,7 @@ export type SeqvarsApiQuerypresetssetPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetPartialUpdateResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetPartialUpdateResponse = (SeqvarsQueryPresetsSet);
 
 export type SeqvarsApiQuerypresetssetPartialUpdateError = unknown;
 
@@ -4779,7 +4799,7 @@ export type SeqvarsApiQuerypresetssetDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetDestroyResponse = void;
+export type SeqvarsApiQuerypresetssetDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetssetDestroyError = unknown;
 
@@ -4791,7 +4811,7 @@ export type SeqvarsApiQuerypresetssetCopyFromCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetCopyFromCreateResponse = SeqvarsQueryPresetsSet;
+export type SeqvarsApiQuerypresetssetCopyFromCreateResponse = (SeqvarsQueryPresetsSet);
 
 export type SeqvarsApiQuerypresetssetCopyFromCreateError = unknown;
 
@@ -4811,7 +4831,7 @@ export type SeqvarsApiQuerypresetssetversionListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionListResponse = PaginatedSeqvarsQueryPresetsSetVersionList;
+export type SeqvarsApiQuerypresetssetversionListResponse = (PaginatedSeqvarsQueryPresetsSetVersionList);
 
 export type SeqvarsApiQuerypresetssetversionListError = unknown;
 
@@ -4822,7 +4842,7 @@ export type SeqvarsApiQuerypresetssetversionCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionCreateResponse = SeqvarsQueryPresetsSetVersion;
+export type SeqvarsApiQuerypresetssetversionCreateResponse = (SeqvarsQueryPresetsSetVersion);
 
 export type SeqvarsApiQuerypresetssetversionCreateError = unknown;
 
@@ -4833,7 +4853,7 @@ export type SeqvarsApiQuerypresetssetversionRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionRetrieveResponse = SeqvarsQueryPresetsSetVersionDetails;
+export type SeqvarsApiQuerypresetssetversionRetrieveResponse = (SeqvarsQueryPresetsSetVersionDetails);
 
 export type SeqvarsApiQuerypresetssetversionRetrieveError = unknown;
 
@@ -4845,7 +4865,7 @@ export type SeqvarsApiQuerypresetssetversionUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionUpdateResponse = SeqvarsQueryPresetsSetVersion;
+export type SeqvarsApiQuerypresetssetversionUpdateResponse = (SeqvarsQueryPresetsSetVersion);
 
 export type SeqvarsApiQuerypresetssetversionUpdateError = unknown;
 
@@ -4857,7 +4877,7 @@ export type SeqvarsApiQuerypresetssetversionPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionPartialUpdateResponse = SeqvarsQueryPresetsSetVersion;
+export type SeqvarsApiQuerypresetssetversionPartialUpdateResponse = (SeqvarsQueryPresetsSetVersion);
 
 export type SeqvarsApiQuerypresetssetversionPartialUpdateError = unknown;
 
@@ -4868,7 +4888,7 @@ export type SeqvarsApiQuerypresetssetversionDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionDestroyResponse = void;
+export type SeqvarsApiQuerypresetssetversionDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetssetversionDestroyError = unknown;
 
@@ -4880,7 +4900,7 @@ export type SeqvarsApiQuerypresetssetversionCopyFromCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetssetversionCopyFromCreateResponse = SeqvarsQueryPresetsSetVersionDetails;
+export type SeqvarsApiQuerypresetssetversionCopyFromCreateResponse = (SeqvarsQueryPresetsSetVersionDetails);
 
 export type SeqvarsApiQuerypresetssetversionCopyFromCreateError = unknown;
 
@@ -4900,7 +4920,7 @@ export type SeqvarsApiQuerypresetsvariantprioListData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioListResponse = PaginatedSeqvarsQueryPresetsVariantPrioList;
+export type SeqvarsApiQuerypresetsvariantprioListResponse = (PaginatedSeqvarsQueryPresetsVariantPrioList);
 
 export type SeqvarsApiQuerypresetsvariantprioListError = unknown;
 
@@ -4911,7 +4931,7 @@ export type SeqvarsApiQuerypresetsvariantprioCreateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioCreateResponse = SeqvarsQueryPresetsVariantPrio;
+export type SeqvarsApiQuerypresetsvariantprioCreateResponse = (SeqvarsQueryPresetsVariantPrio);
 
 export type SeqvarsApiQuerypresetsvariantprioCreateError = unknown;
 
@@ -4922,7 +4942,7 @@ export type SeqvarsApiQuerypresetsvariantprioRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioRetrieveResponse = SeqvarsQueryPresetsVariantPrio;
+export type SeqvarsApiQuerypresetsvariantprioRetrieveResponse = (SeqvarsQueryPresetsVariantPrio);
 
 export type SeqvarsApiQuerypresetsvariantprioRetrieveError = unknown;
 
@@ -4934,7 +4954,7 @@ export type SeqvarsApiQuerypresetsvariantprioUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioUpdateResponse = SeqvarsQueryPresetsVariantPrio;
+export type SeqvarsApiQuerypresetsvariantprioUpdateResponse = (SeqvarsQueryPresetsVariantPrio);
 
 export type SeqvarsApiQuerypresetsvariantprioUpdateError = unknown;
 
@@ -4946,7 +4966,7 @@ export type SeqvarsApiQuerypresetsvariantprioPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse = SeqvarsQueryPresetsVariantPrio;
+export type SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse = (SeqvarsQueryPresetsVariantPrio);
 
 export type SeqvarsApiQuerypresetsvariantprioPartialUpdateError = unknown;
 
@@ -4957,7 +4977,7 @@ export type SeqvarsApiQuerypresetsvariantprioDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerypresetsvariantprioDestroyResponse = void;
+export type SeqvarsApiQuerypresetsvariantprioDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsvariantprioDestroyError = unknown;
 
@@ -4977,7 +4997,7 @@ export type SeqvarsApiQuerysettingsListData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsListResponse = PaginatedSeqvarsQuerySettingsList;
+export type SeqvarsApiQuerysettingsListResponse = (PaginatedSeqvarsQuerySettingsList);
 
 export type SeqvarsApiQuerysettingsListError = unknown;
 
@@ -4988,7 +5008,7 @@ export type SeqvarsApiQuerysettingsCreateData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsCreateResponse = SeqvarsQuerySettingsDetails;
+export type SeqvarsApiQuerysettingsCreateResponse = (SeqvarsQuerySettingsDetails);
 
 export type SeqvarsApiQuerysettingsCreateError = unknown;
 
@@ -4999,7 +5019,7 @@ export type SeqvarsApiQuerysettingsRetrieveData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsRetrieveResponse = SeqvarsQuerySettingsDetails;
+export type SeqvarsApiQuerysettingsRetrieveResponse = (SeqvarsQuerySettingsDetails);
 
 export type SeqvarsApiQuerysettingsRetrieveError = unknown;
 
@@ -5011,7 +5031,7 @@ export type SeqvarsApiQuerysettingsUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsUpdateResponse = SeqvarsQuerySettingsDetails;
+export type SeqvarsApiQuerysettingsUpdateResponse = (SeqvarsQuerySettingsDetails);
 
 export type SeqvarsApiQuerysettingsUpdateError = unknown;
 
@@ -5023,7 +5043,7 @@ export type SeqvarsApiQuerysettingsPartialUpdateData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsPartialUpdateResponse = SeqvarsQuerySettingsDetails;
+export type SeqvarsApiQuerysettingsPartialUpdateResponse = (SeqvarsQuerySettingsDetails);
 
 export type SeqvarsApiQuerysettingsPartialUpdateError = unknown;
 
@@ -5034,7 +5054,7 @@ export type SeqvarsApiQuerysettingsDestroyData = {
     };
 };
 
-export type SeqvarsApiQuerysettingsDestroyResponse = void;
+export type SeqvarsApiQuerysettingsDestroyResponse = (void);
 
 export type SeqvarsApiQuerysettingsDestroyError = unknown;
 
@@ -5054,7 +5074,7 @@ export type SeqvarsApiResultrowListData = {
     };
 };
 
-export type SeqvarsApiResultrowListResponse = PaginatedSeqvarsResultRowList;
+export type SeqvarsApiResultrowListResponse = (PaginatedSeqvarsResultRowList);
 
 export type SeqvarsApiResultrowListError = unknown;
 
@@ -5065,7 +5085,7 @@ export type SeqvarsApiResultrowRetrieveData = {
     };
 };
 
-export type SeqvarsApiResultrowRetrieveResponse = SeqvarsResultRow;
+export type SeqvarsApiResultrowRetrieveResponse = (SeqvarsResultRow);
 
 export type SeqvarsApiResultrowRetrieveError = unknown;
 
@@ -5085,7 +5105,7 @@ export type SeqvarsApiResultsetListData = {
     };
 };
 
-export type SeqvarsApiResultsetListResponse = PaginatedSeqvarsResultSetList;
+export type SeqvarsApiResultsetListResponse = (PaginatedSeqvarsResultSetList);
 
 export type SeqvarsApiResultsetListError = unknown;
 
@@ -5096,1146 +5116,6 @@ export type SeqvarsApiResultsetRetrieveData = {
     };
 };
 
-export type SeqvarsApiResultsetRetrieveResponse = SeqvarsResultSet;
+export type SeqvarsApiResultsetRetrieveResponse = (SeqvarsResultSet);
 
 export type SeqvarsApiResultsetRetrieveError = unknown;
-
-export type $OpenApiTs = {
-    '/cases-analysis/api/caseanalysis/{case}/': {
-        get: {
-            req: CasesAnalysisApiCaseanalysisListData;
-            res: {
-                '200': PaginatedCaseAnalysisList;
-            };
-        };
-    };
-    '/cases-analysis/api/caseanalysis/{case}/{caseanalysis}/': {
-        get: {
-            req: CasesAnalysisApiCaseanalysisRetrieveData;
-            res: {
-                '200': CaseAnalysis;
-            };
-        };
-    };
-    '/cases-analysis/api/caseanalysissession/{case}/': {
-        get: {
-            req: CasesAnalysisApiCaseanalysissessionListData;
-            res: {
-                '200': PaginatedCaseAnalysisSessionList;
-            };
-        };
-    };
-    '/cases-analysis/api/caseanalysissession/{case}/{caseanalysissession}/': {
-        get: {
-            req: CasesAnalysisApiCaseanalysissessionRetrieveData;
-            res: {
-                '200': CaseAnalysisSession;
-            };
-        };
-    };
-    '/cases-import/api/case-import-action/list-create/{project}/': {
-        get: {
-            req: CasesImportApiCaseImportActionListCreateListData;
-            res: {
-                '200': PaginatedCaseImportActionList;
-            };
-        };
-        post: {
-            req: CasesImportApiCaseImportActionListCreateCreateData;
-            res: {
-                '201': CaseImportAction;
-            };
-        };
-    };
-    '/cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/': {
-        get: {
-            req: CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData;
-            res: {
-                '200': CaseImportAction;
-            };
-        };
-        put: {
-            req: CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData;
-            res: {
-                '200': CaseImportAction;
-            };
-        };
-        patch: {
-            req: CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData;
-            res: {
-                '200': CaseImportAction;
-            };
-        };
-        delete: {
-            req: CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/cases-qc/api/caseqc/retrieve/{case}/': {
-        get: {
-            req: CasesQcApiCaseqcRetrieveRetrieveData;
-            res: {
-                '200': CaseQc;
-            };
-        };
-    };
-    '/cases-qc/api/varfishstats/retrieve/{case}/': {
-        get: {
-            req: CasesQcApiVarfishstatsRetrieveRetrieveData;
-            res: {
-                '200': VarfishStats;
-            };
-        };
-    };
-    '/cases/api/annotation-release-info/list/{case}/': {
-        get: {
-            req: CasesApiAnnotationReleaseInfoListListData;
-            res: {
-                '200': Array<AnnotationReleaseInfo>;
-            };
-        };
-    };
-    '/cases/api/case-comment/list-create/{case}/': {
-        get: {
-            req: CasesApiCaseCommentListCreateListData;
-            res: {
-                '200': Array<CaseComment>;
-            };
-        };
-        post: {
-            req: CasesApiCaseCommentListCreateCreateData;
-            res: {
-                '201': CaseComment;
-            };
-        };
-    };
-    '/cases/api/case-phenotype-terms/list-create/{case}/': {
-        get: {
-            req: CasesApiCasePhenotypeTermsListCreateListData;
-            res: {
-                '200': Array<CasePhenotypeTerms>;
-            };
-        };
-        post: {
-            req: CasesApiCasePhenotypeTermsListCreateCreateData;
-            res: {
-                '201': CasePhenotypeTerms;
-            };
-        };
-    };
-    '/cases/api/case-phenotype-terms/retrieve-update-destroy/{casephenotypeterms}/': {
-        get: {
-            req: CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData;
-            res: {
-                '200': CasePhenotypeTerms;
-            };
-        };
-        put: {
-            req: CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData;
-            res: {
-                '200': CasePhenotypeTerms;
-            };
-        };
-        patch: {
-            req: CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData;
-            res: {
-                '200': CasePhenotypeTerms;
-            };
-        };
-        delete: {
-            req: CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/cases/api/case/list/{project}/': {
-        get: {
-            req: CasesApiCaseListListData;
-            res: {
-                '200': PaginatedCaseSerializerNgList;
-            };
-        };
-    };
-    '/cases/api/case/retrieve-update-destroy/{case}/': {
-        get: {
-            req: CasesApiCaseRetrieveUpdateDestroyRetrieveData;
-            res: {
-                '200': CaseSerializerNg;
-            };
-        };
-        put: {
-            req: CasesApiCaseRetrieveUpdateDestroyUpdateData;
-            res: {
-                '200': CaseSerializerNg;
-            };
-        };
-        patch: {
-            req: CasesApiCaseRetrieveUpdateDestroyPartialUpdateData;
-            res: {
-                '200': CaseSerializerNg;
-            };
-        };
-        delete: {
-            req: CasesApiCaseRetrieveUpdateDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/cases/api/sv-annotation-release-info/list/{case}/': {
-        get: {
-            req: CasesApiSvAnnotationReleaseInfoListListData;
-            res: {
-                '200': Array<SvAnnotationReleaseInfo>;
-            };
-        };
-    };
-    '/cases/api/user-and-global-settings/': {
-        get: {
-            res: {
-                '200': UserAndGlobalSettings;
-            };
-        };
-    };
-    '/genepanels/api/genepanel-category/list/': {
-        get: {
-            res: {
-                '200': Array<GenePanelCategory>;
-            };
-        };
-    };
-    '/genepanels/api/lookup-genepanel/': {
-        get: {
-            res: {
-                '200': GenePanel;
-            };
-        };
-    };
-    '/project/api/create': {
-        post: {
-            req: ProjectApiCreateCreateData;
-            res: {
-                '201': Project;
-            };
-        };
-    };
-    '/project/api/invites/create/{project}': {
-        post: {
-            req: ProjectApiInvitesCreateCreateData;
-            res: {
-                '201': ProjectInvite;
-            };
-        };
-    };
-    '/project/api/invites/list/{project}': {
-        get: {
-            req: ProjectApiInvitesListListData;
-            res: {
-                '200': Array<ProjectInvite>;
-            };
-        };
-    };
-    '/project/api/invites/resend/{projectinvite}': {
-        post: {
-            req: ProjectApiInvitesResendCreateData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/invites/revoke/{projectinvite}': {
-        post: {
-            req: ProjectApiInvitesRevokeCreateData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/list': {
-        get: {
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/remote/get/{secret}': {
-        get: {
-            req: ProjectApiRemoteGetRetrieveData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/retrieve/{project}': {
-        get: {
-            req: ProjectApiRetrieveRetrieveData;
-            res: {
-                '200': Project;
-            };
-        };
-    };
-    '/project/api/roles/create/{project}': {
-        post: {
-            req: ProjectApiRolesCreateCreateData;
-            res: {
-                '201': RoleAssignment;
-            };
-        };
-    };
-    '/project/api/roles/destroy/{roleassignment}': {
-        delete: {
-            req: ProjectApiRolesDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/project/api/roles/owner-transfer/{project}': {
-        post: {
-            req: ProjectApiRolesOwnerTransferCreateData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/roles/update/{roleassignment}': {
-        put: {
-            req: ProjectApiRolesUpdateUpdateData;
-            res: {
-                '200': RoleAssignment;
-            };
-        };
-        patch: {
-            req: ProjectApiRolesUpdatePartialUpdateData;
-            res: {
-                '200': RoleAssignment;
-            };
-        };
-    };
-    '/project/api/settings/retrieve/{project}': {
-        get: {
-            req: ProjectApiSettingsRetrieveRetrieveData;
-            res: {
-                '200': AppSetting;
-            };
-        };
-    };
-    '/project/api/settings/retrieve/user': {
-        get: {
-            res: {
-                '200': AppSetting;
-            };
-        };
-    };
-    '/project/api/settings/set/{project}': {
-        post: {
-            req: ProjectApiSettingsSetCreateData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/settings/set/user': {
-        post: {
-            res: {
-                /**
-                 * No response body
-                 */
-                '200': unknown;
-            };
-        };
-    };
-    '/project/api/update/{project}': {
-        put: {
-            req: ProjectApiUpdateUpdateData;
-            res: {
-                '200': Project;
-            };
-        };
-        patch: {
-            req: ProjectApiUpdatePartialUpdateData;
-            res: {
-                '200': Project;
-            };
-        };
-    };
-    '/project/api/users/current': {
-        get: {
-            res: {
-                '200': SODARUser;
-            };
-        };
-    };
-    '/project/api/users/list': {
-        get: {
-            res: {
-                '200': Array<SODARUser>;
-            };
-        };
-    };
-    '/seqmeta/api/enrichmentkit/list-create/': {
-        get: {
-            res: {
-                '200': Array<EnrichmentKit>;
-            };
-        };
-        post: {
-            req: SeqmetaApiEnrichmentkitListCreateCreateData;
-            res: {
-                '201': EnrichmentKit;
-            };
-        };
-    };
-    '/seqmeta/api/enrichmentkit/retrieve-update-destroy/{enrichmentkit}/': {
-        get: {
-            req: SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData;
-            res: {
-                '200': EnrichmentKit;
-            };
-        };
-        put: {
-            req: SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData;
-            res: {
-                '200': EnrichmentKit;
-            };
-        };
-        patch: {
-            req: SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData;
-            res: {
-                '200': EnrichmentKit;
-            };
-        };
-        delete: {
-            req: SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqmeta/api/targetbedfile/list-create/{enrichmentkit}/': {
-        get: {
-            req: SeqmetaApiTargetbedfileListCreateListData;
-            res: {
-                '200': Array<TargetBedFile>;
-            };
-        };
-        post: {
-            req: SeqmetaApiTargetbedfileListCreateCreateData;
-            res: {
-                '201': TargetBedFile;
-            };
-        };
-    };
-    '/seqmeta/api/targetbedfile/retrieve-update-destroy/{targetbedfile}/': {
-        get: {
-            req: SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData;
-            res: {
-                '200': TargetBedFile;
-            };
-        };
-        put: {
-            req: SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData;
-            res: {
-                '200': TargetBedFile;
-            };
-        };
-        patch: {
-            req: SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData;
-            res: {
-                '200': TargetBedFile;
-            };
-        };
-        delete: {
-            req: SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/predefinedquery/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiPredefinedqueryListData;
-            res: {
-                '200': PaginatedSeqvarsPredefinedQueryList;
-            };
-        };
-        post: {
-            req: SeqvarsApiPredefinedqueryCreateData;
-            res: {
-                '201': SeqvarsPredefinedQuery;
-            };
-        };
-    };
-    '/seqvars/api/predefinedquery/{querypresetssetversion}/{predefinedquery}/': {
-        get: {
-            req: SeqvarsApiPredefinedqueryRetrieveData;
-            res: {
-                '200': SeqvarsPredefinedQuery;
-            };
-        };
-        put: {
-            req: SeqvarsApiPredefinedqueryUpdateData;
-            res: {
-                '200': SeqvarsPredefinedQuery;
-            };
-        };
-        patch: {
-            req: SeqvarsApiPredefinedqueryPartialUpdateData;
-            res: {
-                '200': SeqvarsPredefinedQuery;
-            };
-        };
-        delete: {
-            req: SeqvarsApiPredefinedqueryDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/query/{session}/': {
-        get: {
-            req: SeqvarsApiQueryListData;
-            res: {
-                '200': PaginatedSeqvarsQueryList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQueryCreateData;
-            res: {
-                '201': SeqvarsQueryDetails;
-            };
-        };
-    };
-    '/seqvars/api/query/{session}/{query}/': {
-        get: {
-            req: SeqvarsApiQueryRetrieveData;
-            res: {
-                '200': SeqvarsQueryDetails;
-            };
-        };
-        put: {
-            req: SeqvarsApiQueryUpdateData;
-            res: {
-                '200': SeqvarsQueryDetails;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQueryPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryDetails;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQueryDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/query/{session}/create_from/': {
-        post: {
-            req: SeqvarsApiQueryCreateFromCreateData;
-            res: {
-                '200': SeqvarsQueryDetails;
-            };
-        };
-    };
-    '/seqvars/api/queryexecution/{query}/': {
-        get: {
-            req: SeqvarsApiQueryexecutionListData;
-            res: {
-                '200': PaginatedSeqvarsQueryExecutionList;
-            };
-        };
-    };
-    '/seqvars/api/queryexecution/{query}/{queryexecution}/': {
-        get: {
-            req: SeqvarsApiQueryexecutionRetrieveData;
-            res: {
-                '200': SeqvarsQueryExecutionDetails;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsclinvarListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsClinvarList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsclinvarCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsClinvar;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsclinvar/{querypresetssetversion}/{querypresetsclinvar}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsclinvarRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsClinvar;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsclinvarUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsClinvar;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsclinvarPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsClinvar;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsclinvarDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetscolumns/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetscolumnsListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsColumnsList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetscolumnsCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsColumns;
-            };
-        };
-    };
-    '/seqvars/api/querypresetscolumns/{querypresetssetversion}/{querypresetscolumns}/': {
-        get: {
-            req: SeqvarsApiQuerypresetscolumnsRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsColumns;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetscolumnsUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsColumns;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetscolumnsPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsColumns;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetscolumnsDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsconsequenceListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsConsequenceList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsconsequenceCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsConsequence;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsconsequence/{querypresetssetversion}/{querypresetsconsequence}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsconsequenceRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsConsequence;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsconsequenceUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsConsequence;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsconsequencePartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsConsequence;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsconsequenceDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsfactorydefaults/': {
-        get: {
-            req: SeqvarsApiQuerypresetsfactorydefaultsListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsSetList;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsfactorydefaults/{querypresetsset}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsfactorydefaultsRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsSetDetails;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsfrequencyListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsFrequencyList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsfrequencyCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsFrequency;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsfrequency/{querypresetssetversion}/{querypresetsfrequency}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsfrequencyRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsFrequency;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsfrequencyUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsFrequency;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsfrequencyPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsFrequency;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsfrequencyDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetslocus/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetslocusListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsLocusList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetslocusCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsLocus;
-            };
-        };
-    };
-    '/seqvars/api/querypresetslocus/{querypresetssetversion}/{querypresetslocus}/': {
-        get: {
-            req: SeqvarsApiQuerypresetslocusRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsLocus;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetslocusUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsLocus;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetslocusPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsLocus;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetslocusDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsphenotypeprioListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsPhenotypePrioList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsphenotypeprioCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsPhenotypePrio;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsphenotypeprio/{querypresetssetversion}/{querypresetsphenotypeprio}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsphenotypeprioRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsPhenotypePrio;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsphenotypeprioUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsPhenotypePrio;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsPhenotypePrio;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsphenotypeprioDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsquality/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsqualityListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsQualityList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsqualityCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsQuality;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsquality/{querypresetssetversion}/{querypresetsquality}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsqualityRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsQuality;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsqualityUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsQuality;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsqualityPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsQuality;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsqualityDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsset/{project}/': {
-        get: {
-            req: SeqvarsApiQuerypresetssetListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsSetList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetssetCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsSet;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsset/{project}/{querypresetsset}/': {
-        get: {
-            req: SeqvarsApiQuerypresetssetRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsSet;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetssetUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsSet;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetssetPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsSet;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetssetDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsset/{project}/{querypresetsset}/copy_from/': {
-        post: {
-            req: SeqvarsApiQuerypresetssetCopyFromCreateData;
-            res: {
-                '200': SeqvarsQueryPresetsSet;
-            };
-        };
-    };
-    '/seqvars/api/querypresetssetversion/{querypresetsset}/': {
-        get: {
-            req: SeqvarsApiQuerypresetssetversionListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsSetVersionList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetssetversionCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsSetVersion;
-            };
-        };
-    };
-    '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetssetversionRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsSetVersionDetails;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetssetversionUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsSetVersion;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetssetversionPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsSetVersion;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetssetversionDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querypresetssetversion/{querypresetsset}/{querypresetssetversion}/copy_from/': {
-        post: {
-            req: SeqvarsApiQuerypresetssetversionCopyFromCreateData;
-            res: {
-                '200': SeqvarsQueryPresetsSetVersionDetails;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsvariantprioListData;
-            res: {
-                '200': PaginatedSeqvarsQueryPresetsVariantPrioList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerypresetsvariantprioCreateData;
-            res: {
-                '201': SeqvarsQueryPresetsVariantPrio;
-            };
-        };
-    };
-    '/seqvars/api/querypresetsvariantprio/{querypresetssetversion}/{querypresetsvariantprio}/': {
-        get: {
-            req: SeqvarsApiQuerypresetsvariantprioRetrieveData;
-            res: {
-                '200': SeqvarsQueryPresetsVariantPrio;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerypresetsvariantprioUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsVariantPrio;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerypresetsvariantprioPartialUpdateData;
-            res: {
-                '200': SeqvarsQueryPresetsVariantPrio;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerypresetsvariantprioDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/querysettings/{session}/': {
-        get: {
-            req: SeqvarsApiQuerysettingsListData;
-            res: {
-                '200': PaginatedSeqvarsQuerySettingsList;
-            };
-        };
-        post: {
-            req: SeqvarsApiQuerysettingsCreateData;
-            res: {
-                '201': SeqvarsQuerySettingsDetails;
-            };
-        };
-    };
-    '/seqvars/api/querysettings/{session}/{querysettings}/': {
-        get: {
-            req: SeqvarsApiQuerysettingsRetrieveData;
-            res: {
-                '200': SeqvarsQuerySettingsDetails;
-            };
-        };
-        put: {
-            req: SeqvarsApiQuerysettingsUpdateData;
-            res: {
-                '200': SeqvarsQuerySettingsDetails;
-            };
-        };
-        patch: {
-            req: SeqvarsApiQuerysettingsPartialUpdateData;
-            res: {
-                '200': SeqvarsQuerySettingsDetails;
-            };
-        };
-        delete: {
-            req: SeqvarsApiQuerysettingsDestroyData;
-            res: {
-                /**
-                 * No response body
-                 */
-                '204': void;
-            };
-        };
-    };
-    '/seqvars/api/resultrow/{resultset}/': {
-        get: {
-            req: SeqvarsApiResultrowListData;
-            res: {
-                '200': PaginatedSeqvarsResultRowList;
-            };
-        };
-    };
-    '/seqvars/api/resultrow/{resultset}/{seqvarresultrow}/': {
-        get: {
-            req: SeqvarsApiResultrowRetrieveData;
-            res: {
-                '200': SeqvarsResultRow;
-            };
-        };
-    };
-    '/seqvars/api/resultset/{query}/': {
-        get: {
-            req: SeqvarsApiResultsetListData;
-            res: {
-                '200': PaginatedSeqvarsResultSetList;
-            };
-        };
-    };
-    '/seqvars/api/resultset/{query}/{resultset}/': {
-        get: {
-            req: SeqvarsApiResultsetRetrieveData;
-            res: {
-                '200': SeqvarsResultSet;
-            };
-        };
-    };
-};

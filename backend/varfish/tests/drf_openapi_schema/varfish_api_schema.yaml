@@ -844,6 +844,34 @@ paths:
       responses:
         '204':
           description: No response body
+  /cases/api/case/count/{project}/:
+    get:
+      operationId: cases_api_case_count_retrieve
+      description: Return the number of cases, potentially filtered.
+      parameters:
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      - in: query
+        name: q
+        schema:
+          type: string
+      tags:
+      - cases
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/RecordCount'
+          description: ''
   /cases/api/case/list/{project}/:
     get:
       operationId: cases_api_case_list_list
@@ -8833,6 +8861,14 @@ components:
         * `comphet_recessive` - comphet_recessive
         * `homozygous_recessive` - homozygous_recessive
         * `recessive` - recessive
+    RecordCount:
+      type: object
+      description: Serializer for the record count.
+      properties:
+        count:
+          type: integer
+      required:
+      - count
     RegionCoverageStats:
       description: Per-region QC stats for alignment.
       properties:

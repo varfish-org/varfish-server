@@ -71,6 +71,13 @@ class PedigreeSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class RecordCountSerializer(serializers.Serializer):
+    """Serializer for the record count."""
+
+    #: Number of cases.
+    count = serializers.IntegerField()
+
+
 class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model.
 

@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { client } from '@hey-api/client-fetch'
-import { CasesService } from '@varfish-org/varfish-api/lib'
 import debounce from 'lodash.debounce'
-import { onMounted, ref } from 'vue'
+import { Ref, computed, ref, watch } from 'vue'
 
-import { useCaseListStore } from '@/cases/stores/caseList'
+import { useCaseCountQuery, useCaseListQuery } from '@/cases/queries/cases'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { formatLargeInt, formatTimeAgo } from '@/varfish/helpers'
 
 import { getIndividuals } from './lib'
-import { Case, SortBy } from './types'
+import { SortBy } from './types'
 
 /** Props used in this component. */
 const props = defineProps<{
+  /** The project UUID to list cases for. */
   projectUuid?: string
 }>()
 
@@ -22,8 +21,7 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
-const caseListStore = useCaseListStore()
-
+/** Headers to be used in the `VDataTableServer`. */
 const headers = [
   { title: '#', key: 'index', width: 50, sortable: false },
   { title: 'Case Name', key: 'name', width: 100, sortable: true },
@@ -37,74 +35,67 @@ const headers = [
   { title: 'Shortcuts', key: 'buttons', width: 50 },
 ]
 
+/** Current page in `VDataTableServer`; component state. */
 const page = ref<number>(1)
+/** Items per page in `VDataTableServer`; component state. */
 const itemsPerPage = ref<number>(20)
+/** Sort by in `VDataTableServer`; component state. */
 const sortBy = ref<SortBy[]>([{ key: 'name', order: 'asc' }])
-const loading = ref<boolean>(false)
+/** Search string in `VDataTableServer`; component state. */
 const search = ref<string>('')
+/** Table rows to display in `VDataTableServer` as obtained via TanStack Query. */
+const tableRows = computed(() => caseListRes.data.value?.results ?? [])
 
-const tableRows = ref<Case[]>([])
+/** Query case list data. */
+const caseListRes = useCaseListQuery({
+  projectUuid: computed(() => props.projectUuid),
+  page: page,
+  pageSize: itemsPerPage,
+  orderBy: computed(() =>
+    sortBy.value.length > 0 ? sortBy.value[0].key : 'name',
+  ),
+  orderDir: computed(() =>
+    sortBy.value[0]?.order === 'desc' ? 'desc' : 'asc',
+  ),
+  queryString: search,
+})
 
-/** Load data from table as configured by tableServerOptions. */
-const loadItems = async ({
-  page,
-  itemsPerPage,
-  sortBy,
+/** Query case count data. */
+const caseCountRes = useCaseCountQuery({
+  projectUuid: computed(() => props.projectUuid),
+  queryString: search,
+})
+
+/** Update query settings from `VDataTableServer`, may trigger re-fetching. */
+const updateQuery = async ({
+  page: page$,
+  itemsPerPage: itemsPerPage$,
+  sortBy: sortBy$,
 }: {
   page: number
   itemsPerPage: number
   sortBy: SortBy[]
 }) => {
-  if (props.projectUuid === undefined) {
-    return // bail out
-  }
-
-  // Wait for initialization of caseListStore to finish.
-  await caseListStore.initialize(props.projectUuid)
-
-  const transmogrify = (row: any, index: number) => {
-    row['index'] = (page - 1) * itemsPerPage + index + 1
-    return row
-  }
-
-  const orderBy = sortBy.length > 0 ? sortBy[0].key : 'name'
-  const orderDir =
-    sortBy.length > 0 ? (sortBy[0].order === 'desc' ? 'desc' : 'asc') : 'asc'
-
-  loading.value = true
-  const response = await CasesService.casesApiCaseListList({
-    client,
-    path: { project: props.projectUuid },
-    query: {
-      page,
-      pageSize: itemsPerPage,
-      order_by: orderBy,
-      order_dir: orderDir,
-      q: search.value,
-    },
-  })
-  // Bail out and notify parent if there was an error.
-  if (!response.data) {
-    emit('message', {
-      text: 'Failed to load cases',
-      color: 'error',
-    })
-    return
-  }
-
-  tableRows.value = (response.data.results ?? []).map(transmogrify)
-  loading.value = false
+  page.value = page$
+  itemsPerPage.value = itemsPerPage$
+  sortBy.value = sortBy$
 }
 
-const loadItemDebounced = debounce(loadItems, 500)
+/** Debounced version of `updateQuery`. */
+const updateQueryDebounced = debounce(updateQuery, 500)
 
-onMounted(() => {
-  loadItemDebounced({
-    page: page.value,
-    itemsPerPage: itemsPerPage.value,
-    sortBy: sortBy.value,
-  })
-})
+// Watch for any error and emit a message on any error.
+watch(
+  () => caseListRes.isError,
+  (value: Ref<boolean>) => {
+    if (value.value) {
+      emit('message', {
+        text: `Failed to fetch case list: ${caseListRes.error.value?.message}`,
+        color: 'error',
+      })
+    }
+  },
+)
 </script>
 
 <template>
@@ -131,12 +122,12 @@ onMounted(() => {
     v-model:sort-by="sortBy"
     :headers="headers"
     :items="tableRows"
-    :items-length="caseListStore.caseCount ?? 0"
-    :loading="loading"
+    :items-length="caseCountRes.data.value?.count ?? 0"
+    :loading="caseListRes.isPending.value || caseCountRes.isPending.value"
     :search="search"
     no-data-text="No matching cases found"
     item-value="name"
-    @update:options="loadItemDebounced"
+    @update:options="updateQueryDebounced"
   >
     <template #[`item.name`]="{ item }">
       <router-link
@@ -149,17 +140,17 @@ onMounted(() => {
       </router-link>
     </template>
     <template #[`item.individuals`]="{ item }">
-      {{ getIndividuals(item.pedigree) }}
+      {{ getIndividuals(item.pedigree as any) }}
     </template>
     <template #[`item.num_small_vars`]="{ item }">
       <div class="text-right">
-        {{ formatLargeInt(item.num_small_vars) }}
+        {{ formatLargeInt(item.num_small_vars ?? 0) }}
       </div>
     </template>
 
     <template #[`item.num_svs`]="{ item }">
       <div class="text-right">
-        {{ formatLargeInt(item.num_svs) }}
+        {{ formatLargeInt(item.num_svs ?? 0) }}
       </div>
     </template>
 

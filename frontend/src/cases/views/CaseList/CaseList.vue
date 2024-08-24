@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
+import { ref } from 'vue'
 
 import CaseListQc from '@/cases/components/CaseListQc/CaseListQc.vue'
 import CaseListTable from '@/cases/components/CaseListTable/CaseListTable.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import { useCaseListStore } from '@/cases/stores/caseList'
-import { useProjectStore } from '@/cases/stores/project/store'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import QueryPresets from '@/variants/components/QueryPresets.vue'
 
@@ -21,9 +20,6 @@ const props = defineProps<{
   presetSet?: string
 }>()
 
-const caseListStore = useCaseListStore()
-const projectStore = useProjectStore()
-
 // Whether to hide the navigation bar; component state.
 const navbarShown = ref<boolean>(true)
 /** Messages to display in VSnackbarQueue; component state. */
@@ -33,20 +29,6 @@ const messages = ref<SnackbarMessage[]>([])
 const queueMessage = (message: SnackbarMessage) => {
   messages.value.push(message)
 }
-
-// Initialize case list store on mount.
-onMounted(() => {
-  caseListStore.initialize(props.projectUuid)
-  projectStore.initialize(props.projectUuid)
-})
-// Re-initialize case list store when the project changes.
-watch(
-  () => props.projectUuid,
-  (newValue) => {
-    caseListStore.initialize(newValue)
-    projectStore.initialize(newValue)
-  },
-)
 </script>
 
 <template>
@@ -60,7 +42,7 @@ watch(
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"
-          :href="`/project/${projectStore.projectUuid}`"
+          :href="`/project/${projectUuid}`"
         >
           <template v-if="navbarShown"> Back to Project </template>
         </v-list-item>
@@ -72,7 +54,7 @@ watch(
           prepend-icon="mdi-format-list-bulleted-square"
           :to="{
             name: 'case-list',
-            params: { project: projectStore.projectUuid },
+            params: { project: projectUuid },
           }"
         >
           <template v-if="navbarShown"> Case List </template>
@@ -81,7 +63,7 @@ watch(
           prepend-icon="mdi-chart-multiple"
           :to="{
             name: 'case-list-qc',
-            params: { project: projectStore.projectUuid },
+            params: { project: projectUuid },
           }"
         >
           <template v-if="navbarShown"> Quality Control </template>
@@ -90,7 +72,7 @@ watch(
           prepend-icon="mdi-filter-settings"
           :to="{
             name: 'case-list-query-presets',
-            params: { project: projectStore.projectUuid },
+            params: { project: projectUuid },
           }"
         >
           <template v-if="navbarShown"> Query Presets </template>
@@ -99,7 +81,7 @@ watch(
           prepend-icon="mdi-numeric-2-box-multiple-outline"
           :to="{
             name: 'seqvars-query-presets',
-            params: { project: projectStore.projectUuid },
+            params: { project: projectUuid },
           }"
         >
           <template v-if="navbarShown"> Query Presets (V2) </template>
@@ -126,4 +108,5 @@ watch(
       close-on-content-click
     ></v-snackbar-queue>
   </v-app>
+  <VueQueryDevtools />
 </template>
