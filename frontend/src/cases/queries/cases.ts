@@ -16,7 +16,7 @@ import { client } from '@/cases/plugins/heyApi'
 
 /** Type for ordering query results. */
 export type OrderDir = 'asc' | 'desc'
-// /** Union type for  */
+/** Union type for Vue3 `ref()` or `computed()` result. */
 export type RefOrComputed<T> = Ref<T> | ComputedRef<T>
 
 /**
