@@ -38,7 +38,7 @@
     "lodash.debounce": "^4.0.8",
     "luxon": "^3.4.4",
     "pinia": "^2.2.2",
-    "plotly.js-dist": "^2.33.0",
+    "plotly.js-dist": "^2.34.0",
     "remeda": "^2.6.0",
     "snakecase": "^1.0.0",
     "sort-by-typescript": "^1.2.5",
