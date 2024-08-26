@@ -88,7 +88,7 @@ types-protobuf = "*"
 ipdb = "*"
 jedi = "==0.19.1"
 watchdog = "*"
-werkzeug = "~=3.0.3"
+werkzeug = "~=3.0.4"
 uritemplate = "*"
 
 [ldap-packages]
