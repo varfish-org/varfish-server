@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import {
   SeqvarsQueryDetails,
+  SeqvarsQueryDetailsRequest,
   SeqvarsQuerySettingsFrequency,
+  SeqvarsQuerySettingsFrequencyRequest,
 } from '@varfish-org/varfish-api/lib'
 
 import FrequencyControlRow from './FrequencyControlRow.vue'
 import AbbrHint from './ui/AbbrHint.vue'
 import SmallText from './ui/SmallText.vue'
+import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery';
+import { ValueOf } from './lib';
+import { toRaw } from 'vue';
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,6 +26,32 @@ const props = withDefaults(
 const model = defineModel<SeqvarsQueryDetails>({
   required: true,
 })
+
+/**
+ * Mutation for updating a seqvar query.
+ *
+ * This is done via TanStack Query which uses optimistic updates for quick
+ * reflection in the UI.
+ */
+ const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
+
+/** Helper to apply a patch to the current `model.value`. */
+const applyMutation = async (name: keyof SeqvarsQuerySettingsFrequencyRequest, freqs: ValueOf<SeqvarsQuerySettingsFrequencyRequest>) => {
+  const newData = structuredClone(toRaw(model.value))
+  const newFrequency = newData.settings.frequency
+  newFrequency[name] = freqs
+
+  // Apply update via TanStack query; will use optimistic updates for quick
+  // reflection in the UI.
+  await seqvarQueryUpdate.mutateAsync({
+    body: newData,
+    path: {
+      session: model.value.session,
+      query: model.value.sodar_uuid,
+    },
+  })
+}
+
 </script>
 
 <template>
@@ -90,7 +121,8 @@ const model = defineModel<SeqvarsQueryDetails>({
       :key="name"
     >
       <FrequencyControlRow
-        v-model="model.settings.frequency[key]!"
+        :model-value="model.settings.frequency[key]!"
+        @update:model-value="async () => applyMutation(key, model.settings.frequency[key])"
         :name="name"
         :size="size"
       />

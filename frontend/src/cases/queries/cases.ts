@@ -1,23 +1,18 @@
 /**
  * Queries for cases (list, details, count) powered by TanStack Query
  */
-import { UseQueryReturnType, useQuery } from '@tanstack/vue-query'
-import {
-  CasesApiCaseCountRetrieveResponse,
-  CasesApiCaseListListResponse,
-} from '@varfish-org/varfish-api/lib'
+import { useQuery } from '@tanstack/vue-query'
 import {
   casesApiCaseCountRetrieveOptions,
   casesApiCaseListListOptions,
+  casesApiCaseRetrieveUpdateDestroyRetrieveOptions,
 } from '@varfish-org/varfish-api/lib/@tanstack/vue-query.gen'
-import { ComputedRef, Ref, computed } from 'vue'
+import { MaybeRefOrGetter, toValue } from 'vue'
 
 import { client } from '@/cases/plugins/heyApi'
 
 /** Type for ordering query results. */
 export type OrderDir = 'asc' | 'desc'
-/** Union type for Vue3 `ref()` or `computed()` result. */
-export type RefOrComputed<T> = Ref<T> | ComputedRef<T>
 
 /**
  * Query for a list of cases within a project.
@@ -38,31 +33,35 @@ export const useCaseListQuery = ({
   orderBy,
   orderDir,
 }: {
-  projectUuid: RefOrComputed<string | undefined>
-  queryString: RefOrComputed<string | undefined>
-  page: RefOrComputed<number>
-  pageSize: RefOrComputed<number>
-  orderBy: RefOrComputed<string | undefined>
-  orderDir: RefOrComputed<OrderDir | undefined>
-}): UseQueryReturnType<CasesApiCaseListListResponse, Error> => {
-  return useQuery(
-    computed(() => ({
-      ...casesApiCaseListListOptions({
-        client,
-        path: {
-          project: projectUuid.value!,
-        },
-        query: {
-          page: page.value,
-          page_size: pageSize.value,
-          order_by: orderBy.value ?? 'name',
-          order_dir: orderDir.value ?? 'asc',
-          q: queryString.value,
-        },
-      }),
-      enabled: !!projectUuid.value,
-    })),
-  )
+  projectUuid: MaybeRefOrGetter<string | undefined>
+  queryString: MaybeRefOrGetter<string | undefined>
+  page: MaybeRefOrGetter<number>
+  pageSize: MaybeRefOrGetter<number>
+  orderBy: MaybeRefOrGetter<string | undefined>
+  orderDir: MaybeRefOrGetter<OrderDir | undefined>
+}) => {
+  return useQuery({
+    ...casesApiCaseListListOptions({
+      client,
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        project: () => toValue(projectUuid)!,
+      },
+      query: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        page: page,
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        page_size: pageSize,
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        order_by: () => toValue(orderBy) ?? 'name',
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        order_dir: () => toValue(orderDir) ?? 'asc',
+        q: toValue(queryString),
+      },
+    }),
+    // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+    enabled: () => !!toValue(projectUuid),
+  })
 }
 
 /**
@@ -76,22 +75,34 @@ export const useCaseCountQuery = ({
   projectUuid,
   queryString,
 }: {
-  projectUuid: RefOrComputed<string | undefined>
-  queryString: RefOrComputed<string | undefined>
-}): UseQueryReturnType<CasesApiCaseCountRetrieveResponse, Error> =>
-  useQuery(
-    computed(() => {
-      return {
-        ...casesApiCaseCountRetrieveOptions({
-          client,
-          path: {
-            project: projectUuid.value!,
-          },
-          query: {
-            q: queryString.value,
-          },
-        }),
-        enabled: !!projectUuid.value,
-      }
+  projectUuid: MaybeRefOrGetter<string | undefined>
+  queryString: MaybeRefOrGetter<string | undefined>
+}) =>
+  useQuery({
+    ...casesApiCaseCountRetrieveOptions({
+      client,
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        project: () => toValue(projectUuid)!,
+      },
+      query: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        q: queryString,
+      },
     }),
-  )
+    enabled: () => !!toValue(projectUuid),
+  })
+
+export const useCaseRetrieveQuery = ({
+  caseUuid,
+}: {
+  caseUuid: MaybeRefOrGetter<string | undefined>
+}) =>
+  useQuery({
+    ...casesApiCaseRetrieveUpdateDestroyRetrieveOptions({
+      client,
+      // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+      path: { case: () => toValue(caseUuid)! },
+    }),
+    enabled: () => !!toValue(caseUuid),
+  })

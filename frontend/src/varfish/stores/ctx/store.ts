@@ -5,8 +5,6 @@ import {
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-import { client } from '@/cases/plugins/heyApi'
-
 import { SodarUser } from './types'
 
 /**
@@ -97,11 +95,6 @@ export const useCtxStore = defineStore('ctx', () => {
    */
   const setupCsrfToken = async () => {
     csrfToken.value = getCookie('csrftoken') || ''
-    // Ensure the CSRF token is set for all requests.
-    client.interceptors.request.use((request, _options) => {
-      request.headers.set('X-CSRFToken', csrfToken.value)
-      return request
-    })
   }
 
   return {

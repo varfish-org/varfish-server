@@ -10,9 +10,7 @@ import ModalTermsEditor from '@/cases/components/ModalTermsEditor.vue'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCaseQcStore } from '@/cases_qc/stores/caseQc'
-import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvResultSetStore } from '@/svs/stores/svResultSet'
@@ -55,8 +53,6 @@ const svFlagsStore = useSvFlagsStore()
 const svCommentsStore = useSvCommentsStore()
 
 const seqvarPresetsStore = useSeqvarsPresetsStore()
-const caseAnalysisStore = useCaseAnalysisStore()
-const seqvarsQueryStore = useSeqvarsQueryStore()
 
 // Routing-related.
 const router = useRouter()
@@ -72,17 +68,7 @@ const refreshStores = async () => {
       (async () => {
         // We currently load this mostly for demonstration purposes in this place.
         // It really belongs to the seqvars query view.
-        await Promise.all([
-          seqvarPresetsStore.initialize(props.projectUuid),
-          caseAnalysisStore.initialize(props.projectUuid, props.caseUuid),
-        ])
-        await seqvarsQueryStore.initialize(
-          props.projectUuid,
-          props.caseUuid,
-          caseAnalysisStore.currentAnalysis.sodar_uuid,
-          caseAnalysisStore.currentSession.sodar_uuid,
-          seqvarPresetsStore.presetSets.values().next().sodar_uuid,
-        )
+        await Promise.all([seqvarPresetsStore.initialize(props.projectUuid)])
       })(),
       caseDetailsStore
         .initialize(props.projectUuid, props.caseUuid)

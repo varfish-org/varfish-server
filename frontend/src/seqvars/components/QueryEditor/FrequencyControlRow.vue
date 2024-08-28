@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { SeqvarsQuerySettingsFrequency } from '@varfish-org/varfish-api/lib'
+import { SeqvarsQuerySettingsFrequencyRequest } from '@varfish-org/varfish-api/lib'
 import { computed } from 'vue'
 
 import Input from '../QueryEditor/ui/Input.vue'
-
-type ValueOf<T> = T[keyof T]
+import { ValueOf } from './lib';
 
 const { name, size } = defineProps<{ name: string; size: number | null }>()
 const model = defineModel<
-  Extract<ValueOf<SeqvarsQuerySettingsFrequency>, { enabled?: boolean }>
+  Extract<ValueOf<SeqvarsQuerySettingsFrequencyRequest>, { enabled?: boolean }>
 >({
   required: true,
 })
 
 type AllKeys<T> = T extends any ? keyof T : never
 const getNumberComputedForKeys = (...keys: AllKeys<typeof model.value>[]) =>
-  computed({
+  computed<number | null>({
     get() {
       for (const key of keys) {
         if (key in model.value) {
@@ -64,8 +63,9 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
       align-items: center;
       gap: 4px;
     "
-    >{{ name
-    }}<span v-if="size != null" style="color: #808080">{{ size }}k</span>
+  >
+    {{ name }}
+    <span v-if="size != null" style="color: #808080"> {{ size }}k </span>
   </label>
 
   <Input
@@ -74,8 +74,8 @@ const hom = getNumberComputedForKeys('homozygous', 'homoplasmic')
     style="grid-column: 2; margin-right: 8px; width: 56px"
     :step="0.1"
   >
-    <template v-if="'frequency' in model" #after>%</template></Input
-  >
+    <template v-if="'frequency' in model" #after> % </template>
+  </Input>
   <Input
     v-model="het"
     aria-label="heterozygous"
