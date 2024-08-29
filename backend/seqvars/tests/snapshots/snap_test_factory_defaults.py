@@ -502,8 +502,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": None,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -544,8 +544,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -586,8 +586,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -628,8 +628,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -670,8 +670,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -712,8 +712,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": None,
                         "enabled": False,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1481,8 +1481,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": None,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1523,8 +1523,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1565,8 +1565,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1607,8 +1607,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1649,8 +1649,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -1691,8 +1691,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": None,
                         "enabled": False,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2460,8 +2460,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": None,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2502,8 +2502,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2544,8 +2544,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2586,8 +2586,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2628,8 +2628,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -2670,8 +2670,8 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": None,
                         "enabled": False,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,

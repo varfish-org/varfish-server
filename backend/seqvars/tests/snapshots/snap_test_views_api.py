@@ -533,8 +533,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": None,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -575,8 +575,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -617,8 +617,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -659,8 +659,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -701,8 +701,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": 20,
                         "enabled": True,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
@@ -743,8 +743,8 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                         "homoplasmic": None,
                     },
                     "inhouse": {
-                        "carriers": None,
                         "enabled": False,
+                        "frequency": 0.01,
                         "hemizygous": None,
                         "heterozygous": None,
                         "homozygous": None,
