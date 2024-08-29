@@ -53,7 +53,8 @@ const items = computed<Item>({
       case 'non_hom':
       case 'variant':
       default:
-        throw new Error(`Invalid genotype value: ${genotype.value}`)
+        return 'any'
+      // throw new Error(`Invalid genotype value: ${genotype.value}`)
     }
   },
   set(value) {

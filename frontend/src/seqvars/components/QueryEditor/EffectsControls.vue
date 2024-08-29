@@ -1,12 +1,27 @@
 <script setup lang="ts">
+/**
+ * This component allows to edit the effects-based filtering settings.
+ *
+ * The component is passed the current seqvar query for editing and updates
+ * it via TanStack Query.
+ */
 import {
   SeqvarsQueryDetails,
+  SeqvarsQuerySettingsConsequenceRequest,
   SeqvarsTranscriptTypeChoiceList,
-  SeqvarsVariantConsequenceChoiceList,
   SeqvarsVariantTypeChoiceList,
 } from '@varfish-org/varfish-api/lib'
 import { computed, ref } from 'vue'
 
+import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery'
+
+import {
+  CODING_CONSEQUENCES,
+  ConsequenceChoice,
+  NON_CODING_CONSEQUENCES,
+  OFF_EXOMES_CONSEQUENCES,
+  SPLICING_CONSEQUENCES,
+} from '../PresetsEditor/lib'
 import { toggleArrayElement } from '../utils'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 
@@ -14,12 +29,15 @@ import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
+/** Mapping from variant type to their label. */
 const VARIANT_TYPES = {
   snv: 'SNV',
   indel: 'indel',
@@ -27,72 +45,67 @@ const VARIANT_TYPES = {
   complex_substitution: 'complex substitution',
 } satisfies Record<SeqvarsVariantTypeChoiceList[number], string>
 
+/** Mapping from transcript types to their label. */
 const TRANSCRIPT_TYPES = {
   coding: 'coding',
   non_coding: 'non-coding',
 } satisfies Record<SeqvarsTranscriptTypeChoiceList[number], string>
 
+/** Two-level mapping of all settings and  */
 const CUSTOMIZATION = {
-  Coding: {
-    transcript_ablation: 'transcript ablation',
-    transcript_amplification: 'transcript amplification',
-    exon_loss_variant: 'exon loss',
-    frameshift_variant: 'frameshift',
-    start_lost: 'start lost',
-    stop_gained: 'stop gained',
-    stop_lost: 'stop lost',
-    disruptive_inframe_insertion: 'disruptive inframe insertion',
-    disruptive_inframe_deletion: 'disruptive inframe deletion',
-    conservative_inframe_insertion: 'conservative inframe insertion',
-    conservative_inframe_deletion: 'conservative inframe deletion',
-    inframe_indel: 'in-frame indel',
-    missense_variant: 'missense',
-    start_retained_variant: 'start retained',
-    stop_retained_variant: 'stop retained',
-    synonymous_variant: 'synonymous',
-    coding_sequence_variant: 'coding',
-  },
-  'Off-Exome': {
-    upstream_gene_variant: 'upstream',
-    downstream_gene_variant: 'downstream',
-    intron_variant: 'intronic',
-    intergenic_variant: 'intergenic',
-  },
-  'Non-coding': {
-    '5_prime_UTR_exon_variant': "5' UTR exon",
-    '5_prime_UTR_intron_variant': "5' UTR intron",
-    '3_prime_UTR_exon_variant': "3' UTR exon",
-    '3_prime_UTR_intron_variant': "3' UTR intronic",
-    non_coding_transcript_exon_variant: 'non-coding exonic',
-    non_coding_transcript_intron_variant: 'non-coding intronic',
-  },
-  Splicing: {
-    splice_acceptor_variant: 'splice acceptor (-1, -2)',
-    splice_donor_variant: 'splice donor (+1, +2)',
-    splice_donor_5th_base_variant: 'splice donor 5th-base',
-    splice_region_variant: 'splice region (-3, +3, ..., +8)',
-    splice_donor_region_variant: 'splice donor region',
-    splice_polypyrimidine_tract_variant: 'splice polypyrimidine tract',
-  },
-} satisfies Record<
-  string,
-  Partial<Record<SeqvarsVariantConsequenceChoiceList[number], string>>
->
+  Coding: CODING_CONSEQUENCES,
+  'Off-Exome': OFF_EXOMES_CONSEQUENCES,
+  'Non-coding': NON_CODING_CONSEQUENCES,
+  Splicing: SPLICING_CONSEQUENCES,
+} satisfies Record<string, ConsequenceChoice[]>
 
-const model = defineModel<SeqvarsQueryDetails>({ required: true })
-
+/** Whether the details are opend. */
 const detailsOpen = ref<boolean>(false)
 
+/**
+ * Mutation for updating a seqvar query.
+ *
+ * This is done via TanStack Query which uses optimistic updates for quick
+ * reflection in the UI.
+ */
+const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
+
+/** Helper to apply a patch to the current `props.modelValue`. */
+const applyMutation = async (
+  consequence: SeqvarsQuerySettingsConsequenceRequest,
+) => {
+  const newData = {
+    ...props.modelValue,
+    settings: {
+      ...props.modelValue.settings,
+      consequence: {
+        ...props.modelValue.settings.consequence,
+        ...consequence,
+      },
+    },
+  }
+
+  // Apply update via TanStack query; will use optimistic updates for quick
+  // reflection in the UI.
+  await seqvarQueryUpdate.mutateAsync({
+    body: newData,
+    path: {
+      session: props.modelValue.session,
+      query: props.modelValue.sodar_uuid,
+    },
+  })
+}
+
+/** Helper to update the maximal distance to exons. */
 const maxExonDistance = computed<number | null | undefined>({
-  get: () => model.value.settings.consequence.max_distance_to_exon,
+  get: () => props.modelValue.settings.consequence.max_distance_to_exon,
   set(value: string | number | null | undefined) {
-    if (value === null || value === undefined || value === '') {
-      model.value.settings.consequence.max_distance_to_exon = null
-    } else {
-      model.value.settings.consequence.max_distance_to_exon = parseInt(
-        `${value}`,
-      )
-    }
+    applyMutation({
+      max_distance_to_exon:
+        value === null || value === undefined || value === ''
+          ? null
+          : Number(value),
+    })
   },
 })
 </script>
@@ -151,9 +164,18 @@ const maxExonDistance = computed<number | null | undefined>({
         :hide-details="true"
         color="primary"
         density="compact"
-        :model-value="model.settings.consequence.variant_types?.includes(key)"
+        :model-value="
+          modelValue.settings.consequence.variant_types?.includes(key)
+        "
         @update:model-value="
-          toggleArrayElement(model.settings.consequence.variant_types, key)
+          async () => {
+            await applyMutation({
+              variant_types: toggleArrayElement(
+                modelValue.settings.consequence.variant_types,
+                key,
+              ),
+            })
+          }
         "
       />
     </div>
@@ -168,34 +190,46 @@ const maxExonDistance = computed<number | null | undefined>({
         color="primary"
         density="compact"
         :model-value="
-          model.settings.consequence.transcript_types?.includes(key)
+          modelValue.settings.consequence.transcript_types?.includes(key)
         "
         @update:model-value="
-          toggleArrayElement(model.settings.consequence.transcript_types, key)
+          async () => {
+            await applyMutation({
+              transcript_types: toggleArrayElement(
+                modelValue.settings.consequence.transcript_types,
+                key,
+              ),
+            })
+          }
         "
       />
     </div>
 
     <CollapsibleGroup v-model:is-open="detailsOpen" title="Customize effects">
       <div style="display: flex; flex-direction: column; gap: 8px">
-        <div v-for="(fields, title) in CUSTOMIZATION">
+        <div v-for="(choices, title) in CUSTOMIZATION">
           <div class="text-body-2">{{ title }}</div>
 
           <v-checkbox
-            v-for="(label, key) in fields"
+            v-for="{ label, key } in choices"
             :key="key"
             :label="label"
             color="primary"
             :hide-details="true"
             density="compact"
             :model-value="
-              model.settings.consequence.variant_consequences?.includes(key)
-            "
-            @update:model-value="
-              toggleArrayElement(
-                model.settings.consequence.variant_consequences,
+              modelValue.settings.consequence.variant_consequences?.includes(
                 key,
               )
+            "
+            @update:model-value="
+              async () =>
+                await applyMutation({
+                  variant_consequences: toggleArrayElement(
+                    modelValue.settings.consequence.variant_consequences,
+                    key,
+                  ),
+                })
             "
           />
         </div>

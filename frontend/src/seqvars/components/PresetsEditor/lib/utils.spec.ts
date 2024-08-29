@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { parseGenomeRegion } from './lib'
+import { parseGenomeRegion } from './utils'
 
 describe('parseGenomeRegion - valid', () => {
   test.each([

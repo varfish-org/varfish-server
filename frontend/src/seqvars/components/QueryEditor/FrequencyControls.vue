@@ -1,57 +1,45 @@
 <script setup lang="ts">
-import {
-  SeqvarsQueryDetails,
-  SeqvarsQueryDetailsRequest,
-  SeqvarsQuerySettingsFrequency,
-  SeqvarsQuerySettingsFrequencyRequest,
-} from '@varfish-org/varfish-api/lib'
+/**
+ * This components only arranges a `FrequencyControlsRow` instances to display
+ * frequency editor table but contains no logic itself.
+ */
+import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
 
-import FrequencyControlRow from './FrequencyControlRow.vue'
+import FrequencyControlsRow from './FrequencyControlsRow.vue'
+import { FrequencyDb } from './lib'
 import AbbrHint from './ui/AbbrHint.vue'
 import SmallText from './ui/SmallText.vue'
-import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery';
-import { ValueOf } from './lib';
-import { toRaw } from 'vue';
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-const model = defineModel<SeqvarsQueryDetails>({
-  required: true,
-})
-
-/**
- * Mutation for updating a seqvar query.
- *
- * This is done via TanStack Query which uses optimistic updates for quick
- * reflection in the UI.
- */
- const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
-
-/** Helper to apply a patch to the current `model.value`. */
-const applyMutation = async (name: keyof SeqvarsQuerySettingsFrequencyRequest, freqs: ValueOf<SeqvarsQuerySettingsFrequencyRequest>) => {
-  const newData = structuredClone(toRaw(model.value))
-  const newFrequency = newData.settings.frequency
-  newFrequency[name] = freqs
-
-  // Apply update via TanStack query; will use optimistic updates for quick
-  // reflection in the UI.
-  await seqvarQueryUpdate.mutateAsync({
-    body: newData,
-    path: {
-      session: model.value.session,
-      query: model.value.sodar_uuid,
-    },
-  })
+/** Database information */
+interface DbInfo {
+  /** Label for the database. */
+  label: string
+  /** Key into the `modelValue.settings.frequency` object. */
+  db: FrequencyDb
+  /** Number of samples in database. */
+  size?: number
 }
 
+/** The database information to display. */
+const DB_INFOS = [
+  { label: 'gnomAD exomes', db: 'gnomad_exomes', size: 16 },
+  { label: 'gnomAD genomes', db: 'gnomad_genomes', size: 126 },
+  { label: 'gnomAD mitochondrial', db: 'gnomad_mitochondrial', size: 56 },
+  { label: 'HelixMTdb', db: 'helixmtdb', size: 197 },
+  { label: 'in-house DB', db: 'inhouse', size: undefined },
+] as const satisfies DbInfo[]
 </script>
 
 <template>
@@ -106,24 +94,11 @@ const applyMutation = async (name: keyof SeqvarsQuerySettingsFrequencyRequest, f
       </AbbrHint>
     </SmallText>
 
-    <template
-      v-for="[name, key, size] in [
-        ['gnomAd exomes', 'gnomad_exomes', 16],
-        ['gnomAd genomes', 'gnomad_genomes', 126],
-        ['gnomAd mitochondrial', 'gnomad_mitochondrial', 56],
-        ['in-house DB', 'inhouse', null],
-        ['HelixMTdb', 'helixmtdb', 197],
-      ] satisfies [
-        string,
-        keyof SeqvarsQuerySettingsFrequency,
-        number | null,
-      ][]"
-      :key="name"
-    >
-      <FrequencyControlRow
-        :model-value="model.settings.frequency[key]!"
-        @update:model-value="async () => applyMutation(key, model.settings.frequency[key])"
-        :name="name"
+    <template v-for="{ label, db, size } in DB_INFOS" :key="label">
+      <FrequencyControlsRow
+        :model-value="modelValue"
+        :label="label"
+        :db="db"
         :size="size"
       />
     </template>

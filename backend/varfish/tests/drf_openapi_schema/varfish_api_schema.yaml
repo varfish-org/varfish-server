@@ -8429,12 +8429,12 @@ components:
                 - type: 'null'
                 default: null
                 title: Hemizygous
-              carriers:
+              frequency:
                 anyOf:
-                - type: integer
+                - type: number
                 - type: 'null'
                 default: null
-                title: Carriers
+                title: Frequency
             title: InhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
@@ -10909,12 +10909,12 @@ components:
                 - type: 'null'
                 default: null
                 title: Hemizygous
-              carriers:
+              frequency:
                 anyOf:
-                - type: integer
+                - type: number
                 - type: 'null'
                 default: null
-                title: Carriers
+                title: Frequency
             title: InhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
@@ -11115,12 +11115,12 @@ components:
                 - type: 'null'
                 default: null
                 title: Hemizygous
-              carriers:
+              frequency:
                 anyOf:
-                - type: integer
+                - type: number
                 - type: 'null'
                 default: null
-                title: Carriers
+                title: Frequency
             title: InhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
@@ -12353,12 +12353,12 @@ components:
                 - type: 'null'
                 default: null
                 title: Hemizygous
-              carriers:
+              frequency:
                 anyOf:
-                - type: integer
+                - type: number
                 - type: 'null'
                 default: null
-                title: Carriers
+                title: Frequency
             title: InhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
@@ -12566,12 +12566,12 @@ components:
                 - type: 'null'
                 default: null
                 title: Hemizygous
-              carriers:
+              frequency:
                 anyOf:
-                - type: integer
+                - type: number
                 - type: 'null'
                 default: null
-                title: Carriers
+                title: Frequency
             title: InhouseFrequencySettingsPydantic
             type: object
           - type: 'null'

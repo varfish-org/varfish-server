@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  SeqvarsQueryPresetsConsequence,
-  SeqvarsVariantConsequenceChoiceList,
-} from '@varfish-org/varfish-api/lib'
+import { SeqvarsQueryPresetsConsequence } from '@varfish-org/varfish-api/lib'
 import { debounce } from 'lodash'
 import { computed, onMounted, ref, watch } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
@@ -11,7 +8,16 @@ import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
+import {
+  CATEGORY_PRESETS_DEBOUNCE_WAIT,
+  CODING_CONSEQUENCES,
+  CONSEQUENCE_GROUP_INFOS,
+  ConsequenceGroup,
+  ConsequenceGroupState,
+  NON_CODING_CONSEQUENCES,
+  OFF_EXOMES_CONSEQUENCES,
+  SPLICING_CONSEQUENCES,
+} from './lib'
 
 /** This component's props. */
 const props = withDefaults(
@@ -94,214 +100,6 @@ const fillData = () => {
 
   data.value = { ...consequencePresets }
 }
-/** Helper type to unpack, e.g., `Array<T1 | T2>`. */
-type _Unpacked<T> = T extends (infer U)[] ? U : T
-
-/** Define choices for variant consequences. */
-type SeqvarsVariantConsequenceChoice =
-  _Unpacked<SeqvarsVariantConsequenceChoiceList>
-
-/** Enumeration for consequence groups. */
-enum ConsequenceGroup {
-  ALL = 'all',
-  NONSYNONYMOUS = 'nonsynonymous',
-  SPLICING = 'splicing',
-  CODING = 'coding',
-  UTR_INTRONIC = 'utr_intronic',
-  OFF_EXOME = 'off_exome',
-  NON_CODING = 'non_coding',
-  NONSENSE = 'nonsense',
-}
-
-/** One consequence group. */
-interface ConsequenceGroupInfo {
-  /** Consequence group label. */
-  label: string
-  /** Key identifying the consequence group. */
-  key: ConsequenceGroup
-  /** Values in `data.variant_consequences`. */
-  valueKeys: SeqvarsVariantConsequenceChoice[]
-}
-
-/** One choice of consequence. */
-interface ConsequenceChoice {
-  label: string
-  key: SeqvarsVariantConsequenceChoice
-}
-
-/** Consequence choices in "coding" category. */
-const codingConsequences: ConsequenceChoice[] = [
-  { label: 'transcript ablation', key: 'transcript_ablation' },
-  { label: 'transcript amplification', key: 'transcript_amplification' },
-  { label: 'exon loss', key: 'exon_loss_variant' },
-  { label: 'frameshift variant', key: 'frameshift_variant' },
-  { label: 'start lost', key: 'start_lost' },
-  { label: 'stop gained', key: 'stop_gained' },
-  { label: 'stop lost', key: 'stop_lost' },
-  {
-    label: 'disruptive inframe insertion',
-    key: 'disruptive_inframe_insertion',
-  },
-  { label: 'disruptive inframe deletion', key: 'disruptive_inframe_deletion' },
-  {
-    label: 'conservative inframe insertion',
-    key: 'conservative_inframe_insertion',
-  },
-  {
-    label: 'conservative inframe deletion',
-    key: 'conservative_inframe_deletion',
-  },
-  { label: 'in-frame indel', key: 'inframe_indel' },
-  { label: 'missense', key: 'missense_variant' },
-  { label: 'start retained', key: 'start_retained_variant' },
-  { label: 'stop retained', key: 'stop_retained_variant' },
-  { label: 'synonymous', key: 'synonymous_variant' },
-  { label: 'coding', key: 'coding_sequence_variant' },
-]
-
-/** Consequence choices in "off-exomes" category. */
-const offExomesConsequences: ConsequenceChoice[] = [
-  { label: 'upstream', key: 'upstream_gene_variant' },
-  { label: 'downstream', key: 'downstream_gene_variant' },
-  { label: 'intronic', key: 'intron_variant' },
-  { label: 'intergenic', key: 'intergenic_variant' },
-]
-
-/** Consequence choices in "non-coding" category. */
-const nonCodingConsequences: ConsequenceChoice[] = [
-  { label: "5' UTR exon variant", key: '5_prime_UTR_exon_variant' },
-  { label: "5' UTR intron variant", key: '5_prime_UTR_intron_variant' },
-  { label: "3' UTR exon variant", key: '3_prime_UTR_exon_variant' },
-  { label: "3' UTR intron variant", key: '3_prime_UTR_intron_variant' },
-  { label: 'non-coding exonic', key: 'non_coding_transcript_exon_variant' },
-  { label: 'non-coding intronic', key: 'non_coding_transcript_intron_variant' },
-]
-
-/** Consequence choices in "splicing" category. */
-const splicingConsequences: ConsequenceChoice[] = [
-  { label: 'splice acceptor (-1, -2)', key: 'splice_acceptor_variant' },
-  { label: 'splice donor (+1, +2)', key: 'splice_donor_variant' },
-  { label: 'splice donor 5th-base', key: 'splice_donor_5th_base_variant' },
-  { label: 'splice region (-3, +3, ..., +8)', key: 'splice_region_variant' },
-  { label: 'splice donor region', key: 'splice_donor_region_variant' },
-  {
-    label: 'splice polypyrimidine tract variant',
-    key: 'splice_polypyrimidine_tract_variant',
-  },
-]
-
-/** Defined consequence groups. */
-const consequenceGroupsInfos: ConsequenceGroupInfo[] = [
-  {
-    label: 'all',
-    key: ConsequenceGroup.ALL,
-    valueKeys: codingConsequences
-      .map((elem) => elem.key)
-      .concat(offExomesConsequences.map((elem) => elem.key))
-      .concat(nonCodingConsequences.map((elem) => elem.key))
-      .concat(splicingConsequences.map((elem) => elem.key)),
-  },
-  {
-    label: 'nonsynonymous',
-    key: ConsequenceGroup.NONSYNONYMOUS,
-    valueKeys: [
-      'transcript_ablation',
-      'transcript_amplification',
-      'exon_loss_variant',
-      'frameshift_variant',
-      'start_lost',
-      'stop_gained',
-      'stop_lost',
-      'disruptive_inframe_deletion',
-      'disruptive_inframe_insertion',
-      'conservative_inframe_insertion',
-      'conservative_inframe_deletion',
-      'missense_variant',
-      'coding_sequence_variant',
-    ],
-  },
-  {
-    label: 'splicing',
-    key: ConsequenceGroup.SPLICING,
-    valueKeys: [
-      'splice_acceptor_variant',
-      'splice_donor_variant',
-      'splice_region_variant',
-      'splice_donor_5th_base_variant',
-      'splice_donor_region_variant',
-      'splice_polypyrimidine_tract_variant',
-    ],
-  },
-  {
-    label: 'coding',
-    key: ConsequenceGroup.CODING,
-    valueKeys: [
-      'transcript_ablation',
-      'transcript_amplification',
-      'exon_loss_variant',
-      'frameshift_variant',
-      'start_lost',
-      'stop_gained',
-      'stop_lost',
-      'disruptive_inframe_deletion',
-      'disruptive_inframe_insertion',
-      'conservative_inframe_insertion',
-      'conservative_inframe_deletion',
-      'missense_variant',
-      'synonymous_variant',
-    ],
-  },
-  {
-    label: 'UTR / intronic',
-    key: ConsequenceGroup.UTR_INTRONIC,
-    valueKeys: [
-      '5_prime_UTR_exon_variant',
-      '5_prime_UTR_intron_variant',
-      '3_prime_UTR_exon_variant',
-      '3_prime_UTR_intron_variant',
-    ],
-  },
-  {
-    label: 'off-exome',
-    key: ConsequenceGroup.OFF_EXOME,
-    valueKeys: [
-      'upstream_gene_variant',
-      'downstream_gene_variant',
-      'intron_variant',
-      'intergenic_variant',
-    ],
-  },
-  {
-    label: 'non-coding',
-    key: ConsequenceGroup.NON_CODING,
-    valueKeys: [
-      'non_coding_transcript_exon_variant',
-      'non_coding_transcript_intron_variant',
-    ],
-  },
-  {
-    label: 'nonsense',
-    key: ConsequenceGroup.NONSENSE,
-    valueKeys: [
-      'transcript_ablation',
-      'exon_loss_variant',
-      'frameshift_variant',
-      'splice_acceptor_variant',
-      'splice_donor_variant',
-      'start_lost',
-      'stop_gained',
-      'stop_lost',
-    ],
-  },
-]
-
-/** Type for the consequence group checkbox state. */
-interface ConsequenceGroupState {
-  /** Whether the group is checked. */
-  checked: boolean
-  /** Whether the group is indeterminate. */
-  indeterminate: boolean
-}
 
 /** The consequence groups state. */
 const consequenceGroups = computed<
@@ -309,7 +107,7 @@ const consequenceGroups = computed<
 >(() => {
   // Guard in case of undefined `data`.
   if (!data.value) {
-    return consequenceGroupsInfos.reduce(
+    return CONSEQUENCE_GROUP_INFOS.reduce(
       (acc, group) => {
         acc[group.key] = { checked: false, indeterminate: false }
         return acc
@@ -318,17 +116,17 @@ const consequenceGroups = computed<
     )
   }
 
-  const checkedGroups = consequenceGroupsInfos.filter((group) =>
+  const checkedGroups = CONSEQUENCE_GROUP_INFOS.filter((group) =>
     group.valueKeys.every((key) =>
       data.value?.variant_consequences?.includes(key),
     ),
   )
-  const indeterminateGroups = consequenceGroupsInfos.filter((group) =>
+  const indeterminateGroups = CONSEQUENCE_GROUP_INFOS.filter((group) =>
     group.valueKeys.some((key) =>
       data.value?.variant_consequences?.includes(key),
     ),
   )
-  return consequenceGroupsInfos.reduce(
+  return CONSEQUENCE_GROUP_INFOS.reduce(
     (acc, group) => {
       acc[group.key] = {
         checked: checkedGroups.includes(group),
@@ -351,13 +149,13 @@ const toggleConsequenceGroup = (key: ConsequenceGroup) => {
   if (consequenceGroups.value[key].checked) {
     data.value.variant_consequences = data.value.variant_consequences!.filter(
       (elem) =>
-        !consequenceGroupsInfos
-          .find((group) => group.key === key)
-          ?.valueKeys.includes(elem),
+        !CONSEQUENCE_GROUP_INFOS.find(
+          (group) => group.key === key,
+        )?.valueKeys.includes(elem),
     )
   } else {
     data.value.variant_consequences = data.value.variant_consequences!.concat(
-      consequenceGroupsInfos.find((group) => group.key === key)?.valueKeys ??
+      CONSEQUENCE_GROUP_INFOS.find((group) => group.key === key)?.valueKeys ??
         [],
     )
   }
@@ -569,7 +367,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <h4 class="pt-3">Effect Group</h4>
 
     <v-checkbox
-      v-for="group in consequenceGroupsInfos"
+      v-for="group in CONSEQUENCE_GROUP_INFOS"
       :key="`group-${group.key}`"
       v-model="consequenceGroups[group.key].checked"
       :label="group.label"
@@ -585,7 +383,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <h5>Coding</h5>
 
     <v-checkbox
-      v-for="consequence in codingConsequences"
+      v-for="consequence in CODING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
       v-model="data.variant_consequences"
       :value="consequence.key"
@@ -598,7 +396,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <h5>Off-Exomes</h5>
 
     <v-checkbox
-      v-for="consequence in offExomesConsequences"
+      v-for="consequence in OFF_EXOMES_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
       v-model="data.variant_consequences"
       :value="consequence.key"
@@ -611,7 +409,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <h5>Non-coding</h5>
 
     <v-checkbox
-      v-for="consequence in nonCodingConsequences"
+      v-for="consequence in NON_CODING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
       v-model="data.variant_consequences"
       :value="consequence.key"
@@ -624,7 +422,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <h5>Splicing</h5>
 
     <v-checkbox
-      v-for="consequence in splicingConsequences"
+      v-for="consequence in SPLICING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
       v-model="data.variant_consequences"
       :value="consequence.key"

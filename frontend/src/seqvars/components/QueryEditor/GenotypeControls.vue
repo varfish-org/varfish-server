@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import {
   RecessiveModeEnum,
   SeqvarsQueryDetails,
   SeqvarsQueryDetailsRequest,
   SeqvarsSampleGenotypePydantic,
 } from '@varfish-org/varfish-api/lib'
-import { toRaw } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
@@ -77,12 +75,20 @@ const applyMutation = async (body: SeqvarsQueryDetailsRequest) => {
  */
 const updateRecessiveMode = async (newValue: RecessiveModeEnum) => {
   // Copy old query and get shortcut to the genotype to update below.
-  const newData = structuredClone(toRaw(props.seqvarsQuery))
+  const newData = {
+    ...props.seqvarsQuery,
+    settings: {
+      ...props.seqvarsQuery.settings,
+      genotype: {
+        ...props.seqvarsQuery.settings.genotype,
+        recessive_mode: newValue,
+      },
+    },
+  }
+  // const newData = structuredClone(toRaw(props.seqvarsQuery))
   const newGenotype = newData.settings.genotype
 
-  // Update recessive mode.
-  newData.settings.genotype.recessive_mode = newValue
-  // Apply necessary updates to `newGenotype` for chagne of recessive mode.
+  // Apply necessary updates to `newGenotype` for change of recessive mode.
   const markers = ['recessive_index', 'recessive_father', 'recessive_mother']
   const oldValue =
     props.seqvarsQuery.settings.genotype.recessive_mode ?? 'disabled'
@@ -112,13 +118,23 @@ const updateSampleGenotypeChoice = async (
   {
     postHook,
   }: {
-    postHook?: (arg: SeqvarsQueryDetails) => SeqvarsQueryDetails
-  } = { postHook: (arg: SeqvarsQueryDetails) => arg },
+    postHook?: <T extends SeqvarsQueryDetails>(arg: T) => T
+  } = { postHook: <T extends SeqvarsQueryDetails>(arg: T) => arg },
 ) => {
   // Copy old query and get shortcut to the genotype to update below.
-  let newData = structuredClone(toRaw(props.seqvarsQuery))
-
-  // Update the sample genotype choice.
+  let newData = {
+    ...props.seqvarsQuery,
+    settings: {
+      ...props.seqvarsQuery.settings,
+      genotype: {
+        ...props.seqvarsQuery.settings.genotype,
+        sample_genotype_choices: [
+          ...(props.seqvarsQuery.settings.genotype.sample_genotype_choices ??
+            []),
+        ],
+      },
+    },
+  }
   newData.settings.genotype.sample_genotype_choices![index] = newValue
 
   // Execute post-hook, e.g., to coerce recessive markers.
@@ -131,12 +147,27 @@ const updateSampleGenotypeChoice = async (
 }
 
 /** Coerce genotypes skipping the given sample name. */
-const coerceRecessiveMarkers = (
-  body: SeqvarsQueryDetails,
+const coerceRecessiveMarkers = <T extends SeqvarsQueryDetails>(
+  body: T,
   skipSample: string,
 ) => {
   // Copy old query and get shortcut to the genotype to update below.
-  const newData = structuredClone(body)
+  const newData = {
+    ...body,
+    settings: {
+      ...body.settings,
+      genotype: {
+        ...body.settings.genotype,
+        sample_genotype_choices: [
+          ...(body.settings.genotype.sample_genotype_choices ?? []).map(
+            (choice) => ({
+              ...choice,
+            }),
+          ),
+        ],
+      },
+    },
+  }
   const newGenotype = newData.settings.genotype
 
   // Apply changes as necessary to the local copy.
@@ -200,6 +231,8 @@ const coerceRecessiveMarkers = (
       <input
         :id="choice.sample"
         :checked="choice.enabled"
+        type="checkbox"
+        style="margin-top: 6px"
         @change="
           async () =>
             updateSampleGenotypeChoice(index, {
@@ -207,8 +240,6 @@ const coerceRecessiveMarkers = (
               enabled: !choice.enabled,
             })
         "
-        type="checkbox"
-        style="margin-top: 6px"
       />
 
       <div
@@ -269,7 +300,7 @@ const coerceRecessiveMarkers = (
                   genotype,
                 },
                 {
-                  postHook: (body: SeqvarsQueryDetails) =>
+                  postHook: <T extends SeqvarsQueryDetails>(body: T) =>
                     coerceRecessiveMarkers(body, choice.sample),
                 },
               )

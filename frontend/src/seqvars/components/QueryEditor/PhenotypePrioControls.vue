@@ -1,8 +1,19 @@
 <script setup lang="ts">
-import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
+/**
+ * This component allows to edit the phenotype-based priorization settings.
+ *
+ * The component is passed the current seqvar query for editing and updates
+ * it via TanStack Query.
+ */
+import {
+  SeqvarsQueryDetails,
+  SeqvarsQuerySettingsPhenotypePrioRequest,
+} from '@varfish-org/varfish-api/lib'
 import { computed, ref } from 'vue'
 
-import { queryHPO_Terms } from '../utils'
+import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery'
+
+import { queryHpoAndOmimTerms } from '../utils'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
 import Item from './ui/Item.vue'
 import SelectBox from './ui/SelectBox.vue'
@@ -12,51 +23,98 @@ import { type ItemData } from './ui/lib'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-const ITEMS = {
-  phenix: 'Phenix',
-  phive: 'Phive',
+/** Mapping from prioritzer algorithm to label. */
+const ALGOS = {
+  // 'exomiser.phenix': 'Phenix',  // deprecated
+  // 'exomiser.phive': 'Phive',  // deprecated
   'exomiser.hiphive_human': 'HiPhive (human only)',
   'exomiser.hiphive_humanmouse': 'HiPhive (human+mouse)',
   'exomiser.hiphive_humanmousefishppi': 'HiPhive (human, mouse, fish, PPI)',
 }
 
-const selectedItem = computed<string | undefined>(() => {
-  const [[_, value]] = Object.entries(ITEMS).filter(
+/** Simplified access to the currently selected algorithm item. */
+const selectedAlgo = computed<string | undefined>(() => {
+  const [[_, value]] = Object.entries(ALGOS).filter(
     ([key, _]) =>
-      key === model.value.settings.phenotypeprio?.phenotype_prio_algorithm,
+      key === props.modelValue.settings.phenotypeprio?.phenotype_prio_algorithm,
   )
   return value
 })
 
-const model = defineModel<SeqvarsQueryDetails>({ required: true })
-
+/** Whether or not the details are open. */
 const detailsOpen = ref<boolean>(false)
 
+/** Selected terms from HPO. */
+// TODO: migrate to proper common type
 const items = ref<ItemData[]>([])
 
-async function onSearch(query: string) {
-  items.value = (await queryHPO_Terms(query)).map((i) => ({
+/** Handler for executing the search. */
+const onSearch = async (query: string) => {
+  items.value = (await queryHpoAndOmimTerms(query)).map((i) => ({
     id: i.term_id,
     label: i.label,
     sublabel: i.term_id,
   }))
 }
+
+/**
+ * Mutation for updating a seqvar query.
+ *
+ * This is done via TanStack Query which uses optimistic updates for quick
+ * reflection in the UI.
+ */
+const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
+
+/** Helper to apply a patch to the current `props.modelValue`. */
+const applyMutation = async (
+  phenotypeprio: SeqvarsQuerySettingsPhenotypePrioRequest,
+) => {
+  const newData = {
+    ...props.modelValue,
+    settings: {
+      ...props.modelValue.settings,
+      phenotypeprio: {
+        ...props.modelValue.settings.phenotypeprio,
+        ...phenotypeprio,
+      },
+    },
+  }
+
+  // Apply update via TanStack query; will use optimistic updates for quick
+  // reflection in the UI.
+  await seqvarQueryUpdate.mutateAsync({
+    body: newData,
+    path: {
+      session: props.modelValue.session,
+      query: props.modelValue.sodar_uuid,
+    },
+  })
+}
 </script>
 
 <template>
   <v-checkbox
-    v-model="model.settings.phenotypeprio.phenotype_prio_enabled"
+    :model-value="modelValue.settings.phenotypeprio.phenotype_prio_enabled"
     density="compact"
     label="Enable phenotype-based priorization"
     color="primary"
     hide-details
     class="my-2"
+    @update:model-value="
+      async () =>
+        await applyMutation({
+          phenotype_prio_enabled:
+            !modelValue.settings.phenotypeprio.phenotype_prio_enabled,
+        })
+    "
   />
 
   <CollapsibleGroup
@@ -64,7 +122,7 @@ async function onSearch(query: string) {
     title="Phenotype similarity algorithm"
   >
     <template #summary>
-      {{ selectedItem }}
+      {{ selectedAlgo }}
     </template>
     <template #default>
       <div style="width: 100%; display: flex; flex-direction: column; gap: 4px">
@@ -73,14 +131,13 @@ async function onSearch(query: string) {
           style="width: 100%; display: flex; flex-direction: column"
         >
           <Item
-            v-for="(label, key) in ITEMS"
+            v-for="(label, key) in ALGOS"
             :key="key"
             :selected="
-              model.settings.phenotypeprio.phenotype_prio_algorithm == key
+              modelValue.settings.phenotypeprio.phenotype_prio_algorithm == key
             "
             @click="
-              () =>
-                (model.settings.phenotypeprio.phenotype_prio_algorithm = key)
+              async () => await applyMutation({ phenotype_prio_algorithm: key })
             "
           >
             {{ label }}
@@ -93,7 +150,7 @@ async function onSearch(query: string) {
   <SelectBox
     :items="items"
     :model-value="
-      (model.settings.phenotypeprio.terms ?? []).map((t) => ({
+      (modelValue.settings.phenotypeprio.terms ?? []).map((t) => ({
         id: t.term.term_id,
         label: t.term.label,
         sublabel: t.term.term_id,
@@ -102,10 +159,12 @@ async function onSearch(query: string) {
     label="Type to search HPO terms"
     @update:search="onSearch"
     @update:model-value="
-      (items: ItemData[]) => {
-        model.settings.phenotypeprio.terms = items.map((i) => ({
-          term: { label: i.label, term_id: i.id },
-        }))
+      async (items: ItemData[]) => {
+        await applyMutation({
+          terms: items.map((i) => ({
+            term: { label: i.label, term_id: i.id },
+          })),
+        })
       }
     "
   />

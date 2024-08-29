@@ -1,4 +1,19 @@
 <script setup lang="ts">
+/**
+ * This component provides the overall query editor.
+ *
+ * The `QueryEditor` is very complex.  To reduce the complexity, the
+ * following measures have been taken:
+ *
+ * - Server state management is done via TanStack Query.
+ * - The top level component only orchestrates create, update, and "revert
+ *   to presets values" actions.
+ * - The updates of the "deep inner" values are handled in the child
+ *   components directly via TanStack Query.
+ *
+ * Effectively, we don't have any "models" in this component or the
+ * descendants and rely on TanStack Query for state management.
+ */
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
@@ -8,7 +23,7 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useCaseRetrieveQuery } from '@/cases/queries/cases'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
@@ -198,7 +213,7 @@ const updateQueryLabel = async (label: string): Promise<boolean> => {
     try {
       await seqvarQueryUpdate.mutateAsync({
         body: {
-          ...structuredClone(toRaw(selectedQuery.value)),
+          ...selectedQuery.value,
           label,
         },
         path: {
@@ -251,40 +266,12 @@ const deleteQuery = async (queryUuid: string) => {
 }
 
 /**
- * Update the currenet query with the given details.
- */
-const updateSeqvarsQuery = async (query: SeqvarsQueryDetails) => {
-  try {
-    await seqvarQueryUpdate.mutateAsync({
-      body: query,
-      path: {
-        session: sessionUuid.value,
-        query: query.sodar_uuid,
-      },
-    })
-    emit('message', {
-      text: 'Query updated successfully.',
-      color: 'success',
-    })
-  } catch (e) {
-    emit('message', {
-      text: `Failed to update query: ${e}`,
-      color: 'error',
-    })
-  }
-}
-
-/**
  * Revert the currently selected query's genotype.
  */
 const revertGenotypeToPresets = async () => {
-  if (
-    !!selectedQuery.value?.settings.genotypepresets?.choice &&
-    !!baselinePredefinedQuery.value?.genotype?.choice &&
-    !!pedigree.value
-  ) {
+  if (!!baselinePredefinedQuery.value?.genotype?.choice && !!pedigree.value) {
     await updateGenotypeToPresets(
-      selectedQuery.value.settings.genotypepresets.choice,
+      baselinePredefinedQuery.value?.genotype?.choice,
     )
   }
 }
@@ -303,16 +290,107 @@ const revertGroupToPresets = async (group: (typeof GROUPS)[number]) => {
 }
 
 /**
+ * Update genotype to presets in a `seqvarsQuery` in a `SeqvarsQueryDetailsRequest`.
+ */
+const queryWithGenotypePresets = <T extends SeqvarsQueryDetailsRequest>(
+  seqvarsQuery: T,
+  choice: SeqvarsGenotypePresetChoice,
+  pedigree: PedigreeObj,
+): T => {
+  if (!seqvarsQuery.settings.genotypepresets?.choice) {
+    return seqvarsQuery
+  } else {
+    return {
+      ...seqvarsQuery,
+      settings: {
+        ...seqvarsQuery.settings,
+        genotypepresets: {
+          ...seqvarsQuery.settings.genotype,
+          choice,
+        },
+        genotype: createGenotypeFromPreset(pedigree, choice),
+      },
+    }
+  }
+}
+
+/**
+ * Update a category of the query settings to the given preset.
+ */
+const queryWithGroupPresets = <
+  G extends (typeof GROUPS)[number],
+  T extends SeqvarsQueryDetailsRequest,
+>(
+  seqvarsQuery: T,
+  pedigree: PedigreeObj,
+  group: G,
+  preset: G extends FilterGroup<any, any, infer Preset> ? Preset : never,
+): T => {
+  if (!seqvarsQuery.settings.genotypepresets?.choice) {
+    return seqvarsQuery
+  } else {
+    const value =
+      group.id === 'quality'
+        ? createQualityFromPreset(
+            pedigree,
+            preset as SeqvarsQueryPresetsQuality,
+          )
+        : preset
+    return {
+      ...seqvarsQuery,
+      settings: {
+        ...seqvarsQuery.settings,
+        [`${group.id}presets`]: preset.sodar_uuid,
+        [group.id]: {
+          ...seqvarsQuery.settings[group.id],
+          ...value,
+        },
+      },
+    }
+  }
+}
+
+/**
  * Reverts the currently selected query's settings to its original presets'
  * value.
  */
 const revertQueryToPresets = async () => {
-  if (!!selectedQuery.value?.settings?.genotypepresets?.choice) {
-    await revertGenotypeToPresets()
+  if (!selectedQuery.value) {
+    // guard against no query
+    return
   }
+  let seqvarsQuery = selectedQuery.value
+
+  const choice = baselinePredefinedQuery.value?.genotype?.choice
+  if (!!choice) {
+    seqvarsQuery = queryWithGenotypePresets(
+      seqvarsQuery,
+      choice,
+      pedigree.value!,
+    )
+  }
+
   for (const group of Object.values(GROUPS)) {
-    await revertGroupToPresets(group)
+    const preset = props.presetsDetails[group.presetSetKey].find(
+      (p) => p.sodar_uuid === baselinePredefinedQuery.value?.[group.id],
+    )
+    if (!!seqvarsQuery && !!preset) {
+      seqvarsQuery = queryWithGroupPresets(
+        seqvarsQuery,
+        pedigree.value!,
+        group,
+        preset,
+      )
+    }
   }
+
+  await seqvarQueryUpdate.mutateAsync({
+    body: seqvarsQuery,
+    path: {
+      session: sessionUuid.value,
+      query: selectedQuery.value.sodar_uuid,
+    },
+  })
 }
 
 /**
@@ -324,19 +402,11 @@ const revertQueryToPresets = async () => {
 const updateGenotypeToPresets = async (choice: SeqvarsGenotypePresetChoice) => {
   if (!!selectedQuery.value && !!pedigree.value) {
     await seqvarQueryUpdate.mutateAsync({
-      body: {
-        ...selectedQuery.value,
-        settings: {
-          ...selectedQuery.value.settings,
-          genotypepresets: {
-            ...selectedQuery.value.settings.genotype,
-            choice,
-          },
-          genotype: structuredClone(
-            createGenotypeFromPreset(pedigree.value, choice),
-          ),
-        },
-      },
+      body: queryWithGenotypePresets(
+        selectedQuery.value,
+        choice,
+        pedigree.value,
+      ),
       path: {
         session: sessionUuid.value,
         query: selectedQuery.value.sodar_uuid,
@@ -371,25 +441,8 @@ const revertCategoryToPresets = async <G extends (typeof GROUPS)[number]>(
   preset: G extends FilterGroup<any, any, infer Preset> ? Preset : never,
 ) => {
   if (!!selectedQuery.value) {
-    const value =
-      group.id == 'quality'
-        ? createQualityFromPreset(
-            pedigree,
-            preset as SeqvarsQueryPresetsQuality,
-          )
-        : preset
     await seqvarQueryUpdate.mutateAsync({
-      body: {
-        ...selectedQuery.value,
-        settings: {
-          ...selectedQuery.value.settings,
-          [`${group.id}presets`]: preset.sodar_uuid,
-          [group.id]: {
-            ...selectedQuery.value.settings[group.id],
-            ...structuredClone(value),
-          },
-        },
-      },
+      body: queryWithGroupPresets(selectedQuery.value, pedigree, group, preset),
       path: {
         session: sessionUuid.value,
         query: selectedQuery.value.sodar_uuid,
@@ -648,10 +701,6 @@ watch(
           <component
             :is="group.Component"
             :model-value="selectedQuery"
-            @update:model-value="
-              async (query: SeqvarsQueryDetails) =>
-                await updateSeqvarsQuery(query)
-            "
             :hints-enabled="hintsEnabled"
           />
         </template>

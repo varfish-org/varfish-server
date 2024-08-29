@@ -1,6 +1,18 @@
 <script setup lang="ts">
-import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
+/**
+ * This component allows to edit the per-sample quality presets.
+ *
+ * The component is passed the current seqvar query for editing and updates
+ * it via TanStack Query.
+ */
+import {
+  SeqvarsQueryDetails,
+  SeqvarsSampleQualityFilterPydanticList,
+} from '@varfish-org/varfish-api/lib'
 
+import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery'
+
+import { _Unpacked } from '../PresetsEditor/lib'
 import AbbrHint from './ui/AbbrHint.vue'
 import Input from './ui/Input.vue'
 import SmallText from './ui/SmallText.vue'
@@ -9,13 +21,68 @@ import SmallText from './ui/SmallText.vue'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-const model = defineModel<SeqvarsQueryDetails>({ required: true })
+/** Type for per-sample quality settings. */
+type SeqvarsSampleQualityFilter =
+  _Unpacked<SeqvarsSampleQualityFilterPydanticList>
+
+/** Quality filter fields. */
+const FILTER_FIELDS = [
+  { key: 'min_dp_het', label: 'max DP hom.' },
+  { key: 'min_dp_hom', label: 'min DP hom.' },
+  { key: 'min_ab_het', label: 'mit AB' },
+  { key: 'min_gq', label: 'min GQ' },
+  { key: 'min_ad', label: 'min AD' },
+  { key: 'max_ad', label: 'max AD' },
+] as const
+
+/**
+ * Mutation for updating a seqvar query.
+ *
+ * This is done via TanStack Query which uses optimistic updates for quick
+ * reflection in the UI.
+ */
+const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
+
+/**
+ * Helper to apply a patch to the current `props.modelValue` for a specific
+ * sample index.
+ */
+const applyMutation = async (
+  index: number,
+  quality: SeqvarsSampleQualityFilter,
+) => {
+  const newData = {
+    ...props.modelValue,
+    settings: {
+      ...props.modelValue.settings,
+      quality: {
+        ...props.modelValue.settings.quality,
+        sample_quality_filters: [
+          ...(props.modelValue.settings.quality.sample_quality_filters ?? []),
+        ],
+      },
+    },
+  }
+  newData.settings.quality.sample_quality_filters[index] = quality
+
+  // Apply update via TanStack query; will use optimistic updates for quick
+  // reflection in the UI.
+  await seqvarQueryUpdate.mutateAsync({
+    body: newData,
+    path: {
+      session: props.modelValue.session,
+      query: props.modelValue.sodar_uuid,
+    },
+  })
+}
 </script>
 
 <template>
@@ -77,38 +144,47 @@ const model = defineModel<SeqvarsQueryDetails>({ required: true })
     </SmallText>
 
     <template
-      v-for="(item, index) in model.settings.quality.sample_quality_filters"
+      v-for="(item, index) in modelValue.settings.quality
+        .sample_quality_filters"
       :key="index"
     >
       <v-checkbox
-        v-model="item.filter_active"
+        :model-value="item.filter_active"
         color="primary"
         :label="item.sample"
         class="d-flex align-items-center ga-4"
         style="grid-column: span 7"
         density="compact"
+        @change="
+          async () =>
+            await applyMutation(index, {
+              ...item,
+              filter_active: !item.filter_active,
+            })
+        "
       />
 
       <fieldset style="display: contents">
         <div style="width: 25px"></div>
         <Input
-          v-model="item.min_dp_het"
-          aria-label="min DP het"
-          style="grid-column: 2; width: 32px"
+          v-for="{ key, label } in FILTER_FIELDS"
+          :key="key"
+          :model-value="item[key]"
+          :aria-label="label"
+          :style="
+            key === 'min_dp_het'
+              ? { 'grid-column': 2, width: '32px' }
+              : { width: '32px' }
+          "
+          @update:model-value="
+            async (value) => {
+              await applyMutation(index, {
+                ...item,
+                [key]: value === null ? null : Number(value),
+              })
+            }
+          "
         />
-        <Input
-          v-model="item.min_dp_hom"
-          aria-label="max DP hom"
-          style="width: 32px"
-        />
-        <Input
-          v-model="item.min_ab_het"
-          aria-label="min AB"
-          style="width: 32px"
-        />
-        <Input v-model="item.min_gq" aria-label="min GQ" style="width: 32px" />
-        <Input v-model="item.min_ad" aria-label="min AD" style="width: 32px" />
-        <Input v-model="item.max_ad" aria-label="max AD" style="width: 32px" />
       </fieldset>
     </template>
   </div>
