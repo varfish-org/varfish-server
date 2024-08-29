@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+import { useIsFetching } from '@tanstack/vue-query'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCaseAnalysisSessionListQuery } from '@/cases/queries/caseAnalysisSession'
+import { useCaseRetrieveQuery } from '@/cases/queries/cases'
 import { useProjectStore } from '@/cases/stores/project'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
 import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
-import { useCaseAnalysisStore } from '@/seqvars/stores/caseAnalysis'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import { useSeqvarsQueryStore } from '@/seqvars/stores/query'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** This component's props. */
@@ -34,40 +35,28 @@ const hintsEnabled = ref<boolean>(true)
 const detailsShown = ref<boolean>(false)
 // Messages to display in VSnackbarQueue; component state. */
 const messages = ref<SnackbarMessage[]>([])
+/** Wraps `props.caseUuid` into a `ComputedRef` for use with queries. */
+const caseUuid = computed(() => props.caseUuid)
 
-const caseDetailsStore = useCaseDetailsStore()
 const projectStore = useProjectStore()
 const seqvarsPresetsStore = useSeqvarsPresetsStore()
-const seqvarsQueryStore = useSeqvarsQueryStore()
-const caseAnalysisStore = useCaseAnalysisStore()
 
 /** (Re-)initialize the stores. */
 const initializeStores = async () => {
   await Promise.all([
-    (async () => {
-      if (!!props.caseUuid) {
-        await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
-        await caseAnalysisStore.initialize(props.projectUuid, props.caseUuid)
-      }
-    })(),
     projectStore.initialize(props.projectUuid),
     seqvarsPresetsStore.initialize(props.projectUuid),
   ])
-  if (
-    !!props.caseUuid &&
-    !!caseAnalysisStore.currentAnalysis &&
-    !!caseAnalysisStore.currentSession &&
-    !!selectedPresetSetVersionDetails.value
-  ) {
-    await seqvarsQueryStore.initialize(
-      props.projectUuid,
-      props.caseUuid,
-      caseAnalysisStore.currentAnalysis?.sodar_uuid,
-      caseAnalysisStore.currentSession?.sodar_uuid,
-      selectedPresetSetVersionDetails.value.sodar_uuid,
-    )
-  }
 }
+
+/** Retrieve Case through TanStack Query. */
+const caseRetrieveRes = useCaseRetrieveQuery({ caseUuid })
+/** Retrieve CaseAnalysisSession through TanStack Query. */
+const sessionRetrieveRes = useCaseAnalysisSessionListQuery({ caseUuid })
+/** Wraps the session UUID into a `ComputedRef` for easier access. */
+const sessionUuid = computed<string | undefined>(
+  () => sessionRetrieveRes.data!.value?.pages?.[0]?.results?.[0]?.sodar_uuid,
+)
 
 /** The currently selected preset set for the case. */
 const selectedPresetSetVersionDetails = computed<
@@ -95,14 +84,15 @@ watch(
   () => [
     props.projectUuid,
     props.caseUuid,
-    caseAnalysisStore.currentAnalysis,
-    caseAnalysisStore.currentSession,
     selectedPresetSetVersionDetails.value,
   ],
   async () => {
     await initializeStores()
   },
 )
+
+// Hook into TanStack Query.
+const isQueryFetching = useIsFetching()
 </script>
 
 <template>
@@ -112,15 +102,8 @@ watch(
       v-model:show-right-panel="detailsShown"
       :show-left-panel-button="true"
       :show-right-panel-button="true"
-      :title="
-        caseDetailsStore.caseObj?.name
-          ? `VarFish - ${caseDetailsStore.caseObj?.name}`
-          : undefined
-      "
-      :loading="
-        !selectedPresetSetVersionDetails ||
-        seqvarsQueryStore.storeState.serverInteractions > 0
-      "
+      :title="caseRetrieveRes.data?.value?.name"
+      :loading="!selectedPresetSetVersionDetails || isQueryFetching > 0"
     />
 
     <TheNavBar :navbar-shown="navbarShown">
@@ -189,11 +172,14 @@ watch(
 
     <QueryEditorDrawer :drawer-shown="queryEditorShown">
       <v-skeleton-loader
-        v-if="!selectedPresetSetVersionDetails"
+        v-if="!selectedPresetSetVersionDetails || !caseUuid || !sessionUuid"
         type="list-item, list-item, list-item"
+        class="bg-background"
       ></v-skeleton-loader>
       <template v-else>
         <QueryEditor
+          :case-uuid="caseUuid"
+          :session-uuid="sessionUuid"
           :collapsed="!queryEditorShown"
           :presets-details="selectedPresetSetVersionDetails"
           :hints-enabled="hintsEnabled"
@@ -226,4 +212,5 @@ watch(
       close-on-content-click
     ></v-snackbar-queue>
   </v-app>
+  <VueQueryDevtools />
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   id?: string
   style?: CSSProperties
@@ -12,13 +13,13 @@ const model = defineModel<string | number | null>()
 </script>
 
 <template>
-  <div class="root" :style="props.style">
+  <div class="root" :style="style">
     <input
-      :id="props.id"
+      :id="id"
       v-model="model"
-      :aria-label="props.ariaLabel"
-      :type="props.type ?? 'text'"
-      :step="props.step"
+      :aria-label="ariaLabel"
+      :type="type ?? 'text'"
+      :step="step"
     />
     <slot name="after"></slot>
   </div>

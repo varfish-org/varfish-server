@@ -64,8 +64,8 @@ snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets helixmtdb"] = {
 }
 
 snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets inhouse"] = {
-    "carriers": None,
     "enabled": False,
+    "frequency": None,
     "hemizygous": None,
     "heterozygous": None,
     "homozygous": None,

@@ -3908,17 +3908,17 @@ Not used directly but used as base class.`,
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
                     title: 'InhouseFrequencySettingsPydantic',
@@ -7153,17 +7153,17 @@ Not used directly but used as base class.`,
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
                     title: 'InhouseFrequencySettingsPydantic',
@@ -7511,17 +7511,17 @@ Not used directly but used as base class.`,
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
                     title: 'InhouseFrequencySettingsPydantic',
@@ -9132,17 +9132,17 @@ export const $SeqvarsQuerySettingsFrequency = {
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
                     title: 'InhouseFrequencySettingsPydantic',
@@ -9517,17 +9517,17 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
                     title: 'InhouseFrequencySettingsPydantic',

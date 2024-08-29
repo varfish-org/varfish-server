@@ -491,10 +491,10 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
-                carriers=20,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
+                frequency=None,
             ),
         ),
         SeqvarsQueryPresetsFrequency(
@@ -531,7 +531,7 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
-                carriers=20,
+                frequency=0.01,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
@@ -571,7 +571,7 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
-                carriers=20,
+                frequency=0.01,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
@@ -611,7 +611,7 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
-                carriers=20,
+                frequency=0.01,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
@@ -651,7 +651,7 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=True,
-                carriers=20,
+                frequency=0.01,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,
@@ -691,7 +691,7 @@ def create_seqvarsquerypresetsfrequency(faker: Faker) -> list[SeqvarsQueryPreset
             ),
             inhouse=InhouseFrequencySettingsPydantic(
                 enabled=False,
-                carriers=None,
+                frequency=0.01,
                 homozygous=None,
                 heterozygous=None,
                 hemizygous=None,

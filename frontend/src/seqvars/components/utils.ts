@@ -4,16 +4,29 @@ import {
   VigunoClient,
 } from '@bihealth/reev-frontend-lib/api/viguno'
 
-export function toggleArrayElement(arr: string[] | undefined, element: string) {
-  if (arr == undefined) {
-    return
+/**
+ * Helper that adds/removes an element from a string array to invert its presence.
+ *
+ * @param arr Array to modify.
+ * @param element Element to add/remove.
+ * @returns Modified array or `undefined` if input was `undefined`.
+ */
+export const toggleArrayElement = <T>(
+  arr: T[] | undefined,
+  element: T,
+): T[] | undefined => {
+  if (arr === undefined) {
+    return undefined
   }
-  const index = arr.indexOf(element)
+
+  const result = [...arr]
+  const index = result.indexOf(element)
   if (index === -1) {
-    arr.push(element)
+    result.push(element)
   } else {
-    arr.splice(index, 1)
+    result.splice(index, 1)
   }
+  return result
 }
 
 export function isKeyOfObject<T extends object>(
@@ -23,7 +36,7 @@ export function isKeyOfObject<T extends object>(
   return key in obj
 }
 
-export async function queryHPO_Terms(query: string) {
+export async function queryHpoAndOmimTerms(query: string) {
   const vigunoClient = new VigunoClient('/proxy/varfish/viguno')
   const queryArg = encodeURIComponent(query)
   let results: (HpoTerm | HpoOmim)[]

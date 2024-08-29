@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import {
-  SeqvarsQueryDetails,
-  SeqvarsQuerySettingsFrequency,
-} from '@varfish-org/varfish-api/lib'
+/**
+ * This components only arranges a `FrequencyControlsRow` instances to display
+ * frequency editor table but contains no logic itself.
+ */
+import { SeqvarsQueryDetails } from '@varfish-org/varfish-api/lib'
 
-import FrequencyControlRow from './FrequencyControlRow.vue'
+import FrequencyControlsRow from './FrequencyControlsRow.vue'
+import { FrequencyDb } from './lib'
 import AbbrHint from './ui/AbbrHint.vue'
 import SmallText from './ui/SmallText.vue'
 
@@ -12,15 +14,32 @@ import SmallText from './ui/SmallText.vue'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-const model = defineModel<SeqvarsQueryDetails>({
-  required: true,
-})
+/** Database information */
+interface DbInfo {
+  /** Label for the database. */
+  label: string
+  /** Key into the `modelValue.settings.frequency` object. */
+  db: FrequencyDb
+  /** Number of samples in database. */
+  size?: number
+}
+
+/** The database information to display. */
+const DB_INFOS = [
+  { label: 'gnomAD exomes', db: 'gnomad_exomes', size: 16 },
+  { label: 'gnomAD genomes', db: 'gnomad_genomes', size: 126 },
+  { label: 'gnomAD mitochondrial', db: 'gnomad_mitochondrial', size: 56 },
+  { label: 'HelixMTdb', db: 'helixmtdb', size: 197 },
+  { label: 'in-house DB', db: 'inhouse', size: undefined },
+] as const satisfies DbInfo[]
 </script>
 
 <template>
@@ -75,23 +94,11 @@ const model = defineModel<SeqvarsQueryDetails>({
       </AbbrHint>
     </SmallText>
 
-    <template
-      v-for="[name, key, size] in [
-        ['gnomAd exomes', 'gnomad_exomes', 16],
-        ['gnomAd genomes', 'gnomad_genomes', 126],
-        ['gnomAd mitochondrial', 'gnomad_mitochondrial', 56],
-        ['in-house DB', 'inhouse', null],
-        ['HelixMTdb', 'helixmtdb', 197],
-      ] satisfies [
-        string,
-        keyof SeqvarsQuerySettingsFrequency,
-        number | null,
-      ][]"
-      :key="name"
-    >
-      <FrequencyControlRow
-        v-model="model.settings.frequency[key]!"
-        :name="name"
+    <template v-for="{ label, db, size } in DB_INFOS" :key="label">
+      <FrequencyControlsRow
+        :model-value="modelValue"
+        :label="label"
+        :db="db"
         :size="size"
       />
     </template>

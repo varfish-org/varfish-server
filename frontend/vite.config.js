@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
         '@test': resolve(__dirname, './tests/'),
         '@bihealth/reev-frontend-lib': resolve(__dirname, './ext/reev-frontend-lib/src'),
         '@varfish-org/varfish-api': resolve(__dirname, './ext/varfish-api/src'),
+        '@varfish-org/viguno-api': resolve(__dirname, './ext/viguno-api/src'),
         '@': resolve(__dirname, './src/'),
       },
     },

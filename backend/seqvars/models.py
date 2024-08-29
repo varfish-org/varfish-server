@@ -89,7 +89,7 @@ class InhouseFrequencySettingsPydantic(pydantic.BaseModel):
     heterozygous: int | None = None
     homozygous: int | None = None
     hemizygous: int | None = None
-    carriers: int | None = None
+    frequency: float | None = None
 
 
 class SeqvarsFrequencySettingsBase(models.Model):

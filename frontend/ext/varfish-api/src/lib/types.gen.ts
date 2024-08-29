@@ -1325,7 +1325,7 @@ export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
     heterozygous?: (number | null);
     homozygous?: (number | null);
     hemizygous?: (number | null);
-    carriers?: (number | null);
+    frequency?: (number | null);
 } | null) | null);
     rank?: number;
     label?: string;
@@ -2342,7 +2342,7 @@ export type SeqvarsQueryPresetsFrequency = {
     heterozygous?: (number | null);
     homozygous?: (number | null);
     hemizygous?: (number | null);
-    carriers?: (number | null);
+    frequency?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2390,7 +2390,7 @@ export type SeqvarsQueryPresetsFrequencyRequest = {
     heterozygous?: (number | null);
     homozygous?: (number | null);
     hemizygous?: (number | null);
-    carriers?: (number | null);
+    frequency?: (number | null);
 } | null) | null);
     rank?: number;
     label: string;
@@ -2834,7 +2834,7 @@ export type SeqvarsQuerySettingsFrequency = {
     heterozygous?: (number | null);
     homozygous?: (number | null);
     hemizygous?: (number | null);
-    carriers?: (number | null);
+    frequency?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2886,7 +2886,7 @@ export type SeqvarsQuerySettingsFrequencyRequest = {
     heterozygous?: (number | null);
     homozygous?: (number | null);
     hemizygous?: (number | null);
-    carriers?: (number | null);
+    frequency?: (number | null);
 } | null) | null);
 };
 

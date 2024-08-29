@@ -1,7 +1,14 @@
 <script setup lang="ts">
+/**
+ * This component allows to edit the per-sample quality presets.
+ *
+ * The component is passed the current seqvar query for editing and updates
+ * it via TanStack Query.
+ */
 import {
   GenePydanticList,
   SeqvarsQueryDetails,
+  SeqvarsQuerySettingsLocus,
 } from '@varfish-org/varfish-api/lib'
 import { isDeepEqual, partition, uniqueWith } from 'remeda'
 import { computed, ref, watch } from 'vue'
@@ -10,6 +17,7 @@ import {
   genomeRegionToString,
   parseGenomeRegion,
 } from '@/seqvars/components/PresetsEditor/lib'
+import { useSeqvarQueryUpdateMutation } from '@/seqvars/queries/seqvarQuery'
 import { AnnonarsApiClient, GeneNames } from '@/varfish/api/annonars'
 import { useCtxStore } from '@/varfish/stores/ctx'
 
@@ -17,16 +25,53 @@ import { useCtxStore } from '@/varfish/stores/ctx'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(
   defineProps<{
+    /** The query that is to be edited. */
+    modelValue: SeqvarsQueryDetails
     /** Whether to enable hints. */
     hintsEnabled?: boolean
   }>(),
   { hintsEnabled: false },
 )
 
-const model = defineModel<SeqvarsQueryDetails>({ required: true })
-const hasGenes = computed(() => model.value.settings.locus.genes!.length > 0)
+/**
+ * Mutation for updating a seqvar query.
+ *
+ * This is done via TanStack Query which uses optimistic updates for quick
+ * reflection in the UI.
+ */
+const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
 
-const choice = ref<keyof typeof model.value.settings.locus>(
+/**
+ * Helper to apply a patch to the current `props.modelValue`.
+ */
+const applyMutation = async (locus: SeqvarsQuerySettingsLocus) => {
+  const newData = {
+    ...props.modelValue,
+    settings: {
+      ...props.modelValue.settings,
+      locus: {
+        ...props.modelValue.settings.locus,
+        ...locus,
+      },
+    },
+  }
+
+  // Apply update via TanStack query; will use optimistic updates for quick
+  // reflection in the UI.
+  await seqvarQueryUpdate.mutateAsync({
+    body: newData,
+    path: {
+      session: props.modelValue.session,
+      query: props.modelValue.sodar_uuid,
+    },
+  })
+}
+
+const hasGenes = computed(
+  () => props.modelValue.settings.locus.genes!.length > 0,
+)
+
+const choice = ref<keyof typeof props.modelValue.settings.locus>(
   hasGenes.value ? 'genes' : 'genome_regions',
 )
 
@@ -40,17 +85,20 @@ const textAreaValue = ref('')
 const textAreaErrorMessages = ref<string[]>([])
 const parsing = ref(false)
 
-watch(choice, (choiceValue) => {
+watch(choice, async (choiceValue) => {
   textAreaErrorMessages.value = []
 
   if (choiceValue == 'genes') {
-    model.value.settings.locus.genome_regions = []
+    await applyMutation({
+      ...props.modelValue.settings.locus,
+      genome_regions: [],
+    })
   } else {
-    model.value.settings.locus.genes = []
+    await applyMutation({ ...props.modelValue.settings.locus, genes: [] })
   }
 })
 
-async function parseAndStore() {
+const parseAndStore = async () => {
   parsing.value = true
 
   const words = textAreaValue.value.split(/[;\s+]/).filter((s) => s.trim())
@@ -64,10 +112,13 @@ async function parseAndStore() {
       }
     })
     const [regions, errors] = partition(results, (v) => 'chromosome' in v)
-    model.value.settings.locus.genome_regions = uniqueWith(
-      [...(model.value.settings.locus.genome_regions ?? []), ...regions],
-      isDeepEqual,
-    )
+    await applyMutation({
+      ...props.modelValue.settings.locus,
+      genome_regions: uniqueWith(
+        [...(props.modelValue.settings.locus.genome_regions ?? []), ...regions],
+        isDeepEqual,
+      ),
+    })
     textAreaValue.value = errors.map((e) => e.text).join('\n')
     textAreaErrorMessages.value = errors.map((e) => e.message)
   } else {
@@ -97,7 +148,7 @@ async function parseAndStore() {
       registerIdentifier(gene, seen)
     }
     // Collect list of already present identifiers.
-    for (const gene of model.value.settings.locus.genes ?? []) {
+    for (const gene of props.modelValue.settings.locus.genes ?? []) {
       registerIdentifier(
         { ...gene, name: gene.symbol!, alias_name: [], alias_symbol: [] },
         seen,
@@ -109,7 +160,7 @@ async function parseAndStore() {
 
     // Copy-convert the found genes over to the data, removing duplicates.
     const genes = new Array<_Unpacked<GenePydanticList>>()
-    genes.push(...(model.value.settings.locus.genes ?? []))
+    genes.push(...(props.modelValue.settings.locus.genes ?? []))
     const alreadyAdded = new Set<string>()
     for (const gene of foundGenes) {
       if (
@@ -133,7 +184,10 @@ async function parseAndStore() {
 
     // Helpfully, sort genes by symbol.
     genes.sort((a, b) => a.symbol.localeCompare(b.symbol))
-    model.value.settings.locus.genes = genes
+    await applyMutation({
+      ...props.modelValue.settings.locus,
+      genes,
+    })
 
     // Copy the genes that were not found over back to the text area.
     const invalidGenes: string[] = []
@@ -154,10 +208,10 @@ async function parseAndStore() {
   <v-sheet class="pr-1 pt-1 mb-1 bg-transparent">
     <div class="d-flex align-center justify-space-between ga-4">
       <span class="text-caption text-uppercase pb-1">
-        <template v-if="model.settings.locus.genes?.length">
+        <template v-if="modelValue.settings.locus.genes?.length">
           Gene List
         </template>
-        <template v-else-if="model.settings.locus.genome_regions?.length">
+        <template v-else-if="modelValue.settings.locus.genome_regions?.length">
           Genome Regions
         </template>
         <template v-else> Gene List / Genome Regions </template>
@@ -166,8 +220,8 @@ async function parseAndStore() {
       <div>
         <v-btn
           v-if="
-            !!model.settings.locus.genes?.length ||
-            !!model.settings.locus.genome_regions?.length
+            !!modelValue.settings.locus.genes?.length ||
+            !!modelValue.settings.locus.genome_regions?.length
           "
           size="small"
           density="compact"
@@ -176,10 +230,12 @@ async function parseAndStore() {
           text="Clear"
           class="pr-2"
           @click="
-            () => {
-              model.settings.locus.genes = []
-              model.settings.locus.genome_regions = []
-            }
+            async () =>
+              await applyMutation({
+                ...modelValue.settings.locus,
+                genes: [],
+                genome_regions: [],
+              })
           "
         />
         <v-btn
@@ -195,27 +251,44 @@ async function parseAndStore() {
     </div>
 
     <div>
-      <template v-if="model.settings.locus.genes?.length">
+      <template v-if="modelValue.settings.locus.genes?.length">
         <v-chip
-          v-for="(item, index) in model.settings.locus.genes"
+          v-for="(item, index) in modelValue.settings.locus.genes"
           :key="item.hgnc_id"
           size="small"
           class="mr-1 mb-1"
           closable
-          @click:close="model.settings.locus.genes.splice(index, 1)"
+          @click:close="
+            async () =>
+              await applyMutation({
+                ...modelValue.settings.locus,
+                genes: modelValue.settings.locus.genes?.filter(
+                  (_, i) => i !== index,
+                ),
+              })
+          "
         >
           {{ item.symbol }}
         </v-chip>
       </template>
 
-      <template v-else-if="model.settings.locus.genome_regions?.length">
+      <template v-else-if="modelValue.settings.locus.genome_regions?.length">
         <v-chip
-          v-for="(item, index) in model.settings.locus.genome_regions"
+          v-for="(item, index) in modelValue.settings.locus.genome_regions"
           :key="genomeRegionToString(item)"
           size="small"
           class="mr-1 mb-1"
           closable
-          @click:close="model.settings.locus.genome_regions.splice(index, 1)"
+          @click:close="
+            async () =>
+              await applyMutation({
+                ...modelValue.settings.locus,
+                genome_regions:
+                  modelValue.settings.locus.genome_regions?.filter(
+                    (_, i) => i !== index,
+                  ),
+              })
+          "
         >
           {{ genomeRegionToString(item) }}
         </v-chip>
@@ -260,22 +333,22 @@ async function parseAndStore() {
           <v-sheet class="border-sm border-black px-2 pt-2 pb-1">
             <template
               v-if="
-                !!model.settings.locus.genes?.length ||
-                !!model.settings.locus.genome_regions?.length
+                !!modelValue.settings.locus.genes?.length ||
+                !!modelValue.settings.locus.genome_regions?.length
               "
             >
               <v-chip
                 v-for="(item, index) in choice == 'genes'
-                  ? model.settings.locus.genes
-                  : model.settings.locus.genome_regions"
+                  ? modelValue.settings.locus.genes
+                  : modelValue.settings.locus.genome_regions"
                 :key="index"
                 size="small"
                 closable
                 class="mr-1 mb-1"
                 @click:close="
                   (choice == 'genes'
-                    ? model.settings.locus.genes
-                    : model.settings.locus.genome_regions
+                    ? modelValue.settings.locus.genes
+                    : modelValue.settings.locus.genome_regions
                   )?.splice(index, 1)
                 "
               >
