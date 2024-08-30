@@ -4160,6 +4160,16 @@ export type SeqvarsApiQueryexecutionRetrieveResponse = (SeqvarsQueryExecutionDet
 
 export type SeqvarsApiQueryexecutionRetrieveError = unknown;
 
+export type SeqvarsApiQueryexecutionStartCreateData = {
+    path: {
+        query: string;
+    };
+};
+
+export type SeqvarsApiQueryexecutionStartCreateResponse = (SeqvarsQueryExecutionDetails);
+
+export type SeqvarsApiQueryexecutionStartCreateError = unknown;
+
 export type SeqvarsApiQuerypresetsclinvarListData = {
     path: {
         querypresetssetversion: string;

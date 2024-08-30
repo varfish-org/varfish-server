@@ -2764,6 +2764,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/SeqvarsQueryExecutionDetails'
           description: ''
+  /seqvars/api/queryexecution/{query}/start/:
+    post:
+      operationId: seqvars_api_queryexecution_start_create
+      description: Create a new query execution for the given query.
+      parameters:
+      - in: path
+        name: query
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
+        required: true
+      tags:
+      - seqvars
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      - knoxApiToken: []
+      responses:
+        '200':
+          content:
+            application/vnd.bihealth.varfish+json:
+              schema:
+                $ref: '#/components/schemas/SeqvarsQueryExecutionDetails'
+          description: ''
   /seqvars/api/querypresetsclinvar/{querypresetssetversion}/:
     get:
       operationId: seqvars_api_querypresetsclinvar_list

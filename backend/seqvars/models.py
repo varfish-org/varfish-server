@@ -24,6 +24,7 @@ import uuid as uuid_object
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
+import model_clone
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 import pydantic
@@ -471,6 +472,9 @@ class SeqvarsColumnsSettingsBase(models.Model):
 class BaseModel(models.Model):
     """Base model with sodar_uuid and creation/update time."""
 
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
+
     #: UUID used in URLs.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
     #: DateTime of creation
@@ -881,8 +885,22 @@ class SeqvarsQuerySettingsManager(models.Manager):
         return querysettings
 
 
-class SeqvarsQuerySettings(BaseModel):
+class SeqvarsQuerySettings(model_clone.CloneMixin, BaseModel):
     """The query settings for a case."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
+    #: Explicitely set the "owned" one-to-one relations to clone.
+    _clone_o2o_fields = [
+        "genotype",
+        "variantprio",
+        "frequency",
+        "consequence",
+        "locus",
+        "phenotypeprio",
+        "quality",
+        "clinvar",
+    ]
 
     #: Custom manager with ``from_predefinedquery()``.
     objects = SeqvarsQuerySettingsManager()
@@ -1241,8 +1259,11 @@ class SeqvarsQuerySettingsGenotypeManager(models.Manager):
         )
 
 
-class SeqvarsQuerySettingsGenotype(SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsGenotype(model_clone.CloneMixin, SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample genotype filtration."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsGenotypeManager()
@@ -1332,8 +1353,11 @@ class SeqvarsQuerySettingsQualityManager(models.Manager):
         )
 
 
-class SeqvarsQuerySettingsQuality(SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsQuality(model_clone.CloneMixin, SeqvarsQuerySettingsCategoryBase):
     """Query settings for per-sample quality filtration."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsQualityManager()
@@ -1371,9 +1395,12 @@ class SeqvarsQuerySettingsConsequenceManager(models.Manager):
 
 
 class SeqvarsQuerySettingsConsequence(
-    SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase
+    model_clone.CloneMixin, SeqvarsConsequenceSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Presets for consequence-related settings within a ``QuerySettingsSet``."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsConsequenceManager()
@@ -1404,8 +1431,13 @@ class SeqvarsQuerySettingsLocusManager(models.Manager):
         )
 
 
-class SeqvarsQuerySettingsLocus(SeqvarsLocusSettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsLocus(
+    model_clone.CloneMixin, SeqvarsLocusSettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Presets for locus-related settings within a ``QuerySettingsSet``."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsLocusManager()
@@ -1435,8 +1467,13 @@ class SeqvarsQuerySettingsFrequencyManager(models.Manager):
         )
 
 
-class SeqvarsQuerySettingsFrequency(SeqvarsFrequencySettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsFrequency(
+    model_clone.CloneMixin, SeqvarsFrequencySettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Query settings in the frequency category."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsFrequencyManager()
@@ -1468,9 +1505,12 @@ class SeqvarsQuerySettingsPhenotypePrioManager(models.Manager):
 
 
 class SeqvarsQuerySettingsPhenotypePrio(
-    SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase
+    model_clone.CloneMixin, SeqvarsPhenotypePrioSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Presets for phenotype priorization--related settings within a ``QueryPresetsSetVersion``."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsPhenotypePrioManager()
@@ -1500,9 +1540,12 @@ class SeqvarsQuerySettingsVariantPrioManager(models.Manager):
 
 
 class SeqvarsQuerySettingsVariantPrio(
-    SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase
+    model_clone.CloneMixin, SeqvarsVariantPrioSettingsBase, SeqvarsQuerySettingsCategoryBase
 ):
     """Query settings in the variant priorization category."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsVariantPrioManager()
@@ -1535,8 +1578,13 @@ class SeqvarsQuerySettingsClinvarManager(models.Manager):
         )
 
 
-class SeqvarsQuerySettingsClinvar(SeqvarsClinvarSettingsBase, SeqvarsQuerySettingsCategoryBase):
+class SeqvarsQuerySettingsClinvar(
+    model_clone.CloneMixin, SeqvarsClinvarSettingsBase, SeqvarsQuerySettingsCategoryBase
+):
     """Query settings in the variant priorization category."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_presets()``.
     objects = SeqvarsQuerySettingsClinvarManager()
@@ -1566,13 +1614,16 @@ class SeqvarsQueryColumnsConfigManager(models.Manager):
             return super().create(column_settings=[])
 
 
-class SeqvarsQueryColumnsConfig(SeqvarsColumnsSettingsBase, BaseModel):
+class SeqvarsQueryColumnsConfig(model_clone.CloneMixin, SeqvarsColumnsSettingsBase, BaseModel):
     """Per-query (not execution) configuration of columns.
 
     This will be copied over from the presets to the query and not the query
     settings.  Thus, it will not be persisted by query execution but is
     editable after query execution.
     """
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_predefinedquery()``.
     objects = SeqvarsQueryColumnsConfigManager()
@@ -1619,8 +1670,11 @@ class SeqvarsQueryManager(models.Manager):
         return rank
 
 
-class SeqvarsQuery(BaseModel):
+class SeqvarsQuery(model_clone.CloneMixin, BaseModel):
     """Allows users to prepare seqvar queries for execution and execute them."""
+
+    #: Let the ``sodar_uuid`` value be re-created when cloning.
+    _clone_excluded_fields = ["sodar_uuid"]
 
     #: Override the manager so we can easily create from predefined queries.
     objects = SeqvarsQueryManager()

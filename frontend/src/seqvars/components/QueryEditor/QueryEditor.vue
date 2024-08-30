@@ -19,7 +19,6 @@ import {
   SeqvarsPredefinedQuery,
   SeqvarsQueryDetails,
   SeqvarsQueryDetailsRequest,
-  SeqvarsQueryExecution,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
@@ -46,10 +45,11 @@ import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
 import {
   useCopySeqvarQueryFromPresetCreateMutation,
   useSeqvarQueryDestroyMutation,
-  useSeqvarQueryListQuery,
+  useSeqvarQueryListInfiniteQuery,
   useSeqvarQueryRetrieveQueries,
   useSeqvarQueryUpdateMutation,
 } from '@/seqvars/queries/seqvarQuery'
+import { useSeqvarQueryExecutionStartMutation } from '@/seqvars/queries/seqvarQueryExecution'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** This component's props. */
@@ -98,7 +98,7 @@ const sessionUuid = computed(() => props.sessionUuid)
 /** Retrieve Case through TanStack Query. */
 const caseRetrieveRes = useCaseRetrieveQuery({ caseUuid })
 /** List all queries for the given case in the given session. */
-const seqvarQueryListRes = useSeqvarQueryListQuery({ sessionUuid })
+const seqvarQueryListRes = useSeqvarQueryListInfiniteQuery({ sessionUuid })
 /** Provide the UUIDs from `seqvarsQueryListRes` as an `ComputedRef<string[]>` for use with queries. */
 const seqvarQueryUuids = computed<string[] | undefined>(() => {
   const res = seqvarQueryListRes.data?.value?.pages?.reduce(
@@ -124,11 +124,6 @@ const seqvarQueries = computed<Map<string, SeqvarsQueryDetails>>(() => {
     seqvarQueryRetrieveRes.value.data?.map((q) => [q.sodar_uuid, q]) ?? [],
   )
 })
-
-/** Provide access to all query exectuions as a `Map` by their UUID. */
-const seqvarQueryExecutions = computed<Map<string, SeqvarsQueryExecution>>(
-  () => new Map(),
-)
 
 /** Wraps the `PedigreeObj` into a `ComputedRef` for easier access. */
 const pedigree = computed<PedigreeObj | undefined>(
@@ -260,6 +255,29 @@ const deleteQuery = async (queryUuid: string) => {
   } catch (e) {
     emit('message', {
       text: `Failed to delete query: ${e}`,
+      color: 'error',
+    })
+  }
+}
+
+/** Mutation for creating a query execution for a query. */
+const seqvarQueryExecutionStart = useSeqvarQueryExecutionStartMutation()
+
+/** Start query with the given UUID. */
+const startQuery = async (queryUuid: string) => {
+  try {
+    await seqvarQueryExecutionStart.mutateAsync({
+      path: {
+        query: queryUuid,
+      },
+    })
+    emit('message', {
+      text: `Started query: ${seqvarQueries.value.get(queryUuid)?.label}`,
+      color: 'success',
+    })
+  } catch (e) {
+    emit('message', {
+      text: `Failed to start query: ${e}`,
       color: 'error',
     })
   }
@@ -465,7 +483,6 @@ watch(
       :selected-query-uuid="selectedQueryUuid"
       :presets-details="presetsDetails"
       :queries="seqvarQueries"
-      :query-executions="seqvarQueryExecutions"
       :pedigree="pedigree"
       :hints-enabled="hintsEnabled"
       @update:selected-query-uuid="
@@ -475,6 +492,7 @@ watch(
       "
       @remove="deleteQuery"
       @revert="revertQueryToPresets"
+      @start="startQuery"
       @update-query="
         (queryUuid: string) => {
           selectedQueryUuid = queryUuid
