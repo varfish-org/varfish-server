@@ -13,6 +13,7 @@ from seqvars.factory_defaults import (
 from seqvars.models import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
+    SeqvarsQueryExecution,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
     SeqvarsQueryPresetsConsequence,
@@ -2135,6 +2136,35 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 404)
+
+    def test_start(self):
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 1)
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-queryexecution-start",
+                    kwargs={
+                        "query": self.query.sodar_uuid,
+                    },
+                ),
+            )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 2)
+        self.assertEqual(
+            self.query.seqvarsqueryexecution_set.count(),
+            2,
+        )
+        new_seqvarqueryexecution = SeqvarsQueryExecution.objects.exclude(
+            pk=self.queryexecution.pk
+        ).first()
+        self.assertEqual(
+            new_seqvarqueryexecution.state,
+            SeqvarsQueryExecution.STATE_QUEUED,
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")

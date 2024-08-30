@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
@@ -447,13 +447,11 @@ class SeqvarsQuerySettingsViewSet(BaseViewSet):
 class SeqvarsQueryViewSet(BaseViewSet):
     """Allow CRUD of the user's queries."""
 
-    # TODO XXX XXX ADD LAUNCH ACTION XXX XXX TODO
-
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "query"
     #: The default serializer class to use.
     serializer_class = SeqvarsQuerySerializer
-    #: Override ``create`` and ``*-detail`` serializer to render all presets.
+    #: Override non-list serializers to serialize all preses.
     action_serializers = {
         "create": SeqvarsQueryDetailsSerializer,
         "retrieve": SeqvarsQueryDetailsSerializer,
@@ -462,10 +460,6 @@ class SeqvarsQueryViewSet(BaseViewSet):
         "delete": SeqvarsQueryDetailsSerializer,
         "create_from": SeqvarsQueryDetailsSerializer,
     }
-
-    # def partial_update(self, *args, **kwargs):
-    #     import pdb; pdb.set_trace()
-    #     return super().partial_update(*args, **kwargs)
 
     @extend_schema(request=SeqvarsQueryCreateFromSerializer)
     @action(methods=["post"], detail=False)
@@ -536,7 +530,25 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
     #: Override ``retrieve`` serializer to render all presets.
     action_serializers = {
         "retrieve": SeqvarsQueryExecutionDetailsSerializer,
+        "start": SeqvarsQueryExecutionDetailsSerializer,
     }
+
+    @extend_schema(request=serializers.Serializer)
+    @action(methods=["post"], detail=False)
+    @transaction.atomic()
+    def start(self, *args, **kwargs):
+        """Create a new query execution for the given query."""
+        query = None
+        # TODO: check permissions on the source's project
+        query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
+
+        instance = SeqvarsQueryExecution.objects.create(
+            state=SeqvarsQueryExecution.STATE_QUEUED,
+            query=query,
+            querysettings=query.settings.make_clone(),
+        )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def get_queryset(self):
         """Return queryset with all ``QueryExecution`` records for the given query."""

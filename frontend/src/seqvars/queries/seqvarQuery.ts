@@ -6,13 +6,11 @@ import {
   useInfiniteQuery,
   useMutation,
   useQueries,
-  useQuery,
   useQueryClient,
 } from '@tanstack/vue-query'
 import { SeqvarsApiQueryUpdateData } from '@varfish-org/varfish-api/lib'
 import {
   seqvarsApiQueryCreateFromCreateMutation,
-  seqvarsApiQueryCreateMutation,
   seqvarsApiQueryDestroyMutation,
   seqvarsApiQueryListInfiniteOptions,
   seqvarsApiQueryRetrieveOptions,
@@ -67,18 +65,20 @@ const invalidateSeqvarQueryKeys = (
 /**
  * Query for a list of seqvar queries within a case analysis session.
  *
+ * Uses the infinite list API of TanStack Query.
+ *
  * The objects returned when listed are fairly flat and contain UUIDs to
  * related objects.
  *
  * @param sessionUuid UUID of the case analysis session to load queries for.
  * @returns Query result with page of seqvars queries.
  */
-export const useSeqvarQueryListQuery = ({
+export const useSeqvarQueryListInfiniteQuery = ({
   sessionUuid,
 }: {
   sessionUuid: MaybeRefOrGetter<string | undefined>
-}) =>
-  useInfiniteQuery({
+}) => {
+  return useInfiniteQuery({
     ...seqvarsApiQueryListInfiniteOptions({
       // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
       path: { session: () => toValue(sessionUuid)! },
@@ -87,36 +87,39 @@ export const useSeqvarQueryListQuery = ({
     enabled: () => !!toValue(sessionUuid),
     getNextPageParam: (lastPage) => lastPage.next,
   })
+}
 
-/**
- * Query for a single seqvar query details within a case analysis session.
- *
- * The objects returned when retrieved are more nested and contain the actual
- * data.
- *
- * @param sessionUuid
- *    UUID of the case analysis session that contains the seqvar query.
- * @param seqvarQueryUuid UUID of the seqvar query to load.
- */
-export const useSeqvarQueryRetrieveQuery = ({
-  sessionUuid,
-  seqvarQueryUuid,
-}: {
-  sessionUuid: MaybeRefOrGetter<string | undefined>
-  seqvarQueryUuid: MaybeRefOrGetter<string | undefined>
-}) =>
-  useQuery({
-    ...seqvarsApiQueryRetrieveOptions({
-      path: {
-        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        session: () => toValue(sessionUuid)!,
-        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        query: () => toValue(seqvarQueryUuid)!,
-      },
-    }),
-    // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-    enabled: () => !!toValue(sessionUuid) && !!toValue(seqvarQueryUuid),
-  })
+// TODO: currently unused
+//
+// /**
+//  * Query for a single seqvar query details within a case analysis session.
+//  *
+//  * The objects returned when retrieved are more nested and contain the actual
+//  * data.
+//  *
+//  * @param sessionUuid
+//  *    UUID of the case analysis session that contains the seqvar query.
+//  * @param seqvarQueryUuid UUID of the seqvar query to load.
+//  */
+// export const useSeqvarQueryRetrieveQuery = ({
+//   sessionUuid,
+//   seqvarQueryUuid,
+// }: {
+//   sessionUuid: MaybeRefOrGetter<string | undefined>
+//   seqvarQueryUuid: MaybeRefOrGetter<string | undefined>
+// }) =>
+//   useQuery({
+//     ...seqvarsApiQueryRetrieveOptions({
+//       path: {
+//         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+//         session: () => toValue(sessionUuid)!,
+//         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+//         query: () => toValue(seqvarQueryUuid)!,
+//       },
+//     }),
+//     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+//     enabled: () => !!toValue(sessionUuid) && !!toValue(seqvarQueryUuid),
+//   })
 
 /**
  * Query for a list of seqvar queries within a case analysis session.
@@ -156,26 +159,28 @@ export const useSeqvarQueryRetrieveQueries = ({
     },
   })
 
-/**
- * Mutation for the creation of a `SeqvarsQuery` object.
- *
- * @returns Mutation object.
- */
-export const useSeqvarQueryCreateMutation = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    ...seqvarsApiQueryCreateMutation(),
-    onSettled: (data) => {
-      if (!!data) {
-        // Refetch after success or error.
-        invalidateSeqvarQueryKeys(queryClient, {
-          session: data.session,
-          query: data.sodar_uuid,
-        })
-      }
-    },
-  })
-}
+// TODO: currently unused
+//
+// /**
+//  * Mutation for the creation of a `SeqvarsQuery` object.
+//  *
+//  * @returns Mutation object.
+//  */
+// export const useSeqvarQueryCreateMutation = () => {
+//   const queryClient = useQueryClient()
+//   return useMutation({
+//     ...seqvarsApiQueryCreateMutation(),
+//     onSettled: (data) => {
+//       if (!!data) {
+//         // Refetch after success or error.
+//         invalidateSeqvarQueryKeys(queryClient, {
+//           session: data.session,
+//           query: data.sodar_uuid,
+//         })
+//       }
+//     },
+//   })
+// }
 
 /**
  * Mutation for the creation of a `SeqvarsQuery` object from presets.

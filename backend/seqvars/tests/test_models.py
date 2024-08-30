@@ -308,6 +308,35 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
 
+    def test_make_clone(self):
+        predefinedquery = SeqvarsPredefinedQueryFactory()
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.from_predefinedquery(
+            session=session,
+            predefinedquery=predefinedquery,
+        )
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
+
+        cloned_querysettings = querysettings.make_clone()
+        _ = cloned_querysettings
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsGenotype.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsVariantPrio.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsConsequence.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsLocus.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 2)
+
 
 class TestSeqvarsQuerySettingsGenotype(TestCaseSnapshot, TestCase):
 

@@ -8,6 +8,7 @@ import {
 import { computed } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
+import { useSeqvarQueryExecutionListQueries } from '@/seqvars/queries/seqvarQueryExecution'
 
 import { matchesPredefinedQuery } from './groups'
 import CollapsibleGroup from './ui/CollapsibleGroup.vue'
@@ -24,8 +25,6 @@ const props = withDefaults(
     pedigree: PedigreeObj
     /** Map from UUID to query. */
     queries: Map<string, SeqvarsQueryDetails>
-    /** Map from UUID to query execution. */
-    queryExecutions: Map<string, SeqvarsQueryExecution>
     /** Whether to enable [i] hint buttons. */
     hintsEnabled?: boolean
   }>(),
@@ -50,6 +49,36 @@ const emit = defineEmits<{
   stop: [queryExecutionUuid: string]
 }>()
 
+/** Provide the UUIDs of the queries in `props.queries`. */
+const seqvarQueryUuids = computed(() => {
+  return Array.from(props.queries.keys())
+})
+
+/** Provide queries for executions for all of the queries in `sevarQueryUuids`. */
+const seqvarQueryExecutionListRes = useSeqvarQueryExecutionListQueries({
+  seqvarQueryUuids,
+})
+
+/** Provide access to most recent query execution by query UUID. */
+const queryUuidToQueryExecution = computed<Map<string, SeqvarsQueryExecution>>(
+  () =>
+    new Map(
+      seqvarQueryExecutionListRes.value
+        .map((queryExecutionList) => {
+          const queryExecution = queryExecutionList.data?.results?.[0]
+          if (!!queryExecution) {
+            return [queryExecution.query, queryExecution] satisfies [
+              string,
+              SeqvarsQueryExecution,
+            ]
+          } else {
+            return undefined
+          }
+        })
+        .filter((elem) => !!elem),
+    ),
+)
+
 /** The selected query UUID as component model. */
 const selectedQueryUuid = defineModel<string>('selectedQueryUuid')
 
@@ -57,17 +86,6 @@ const selectedQueryUuid = defineModel<string>('selectedQueryUuid')
 const selectedQuery = computed<SeqvarsQueryDetails | undefined>(() => {
   return props.queries.get(selectedQueryUuid.value ?? '')
 })
-
-/** Helper that provides the current query execution for query UUIDs. */
-const queryUuidToQueryExecution = computed<Map<string, SeqvarsQueryExecution>>(
-  () => {
-    const result = new Map<string, SeqvarsQueryExecution>()
-    for (const [_queryExecUuid, queryExec] of props.queryExecutions) {
-      result.set(queryExec.query, queryExec)
-    }
-    return result
-  },
-)
 
 /** Helper that provides a numeric index for query UUIDs. */
 const queryUuidToIndex = computed<Map<string, number>>(() => {
