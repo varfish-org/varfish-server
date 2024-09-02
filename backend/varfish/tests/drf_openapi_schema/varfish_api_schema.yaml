@@ -147,26 +147,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/CaseAnalysisSession'
           description: ''
-  /cases-import/api/case-import-action/list-create/{project}/:
+  /cases-import/api/case-import-action/{project}/:
     get:
-      operationId: cases_import_api_case_import_action_list_create_list
-      description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
-
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+      operationId: cases_import_api_case_import_action_list
+      description: Base class for app view sets having project from URL kwarg as context.
       parameters:
       - name: page
         required: false
@@ -184,7 +168,7 @@ paths:
         name: project
         schema:
           type: string
-          format: uuid
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import
@@ -200,30 +184,18 @@ paths:
                 $ref: '#/components/schemas/PaginatedCaseImportActionList'
           description: ''
     post:
-      operationId: cases_import_api_case_import_action_list_create_create
+      operationId: cases_import_api_case_import_action_create
       description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
+        Override to ensure creation happens in a transaction.
 
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+        This is important so we can rely on the serializer validation to be consistent
+        with the creation (e.g., on collision checks).
       parameters:
       - in: path
         name: project
         schema:
           type: string
-          format: uuid
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import
@@ -250,32 +222,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/CaseImportAction'
           description: ''
-  /cases-import/api/case-import-action/retrieve-update-destroy/{caseimportaction}/:
+  /cases-import/api/case-import-action/{project}/{caseimportaction}/:
     get:
-      operationId: cases_import_api_case_import_action_retrieve_update_destroy_retrieve
-      description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
-
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+      operationId: cases_import_api_case_import_action_retrieve
+      description: Base class for app view sets having project from URL kwarg as context.
       parameters:
       - in: path
         name: caseimportaction
         schema:
           type: string
           format: uuid
+        required: true
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import
@@ -291,30 +253,24 @@ paths:
                 $ref: '#/components/schemas/CaseImportAction'
           description: ''
     put:
-      operationId: cases_import_api_case_import_action_retrieve_update_destroy_update
+      operationId: cases_import_api_case_import_action_update
       description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
+        Override to ensure creation happens in a transaction.
 
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+        This is important so we can rely on the serializer validation to be consistent
+        with the creation (e.g., on collision checks).
       parameters:
       - in: path
         name: caseimportaction
         schema:
           type: string
           format: uuid
+        required: true
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import
@@ -342,30 +298,20 @@ paths:
                 $ref: '#/components/schemas/CaseImportAction'
           description: ''
     patch:
-      operationId: cases_import_api_case_import_action_retrieve_update_destroy_partial_update
-      description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
-
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+      operationId: cases_import_api_case_import_action_partial_update
+      description: Base class for app view sets having project from URL kwarg as context.
       parameters:
       - in: path
         name: caseimportaction
         schema:
           type: string
           format: uuid
+        required: true
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import
@@ -392,30 +338,20 @@ paths:
                 $ref: '#/components/schemas/CaseImportAction'
           description: ''
     delete:
-      operationId: cases_import_api_case_import_action_retrieve_update_destroy_destroy
-      description: |-
-        API view mixin for generic DRF API views with serializers, SODAR project
-        context and permission checkin.
-
-        Unless overriding ``permission_classes`` with their own implementation, the
-        user MUST supply a ``permission_required`` attribute.
-
-        Replace ``lookup_url_kwarg`` with your view's url kwarg (SODAR project
-        compatible model name in lowercase).
-
-        If the lookup is done via a foreign key, change the ``lookup_field``
-        attribute of your class into ``foreignkey__sodar_uuid``, e.g.
-        ``project__sodar_uuid`` for lists.
-
-        If your object(s) don't have a direct ``project`` relation, update the
-        ``queryset_project_field`` to point to the field, e.g.
-        ``someothermodel__project``.
+      operationId: cases_import_api_case_import_action_destroy
+      description: Override to prevent destruction unless state is draft.
       parameters:
       - in: path
         name: caseimportaction
         schema:
           type: string
           format: uuid
+        required: true
+      - in: path
+        name: project
+        schema:
+          type: string
+          pattern: ^[0-9a-f-]+$
         required: true
       tags:
       - cases-import

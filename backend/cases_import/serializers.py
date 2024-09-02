@@ -28,7 +28,7 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
             family: Family = ParseDict(js_dict=value, message=Family())
         except ParseError as e:
             raise serializers.ValidationError(
-                f"payload is not a valid phenopackets.Family protocoolbuffer: {e}"
+                f"payload is not a valid phenopackets.Family protocolbuffer: {e}"
             ) from e
         warnings = FamilyValidator(family).validate()
         if warnings:
@@ -39,6 +39,9 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
     def validate(self, data):
         """Perform validation that needs more than one field."""
         case_name = get_case_name_from_family_payload(data.get("payload", {}))
+
+        if not data.get("action"):
+            raise serializers.ValidationError("action is required.")
 
         # Updating a CaseImportAction is not allowed if it is not in draft state.
         if self.instance and self.instance.state != CaseImportAction.STATE_DRAFT:
