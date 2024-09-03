@@ -72,7 +72,6 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
         if serializer.instance.state == CaseImportAction.STATE_SUBMITTED:
             return CaseImportBackgroundJob.objects.create_full(
                 caseimportaction=serializer.instance,
-                project=self.get_project(),
                 user=self.request.user,
             )
         else:
@@ -125,7 +124,6 @@ class CaseImportActionRetrieveUpdateDestroyApiView(
         if serializer.instance.state == CaseImportAction.STATE_SUBMITTED:
             return CaseImportBackgroundJob.objects.create_full(
                 caseimportaction=serializer.instance,
-                project=self.get_project(),
                 user=self.request.user,
             )
         else:
