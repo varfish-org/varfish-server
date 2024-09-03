@@ -55,7 +55,9 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
             serializer.is_valid(raise_exception=True)
             caseimportbackgroundjob = self.perform_create(serializer)
         if caseimportbackgroundjob:
-            tasks.run_caseimportactionbackgroundjob.delay(caseimportbackgroundjob.pk)
+            tasks.run_caseimportactionbackgroundjob.delay(
+                caseimportactionbackgroundjob_pk=caseimportbackgroundjob.pk
+            )
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -107,7 +109,9 @@ class CaseImportActionRetrieveUpdateDestroyApiView(
                 instance._prefetched_objects_cache = {}
             caseimportbackgroundjob = self.perform_update(serializer)
         if caseimportbackgroundjob:
-            tasks.run_caseimportactionbackgroundjob.delay(caseimportbackgroundjob.pk)
+            tasks.run_caseimportactionbackgroundjob.delay(
+                caseimportactionbackgroundjob_pk=caseimportbackgroundjob.pk
+            )
         return Response(serializer.data)
 
     def perform_update(self, serializer) -> typing.Optional[CaseImportBackgroundJob]:
