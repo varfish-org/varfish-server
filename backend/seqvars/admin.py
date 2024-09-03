@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from seqvars.models import (
+from seqvars.models.base import (
     SeqvarsQuery,
     SeqvarsQueryExecution,
     SeqvarsQueryPresetsFrequency,

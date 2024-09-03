@@ -7,7 +7,7 @@ from drf_writable_nested.serializers import WritableNestedModelSerializer
 from projectroles.serializers import SODARUserSerializer
 from rest_framework import serializers
 
-from seqvars.models import (
+from seqvars.models.base import (
     ClinvarGermlineAggregateDescriptionChoice,
     DataSourceInfosPydantic,
     GenePanelPydantic,

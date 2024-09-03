@@ -3,7 +3,7 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_exome_legacy
-from seqvars.models import (
+from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryPresetsClinvar,

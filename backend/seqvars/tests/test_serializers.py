@@ -4,7 +4,7 @@ from parameterized import parameterized
 from rest_framework import serializers
 from test_plus import TestCase
 
-from seqvars.models import SeqvarsQueryPresetsSetVersion
+from seqvars.models.base import SeqvarsQueryPresetsSetVersion
 from seqvars.serializers import (
     SeqvarsPredefinedQuerySerializer,
     SeqvarsQueryColumnsConfigSerializer,

@@ -7,7 +7,7 @@ from django.db import migrations
 import django_pydantic_field.compat.django
 import django_pydantic_field.fields
 
-import seqvars.models
+import seqvars.models.base
 
 
 class Migration(migrations.Migration):
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsOutputHeaderPydantic, type(None))
+                    typing.Union, (seqvars.models.base.SeqvarsOutputHeaderPydantic, type(None))
                 ),
             ),
         ),
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsOutputRecordPydantic, type(None))
+                    typing.Union, (seqvars.models.base.SeqvarsOutputRecordPydantic, type(None))
                 ),
             ),
         ),
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.DataSourceInfosPydantic, type(None))
+                    typing.Union, (seqvars.models.base.DataSourceInfosPydantic, type(None))
                 ),
             ),
         ),

@@ -10,7 +10,7 @@ from seqvars.factory_defaults import (
     create_seqvarspresetsset_short_read_exome_legacy,
     create_seqvarspresetsset_short_read_genome,
 )
-from seqvars.models import (
+from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryExecution,

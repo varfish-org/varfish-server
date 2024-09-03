@@ -21,6 +21,7 @@ from enum import Enum
 import typing
 import uuid as uuid_object
 
+from bgjobs.models import BackgroundJob, JobModelMessageMixin
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
@@ -195,8 +196,6 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
     #: Conservative inframe deletion
     CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
-    #: In-frame indel.
-    IN_FRAME_INDEL = "inframe_indel"
     #: Missense variant
     MISSENSE_VARIANT = "missense_variant"
 
@@ -2400,3 +2399,68 @@ class SeqvarsResultRow(models.Model):
             f"SeqvarsResultRow '{self.sodar_uuid}' '{self.genome_release}-{self.chrom}-"
             f"{self.pos}-{self.ref_allele}-{self.alt_allele}'"
         )
+
+
+class SeqvarsQueryExecutionBackgroundJobManager(models.Manager):
+    """Custom manager class that allows to create a ``SeqvarsQueryExeuctionBackgroundJob``
+    together with the backing ``BackgroundJob``.
+    """
+
+    @transaction.atomic
+    def create_full(self, *, seqvarsqueryexecution: SeqvarsQueryExecution, user: User):
+        if not seqvarsqueryexecution.case:
+            raise ValueError("SeqvarsQueryExecution must have a case to create a background job.")
+        case_name = seqvarsqueryexecution.case.name
+        bg_job = BackgroundJob.objects.create(
+            name=f"Import of case '{case_name}'",
+            project=seqvarsqueryexecution.case.project,
+            job_type=SeqvarsQueryExecutionBackgroundJob.spec_name,
+            user=user,
+        )
+        instance = super().create(
+            project=seqvarsqueryexecution.case.project,
+            bg_job=bg_job,
+            seqvarsqueryexecution=seqvarsqueryexecution,
+        )
+        return instance
+
+
+class SeqvarsQueryExecutionBackgroundJob(JobModelMessageMixin, models.Model):
+    """Background job for running a ``SeqvarsQueryExecution``."""
+
+    # We use a custom manager that provides creation together with the ``BackgroundJob``.
+    objects: SeqvarsQueryExecutionBackgroundJobManager = SeqvarsQueryExecutionBackgroundJobManager()
+
+    #: Task description for logging.
+    task_desc = "Seqvars Query Execution"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "seqvars.runqueryexecution"
+
+    #: The SODAR UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4,
+        unique=True,
+    )
+    #: The project that this background job belong to.
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+    )
+
+    #: The background job for state management etc.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="seqvarsqueryexecutionbackgroundjob",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+
+    #: The case import action to perform.
+    seqvarsqueryexecution = models.ForeignKey(
+        SeqvarsQueryExecution, on_delete=models.CASCADE, null=False
+    )
+
+    def get_human_readable_type(self):
+        return self.task_desc

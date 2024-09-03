@@ -852,20 +852,25 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        hgvs_t: builtins.str = ...,
+        hgvs_t: builtins.str | None = ...,
         hgvs_p: builtins.str | None = ...,
         consequences: (
             collections.abc.Iterable[seqvars.protos.query_pb2.Consequence.ValueType] | None
         ) = ...,
     ) -> None: ...
     def HasField(
-        self, field_name: typing_extensions.Literal["_hgvs_p", b"_hgvs_p", "hgvs_p", b"hgvs_p"]
+        self,
+        field_name: typing_extensions.Literal[
+            "_hgvs_p", b"_hgvs_p", "_hgvs_t", b"_hgvs_t", "hgvs_p", b"hgvs_p", "hgvs_t", b"hgvs_t"
+        ],
     ) -> builtins.bool: ...
     def ClearField(
         self,
         field_name: typing_extensions.Literal[
             "_hgvs_p",
             b"_hgvs_p",
+            "_hgvs_t",
+            b"_hgvs_t",
             "consequences",
             b"consequences",
             "hgvs_p",
@@ -874,9 +879,14 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
             b"hgvs_t",
         ],
     ) -> None: ...
+    @typing.overload
     def WhichOneof(
         self, oneof_group: typing_extensions.Literal["_hgvs_p", b"_hgvs_p"]
     ) -> typing_extensions.Literal["hgvs_p"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_hgvs_t", b"_hgvs_t"]
+    ) -> typing_extensions.Literal["hgvs_t"] | None: ...
 
 global___GeneRelatedConsequences = GeneRelatedConsequences
 
@@ -1591,9 +1601,7 @@ class ScoreEntry(google.protobuf.message.Message):
     """Key."""
     @property
     def value(self) -> google.protobuf.struct_pb2.Value:
-        """Value.
-        p2p: {"type": "p2p@import|typing|Any", "default_factory": "p2p@local|none"}
-        """
+        """Value."""
 
     def __init__(
         self,

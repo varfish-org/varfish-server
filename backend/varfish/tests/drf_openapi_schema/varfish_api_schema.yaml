@@ -2767,7 +2767,10 @@ paths:
   /seqvars/api/queryexecution/{query}/start/:
     post:
       operationId: seqvars_api_queryexecution_start_create
-      description: Create a new query execution for the given query.
+      description: |-
+        Create a new query execution for the given query.
+
+        Also, start the execution of a background job.
       parameters:
       - in: path
         name: query
@@ -13252,7 +13255,6 @@ components:
       - disruptive_inframe_deletion
       - conservative_inframe_insertion
       - conservative_inframe_deletion
-      - inframe_indel
       - missense_variant
       - splice_donor_5th_base_variant
       - splice_region_variant
@@ -13293,7 +13295,6 @@ components:
         - disruptive_inframe_deletion
         - conservative_inframe_insertion
         - conservative_inframe_deletion
-        - inframe_indel
         - missense_variant
         - splice_donor_5th_base_variant
         - splice_region_variant

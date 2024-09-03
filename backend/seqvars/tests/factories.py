@@ -2,7 +2,7 @@ import django.utils.timezone
 import factory
 
 from cases_analysis.tests.factories import CaseAnalysisSessionFactory
-from seqvars.models import (
+from seqvars.models.base import (
     ClinvarGermlineAggregateDescriptionChoice,
     DataSourceInfoPydantic,
     DataSourceInfosPydantic,

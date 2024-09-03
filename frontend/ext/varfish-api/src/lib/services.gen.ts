@@ -1075,6 +1075,8 @@ export const seqvarsApiQueryexecutionRetrieve = <ThrowOnError extends boolean = 
 
 /**
  * Create a new query execution for the given query.
+ *
+ * Also, start the execution of a background job.
  */
 export const seqvarsApiQueryexecutionStartCreate = <ThrowOnError extends boolean = false>(options: Options<SeqvarsApiQueryexecutionStartCreateData, ThrowOnError>) => { return (options?.client ?? client).post<SeqvarsApiQueryexecutionStartCreateResponse, SeqvarsApiQueryexecutionStartCreateError, ThrowOnError>({
     ...options,
