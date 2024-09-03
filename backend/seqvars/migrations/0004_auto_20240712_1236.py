@@ -8,7 +8,7 @@ import django.db.models.deletion
 import django_pydantic_field.compat.django
 import django_pydantic_field.fields
 
-import seqvars.models
+import seqvars.models.base
 
 
 class Migration(migrations.Migration):
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsGenotypePresetsPydantic, type(None))
+                    typing.Union, (seqvars.models.base.SeqvarsGenotypePresetsPydantic, type(None))
                 ),
             ),
         ),
@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.SeqvarsGenotypePresetsPydantic, type(None))
+                    typing.Union, (seqvars.models.base.SeqvarsGenotypePresetsPydantic, type(None))
                 ),
             ),
         ),

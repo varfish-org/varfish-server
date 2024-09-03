@@ -9,7 +9,7 @@ from dateutil.parser import parse as parse_datetime
 from django.db import models
 from faker import Faker
 
-from seqvars.models import (
+from seqvars.models.base import (
     ClinvarGermlineAggregateDescriptionChoice,
     GenomeRegionPydantic,
     GnomadMitochondrialFrequencySettingsPydantic,
@@ -128,7 +128,6 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                SeqvarsVariantConsequenceChoice.IN_FRAME_INDEL,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -184,7 +183,6 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 # SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
                 # SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 # SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                # SeqvarsVariantConsequenceChoice.IN_FRAME_INDEL,
                 # SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
                 # # low impact
                 # SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -240,7 +238,6 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                SeqvarsVariantConsequenceChoice.IN_FRAME_INDEL,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -297,7 +294,6 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                SeqvarsVariantConsequenceChoice.IN_FRAME_INDEL,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -354,7 +350,6 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
-                SeqvarsVariantConsequenceChoice.IN_FRAME_INDEL,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,

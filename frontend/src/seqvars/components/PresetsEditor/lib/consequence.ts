@@ -57,7 +57,6 @@ export const CODING_CONSEQUENCES: ConsequenceChoice[] = [
     label: 'conservative inframe deletion',
     key: 'conservative_inframe_deletion',
   },
-  { label: 'in-frame indel', key: 'inframe_indel' },
   { label: 'missense', key: 'missense_variant' },
   { label: 'start retained', key: 'start_retained_variant' },
   { label: 'stop retained', key: 'stop_retained_variant' },

@@ -7,7 +7,7 @@ from test_plus.test import TestCase
 
 from cases_analysis.tests.factories import CaseAnalysisSessionFactory
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
-from seqvars.models import (
+from seqvars.models.base import (
     SeqvarsGenotypeChoice,
     SeqvarsGenotypePresetChoice,
     SeqvarsGenotypePresetsPydantic,

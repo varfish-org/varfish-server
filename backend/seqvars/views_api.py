@@ -20,10 +20,11 @@ from seqvars.factory_defaults import (
     create_seqvarspresetsset_short_read_exome_modern,
     create_seqvarspresetsset_short_read_genome,
 )
-from seqvars.models import (
+from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryExecution,
+    SeqvarsQueryExecutionBackgroundJob,
     SeqvarsQueryPresetsSet,
     SeqvarsQueryPresetsSetVersion,
     SeqvarsQuerySettings,
@@ -537,17 +538,23 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
     @action(methods=["post"], detail=False)
     @transaction.atomic()
     def start(self, *args, **kwargs):
-        """Create a new query execution for the given query."""
+        """Create a new query execution for the given query.
+
+        Also, start the execution of a background job.
+        """
         query = None
         # TODO: check permissions on the source's project
         query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
-
-        instance = SeqvarsQueryExecution.objects.create(
+        queryexecution = SeqvarsQueryExecution.objects.create(
             state=SeqvarsQueryExecution.STATE_QUEUED,
             query=query,
             querysettings=query.settings.make_clone(),
         )
-        serializer = self.get_serializer(instance)
+        SeqvarsQueryExecutionBackgroundJob.objects.create_full(
+            seqvarsqueryexecution=queryexecution,
+            user=self.request.user,
+        )
+        serializer = self.get_serializer(queryexecution)
         return Response(serializer.data)
 
     def get_queryset(self):
