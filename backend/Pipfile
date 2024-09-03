@@ -90,6 +90,7 @@ jedi = "==0.19.1"
 watchdog = "*"
 werkzeug = "~=3.0.4"
 uritemplate = "*"
+django-types = "*"
 
 [ldap-packages]
 # Dependencies for enabling LDAP support.  You will need the system library
