@@ -406,8 +406,8 @@ export type CaseStatusEnum = 'initial' | 'active' | 'closed-unsolved' | 'closed-
  * Store Clingen dosage annotation.
  */
 export type ClingenDosageAnnotationPydantic = {
-    haplo: ClingenDosageScoreChoice;
-    triplo: ClingenDosageScoreChoice;
+    haplo: (ClingenDosageScoreChoice | null);
+    triplo: (ClingenDosageScoreChoice | null);
 };
 
 /**
@@ -2846,9 +2846,11 @@ export type SeqvarsQuerySettingsFrequency = {
  * Pydantic representation of ``SeqvarsQuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequencyPydantic = {
-    nuclear?: (SeqvarsNuclearFrequencySettingsPydantic | null);
+    gnomad_exomes?: (SeqvarsNuclearFrequencySettingsPydantic | null);
+    gnomad_genomes?: (SeqvarsNuclearFrequencySettingsPydantic | null);
     gnomad_mtdna?: (SeqvarsGnomadMitochondrialFrequencySettingsPydantic | null);
     helixmtdb?: (SeqvarsHelixMtDbFrequencySettingsPydantic | null);
+    inhouse?: (SeqvarsNuclearFrequencySettingsPydantic | null);
 };
 
 /**
@@ -3026,7 +3028,7 @@ export type SeqvarsRecessiveModeChoice = 'disabled' | 'comphet_recessive' | 'hom
 export type SeqvarsResultRow = {
     readonly sodar_uuid: string;
     readonly resultset: string;
-    readonly genome_release: string;
+    readonly genome_release: (GenomeReleaseEnum);
     readonly chrom: string;
     readonly chrom_no: number;
     readonly pos: number;
@@ -3149,9 +3151,9 @@ export type SeqvarsVariantAnnotationPydantic = {
 /**
  * The variant consequence.
  */
-export type SeqvarsVariantConsequenceChoice = 'transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'intergenic_variant' | 'intron_variant';
+export type SeqvarsVariantConsequenceChoice = 'transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'feature_elongation' | 'feature_truncation' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | 'mature_miRNA_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'TFBS_ablation' | 'TFBS_amplification' | 'TF_binding_site_variant' | 'regulatory_region_ablation' | 'regulatory_region_amplification' | 'regulatory_region_variant' | 'intergenic_variant' | 'intron_variant' | 'gene_variant';
 
-export type SeqvarsVariantConsequenceChoiceList = Array<('transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'intergenic_variant' | 'intron_variant')>;
+export type SeqvarsVariantConsequenceChoiceList = Array<('transcript_ablation' | 'exon_loss_variant' | 'splice_acceptor_variant' | 'splice_donor_variant' | 'stop_gained' | 'frameshift_variant' | 'stop_lost' | 'start_lost' | 'transcript_amplification' | 'feature_elongation' | 'feature_truncation' | 'disruptive_inframe_insertion' | 'disruptive_inframe_deletion' | 'conservative_inframe_insertion' | 'conservative_inframe_deletion' | 'missense_variant' | 'splice_donor_5th_base_variant' | 'splice_region_variant' | 'splice_donor_region_variant' | 'splice_polypyrimidine_tract_variant' | 'start_retained_variant' | 'stop_retained_variant' | 'synonymous_variant' | 'coding_sequence_variant' | 'mature_miRNA_variant' | '5_prime_UTR_exon_variant' | '5_prime_UTR_intron_variant' | '3_prime_UTR_exon_variant' | '3_prime_UTR_intron_variant' | 'non_coding_transcript_exon_variant' | 'non_coding_transcript_intron_variant' | 'upstream_gene_variant' | 'downstream_gene_variant' | 'TFBS_ablation' | 'TFBS_amplification' | 'TF_binding_site_variant' | 'regulatory_region_ablation' | 'regulatory_region_amplification' | 'regulatory_region_variant' | 'intergenic_variant' | 'intron_variant' | 'gene_variant')>;
 
 /**
  * Store variant-related annotation.
@@ -3170,8 +3172,13 @@ export type SeqvarsVariantScoreColumnPydantic = {
     name: string;
     label: string;
     description?: (string | null);
-    type: SevarsVariantScoreColumnTypeChoice;
+    type: SeqvarsVariantScoreColumnTypeChoice;
 };
+
+/**
+ * Enumeration of the variant score type.
+ */
+export type SeqvarsVariantScoreColumnTypeChoice = 'number' | 'string';
 
 /**
  * The type of a variant.
@@ -3191,11 +3198,6 @@ export type SeqvarsVcfVariantPydantic = {
     ref_allele: string;
     alt_allele: string;
 };
-
-/**
- * Enumeration of the variant score type.
- */
-export type SevarsVariantScoreColumnTypeChoice = 'number' | 'string';
 
 /**
  * Store sHET constraints.

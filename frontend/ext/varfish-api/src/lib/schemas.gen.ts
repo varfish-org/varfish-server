@@ -1124,10 +1124,24 @@ export const $ClingenDosageAnnotationPydantic = {
     description: 'Store Clingen dosage annotation.',
     properties: {
         haplo: {
-            '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         triplo: {
-            '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
     required: ['haplo', 'triplo'],
@@ -9181,7 +9195,18 @@ export const $SeqvarsQuerySettingsFrequency = {
 export const $SeqvarsQuerySettingsFrequencyPydantic = {
     description: 'Pydantic representation of ``SeqvarsQuerySettingsFrequency``.',
     properties: {
-        nuclear: {
+        gnomad_exomes: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        gnomad_genomes: {
             anyOf: [
                 {
                     '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
@@ -9207,6 +9232,17 @@ export const $SeqvarsQuerySettingsFrequencyPydantic = {
             anyOf: [
                 {
                     '$ref': '#/components/schemas/SeqvarsHelixMtDbFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        inhouse: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
                 },
                 {
                     type: 'null'
@@ -9888,7 +9924,11 @@ export const $SeqvarsResultRow = {
             readOnly: true
         },
         genome_release: {
-            type: 'string',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/GenomeReleaseEnum'
+                }
+            ],
             readOnly: true
         },
         chrom: {
@@ -10467,7 +10507,7 @@ export const $SeqvarsVariantAnnotationPydantic = {
 
 export const $SeqvarsVariantConsequenceChoice = {
     description: 'The variant consequence.',
-    enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'intergenic_variant', 'intron_variant'],
+    enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'feature_elongation', 'feature_truncation', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', 'mature_miRNA_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'TFBS_ablation', 'TFBS_amplification', 'TF_binding_site_variant', 'regulatory_region_ablation', 'regulatory_region_amplification', 'regulatory_region_variant', 'intergenic_variant', 'intron_variant', 'gene_variant'],
     title: 'SeqvarsVariantConsequenceChoice',
     type: 'string'
 } as const;
@@ -10477,7 +10517,7 @@ export const $SeqvarsVariantConsequenceChoiceList = {
     items: {
         type: 'string',
         title: 'SeqvarsVariantConsequenceChoice',
-        enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'intergenic_variant', 'intron_variant']
+        enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'feature_elongation', 'feature_truncation', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', 'mature_miRNA_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'TFBS_ablation', 'TFBS_amplification', 'TF_binding_site_variant', 'regulatory_region_ablation', 'regulatory_region_amplification', 'regulatory_region_variant', 'intergenic_variant', 'intron_variant', 'gene_variant']
     }
 } as const;
 
@@ -10557,12 +10597,19 @@ export const $SeqvarsVariantScoreColumnPydantic = {
             title: 'Description'
         },
         type: {
-            '$ref': '#/components/schemas/SevarsVariantScoreColumnTypeChoice'
+            '$ref': '#/components/schemas/SeqvarsVariantScoreColumnTypeChoice'
         }
     },
     required: ['name', 'label', 'type'],
     title: 'SeqvarsVariantScoreColumnPydantic',
     type: 'object'
+} as const;
+
+export const $SeqvarsVariantScoreColumnTypeChoice = {
+    description: 'Enumeration of the variant score type.',
+    enum: ['number', 'string'],
+    title: 'SeqvarsVariantScoreColumnTypeChoice',
+    type: 'string'
 } as const;
 
 export const $SeqvarsVariantTypeChoice = {
@@ -10611,13 +10658,6 @@ export const $SeqvarsVcfVariantPydantic = {
     required: ['genome_release', 'chrom', 'chrom_no', 'pos', 'ref_allele', 'alt_allele'],
     title: 'SeqvarsVcfVariantPydantic',
     type: 'object'
-} as const;
-
-export const $SevarsVariantScoreColumnTypeChoice = {
-    description: 'Enumeration of the variant score type.',
-    enum: ['number', 'string'],
-    title: 'SevarsVariantScoreColumnTypeChoice',
-    type: 'string'
 } as const;
 
 export const $ShetConstraintsPydantic = {
