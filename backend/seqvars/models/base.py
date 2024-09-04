@@ -2055,6 +2055,17 @@ class GeneRelatedConsequencesPydantic(pydantic.BaseModel):
     consequences: list[SeqvarsVariantConsequenceChoice]
 
 
+class SeqvarsModeOfInheritance(str, Enum):
+    """Mode of inheritance gene annotation."""
+
+    AUTOSOMAL_DOMINANT = "autosomal_dominant"
+    AUTOSOMAL_RECESSIVE = "autosomal_recessive"
+    X_LINKED_DOMINANT = "x_linked_dominant"
+    X_LINKED_RECESSIVE = "x_linked_recessive"
+    Y_LINKED = "y_linked"
+    MITOCHONDRIAL = "mitochondrial"
+
+
 class GeneRelatedPhenotypesPydantic(pydantic.BaseModel):
     """Phenotype-related information, if any."""
 
@@ -2062,6 +2073,8 @@ class GeneRelatedPhenotypesPydantic(pydantic.BaseModel):
     is_acmg_sf: bool = False
     #: Whether is a known disease gene.
     is_disease_gene: bool = False
+    #: Modes of inheritance.
+    mode_of_inheritances: list[SeqvarsModeOfInheritance] = []
 
 
 class GnomadConstraintsPydantic(pydantic.BaseModel):
@@ -2161,13 +2174,13 @@ class GeneRelatedAnnotationPydantic(pydantic.BaseModel):
     """Store gene-related annotation (always for a single gene)."""
 
     #: Gene ID information.
-    identity: GeneIdentityPydantic
+    identity: typing.Optional[GeneIdentityPydantic]
     #: Gene-related consequences, if any (none if intergenic).
-    consequences: GeneRelatedConsequencesPydantic
+    consequences: typing.Optional[GeneRelatedConsequencesPydantic]
     #: Gene-related phenotype information, if any.
-    phenotypes: GeneRelatedPhenotypesPydantic
+    phenotypes: typing.Optional[GeneRelatedPhenotypesPydantic]
     #: Gene-wise constraints on the gene, if any.
-    constraints: GeneRelatedConstraintsPydantic
+    constraints: typing.Optional[GeneRelatedConstraintsPydantic]
 
 
 class SeqvarsNuclearFrequencyPydantic(pydantic.BaseModel):
@@ -2373,6 +2386,9 @@ class SeqvarsResultSet(BaseModel):
     def __str__(self):
         return f"SeqvarsResultSet '{self.sodar_uuid}'"
 
+    class Meta:
+        ordering = ["-date_created"]
+
 
 class SeqvarsResultRow(models.Model):
     """One entry in the result set."""
@@ -2413,6 +2429,9 @@ class SeqvarsResultRow(models.Model):
             f"SeqvarsResultRow '{self.sodar_uuid}' '{self.genome_release}-{self.chrom}-"
             f"{self.pos}-{self.ref_allele}-{self.alt_allele}'"
         )
+
+    class Meta:
+        ordering = ["chrom_no", "pos", "ref_allele", "alt_allele"]
 
 
 class SeqvarsQueryExecutionBackgroundJobManager(models.Manager):
@@ -2478,3 +2497,6 @@ class SeqvarsQueryExecutionBackgroundJob(JobModelMessageMixin, models.Model):
 
     def get_human_readable_type(self):
         return self.task_desc
+
+    class Meta:
+        ordering = ["-pk"]

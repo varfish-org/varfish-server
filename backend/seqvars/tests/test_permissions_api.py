@@ -2261,7 +2261,7 @@ class TestResultSetViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-resultset-list",
             kwargs={
-                "query": self.query.sodar_uuid,
+                "queryexecution": self.queryexecution.sodar_uuid,
             },
         )
         good_users = [
@@ -2281,7 +2281,7 @@ class TestResultSetViewSet(TestProjectAPIPermissionBase):
         url = reverse(
             "seqvars:api-resultset-detail",
             kwargs={
-                "query": self.query.sodar_uuid,
+                "queryexecution": self.queryexecution.sodar_uuid,
                 "resultset": self.resultset.sodar_uuid,
             },
         )

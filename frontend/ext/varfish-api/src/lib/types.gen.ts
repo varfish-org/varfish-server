@@ -881,10 +881,10 @@ export type GenePydanticList = Array<{
  * Store gene-related annotation (always for a single gene).
  */
 export type GeneRelatedAnnotationPydantic = {
-    identity: GeneIdentityPydantic;
-    consequences: GeneRelatedConsequencesPydantic;
-    phenotypes: GeneRelatedPhenotypesPydantic;
-    constraints: GeneRelatedConstraintsPydantic;
+    identity: (GeneIdentityPydantic | null);
+    consequences: (GeneRelatedConsequencesPydantic | null);
+    phenotypes: (GeneRelatedPhenotypesPydantic | null);
+    constraints: (GeneRelatedConstraintsPydantic | null);
 };
 
 /**
@@ -913,6 +913,7 @@ export type GeneRelatedConstraintsPydantic = {
 export type GeneRelatedPhenotypesPydantic = {
     is_acmg_sf?: boolean;
     is_disease_gene?: boolean;
+    mode_of_inheritances?: Array<SeqvarsModeOfInheritance>;
 };
 
 /**
@@ -1019,96 +1020,112 @@ export type PaginatedCaseSerializerNgList = {
 };
 
 export type PaginatedSeqvarsPredefinedQueryList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsPredefinedQuery>;
 };
 
 export type PaginatedSeqvarsQueryExecutionList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryExecution>;
 };
 
 export type PaginatedSeqvarsQueryList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQuery>;
 };
 
 export type PaginatedSeqvarsQueryPresetsClinvarList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsClinvar>;
 };
 
 export type PaginatedSeqvarsQueryPresetsColumnsList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsColumns>;
 };
 
 export type PaginatedSeqvarsQueryPresetsConsequenceList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsConsequence>;
 };
 
 export type PaginatedSeqvarsQueryPresetsFrequencyList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsFrequency>;
 };
 
 export type PaginatedSeqvarsQueryPresetsLocusList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsLocus>;
 };
 
 export type PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsPhenotypePrio>;
 };
 
 export type PaginatedSeqvarsQueryPresetsQualityList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsQuality>;
 };
 
 export type PaginatedSeqvarsQueryPresetsSetList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsSet>;
 };
 
 export type PaginatedSeqvarsQueryPresetsSetVersionList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsSetVersion>;
 };
 
 export type PaginatedSeqvarsQueryPresetsVariantPrioList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQueryPresetsVariantPrio>;
 };
 
 export type PaginatedSeqvarsQuerySettingsList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsQuerySettings>;
 };
 
 export type PaginatedSeqvarsResultRowList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsResultRow>;
 };
 
 export type PaginatedSeqvarsResultSetList = {
+    count?: number;
     next?: (string) | null;
     previous?: (string) | null;
     results?: Array<SeqvarsResultSet>;
@@ -2017,6 +2034,11 @@ export type SeqvarsHelixMtDbFrequencySettingsPydantic = {
 };
 
 /**
+ * Mode of inheritance gene annotation.
+ */
+export type SeqvarsModeOfInheritance = 'autosomal_dominant' | 'autosomal_recessive' | 'x_linked_dominant' | 'x_linked_recessive' | 'y_linked' | 'mitochondrial';
+
+/**
  * Store gnomAD and in-house nuclear frequency information.
  */
 export type SeqvarsNuclearFrequencyPydantic = {
@@ -2908,7 +2930,7 @@ export type SeqvarsQuerySettingsGenotype = {
  * Pydantic representation of ``SeqvarsQuerySettingsGenotype``.
  */
 export type SeqvarsQuerySettingsGenotypePydantic = {
-    recessive_mode?: (SeqvarsRecessiveModeChoice);
+    recessive_mode?: SeqvarsRecessiveModeChoice;
     sample_genotypes?: Array<SeqvarsSampleGenotypePydantic>;
 };
 
@@ -3378,7 +3400,7 @@ export type CasesAnalysisApiCaseanalysissessionRetrieveResponse = (CaseAnalysisS
 
 export type CasesAnalysisApiCaseanalysissessionRetrieveError = unknown;
 
-export type CasesImportApiCaseImportActionListCreateListData = {
+export type CasesImportApiCaseImportActionListData = {
     path: {
         project: string;
     };
@@ -3394,62 +3416,66 @@ export type CasesImportApiCaseImportActionListCreateListData = {
     };
 };
 
-export type CasesImportApiCaseImportActionListCreateListResponse = (PaginatedCaseImportActionList);
+export type CasesImportApiCaseImportActionListResponse = (PaginatedCaseImportActionList);
 
-export type CasesImportApiCaseImportActionListCreateListError = unknown;
+export type CasesImportApiCaseImportActionListError = unknown;
 
-export type CasesImportApiCaseImportActionListCreateCreateData = {
+export type CasesImportApiCaseImportActionCreateData = {
     body: CaseImportActionRequest;
     path: {
         project: string;
     };
 };
 
-export type CasesImportApiCaseImportActionListCreateCreateResponse = (CaseImportAction);
+export type CasesImportApiCaseImportActionCreateResponse = (CaseImportAction);
 
-export type CasesImportApiCaseImportActionListCreateCreateError = unknown;
+export type CasesImportApiCaseImportActionCreateError = unknown;
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData = {
+export type CasesImportApiCaseImportActionRetrieveData = {
     path: {
         caseimportaction: string;
+        project: string;
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveResponse = (CaseImportAction);
+export type CasesImportApiCaseImportActionRetrieveResponse = (CaseImportAction);
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveError = unknown;
+export type CasesImportApiCaseImportActionRetrieveError = unknown;
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData = {
+export type CasesImportApiCaseImportActionUpdateData = {
     body: CaseImportActionRequest;
     path: {
         caseimportaction: string;
+        project: string;
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse = (CaseImportAction);
+export type CasesImportApiCaseImportActionUpdateResponse = (CaseImportAction);
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError = unknown;
+export type CasesImportApiCaseImportActionUpdateError = unknown;
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateData = {
+export type CasesImportApiCaseImportActionPartialUpdateData = {
     body?: PatchedCaseImportActionRequest;
     path: {
         caseimportaction: string;
+        project: string;
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateResponse = (CaseImportAction);
+export type CasesImportApiCaseImportActionPartialUpdateResponse = (CaseImportAction);
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyPartialUpdateError = unknown;
+export type CasesImportApiCaseImportActionPartialUpdateError = unknown;
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyData = {
+export type CasesImportApiCaseImportActionDestroyData = {
     path: {
         caseimportaction: string;
+        project: string;
     };
 };
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyResponse = (void);
+export type CasesImportApiCaseImportActionDestroyResponse = (void);
 
-export type CasesImportApiCaseImportActionRetrieveUpdateDestroyDestroyError = unknown;
+export type CasesImportApiCaseImportActionDestroyError = unknown;
 
 export type CasesQcApiCaseqcRetrieveRetrieveData = {
     path: {
@@ -3972,9 +3998,9 @@ export type SeqvarsApiPredefinedqueryListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4049,9 +4075,9 @@ export type SeqvarsApiQueryListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4137,9 +4163,9 @@ export type SeqvarsApiQueryexecutionListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4178,9 +4204,9 @@ export type SeqvarsApiQuerypresetsclinvarListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4255,9 +4281,9 @@ export type SeqvarsApiQuerypresetscolumnsListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4332,9 +4358,9 @@ export type SeqvarsApiQuerypresetsconsequenceListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4406,9 +4432,9 @@ export type SeqvarsApiQuerypresetsconsequenceDestroyError = unknown;
 export type SeqvarsApiQuerypresetsfactorydefaultsListData = {
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4436,9 +4462,9 @@ export type SeqvarsApiQuerypresetsfrequencyListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4513,9 +4539,9 @@ export type SeqvarsApiQuerypresetslocusListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4590,9 +4616,9 @@ export type SeqvarsApiQuerypresetsphenotypeprioListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4667,9 +4693,9 @@ export type SeqvarsApiQuerypresetsqualityListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4744,9 +4770,9 @@ export type SeqvarsApiQuerypresetssetListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4833,9 +4859,9 @@ export type SeqvarsApiQuerypresetssetversionListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4922,9 +4948,9 @@ export type SeqvarsApiQuerypresetsvariantprioListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -4999,9 +5025,9 @@ export type SeqvarsApiQuerysettingsListData = {
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -5075,10 +5101,12 @@ export type SeqvarsApiResultrowListData = {
         resultset: string;
     };
     query?: {
+        order_by?: string;
+        order_dir?: string;
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -5103,13 +5131,13 @@ export type SeqvarsApiResultrowRetrieveError = unknown;
 
 export type SeqvarsApiResultsetListData = {
     path: {
-        query: string;
+        queryexecution: string;
     };
     query?: {
         /**
-         * The pagination cursor value.
+         * A page number within the paginated result set.
          */
-        cursor?: string;
+        page?: number;
         /**
          * Number of results to return per page.
          */
@@ -5123,7 +5151,7 @@ export type SeqvarsApiResultsetListError = unknown;
 
 export type SeqvarsApiResultsetRetrieveData = {
     path: {
-        query: string;
+        queryexecution: string;
         resultset: string;
     };
 };

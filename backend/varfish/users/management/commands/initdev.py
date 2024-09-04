@@ -63,7 +63,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--data-case",
             default="Case_1",
-            choices=["Case_1"],
+            choices=["Case_1", "Case_1_exons"],
             help="Name of case to use when adding data or import job",
         )
         parser.add_argument(

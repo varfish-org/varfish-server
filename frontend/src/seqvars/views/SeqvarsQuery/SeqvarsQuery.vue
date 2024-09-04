@@ -13,6 +13,7 @@ import { useProjectStore } from '@/cases/stores/project'
 import QueryEditor from '@/seqvars/components/QueryEditor/QueryEditor.vue'
 import HintButton from '@/seqvars/components/QueryEditor/ui/HintButton.vue'
 import QueryEditorDrawer from '@/seqvars/components/QueryEditorDrawer/QueryEditorDrawer.vue'
+import QueryResults from '@/seqvars/components/QueryResults/QueryResults.vue'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -68,6 +69,21 @@ const selectedPresetSetVersionDetails = computed<
         entry.presetsset.sodar_uuid,
       ),
   )[0]
+})
+
+/** The UUID of the currently selected query in the query results view. */
+const selectedQueryUuidRef = ref<string | undefined>(undefined)
+/** UUIDs of the queries for which the results have been opened. */
+const openQueryUuids = ref<string[]>([])
+/** Manage `selectedQueryUuidRef` and update `openQueryUuids` if necessary. */
+const selectedQueryUuid = computed<string | undefined>({
+  get: () => selectedQueryUuidRef.value,
+  set: (value) => {
+    selectedQueryUuidRef.value = value
+    if (value && !openQueryUuids.value.includes(value)) {
+      openQueryUuids.value.push(value)
+    }
+  },
 })
 
 /** Event handler for queueing message in VSnackbarQueue. */
@@ -178,6 +194,8 @@ const isQueryFetching = useIsFetching()
       ></v-skeleton-loader>
       <template v-else>
         <QueryEditor
+          v-model:selected-query-uuid="selectedQueryUuid"
+          v-model:open-query-uuids="openQueryUuids"
           :case-uuid="caseUuid"
           :session-uuid="sessionUuid"
           :collapsed="!queryEditorShown"
@@ -190,15 +208,27 @@ const isQueryFetching = useIsFetching()
       </template>
     </QueryEditorDrawer>
     <v-main>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec
-        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
-        ultricies. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec
-        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
-        ultricies. Nullam nec purus nec nunc tincidunt ultricies. Nullam nec
-        purus nec nunc tincidunt ultricies. Nullam nec purus nec nunc tincidunt
-        ultricies. Nullam nec purus nec nunc
-      </div>
+      <v-skeleton-loader
+        v-if="
+          !selectedPresetSetVersionDetails ||
+          !caseUuid ||
+          !sessionUuid ||
+          !caseRetrieveRes.data?.value
+        "
+        type="list-item, list-item, list-item"
+        class="bg-background"
+      ></v-skeleton-loader>
+      <template v-else>
+        <QueryResults
+          v-model:selected-query-uuid="selectedQueryUuid"
+          v-model:open-query-uuids="openQueryUuids"
+          :hints-enabled="hintsEnabled"
+          :case-uuid="caseUuid"
+          :session-uuid="sessionUuid"
+          :case-obj="caseRetrieveRes.data?.value"
+          @message="queueMessage"
+        />
+      </template>
     </v-main>
     <!-- <SeqvarDetails
       v-model:show-sheet="detailsShown"

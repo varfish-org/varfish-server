@@ -5,13 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from cases_analysis.models import CaseAnalysisSession
@@ -56,11 +56,12 @@ from seqvars.serializers import (
     SeqvarsResultRowSerializer,
     SeqvarsResultSetSerializer,
 )
+from seqvars.tasks import run_seqvarsqueryexecutionbackgroundjob
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models.case import Case
 
 
-class StandardPagination(CursorPagination):
+class StandardPagination(PageNumberPagination):
     """Standard cursor navigation for the API."""
 
     page_size = 100
@@ -89,6 +90,11 @@ def get_project(kwargs):
     elif "query" in kwargs:
         query = get_object_or_404(SeqvarsQuery.objects.all(), sodar_uuid=kwargs["query"])
         project = query.session.caseanalysis.case.project
+    elif "queryexecution" in kwargs:
+        queryexecution = get_object_or_404(
+            SeqvarsQueryExecution.objects.all(), sodar_uuid=kwargs["queryexecution"]
+        )
+        project = queryexecution.query.session.caseanalysis.case.project
     elif "resultset" in kwargs:
         resultset = get_object_or_404(
             SeqvarsResultSet.objects.all(), sodar_uuid=kwargs["resultset"]
@@ -536,7 +542,6 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
 
     @extend_schema(request=serializers.Serializer)
     @action(methods=["post"], detail=False)
-    @transaction.atomic()
     def start(self, *args, **kwargs):
         """Create a new query execution for the given query.
 
@@ -545,15 +550,17 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
         query = None
         # TODO: check permissions on the source's project
         query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
-        queryexecution = SeqvarsQueryExecution.objects.create(
-            state=SeqvarsQueryExecution.STATE_QUEUED,
-            query=query,
-            querysettings=query.settings.make_clone(),
-        )
-        SeqvarsQueryExecutionBackgroundJob.objects.create_full(
-            seqvarsqueryexecution=queryexecution,
-            user=self.request.user,
-        )
+        with transaction.atomic():
+            queryexecution = SeqvarsQueryExecution.objects.create(
+                state=SeqvarsQueryExecution.STATE_QUEUED,
+                query=query,
+                querysettings=query.settings.make_clone(),
+            )
+            bgjob = SeqvarsQueryExecutionBackgroundJob.objects.create_full(
+                seqvarsqueryexecution=queryexecution,
+                user=self.request.user,
+            )
+        run_seqvarsqueryexecutionbackgroundjob.delay(seqvarsqueryexecutionbackgroundjob_pk=bgjob.pk)
         serializer = self.get_serializer(queryexecution)
         return Response(serializer.data)
 
@@ -582,7 +589,7 @@ class SeqvarsResultSetViewSet(BaseReadOnlyViewSet):
         if sys.argv[:2] == ["manage.py", "spectacular"]:
             return result  # short circuit in schema generation
         result = result.filter(
-            queryexecution__query__sodar_uuid=self.kwargs["query"],
+            queryexecution__sodar_uuid=self.kwargs["queryexecution"],
         )
         return result
 
@@ -602,6 +609,15 @@ class SeqvarsResultRowViewSet(BaseReadOnlyViewSet):
     serializer_class = SeqvarsResultRowSerializer
     #: Override pagination as rows do not have ``date_created``.
     pagination_class = SeqvarsResultRowPagination
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name="order_by", type=str),
+            OpenApiParameter(name="order_dir", type=str),
+        ]
+    )
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
 
     def get_queryset(self):
         """Return queryset with all ``ResultRow`` records for the given result set."""

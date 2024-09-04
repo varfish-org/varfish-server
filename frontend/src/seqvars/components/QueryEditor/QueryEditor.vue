@@ -59,6 +59,8 @@ const props = withDefaults(
     caseUuid: string
     /** UUID of the case analysis session to edit queries for. */
     sessionUuid: string
+    /** UUIDs of the currently opened queries. */
+    openQueryUuids: string[]
     /** Whether the containing VNavigationDrawer has been collapsed. */
     collapsed: boolean
     /** The presets version to use. */
@@ -71,6 +73,7 @@ const props = withDefaults(
     hintsEnabled?: boolean
   }>(),
   {
+    openQueryUuids: [],
     collapsed: false,
     teleportedQueriesLabels: false,
     hintsEnabled: false,
@@ -85,7 +88,7 @@ const emit = defineEmits<{
 }>()
 
 /** The UUID of the currently selected query; component state. */
-const selectedQueryUuid = ref<string | undefined>(undefined)
+const selectedQueryUuid = defineModel<string | undefined>('selectedQueryUuid')
 /** Whether to show the query update dialog; component state. */
 const showUpdateDialog = ref<boolean>(false)
 /** The query title in update dialog; component state. */
