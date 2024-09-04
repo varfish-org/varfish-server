@@ -1,16 +1,30 @@
 import os
 import subprocess
+import sys
 import tempfile
+import traceback
 import typing
 
 from django.conf import settings
 from django.utils import timezone
-from google.protobuf.json_format import MessageToJson
+from google.protobuf.json_format import MessageToJson, Parse
 
 from cases_files.models import PedigreeInternalFile
 from cases_import.models.executors import FileSystemOptions, FileSystemWrapper, uuid_frag
-from seqvars.models.base import SeqvarsQueryExecution, SeqvarsQueryExecutionBackgroundJob
-from seqvars.models.protobufs import querysettings_to_protobuf
+from seqvars.models.base import (
+    DataSourceInfoPydantic,
+    DataSourceInfosPydantic,
+    SeqvarsQueryExecution,
+    SeqvarsQueryExecutionBackgroundJob,
+    SeqvarsResultRow,
+    SeqvarsResultSet,
+)
+from seqvars.models.protobufs import (
+    outputheader_from_protobuf,
+    querysettings_to_protobuf,
+    seqvars_output_record_from_protobuf,
+)
+from seqvars.protos.output_pb2 import OutputHeader, OutputRecord
 
 
 class CaseImportBackgroundJobExecutor:
@@ -40,6 +54,12 @@ class CaseImportBackgroundJobExecutor:
         )
         #: The `FileSystemWrapper` for the internal storage.
         self.internal_fs = FileSystemWrapper(self.internal_fs_options)
+        #: Base path in internal storage to write files to.
+        self.path_internal_base = (
+            f"query-results/{uuid_frag(self.case.sodar_uuid)}/seqvars/{self.bgjob.sodar_uuid}"
+        )
+        #: Path to the results file in internal storage.
+        self.path_internal_results = f"{self.path_internal_base}/results.jsonl"
 
     def run(self):
         """Execute the case import."""
@@ -49,23 +69,31 @@ class CaseImportBackgroundJobExecutor:
             self.execution.save()
             try:
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    self._run(tmpdir)
+                    genome_release = self.execute_query(tmpdir)
+                self.load_results(genome_release=genome_release)
                 self.execution.end_time = timezone.now()
                 self.execution.elapsed_seconds = (
                     self.execution.end_time - self.execution.start_time
                 ).total_seconds()
                 self.execution.state = SeqvarsQueryExecution.STATE_DONE
                 self.execution.save()
-            except Exception:
+            except Exception as e:
+                print(f"Error while executing worker / importing results: {e}", file=sys.stderr)
+                traceback.print_exc(file=sys.stderr)
+
                 self.execution.end_time = timezone.now()
                 self.execution.elapsed_seconds = (
                     self.execution.end_time - self.execution.start_time
                 ).total_seconds()
-                self.execution.state = SeqvarsQueryExecution.STATE_ERROR
+                self.execution.state = SeqvarsQueryExecution.STATE_FAILED
                 self.execution.save()
 
-    def _run(self, tmpdir: str):
-        """Execute the query."""
+    def execute_query(self, tmpdir: str) -> str:
+        """Execute the query, writing it to the internal storage.
+
+        Returns the genome release, one of "grch37" and "grch38".
+        """
+        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
         # Obtain ingested VCF internal file object and path.
         seqvars_file = PedigreeInternalFile.objects.filter(
             case=self.case,
@@ -80,16 +108,9 @@ class CaseImportBackgroundJobExecutor:
         path_local_query = os.path.join(tmpdir, "query.json")
         with open(path_local_query, "wt") as localf:
             localf.write(case_query_json + "\n")
-        path_internal_base = (
-            f"{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket}/query-results/"
-            f"{uuid_frag(self.case.sodar_uuid)}/seqvars/{self.bgjob.sodar_uuid}"
-        )
-        path_internal_query = f"{path_internal_base}/query.json"
-        with self.internal_fs.open(f"s3://{path_internal_query}", "wt") as internalf:
+        path_internal_query = f"{self.path_internal_base}/query.json"
+        with self.internal_fs.open(f"s3://{bucket}/{path_internal_query}", "wt") as internalf:
             internalf.write(case_query_json + "\n")
-        # Path create path of the new file.
-        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
-        path_internal_results = f"{path_internal_base}/results.jsonl"
         # Create arguments to use.
         args = [
             "seqvars",
@@ -105,7 +126,7 @@ class CaseImportBackgroundJobExecutor:
             "--path-input",
             f"{bucket}/{vcf_path_in}",
             "--path-output",
-            f"{bucket}/{path_internal_results}",
+            f"{bucket}/{self.path_internal_results}",
         ]
         # Setup environment so the worker can access the internal S3 storage.
         env = {
@@ -128,6 +149,8 @@ class CaseImportBackgroundJobExecutor:
         except Exception:
             pass
 
+        return vcf_genome_release
+
     def run_worker(self, *, args: list[str], env: typing.Dict[str, str] | None = None):
         """Run the worker with the given arguments.
 
@@ -135,6 +158,49 @@ class CaseImportBackgroundJobExecutor:
         """
         cmd = [settings.WORKER_EXE_PATH, *args]
         subprocess.check_call(cmd, env=env)
+
+    def load_results(self, *, genome_release: str):
+        """Load the results from the internal storage and store in database."""
+        bucket = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.bucket
+        resultset = SeqvarsResultSet(
+            queryexecution=self.execution,
+            result_row_count=0,
+            datasource_infos=None,
+            output_header=None,
+        )
+        with self.internal_fs.open(
+            f"s3://{bucket}/{self.path_internal_results}", "rt"
+        ) as internalf:
+            read_header = False
+            for line in internalf:
+                if not read_header:
+                    read_header = True
+                    # Parse out header from first JSONL line, write to result set in
+                    # database, extract information, and save result set record.
+                    header_pb = Parse(line, OutputHeader())
+                    resultset.output_header = outputheader_from_protobuf(header_pb)
+                    resultset.result_row_count = header_pb.statistics.count_passed
+                    resultset.datasource_infos = DataSourceInfosPydantic(
+                        infos=[
+                            DataSourceInfoPydantic(name=info.name, version=info.version)
+                            for info in header_pb.versions
+                        ]
+                    )
+                    resultset.save()
+                else:
+                    # Parse out record from JSONL line and write to database.
+                    record_pb = Parse(line, OutputRecord())
+                    SeqvarsResultRow.objects.create(
+                        sodar_uuid=record_pb.uuid,
+                        resultset=resultset,
+                        genome_release=genome_release,
+                        chrom=record_pb.vcf_variant.chrom,
+                        chrom_no=record_pb.vcf_variant.chrom_no,
+                        pos=record_pb.vcf_variant.pos,
+                        ref_allele=record_pb.vcf_variant.ref_allele,
+                        alt_allele=record_pb.vcf_variant.alt_allele,
+                        payload=seqvars_output_record_from_protobuf(record_pb),
+                    )
 
 
 def run_seqvarsqueryexecutionbackgroundjob(*, pk: int):
