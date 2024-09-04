@@ -32,6 +32,10 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     return params;
 };
 
+export const hpoGenesQueryKey = (options?: Options<HpoGenesData>) => [
+    createQueryKey("hpoGenes", options)
+];
+
 export const hpoGenesOptions = (options?: Options<HpoGenesData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await hpoGenes({
@@ -41,10 +45,12 @@ export const hpoGenesOptions = (options?: Options<HpoGenesData>) => { return que
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("hpoGenes", options)
-    ]
+    queryKey: hpoGenesQueryKey(options)
 }); };
+
+export const hpoOmimsQueryKey = (options?: Options<HpoOmimsData>) => [
+    createQueryKey("hpoOmims", options)
+];
 
 export const hpoOmimsOptions = (options?: Options<HpoOmimsData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -55,10 +61,12 @@ export const hpoOmimsOptions = (options?: Options<HpoOmimsData>) => { return que
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("hpoOmims", options)
-    ]
+    queryKey: hpoOmimsQueryKey(options)
 }); };
+
+export const hpoSimTermGeneQueryKey = (options: Options<HpoSimTermGeneData>) => [
+    createQueryKey("hpoSimTermGene", options)
+];
 
 export const hpoSimTermGeneOptions = (options: Options<HpoSimTermGeneData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -69,10 +77,12 @@ export const hpoSimTermGeneOptions = (options: Options<HpoSimTermGeneData>) => {
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("hpoSimTermGene", options)
-    ]
+    queryKey: hpoSimTermGeneQueryKey(options)
 }); };
+
+export const hpoSimTermTermQueryKey = (options: Options<HpoSimTermTermData>) => [
+    createQueryKey("hpoSimTermTerm", options)
+];
 
 export const hpoSimTermTermOptions = (options: Options<HpoSimTermTermData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -83,10 +93,12 @@ export const hpoSimTermTermOptions = (options: Options<HpoSimTermTermData>) => {
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("hpoSimTermTerm", options)
-    ]
+    queryKey: hpoSimTermTermQueryKey(options)
 }); };
+
+export const hpoTermsQueryKey = (options?: Options<HpoTermsData>) => [
+    createQueryKey("hpoTerms", options)
+];
 
 export const hpoTermsOptions = (options?: Options<HpoTermsData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -97,7 +109,5 @@ export const hpoTermsOptions = (options?: Options<HpoTermsData>) => { return que
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("hpoTerms", options)
-    ]
+    queryKey: hpoTermsQueryKey(options)
 }); };

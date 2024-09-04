@@ -32,6 +32,10 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     return params;
 };
 
+export const casesAnalysisApiCaseanalysisListQueryKey = (options: Options<CasesAnalysisApiCaseanalysisListData>) => [
+    createQueryKey("casesAnalysisApiCaseanalysisList", options)
+];
+
 export const casesAnalysisApiCaseanalysisListOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesAnalysisApiCaseanalysisList({
@@ -41,10 +45,12 @@ export const casesAnalysisApiCaseanalysisListOptions = (options: Options<CasesAn
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysisList", options)
-    ]
+    queryKey: casesAnalysisApiCaseanalysisListQueryKey(options)
 }); };
+
+export const casesAnalysisApiCaseanalysisListInfiniteQueryKey = (options: Options<CasesAnalysisApiCaseanalysisListData>): QueryKey<Options<CasesAnalysisApiCaseanalysisListData>> => [
+    createQueryKey("casesAnalysisApiCaseanalysisList", options, true)
+];
 
 export const casesAnalysisApiCaseanalysisListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => { return infiniteQueryOptions<CasesAnalysisApiCaseanalysisListResponse, CasesAnalysisApiCaseanalysisListError, InfiniteData<CasesAnalysisApiCaseanalysisListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -79,10 +85,12 @@ export const casesAnalysisApiCaseanalysisListInfiniteOptions = (options: Options
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysisList", options, true)
-    ]
+    queryKey: casesAnalysisApiCaseanalysisListInfiniteQueryKey(options)
 }); };
+
+export const casesAnalysisApiCaseanalysisRetrieveQueryKey = (options: Options<CasesAnalysisApiCaseanalysisRetrieveData>) => [
+    createQueryKey("casesAnalysisApiCaseanalysisRetrieve", options)
+];
 
 export const casesAnalysisApiCaseanalysisRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysisRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -93,10 +101,12 @@ export const casesAnalysisApiCaseanalysisRetrieveOptions = (options: Options<Cas
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysisRetrieve", options)
-    ]
+    queryKey: casesAnalysisApiCaseanalysisRetrieveQueryKey(options)
 }); };
+
+export const casesAnalysisApiCaseanalysissessionListQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => [
+    createQueryKey("casesAnalysisApiCaseanalysissessionList", options)
+];
 
 export const casesAnalysisApiCaseanalysissessionListOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -107,10 +117,12 @@ export const casesAnalysisApiCaseanalysissessionListOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysissessionList", options)
-    ]
+    queryKey: casesAnalysisApiCaseanalysissessionListQueryKey(options)
 }); };
+
+export const casesAnalysisApiCaseanalysissessionListInfiniteQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionListData>): QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>> => [
+    createQueryKey("casesAnalysisApiCaseanalysissessionList", options, true)
+];
 
 export const casesAnalysisApiCaseanalysissessionListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => { return infiniteQueryOptions<CasesAnalysisApiCaseanalysissessionListResponse, CasesAnalysisApiCaseanalysissessionListError, InfiniteData<CasesAnalysisApiCaseanalysissessionListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -145,10 +157,12 @@ export const casesAnalysisApiCaseanalysissessionListInfiniteOptions = (options: 
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysissessionList", options, true)
-    ]
+    queryKey: casesAnalysisApiCaseanalysissessionListInfiniteQueryKey(options)
 }); };
+
+export const casesAnalysisApiCaseanalysissessionRetrieveQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>) => [
+    createQueryKey("casesAnalysisApiCaseanalysissessionRetrieve", options)
+];
 
 export const casesAnalysisApiCaseanalysissessionRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -159,10 +173,12 @@ export const casesAnalysisApiCaseanalysissessionRetrieveOptions = (options: Opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesAnalysisApiCaseanalysissessionRetrieve", options)
-    ]
+    queryKey: casesAnalysisApiCaseanalysissessionRetrieveQueryKey(options)
 }); };
+
+export const casesImportApiCaseImportActionListCreateListQueryKey = (options: Options<CasesImportApiCaseImportActionListCreateListData>) => [
+    createQueryKey("casesImportApiCaseImportActionListCreateList", options)
+];
 
 export const casesImportApiCaseImportActionListCreateListOptions = (options: Options<CasesImportApiCaseImportActionListCreateListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -173,10 +189,12 @@ export const casesImportApiCaseImportActionListCreateListOptions = (options: Opt
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesImportApiCaseImportActionListCreateList", options)
-    ]
+    queryKey: casesImportApiCaseImportActionListCreateListQueryKey(options)
 }); };
+
+export const casesImportApiCaseImportActionListCreateListInfiniteQueryKey = (options: Options<CasesImportApiCaseImportActionListCreateListData>): QueryKey<Options<CasesImportApiCaseImportActionListCreateListData>> => [
+    createQueryKey("casesImportApiCaseImportActionListCreateList", options, true)
+];
 
 export const casesImportApiCaseImportActionListCreateListInfiniteOptions = (options: Options<CasesImportApiCaseImportActionListCreateListData>) => { return infiniteQueryOptions<CasesImportApiCaseImportActionListCreateListResponse, CasesImportApiCaseImportActionListCreateListError, InfiniteData<CasesImportApiCaseImportActionListCreateListResponse>, QueryKey<Options<CasesImportApiCaseImportActionListCreateListData>>, number | Pick<QueryKey<Options<CasesImportApiCaseImportActionListCreateListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -211,10 +229,12 @@ export const casesImportApiCaseImportActionListCreateListInfiniteOptions = (opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesImportApiCaseImportActionListCreateList", options, true)
-    ]
+    queryKey: casesImportApiCaseImportActionListCreateListInfiniteQueryKey(options)
 }); };
+
+export const casesImportApiCaseImportActionListCreateCreateQueryKey = (options: Options<CasesImportApiCaseImportActionListCreateCreateData>) => [
+    createQueryKey("casesImportApiCaseImportActionListCreateCreate", options)
+];
 
 export const casesImportApiCaseImportActionListCreateCreateOptions = (options: Options<CasesImportApiCaseImportActionListCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -225,9 +245,7 @@ export const casesImportApiCaseImportActionListCreateCreateOptions = (options: O
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesImportApiCaseImportActionListCreateCreate", options)
-    ]
+    queryKey: casesImportApiCaseImportActionListCreateCreateQueryKey(options)
 }); };
 
 export const casesImportApiCaseImportActionListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionListCreateCreateResponse, CasesImportApiCaseImportActionListCreateCreateError, Options<CasesImportApiCaseImportActionListCreateCreateData>> = {
@@ -240,6 +258,10 @@ export const casesImportApiCaseImportActionListCreateCreateMutation = () => { co
     }
 }; return mutationOptions; };
 
+export const casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData>) => [
+    createQueryKey("casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieve", options)
+];
+
 export const casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieve({
@@ -249,9 +271,7 @@ export const casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveOptions 
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieve", options)
-    ]
+    queryKey: casesImportApiCaseImportActionRetrieveUpdateDestroyRetrieveQueryKey(options)
 }); };
 
 export const casesImportApiCaseImportActionRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateResponse, CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateError, Options<CasesImportApiCaseImportActionRetrieveUpdateDestroyUpdateData>> = {
@@ -284,6 +304,10 @@ export const casesImportApiCaseImportActionRetrieveUpdateDestroyDestroyMutation 
     }
 }; return mutationOptions; };
 
+export const casesQcApiCaseqcRetrieveRetrieveQueryKey = (options: Options<CasesQcApiCaseqcRetrieveRetrieveData>) => [
+    createQueryKey("casesQcApiCaseqcRetrieveRetrieve", options)
+];
+
 export const casesQcApiCaseqcRetrieveRetrieveOptions = (options: Options<CasesQcApiCaseqcRetrieveRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesQcApiCaseqcRetrieveRetrieve({
@@ -293,10 +317,12 @@ export const casesQcApiCaseqcRetrieveRetrieveOptions = (options: Options<CasesQc
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesQcApiCaseqcRetrieveRetrieve", options)
-    ]
+    queryKey: casesQcApiCaseqcRetrieveRetrieveQueryKey(options)
 }); };
+
+export const casesQcApiVarfishstatsRetrieveRetrieveQueryKey = (options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>) => [
+    createQueryKey("casesQcApiVarfishstatsRetrieveRetrieve", options)
+];
 
 export const casesQcApiVarfishstatsRetrieveRetrieveOptions = (options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -307,10 +333,12 @@ export const casesQcApiVarfishstatsRetrieveRetrieveOptions = (options: Options<C
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesQcApiVarfishstatsRetrieveRetrieve", options)
-    ]
+    queryKey: casesQcApiVarfishstatsRetrieveRetrieveQueryKey(options)
 }); };
+
+export const casesApiAnnotationReleaseInfoListListQueryKey = (options: Options<CasesApiAnnotationReleaseInfoListListData>) => [
+    createQueryKey("casesApiAnnotationReleaseInfoListList", options)
+];
 
 export const casesApiAnnotationReleaseInfoListListOptions = (options: Options<CasesApiAnnotationReleaseInfoListListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -321,10 +349,12 @@ export const casesApiAnnotationReleaseInfoListListOptions = (options: Options<Ca
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiAnnotationReleaseInfoListList", options)
-    ]
+    queryKey: casesApiAnnotationReleaseInfoListListQueryKey(options)
 }); };
+
+export const casesApiCaseCommentListCreateListQueryKey = (options: Options<CasesApiCaseCommentListCreateListData>) => [
+    createQueryKey("casesApiCaseCommentListCreateList", options)
+];
 
 export const casesApiCaseCommentListCreateListOptions = (options: Options<CasesApiCaseCommentListCreateListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -335,10 +365,12 @@ export const casesApiCaseCommentListCreateListOptions = (options: Options<CasesA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseCommentListCreateList", options)
-    ]
+    queryKey: casesApiCaseCommentListCreateListQueryKey(options)
 }); };
+
+export const casesApiCaseCommentListCreateCreateQueryKey = (options: Options<CasesApiCaseCommentListCreateCreateData>) => [
+    createQueryKey("casesApiCaseCommentListCreateCreate", options)
+];
 
 export const casesApiCaseCommentListCreateCreateOptions = (options: Options<CasesApiCaseCommentListCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -349,9 +381,7 @@ export const casesApiCaseCommentListCreateCreateOptions = (options: Options<Case
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseCommentListCreateCreate", options)
-    ]
+    queryKey: casesApiCaseCommentListCreateCreateQueryKey(options)
 }); };
 
 export const casesApiCaseCommentListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseCommentListCreateCreateResponse, CasesApiCaseCommentListCreateCreateError, Options<CasesApiCaseCommentListCreateCreateData>> = {
@@ -364,6 +394,10 @@ export const casesApiCaseCommentListCreateCreateMutation = () => { const mutatio
     }
 }; return mutationOptions; };
 
+export const casesApiCasePhenotypeTermsListCreateListQueryKey = (options: Options<CasesApiCasePhenotypeTermsListCreateListData>) => [
+    createQueryKey("casesApiCasePhenotypeTermsListCreateList", options)
+];
+
 export const casesApiCasePhenotypeTermsListCreateListOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesApiCasePhenotypeTermsListCreateList({
@@ -373,10 +407,12 @@ export const casesApiCasePhenotypeTermsListCreateListOptions = (options: Options
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCasePhenotypeTermsListCreateList", options)
-    ]
+    queryKey: casesApiCasePhenotypeTermsListCreateListQueryKey(options)
 }); };
+
+export const casesApiCasePhenotypeTermsListCreateCreateQueryKey = (options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>) => [
+    createQueryKey("casesApiCasePhenotypeTermsListCreateCreate", options)
+];
 
 export const casesApiCasePhenotypeTermsListCreateCreateOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -387,9 +423,7 @@ export const casesApiCasePhenotypeTermsListCreateCreateOptions = (options: Optio
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCasePhenotypeTermsListCreateCreate", options)
-    ]
+    queryKey: casesApiCasePhenotypeTermsListCreateCreateQueryKey(options)
 }); };
 
 export const casesApiCasePhenotypeTermsListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsListCreateCreateResponse, CasesApiCasePhenotypeTermsListCreateCreateError, Options<CasesApiCasePhenotypeTermsListCreateCreateData>> = {
@@ -402,6 +436,10 @@ export const casesApiCasePhenotypeTermsListCreateCreateMutation = () => { const 
     }
 }; return mutationOptions; };
 
+export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>) => [
+    createQueryKey("casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve", options)
+];
+
 export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve({
@@ -411,9 +449,7 @@ export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveOptions = (o
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve", options)
-    ]
+    queryKey: casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveQueryKey(options)
 }); };
 
 export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData>> = {
@@ -446,6 +482,10 @@ export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyMutation = ()
     }
 }; return mutationOptions; };
 
+export const casesApiCaseCountRetrieveQueryKey = (options: Options<CasesApiCaseCountRetrieveData>) => [
+    createQueryKey("casesApiCaseCountRetrieve", options)
+];
+
 export const casesApiCaseCountRetrieveOptions = (options: Options<CasesApiCaseCountRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesApiCaseCountRetrieve({
@@ -455,10 +495,12 @@ export const casesApiCaseCountRetrieveOptions = (options: Options<CasesApiCaseCo
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseCountRetrieve", options)
-    ]
+    queryKey: casesApiCaseCountRetrieveQueryKey(options)
 }); };
+
+export const casesApiCaseListListQueryKey = (options: Options<CasesApiCaseListListData>) => [
+    createQueryKey("casesApiCaseListList", options)
+];
 
 export const casesApiCaseListListOptions = (options: Options<CasesApiCaseListListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -469,10 +511,12 @@ export const casesApiCaseListListOptions = (options: Options<CasesApiCaseListLis
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseListList", options)
-    ]
+    queryKey: casesApiCaseListListQueryKey(options)
 }); };
+
+export const casesApiCaseListListInfiniteQueryKey = (options: Options<CasesApiCaseListListData>): QueryKey<Options<CasesApiCaseListListData>> => [
+    createQueryKey("casesApiCaseListList", options, true)
+];
 
 export const casesApiCaseListListInfiniteOptions = (options: Options<CasesApiCaseListListData>) => { return infiniteQueryOptions<CasesApiCaseListListResponse, CasesApiCaseListListError, InfiniteData<CasesApiCaseListListResponse>, QueryKey<Options<CasesApiCaseListListData>>, number | Pick<QueryKey<Options<CasesApiCaseListListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -507,10 +551,12 @@ export const casesApiCaseListListInfiniteOptions = (options: Options<CasesApiCas
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseListList", options, true)
-    ]
+    queryKey: casesApiCaseListListInfiniteQueryKey(options)
 }); };
+
+export const casesApiCaseRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>) => [
+    createQueryKey("casesApiCaseRetrieveUpdateDestroyRetrieve", options)
+];
 
 export const casesApiCaseRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -521,9 +567,7 @@ export const casesApiCaseRetrieveUpdateDestroyRetrieveOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiCaseRetrieveUpdateDestroyRetrieve", options)
-    ]
+    queryKey: casesApiCaseRetrieveUpdateDestroyRetrieveQueryKey(options)
 }); };
 
 export const casesApiCaseRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyUpdateResponse, CasesApiCaseRetrieveUpdateDestroyUpdateError, Options<CasesApiCaseRetrieveUpdateDestroyUpdateData>> = {
@@ -556,6 +600,10 @@ export const casesApiCaseRetrieveUpdateDestroyDestroyMutation = () => { const mu
     }
 }; return mutationOptions; };
 
+export const casesApiSvAnnotationReleaseInfoListListQueryKey = (options: Options<CasesApiSvAnnotationReleaseInfoListListData>) => [
+    createQueryKey("casesApiSvAnnotationReleaseInfoListList", options)
+];
+
 export const casesApiSvAnnotationReleaseInfoListListOptions = (options: Options<CasesApiSvAnnotationReleaseInfoListListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await casesApiSvAnnotationReleaseInfoListList({
@@ -565,10 +613,12 @@ export const casesApiSvAnnotationReleaseInfoListListOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiSvAnnotationReleaseInfoListList", options)
-    ]
+    queryKey: casesApiSvAnnotationReleaseInfoListListQueryKey(options)
 }); };
+
+export const casesApiUserAndGlobalSettingsRetrieveQueryKey = (options?: Options) => [
+    createQueryKey("casesApiUserAndGlobalSettingsRetrieve", options)
+];
 
 export const casesApiUserAndGlobalSettingsRetrieveOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -579,10 +629,12 @@ export const casesApiUserAndGlobalSettingsRetrieveOptions = (options?: Options) 
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("casesApiUserAndGlobalSettingsRetrieve", options)
-    ]
+    queryKey: casesApiUserAndGlobalSettingsRetrieveQueryKey(options)
 }); };
+
+export const genepanelsApiGenepanelCategoryListListQueryKey = (options?: Options) => [
+    createQueryKey("genepanelsApiGenepanelCategoryListList", options)
+];
 
 export const genepanelsApiGenepanelCategoryListListOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -593,10 +645,12 @@ export const genepanelsApiGenepanelCategoryListListOptions = (options?: Options)
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("genepanelsApiGenepanelCategoryListList", options)
-    ]
+    queryKey: genepanelsApiGenepanelCategoryListListQueryKey(options)
 }); };
+
+export const genepanelsApiLookupGenepanelRetrieveQueryKey = (options?: Options) => [
+    createQueryKey("genepanelsApiLookupGenepanelRetrieve", options)
+];
 
 export const genepanelsApiLookupGenepanelRetrieveOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -607,10 +661,12 @@ export const genepanelsApiLookupGenepanelRetrieveOptions = (options?: Options) =
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("genepanelsApiLookupGenepanelRetrieve", options)
-    ]
+    queryKey: genepanelsApiLookupGenepanelRetrieveQueryKey(options)
 }); };
+
+export const projectApiCreateCreateQueryKey = (options: Options<ProjectApiCreateCreateData>) => [
+    createQueryKey("projectApiCreateCreate", options)
+];
 
 export const projectApiCreateCreateOptions = (options: Options<ProjectApiCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -621,9 +677,7 @@ export const projectApiCreateCreateOptions = (options: Options<ProjectApiCreateC
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiCreateCreate", options)
-    ]
+    queryKey: projectApiCreateCreateQueryKey(options)
 }); };
 
 export const projectApiCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiCreateCreateResponse, ProjectApiCreateCreateError, Options<ProjectApiCreateCreateData>> = {
@@ -636,6 +690,10 @@ export const projectApiCreateCreateMutation = () => { const mutationOptions: Use
     }
 }; return mutationOptions; };
 
+export const projectApiInvitesCreateCreateQueryKey = (options: Options<ProjectApiInvitesCreateCreateData>) => [
+    createQueryKey("projectApiInvitesCreateCreate", options)
+];
+
 export const projectApiInvitesCreateCreateOptions = (options: Options<ProjectApiInvitesCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiInvitesCreateCreate({
@@ -645,9 +703,7 @@ export const projectApiInvitesCreateCreateOptions = (options: Options<ProjectApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiInvitesCreateCreate", options)
-    ]
+    queryKey: projectApiInvitesCreateCreateQueryKey(options)
 }); };
 
 export const projectApiInvitesCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesCreateCreateResponse, ProjectApiInvitesCreateCreateError, Options<ProjectApiInvitesCreateCreateData>> = {
@@ -660,6 +716,10 @@ export const projectApiInvitesCreateCreateMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const projectApiInvitesListListQueryKey = (options: Options<ProjectApiInvitesListListData>) => [
+    createQueryKey("projectApiInvitesListList", options)
+];
+
 export const projectApiInvitesListListOptions = (options: Options<ProjectApiInvitesListListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiInvitesListList({
@@ -669,10 +729,12 @@ export const projectApiInvitesListListOptions = (options: Options<ProjectApiInvi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiInvitesListList", options)
-    ]
+    queryKey: projectApiInvitesListListQueryKey(options)
 }); };
+
+export const projectApiInvitesResendCreateQueryKey = (options: Options<ProjectApiInvitesResendCreateData>) => [
+    createQueryKey("projectApiInvitesResendCreate", options)
+];
 
 export const projectApiInvitesResendCreateOptions = (options: Options<ProjectApiInvitesResendCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -683,9 +745,7 @@ export const projectApiInvitesResendCreateOptions = (options: Options<ProjectApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiInvitesResendCreate", options)
-    ]
+    queryKey: projectApiInvitesResendCreateQueryKey(options)
 }); };
 
 export const projectApiInvitesResendCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesResendCreateResponse, ProjectApiInvitesResendCreateError, Options<ProjectApiInvitesResendCreateData>> = {
@@ -698,6 +758,10 @@ export const projectApiInvitesResendCreateMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const projectApiInvitesRevokeCreateQueryKey = (options: Options<ProjectApiInvitesRevokeCreateData>) => [
+    createQueryKey("projectApiInvitesRevokeCreate", options)
+];
+
 export const projectApiInvitesRevokeCreateOptions = (options: Options<ProjectApiInvitesRevokeCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiInvitesRevokeCreate({
@@ -707,9 +771,7 @@ export const projectApiInvitesRevokeCreateOptions = (options: Options<ProjectApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiInvitesRevokeCreate", options)
-    ]
+    queryKey: projectApiInvitesRevokeCreateQueryKey(options)
 }); };
 
 export const projectApiInvitesRevokeCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesRevokeCreateResponse, ProjectApiInvitesRevokeCreateError, Options<ProjectApiInvitesRevokeCreateData>> = {
@@ -722,6 +784,10 @@ export const projectApiInvitesRevokeCreateMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const projectApiListRetrieveQueryKey = (options?: Options) => [
+    createQueryKey("projectApiListRetrieve", options)
+];
+
 export const projectApiListRetrieveOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiListRetrieve({
@@ -731,10 +797,12 @@ export const projectApiListRetrieveOptions = (options?: Options) => { return que
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiListRetrieve", options)
-    ]
+    queryKey: projectApiListRetrieveQueryKey(options)
 }); };
+
+export const projectApiRemoteGetRetrieveQueryKey = (options: Options<ProjectApiRemoteGetRetrieveData>) => [
+    createQueryKey("projectApiRemoteGetRetrieve", options)
+];
 
 export const projectApiRemoteGetRetrieveOptions = (options: Options<ProjectApiRemoteGetRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -745,10 +813,12 @@ export const projectApiRemoteGetRetrieveOptions = (options: Options<ProjectApiRe
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiRemoteGetRetrieve", options)
-    ]
+    queryKey: projectApiRemoteGetRetrieveQueryKey(options)
 }); };
+
+export const projectApiRetrieveRetrieveQueryKey = (options: Options<ProjectApiRetrieveRetrieveData>) => [
+    createQueryKey("projectApiRetrieveRetrieve", options)
+];
 
 export const projectApiRetrieveRetrieveOptions = (options: Options<ProjectApiRetrieveRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -759,10 +829,12 @@ export const projectApiRetrieveRetrieveOptions = (options: Options<ProjectApiRet
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiRetrieveRetrieve", options)
-    ]
+    queryKey: projectApiRetrieveRetrieveQueryKey(options)
 }); };
+
+export const projectApiRolesCreateCreateQueryKey = (options: Options<ProjectApiRolesCreateCreateData>) => [
+    createQueryKey("projectApiRolesCreateCreate", options)
+];
 
 export const projectApiRolesCreateCreateOptions = (options: Options<ProjectApiRolesCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -773,9 +845,7 @@ export const projectApiRolesCreateCreateOptions = (options: Options<ProjectApiRo
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiRolesCreateCreate", options)
-    ]
+    queryKey: projectApiRolesCreateCreateQueryKey(options)
 }); };
 
 export const projectApiRolesCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesCreateCreateResponse, ProjectApiRolesCreateCreateError, Options<ProjectApiRolesCreateCreateData>> = {
@@ -798,6 +868,10 @@ export const projectApiRolesDestroyDestroyMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const projectApiRolesOwnerTransferCreateQueryKey = (options: Options<ProjectApiRolesOwnerTransferCreateData>) => [
+    createQueryKey("projectApiRolesOwnerTransferCreate", options)
+];
+
 export const projectApiRolesOwnerTransferCreateOptions = (options: Options<ProjectApiRolesOwnerTransferCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiRolesOwnerTransferCreate({
@@ -807,9 +881,7 @@ export const projectApiRolesOwnerTransferCreateOptions = (options: Options<Proje
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiRolesOwnerTransferCreate", options)
-    ]
+    queryKey: projectApiRolesOwnerTransferCreateQueryKey(options)
 }); };
 
 export const projectApiRolesOwnerTransferCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesOwnerTransferCreateResponse, ProjectApiRolesOwnerTransferCreateError, Options<ProjectApiRolesOwnerTransferCreateData>> = {
@@ -842,6 +914,10 @@ export const projectApiRolesUpdatePartialUpdateMutation = () => { const mutation
     }
 }; return mutationOptions; };
 
+export const projectApiSettingsRetrieveRetrieveQueryKey = (options: Options<ProjectApiSettingsRetrieveRetrieveData>) => [
+    createQueryKey("projectApiSettingsRetrieveRetrieve", options)
+];
+
 export const projectApiSettingsRetrieveRetrieveOptions = (options: Options<ProjectApiSettingsRetrieveRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiSettingsRetrieveRetrieve({
@@ -851,10 +927,12 @@ export const projectApiSettingsRetrieveRetrieveOptions = (options: Options<Proje
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiSettingsRetrieveRetrieve", options)
-    ]
+    queryKey: projectApiSettingsRetrieveRetrieveQueryKey(options)
 }); };
+
+export const projectApiSettingsRetrieveUserRetrieveQueryKey = (options?: Options) => [
+    createQueryKey("projectApiSettingsRetrieveUserRetrieve", options)
+];
 
 export const projectApiSettingsRetrieveUserRetrieveOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -865,10 +943,12 @@ export const projectApiSettingsRetrieveUserRetrieveOptions = (options?: Options)
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiSettingsRetrieveUserRetrieve", options)
-    ]
+    queryKey: projectApiSettingsRetrieveUserRetrieveQueryKey(options)
 }); };
+
+export const projectApiSettingsSetCreateQueryKey = (options: Options<ProjectApiSettingsSetCreateData>) => [
+    createQueryKey("projectApiSettingsSetCreate", options)
+];
 
 export const projectApiSettingsSetCreateOptions = (options: Options<ProjectApiSettingsSetCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -879,9 +959,7 @@ export const projectApiSettingsSetCreateOptions = (options: Options<ProjectApiSe
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiSettingsSetCreate", options)
-    ]
+    queryKey: projectApiSettingsSetCreateQueryKey(options)
 }); };
 
 export const projectApiSettingsSetCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiSettingsSetCreateResponse, ProjectApiSettingsSetCreateError, Options<ProjectApiSettingsSetCreateData>> = {
@@ -894,6 +972,10 @@ export const projectApiSettingsSetCreateMutation = () => { const mutationOptions
     }
 }; return mutationOptions; };
 
+export const projectApiSettingsSetUserCreateQueryKey = (options?: Options) => [
+    createQueryKey("projectApiSettingsSetUserCreate", options)
+];
+
 export const projectApiSettingsSetUserCreateOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiSettingsSetUserCreate({
@@ -903,9 +985,7 @@ export const projectApiSettingsSetUserCreateOptions = (options?: Options) => { r
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiSettingsSetUserCreate", options)
-    ]
+    queryKey: projectApiSettingsSetUserCreateQueryKey(options)
 }); };
 
 export const projectApiSettingsSetUserCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiSettingsSetUserCreateResponse, ProjectApiSettingsSetUserCreateError, Options> = {
@@ -938,6 +1018,10 @@ export const projectApiUpdatePartialUpdateMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const projectApiUsersCurrentRetrieveQueryKey = (options?: Options) => [
+    createQueryKey("projectApiUsersCurrentRetrieve", options)
+];
+
 export const projectApiUsersCurrentRetrieveOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await projectApiUsersCurrentRetrieve({
@@ -947,10 +1031,12 @@ export const projectApiUsersCurrentRetrieveOptions = (options?: Options) => { re
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiUsersCurrentRetrieve", options)
-    ]
+    queryKey: projectApiUsersCurrentRetrieveQueryKey(options)
 }); };
+
+export const projectApiUsersListListQueryKey = (options?: Options) => [
+    createQueryKey("projectApiUsersListList", options)
+];
 
 export const projectApiUsersListListOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -961,10 +1047,12 @@ export const projectApiUsersListListOptions = (options?: Options) => { return qu
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("projectApiUsersListList", options)
-    ]
+    queryKey: projectApiUsersListListQueryKey(options)
 }); };
+
+export const seqmetaApiEnrichmentkitListCreateListQueryKey = (options?: Options) => [
+    createQueryKey("seqmetaApiEnrichmentkitListCreateList", options)
+];
 
 export const seqmetaApiEnrichmentkitListCreateListOptions = (options?: Options) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -975,10 +1063,12 @@ export const seqmetaApiEnrichmentkitListCreateListOptions = (options?: Options) 
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiEnrichmentkitListCreateList", options)
-    ]
+    queryKey: seqmetaApiEnrichmentkitListCreateListQueryKey(options)
 }); };
+
+export const seqmetaApiEnrichmentkitListCreateCreateQueryKey = (options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>) => [
+    createQueryKey("seqmetaApiEnrichmentkitListCreateCreate", options)
+];
 
 export const seqmetaApiEnrichmentkitListCreateCreateOptions = (options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -989,9 +1079,7 @@ export const seqmetaApiEnrichmentkitListCreateCreateOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiEnrichmentkitListCreateCreate", options)
-    ]
+    queryKey: seqmetaApiEnrichmentkitListCreateCreateQueryKey(options)
 }); };
 
 export const seqmetaApiEnrichmentkitListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitListCreateCreateResponse, SeqmetaApiEnrichmentkitListCreateCreateError, Options<SeqmetaApiEnrichmentkitListCreateCreateData>> = {
@@ -1004,6 +1092,10 @@ export const seqmetaApiEnrichmentkitListCreateCreateMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>) => [
+    createQueryKey("seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve", options)
+];
+
 export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve({
@@ -1013,9 +1105,7 @@ export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveOptions = (opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve", options)
-    ]
+    queryKey: seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveQueryKey(options)
 }); };
 
 export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData>> = {
@@ -1048,6 +1138,10 @@ export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyMutation = () =>
     }
 }; return mutationOptions; };
 
+export const seqmetaApiTargetbedfileListCreateListQueryKey = (options: Options<SeqmetaApiTargetbedfileListCreateListData>) => [
+    createQueryKey("seqmetaApiTargetbedfileListCreateList", options)
+];
+
 export const seqmetaApiTargetbedfileListCreateListOptions = (options: Options<SeqmetaApiTargetbedfileListCreateListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqmetaApiTargetbedfileListCreateList({
@@ -1057,10 +1151,12 @@ export const seqmetaApiTargetbedfileListCreateListOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiTargetbedfileListCreateList", options)
-    ]
+    queryKey: seqmetaApiTargetbedfileListCreateListQueryKey(options)
 }); };
+
+export const seqmetaApiTargetbedfileListCreateCreateQueryKey = (options: Options<SeqmetaApiTargetbedfileListCreateCreateData>) => [
+    createQueryKey("seqmetaApiTargetbedfileListCreateCreate", options)
+];
 
 export const seqmetaApiTargetbedfileListCreateCreateOptions = (options: Options<SeqmetaApiTargetbedfileListCreateCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1071,9 +1167,7 @@ export const seqmetaApiTargetbedfileListCreateCreateOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiTargetbedfileListCreateCreate", options)
-    ]
+    queryKey: seqmetaApiTargetbedfileListCreateCreateQueryKey(options)
 }); };
 
 export const seqmetaApiTargetbedfileListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileListCreateCreateResponse, SeqmetaApiTargetbedfileListCreateCreateError, Options<SeqmetaApiTargetbedfileListCreateCreateData>> = {
@@ -1086,6 +1180,10 @@ export const seqmetaApiTargetbedfileListCreateCreateMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>) => [
+    createQueryKey("seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve", options)
+];
+
 export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve({
@@ -1095,9 +1193,7 @@ export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveOptions = (opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve", options)
-    ]
+    queryKey: seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveQueryKey(options)
 }); };
 
 export const seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData>> = {
@@ -1130,6 +1226,10 @@ export const seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyMutation = () =>
     }
 }; return mutationOptions; };
 
+export const seqvarsApiPredefinedqueryListQueryKey = (options: Options<SeqvarsApiPredefinedqueryListData>) => [
+    createQueryKey("seqvarsApiPredefinedqueryList", options)
+];
+
 export const seqvarsApiPredefinedqueryListOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiPredefinedqueryList({
@@ -1139,10 +1239,12 @@ export const seqvarsApiPredefinedqueryListOptions = (options: Options<SeqvarsApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiPredefinedqueryList", options)
-    ]
+    queryKey: seqvarsApiPredefinedqueryListQueryKey(options)
 }); };
+
+export const seqvarsApiPredefinedqueryListInfiniteQueryKey = (options: Options<SeqvarsApiPredefinedqueryListData>): QueryKey<Options<SeqvarsApiPredefinedqueryListData>> => [
+    createQueryKey("seqvarsApiPredefinedqueryList", options, true)
+];
 
 export const seqvarsApiPredefinedqueryListInfiniteOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => { return infiniteQueryOptions<SeqvarsApiPredefinedqueryListResponse, SeqvarsApiPredefinedqueryListError, InfiniteData<SeqvarsApiPredefinedqueryListResponse>, QueryKey<Options<SeqvarsApiPredefinedqueryListData>>, string | Pick<QueryKey<Options<SeqvarsApiPredefinedqueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1177,10 +1279,12 @@ export const seqvarsApiPredefinedqueryListInfiniteOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiPredefinedqueryList", options, true)
-    ]
+    queryKey: seqvarsApiPredefinedqueryListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiPredefinedqueryCreateQueryKey = (options: Options<SeqvarsApiPredefinedqueryCreateData>) => [
+    createQueryKey("seqvarsApiPredefinedqueryCreate", options)
+];
 
 export const seqvarsApiPredefinedqueryCreateOptions = (options: Options<SeqvarsApiPredefinedqueryCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1191,9 +1295,7 @@ export const seqvarsApiPredefinedqueryCreateOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiPredefinedqueryCreate", options)
-    ]
+    queryKey: seqvarsApiPredefinedqueryCreateQueryKey(options)
 }); };
 
 export const seqvarsApiPredefinedqueryCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryCreateResponse, SeqvarsApiPredefinedqueryCreateError, Options<SeqvarsApiPredefinedqueryCreateData>> = {
@@ -1206,6 +1308,10 @@ export const seqvarsApiPredefinedqueryCreateMutation = () => { const mutationOpt
     }
 }; return mutationOptions; };
 
+export const seqvarsApiPredefinedqueryRetrieveQueryKey = (options: Options<SeqvarsApiPredefinedqueryRetrieveData>) => [
+    createQueryKey("seqvarsApiPredefinedqueryRetrieve", options)
+];
+
 export const seqvarsApiPredefinedqueryRetrieveOptions = (options: Options<SeqvarsApiPredefinedqueryRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiPredefinedqueryRetrieve({
@@ -1215,9 +1321,7 @@ export const seqvarsApiPredefinedqueryRetrieveOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiPredefinedqueryRetrieve", options)
-    ]
+    queryKey: seqvarsApiPredefinedqueryRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiPredefinedqueryUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryUpdateResponse, SeqvarsApiPredefinedqueryUpdateError, Options<SeqvarsApiPredefinedqueryUpdateData>> = {
@@ -1250,6 +1354,10 @@ export const seqvarsApiPredefinedqueryDestroyMutation = () => { const mutationOp
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQueryListQueryKey = (options: Options<SeqvarsApiQueryListData>) => [
+    createQueryKey("seqvarsApiQueryList", options)
+];
+
 export const seqvarsApiQueryListOptions = (options: Options<SeqvarsApiQueryListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQueryList({
@@ -1259,10 +1367,12 @@ export const seqvarsApiQueryListOptions = (options: Options<SeqvarsApiQueryListD
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryList", options)
-    ]
+    queryKey: seqvarsApiQueryListQueryKey(options)
 }); };
+
+export const seqvarsApiQueryListInfiniteQueryKey = (options: Options<SeqvarsApiQueryListData>): QueryKey<Options<SeqvarsApiQueryListData>> => [
+    createQueryKey("seqvarsApiQueryList", options, true)
+];
 
 export const seqvarsApiQueryListInfiniteOptions = (options: Options<SeqvarsApiQueryListData>) => { return infiniteQueryOptions<SeqvarsApiQueryListResponse, SeqvarsApiQueryListError, InfiniteData<SeqvarsApiQueryListResponse>, QueryKey<Options<SeqvarsApiQueryListData>>, string | Pick<QueryKey<Options<SeqvarsApiQueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1297,10 +1407,12 @@ export const seqvarsApiQueryListInfiniteOptions = (options: Options<SeqvarsApiQu
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryList", options, true)
-    ]
+    queryKey: seqvarsApiQueryListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQueryCreateQueryKey = (options: Options<SeqvarsApiQueryCreateData>) => [
+    createQueryKey("seqvarsApiQueryCreate", options)
+];
 
 export const seqvarsApiQueryCreateOptions = (options: Options<SeqvarsApiQueryCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1311,9 +1423,7 @@ export const seqvarsApiQueryCreateOptions = (options: Options<SeqvarsApiQueryCre
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryCreate", options)
-    ]
+    queryKey: seqvarsApiQueryCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQueryCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateResponse, SeqvarsApiQueryCreateError, Options<SeqvarsApiQueryCreateData>> = {
@@ -1326,6 +1436,10 @@ export const seqvarsApiQueryCreateMutation = () => { const mutationOptions: UseM
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQueryRetrieveQueryKey = (options: Options<SeqvarsApiQueryRetrieveData>) => [
+    createQueryKey("seqvarsApiQueryRetrieve", options)
+];
+
 export const seqvarsApiQueryRetrieveOptions = (options: Options<SeqvarsApiQueryRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQueryRetrieve({
@@ -1335,9 +1449,7 @@ export const seqvarsApiQueryRetrieveOptions = (options: Options<SeqvarsApiQueryR
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryRetrieve", options)
-    ]
+    queryKey: seqvarsApiQueryRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQueryUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryUpdateResponse, SeqvarsApiQueryUpdateError, Options<SeqvarsApiQueryUpdateData>> = {
@@ -1370,6 +1482,10 @@ export const seqvarsApiQueryDestroyMutation = () => { const mutationOptions: Use
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQueryCreateFromCreateQueryKey = (options: Options<SeqvarsApiQueryCreateFromCreateData>) => [
+    createQueryKey("seqvarsApiQueryCreateFromCreate", options)
+];
+
 export const seqvarsApiQueryCreateFromCreateOptions = (options: Options<SeqvarsApiQueryCreateFromCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQueryCreateFromCreate({
@@ -1379,9 +1495,7 @@ export const seqvarsApiQueryCreateFromCreateOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryCreateFromCreate", options)
-    ]
+    queryKey: seqvarsApiQueryCreateFromCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQueryCreateFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateFromCreateResponse, SeqvarsApiQueryCreateFromCreateError, Options<SeqvarsApiQueryCreateFromCreateData>> = {
@@ -1394,6 +1508,10 @@ export const seqvarsApiQueryCreateFromCreateMutation = () => { const mutationOpt
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQueryexecutionListQueryKey = (options: Options<SeqvarsApiQueryexecutionListData>) => [
+    createQueryKey("seqvarsApiQueryexecutionList", options)
+];
+
 export const seqvarsApiQueryexecutionListOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQueryexecutionList({
@@ -1403,10 +1521,12 @@ export const seqvarsApiQueryexecutionListOptions = (options: Options<SeqvarsApiQ
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryexecutionList", options)
-    ]
+    queryKey: seqvarsApiQueryexecutionListQueryKey(options)
 }); };
+
+export const seqvarsApiQueryexecutionListInfiniteQueryKey = (options: Options<SeqvarsApiQueryexecutionListData>): QueryKey<Options<SeqvarsApiQueryexecutionListData>> => [
+    createQueryKey("seqvarsApiQueryexecutionList", options, true)
+];
 
 export const seqvarsApiQueryexecutionListInfiniteOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => { return infiniteQueryOptions<SeqvarsApiQueryexecutionListResponse, SeqvarsApiQueryexecutionListError, InfiniteData<SeqvarsApiQueryexecutionListResponse>, QueryKey<Options<SeqvarsApiQueryexecutionListData>>, string | Pick<QueryKey<Options<SeqvarsApiQueryexecutionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1441,10 +1561,12 @@ export const seqvarsApiQueryexecutionListInfiniteOptions = (options: Options<Seq
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryexecutionList", options, true)
-    ]
+    queryKey: seqvarsApiQueryexecutionListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQueryexecutionRetrieveQueryKey = (options: Options<SeqvarsApiQueryexecutionRetrieveData>) => [
+    createQueryKey("seqvarsApiQueryexecutionRetrieve", options)
+];
 
 export const seqvarsApiQueryexecutionRetrieveOptions = (options: Options<SeqvarsApiQueryexecutionRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1455,10 +1577,12 @@ export const seqvarsApiQueryexecutionRetrieveOptions = (options: Options<Seqvars
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryexecutionRetrieve", options)
-    ]
+    queryKey: seqvarsApiQueryexecutionRetrieveQueryKey(options)
 }); };
+
+export const seqvarsApiQueryexecutionStartCreateQueryKey = (options: Options<SeqvarsApiQueryexecutionStartCreateData>) => [
+    createQueryKey("seqvarsApiQueryexecutionStartCreate", options)
+];
 
 export const seqvarsApiQueryexecutionStartCreateOptions = (options: Options<SeqvarsApiQueryexecutionStartCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1469,9 +1593,7 @@ export const seqvarsApiQueryexecutionStartCreateOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQueryexecutionStartCreate", options)
-    ]
+    queryKey: seqvarsApiQueryexecutionStartCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQueryexecutionStartCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryexecutionStartCreateResponse, SeqvarsApiQueryexecutionStartCreateError, Options<SeqvarsApiQueryexecutionStartCreateData>> = {
@@ -1484,6 +1606,10 @@ export const seqvarsApiQueryexecutionStartCreateMutation = () => { const mutatio
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsclinvarListQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsclinvarList", options)
+];
+
 export const seqvarsApiQuerypresetsclinvarListOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsclinvarList({
@@ -1493,10 +1619,12 @@ export const seqvarsApiQuerypresetsclinvarListOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsclinvarList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsclinvarListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsclinvarListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarListData>): QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsclinvarList", options, true)
+];
 
 export const seqvarsApiQuerypresetsclinvarListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsclinvarListResponse, SeqvarsApiQuerypresetsclinvarListError, InfiniteData<SeqvarsApiQuerypresetsclinvarListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1531,10 +1659,12 @@ export const seqvarsApiQuerypresetsclinvarListInfiniteOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsclinvarList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsclinvarListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsclinvarCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsclinvarCreate", options)
+];
 
 export const seqvarsApiQuerypresetsclinvarCreateOptions = (options: Options<SeqvarsApiQuerypresetsclinvarCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1545,9 +1675,7 @@ export const seqvarsApiQuerypresetsclinvarCreateOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsclinvarCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsclinvarCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsclinvarCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarCreateResponse, SeqvarsApiQuerypresetsclinvarCreateError, Options<SeqvarsApiQuerypresetsclinvarCreateData>> = {
@@ -1560,6 +1688,10 @@ export const seqvarsApiQuerypresetsclinvarCreateMutation = () => { const mutatio
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsclinvarRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsclinvarRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsclinvarRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsclinvarRetrieve({
@@ -1569,9 +1701,7 @@ export const seqvarsApiQuerypresetsclinvarRetrieveOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsclinvarRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsclinvarRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsclinvarUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarUpdateResponse, SeqvarsApiQuerypresetsclinvarUpdateError, Options<SeqvarsApiQuerypresetsclinvarUpdateData>> = {
@@ -1604,6 +1734,10 @@ export const seqvarsApiQuerypresetsclinvarDestroyMutation = () => { const mutati
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetscolumnsListQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => [
+    createQueryKey("seqvarsApiQuerypresetscolumnsList", options)
+];
+
 export const seqvarsApiQuerypresetscolumnsListOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetscolumnsList({
@@ -1613,10 +1747,12 @@ export const seqvarsApiQuerypresetscolumnsListOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetscolumnsList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetscolumnsListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetscolumnsListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsListData>): QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>> => [
+    createQueryKey("seqvarsApiQuerypresetscolumnsList", options, true)
+];
 
 export const seqvarsApiQuerypresetscolumnsListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetscolumnsListResponse, SeqvarsApiQuerypresetscolumnsListError, InfiniteData<SeqvarsApiQuerypresetscolumnsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1651,10 +1787,12 @@ export const seqvarsApiQuerypresetscolumnsListInfiniteOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetscolumnsList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetscolumnsListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetscolumnsCreateQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetscolumnsCreate", options)
+];
 
 export const seqvarsApiQuerypresetscolumnsCreateOptions = (options: Options<SeqvarsApiQuerypresetscolumnsCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1665,9 +1803,7 @@ export const seqvarsApiQuerypresetscolumnsCreateOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetscolumnsCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetscolumnsCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetscolumnsCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsCreateResponse, SeqvarsApiQuerypresetscolumnsCreateError, Options<SeqvarsApiQuerypresetscolumnsCreateData>> = {
@@ -1680,6 +1816,10 @@ export const seqvarsApiQuerypresetscolumnsCreateMutation = () => { const mutatio
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetscolumnsRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetscolumnsRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetscolumnsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetscolumnsRetrieve({
@@ -1689,9 +1829,7 @@ export const seqvarsApiQuerypresetscolumnsRetrieveOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetscolumnsRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetscolumnsRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetscolumnsUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsUpdateResponse, SeqvarsApiQuerypresetscolumnsUpdateError, Options<SeqvarsApiQuerypresetscolumnsUpdateData>> = {
@@ -1724,6 +1862,10 @@ export const seqvarsApiQuerypresetscolumnsDestroyMutation = () => { const mutati
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsconsequenceListQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsconsequenceList", options)
+];
+
 export const seqvarsApiQuerypresetsconsequenceListOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsconsequenceList({
@@ -1733,10 +1875,12 @@ export const seqvarsApiQuerypresetsconsequenceListOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsconsequenceList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsconsequenceListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsconsequenceListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>): QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsconsequenceList", options, true)
+];
 
 export const seqvarsApiQuerypresetsconsequenceListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsconsequenceListResponse, SeqvarsApiQuerypresetsconsequenceListError, InfiniteData<SeqvarsApiQuerypresetsconsequenceListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1771,10 +1915,12 @@ export const seqvarsApiQuerypresetsconsequenceListInfiniteOptions = (options: Op
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsconsequenceList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsconsequenceListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsconsequenceCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsconsequenceCreate", options)
+];
 
 export const seqvarsApiQuerypresetsconsequenceCreateOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1785,9 +1931,7 @@ export const seqvarsApiQuerypresetsconsequenceCreateOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsconsequenceCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsconsequenceCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsconsequenceCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceCreateResponse, SeqvarsApiQuerypresetsconsequenceCreateError, Options<SeqvarsApiQuerypresetsconsequenceCreateData>> = {
@@ -1800,6 +1944,10 @@ export const seqvarsApiQuerypresetsconsequenceCreateMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsconsequenceRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsconsequenceRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsconsequenceRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsconsequenceRetrieve({
@@ -1809,9 +1957,7 @@ export const seqvarsApiQuerypresetsconsequenceRetrieveOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsconsequenceRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsconsequenceRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsconsequenceUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceUpdateResponse, SeqvarsApiQuerypresetsconsequenceUpdateError, Options<SeqvarsApiQuerypresetsconsequenceUpdateData>> = {
@@ -1844,6 +1990,10 @@ export const seqvarsApiQuerypresetsconsequenceDestroyMutation = () => { const mu
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsfactorydefaultsListQueryKey = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options)
+];
+
 export const seqvarsApiQuerypresetsfactorydefaultsListOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsfactorydefaultsList({
@@ -1853,10 +2003,12 @@ export const seqvarsApiQuerypresetsfactorydefaultsListOptions = (options?: Optio
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsfactorydefaultsListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteQueryKey = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>): QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options, true)
+];
 
 export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsfactorydefaultsListResponse, SeqvarsApiQuerypresetsfactorydefaultsListError, InfiniteData<SeqvarsApiQuerypresetsfactorydefaultsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1891,10 +2043,12 @@ export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteOptions = (options
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsfactorydefaultsListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsfactorydefaultsRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsRetrieve", options)
+];
 
 export const seqvarsApiQuerypresetsfactorydefaultsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1905,10 +2059,12 @@ export const seqvarsApiQuerypresetsfactorydefaultsRetrieveOptions = (options: Op
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfactorydefaultsRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsfactorydefaultsRetrieveQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsfrequencyListQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsfrequencyList", options)
+];
 
 export const seqvarsApiQuerypresetsfrequencyListOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1919,10 +2075,12 @@ export const seqvarsApiQuerypresetsfrequencyListOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfrequencyList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsfrequencyListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsfrequencyListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>): QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsfrequencyList", options, true)
+];
 
 export const seqvarsApiQuerypresetsfrequencyListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsfrequencyListResponse, SeqvarsApiQuerypresetsfrequencyListError, InfiniteData<SeqvarsApiQuerypresetsfrequencyListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -1957,10 +2115,12 @@ export const seqvarsApiQuerypresetsfrequencyListInfiniteOptions = (options: Opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfrequencyList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsfrequencyListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsfrequencyCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsfrequencyCreate", options)
+];
 
 export const seqvarsApiQuerypresetsfrequencyCreateOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -1971,9 +2131,7 @@ export const seqvarsApiQuerypresetsfrequencyCreateOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfrequencyCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsfrequencyCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsfrequencyCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyCreateResponse, SeqvarsApiQuerypresetsfrequencyCreateError, Options<SeqvarsApiQuerypresetsfrequencyCreateData>> = {
@@ -1986,6 +2144,10 @@ export const seqvarsApiQuerypresetsfrequencyCreateMutation = () => { const mutat
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsfrequencyRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsfrequencyRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsfrequencyRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsfrequencyRetrieve({
@@ -1995,9 +2157,7 @@ export const seqvarsApiQuerypresetsfrequencyRetrieveOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsfrequencyRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsfrequencyRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsfrequencyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyUpdateResponse, SeqvarsApiQuerypresetsfrequencyUpdateError, Options<SeqvarsApiQuerypresetsfrequencyUpdateData>> = {
@@ -2030,6 +2190,10 @@ export const seqvarsApiQuerypresetsfrequencyDestroyMutation = () => { const muta
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetslocusListQueryKey = (options: Options<SeqvarsApiQuerypresetslocusListData>) => [
+    createQueryKey("seqvarsApiQuerypresetslocusList", options)
+];
+
 export const seqvarsApiQuerypresetslocusListOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetslocusList({
@@ -2039,10 +2203,12 @@ export const seqvarsApiQuerypresetslocusListOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetslocusList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetslocusListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetslocusListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetslocusListData>): QueryKey<Options<SeqvarsApiQuerypresetslocusListData>> => [
+    createQueryKey("seqvarsApiQuerypresetslocusList", options, true)
+];
 
 export const seqvarsApiQuerypresetslocusListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetslocusListResponse, SeqvarsApiQuerypresetslocusListError, InfiniteData<SeqvarsApiQuerypresetslocusListResponse>, QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2077,10 +2243,12 @@ export const seqvarsApiQuerypresetslocusListInfiniteOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetslocusList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetslocusListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetslocusCreateQueryKey = (options: Options<SeqvarsApiQuerypresetslocusCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetslocusCreate", options)
+];
 
 export const seqvarsApiQuerypresetslocusCreateOptions = (options: Options<SeqvarsApiQuerypresetslocusCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2091,9 +2259,7 @@ export const seqvarsApiQuerypresetslocusCreateOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetslocusCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetslocusCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetslocusCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusCreateResponse, SeqvarsApiQuerypresetslocusCreateError, Options<SeqvarsApiQuerypresetslocusCreateData>> = {
@@ -2106,6 +2272,10 @@ export const seqvarsApiQuerypresetslocusCreateMutation = () => { const mutationO
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetslocusRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetslocusRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetslocusRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetslocusRetrieveOptions = (options: Options<SeqvarsApiQuerypresetslocusRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetslocusRetrieve({
@@ -2115,9 +2285,7 @@ export const seqvarsApiQuerypresetslocusRetrieveOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetslocusRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetslocusRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetslocusUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusUpdateResponse, SeqvarsApiQuerypresetslocusUpdateError, Options<SeqvarsApiQuerypresetslocusUpdateData>> = {
@@ -2150,6 +2318,10 @@ export const seqvarsApiQuerypresetslocusDestroyMutation = () => { const mutation
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsphenotypeprioListQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options)
+];
+
 export const seqvarsApiQuerypresetsphenotypeprioListOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsphenotypeprioList({
@@ -2159,10 +2331,12 @@ export const seqvarsApiQuerypresetsphenotypeprioListOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsphenotypeprioListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsphenotypeprioListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>): QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options, true)
+];
 
 export const seqvarsApiQuerypresetsphenotypeprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsphenotypeprioListResponse, SeqvarsApiQuerypresetsphenotypeprioListError, InfiniteData<SeqvarsApiQuerypresetsphenotypeprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2197,10 +2371,12 @@ export const seqvarsApiQuerypresetsphenotypeprioListInfiniteOptions = (options: 
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsphenotypeprioListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsphenotypeprioCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsphenotypeprioCreate", options)
+];
 
 export const seqvarsApiQuerypresetsphenotypeprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2211,9 +2387,7 @@ export const seqvarsApiQuerypresetsphenotypeprioCreateOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsphenotypeprioCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsphenotypeprioCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsphenotypeprioCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioCreateResponse, SeqvarsApiQuerypresetsphenotypeprioCreateError, Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>> = {
@@ -2226,6 +2400,10 @@ export const seqvarsApiQuerypresetsphenotypeprioCreateMutation = () => { const m
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsphenotypeprioRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsphenotypeprioRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsphenotypeprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsphenotypeprioRetrieve({
@@ -2235,9 +2413,7 @@ export const seqvarsApiQuerypresetsphenotypeprioRetrieveOptions = (options: Opti
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsphenotypeprioRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsphenotypeprioRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsphenotypeprioUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioUpdateResponse, SeqvarsApiQuerypresetsphenotypeprioUpdateError, Options<SeqvarsApiQuerypresetsphenotypeprioUpdateData>> = {
@@ -2270,6 +2446,10 @@ export const seqvarsApiQuerypresetsphenotypeprioDestroyMutation = () => { const 
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsqualityListQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsqualityList", options)
+];
+
 export const seqvarsApiQuerypresetsqualityListOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsqualityList({
@@ -2279,10 +2459,12 @@ export const seqvarsApiQuerypresetsqualityListOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsqualityList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsqualityListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsqualityListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityListData>): QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsqualityList", options, true)
+];
 
 export const seqvarsApiQuerypresetsqualityListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsqualityListResponse, SeqvarsApiQuerypresetsqualityListError, InfiniteData<SeqvarsApiQuerypresetsqualityListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2317,10 +2499,12 @@ export const seqvarsApiQuerypresetsqualityListInfiniteOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsqualityList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsqualityListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsqualityCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsqualityCreate", options)
+];
 
 export const seqvarsApiQuerypresetsqualityCreateOptions = (options: Options<SeqvarsApiQuerypresetsqualityCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2331,9 +2515,7 @@ export const seqvarsApiQuerypresetsqualityCreateOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsqualityCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsqualityCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsqualityCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityCreateResponse, SeqvarsApiQuerypresetsqualityCreateError, Options<SeqvarsApiQuerypresetsqualityCreateData>> = {
@@ -2346,6 +2528,10 @@ export const seqvarsApiQuerypresetsqualityCreateMutation = () => { const mutatio
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsqualityRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsqualityRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsqualityRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsqualityRetrieve({
@@ -2355,9 +2541,7 @@ export const seqvarsApiQuerypresetsqualityRetrieveOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsqualityRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsqualityRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsqualityUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityUpdateResponse, SeqvarsApiQuerypresetsqualityUpdateError, Options<SeqvarsApiQuerypresetsqualityUpdateData>> = {
@@ -2390,6 +2574,10 @@ export const seqvarsApiQuerypresetsqualityDestroyMutation = () => { const mutati
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetListQueryKey = (options: Options<SeqvarsApiQuerypresetssetListData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetList", options)
+];
+
 export const seqvarsApiQuerypresetssetListOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetList({
@@ -2399,10 +2587,12 @@ export const seqvarsApiQuerypresetssetListOptions = (options: Options<SeqvarsApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetssetListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetssetListData>): QueryKey<Options<SeqvarsApiQuerypresetssetListData>> => [
+    createQueryKey("seqvarsApiQuerypresetssetList", options, true)
+];
 
 export const seqvarsApiQuerypresetssetListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetssetListResponse, SeqvarsApiQuerypresetssetListError, InfiniteData<SeqvarsApiQuerypresetssetListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2437,10 +2627,12 @@ export const seqvarsApiQuerypresetssetListInfiniteOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetssetListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetssetCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetCreate", options)
+];
 
 export const seqvarsApiQuerypresetssetCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2451,9 +2643,7 @@ export const seqvarsApiQuerypresetssetCreateOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCreateResponse, SeqvarsApiQuerypresetssetCreateError, Options<SeqvarsApiQuerypresetssetCreateData>> = {
@@ -2466,6 +2656,10 @@ export const seqvarsApiQuerypresetssetCreateMutation = () => { const mutationOpt
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetssetRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetssetRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetRetrieve({
@@ -2475,9 +2669,7 @@ export const seqvarsApiQuerypresetssetRetrieveOptions = (options: Options<Seqvar
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetUpdateResponse, SeqvarsApiQuerypresetssetUpdateError, Options<SeqvarsApiQuerypresetssetUpdateData>> = {
@@ -2510,6 +2702,10 @@ export const seqvarsApiQuerypresetssetDestroyMutation = () => { const mutationOp
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetCopyFromCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetCopyFromCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetCopyFromCreate", options)
+];
+
 export const seqvarsApiQuerypresetssetCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCopyFromCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetCopyFromCreate({
@@ -2519,9 +2715,7 @@ export const seqvarsApiQuerypresetssetCopyFromCreateOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetCopyFromCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetCopyFromCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetCopyFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCopyFromCreateResponse, SeqvarsApiQuerypresetssetCopyFromCreateError, Options<SeqvarsApiQuerypresetssetCopyFromCreateData>> = {
@@ -2534,6 +2728,10 @@ export const seqvarsApiQuerypresetssetCopyFromCreateMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetversionListQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetversionList", options)
+];
+
 export const seqvarsApiQuerypresetssetversionListOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetversionList({
@@ -2543,10 +2741,12 @@ export const seqvarsApiQuerypresetssetversionListOptions = (options: Options<Seq
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetversionList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetversionListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetssetversionListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionListData>): QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>> => [
+    createQueryKey("seqvarsApiQuerypresetssetversionList", options, true)
+];
 
 export const seqvarsApiQuerypresetssetversionListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetssetversionListResponse, SeqvarsApiQuerypresetssetversionListError, InfiniteData<SeqvarsApiQuerypresetssetversionListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2581,10 +2781,12 @@ export const seqvarsApiQuerypresetssetversionListInfiniteOptions = (options: Opt
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetversionList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetssetversionListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetssetversionCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetversionCreate", options)
+];
 
 export const seqvarsApiQuerypresetssetversionCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2595,9 +2797,7 @@ export const seqvarsApiQuerypresetssetversionCreateOptions = (options: Options<S
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetversionCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetversionCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetversionCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCreateResponse, SeqvarsApiQuerypresetssetversionCreateError, Options<SeqvarsApiQuerypresetssetversionCreateData>> = {
@@ -2610,6 +2810,10 @@ export const seqvarsApiQuerypresetssetversionCreateMutation = () => { const muta
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetversionRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetversionRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetssetversionRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetversionRetrieve({
@@ -2619,9 +2823,7 @@ export const seqvarsApiQuerypresetssetversionRetrieveOptions = (options: Options
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetversionRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetversionRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetversionUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionUpdateResponse, SeqvarsApiQuerypresetssetversionUpdateError, Options<SeqvarsApiQuerypresetssetversionUpdateData>> = {
@@ -2654,6 +2856,10 @@ export const seqvarsApiQuerypresetssetversionDestroyMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetssetversionCopyFromCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetssetversionCopyFromCreate", options)
+];
+
 export const seqvarsApiQuerypresetssetversionCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetssetversionCopyFromCreate({
@@ -2663,9 +2869,7 @@ export const seqvarsApiQuerypresetssetversionCopyFromCreateOptions = (options: O
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetssetversionCopyFromCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetssetversionCopyFromCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetssetversionCopyFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCopyFromCreateResponse, SeqvarsApiQuerypresetssetversionCopyFromCreateError, Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>> = {
@@ -2678,6 +2882,10 @@ export const seqvarsApiQuerypresetssetversionCopyFromCreateMutation = () => { co
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsvariantprioListQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => [
+    createQueryKey("seqvarsApiQuerypresetsvariantprioList", options)
+];
+
 export const seqvarsApiQuerypresetsvariantprioListOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsvariantprioList({
@@ -2687,10 +2895,12 @@ export const seqvarsApiQuerypresetsvariantprioListOptions = (options: Options<Se
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsvariantprioList", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsvariantprioListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsvariantprioListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>): QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>> => [
+    createQueryKey("seqvarsApiQuerypresetsvariantprioList", options, true)
+];
 
 export const seqvarsApiQuerypresetsvariantprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsvariantprioListResponse, SeqvarsApiQuerypresetsvariantprioListError, InfiniteData<SeqvarsApiQuerypresetsvariantprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2725,10 +2935,12 @@ export const seqvarsApiQuerypresetsvariantprioListInfiniteOptions = (options: Op
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsvariantprioList", options, true)
-    ]
+    queryKey: seqvarsApiQuerypresetsvariantprioListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerypresetsvariantprioCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>) => [
+    createQueryKey("seqvarsApiQuerypresetsvariantprioCreate", options)
+];
 
 export const seqvarsApiQuerypresetsvariantprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2739,9 +2951,7 @@ export const seqvarsApiQuerypresetsvariantprioCreateOptions = (options: Options<
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsvariantprioCreate", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsvariantprioCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsvariantprioCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioCreateResponse, SeqvarsApiQuerypresetsvariantprioCreateError, Options<SeqvarsApiQuerypresetsvariantprioCreateData>> = {
@@ -2754,6 +2964,10 @@ export const seqvarsApiQuerypresetsvariantprioCreateMutation = () => { const mut
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerypresetsvariantprioRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerypresetsvariantprioRetrieve", options)
+];
+
 export const seqvarsApiQuerypresetsvariantprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerypresetsvariantprioRetrieve({
@@ -2763,9 +2977,7 @@ export const seqvarsApiQuerypresetsvariantprioRetrieveOptions = (options: Option
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerypresetsvariantprioRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerypresetsvariantprioRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerypresetsvariantprioUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioUpdateResponse, SeqvarsApiQuerypresetsvariantprioUpdateError, Options<SeqvarsApiQuerypresetsvariantprioUpdateData>> = {
@@ -2798,6 +3010,10 @@ export const seqvarsApiQuerypresetsvariantprioDestroyMutation = () => { const mu
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerysettingsListQueryKey = (options: Options<SeqvarsApiQuerysettingsListData>) => [
+    createQueryKey("seqvarsApiQuerysettingsList", options)
+];
+
 export const seqvarsApiQuerysettingsListOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerysettingsList({
@@ -2807,10 +3023,12 @@ export const seqvarsApiQuerysettingsListOptions = (options: Options<SeqvarsApiQu
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerysettingsList", options)
-    ]
+    queryKey: seqvarsApiQuerysettingsListQueryKey(options)
 }); };
+
+export const seqvarsApiQuerysettingsListInfiniteQueryKey = (options: Options<SeqvarsApiQuerysettingsListData>): QueryKey<Options<SeqvarsApiQuerysettingsListData>> => [
+    createQueryKey("seqvarsApiQuerysettingsList", options, true)
+];
 
 export const seqvarsApiQuerysettingsListInfiniteOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerysettingsListResponse, SeqvarsApiQuerysettingsListError, InfiniteData<SeqvarsApiQuerysettingsListResponse>, QueryKey<Options<SeqvarsApiQuerysettingsListData>>, string | Pick<QueryKey<Options<SeqvarsApiQuerysettingsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2845,10 +3063,12 @@ export const seqvarsApiQuerysettingsListInfiniteOptions = (options: Options<Seqv
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerysettingsList", options, true)
-    ]
+    queryKey: seqvarsApiQuerysettingsListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiQuerysettingsCreateQueryKey = (options: Options<SeqvarsApiQuerysettingsCreateData>) => [
+    createQueryKey("seqvarsApiQuerysettingsCreate", options)
+];
 
 export const seqvarsApiQuerysettingsCreateOptions = (options: Options<SeqvarsApiQuerysettingsCreateData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2859,9 +3079,7 @@ export const seqvarsApiQuerysettingsCreateOptions = (options: Options<SeqvarsApi
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerysettingsCreate", options)
-    ]
+    queryKey: seqvarsApiQuerysettingsCreateQueryKey(options)
 }); };
 
 export const seqvarsApiQuerysettingsCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsCreateResponse, SeqvarsApiQuerysettingsCreateError, Options<SeqvarsApiQuerysettingsCreateData>> = {
@@ -2874,6 +3092,10 @@ export const seqvarsApiQuerysettingsCreateMutation = () => { const mutationOptio
     }
 }; return mutationOptions; };
 
+export const seqvarsApiQuerysettingsRetrieveQueryKey = (options: Options<SeqvarsApiQuerysettingsRetrieveData>) => [
+    createQueryKey("seqvarsApiQuerysettingsRetrieve", options)
+];
+
 export const seqvarsApiQuerysettingsRetrieveOptions = (options: Options<SeqvarsApiQuerysettingsRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiQuerysettingsRetrieve({
@@ -2883,9 +3105,7 @@ export const seqvarsApiQuerysettingsRetrieveOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiQuerysettingsRetrieve", options)
-    ]
+    queryKey: seqvarsApiQuerysettingsRetrieveQueryKey(options)
 }); };
 
 export const seqvarsApiQuerysettingsUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsUpdateResponse, SeqvarsApiQuerysettingsUpdateError, Options<SeqvarsApiQuerysettingsUpdateData>> = {
@@ -2918,6 +3138,10 @@ export const seqvarsApiQuerysettingsDestroyMutation = () => { const mutationOpti
     }
 }; return mutationOptions; };
 
+export const seqvarsApiResultrowListQueryKey = (options: Options<SeqvarsApiResultrowListData>) => [
+    createQueryKey("seqvarsApiResultrowList", options)
+];
+
 export const seqvarsApiResultrowListOptions = (options: Options<SeqvarsApiResultrowListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
         const { data } = await seqvarsApiResultrowList({
@@ -2927,10 +3151,12 @@ export const seqvarsApiResultrowListOptions = (options: Options<SeqvarsApiResult
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultrowList", options)
-    ]
+    queryKey: seqvarsApiResultrowListQueryKey(options)
 }); };
+
+export const seqvarsApiResultrowListInfiniteQueryKey = (options: Options<SeqvarsApiResultrowListData>): QueryKey<Options<SeqvarsApiResultrowListData>> => [
+    createQueryKey("seqvarsApiResultrowList", options, true)
+];
 
 export const seqvarsApiResultrowListInfiniteOptions = (options: Options<SeqvarsApiResultrowListData>) => { return infiniteQueryOptions<SeqvarsApiResultrowListResponse, SeqvarsApiResultrowListError, InfiniteData<SeqvarsApiResultrowListResponse>, QueryKey<Options<SeqvarsApiResultrowListData>>, string | Pick<QueryKey<Options<SeqvarsApiResultrowListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -2965,10 +3191,12 @@ export const seqvarsApiResultrowListInfiniteOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultrowList", options, true)
-    ]
+    queryKey: seqvarsApiResultrowListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiResultrowRetrieveQueryKey = (options: Options<SeqvarsApiResultrowRetrieveData>) => [
+    createQueryKey("seqvarsApiResultrowRetrieve", options)
+];
 
 export const seqvarsApiResultrowRetrieveOptions = (options: Options<SeqvarsApiResultrowRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2979,10 +3207,12 @@ export const seqvarsApiResultrowRetrieveOptions = (options: Options<SeqvarsApiRe
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultrowRetrieve", options)
-    ]
+    queryKey: seqvarsApiResultrowRetrieveQueryKey(options)
 }); };
+
+export const seqvarsApiResultsetListQueryKey = (options: Options<SeqvarsApiResultsetListData>) => [
+    createQueryKey("seqvarsApiResultsetList", options)
+];
 
 export const seqvarsApiResultsetListOptions = (options: Options<SeqvarsApiResultsetListData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -2993,10 +3223,12 @@ export const seqvarsApiResultsetListOptions = (options: Options<SeqvarsApiResult
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultsetList", options)
-    ]
+    queryKey: seqvarsApiResultsetListQueryKey(options)
 }); };
+
+export const seqvarsApiResultsetListInfiniteQueryKey = (options: Options<SeqvarsApiResultsetListData>): QueryKey<Options<SeqvarsApiResultsetListData>> => [
+    createQueryKey("seqvarsApiResultsetList", options, true)
+];
 
 export const seqvarsApiResultsetListInfiniteOptions = (options: Options<SeqvarsApiResultsetListData>) => { return infiniteQueryOptions<SeqvarsApiResultsetListResponse, SeqvarsApiResultsetListError, InfiniteData<SeqvarsApiResultsetListResponse>, QueryKey<Options<SeqvarsApiResultsetListData>>, string | Pick<QueryKey<Options<SeqvarsApiResultsetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
 // @ts-ignore
@@ -3031,10 +3263,12 @@ export const seqvarsApiResultsetListInfiniteOptions = (options: Options<SeqvarsA
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultsetList", options, true)
-    ]
+    queryKey: seqvarsApiResultsetListInfiniteQueryKey(options)
 }); };
+
+export const seqvarsApiResultsetRetrieveQueryKey = (options: Options<SeqvarsApiResultsetRetrieveData>) => [
+    createQueryKey("seqvarsApiResultsetRetrieve", options)
+];
 
 export const seqvarsApiResultsetRetrieveOptions = (options: Options<SeqvarsApiResultsetRetrieveData>) => { return queryOptions({
     queryFn: async ({ queryKey }) => {
@@ -3045,7 +3279,5 @@ export const seqvarsApiResultsetRetrieveOptions = (options: Options<SeqvarsApiRe
         });
         return data;
     },
-    queryKey: [
-        createQueryKey("seqvarsApiResultsetRetrieve", options)
-    ]
+    queryKey: seqvarsApiResultsetRetrieveQueryKey(options)
 }); };

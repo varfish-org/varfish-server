@@ -185,6 +185,10 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     START_LOST = "start_lost"
     #: Transcript amplification
     TRANSCRIPT_AMPLIFICATION = "transcript_amplification"
+    #: Feature elongation
+    FEATURE_ELONGATION = "feature_elongation"
+    #: Feature truncation
+    FEATURE_TRUNCATION = "feature_truncation"
 
     # moderate impact
 
@@ -220,8 +224,8 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
 
     #: Coding sequence variant.
     CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
-    # #: Mature miRNA variant.
-    # MATURE_MIRNA_VARIANT = "mature_miRNA_variant"
+    #: Mature miRNA variant.
+    MATURE_MIRNA_VARIANT = "mature_miRNA_variant"
     #: 5' UTR exon variant.
     FIVE_PRIME_UTR_EXON_VARIANT = "5_prime_UTR_exon_variant"
     #: 5' UTR intron variant.
@@ -238,24 +242,24 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
     #: Downstream gene variant.
     DOWNSTREAM_GENE_VARIANT = "downstream_gene_variant"
-    # #: TFBS ablation.
-    # TFBS_ABLATION = "TFBS_ablation"
-    # #: TFBS amplification.
-    # TFBS_AMPLIFICATION = "TFBS_amplification"
-    # #: TF binding site variant.
-    # TF_BINDING_SITE_VARIANT = "TF_binding_site_variant"
-    # #: Regulatory region ablation.
-    # REGULATORY_REGION_ABLATION = "regulatory_region_ablation"
-    # #: Regulatory region amplification.
-    # REGULATORY_REGION_AMPLIFICATION = "regulatory_region_amplification"
-    # #: Regulatory region variant.
-    # REGULATORY_REGION_VARIANT = "regulatory_region_variant"
+    #: TFBS ablation.
+    TFBS_ABLATION = "TFBS_ablation"
+    #: TFBS amplification.
+    TFBS_AMPLIFICATION = "TFBS_amplification"
+    #: TF binding site variant.
+    TF_BINDING_SITE_VARIANT = "TF_binding_site_variant"
+    #: Regulatory region ablation.
+    REGULATORY_REGION_ABLATION = "regulatory_region_ablation"
+    #: Regulatory region amplification.
+    REGULATORY_REGION_AMPLIFICATION = "regulatory_region_amplification"
+    #: Regulatory region variant.
+    REGULATORY_REGION_VARIANT = "regulatory_region_variant"
     #: Intergenic variant.
     INTERGENIC_VARIANT = "intergenic_variant"
     #: Intron variant.
     INTRON_VARIANT = "intron_variant"
-    # #: Gene variant.
-    # GENE_VARIANT = "gene_variant"
+    #: Gene variant.
+    GENE_VARIANT = "gene_variant"
 
     @classmethod
     def values(cls) -> list[str]:
@@ -1856,12 +1860,16 @@ class SeqvarsHelixMtDbFrequencySettingsPydantic(pydantic.BaseModel):
 class SeqvarsQuerySettingsFrequencyPydantic(pydantic.BaseModel):
     """Pydantic representation of ``SeqvarsQuerySettingsFrequency``."""
 
-    #: gnomAD and in-house nuclear filter options.
-    nuclear: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
+    #: gnomAD-exomes filter
+    gnomad_exomes: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
+    #: gnomAD-genomes filter
+    gnomad_genomes: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
     #: gnomAD mitochondrial filter options.
     gnomad_mtdna: typing.Optional[SeqvarsGnomadMitochondrialFrequencySettingsPydantic] = None
     #: HelixMtDb filter options.
     helixmtdb: typing.Optional[SeqvarsHelixMtDbFrequencySettingsPydantic] = None
+    #: In-house filter options.
+    inhouse: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
 
 
 class SeqvarsQuerySettingsConsequencePydantic(pydantic.BaseModel):
@@ -1965,7 +1973,7 @@ class SeqvarsOutputStatisticsPydantic(pydantic.BaseModel):
     passed_by_consequences: dict[SeqvarsVariantConsequenceChoice, int] = {}
 
 
-class SevarsVariantScoreColumnTypeChoice(str, Enum):
+class SeqvarsVariantScoreColumnTypeChoice(str, Enum):
     """Enumeration of the variant score type."""
 
     #: Number
@@ -1988,7 +1996,7 @@ class SeqvarsVariantScoreColumnPydantic(pydantic.BaseModel):
     #: Description of the scolumn.
     description: typing.Optional[str] = None
     #: Type of the scolumn.
-    type: SevarsVariantScoreColumnTypeChoice
+    type: SeqvarsVariantScoreColumnTypeChoice
 
 
 class SeqvarsOutputHeaderPydantic(pydantic.BaseModel):
@@ -2129,9 +2137,9 @@ class ClingenDosageAnnotationPydantic(pydantic.BaseModel):
     """Store Clingen dosage annotation."""
 
     #: Haploinsufficiency score.
-    haplo: ClingenDosageScoreChoice
+    haplo: typing.Optional[ClingenDosageScoreChoice]
     #: Triplosensitivity score.
-    triplo: ClingenDosageScoreChoice
+    triplo: typing.Optional[ClingenDosageScoreChoice]
 
 
 class GeneRelatedConstraintsPydantic(pydantic.BaseModel):
@@ -2376,7 +2384,13 @@ class SeqvarsResultRow(models.Model):
     resultset = models.ForeignKey(SeqvarsResultSet, on_delete=models.CASCADE)
 
     #: Genome build
-    genome_release = models.CharField(max_length=32)
+    genome_release = models.CharField(
+        max_length=32,
+        choices=[
+            ("grch37", "GRCh37"),
+            ("grch38", "GRCh38"),
+        ],
+    )
     #: Variant coordinates - chromosome
     chrom = models.CharField(max_length=32)
     #: Chromosome as number
