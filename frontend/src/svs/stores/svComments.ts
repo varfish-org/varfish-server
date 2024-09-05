@@ -102,7 +102,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       svClient
         .listProjectComment(projectUuid.value, caseUuid.value)
         .then((result) => {
-          projectWideVariantComments.value = result
+          projectWideComments.value = result
         }),
     ]).catch((err) => {
       console.error('Problem initializing svComments store', err)
