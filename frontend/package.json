@@ -84,7 +84,7 @@
     "@storybook/addon-interactions": "^8.2.2",
     "@storybook/addon-links": "^8.1.11",
     "@storybook/testing-library": "0.2.2",
-    "@storybook/vue3": "^8.2.2",
+    "@storybook/vue3": "^8.2.9",
     "@storybook/vue3-vite": "^8.1.5",
     "@testing-library/vue": "^8.1.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
