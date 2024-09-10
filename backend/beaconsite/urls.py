@@ -1,87 +1,87 @@
 """URL configuration for the ``beaconsite`` app.
 """
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views, views_ajax, views_api
 
 app_name = "beaconsite"
 
 ui_urlpatterns = [
-    url(
-        regex=r"^$",
+    path(
+        route="",
         view=views.IndexView.as_view(),
         name="index",
     ),
-    url(
-        regex=r"^consortium$",
+    path(
+        route="consortium/",
         view=views.ConsortiumListView.as_view(),
         name="consortium-list",
     ),
-    url(
-        regex=r"^consortium/(?P<consortium>[0-9a-f-]+)$",
+    path(
+        route="consortium/<uuid:consortium>/",
         view=views.ConsortiumDetailView.as_view(),
         name="consortium-detail",
     ),
-    url(
-        regex=r"^consortium/create/$",
+    path(
+        route="consortium/create/",
         view=views.ConsortiumCreateView.as_view(),
         name="consortium-create",
     ),
-    url(
-        regex=r"^consortium/update/(?P<consortium>[0-9a-f-]+)$",
+    path(
+        route="consortium/update/<uuid:consortium>/",
         view=views.ConsortiumUpdateView.as_view(),
         name="consortium-update",
     ),
-    url(
-        regex=r"^consortium/delete/(?P<consortium>[0-9a-f-]+)$",
+    path(
+        route="consortium/delete/<uuid:consortium>/",
         view=views.ConsortiumDeleteView.as_view(),
         name="consortium-delete",
     ),
-    url(
-        regex=r"^site$",
+    path(
+        route="site/",
         view=views.SiteListView.as_view(),
         name="site-list",
     ),
-    url(
-        regex=r"^site/(?P<site>[0-9a-f-]+)$",
+    path(
+        route="site/<uuid:site>/",
         view=views.SiteDetailView.as_view(),
         name="site-detail",
     ),
-    url(
-        regex=r"^site/create/$",
+    path(
+        route="site/create/",
         view=views.SiteCreateView.as_view(),
         name="site-create",
     ),
-    url(
-        regex=r"^site/update/(?P<site>[0-9a-f-]+)$",
+    path(
+        route="site/update/<uuid:site>/",
         view=views.SiteUpdateView.as_view(),
         name="site-update",
     ),
-    url(
-        regex=r"^site/delete/(?P<site>[0-9a-f-]+)$",
+    path(
+        route="site/delete/<uuid:site>/",
         view=views.SiteDeleteView.as_view(),
         name="site-delete",
     ),
 ]
 
 ajax_urlpatterns = [
-    url(
-        regex=r"^ajax/beacon/info/(?P<site>[0-9a-f-]+)$",
+    path(
+        route="ajax/beacon/info/<uuid:site>/",
         view=views_ajax.BeaconInfoAjaxView.as_view(),
         name="ajax-beacon-info",
     ),
-    url(
-        regex=r"^ajax/beacon/query/(?P<site>[0-9a-f-]+)$",
+    path(
+        route="ajax/beacon/query/<uuid:site>/",
         view=views_ajax.BeaconQueryAjaxView.as_view(),
         name="ajax-beacon-query",
     ),
 ]
 
 beacon_api_urlpatterns = [
-    url(regex=r"^endpoint/?$", view=views_api.BeaconInfoApiView.as_view(), name="beacon-api-info"),
-    url(
-        regex=r"^endpoint/query/?$",
+    path(route="endpoint", view=views_api.BeaconInfoApiView.as_view(), name="beacon-api-info"),
+    path(
+        route="endpoint/query/",
         view=views_api.BeaconQueryApiView.as_view(),
         name="beacon-api-query",
     ),

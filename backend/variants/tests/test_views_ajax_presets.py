@@ -1,8 +1,6 @@
-from unittest.mock import MagicMock, patch
-
 from django.conf import settings
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.models import (
     ChromosomePresets,
@@ -25,7 +23,7 @@ from variants.tests.factories import (
 from variants.tests.utils import model_to_dict_for_api
 
 
-class ApiViewTestBase(TestProjectAPIPermissionBase):
+class ApiViewTestBase(ProjectAPIPermissionTestBase):
     media_type = settings.SODAR_API_MEDIA_TYPE
     api_version = settings.SODAR_API_DEFAULT_VERSION
 
@@ -121,20 +119,16 @@ class TestFrequencyPresetsCloneFactoryPresetsAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"presetset": self.presetset.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.FrequencyPresetsManager.create_as_copy_of_factory_preset",
-            MagicMock(return_value=FrequencyPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-frequencypresets-clonefactorypresets",
-                        kwargs={"name": "the-name"},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-frequencypresets-clonefactorypresets",
+                    kwargs={"name": "any"},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with("the-name", data["label"], self.presetset)
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestFrequencyPresetsCloneOtherAjaxView(ApiViewTestBase):
@@ -149,22 +143,16 @@ class TestFrequencyPresetsCloneOtherAjaxView(ApiViewTestBase):
             "presetset": self.presetset.sodar_uuid,
             "label": "my label",
         }
-        with patch(
-            "variants.models.presets.FrequencyPresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=FrequencyPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-frequencypresets-cloneother",
-                        kwargs={"frequencypresets": self.frequencypresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-frequencypresets-cloneother",
+                    kwargs={"frequencypresets": self.frequencypresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(
-            self.frequencypresets, presetset=self.presetset, label=data["label"]
-        )
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestImpactPresetsListCreateAjaxView(ApiViewTestBase):
@@ -253,20 +241,16 @@ class TestImpactPresetsCloneFactoryPresetsAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"presetset": self.presetset.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.ImpactPresetsManager.create_as_copy_of_factory_preset",
-            MagicMock(return_value=ImpactPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-impactpresets-clonefactorypresets",
-                        kwargs={"name": "the-name"},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-impactpresets-clonefactorypresets",
+                    kwargs={"name": "any"},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with("the-name", data["label"], self.presetset)
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestImpactPresetsCloneOtherAjaxView(ApiViewTestBase):
@@ -281,22 +265,16 @@ class TestImpactPresetsCloneOtherAjaxView(ApiViewTestBase):
             "presetset": self.presetset.sodar_uuid,
             "label": "my label",
         }
-        with patch(
-            "variants.models.presets.ImpactPresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=ImpactPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-impactpresets-cloneother",
-                        kwargs={"impactpresets": self.impactpresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-impactpresets-cloneother",
+                    kwargs={"impactpresets": self.impactpresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(
-            self.impactpresets, presetset=self.presetset, label=data["label"]
-        )
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestQualityPresetsListCreateAjaxView(ApiViewTestBase):
@@ -385,20 +363,16 @@ class TestQualityPresetsCloneFactoryPresetsAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"presetset": self.presetset.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.QualityPresetsManager.create_as_copy_of_factory_preset",
-            MagicMock(return_value=QualityPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-qualitypresets-clonefactorypresets",
-                        kwargs={"name": "the-name"},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-qualitypresets-clonefactorypresets",
+                    kwargs={"name": "any"},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with("the-name", data["label"], self.presetset)
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestQualityPresetsCloneOtherAjaxView(ApiViewTestBase):
@@ -413,22 +387,16 @@ class TestQualityPresetsCloneOtherAjaxView(ApiViewTestBase):
             "presetset": self.presetset.sodar_uuid,
             "label": "my label",
         }
-        with patch(
-            "variants.models.presets.QualityPresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=QualityPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-qualitypresets-cloneother",
-                        kwargs={"qualitypresets": self.qualitypresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-qualitypresets-cloneother",
+                    kwargs={"qualitypresets": self.qualitypresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(
-            self.qualitypresets, presetset=self.presetset, label=data["label"]
-        )
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestChromosomePresetsListCreateAjaxView(ApiViewTestBase):
@@ -517,20 +485,16 @@ class TestChromosomePresetsCloneFactoryPresetsAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"presetset": self.presetset.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.ChromosomePresetsManager.create_as_copy_of_factory_preset",
-            MagicMock(return_value=ChromosomePresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-chromosomepresets-clonefactorypresets",
-                        kwargs={"name": "the-name"},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-chromosomepresets-clonefactorypresets",
+                    kwargs={"name": "whole_genome"},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with("the-name", data["label"], self.presetset)
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestChromosomePresetsCloneOtherAjaxView(ApiViewTestBase):
@@ -545,22 +509,16 @@ class TestChromosomePresetsCloneOtherAjaxView(ApiViewTestBase):
             "presetset": self.presetset.sodar_uuid,
             "label": "my label",
         }
-        with patch(
-            "variants.models.presets.ChromosomePresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=ChromosomePresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-chromosomepresets-cloneother",
-                        kwargs={"chromosomepresets": self.chromosomepresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-chromosomepresets-cloneother",
+                    kwargs={"chromosomepresets": self.chromosomepresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(
-            self.chromosomepresets, presetset=self.presetset, label=data["label"]
-        )
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestFlagsEtcPresetsListCreateAjaxView(ApiViewTestBase):
@@ -649,20 +607,16 @@ class TestFlagsEtcPresetsCloneFactoryPresetsAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"presetset": self.presetset.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.FlagsEtcPresetsManager.create_as_copy_of_factory_preset",
-            MagicMock(return_value=FlagsEtcPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-flagsetcpresets-clonefactorypresets",
-                        kwargs={"name": "the-name"},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-flagsetcpresets-clonefactorypresets",
+                    kwargs={"name": "defaults"},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with("the-name", data["label"], self.presetset)
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestFlagsEtcPresetsCloneOtherAjaxView(ApiViewTestBase):
@@ -677,22 +631,16 @@ class TestFlagsEtcPresetsCloneOtherAjaxView(ApiViewTestBase):
             "presetset": self.presetset.sodar_uuid,
             "label": "my label",
         }
-        with patch(
-            "variants.models.presets.FlagsEtcPresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=FlagsEtcPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-flagsetcpresets-cloneother",
-                        kwargs={"flagsetcpresets": self.flagsetcpresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-flagsetcpresets-cloneother",
+                    kwargs={"flagsetcpresets": self.flagsetcpresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(
-            self.flagsetcpresets, presetset=self.presetset, label=data["label"]
-        )
+        self.assertEqual(response.json()["presetset"], str(self.presetset.sodar_uuid))
 
 
 class TestQuickPresetsListCreateAjaxView(ApiViewTestBase):
@@ -781,20 +729,16 @@ class TestQuickPresetsCloneOtherAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"label": "my label"}
-        with patch(
-            "variants.models.presets.QuickPresetsManager.create_as_copy_of_other_preset",
-            MagicMock(return_value=QuickPresetsFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-quickpresets-cloneother",
-                        kwargs={"quickpresets": self.quickpresets.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-quickpresets-cloneother",
+                    kwargs={"quickpresets": self.quickpresets.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(self.quickpresets, label=data["label"])
+        self.assertEqual(response.json()["presetset"], str(self.quickpresets.presetset.sodar_uuid))
 
 
 class TestPresetSetListCreateAjaxView(ApiViewTestBase):
@@ -895,19 +839,16 @@ class TestPresetSetRetrieveUpdateDestroyAjaxView(ApiViewTestBase):
 class TestPresetSetCloneFactoryPresetsAjaxView(ApiViewTestBase):
     def test_post(self):
         data = {"project": self.project.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.PresetSetManager.create_as_copy_of_factory_preset_set",
-            MagicMock(return_value=PresetSetFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-presetset-clonefactorypresets",
-                    ),
-                    data=data,
-                )
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-presetset-clonefactorypresets",
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(project=self.project, label=data["label"])
+        self.assertEqual(response.json()["project"], str(self.project.sodar_uuid))
+        self.assertEqual(PresetSet.objects.count(), 1)
 
 
 class TestPresetSetCloneOtherAjaxView(ApiViewTestBase):
@@ -917,17 +858,15 @@ class TestPresetSetCloneOtherAjaxView(ApiViewTestBase):
 
     def test_post(self):
         data = {"project": self.project.sodar_uuid, "label": "my label"}
-        with patch(
-            "variants.models.presets.PresetSetManager.create_as_copy_of_other_preset_set",
-            MagicMock(return_value=PresetSetFactory.build()),
-        ) as mock_create:
-            with self.login(self.superuser):
-                response = self.client.post(
-                    reverse(
-                        "variants:ajax-presetset-cloneother",
-                        kwargs={"presetset": self.presetset.sodar_uuid},
-                    ),
-                    data=data,
-                )
+        self.assertEqual(PresetSet.objects.count(), 1)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "variants:ajax-presetset-cloneother",
+                    kwargs={"presetset": self.presetset.sodar_uuid},
+                ),
+                data=data,
+            )
         self.assertEqual(response.status_code, 201)
-        mock_create.assert_called_with(self.presetset, project=self.project, label=data["label"])
+        self.assertEqual(response.json()["project"], str(self.project.sodar_uuid))
+        self.assertEqual(PresetSet.objects.count(), 2)

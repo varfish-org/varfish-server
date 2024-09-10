@@ -1,13 +1,13 @@
 import json
 
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.models import Case, CaseComments, CasePhenotypeTerms
 from variants.tests.factories import CaseCommentsFactory, CaseFactory, CasePhenotypeTermsFactory
 
 
-class TestCaseApiView(TestProjectAPIPermissionBase):
+class TestCaseApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``Case``."""
 
     def setUp(self):
@@ -102,7 +102,7 @@ class TestCaseApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsCreateListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the create/list API views dealing with ``CasePhenotypeTerms``."""
 
     def setUp(self):
@@ -153,7 +153,7 @@ class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
         )
 
 
-class TestCasePhenotypeTermsRetrieveUpdateDestroyApiView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsRetrieveUpdateDestroyApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the retrieve/update/destroy AJAX views dealing with ``CasePhenotypeTerms``."""
 
     def setUp(self):
@@ -235,7 +235,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyApiView(TestProjectAPIPermissio
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestAnnotationReleaseInfoListApiView(TestProjectAPIPermissionBase):
+class TestAnnotationReleaseInfoListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the list API views dealing with ``AnnotationReleaseInfo``."""
 
     def setUp(self):
@@ -261,7 +261,7 @@ class TestAnnotationReleaseInfoListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSvAnnotationReleaseInfoListApiView(TestProjectAPIPermissionBase):
+class TestSvAnnotationReleaseInfoListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the list API views dealing with ``SvAnnotationReleaseInfo``."""
 
     def setUp(self):
@@ -287,7 +287,7 @@ class TestSvAnnotationReleaseInfoListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestCaseCommentCreateListApiView(TestProjectAPIPermissionBase):
+class TestCaseCommentCreateListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the create/list API views dealing with ``CaseComment``."""
 
     def setUp(self):
@@ -337,7 +337,7 @@ class TestCaseCommentCreateListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestCaseCommentRetrieveUpdateDestroyApiView(TestProjectAPIPermissionBase):
+class TestCaseCommentRetrieveUpdateDestroyApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the retrieve/update/destroy API views dealing with ``CaseComment``."""
 
     def setUp(self):
@@ -419,7 +419,7 @@ class TestCaseCommentRetrieveUpdateDestroyApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestCaseGeneAnnotationListApiView(TestProjectAPIPermissionBase):
+class TestCaseGeneAnnotationListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CaseGeneAnnotation``."""
 
     def setUp(self):
@@ -445,7 +445,7 @@ class TestCaseGeneAnnotationListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
+class TestCaseAlignmentStatsListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CaseAlignmentStats``."""
 
     def setUp(self):
@@ -471,7 +471,7 @@ class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSampleVariantStatisticsListApiView(TestProjectAPIPermissionBase):
+class TestSampleVariantStatisticsListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``SampleVariantStatistics``."""
 
     def setUp(self):
@@ -497,7 +497,7 @@ class TestSampleVariantStatisticsListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestPedigreeRelatednessListApiView(TestProjectAPIPermissionBase):
+class TestPedigreeRelatednessListApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``PedigreeRelatedness``."""
 
     def setUp(self):

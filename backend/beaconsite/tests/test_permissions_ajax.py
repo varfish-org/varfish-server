@@ -1,6 +1,6 @@
 import cattr
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 import requests_mock
 
 from ..models import Site
@@ -8,7 +8,7 @@ from ..models_api import BeaconAlleleRequest
 from .factories import SiteFactory
 
 
-class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
+class TestOrganisationAjaxViews(ProjectAPIPermissionTestBase):
     @requests_mock.Mocker()
     def test_get(self, r_mock):
         _local_site = SiteFactory(role=Site.LOCAL)  # noqa: F841
@@ -57,7 +57,7 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users, 302, method="GET")  # redirect to login
 
 
-class TestBeaconQueryAjaxView(TestProjectAPIPermissionBase):
+class TestBeaconQueryAjaxView(ProjectAPIPermissionTestBase):
     @requests_mock.Mocker()
     def test_get(self, r_mock):
         _local_site = SiteFactory(role=Site.LOCAL)  # noqa: F841

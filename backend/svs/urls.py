@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path, re_path
 from djproxy.views import HttpProxy
 
 from svs import views
@@ -8,136 +8,136 @@ app_name = "svs"
 
 urlpatterns_ui = [
     # Views related to background SV jobs.
-    url(
-        regex=r"^(?P<project>[0-9a-f-]+)/import/(?P<job>[0-9a-f-]+)/?$",
+    path(
+        "<uuid:project>/import/<uuid:job>/",
         view=views.ImportStructuralVariantsJobDetailView.as_view(),
         name="import-job-detail",
     ),
-    url(
-        regex=r"^build-bg-sv/(?P<job>[0-9a-f-]+)/?$",
+    path(
+        "build-bg-sv/<uuid:job>/",
         view=views.BuildBackgroundSvSetJobDetailView.as_view(),
         name="build-bg-sv-set-job-detail",
     ),
-    url(
-        regex=r"^cleanup-bg-sv/(?P<job>[0-9a-f-]+)/?$",
+    path(
+        "cleanup-bg-sv/<uuid:job>/",
         view=views.CleanupBackgroundSvSetJobDetailView.as_view(),
         name="cleanup-bg-sv-set-job-detail",
     ),
 ]
 
 urlpatterns_ajax = [
-    url(
-        regex=r"^ajax/fetch-variants/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/fetch-variants/<uuid:case>/",
         view=views.SvFetchVariantsAjaxView.as_view(),
         name="ajax-variants-fetch",
     ),
-    url(
-        regex=r"^ajax/query-case/quick-presets/?$",
+    path(
+        "ajax/query-case/quick-presets",
         view=views.SvQuickPresetsAjaxView.as_view(),
         name="ajax-quick-presets",
     ),
-    url(
-        regex=r"^ajax/query-case/category-presets/(?P<category>[a-zA-Z0-9\._-]+)/?$",
+    path(
+        "ajax/query-case/category-presets/<str:category>/",
         view=views.SvCategoryPresetsApiView.as_view(),
         name="ajax-category-presets",
     ),
-    url(
-        regex=r"^ajax/query-case/inheritance-presets/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/query-case/inheritance-presets/<uuid:case>/",
         view=views.SvInheritancePresetsApiView.as_view(),
         name="ajax-inheritance-presets",
     ),
     # URLs for ``svs.queries.presets``
-    url(
-        regex=r"^ajax/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/query-case/query-settings-shortcut/<uuid:case>/",
         view=views.SvQuerySettingsShortcutAjaxView.as_view(),
         name="ajax-svquerysettings-shortcut",
     ),
     # URLs for ``svs.queries.results``
-    url(
-        regex=r"^ajax/sv-query/list-create/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/sv-query/list-create/<uuid:case>/",
         view=views.SvQueryListCreateAjaxView.as_view(),
         name="ajax-svquery-listcreate",
     ),
-    url(
-        regex=r"^ajax/sv-query/retrieve-update-destroy/(?P<svquery>[0-9a-f-]+)/?$",
+    path(
+        "ajax/sv-query/retrieve-update-destroy/<uuid:svquery>/",
         view=views.SvQueryRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-svquery-retrieveupdatedestroy",
     ),
-    url(
-        regex=r"^sv-query-result-set/list/(?P<svquery>[0-9a-f-]+)/?$",
+    path(
+        "sv-query-result-set/list/<uuid:svquery>/",
         view=views.SvQueryResultSetListAjaxView.as_view(),
         name="ajax-svqueryresultset-list",
     ),
-    url(
-        regex=r"^sv-query-result-set/retrieve/(?P<svqueryresultset>[0-9a-f-]+)/?$",
+    path(
+        "sv-query-result-set/retrieve/<uuid:svqueryresultset>/",
         view=views.SvQueryResultSetRetrieveAjaxView.as_view(),
         name="ajax-svqueryresultset-retrieve",
     ),
-    url(
-        regex=r"^sv-query-result-row/list/(?P<svqueryresultset>[0-9a-f-]+)/?$",
+    path(
+        "sv-query-result-row/list/<uuid:svqueryresultset>/",
         view=views.SvQueryResultRowListAjaxView.as_view(),
         name="ajax-svqueryresultrow-list",
     ),
-    url(
-        regex=r"^sv-query-result-row/retrieve/(?P<svqueryresultrow>[0-9a-f-]+)/?$",
+    path(
+        "sv-query-result-row/retrieve/<uuid:svqueryresultrow>/",
         view=views.SvQueryResultRowRetrieveAjaxView.as_view(),
         name="ajax-svqueryresultrow-retrieve",
     ),
     # URLs user annotations (flags, comments)
-    url(
-        regex=r"^ajax/structural-variant-flags/list-create/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-flags/list-create/<uuid:case>/",
         view=views.StructuralVariantFlagsListCreateAjaxView.as_view(),
         name="ajax-structuralvariantflags-listcreate",
     ),
-    url(
-        regex=r"^ajax/structural-variant-flags/list-project/(?P<project>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-flags/list-project/<uuid:project>/",
         view=views.StructuralVariantFlagsListProjectAjaxView.as_view(),
         name="ajax-structuralvariantflags-listproject",
     ),
-    url(
-        regex=r"^ajax/structural-variant-flags/retrieve-update-destroy/(?P<structuralvariantflags>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-flags/retrieve-update-destroy/<uuid:structuralvariantflags>/",
         view=views.StructuralVariantFlagsRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantflags-retrieveupdatedestroy",
     ),
-    url(
-        regex=r"^ajax/structural-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-comment/list-create/<uuid:case>/",
         view=views.StructuralVariantCommentListCreateAjaxView.as_view(),
         name="ajax-structuralvariantcomment-listcreate",
     ),
-    url(
-        regex=r"^ajax/structural-variant-comment/list-project/(?P<project>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-comment/list-project/<uuid:project>/",
         view=views.StructuralVariantCommentListProjectAjaxView.as_view(),
         name="ajax-structuralvariantcomment-listproject",
     ),
-    url(
-        regex=r"^ajax/structural-variant-comment/retrieve-update-destroy/(?P<structuralvariantcomment>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-comment/retrieve-update-destroy/<uuid:structuralvariantcomment>/",
         view=views.StructuralVariantCommentRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantcomment-retrieveupdatedestroy",
     ),
-    url(
-        regex=r"^ajax/structural-variant-acmg-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-acmg-rating/list-create/<uuid:case>/",
         view=views.StructuralVariantAcmgRatingListCreateAjaxView.as_view(),
         name="ajax-structuralvariantacmgrating-listcreate",
     ),
-    url(
-        regex=r"^ajax/structural-variant-acmg-rating/list-project/(?P<project>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-acmg-rating/list-project/<uuid:project>/",
         view=views.StructuralVariantAcmgRatingListProjectAjaxView.as_view(),
         name="ajax-structuralvariantacmgrating-listproject",
     ),
-    url(
-        regex=r"^ajax/structural-variant-acmg-rating/retrieve-update-destroy/(?P<structuralvariantacmgrating>[0-9a-f-]+)/?$",
+    path(
+        "ajax/structural-variant-acmg-rating/retrieve-update-destroy/<uuid:structuralvariantacmgrating>/",
         view=views.StructuralVariantAcmgRatingRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantacmgrating-retrieveupdatedestroy",
     ),
     # Augment url patterns with proxy to worker.
-    url(
+    re_path(
         r"^worker/(?P<url>.*)$",
         HttpProxy.as_view(
             base_url=f"{settings.WORKER_REST_BASE_URL}/public/svs/",
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),
-    url(
+    re_path(
         r"^tracks/(?P<url>.*)$",
         HttpProxy.as_view(
             base_url=f"{settings.WORKER_REST_BASE_URL}/public/tracks/",

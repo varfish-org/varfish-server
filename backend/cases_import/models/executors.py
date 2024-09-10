@@ -136,7 +136,7 @@ class FileImportExecutorBase:
     def _build_fs_options(self, project: Project) -> FileSystemOptions:
         """Build `FileSystemOptions` from project settings."""
         app_settings = AppSettingAPI()
-        kwargs = {"app_name": "cases_import", "project": project}
+        kwargs = {"plugin_name": "cases_import", "project": project}
 
         path = app_settings.get(setting_name="import_data_path", **kwargs) or None
         if not path:

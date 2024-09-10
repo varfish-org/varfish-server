@@ -282,9 +282,9 @@ defineExpose({
 
     <div
       v-show="listType === 'genomic_region'"
+      v-if="props.querySettings !== null && props.querySettings !== undefined"
       id="genomic-region-section"
       class="form-group p-2"
-      v-if="props.querySettings !== null && props.querySettings !== undefined"
     >
       <TokenizingTextarea
         ref="genomicRegionTextareaRef"
@@ -300,9 +300,9 @@ defineExpose({
 
     <div
       v-show="listType === 'gene_allowlist'"
+      v-if="props.querySettings !== null && props.querySettings !== undefined"
       id="gene-allowlist-section"
       class="form-group"
-      v-if="props.querySettings !== null && props.querySettings !== undefined"
     >
       <div class="form-inline" style="width: 800px">
         <label for="genomicsEnglandPanelApp">GE PanelApp</label>
@@ -311,14 +311,14 @@ defineExpose({
           :options="genomicsEnglandPanels"
           placeholder="Add from GE PanelApp"
           :searchable="true"
-          @select="insertGenomicsEnglandPanel"
           style="width: 400px"
+          @select="insertGenomicsEnglandPanel"
         />
         <label for="genomicsEnglandConfidence">with confidence</label>
         <select
+          id="genomicsEnglandConfidence"
           v-model="genomicsEnglandConfidence"
           class="form-control ml-2 mr-2"
-          id="genomicsEnglandConfidence"
         >
           <option value="3">green</option>
           <option value="2">amber</option>

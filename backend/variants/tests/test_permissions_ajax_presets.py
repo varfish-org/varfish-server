@@ -1,5 +1,5 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.models import QuickPresets
 from variants.tests.factories import (
@@ -14,7 +14,7 @@ from variants.tests.factories import (
 from variants.tests.utils import model_to_dict_for_api
 
 
-class TestFrequencyPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestFrequencyPresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.frequencypresets = FrequencyPresetsFactory(presetset__project=self.project)
@@ -61,7 +61,7 @@ class TestFrequencyPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.frequencypresets = FrequencyPresetsFactory(presetset__project=self.project)
@@ -137,7 +137,7 @@ class TestFrequencyPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermission
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestFrequencyPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestFrequencyPresetsCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -164,7 +164,7 @@ class TestFrequencyPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase)
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestFrequencyPresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestFrequencyPresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.frequencypreset = FrequencyPresetsFactory(presetset__project=self.project)
@@ -192,7 +192,7 @@ class TestFrequencyPresetsCloneOtherView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestImpactPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestImpactPresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.impactpresets = ImpactPresetsFactory(presetset__project=self.project)
@@ -239,7 +239,7 @@ class TestImpactPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestImpactPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestImpactPresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.impactpresets = ImpactPresetsFactory(presetset__project=self.project)
@@ -315,7 +315,7 @@ class TestImpactPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBas
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestImpactPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestImpactPresetsCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -342,7 +342,7 @@ class TestImpactPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestImpactPresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestImpactPresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.impactpreset = ImpactPresetsFactory(presetset__project=self.project)
@@ -370,7 +370,7 @@ class TestImpactPresetsCloneOtherView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestQualityPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestQualityPresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.qualitypresets = QualityPresetsFactory(presetset__project=self.project)
@@ -417,7 +417,7 @@ class TestQualityPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestQualityPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestQualityPresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.qualitypresets = QualityPresetsFactory(presetset__project=self.project)
@@ -493,7 +493,7 @@ class TestQualityPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBa
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestQualityPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestQualityPresetsCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -518,7 +518,7 @@ class TestQualityPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestQualityPresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestQualityPresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.qualitypreset = QualityPresetsFactory(presetset__project=self.project)
@@ -546,7 +546,7 @@ class TestQualityPresetsCloneOtherView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestChromosomePresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestChromosomePresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.chromosomepresets = ChromosomePresetsFactory(presetset__project=self.project)
@@ -593,7 +593,7 @@ class TestChromosomePresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.chromosomepresets = ChromosomePresetsFactory(presetset__project=self.project)
@@ -669,7 +669,7 @@ class TestChromosomePresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissio
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestChromosomePresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestChromosomePresetsCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -696,7 +696,7 @@ class TestChromosomePresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestChromosomePresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestChromosomePresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.chromosomepreset = ChromosomePresetsFactory(presetset__project=self.project)
@@ -724,7 +724,7 @@ class TestChromosomePresetsCloneOtherView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestFlagsEtcPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestFlagsEtcPresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.flagsetcpresets = FlagsEtcPresetsFactory(presetset__project=self.project)
@@ -771,7 +771,7 @@ class TestFlagsEtcPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.flagsetcpresets = FlagsEtcPresetsFactory(presetset__project=self.project)
@@ -847,7 +847,7 @@ class TestFlagsEtcPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionB
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestFlagsEtcPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestFlagsEtcPresetsCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -874,7 +874,7 @@ class TestFlagsEtcPresetsCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestFlagsEtcPresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestFlagsEtcPresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.flagsetcpreset = FlagsEtcPresetsFactory(presetset__project=self.project)
@@ -902,7 +902,7 @@ class TestFlagsEtcPresetsCloneOtherView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestQuickPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestQuickPresetsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.quickpresets = QuickPresetsFactory(presetset__project=self.project)
@@ -958,7 +958,7 @@ class TestQuickPresetsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestQuickPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestQuickPresetsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.quickpresets = QuickPresetsFactory(presetset__project=self.project)
@@ -1034,7 +1034,7 @@ class TestQuickPresetsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestQuickPresetsCloneOtherView(TestProjectAPIPermissionBase):
+class TestQuickPresetsCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.quickpresets = QuickPresetsFactory(presetset__project=self.project)
@@ -1068,7 +1068,7 @@ class TestQuickPresetsCloneOtherView(TestProjectAPIPermissionBase):
         return QuickPresets.objects.get(sodar_uuid=self.kwargs["sodar_uuid"]).presetset.project
 
 
-class TestPresetSetListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestPresetSetListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -1114,7 +1114,7 @@ class TestPresetSetListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestPresetSetListAllAjaxView(TestProjectAPIPermissionBase):
+class TestPresetSetListAllAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -1138,7 +1138,7 @@ class TestPresetSetListAllAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_302, 302, method="GET")
 
 
-class TestPresetSetRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestPresetSetRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -1214,7 +1214,7 @@ class TestPresetSetRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE")
 
 
-class TestPresetSetCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
+class TestPresetSetCloneFactoryDefaultsView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -1241,7 +1241,7 @@ class TestPresetSetCloneFactoryDefaultsView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestPresetSetCloneOtherView(TestProjectAPIPermissionBase):
+class TestPresetSetCloneOtherView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)

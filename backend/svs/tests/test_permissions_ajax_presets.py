@@ -1,12 +1,12 @@
 """Permission tests for the views in ``svs.views.ajax.presets``."""
 
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.tests.factories import CaseFactory
 
 
-class TestSvQuerySettingsShortcutAjaxView(TestProjectAPIPermissionBase):
+class TestSvQuerySettingsShortcutAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
