@@ -21,7 +21,7 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "cases_import:api-caseimportaction-listcreate",
+            "cases_import:api-caseimportaction-list",
             kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
@@ -44,7 +44,7 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         data = case_import_action_json(project=self.project)
 
         url = reverse(
-            "cases_import:api-caseimportaction-listcreate",
+            "cases_import:api-caseimportaction-list",
             kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
@@ -83,8 +83,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
 
     def test_retrieve(self):
         url = reverse(
-            "cases_import:api-caseimportaction-retrieveupdatedestroy",
-            kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+            "cases_import:api-caseimportaction-detail",
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "caseimportaction": self.caseimportaction.sodar_uuid,
+            },
         )
         good_users = [
             self.superuser,
@@ -114,8 +117,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         data["payload"] = family_payload_with_updated_case_name(data["payload"], case.name)
 
         url = reverse(
-            "cases_import:api-caseimportaction-retrieveupdatedestroy",
-            kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+            "cases_import:api-caseimportaction-detail",
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "caseimportaction": self.caseimportaction.sodar_uuid,
+            },
         )
         good_users = [
             self.superuser,
@@ -163,8 +169,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         for user in good_users:
             caseimportaction = CaseImportActionFactory(project=self.project)
             url = reverse(
-                "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                kwargs={"caseimportaction": caseimportaction.sodar_uuid},
+                "cases_import:api-caseimportaction-detail",
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                    "caseimportaction": caseimportaction.sodar_uuid,
+                },
             )
             self.assert_response(
                 url,
@@ -173,8 +182,11 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
                 method="DELETE",
             )
         url = reverse(
-            "cases_import:api-caseimportaction-retrieveupdatedestroy",
-            kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+            "cases_import:api-caseimportaction-detail",
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "caseimportaction": self.caseimportaction.sodar_uuid,
+            },
         )
         self.assert_response(url, bad_users_401, 401, method="DELETE")
         self.assert_response(url, bad_users_403, 403, method="DELETE")

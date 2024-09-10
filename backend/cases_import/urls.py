@@ -1,8 +1,10 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from cases_import import views, views_api
 
 app_name = "cases_import"
+router = DefaultRouter()
 
 ui_urlpatterns = [
     path(route="index/<project>/", view=views.IndexView.as_view(), name="index"),
@@ -15,17 +17,13 @@ ui_urlpatterns = [
 
 ajax_urlpatterns = []
 
-api_urlpatterns = [
-    path(
-        route="api/case-import-action/list-create/<project>/",
-        view=views_api.CaseImportActionListCreateApiView.as_view(),
-        name="api-caseimportaction-listcreate",
-    ),
-    path(
-        route="api/case-import-action/retrieve-update-destroy/<caseimportaction>/",
-        view=views_api.CaseImportActionRetrieveUpdateDestroyApiView.as_view(),
-        name="api-caseimportaction-retrieveupdatedestroy",
-    ),
-]
+router.register(
+    r"api/case-import-action/(?P<project>[0-9a-f-]+)",
+    views_api.CaseImportActionViewSet,
+    basename="api-caseimportaction",
+)
+
+
+api_urlpatterns = router.urls
 
 urlpatterns = ui_urlpatterns + ajax_urlpatterns + api_urlpatterns
