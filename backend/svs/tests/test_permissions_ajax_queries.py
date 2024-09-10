@@ -1,14 +1,14 @@
 """Permission tests for the views in ``svs.views.ajax.queries``."""
 
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from svs.models import SvQuery
 from svs.tests.factories import SvQueryFactory, SvQueryResultRowFactory, SvQueryResultSetFactory
 from variants.tests.factories import CaseFactory
 
 
-class TestSvQueryListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestSvQueryListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -45,7 +45,7 @@ class TestSvQueryListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestSvQueryRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestSvQueryRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -108,7 +108,7 @@ class TestSvQueryRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSvQueryResultSetListAjaxView(TestProjectAPIPermissionBase):
+class TestSvQueryResultSetListAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -131,7 +131,7 @@ class TestSvQueryResultSetListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSvQueryResultSetRetrieveAjaxView(TestProjectAPIPermissionBase):
+class TestSvQueryResultSetRetrieveAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -157,7 +157,7 @@ class TestSvQueryResultSetRetrieveAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSvQueryResultRowListAjaxView(TestProjectAPIPermissionBase):
+class TestSvQueryResultRowListAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -183,7 +183,7 @@ class TestSvQueryResultRowListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSvQueryResultRowRetrieveView(TestProjectAPIPermissionBase):
+class TestSvQueryResultRowRetrieveView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)

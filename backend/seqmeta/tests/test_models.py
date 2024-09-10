@@ -12,7 +12,7 @@ class TestEnrichmentKit(TestCase):
 
     def test_get_absolute_url(self):
         kit = EnrichmentKitFactory()
-        self.assertEqual(kit.get_absolute_url(), f"/seqmeta/enrichmentkit/{kit.sodar_uuid}")
+        self.assertEqual(kit.get_absolute_url(), f"/seqmeta/enrichmentkit/{kit.sodar_uuid}/")
 
     def test_str(self):
         kit = EnrichmentKitFactory()
