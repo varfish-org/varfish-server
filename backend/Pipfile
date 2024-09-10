@@ -60,6 +60,7 @@ drf-writable-nested = "*"
 django-modelcluster = "*"
 faker = "*"
 drf-spectacular = {extras = ["sidecar"], version = "*"}
+clinvar-this = "==0.18.2"
 
 [dev-packages]
 # packages for testing
