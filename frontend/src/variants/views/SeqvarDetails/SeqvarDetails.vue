@@ -23,7 +23,6 @@ import SeqvarScoresCard from '@bihealth/reev-frontend-lib/components/SeqvarScore
 import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
 import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { StoreState } from '@bihealth/reev-frontend-lib/stores'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
 import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
@@ -33,7 +32,6 @@ import { watch } from 'vue'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
 import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
-import { State } from '@/varfish/storeUtils'
 import AcmgRatingCard from '@/variants/components/AcmgRatingCard/AcmgRatingCard.vue'
 import SeqvarDetailsHeader from '@/variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
 import SeqvarDetailsNavi from '@/variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
@@ -92,8 +90,7 @@ const seqvar = computed<Seqvar | undefined>(() => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
-  console.log('Refreshing stores')
-  console.log(props.resultRowUuid)
+  storesLoading.value = true
   if (props.resultRowUuid) {
     await variantResultSetStore.initialize()
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
@@ -144,6 +141,10 @@ const refreshStores = async () => {
         ),
       ])
     }
+    storesLoading.value = false
+    setTimeout(() => {
+      document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+    }, 500)
   }
 }
 
@@ -153,35 +154,6 @@ watch(
   async () => {
     console.log('watch: resultRowUuid changed')
     await refreshStores()
-  },
-)
-
-watch(
-  () => [
-    variantResultSetStore.storeState.state,
-    geneInfoStore.storeState,
-    seqvarInfoStore.storeState,
-    variantDetailsStore.storeState.state,
-  ],
-  () => {
-    storesLoading.value = true
-    const completeStoreStates = [StoreState.Active, StoreState.Error]
-    const completeStates = [State.Active, State.Error]
-    console.log('1', variantResultSetStore.storeState.state)
-    console.log('2', geneInfoStore.storeState)
-    console.log('3', seqvarInfoStore.storeState)
-    console.log('4', variantDetailsStore.storeState.state)
-    if (
-      completeStates.includes(variantResultSetStore.storeState.state) &&
-      completeStoreStates.includes(geneInfoStore.storeState) &&
-      completeStoreStates.includes(seqvarInfoStore.storeState) &&
-      completeStates.includes(variantDetailsStore.storeState.state)
-    ) {
-      storesLoading.value = false
-      setTimeout(() => {
-        document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
-      }, 500)
-    }
   },
 )
 
@@ -197,7 +169,6 @@ watch(
 /** When mounted, scroll to the selected element if any.
  */
 onMounted(async () => {
-  console.log('On mounted')
   await refreshStores()
 })
 </script>
