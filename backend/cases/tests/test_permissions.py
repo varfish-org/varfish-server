@@ -1,8 +1,8 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
 
 
-class TestCasesViews(TestProjectPermissionBase):
+class TestCasesViews(ProjectPermissionTestBase):
     """Permission tests for the ``cases`` views"""
 
     def test_entrypoint(self):

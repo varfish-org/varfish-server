@@ -2,14 +2,14 @@ import re
 
 from django.urls import reverse
 import jsonmatch
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 import requests_mock
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
 RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
 
-class TestBeaconInfoAjaxView(TestProjectAPIPermissionBase):
+class TestBeaconInfoAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the AJAX views dealing with Organisation."""
 
     def setUp(self):
