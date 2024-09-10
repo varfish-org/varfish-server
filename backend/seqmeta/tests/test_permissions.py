@@ -1,5 +1,5 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
 
 from seqmeta.tests.factories import EnrichmentKitFactory
 
@@ -23,7 +23,7 @@ class UsersMixin:
         ]
 
 
-class TestSeqmetaView(UsersMixin, TestProjectPermissionBase):
+class TestSeqmetaView(UsersMixin, ProjectPermissionTestBase):
     def test_index(self):
         url = reverse("seqmeta:index")
         self.assert_response(url, self.users_edit + self.users_view, 200)

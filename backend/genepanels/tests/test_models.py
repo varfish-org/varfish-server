@@ -24,7 +24,9 @@ class TestGenePanelCategory(TestCase):
 
     def test_get_absolute_url(self):
         category = GenePanelCategoryFactory()
-        self.assertEqual(category.get_absolute_url(), f"/genepanels/category/{category.sodar_uuid}")
+        self.assertEqual(
+            category.get_absolute_url(), f"/genepanels/category/{category.sodar_uuid}/"
+        )
 
     def test_str(self):
         category = GenePanelCategoryFactory()
@@ -46,7 +48,7 @@ class TestGenePanelEntry(TestCase):
 
     def test_get_absolute_url(self):
         panel = GenePanelFactory()
-        self.assertEqual(panel.get_absolute_url(), f"/genepanels/panel/{panel.sodar_uuid}")
+        self.assertEqual(panel.get_absolute_url(), f"/genepanels/panel/{panel.sodar_uuid}/")
 
     def test_get_hgnc_list(self):
         panel = GenePanelFactory()

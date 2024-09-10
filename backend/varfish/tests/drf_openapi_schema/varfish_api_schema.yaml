@@ -441,7 +441,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -484,7 +484,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -526,7 +526,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -579,7 +579,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -621,7 +621,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -662,7 +662,7 @@ paths:
         name: casephenotypeterms
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -690,7 +690,7 @@ paths:
         name: casephenotypeterms
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -730,7 +730,7 @@ paths:
         name: casephenotypeterms
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -769,7 +769,7 @@ paths:
         name: casephenotypeterms
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -789,7 +789,7 @@ paths:
         name: project
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       - in: query
         name: q
@@ -844,7 +844,7 @@ paths:
         name: project
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       - in: query
         name: q
@@ -879,7 +879,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -909,7 +909,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -951,7 +951,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -992,7 +992,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -1017,7 +1017,7 @@ paths:
         name: case
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - cases
@@ -1107,731 +1107,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenePanel'
           description: ''
-  /project/api/create:
-    post:
-      operationId: project_api_create_create
-      description: |-
-        Create a project or a category.
-
-        **URL:** ``/project/api/create``
-
-        **Methods:** ``POST``
-
-        **Parameters:**
-
-        - ``title``: Project title (string)
-        - ``type``: Project type (string, options: ``PROJECT`` or ``CATEGORY``)
-        - ``parent``: Parent category UUID (string)
-        - ``description``: Project description (string, optional)
-        - ``readme``: Project readme (string, optional, supports markdown)
-        - ``public_guest_access``: Guest access for all users (boolean)
-        - ``owner``: User UUID of the project owner (string)
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-        required: true
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '201':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
-  /project/api/invites/create/{project}:
-    post:
-      operationId: project_api_invites_create_create
-      description: |-
-        Create a project invite.
-
-        **URL:** ``/project/api/invites/create/{Project.sodar_uuid}``
-
-        **Methods:** ``POST``
-
-        **Parameters:**
-
-        - ``email``: User email (string)
-        - ``role``: Desired role for user (string, e.g. "project contributor")
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectInviteRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProjectInviteRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProjectInviteRequest'
-        required: true
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '201':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/ProjectInvite'
-          description: ''
-  /project/api/invites/list/{project}:
-    get:
-      operationId: project_api_invites_list_list
-      description: |-
-        List user invites for a project.
-
-        **URL:** ``/project/api/invites/list/{Project.sodar_uuid}``
-
-        **Methods:** ``GET``
-
-        **Returns:** List of project invite details
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProjectInvite'
-          description: ''
-  /project/api/invites/resend/{projectinvite}:
-    post:
-      operationId: project_api_invites_resend_create
-      description: Handle invite resending in a POST request
-      parameters:
-      - in: path
-        name: projectinvite
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          description: No response body
-  /project/api/invites/revoke/{projectinvite}:
-    post:
-      operationId: project_api_invites_revoke_create
-      description: Handle invite revoking in a POST request
-      parameters:
-      - in: path
-        name: projectinvite
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          description: No response body
-  /project/api/list:
-    get:
-      operationId: project_api_list_retrieve
-      description: |-
-        List all projects and categories for which the requesting user has access.
-
-        **URL:** ``/project/api/list``
-
-        **Methods:** ``GET``
-
-        **Returns:**
-
-        List of project details (see ``ProjectRetrieveAPIView``). For project finder
-        role, only lists title and UUID of projects.
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          description: No response body
-  /project/api/remote/get/{secret}:
-    get:
-      operationId: project_api_remote_get_retrieve
-      description: API view for retrieving remote projects from a source site
-      parameters:
-      - in: path
-        name: secret
-        schema:
-          type: string
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          description: No response body
-  /project/api/retrieve/{project}:
-    get:
-      operationId: project_api_retrieve_retrieve
-      description: |-
-        Retrieve a project or category by its UUID.
-
-        **URL:** ``/project/api/retrieve/{Project.sodar_uuid}``
-
-        **Methods:** ``GET``
-
-        **Returns:**
-
-        - ``description``: Project description (string)
-        - ``parent``: Parent category UUID (string or null)
-        - ``readme``: Project readme (string, supports markdown)
-        - ``public_guest_access``: Guest access for all users (boolean)
-        - ``roles``: Project role assignments (dict, assignment UUID as key)
-        - ``sodar_uuid``: Project UUID (string)
-        - ``title``: Project title (string)
-        - ``type``: Project type (string, options: ``PROJECT`` or ``CATEGORY``)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
-  /project/api/roles/create/{project}:
-    post:
-      operationId: project_api_roles_create_create
-      description: |-
-        Create a role assignment in a project.
-
-        **URL:** ``/project/api/roles/create/{Project.sodar_uuid}``
-
-        **Methods:** ``POST``
-
-        **Parameters:**
-
-        - ``role``: Desired role for user (string, e.g. "project contributor")
-        - ``user``: User UUID (string)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-        required: true
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '201':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/RoleAssignment'
-          description: ''
-  /project/api/roles/destroy/{roleassignment}:
-    delete:
-      operationId: project_api_roles_destroy_destroy
-      description: |-
-        Destroy a role assignment.
-
-        The owner role can not be destroyed using this view.
-
-        **URL:** ``/project/api/roles/destroy/{RoleAssignment.sodar_uuid}``
-
-        **Methods:** ``DELETE``
-      parameters:
-      - in: path
-        name: roleassignment
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '204':
-          description: No response body
-  /project/api/roles/owner-transfer/{project}:
-    post:
-      operationId: project_api_roles_owner_transfer_create
-      description: Handle ownership transfer in a POST request
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          description: No response body
-  /project/api/roles/update/{roleassignment}:
-    put:
-      operationId: project_api_roles_update_update
-      description: |-
-        Update the role assignment for a user in a project.
-
-        The user can not be changed in this API view.
-
-        **URL:** ``/project/api/roles/update/{RoleAssignment.sodar_uuid}``
-
-        **Methods:** ``PUT``, ``PATCH``
-
-        **Parameters:**
-
-        - ``role``: Desired role for user (string, e.g. "project contributor")
-        - ``user``: User UUID (string)
-      parameters:
-      - in: path
-        name: roleassignment
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/RoleAssignmentRequest'
-        required: true
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/RoleAssignment'
-          description: ''
-    patch:
-      operationId: project_api_roles_update_partial_update
-      description: |-
-        Update the role assignment for a user in a project.
-
-        The user can not be changed in this API view.
-
-        **URL:** ``/project/api/roles/update/{RoleAssignment.sodar_uuid}``
-
-        **Methods:** ``PUT``, ``PATCH``
-
-        **Parameters:**
-
-        - ``role``: Desired role for user (string, e.g. "project contributor")
-        - ``user``: User UUID (string)
-      parameters:
-      - in: path
-        name: roleassignment
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedRoleAssignmentRequest'
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/RoleAssignment'
-          description: ''
-  /project/api/settings/retrieve/{project}:
-    get:
-      operationId: project_api_settings_retrieve_retrieve
-      description: |-
-        API view for retrieving an app setting with the PROJECT or PROJECT_USER
-        scope.
-
-        **URL:** ``project/api/settings/retrieve/{Project.sodar_uuid}``
-
-        **Methods:** ``GET``
-
-        **Parameters:**
-
-        - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-        - ``setting_name``: Setting name (string)
-        - ``user``: User UUID for a PROJECT_USER setting (string or None, optional)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/AppSetting'
-          description: ''
-  /project/api/settings/retrieve/user:
-    get:
-      operationId: project_api_settings_retrieve_user_retrieve
-      description: |-
-        API view for retrieving an app setting with the USER scope.
-
-        **URL:** ``project/api/settings/retrieve/user``
-
-        **Methods:** ``GET``
-
-        **Parameters:**
-
-        - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-        - ``setting_name``: Setting name (string)
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/AppSetting'
-          description: ''
-  /project/api/settings/set/{project}:
-    post:
-      operationId: project_api_settings_set_create
-      description: |-
-        API view for setting the value of an app setting with the PROJECT or
-        PROJECT_USER scope.
-
-        **URL:** ``project/api/settings/set/{Project.sodar_uuid}``
-
-        **Methods:** ``POST``
-
-        **Parameters:**
-
-        - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-        - ``setting_name``: Setting name (string)
-        - ``value``: Setting value (string, may contain JSON for JSON settings)
-        - ``user``: User UUID for a PROJECT_USER setting (string or None, optional)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          description: No response body
-  /project/api/settings/set/user:
-    post:
-      operationId: project_api_settings_set_user_create
-      description: |-
-        API view for setting the value of an app setting with the USER scope. Only
-        allows the user to set the value of their own settings.
-
-        **URL:** ``project/api/settings/set/user``
-
-        **Methods:** ``POST``
-
-        **Parameters:**
-
-        - ``app_name``: Name of app plugin for the setting, use "projectroles" for projectroles settings (string)
-        - ``setting_name``: Setting name (string)
-        - ``value``: Setting value (string, may contain JSON for JSON settings)
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          description: No response body
-  /project/api/update/{project}:
-    put:
-      operationId: project_api_update_update
-      description: |-
-        Update the metadata of a project or a category.
-
-        Note that the project owner can not be updated here. Instead, use the
-        dedicated API view ``RoleAssignmentOwnerTransferAPIView``.
-
-        The project type can not be updated once a project has been created. The
-        parameter is still required for non-partial updates via the ``PUT`` method.
-
-        **URL:** ``/project/api/update/{Project.sodar_uuid}``
-
-        **Methods:** ``PUT``, ``PATCH``
-
-        **Parameters:**
-
-        - ``title``: Project title (string)
-        - ``type``: Project type (string, can not be modified)
-        - ``parent``: Parent category UUID (string)
-        - ``description``: Project description (string, optional)
-        - ``readme``: Project readme (string, optional, supports markdown)
-        - ``public_guest_access``: Guest access for all users (boolean)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProjectRequest'
-        required: true
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
-    patch:
-      operationId: project_api_update_partial_update
-      description: |-
-        Update the metadata of a project or a category.
-
-        Note that the project owner can not be updated here. Instead, use the
-        dedicated API view ``RoleAssignmentOwnerTransferAPIView``.
-
-        The project type can not be updated once a project has been created. The
-        parameter is still required for non-partial updates via the ``PUT`` method.
-
-        **URL:** ``/project/api/update/{Project.sodar_uuid}``
-
-        **Methods:** ``PUT``, ``PATCH``
-
-        **Parameters:**
-
-        - ``title``: Project title (string)
-        - ``type``: Project type (string, can not be modified)
-        - ``parent``: Parent category UUID (string)
-        - ``description``: Project description (string, optional)
-        - ``readme``: Project readme (string, optional, supports markdown)
-        - ``public_guest_access``: Guest access for all users (boolean)
-      parameters:
-      - in: path
-        name: project
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - project
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedProjectRequest'
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/Project'
-          description: ''
-  /project/api/users/current:
-    get:
-      operationId: project_api_users_current_retrieve
-      description: |-
-        Return information on the user making the request.
-
-        **URL:** ``/project/api/users/current``
-
-        **Methods:** ``GET``
-
-        **Returns**:
-
-        For current user:
-
-        - ``email``: Email address of the user (string)
-        - ``is_superuser``: Superuser status (boolean)
-        - ``name``: Full name of the user (string)
-        - ``sodar_uuid``: User UUID (string)
-        - ``username``: Username of the user (string)
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                $ref: '#/components/schemas/SODARUser'
-          description: ''
-  /project/api/users/list:
-    get:
-      operationId: project_api_users_list_list
-      description: |-
-        Return a list of all users on the site. Excludes system users, unless called
-        with superuser access.
-
-        **URL:** ``/project/api/users/list``
-
-        **Methods:** ``GET``
-
-        **Returns**: List of serializers users (see ``CurrentUserRetrieveAPIView``)
-      tags:
-      - project
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.sodar-core+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SODARUser'
-          description: ''
   /seqmeta/api/enrichmentkit/list-create/:
     get:
       operationId: seqmeta_api_enrichmentkit_list_create_list
@@ -1891,7 +1166,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -1916,7 +1191,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -1953,7 +1228,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -1989,7 +1264,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2010,7 +1285,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2036,7 +1311,7 @@ paths:
         name: enrichmentkit
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2074,7 +1349,7 @@ paths:
         name: targetbedfile
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2099,7 +1374,7 @@ paths:
         name: targetbedfile
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2136,7 +1411,7 @@ paths:
         name: targetbedfile
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -2172,7 +1447,7 @@ paths:
         name: targetbedfile
         schema:
           type: string
-          pattern: ^[0-9a-f-]+$
+          format: uuid
         required: true
       tags:
       - seqmeta
@@ -5259,50 +4534,6 @@ components:
       - release
       - table
       - timestamp
-    AppSetting:
-      type: object
-      description: |-
-        Serializer for the AppSetting model. Should only be used for read and list
-        views. The sodar_uuid is not provided, as interacting with database objects
-        directly is not the intended way to set/get app settings.
-      properties:
-        app_name:
-          type: string
-          readOnly: true
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-        user:
-          allOf:
-          - $ref: '#/components/schemas/SODARUser'
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-          description: Name of the setting
-        type:
-          type: string
-          readOnly: true
-          description: Type of the setting
-        value:
-          type: string
-          readOnly: true
-          nullable: true
-          description: Value of the setting
-        user_modifiable:
-          type: boolean
-          readOnly: true
-          description: Setting visibility in forms
-      required:
-      - app_name
-      - name
-      - project
-      - type
-      - user
-      - user_modifiable
-      - value
     BcftoolsStatsAfRecordList:
       type: array
       items:
@@ -7671,32 +6902,47 @@ components:
       type: object
     PaginatedCaseAnalysisList:
       type: object
+      required:
+      - results
       properties:
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
         results:
           type: array
           items:
             $ref: '#/components/schemas/CaseAnalysis'
     PaginatedCaseAnalysisSessionList:
       type: object
+      required:
+      - results
       properties:
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
         results:
           type: array
           items:
             $ref: '#/components/schemas/CaseAnalysisSession'
     PaginatedCaseImportActionList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7717,6 +6963,9 @@ components:
             $ref: '#/components/schemas/CaseImportAction'
     PaginatedCaseSerializerNgList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7737,6 +6986,9 @@ components:
             $ref: '#/components/schemas/CaseSerializerNg'
     PaginatedSeqvarsPredefinedQueryList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7757,6 +7009,9 @@ components:
             $ref: '#/components/schemas/SeqvarsPredefinedQuery'
     PaginatedSeqvarsQueryExecutionList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7777,6 +7032,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryExecution'
     PaginatedSeqvarsQueryList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7797,6 +7055,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQuery'
     PaginatedSeqvarsQueryPresetsClinvarList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7817,6 +7078,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsClinvar'
     PaginatedSeqvarsQueryPresetsColumnsList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7837,6 +7101,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsColumns'
     PaginatedSeqvarsQueryPresetsConsequenceList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7857,6 +7124,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsConsequence'
     PaginatedSeqvarsQueryPresetsFrequencyList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7877,6 +7147,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsFrequency'
     PaginatedSeqvarsQueryPresetsLocusList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7897,6 +7170,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsLocus'
     PaginatedSeqvarsQueryPresetsPhenotypePrioList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7917,6 +7193,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsPhenotypePrio'
     PaginatedSeqvarsQueryPresetsQualityList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7937,6 +7216,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsQuality'
     PaginatedSeqvarsQueryPresetsSetList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7957,6 +7239,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsSet'
     PaginatedSeqvarsQueryPresetsSetVersionList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7977,6 +7262,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersion'
     PaginatedSeqvarsQueryPresetsVariantPrioList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7997,6 +7285,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQueryPresetsVariantPrio'
     PaginatedSeqvarsQuerySettingsList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -8017,6 +7308,9 @@ components:
             $ref: '#/components/schemas/SeqvarsQuerySettings'
     PaginatedSeqvarsResultRowList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -8037,6 +7331,9 @@ components:
             $ref: '#/components/schemas/SeqvarsResultRow'
     PaginatedSeqvarsResultSetList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -8128,55 +7425,6 @@ components:
           type: string
           nullable: true
           description: Optional description of the enrichment kit
-    PatchedProjectRequest:
-      type: object
-      description: Serializer for the Project model
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: Project title
-          maxLength: 255
-        type:
-          allOf:
-          - $ref: '#/components/schemas/TypeEnum'
-          description: |-
-            Type of project ("CATEGORY", "PROJECT")
-
-            * `CATEGORY` - Category
-            * `PROJECT` - Project
-        parent:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          nullable: true
-        description:
-          type: string
-          nullable: true
-          description: Short project description
-          maxLength: 512
-        readme:
-          type: string
-        public_guest_access:
-          type: boolean
-          description: Allow public guest access for the project, also including unauthenticated
-            users if allowed on the site
-        owner:
-          type: string
-          writeOnly: true
-          minLength: 1
-    PatchedRoleAssignmentRequest:
-      type: object
-      description: Serializer for the RoleAssignment model
-      properties:
-        role:
-          type: string
-          minLength: 1
-          description: Name of role
-        user:
-          type: string
-          format: uuid
-          description: User SODAR UUID
     PatchedSeqvarsPredefinedQueryRequest:
       type: object
       description: Serializer for ``PredefinedQuery``.
@@ -8757,160 +8005,6 @@ components:
 
             * `grch37` - GRCh37
             * `grch38` - GRCh38
-    Project:
-      type: object
-      description: Serializer for the Project model
-      properties:
-        title:
-          type: string
-          description: Project title
-          maxLength: 255
-        type:
-          allOf:
-          - $ref: '#/components/schemas/TypeEnum'
-          description: |-
-            Type of project ("CATEGORY", "PROJECT")
-
-            * `CATEGORY` - Category
-            * `PROJECT` - Project
-        parent:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          nullable: true
-        description:
-          type: string
-          nullable: true
-          description: Short project description
-          maxLength: 512
-        readme:
-          type: string
-        public_guest_access:
-          type: boolean
-          description: Allow public guest access for the project, also including unauthenticated
-            users if allowed on the site
-        archive:
-          type: boolean
-          readOnly: true
-        roles:
-          type: array
-          items:
-            $ref: '#/components/schemas/RoleAssignmentNestedList'
-          readOnly: true
-        sodar_uuid:
-          type: string
-          readOnly: true
-      required:
-      - archive
-      - parent
-      - roles
-      - sodar_uuid
-      - title
-    ProjectInvite:
-      type: object
-      description: Serializer for the ProjectInvite model
-      properties:
-        email:
-          type: string
-          format: email
-          description: Email address of the person to be invited
-          maxLength: 254
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-        role:
-          type: string
-          description: Name of role
-        issuer:
-          allOf:
-          - $ref: '#/components/schemas/SODARUser'
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-          description: DateTime of invite creation
-        date_expire:
-          type: string
-          format: date-time
-          readOnly: true
-          description: Expiration of invite as DateTime
-        message:
-          type: string
-          description: Message to be included in the invite email (optional)
-        sodar_uuid:
-          type: string
-          readOnly: true
-      required:
-      - date_created
-      - date_expire
-      - email
-      - issuer
-      - project
-      - role
-      - sodar_uuid
-    ProjectInviteRequest:
-      type: object
-      description: Serializer for the ProjectInvite model
-      properties:
-        email:
-          type: string
-          format: email
-          minLength: 1
-          description: Email address of the person to be invited
-          maxLength: 254
-        role:
-          type: string
-          minLength: 1
-          description: Name of role
-        message:
-          type: string
-          description: Message to be included in the invite email (optional)
-      required:
-      - email
-      - role
-    ProjectRequest:
-      type: object
-      description: Serializer for the Project model
-      properties:
-        title:
-          type: string
-          minLength: 1
-          description: Project title
-          maxLength: 255
-        type:
-          allOf:
-          - $ref: '#/components/schemas/TypeEnum'
-          description: |-
-            Type of project ("CATEGORY", "PROJECT")
-
-            * `CATEGORY` - Category
-            * `PROJECT` - Project
-        parent:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          nullable: true
-        description:
-          type: string
-          nullable: true
-          description: Short project description
-          maxLength: 512
-        readme:
-          type: string
-        public_guest_access:
-          type: boolean
-          description: Allow public guest access for the project, also including unauthenticated
-            users if allowed on the site
-        owner:
-          type: string
-          writeOnly: true
-          minLength: 1
-      required:
-      - parent
-      - title
     RcnvConstraintsPydantic:
       description: Store RCNV constraints.
       properties:
@@ -9027,73 +8121,6 @@ components:
           type: integer
       title: ResourcesUsedPydantic
       type: object
-    RoleAssignment:
-      type: object
-      description: Serializer for the RoleAssignment model
-      properties:
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-        role:
-          type: string
-          description: Name of role
-        user:
-          type: string
-          format: uuid
-          description: User SODAR UUID
-        sodar_uuid:
-          type: string
-          readOnly: true
-      required:
-      - project
-      - role
-      - sodar_uuid
-      - user
-    RoleAssignmentNestedList:
-      type: object
-      description: Nested list serializer for the RoleAssignment model.
-      properties:
-        role:
-          type: string
-          description: Name of role
-        user:
-          allOf:
-          - $ref: '#/components/schemas/SODARUser'
-          readOnly: true
-        sodar_uuid:
-          type: string
-          readOnly: true
-      required:
-      - role
-      - sodar_uuid
-      - user
-    RoleAssignmentNestedListRequest:
-      type: object
-      description: Nested list serializer for the RoleAssignment model.
-      properties:
-        role:
-          type: string
-          minLength: 1
-          description: Name of role
-      required:
-      - role
-    RoleAssignmentRequest:
-      type: object
-      description: Serializer for the RoleAssignment model
-      properties:
-        role:
-          type: string
-          minLength: 1
-          description: Name of role
-        user:
-          type: string
-          format: uuid
-          description: User SODAR UUID
-      required:
-      - role
-      - user
     SODARUser:
       type: object
       description: Serializer for the user model used in SODAR Core based sites
@@ -9113,6 +8140,9 @@ components:
           format: email
           title: Email address
           maxLength: 254
+        additional_emails:
+          type: string
+          readOnly: true
         is_superuser:
           type: boolean
           title: Superuser status
@@ -9122,6 +8152,7 @@ components:
           type: string
           readOnly: true
       required:
+      - additional_emails
       - sodar_uuid
       - username
     SODARUserRequest:
@@ -13673,14 +12704,6 @@ components:
       - label
       title: TermPydantic
       type: object
-    TypeEnum:
-      enum:
-      - CATEGORY
-      - PROJECT
-      type: string
-      description: |-
-        * `CATEGORY` - Category
-        * `PROJECT` - Project
     UserAndGlobalSettings:
       type: object
       description: Serializer for ``UserAndGlobalSettingsSerializer``.

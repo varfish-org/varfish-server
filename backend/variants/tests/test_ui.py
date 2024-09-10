@@ -161,7 +161,7 @@ class LiveUserMixin:
         return user
 
 
-class TestUIBase(projectroles.tests.test_ui.TestUIBase):
+class UITestBase(projectroles.tests.test_ui.UITestBase):
     """Base class for UI tests"""
 
     def compile_url_and_login(self, kwargs={}):

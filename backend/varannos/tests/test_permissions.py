@@ -1,10 +1,10 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
 
 from varannos.tests.factories import VarAnnoSetFactory
 
 
-class TestVarAnnoSetViews(TestProjectPermissionBase):
+class TestVarAnnoSetViews(ProjectPermissionTestBase):
     """Permission tests for the ``VarAnnoSet`` views"""
 
     def setUp(self):

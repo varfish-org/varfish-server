@@ -1,10 +1,10 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from cases_qc.tests.factories import CaseQcFactory
 
 
-class TestCaseQcRetrieveApiView(TestProjectAPIPermissionBase):
+class TestCaseQcRetrieveApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CaseQc``."""
 
     def setUp(self):
@@ -32,7 +32,7 @@ class TestCaseQcRetrieveApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestVarfishStatsRetrieveApiView(TestProjectAPIPermissionBase):
+class TestVarfishStatsRetrieveApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``VarfishStats``."""
 
     def setUp(self):

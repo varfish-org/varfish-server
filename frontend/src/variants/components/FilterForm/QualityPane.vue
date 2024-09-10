@@ -70,8 +70,8 @@ defineExpose({ v$ })
   </div>
 
   <table
-    class="table table-striped table-hover sodar-card-table compact-form-groups"
     v-if="props.querySettings !== null && querySettings !== undefined"
+    class="table table-striped table-hover sodar-card-table compact-form-groups"
   >
     <thead>
       <tr>

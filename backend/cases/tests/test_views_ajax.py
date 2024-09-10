@@ -5,7 +5,7 @@ import re
 from django.conf import settings
 from django.urls import reverse
 import jsonmatch
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from cases.tests.factories import (
     BAM_STATS_SAMPLE,
@@ -38,7 +38,7 @@ RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
-class TestCaseListAjaxView(TestProjectAPIPermissionBase):
+class TestCaseListAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.presetset = PresetSetFactory(project=self.project)
@@ -147,7 +147,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestCaseRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestCaseRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -225,7 +225,7 @@ class TestCaseRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
         self._test_destroy_case_base(self.user_no_roles, allowed=False)
 
 
-class TestCasePhenotypeTermsListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -290,7 +290,7 @@ class TestCasePhenotypeTermsListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assertEqual(CasePhenotypeTerms.objects.count(), 1)
 
 
-class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -360,7 +360,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
         self.assertEqual(CasePhenotypeTerms.objects.count(), 0)
 
 
-class TestCaseCommentListCreateAjaxView(TestProjectAPIPermissionBase):
+class TestCaseCommentListCreateAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.casecomment = CaseCommentsFactory(case__project=self.project)
@@ -414,7 +414,7 @@ class TestCaseCommentListCreateAjaxView(TestProjectAPIPermissionBase):
         self.assertEqual(CaseComments.objects.count(), 2)
 
 
-class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestCaseCommentRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.casecomment = CaseCommentsFactory(
@@ -485,7 +485,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
         self.assertEqual(CaseComments.objects.count(), 0)
 
 
-class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
+class TestCaseGeneAnnotationListAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case_gene_annotation = CaseGeneAnnotationEntryFactory(case__project=self.project)
@@ -513,7 +513,7 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
         expected0.assert_matches(res_json[0])
 
 
-class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
+class TestProjectUserPermissionsAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
 
@@ -596,7 +596,7 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
             self.assertEqual(response.data, expected_perms, f"user={user}")
 
 
-class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
+class TestCaseAlignmentStatsListApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.casealignmentstats = CaseAlignmentStatsFactory(case__project=self.project)
@@ -624,7 +624,7 @@ class TestCaseAlignmentStatsListApiView(TestProjectAPIPermissionBase):
         )
 
 
-class TestSampleVariantStatisticsListApiView(TestProjectAPIPermissionBase):
+class TestSampleVariantStatisticsListApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case, variant_set, _ = CaseWithVariantSetFactory.get("small", project=self.project)
@@ -664,7 +664,7 @@ class TestSampleVariantStatisticsListApiView(TestProjectAPIPermissionBase):
         )
 
 
-class TestPedigreeRelatednessListApiView(TestProjectAPIPermissionBase):
+class TestPedigreeRelatednessListApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.pedigreerelatedness = PedigreeRelatednessFactory(
