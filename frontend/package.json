@@ -55,7 +55,7 @@
     "vue-router": "^4.4.0",
     "vue3-easy-data-table": "^1.5.47",
     "vuedraggable": "^4.1.0",
-    "vuetify": "^3.6.9",
+    "vuetify": "^3.7.1",
     "yarn": "^1.22.22"
   },
   "devDependencies": {
