@@ -65,7 +65,7 @@
     "@hey-api/openapi-ts": "^0.52.11",
     "@iconify-json/bi": "^1.1.23",
     "@iconify-json/carbon": "^1.1.36",
-    "@iconify-json/cil": "^1.1.8",
+    "@iconify-json/cil": "^1.2.0",
     "@iconify-json/entypo": "^1.2.0",
     "@iconify-json/fa": "^1.1.8",
     "@iconify-json/fa-regular": "^1.1.8",
