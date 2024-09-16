@@ -34,7 +34,7 @@
     "core-js": "^3.38.0",
     "deepmerge-ts": "^7.1.0",
     "fast-deep-equal": "^3.1.3",
-    "igv": "^3.0.3",
+    "igv": "^3.0.5",
     "javascript-time-ago": "^2.5.11",
     "jquery": "^3.7.1",
     "lodash.debounce": "^4.0.8",
