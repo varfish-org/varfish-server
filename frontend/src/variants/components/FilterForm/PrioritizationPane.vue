@@ -52,8 +52,7 @@ const v$ = useVuelidate()
 
 defineExpose({ v$ })
 
-
-let checked = const(true)
+const checked = true
 
 function selectOption() {
   if (!pediaEnabledWrapper.value) {
