@@ -1,22 +1,23 @@
 <script setup>
-import Overlay from '@/varfish/components/Overlay.vue'
-import SvFilterFormGenotypePane from '@/svs/components/SvFilterForm/GenotypePane.vue'
+import { useVuelidate } from '@vuelidate/core'
+import { computed, reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import SvFilterFormCriteriaDefinitionPane from '@/svs/components/SvFilterForm/CriteriaDefinitionPane.vue'
-import SvFilterFormFrequencyPane from '@/svs/components/SvFilterForm/FrequencyPane.vue'
-import SvFilterFormImpactPane from '@/svs/components/SvFilterForm/ImpactPane.vue'
-import SvFilterFormGenesRegionsPane from '@/svs/components/SvFilterForm/GenesRegionsPane.vue'
-import SvFilterFormRegulatoryPane from '@/svs/components/SvFilterForm/RegulatoryPane.vue'
-import SvFilterFormQuickPresets from '@/svs/components/SvFilterForm/QuickPresets.vue'
-import SvFilterFormTadsPane from '@/svs/components/SvFilterForm/TadsPane.vue'
-import SvFilterFormPatho from '@/svs/components/SvFilterForm/Patho.vue'
 import SvFilterFormDev from '@/svs/components/SvFilterForm/Dev.vue'
 import SvFilterFormFooter from '@/svs/components/SvFilterForm/Footer.vue'
-import SvFilterFormDevPane from '@/varfish/components/FilterForm//DevPane.vue'
-import { QueryStates } from '@/variants/enums'
-import { computed, reactive, ref } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
+import SvFilterFormFrequencyPane from '@/svs/components/SvFilterForm/FrequencyPane.vue'
+import SvFilterFormGenesRegionsPane from '@/svs/components/SvFilterForm/GenesRegionsPane.vue'
+import SvFilterFormGenotypePane from '@/svs/components/SvFilterForm/GenotypePane.vue'
+import SvFilterFormImpactPane from '@/svs/components/SvFilterForm/ImpactPane.vue'
+import SvFilterFormPatho from '@/svs/components/SvFilterForm/Patho.vue'
+import SvFilterFormQuickPresets from '@/svs/components/SvFilterForm/QuickPresets.vue'
+import SvFilterFormRegulatoryPane from '@/svs/components/SvFilterForm/RegulatoryPane.vue'
+import SvFilterFormTadsPane from '@/svs/components/SvFilterForm/TadsPane.vue'
 import { useSvQueryStore } from '@/svs/stores/svQuery'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import SvFilterFormDevPane from '@/varfish/components/FilterForm//DevPane.vue'
+import Overlay from '@/varfish/components/Overlay.vue'
+import { QueryStates } from '@/variants/enums'
 
 const svQueryStore = useSvQueryStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -92,7 +93,7 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
-      <div class="card-header">
+      <div class="card-header border-bottom-0">
         <SvFilterFormQuickPresets
           :show-filtration-inline-help="svQueryStore.showFiltrationInlineHelp"
           :quick-presets="svQueryStore.quickPresets"
@@ -101,7 +102,7 @@ const onSubmitCancelButtonClicked = () => {
           :case="caseDetailsStore.caseObj"
         />
       </div>
-      <div class="card-header row border-bottom-1 pt-1 pr-1">
+      <div class="card-header border-bottom-0 pt-0">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a
@@ -407,9 +408,6 @@ const onSubmitCancelButtonClicked = () => {
   </form>
 </template>
 
-<style>
-footer.sodar-footer,
-.sodar-sub-navbar-container {
-  display: none;
-}
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

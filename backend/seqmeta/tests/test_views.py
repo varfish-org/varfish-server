@@ -1,7 +1,6 @@
 from django.urls import reverse
 
-from seqmeta.models import EnrichmentKit, TargetBedFile
-from seqmeta.tests.factories import EnrichmentKitFactory, TargetBedFileFactory
+from seqmeta.tests.factories import TargetBedFileFactory
 from variants.tests.helpers import TestViewsBase
 
 

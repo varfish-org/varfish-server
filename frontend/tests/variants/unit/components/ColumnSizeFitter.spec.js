@@ -1,6 +1,7 @@
-import ColumnSizeFitter from '@/variants/components/ColumnSizeFitter.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test, vi } from 'vitest'
+
+import ColumnSizeFitter from '@/variants/components/ColumnSizeFitter.vue'
 
 describe('ColumnSizeFitter.vue', () => {
   test('size to fit button works', async () => {

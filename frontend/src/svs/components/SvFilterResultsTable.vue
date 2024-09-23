@@ -1,20 +1,20 @@
 <script setup>
+import { LinearStrucvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { sortBy } from 'sort-by-typescript'
-import { computed, onBeforeMount, reactive, watch, ref } from 'vue'
-
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
 
-import { SvClient } from '@/svs/api/strucvarClient'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useSvResultSetStore } from '@/svs/stores/svResultSet'
-import { useSvFlagsStore, emptyFlagsTemplate } from '@/svs/stores/strucvarFlags'
+import { SvClient } from '@/svs/api/strucvarClient'
+import { emptyFlagsTemplate, useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
 import { useSvCommentsStore } from '@/svs/stores/svComments'
 import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import { displayName, formatLargeInt } from '@/varfish/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { getAcmgBadge } from '@/variants/helpers'
-import { useSvAcmgRatingStore } from '@/svs/stores/svAcmgRating'
-import { formatLargeInt, displayName } from '@/varfish/helpers'
-import { LinearStrucvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 
 const MAX_GENES = 20
 
@@ -31,12 +31,15 @@ const showVariantDetails = (sodarUuid, section) => {
 
 const scrollToLastPosition = () => {
   if (svQueryStore.lastPosition) {
-    document.querySelector('div#sodar-app-container').scrollTop =
-      svQueryStore.lastPosition
+    const elem = document.querySelector('div#app')
+    if (elem) {
+      elem.scrollTop = svQueryStore.lastPosition
+    }
   }
 }
 
 // Initialize stores
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const svResultSetStore = useSvResultSetStore()
 const svFlagsStore = useSvFlagsStore()
@@ -188,7 +191,7 @@ const loadFromServer = async () => {
   }
 
   tableLoading.value = true
-  const svClient = new SvClient(svResultSetStore.csrfToken)
+  const svClient = new SvClient(ctxStore.csrfToken)
   if (svResultSetStore.resultSetUuid) {
     const response = await svClient.listSvQueryResultRow(
       svResultSetStore.resultSetUuid,
@@ -332,11 +335,6 @@ const tableRowClassName = (item, _rowNumber) => {
     ? 'bookmarked-row'
     : ''
 }
-
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
 
 onBeforeMount(async () => {
   if (svResultSetStore.resultSetUuid) {
@@ -922,4 +920,8 @@ watch(
 .last-visited-row {
   --easy-table-body-row-background-color: #85c1e9;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

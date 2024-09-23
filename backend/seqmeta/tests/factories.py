@@ -1,7 +1,6 @@
 import factory
 
 from seqmeta.models import EnrichmentKit, TargetBedFile
-from varfish.users.tests.factories import UserFactory
 
 
 class EnrichmentKitFactory(factory.django.DjangoModelFactory):

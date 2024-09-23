@@ -1,33 +1,37 @@
 <script setup>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import $ from 'jquery'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
 
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import {
   displayName,
-  formatLargeInt,
   formatFloat,
+  formatLargeInt,
   truncateText,
 } from '@/varfish/helpers'
-import { getAcmgBadge } from '@/variants/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { VariantClient } from '@/variants/api/variantClient'
 import ColumnControl from '@/variants/components/ColumnControl.vue'
 import ExportResults from '@/variants/components/ExportResults.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
-import { copy } from '@/variants/helpers'
 import {
-  DisplayConstraints,
-  DisplayFrequencies,
-  DisplayColumnsToText,
-  DisplayDetails,
   DisplayColumns,
+  DisplayColumnsToText,
+  DisplayConstraints,
+  DisplayDetails,
+  DisplayFrequencies,
 } from '@/variants/enums'
-import { SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { getAcmgBadge } from '@/variants/helpers'
+import { copy } from '@/variants/helpers'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 /**
  * The component's props.
@@ -54,6 +58,7 @@ const emit = defineEmits([
 /**
  * Setup stores before mounting the component.
  */
+const ctxStore = useCtxStore()
 const caseDetailsStore = useCaseDetailsStore()
 const flagsStore = useVariantFlagsStore()
 const commentsStore = useVariantCommentsStore()
@@ -533,7 +538,7 @@ const loadFromServer = async () => {
     return row
   }
 
-  const variantClient = new VariantClient(variantResultSetStore.csrfToken)
+  const variantClient = new VariantClient(ctxStore.csrfToken)
 
   tableLoading.value = true
   if (variantResultSetStore.resultSetUuid) {
@@ -575,8 +580,10 @@ const extraAnnoFields = computed(
 
 const scrollToLastPosition = () => {
   if (variantQueryStore.lastPosition) {
-    document.querySelector('div#sodar-app-container').scrollTop =
-      variantQueryStore.lastPosition
+    const elem = document.querySelector('div#app')
+    if (elem) {
+      elem.scrollTop = variantQueryStore.lastPosition
+    }
   }
 }
 
@@ -602,9 +609,6 @@ onMounted(async () => {
     await loadFromServer()
     scrollToLastPosition()
   }
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  })
 })
 
 watch(
@@ -816,12 +820,12 @@ watch(
         <template #item-homozygous="{ sodar_uuid, payload }">
           <div
             role="button"
-            @click="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
+            @click.prevent="showVariantDetails(sodar_uuid, 'seqvar-freqs')"
           >
             {{ displayHomozygousContent(payload) }}
           </div>
         </template>
-        <template #item-constraints="{ payload }">
+        <template #item-constraints="{ sodar_uuid, payload }">
           <div
             role="button"
             @click.prevent="showVariantDetails(sodar_uuid, 'gene-overview')"
@@ -941,8 +945,6 @@ watch(
           <div class="btn-group btn-group-sm">
             <div
               title="Flags the variant as an artifact by setting visually negative and summary negative flags."
-              data-toggle="tooltip"
-              data-placement="left"
               class="btn btn-sm btn-outline-secondary"
               style="font-size: 80%"
               role="button"
@@ -1071,4 +1073,8 @@ watch(
   border-bottom-left-radius: 0;
   margin-left: 0;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

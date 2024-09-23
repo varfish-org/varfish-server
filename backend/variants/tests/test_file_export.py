@@ -8,7 +8,6 @@ import tempfile
 from unittest.mock import patch
 
 from bgjobs.models import BackgroundJob
-import django
 from django.conf import settings
 from django.utils import timezone
 import openpyxl
@@ -364,8 +363,8 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
             result = exporter.generate()
         unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
         lines = str(unzipped, "utf-8").split("\n")
-        header = [l for l in lines if l.startswith("#")]
-        content = [l for l in lines if not l.startswith("#")]
+        header = [line for line in lines if line.startswith("#")]
+        content = [line for line in lines if not line.startswith("#")]
         self.assertEquals(len(header), 31)
         self.assertEquals(header[0], "##fileformat=VCFv4.2")
         self.assertEquals(
@@ -528,8 +527,8 @@ class ProjectExportTest(TestCase):
             result = exporter.generate()
         unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
         lines = str(unzipped, "utf-8").split("\n")
-        header = [l for l in lines if l.startswith("#")]
-        content = [l for l in lines if not l.startswith("#")]
+        header = [line for line in lines if line.startswith("#")]
+        content = [line for line in lines if not line.startswith("#")]
         member1 = self.case1.pedigree[0]["patient"]
         member2 = self.case2.pedigree[0]["patient"]
         self.assertEquals(len(header), 31)
@@ -747,8 +746,8 @@ class CohortExporterTest(TestCohortBase):
     def _test_vcf(self, result, ref, smallvars, cohort, user):
         unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
         lines = str(unzipped, "utf-8").split("\n")
-        header = [l for l in lines if l.startswith("#")]
-        content = [l for l in lines if not l.startswith("#")]
+        header = [line for line in lines if line.startswith("#")]
+        content = [line for line in lines if not line.startswith("#")]
         members = cohort.get_members(user)
         self.assertEquals(len(header), 31)
         self.assertEquals(header[0], "##fileformat=VCFv4.2")

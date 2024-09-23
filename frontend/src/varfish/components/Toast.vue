@@ -4,7 +4,9 @@
  *
  * You can configure it either by setting the props or handing the props to the show() method.
  */
+import $ from 'jquery'
 import { onMounted, ref } from 'vue'
+
 import { formatTimeAgo } from '@/varfish/helpers'
 import { copy } from '@/varfish/helpers'
 
@@ -143,3 +145,7 @@ defineExpose({ show, hide })
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

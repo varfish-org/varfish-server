@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { displayName } from '@/varfish/helpers'
 import { roundIt } from '@bihealth/reev-frontend-lib/lib/utils'
 
-import { ResultRow } from './types'
+import { displayName } from '@/varfish/helpers'
+
 import { allelicBalance } from './lib'
+import { ResultRow } from './types'
 
 /** This component's props. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

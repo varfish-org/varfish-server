@@ -5,7 +5,7 @@
  */
 import * as vega from 'vega'
 import vegaEmbed from 'vega-embed'
-import { onMounted, computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 /** Define the props. */
 const props = defineProps({

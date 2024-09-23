@@ -2,7 +2,6 @@
 
 import io
 import pathlib
-import sys
 import types
 import uuid
 

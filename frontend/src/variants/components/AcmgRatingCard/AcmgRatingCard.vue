@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { State } from '@/varfish/storeUtils'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { computed, onMounted, ref, toRaw, watch } from 'vue'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
-import {
-  CRITERIA_PATHOGENIC,
-  CRITERIA_BENIGN,
-  CATEGORY_LABELS,
-} from './constants'
-import { pairwise, acmgColor, acmgLabel } from './lib'
+import { computed, onMounted, ref, toRaw, watch } from 'vue'
+
+import { State } from '@/varfish/storeUtils'
 import {
   AcmgRating,
-  seqvarAssign,
   acmgRatingEqual,
+  seqvarAssign,
 } from '@/variants/api/variantClient'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+
+import { EMPTY_ACMG_RATING_TEMPLATE } from './constants'
+import {
+  CATEGORY_LABELS,
+  CRITERIA_BENIGN,
+  CRITERIA_PATHOGENIC,
+} from './constants'
+import { acmgColor, acmgLabel, pairwise } from './lib'
 
 /** This component's props. */
 const props = defineProps<{
@@ -206,11 +208,7 @@ watch(
 )
 onMounted(async () => {
   if (props.seqvar && props.projectUuid && props.caseUuid) {
-    await acmgRatingStore.initialize(
-      'unusedCsrfToken',
-      props.projectUuid,
-      props.caseUuid,
-    )
+    await acmgRatingStore.initialize(props.projectUuid, props.caseUuid)
     acmgRatingStore.setSeqvar(props.seqvar)
     resetAcmgRatingToStore()
   }

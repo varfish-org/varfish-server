@@ -1,16 +1,17 @@
 /**
  * NB: this is one of the few stores that don't have an initializeRes on purpose.
  */
+import camelCase from 'camelcase'
+import { defineStore } from 'pinia'
+import { nextTick, reactive, ref } from 'vue'
 
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { SvClient } from '@/svs/api/strucvarClient'
 import { useSvResultSetStore } from '@/svs/stores/svResultSet'
 import { State, StoreState } from '@/varfish/storeUtils'
-import { apiQueryStateToQueryState, QueryStates } from '@/variants/enums'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { QueryStates, apiQueryStateToQueryState } from '@/variants/enums'
 import { copy } from '@/variants/helpers'
-import camelCase from 'camelcase'
-import { defineStore } from 'pinia'
-import { nextTick, reactive, ref } from 'vue'
 
 /** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
  */
@@ -105,6 +106,8 @@ const FETCH_LOOP_ALLOW_FAILURES = 10 // up to 10 failures
 export const useSvQueryStore = defineStore('svQuery', () => {
   // store dependencies
 
+  /** The context store */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
   /** The variantResultSet store */
@@ -112,8 +115,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref(null)
   /** UUID of the project.  */
   const projectUuid = ref(null)
   /** UUID of the case that this store holds annotations for. */
@@ -171,7 +172,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Start the loop for waiting for the results and fetching them.
    */
   const runFetchLoop = async (svQueryUuid, failuresSeen = 0) => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
@@ -224,7 +225,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     const convert = (key, value) => {
       if (
@@ -276,27 +277,14 @@ export const useSvQueryStore = defineStore('svQuery', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
-   * @param appContext An application context object with more information.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
-  const initialize = async (
-    csrfToken$,
-    projectUuid$,
-    caseUuid$,
-    appContext,
-    forceReload = false,
-  ) => {
+  const initialize = async (projectUuid$, caseUuid$, forceReload = false) => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -311,16 +299,13 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     $reset() // clear to avoid artifacts
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
-    // (copy appContext values -- none at the moment)
-    const _ = appContext
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and
@@ -328,13 +313,13 @@ export const useSvQueryStore = defineStore('svQuery', () => {
     initializeRes.value = Promise.all([
       // 1. fetch default settings
       fetchDefaultSettings(
-        csrfToken.value,
+        ctxStore.csrfToken,
         caseUuid.value,
         querySettingsPresets,
         querySettings,
       ),
       // 2. fetch previous query UUID
-      fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
+      fetchPreviousQueryUuid(ctxStore.csrfToken, caseUuid.value)
         .then((response) => {
           if (response) {
             queryUuid.value = response
@@ -361,7 +346,7 @@ export const useSvQueryStore = defineStore('svQuery', () => {
         }),
       // 3. fetch quick presets etc.
       fetchPresets(
-        csrfToken.value,
+        ctxStore.csrfToken,
         caseDetailsStore.caseObj,
         quickPresets,
         categoryPresets,
@@ -387,7 +372,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
 
     showFiltrationInlineHelp.value = false
     filtrationComplexityMode.value = 'simple'
-    csrfToken.value = null
     caseUuid.value = null
     querySettingsPresets.value = null
     querySettings.value = null
@@ -414,7 +398,6 @@ export const useSvQueryStore = defineStore('svQuery', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     caseUuid,
     storeState,

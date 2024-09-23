@@ -1,7 +1,8 @@
-import HpoTermInput from '@/variants/components/HpoTermInput.vue'
-import { shallowMount } from '@vue/test-utils'
-import { describe, expect, test, beforeEach } from 'vitest'
 import { setupUrlConfigForTesting } from '@bihealth/reev-frontend-lib/lib/urlConfig'
+import { shallowMount } from '@vue/test-utils'
+import { beforeEach, describe, expect, test } from 'vitest'
+
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
 
 describe('HpoTermInput.vue', () => {
   beforeEach(() => {
@@ -11,7 +12,6 @@ describe('HpoTermInput.vue', () => {
   test('hpo term input with help', () => {
     const wrapper = shallowMount(HpoTermInput, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: true,
         hpoTerms: ['HP:0000118'],
       },

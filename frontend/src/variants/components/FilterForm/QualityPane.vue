@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import FilterFormQualityPaneRow from '@/variants/components/FilterForm/QualityPaneRow.vue'
+import { onMounted, reactive, ref } from 'vue'
+
 import { rules } from '@/variants/components/FilterForm/QualityPane.values'
+import FilterFormQualityPaneRow from '@/variants/components/FilterForm/QualityPaneRow.vue'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -70,6 +71,7 @@ defineExpose({ v$ })
 
   <table
     class="table table-striped table-hover sodar-card-table compact-form-groups"
+    v-if="props.querySettings !== null && querySettings !== undefined"
   >
     <thead>
       <tr>
@@ -105,3 +107,7 @@ defineExpose({ v$ })
     </tbody>
   </table>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

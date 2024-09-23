@@ -1,8 +1,5 @@
 """Factory Boy factory classes for ``clinvar``."""
 
-import typing
-
-import attr
 import binning
 import factory
 

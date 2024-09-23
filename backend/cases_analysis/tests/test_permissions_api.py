@@ -1,5 +1,3 @@
-import json
-
 from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
@@ -94,7 +92,7 @@ class TestCasenalysisSessionViewSet(TestProjectAPIPermissionBase):
         all_users = good_users + bad_users_401 + bad_users_403
 
         caseanalysis = CaseAnalysisFactory(case=self.case)
-        for user in filter(lambda u: u != None, all_users):
+        for user in filter(lambda u: u is not None, all_users):
             caseanalysissession = CaseAnalysisSessionFactory(caseanalysis=caseanalysis, user=user)
 
             url = reverse(

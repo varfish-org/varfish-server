@@ -1,7 +1,8 @@
-import CaseDetailCardTerms from '@/cases/components/CaseDetail/CardTerms.vue'
+import { setupUrlConfigForTesting } from '@bihealth/reev-frontend-lib/lib/urlConfig'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
-import { setupUrlConfigForTesting } from '@bihealth/reev-frontend-lib/lib/urlConfig'
+
+import CaseDetailCardTerms from '@/cases/components/CaseDetail/CardTerms.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'

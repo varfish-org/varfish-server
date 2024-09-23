@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { numeric, minValue, maxValue } from '@vuelidate/validators'
+import { maxValue, minValue, numeric } from '@vuelidate/validators'
+import { computed, onMounted } from 'vue'
 
 // Define the component's props.
 const props = defineProps({
@@ -84,48 +84,42 @@ defineExpose({
     Adjust the settings in this tab to configure the annotation with TAD
     information.
   </div>
-  <div class="row">
-    <div class="col mt-2 mb-2">
-      <div class="form-group row">
-        <label for="clinvarMinOverlap"> ClinVar SV min. overlap </label>
-        <div class="input-group input-group-sm ml-2 mr-4">
-          <input
-            id="clinvarMinOverlap"
-            v-model.trim.lazy="v$.clinvar_sv_min_overlap.$model"
-            placeholder="Min. SV overlap with ClinVar SVs"
-            class="form-control"
-            :class="{
-              'is-invalid': v$.clinvar_sv_min_overlap.$error,
-            }"
-          />
-          <div
-            v-for="error of v$.clinvar_sv_min_overlap.$errors"
-            :key="error.$uid"
-            class="invalid-feedback"
-          >
-            {{ error.$message }}
-          </div>
-        </div>
+  <div class="form-group p-2">
+    <label for="clinvarMinOverlap"> ClinVar SV min. overlap </label>
+    <div class="input-group input-group-sm">
+      <input
+        id="clinvarMinOverlap"
+        v-model.trim.lazy="v$.clinvar_sv_min_overlap.$model"
+        placeholder="Min. SV overlap with ClinVar SVs"
+        class="form-control"
+        :class="{
+          'is-invalid': v$.clinvar_sv_min_overlap.$error,
+        }"
+      />
+      <div
+        v-for="error of v$.clinvar_sv_min_overlap.$errors"
+        :key="error.$uid"
+        class="invalid-feedback"
+      >
+        {{ error.$message }}
       </div>
+    </div>
+  </div>
 
-      <div class="form-group mb-2">
-        <label for="clinvarMinPathogenicity">
-          ClinVar SV min. pathogenicity
-        </label>
-        <div class="input-group input-group-sm ml-2 mr-4">
-          <select
-            id="clinvarMinPathogenicity"
-            v-model="v$.clinvar_sv_min_pathogenicity.$model"
-            class="custom-select custom-select-sm"
-          >
-            <option value="benign">Benign</option>
-            <option value="likely-benign">Likely benign</option>
-            <option value="uncertain">Uncertain</option>
-            <option value="likely-pathogenic">Likely pathogenic</option>
-            <option value="pathogenic">Pathogenic</option>
-          </select>
-        </div>
-      </div>
+  <div class="form-group p-2">
+    <label for="clinvarMinPathogenicity"> ClinVar SV min. pathogenicity </label>
+    <div class="input-group input-group-sm">
+      <select
+        id="clinvarMinPathogenicity"
+        v-model="v$.clinvar_sv_min_pathogenicity.$model"
+        class="custom-select custom-select-sm"
+      >
+        <option value="benign">Benign</option>
+        <option value="likely-benign">Likely benign</option>
+        <option value="uncertain">Uncertain</option>
+        <option value="likely-pathogenic">Likely pathogenic</option>
+        <option value="pathogenic">Pathogenic</option>
+      </select>
     </div>
   </div>
   <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
@@ -138,3 +132,7 @@ defineExpose({
     </code>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

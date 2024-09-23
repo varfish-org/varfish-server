@@ -1,11 +1,14 @@
 import copy
 
+from django.conf import settings
 from django.forms import model_to_dict
 from django.urls import reverse
+from freezegun import freeze_time
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from cases_qc.tests.helpers import flatten_via_json
 from svs.tests.factories import SvQueryResultSetFactory
+from variants.models.case import Case
 
 from ..query_schemas import SCHEMA_QUERY, DefaultValidatingDraft7Validator
 from .factories import (
@@ -22,7 +25,7 @@ from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewT
 # TODO: add tests that include permission testing
 from .test_views import GenerateSmallVariantResultMixin
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 def transmogrify_pedigree(pedigree):
@@ -31,6 +34,36 @@ def transmogrify_pedigree(pedigree):
     ]
 
 
+def pedigree_obj_from_case(case: Case):
+    frozen_timestamp = "2012-01-14T12:00:01Z"
+    individual_set = []
+    for individual in case.pedigree_obj.individual_set.all():
+        individual_set.append(
+            {
+                "sodar_uuid": str(individual.sodar_uuid),
+                "name": individual.name,
+                "pedigree": str(individual.pedigree.sodar_uuid),
+                "affected": individual.affected,
+                "assay": individual.assay,
+                "date_created": frozen_timestamp,
+                "date_modified": frozen_timestamp,
+                "father": individual.father,
+                "mother": individual.mother,
+                "sex": individual.sex,
+                "karyotypic_sex": individual.karyotypic_sex,
+            }
+        )
+    result = {
+        "sodar_uuid": str(case.pedigree_obj.sodar_uuid),
+        "case": str(case.sodar_uuid),
+        "date_created": frozen_timestamp,
+        "date_modified": frozen_timestamp,
+        "individual_set": individual_set,
+    }
+    return result
+
+
+@freeze_time("2012-01-14 12:00:01")
 class TestCaseApiViews(ApiViewTestBase):
     """Tests for Case API views."""
 
@@ -44,13 +77,17 @@ class TestCaseApiViews(ApiViewTestBase):
         self.svqueryresultset = SvQueryResultSetFactory(case=self.case, svquery=None)
 
     def _expected_case_data(self, case=None, legacy=False):
+        frozen_timestamp = "2012-01-14T12:00:01Z"
         case = case or self.case
         result = {
             "sodar_uuid": str(case.sodar_uuid),
+            "date_created": frozen_timestamp,
+            "date_modified": frozen_timestamp,
             "caseqc": None,
             "name": case.name,
             "index": case.index,
             "pedigree": transmogrify_pedigree(case.pedigree),
+            "pedigree_obj": pedigree_obj_from_case(case),
             "num_small_vars": case.num_small_vars,
             "num_svs": case.num_svs,
             "project": case.project.sodar_uuid,
@@ -127,10 +164,7 @@ class TestCaseApiViews(ApiViewTestBase):
             expected = [self._expected_case_data()]
             response_content = []
             for entry in response.data["results"]:  # remove some warts
-                entry = dict(entry)
-                entry.pop("date_created")  # complex; not worth testing
-                entry.pop("date_modified")  # the same
-                response_content.append(entry)
+                response_content.append(dict(entry))
             self.assertEquals(flatten_via_json(response_content), flatten_via_json(expected))
 
     def _test_retrieve_with_invalid_x(self, media_type=None, version=None):
@@ -162,8 +196,6 @@ class TestCaseApiViews(ApiViewTestBase):
 
             expected = self._expected_case_data(legacy=True)
             expected.pop("state")
-            response.data.pop("date_created")  # complex; not worth testing
-            response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
             self.assertEqual(flatten_via_json(expected), flatten_via_json(response.data))
 
@@ -171,7 +203,7 @@ class TestCaseApiViews(ApiViewTestBase):
 def small_variant_query_to_dict(query):
     return {
         "sodar_uuid": str(query.sodar_uuid),
-        "date_created": query.date_created.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        "date_created": query.date_created.strftime(TIMEF),
         "name": query.name,
         "case": query.case.sodar_uuid,
         "public": query.public,
@@ -182,6 +214,7 @@ def small_variant_query_to_dict(query):
     }
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantQueryBase(ApiViewTestBase):
     def setUp(self):
         super().setUp()
@@ -231,11 +264,11 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
         response = self.request_knox(url)
 
         self.assertEqual(response.status_code, 200)
-        expected = list(reversed(list(map(small_variant_query_to_dict, queries))))
+        expected = list(map(small_variant_query_to_dict, queries))
         self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_other_user(self):
-        _queries = [
+        _queries = [  # noqa: F841
             SmallVariantQueryFactory(case=self.case, user=self.superuser),
             SmallVariantQueryFactory(case=self.case, user=self.superuser),
         ]
@@ -248,7 +281,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
         self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_admin(self):
-        _queries = [
+        _queries = [  # noqa: F841
             SmallVariantQueryFactory(case=self.case, user=self.user_contributor),
             SmallVariantQueryFactory(case=self.case, user=self.user_owner),
         ]
@@ -261,7 +294,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
         self.assertEqual(flatten_via_json(response.data), flatten_via_json(expected))
 
     def test_get_access_allowed(self):
-        _queries = [
+        _queries = [  # noqa: F841
             SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
@@ -279,7 +312,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
             self.assertEqual(response.status_code, 200, "user = %s" % user)
 
     def test_get_access_forbidden(self):
-        _queries = [
+        _queries = [  # noqa: F841
             SmallVariantQueryFactory(case=self.case, user=self.user_guest),
         ]
         url = reverse("variants:api-query-case-list", kwargs={"case": self.case.sodar_uuid})
@@ -592,6 +625,7 @@ class TestSmallVariantQueryListApiView(TestSmallVariantQueryBase):
 #             self.assertEqual(response.status_code, expected, f"user = {user}")
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantQuerySettingsShortcutApiView(
     GenerateSmallVariantResultMixin, ApiViewTestBase
 ):
@@ -782,6 +816,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
             self.assertEqual(response.status_code, expected, f"user = {user}")
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 
@@ -845,6 +880,7 @@ class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
         self._test_get_comments_as_user(self.user_guest)
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 
@@ -889,6 +925,9 @@ class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
                 del comment["date_created"]
                 del comment["date_modified"]
                 del comment["user_can_edit"]
+
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
@@ -959,6 +998,9 @@ class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
                 del comment["date_modified"]
                 del comment["user_can_edit"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
@@ -1009,6 +1051,9 @@ class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
                 del comment["date_modified"]
                 del comment["user_can_edit"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
@@ -1044,10 +1089,14 @@ class TestSmallVariantCommentListProjectApiView(TestSmallVariantQueryBase):
                 del comment["date_modified"]
                 del comment["user_can_edit"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 
@@ -1088,6 +1137,9 @@ class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
                 del flag["date_created"]
                 del flag["date_modified"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
@@ -1107,6 +1159,7 @@ class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
         self._test_get_flags_as_user(self.user_guest)
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 
@@ -1147,6 +1200,9 @@ class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
             for flag in response_json:
                 del flag["date_created"]
                 del flag["date_modified"]
+
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+            expected.sort(key=lambda x: x["sodar_uuid"])
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
@@ -1211,6 +1267,9 @@ class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
                 del flag["date_created"]
                 del flag["date_modified"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
@@ -1256,6 +1315,9 @@ class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
                 del flag["date_created"]
                 del flag["date_modified"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
@@ -1287,10 +1349,14 @@ class TestSmallVariantFlagsListProjectApiView(TestSmallVariantQueryBase):
                 del flag["date_created"]
                 del flag["date_modified"]
 
+            expected.sort(key=lambda x: x["sodar_uuid"])
+            response_json.sort(key=lambda x: x["sodar_uuid"])
+
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response_json, expected)
 
 
+@freeze_time("2012-01-14 12:00:01")
 class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
     """Tests for case query preset generation"""
 

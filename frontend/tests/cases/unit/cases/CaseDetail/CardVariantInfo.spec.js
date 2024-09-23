@@ -1,5 +1,6 @@
-import CaseDetailCardVariantInfo from '@/cases/components/CaseDetail/CardVariantInfo.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailCardVariantInfo from '@/cases/components/CaseDetail/CardVariantInfo.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
@@ -14,7 +15,7 @@ describe('CaseDetailCardVariantInfo.vue', () => {
     const wrapper = makeWrapper(CaseDetailCardVariantInfo)
 
     expect(wrapper.html()).matches(/No \(small\) variant annotation info./)
-    expect(wrapper.html()).not.matches(/<td>GRCh37<\/td>/)
+    expect(wrapper.html()).not.matches(/<td.*>GRCh37<\/td>/)
   })
 
   test('test with case detail store data', async () => {
@@ -23,6 +24,6 @@ describe('CaseDetailCardVariantInfo.vue', () => {
     })
 
     expect(wrapper.html()).not.matches(/No \(small\) variant annotation info./)
-    expect(wrapper.html()).matches(/<td>GRCh37<\/td>/)
+    expect(wrapper.html()).matches(/<td.*>GRCh37<\/td>/)
   })
 })

@@ -3,6 +3,7 @@
 import json
 import re
 
+from django.conf import settings
 from django.urls import reverse
 import jsonmatch
 
@@ -12,9 +13,9 @@ from variants.tests.factories import CaseWithVariantSetFactory
 from variants.tests.helpers import ApiViewTestBase
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
-RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
+RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 class TestSvQueryListCreateAjaxView(ApiViewTestBase):

@@ -6,15 +6,14 @@
  *
  * - `caseListStore`
  */
-
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
 
 import { CaseClient } from '@/cases/api/caseClient'
 import { useCaseListStore } from '@/cases/stores/caseList'
 import { displayName } from '@/varfish/helpers'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Alias definition of Case type; to be defined later. */
@@ -50,16 +49,49 @@ export type CaseSvAnnotationReleaseInfos = any
 /** Alias definition of GenotypeMapping type; to be defined later. */
 export type GenotypeMapping = any
 
+/** Type for the sex of an individual. */
+export type Sex = 'unknown' | 'male' | 'female' | 'other'
+
+/** Type for the karyotypic sex of an individual. */
+export type KaryotypicSex = 'unknown' | 'XX' | 'XY' | 'other'
+
+/** Type for an assay. */
+export type Assay = 'wgs' | 'wes' | 'panel_seq'
+
+/** Type for the individuals in PedigreeObj */
+export interface Individual {
+  sodar_uuid: string
+  pedigree: string
+  date_created: string
+  date_modified: string
+  name: string
+  father?: string | null
+  mother?: string | null
+  sex: Sex
+  karyotypic_sex: KaryotypicSex
+  affected: boolean
+  assay: Assay
+}
+
+/** Type for the pedigree_obj member */
+export interface PedigreeObj {
+  sodar_uuid: string
+  case: string
+  date_created: string
+  date_modified: string
+  individual_set: Individual[]
+}
+
 export const useCaseDetailsStore = defineStore('caseDetails', () => {
   // store dependencies
 
-  /** The caseList store */
+  /** The context store. */
+  const ctxStore = useCtxStore()
+  /** The caseList store. */
   const caseListStore = useCaseListStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -150,20 +182,18 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseListStore.initialize(csrfToken$, projectUuid$, forceReload)
+    await caseListStore.initialize(projectUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -176,7 +206,6 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -184,10 +213,8 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseClient = new CaseClient(csrfToken.value ?? 'undefined-csrf-token')
-    const queryPresetsClient = new QueryPresetsClient(
-      csrfToken.value ?? 'csrf-undefined',
-    )
+    const caseClient = new CaseClient(ctxStore.csrfToken)
+    const queryPresetsClient = new QueryPresetsClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       caseClient.retrieveCase(caseUuid.value).then((res) => {
@@ -259,7 +286,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Update the case with the given data. */
   const updateCase = async (payload: Case) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -278,7 +305,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Destroy the case with the given data. */
   const destroyCase = async () => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -304,7 +331,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Create a new case comment for the current case. */
   const createCaseComment = async (payload: CaseComment) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -330,7 +357,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseCommentUuid: string,
     payload: CaseComment,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -358,7 +385,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   /** Destroy a case comment for the current case. */
   const destroyCaseComment = async (caseCommentUuid: string) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -395,7 +422,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     casePhenotypeTermsUuid: string,
     payload: CasePhenotypeTerms,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -423,7 +450,7 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
     caseUuid: string,
     payload: CasePhenotypeTerms,
   ) => {
-    const caseClient = new CaseClient(csrfToken.value ?? 'csrf-undefined')
+    const caseClient = new CaseClient(ctxStore.csrfToken)
 
     storeState.serverInteractions += 1
     const oldState = storeState.state
@@ -443,7 +470,6 @@ export const useCaseDetailsStore = defineStore('caseDetails', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

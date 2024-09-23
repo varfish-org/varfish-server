@@ -8,7 +8,6 @@ from django.shortcuts import reverse
 from django.utils import timezone
 import httpsig
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
-from requests_http_signature import HTTPSignatureAuth
 
 from variants.tests.factories import SmallVariantFactory
 

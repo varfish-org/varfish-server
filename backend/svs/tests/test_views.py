@@ -1,10 +1,10 @@
-from django.urls import reverse
+# from django.urls import reverse
 
-from geneinfo.tests.factories import HgncFactory
-from svs.models import StructuralVariant
-from svs.tests.factories import StructuralVariantGeneAnnotationFactory
-from variants.tests.factories import CaseWithVariantSetFactory
-from variants.tests.helpers import ViewTestBase
+# from geneinfo.tests.factories import HgncFactory
+# from svs.models import StructuralVariant
+# from svs.tests.factories import StructuralVariantGeneAnnotationFactory
+# from variants.tests.factories import CaseWithVariantSetFactory
+# from variants.tests.helpers import ViewTestBase
 
 # class TestSecondHitView(ViewTestBase):
 #     """Test view that displays small variant second hits."""

@@ -3,9 +3,11 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles import finders
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
+from django.views import View
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import django_saml2_auth.views
@@ -171,6 +173,28 @@ urlpatterns += [
 # ------------------------------------------------------------------------------
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# URL Patterns for Serving Frontend
+# ------------------------------------------------------------------------------
+
+if settings.SERVE_FRONTEND:
+
+    class ServeStringView(View):
+        def get(self, *args, **kwargs):
+            _ = args
+            _ = kwargs
+            file_path = finders.find("vueapp/index.html")
+            with open(file_path, "rt") as inputf:
+                content = inputf.read()
+                return HttpResponse(content, content_type="text/html")
+
+    urlpatterns += [
+        url(
+            r"^-.*",
+            ServeStringView.as_view(),
+            name="vueapp-entrypoint",
+        )
+    ]
 
 # URL Patterns for Development
 # ------------------------------------------------------------------------------

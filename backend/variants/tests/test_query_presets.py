@@ -88,7 +88,7 @@ class TestPedigreeMember(TestCase):
             sex=query_presets.Sex.MALE,
             disease_state=query_presets.DiseaseState.AFFECTED,
         )
-        _father = query_presets.PedigreeMember(
+        _father = query_presets.PedigreeMember(  # noqa: F841
             family="FAM",
             name="index",
             father="father",
@@ -96,7 +96,7 @@ class TestPedigreeMember(TestCase):
             sex=query_presets.Sex.MALE,
             disease_state=query_presets.DiseaseState.AFFECTED,
         )
-        _mother = query_presets.PedigreeMember(
+        _mother = query_presets.PedigreeMember(  # noqa: F841
             family="FAM",
             name="index",
             father="father",

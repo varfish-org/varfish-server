@@ -1,7 +1,9 @@
-import AcmgRatingCard from './AcmgRatingCard.vue'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import type { Meta, StoryObj } from '@storybook/vue3'
+
 import { AcmgRating$Api } from '@/variants/api/variantClient'
+
+import AcmgRatingCard from './AcmgRatingCard.vue'
 
 const projectUuid = 'fake-project-uuid'
 const caseUuid = 'fake-case-uuid'

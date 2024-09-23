@@ -50,7 +50,6 @@ const Template = (args) => ({
   template:
     '<HpoTermInput\n' +
     '    api-endpoint="/api/"\n' +
-    '    :csrf-token="args.csrfToken"\n' +
     '    :show-filtration-inline-help="args.showFiltrationInlineHelp"\n' +
     '    v-model="args.hpoTerms"\n' +
     '/>',
@@ -58,21 +57,18 @@ const Template = (args) => ({
 
 export const Prefilled = Template.bind({})
 Prefilled.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: false,
   hpoTerms: ['HP:0000245', 'HP:0000418'],
 }
 
 export const PrefilledWithHelp = Template.bind({})
 PrefilledWithHelp.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: true,
   hpoTerms: ['HP:0000245', 'HP:0000418'],
 }
 
 export const Empty = Template.bind({})
 Empty.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: false,
   hpoTerms: [],
 }

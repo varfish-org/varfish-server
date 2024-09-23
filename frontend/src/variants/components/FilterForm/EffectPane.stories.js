@@ -1,5 +1,6 @@
+import querySettingsSingleton from '@tests/variants/data/query-settings-singleton.json'
+
 import FilterFormEffectPane from '@/variants/components/FilterForm/EffectPane.vue'
-import querySettingsSingleton from '@/variantsTest/data/query-settings-singleton.json'
 
 export default {
   title: 'Variants / Filter Form Effect',

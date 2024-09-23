@@ -1,11 +1,9 @@
 """Tests for the ``svs.models.jobs`` module."""
 
-from unittest.mock import patch
-
 from bgjobs.models import BackgroundJob
 
-from svs.models.jobs import FilterSvBgJob, create_sv_query_bg_job, run_sv_query_bg_job
-from svs.models.queries import SvQuery, SvQueryResultSet
+from svs.models.jobs import FilterSvBgJob, create_sv_query_bg_job
+from svs.models.queries import SvQuery
 from svs.tests.factories import BackgroundSvSetFactory, StructuralVariantSetFactory, SvQueryFactory
 from svs.tests.helpers import StructuralVariantQueryTestBase
 

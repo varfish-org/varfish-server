@@ -1,9 +1,10 @@
-import FilterFormQualityPane from '@/variants/components/FilterForm/QualityPane.vue'
-import singletonCaseData from '@/variantsTest/data/case-singleton.json'
-import trioCaseData from '@/variantsTest/data/case-trio.json'
-import querySettingsSingleton from '@/variantsTest/data/query-settings-singleton.json'
-import querySettingsTrio from '@/variantsTest/data/query-settings-trio.json'
+import singletonCaseData from '@tests/variants/data/case-singleton.json'
+import trioCaseData from '@tests/variants/data/case-trio.json'
+import querySettingsSingleton from '@tests/variants/data/query-settings-singleton.json'
+import querySettingsTrio from '@tests/variants/data/query-settings-trio.json'
 import { reactive } from 'vue'
+
+import FilterFormQualityPane from '@/variants/components/FilterForm/QualityPane.vue'
 
 export default {
   title: 'Variants / Filter Form Quality',

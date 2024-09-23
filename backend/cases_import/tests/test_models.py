@@ -13,7 +13,7 @@ class CaseImportActionTest(TestCase):
 
     def test_create(self):
         self.assertEqual(CaseImportAction.objects.count(), 0)
-        _action = CaseImportActionFactory()
+        _action = CaseImportActionFactory()  # noqa: F841
         self.assertEqual(CaseImportAction.objects.count(), 1)
 
     def test_update(self):

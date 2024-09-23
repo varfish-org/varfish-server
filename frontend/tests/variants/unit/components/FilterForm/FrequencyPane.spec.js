@@ -1,7 +1,8 @@
-import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
 
 import singletonCaseData from '../../../data/case-singleton.json'
 import querySettingsSingleton from '../../../data/query-settings-singleton.json'

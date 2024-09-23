@@ -73,11 +73,24 @@ serve:
 serve-public:
 	NODE_OPTIONS=${NODE_OPTIONS} MODE=development npm run serve-public
 
-.PHONY: openapi-ts
-openapi-ts:
+# Build the OpenAPI TypeScript client for VarFish.
+.PHONY: openapi-ts-varfish
+openapi-ts-varfish:
 	mkdir -p ext/varfish-api/src
 	rm -rf ext/varfish-api/src/lib
 	npx @hey-api/openapi-ts
+
+# Build the OpenAPI TypeScript client for Viguno.
+.PHONY: openapi-ts-viguno
+openapi-ts-viguno:
+	rm -rf ext/viguno-api/src/{openapi.yaml,lib}
+	mkdir -p ext/viguno-api/src
+	wget -O ext/viguno-api/openapi.yaml \
+		https://raw.githubusercontent.com/varfish-org/viguno/main/openapi.yaml
+	npx @hey-api/openapi-ts --file openapi-ts.config.viguno.ts
+
+.PHONY: openapi-ts
+openapi-ts: openapi-ts-varfish openapi-ts-viguno
 
 .PHONY: openapi
 openapi: openapi-ts format lint

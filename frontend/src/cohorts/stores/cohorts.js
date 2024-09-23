@@ -2,12 +2,14 @@
  *
  * Holds the major app state.
  */
-
-import { uuidv4 } from '@/cohorts/helpers'
-import cohortsApi from '@/cohorts/api/cohorts'
 import difference from 'lodash/difference'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+
+import cohortsApi from '@/cohorts/api/cohorts'
+import { uuidv4 } from '@/cohorts/helpers'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
 export const StoreState = Object.freeze({
   initial: 'initial',
   initializing: 'initializing',
@@ -16,6 +18,9 @@ export const StoreState = Object.freeze({
 })
 
 export const useCohortsStore = defineStore('cohorts', () => {
+  /** The context store. */
+  const ctxStore = useCtxStore()
+
   /** The current application state. */
   const storeState = ref(StoreState.initial)
   /** How many server interactions are running */
@@ -23,8 +28,6 @@ export const useCohortsStore = defineStore('cohorts', () => {
 
   /** The current project. */
   const project = ref(null)
-  /** CSRF Token. */
-  const csrfToken = ref(null)
   /** List of projects and contained cases the user has access to. */
   const projectsCases = ref([])
 
@@ -59,21 +62,20 @@ export const useCohortsStore = defineStore('cohorts', () => {
   /** Total count of cohorts across pagination. */
   const cohortCount = ref(0)
 
-  /** Initialize the store using the given application context. */
-  const initialize = async (appContext$) => {
+  /** Initialize the store using the given CSRF token and project UUID. */
+  const initialize = async (projectUuid$) => {
     if (storeState.value !== 'initial') {
       // only once
       return initializeRes.value
     }
-    project.value = appContext$.project
-    csrfToken.value = appContext$.csrf_token
+    project.value = projectUuid$
 
     storeState.value = StoreState.initializing
     serverInteractions.value += 1
 
     initializeRes.value = Promise.all([
       cohortsApi
-        .fetchPermissions(csrfToken.value, project.value.sodar_uuid)
+        .fetchPermissions(ctxStore.csrfToken, project.value.sodar_uuid)
         .then((res) => {
           userPerms.value = res
         }),
@@ -103,7 +105,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
     serverInteractions.value += 1
     try {
       cohort = await cohortsApi.createCohort(
-        csrfToken.value,
+        ctxStore.csrfToken,
         project.value.sodar_uuid,
         payload,
       )
@@ -120,7 +122,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
         serverInteractions.value += 1
         try {
           await cohortsApi.createCohortCase(
-            csrfToken.value,
+            ctxStore.csrfToken,
             project.value.sodar_uuid,
             cohortCase,
           )
@@ -140,7 +142,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
     serverInteractions.value += 1
     try {
       cohort = await cohortsApi.updateCohort(
-        csrfToken.value,
+        ctxStore.csrfToken,
         cohortUuid,
         payload,
       )
@@ -150,7 +152,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
     serverInteractions.value += 1
     try {
       const cohortCases = await cohortsApi.listCohortCase(
-        csrfToken.value,
+        ctxStore.csrfToken,
         cohortUuid,
       )
       for (const cohortCase of cohortCases) {
@@ -167,7 +169,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
         serverInteractions.value += 1
         try {
           await cohortsApi.destroyCohortCase(
-            csrfToken.value,
+            ctxStore.csrfToken,
             currentCasesUuids[caseToRemove],
           )
         } finally {
@@ -186,7 +188,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
         serverInteractions.value += 1
         try {
           await cohortsApi.createCohortCase(
-            csrfToken.value,
+            ctxStore.csrfToken,
             project.value.sodar_uuid,
             cohortCase,
           )
@@ -201,7 +203,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
   const destroyCohort = async (cohortUuid) => {
     serverInteractions.value += 1
     try {
-      await cohortsApi.destroyCohort(csrfToken.value, cohortUuid)
+      await cohortsApi.destroyCohort(ctxStore.csrfToken, cohortUuid)
     } finally {
       serverInteractions.value -= 1
     }
@@ -213,7 +215,7 @@ export const useCohortsStore = defineStore('cohorts', () => {
     serverInteractions.value += 1
     try {
       const response = await cohortsApi.listCohort(
-        csrfToken.value,
+        ctxStore.csrfToken,
         project.value.sodar_uuid,
         {
           pageNo: tableServerOptions.value.page,
@@ -234,7 +236,6 @@ export const useCohortsStore = defineStore('cohorts', () => {
   return {
     storeState,
     serverInteractions,
-    csrfToken,
     project,
     projectsCases,
     showInlineHelp,

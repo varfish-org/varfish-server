@@ -2,15 +2,16 @@
 /**
  * Display navigation sidebard for seqvar details view.
  */
-
-import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
+import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
-import { jumpToLocus } from './lib'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { SECTIONS } from './constants'
+
 import { useHistoryStore } from '@/varfish/stores/history'
+
+import { SECTIONS } from './constants'
+import { jumpToLocus } from './lib'
 
 /** The component's props. */
 const props = defineProps<{
@@ -20,6 +21,8 @@ const props = defineProps<{
   hgncId?: string
   /** The case UUID (for navigation). */
   caseUuid?: string
+  /** Whether to hide the back button. */
+  hideBackButton?: boolean
 }>()
 
 /** Global router instance. */
@@ -58,6 +61,13 @@ const initStores = async () => {
   }
 }
 
+const jumpToSection = (sectionId: string) => {
+  const el = document.getElementById(sectionId)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 // Initialize when mounted and when props change.
 onMounted(initStores)
 watch(() => [props.seqvar, props.hgncId], initStores)
@@ -67,7 +77,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
   <div>
     <v-list v-model:opened="openedTopLevel" density="compact" rounded="lg">
       <!-- Navigate back in history -->
-      <div class="px-2 pb-3">
+      <div v-if="!props.hideBackButton" class="px-2 pb-3">
         <v-btn
           block
           rounded="xs"
@@ -116,7 +126,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
             :id="`${section.id}-nav`"
             :key="section.id"
             density="compact"
-            @click="router.push({ params: { selectedSection: section.id } })"
+            @click="jumpToSection(section.id)"
           >
             <v-list-item-title class="text-no-break">
               {{ section.title }}
@@ -150,7 +160,7 @@ watch(() => [props.seqvar, props.hgncId], initStores)
           :id="`${section.id}-nav`"
           :key="section.id"
           density="compact"
-          @click="router.push({ params: { selectedSection: section.id } })"
+          @click="jumpToSection(section.id)"
         >
           <v-list-item-title class="text-no-break">
             {{ section.title }}

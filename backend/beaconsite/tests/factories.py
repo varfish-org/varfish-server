@@ -3,7 +3,7 @@ import factory
 from projectroles.models import Project
 
 from varfish.users.tests.factories import UserFactory
-from variants.tests.factories import CaseFactory, ProjectFactory
+from variants.tests.factories import CaseFactory
 
 from ..models import Consortium, ConsortiumAssignment, ConsortiumMember, Query, Response, Site
 

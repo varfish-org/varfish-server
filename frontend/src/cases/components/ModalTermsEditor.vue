@@ -8,14 +8,13 @@
  * or use the Promise returned by show with its resolve function.  Both the event and the resolve
  * function will be passed the input and the "props.extraData" value.
  */
-
-import { onMounted, computed, reactive, ref } from 'vue'
-
-import ModalBase from '@/varfish/components/ModalBase.vue'
-import HpoTermInput from '@/variants/components/HpoTermInput.vue'
-import { randomString } from '@/varfish/common'
 import { useVuelidate } from '@vuelidate/core'
+import { computed, onMounted, reactive, ref } from 'vue'
+
+import { randomString } from '@/varfish/common'
+import ModalBase from '@/varfish/components/ModalBase.vue'
 import { copy } from '@/varfish/helpers'
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
 
 const props = defineProps({
   title: {
@@ -156,6 +155,7 @@ defineExpose({ show, hide })
               :id="'modal-input-' + idSuffix"
               v-model="v$.inputValue.$model"
               :show-hpo-shortcuts-button="true"
+              :include-omim="true"
             />
             <div
               v-for="error of v$.inputValue.$errors"
@@ -190,3 +190,7 @@ defineExpose({ show, hide })
     </template>
   </ModalBase>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

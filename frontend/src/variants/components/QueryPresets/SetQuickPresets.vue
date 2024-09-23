@@ -1,7 +1,6 @@
 <script setup>
 /** Editor component for quick presets.
  */
-
 import { randomString } from '@/varfish/common'
 
 /** Define props. */
@@ -147,3 +146,7 @@ const props = defineProps({
   </div>
   <!-- eslint-enable -->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

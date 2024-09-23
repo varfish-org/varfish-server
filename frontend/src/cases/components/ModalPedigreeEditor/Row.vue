@@ -4,7 +4,8 @@
  */
 import { useVuelidate } from '@vuelidate/core'
 import { helpers } from '@vuelidate/validators'
-import { onMounted, computed } from 'vue'
+import { computed, onMounted } from 'vue'
+
 import { displayName } from '@/varfish/helpers'
 
 /** Define the props. */
@@ -197,3 +198,7 @@ defineExpose({ v$ })
     </td>
   </tr>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>
