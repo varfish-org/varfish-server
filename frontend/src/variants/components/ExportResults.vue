@@ -24,3 +24,7 @@ import ExportResultsButton from '@/variants/components/ExportResultsButton.vue'
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

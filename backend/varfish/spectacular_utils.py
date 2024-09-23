@@ -96,7 +96,6 @@ def spectacular_preprocess_hook(endpoints):
         "/beaconsite/",
         "/cohorts/",
         "/importer/",
-        "/project/",
         "/svs/",
         "/varannos/",
         "/variants/",

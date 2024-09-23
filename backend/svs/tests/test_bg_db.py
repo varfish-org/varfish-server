@@ -10,10 +10,10 @@ from svs import bg_db
 
 #: The User model to use.
 from svs.models import BackgroundSv, BackgroundSvSet, BuildBackgroundSvSetJob
-
-User = get_user_model()
-
 from svs.tests.factories import StructuralVariantFactory
+
+#: The user model to use.
+User = get_user_model()
 
 
 class TestSvTypes(TestCase):
@@ -242,7 +242,7 @@ class TestClusterSvAlgorithm(TestCase):
         self.maxDiff = None
 
     def testConstruction(self):
-        _algo = bg_db.ClusterSvAlgorithm(bg_db.ClusterAlgoParams())
+        _algo = bg_db.ClusterSvAlgorithm(bg_db.ClusterAlgoParams())  # noqa: F841
 
     def _run_clustering(
         self, by_chrom: typing.Dict[str, typing.List[bg_db.SvRecord]]
@@ -521,7 +521,7 @@ class TestBuildBgSvSet(TestCase):
         self.assertEqual(BackgroundSv.objects.count(), 0)
 
     def testWithTwoChromsSingleRecords(self):
-        _vars = [
+        _vars = [  # noqa: F841
             StructuralVariantFactory(chromosome="1", chromosome_no=1, start=10_000, end=20_000),
             StructuralVariantFactory(chromosome="2", chromosome_no=2, start=10_000, end=20_000),
         ]
@@ -532,7 +532,7 @@ class TestBuildBgSvSet(TestCase):
         self.assertEqual(BackgroundSv.objects.count(), 2)
 
     def testWithTwoChromsTwoRecordsEach(self):
-        _vars = [
+        _vars = [  # noqa: F841
             StructuralVariantFactory(chromosome="1", chromosome_no=1, start=10_000, end=20_000),
             StructuralVariantFactory(chromosome="2", chromosome_no=2, start=10_000, end=20_000),
             StructuralVariantFactory(chromosome="1", chromosome_no=1, start=10_001, end=20_001),

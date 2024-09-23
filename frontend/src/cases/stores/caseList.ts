@@ -2,12 +2,12 @@
  *
  * Holds the major app state as well as the overall case list.
  */
-
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
 import { CaseListClient } from '@/cases/api/caseListClient'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of Project type; to be defined later. */
 type Project = any
@@ -30,12 +30,12 @@ export const CaseStates = new Map<string, CaseStateInfo>([
 ])
 
 export const useCaseListStore = defineStore('caseList', () => {
-  // no store dependencies
+  // store dependencies
+  /** The global context store. */
+  const ctxStore = useCtxStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** The project UUID. */
   const projectUuid = ref<string | null>(null)
   /** The current application state. */
@@ -66,14 +66,12 @@ export const useCaseListStore = defineStore('caseList', () => {
    *
    * Will only reload for the same project if `forceReload`.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project to load.
    * @param forceReload Whether to force reload.
    * @returns Promise for when the store is done initializing.
    */
   const initialize = (
-    csrfToken$: string,
-    projectUuid$: string,
+    projectUuid$?: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize only once for each project and bail out of project UUID unset.
@@ -90,16 +88,13 @@ export const useCaseListStore = defineStore('caseList', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
 
     // Start fetching.
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const caseListClient = new CaseListClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const caseListClient = new CaseListClient(ctxStore.csrfToken)
 
     initializeRes.value = caseListClient
       .fetchProject(projectUuid.value)
@@ -134,7 +129,6 @@ export const useCaseListStore = defineStore('caseList', () => {
 
   return {
     // state / data
-    csrfToken,
     projectUuid,
     storeState,
     project,

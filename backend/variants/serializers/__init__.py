@@ -15,7 +15,6 @@ from rest_framework import serializers
 
 from clinvar.models import Clinvar
 from extra_annos.models import ExtraAnno, ExtraAnnoField
-from geneinfo.models import Hpo, HpoName
 from genepanels.models import expand_panels_in_gene_list
 from variants.models import (
     AcmgCriteriaRating,

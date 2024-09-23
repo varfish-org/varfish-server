@@ -1,7 +1,8 @@
 <script setup>
 /** A simple bootstrap-driven modal.
  */
-
+import 'bootstrap/dist/js/bootstrap.bundle'
+import $ from 'jquery'
 import { ref } from 'vue'
 
 /** Define the props. */
@@ -71,3 +72,7 @@ defineExpose({ show, hide })
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

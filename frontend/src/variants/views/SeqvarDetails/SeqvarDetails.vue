@@ -9,59 +9,50 @@
  *
  * See `StrucvarDetails` for a peer app for structural variants
  */
-
-import { computed, onMounted } from 'vue'
-import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
-import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
-import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import { useVariantDetailsStore } from '@/variants/stores/variantDetails'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
-
-import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
-import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
-
-import SeqvarGenotypeCallCard from '@/variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
-import SeqvarDetailsHeader from '@/variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
-import SeqvarDetailsNavi from '@/variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
-import AcmgRatingCard from '@/variants/components/AcmgRatingCard/AcmgRatingCard.vue'
-import { watch } from 'vue'
-
-import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
-import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
+import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
 import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
 import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
-import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
 import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
-
+import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
+import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
 import SeqvarBeaconNetworkCard from '@bihealth/reev-frontend-lib/components/SeqvarBeaconNetworkCard/SeqvarBeaconNetworkCard.vue'
 import SeqvarClinvarCard from '@bihealth/reev-frontend-lib/components/SeqvarClinvarCard/SeqvarClinvarCard.vue'
 import SeqvarConsequencesCard from '@bihealth/reev-frontend-lib/components/SeqvarConsequencesCard/SeqvarConsequencesCard.vue'
 import SeqvarFreqsCard from '@bihealth/reev-frontend-lib/components/SeqvarFreqsCard/SeqvarFreqsCard.vue'
-import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
 import SeqvarScoresCard from '@bihealth/reev-frontend-lib/components/SeqvarScoresCard/SeqvarScoresCard.vue'
+import SeqvarToolsCard from '@bihealth/reev-frontend-lib/components/SeqvarToolsCard/SeqvarToolsCard.vue'
 import SeqvarVariantValidatorCard from '@bihealth/reev-frontend-lib/components/SeqvarVariantValidatorCard/SeqvarVariantValidatorCard.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { State } from '@/varfish/storeUtils'
+import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
-import { StoreState } from '@bihealth/reev-frontend-lib/stores'
+import { useSeqvarInfoStore } from '@bihealth/reev-frontend-lib/stores/seqvarInfo'
+import { computed, onMounted, ref } from 'vue'
+import { watch } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
+import AcmgRatingCard from '@/variants/components/AcmgRatingCard/AcmgRatingCard.vue'
+import SeqvarDetailsHeader from '@/variants/components/SeqvarDetailsHeader/SeqvarDetailsHeader.vue'
+import SeqvarDetailsNavi from '@/variants/components/SeqvarDetailsNavi/SeqvarDetailsNavi.vue'
+import SeqvarGenotypeCallCard from '@/variants/components/SeqvarGenotypeCallCard/SeqvarGenotypeCallCard.vue'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantDetailsStore } from '@/variants/stores/variantDetails'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 /** This component's props. */
 const props = defineProps<{
+  /** Project UUID. */
+  projectUuid: string
   /** UUID of the result row to display. */
   resultRowUuid: string
   /** Identifier of the selected section. */
   selectedSection?: string
+  /** Hide back button */
+  hideBackButton?: boolean
 }>()
-
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document
-    .getElementById('sodar-ss-app-context')
-    ?.getAttribute('app-context') ?? '{}',
-)
 
 // Store-related
 
@@ -77,6 +68,8 @@ const variantFlagsStore = useVariantFlagsStore()
 const variantCommentsStore = useVariantCommentsStore()
 const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const pubtatorStore = usePubtatorStore()
+
+const storesLoading = ref(true)
 
 /** Currently displayed Seqvar. */
 const seqvar = computed<Seqvar | undefined>(() => {
@@ -97,37 +90,36 @@ const seqvar = computed<Seqvar | undefined>(() => {
 
 /** Refresh the stores. */
 const refreshStores = async () => {
-  if (props.resultRowUuid && props.selectedSection) {
-    await variantResultSetStore.initialize(appContext.csrf_token)
+  storesLoading.value = true
+  if (props.resultRowUuid) {
+    await variantResultSetStore.initialize()
     await variantResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
     if (!variantResultSetStore.caseUuid) {
       throw new Error('No case UUID found')
     }
     await caseDetailsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       variantResultSetStore.caseUuid,
     )
     await Promise.all([
       variantFlagsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantCommentsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantAcmgRatingStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
       ),
       variantDetailsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
+        props.projectUuid,
         variantResultSetStore.caseUuid,
+      ),
+      pubtatorStore.initialize(
+        variantResultSetStore.resultRow.payload!.hgnc_symbol,
       ),
     ])
     await variantDetailsStore.fetchVariantDetails(
@@ -149,41 +141,28 @@ const refreshStores = async () => {
         ),
       ])
     }
+    storesLoading.value = false
+    setTimeout(() => {
+      document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+    }, 500)
   }
 }
 
 /** Watch change in properties to reload data. */
 watch(
-  () => [props.resultRowUuid, props.selectedSection],
+  () => props.resultRowUuid,
   async () => {
+    console.log('watch: resultRowUuid changed')
     await refreshStores()
   },
 )
 
 watch(
-  () => [
-    variantResultSetStore.storeState.state,
-    pubtatorStore.storeState,
-    geneInfoStore.storeState,
-    seqvarInfoStore.storeState,
-    variantAcmgRatingStore.storeState,
-    variantCommentsStore.storeState,
-    variantDetailsStore.storeState,
-  ],
+  () => props.selectedSection,
   () => {
-    if (
-      variantResultSetStore.storeState.state === State.Active &&
-      pubtatorStore.storeState === StoreState.Active &&
-      geneInfoStore.storeState === StoreState.Active &&
-      seqvarInfoStore.storeState === StoreState.Active &&
-      variantAcmgRatingStore.storeState.state === State.Active &&
-      variantCommentsStore.storeState.state === State.Active &&
-      variantDetailsStore.storeState.state === State.Active
-    ) {
-      setTimeout(() => {
-        document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
-      }, 500)
-    }
+    setTimeout(() => {
+      document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
+    }, 0)
   },
 )
 
@@ -197,7 +176,7 @@ onMounted(async () => {
 <template>
   <v-app>
     <v-main>
-      <v-container fluid class="pa-0">
+      <v-container v-if="!storesLoading" fluid class="pa-0">
         <v-row no-gutters>
           <v-col cols="2" class="pr-3">
             <div style="position: sticky; top: 20px">
@@ -205,6 +184,7 @@ onMounted(async () => {
                 :seqvar="seqvarInfoStore.seqvar"
                 :hgnc-id="geneInfoStore.geneInfo?.hgnc!.hgncId"
                 :case-uuid="variantResultSetStore.caseUuid ?? undefined"
+                :hide-back-button="props.hideBackButton"
               />
             </div>
           </v-col>
@@ -315,7 +295,7 @@ onMounted(async () => {
               </div>
               <div id="seqvar-acmg" class="mt-3">
                 <AcmgRatingCard
-                  :project-uuid="appContext.project?.sodar_uuid"
+                  :project-uuid="props.projectUuid"
                   :case-uuid="variantResultSetStore.caseUuid ?? undefined"
                   :seqvar="seqvarInfoStore.seqvar"
                   :result-row-uuid="props.resultRowUuid"
@@ -331,6 +311,31 @@ onMounted(async () => {
           </v-col>
         </v-row>
       </v-container>
+      <v-container v-else fluid class="pa-0">
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-progress-linear indeterminate color="blue-lighten-1" />
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-alert
+              dense
+              outlined
+              elevation="2"
+              type="info"
+              icon="mdi-information"
+              class="m-3 text-light"
+            >
+              Loading variant details ...
+            </v-alert>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

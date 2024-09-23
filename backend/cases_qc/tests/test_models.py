@@ -76,10 +76,10 @@ class DragenPydanticTest(TestCase):
         self.maxDiff = None  # show full diff
 
     def test_metric(self):
-        _metric = DragenStyleMetricFactory()
+        _metric = DragenStyleMetricFactory()  # noqa: F841
 
     def test_coverage(self):
-        _coverage = DragenStyleCoverageFactory()
+        _coverage = DragenStyleCoverageFactory()  # noqa: F841
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -91,7 +91,7 @@ class DragenCaseQcTest(TestCase):
     def test_create(self):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
-        _obj = CaseQcFactory()
+        _obj = CaseQcFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
 
@@ -106,7 +106,7 @@ class DragenFragmentLengthHistogramTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenFragmentLengthHistogram.objects.count(), 0)
-        _obj = DragenFragmentLengthHistogramFactory()
+        _obj = DragenFragmentLengthHistogramFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenFragmentLengthHistogram.objects.count(), 1)
@@ -122,7 +122,7 @@ class DragenCnvMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenCnvMetrics.objects.count(), 0)
-        _obj = DragenCnvMetricsFactory()
+        _obj = DragenCnvMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenCnvMetrics.objects.count(), 1)
@@ -138,7 +138,7 @@ class DragenMappingMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenMappingMetrics.objects.count(), 0)
-        _obj = DragenMappingMetricsFactory()
+        _obj = DragenMappingMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenMappingMetrics.objects.count(), 1)
@@ -154,7 +154,7 @@ class DragenPloidyEstimationMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenPloidyEstimationMetrics.objects.count(), 0)
-        _obj = DragenPloidyEstimationMetricsFactory()
+        _obj = DragenPloidyEstimationMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenPloidyEstimationMetrics.objects.count(), 1)
@@ -170,7 +170,7 @@ class DragenRegionCoverageMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenRegionCoverageMetrics.objects.count(), 0)
-        _obj = DragenRegionCoverageMetricsFactory()
+        _obj = DragenRegionCoverageMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenRegionCoverageMetrics.objects.count(), 1)
@@ -186,7 +186,7 @@ class DragenRegionFineHistTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenRegionFineHist.objects.count(), 0)
-        _obj = DragenRegionFineHistFactory()
+        _obj = DragenRegionFineHistFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenRegionFineHist.objects.count(), 1)
@@ -202,7 +202,7 @@ class DragenRegionHistTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenRegionHist.objects.count(), 0)
-        _obj = DragenRegionHistFactory()
+        _obj = DragenRegionHistFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenRegionHist.objects.count(), 1)
@@ -218,7 +218,7 @@ class DragenRegionOverallMeanCovTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenRegionOverallMeanCov.objects.count(), 0)
-        _obj = DragenRegionOverallMeanCovFactory()
+        _obj = DragenRegionOverallMeanCovFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenRegionOverallMeanCov.objects.count(), 1)
@@ -234,7 +234,7 @@ class DragenRohMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenRohMetrics.objects.count(), 0)
-        _obj = DragenRohMetricsFactory()
+        _obj = DragenRohMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenRohMetrics.objects.count(), 1)
@@ -250,7 +250,7 @@ class DragenStrucvarMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenSvMetrics.objects.count(), 0)
-        _obj = DragenSvMetricsFactory()
+        _obj = DragenSvMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenSvMetrics.objects.count(), 1)
@@ -266,7 +266,7 @@ class DragenTrimmerMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenTrimmerMetrics.objects.count(), 0)
-        _obj = DragenTrimmerMetricsFactory()
+        _obj = DragenTrimmerMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenTrimmerMetrics.objects.count(), 1)
@@ -282,7 +282,7 @@ class DragenVcHethomRatioMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenVcHethomRatioMetrics.objects.count(), 0)
-        _obj = DragenVcHethomRatioMetricsFactory()
+        _obj = DragenVcHethomRatioMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenVcHethomRatioMetrics.objects.count(), 1)
@@ -298,7 +298,7 @@ class DragenVcMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenVcMetrics.objects.count(), 0)
-        _obj = DragenVcMetricsFactory()
+        _obj = DragenVcMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenVcMetrics.objects.count(), 1)
@@ -314,7 +314,7 @@ class DragenTimeMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenTimeMetrics.objects.count(), 0)
-        _obj = DragenTimeMetricsFactory()
+        _obj = DragenTimeMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenTimeMetrics.objects.count(), 1)
@@ -330,7 +330,7 @@ class DragenWgsContigMeanCovMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenWgsContigMeanCovMetrics.objects.count(), 0)
-        _obj = DragenWgsContigMeanCovMetricsFactory()
+        _obj = DragenWgsContigMeanCovMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsContigMeanCovMetrics.objects.count(), 1)
@@ -346,7 +346,7 @@ class DragenWgsCoverageMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenWgsCoverageMetrics.objects.count(), 0)
-        _obj = DragenWgsCoverageMetricsFactory()
+        _obj = DragenWgsCoverageMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsCoverageMetrics.objects.count(), 1)
@@ -362,7 +362,7 @@ class DragenWgsFineHistTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenWgsFineHist.objects.count(), 0)
-        _obj = DragenWgsFineHistFactory()
+        _obj = DragenWgsFineHistFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsFineHist.objects.count(), 1)
@@ -378,7 +378,7 @@ class DragenWgsHistTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenWgsHist.objects.count(), 0)
-        _obj = DragenWgsHistFactory()
+        _obj = DragenWgsHistFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsHist.objects.count(), 1)
@@ -394,7 +394,7 @@ class DragenWgsOverallMeanCovTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 0)
-        _obj = DragenWgsOverallMeanCovFactory()
+        _obj = DragenWgsOverallMeanCovFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(DragenWgsOverallMeanCov.objects.count(), 1)
@@ -410,7 +410,7 @@ class SamtoolsStatsMainMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 0)
-        _obj = SamtoolsStatsMainMetricsFactory()
+        _obj = SamtoolsStatsMainMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(SamtoolsStatsMainMetrics.objects.count(), 1)
@@ -426,7 +426,7 @@ class SamtoolsStatsSupplementaryMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(SamtoolsStatsSupplementaryMetrics.objects.count(), 0)
-        _obj = SamtoolsStatsSupplementaryMetricsFactory()
+        _obj = SamtoolsStatsSupplementaryMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(SamtoolsStatsSupplementaryMetrics.objects.count(), 1)
@@ -442,7 +442,7 @@ class SamtoolsFlagstatMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(SamtoolsFlagstatMetrics.objects.count(), 0)
-        _obj = SamtoolsFlagstatMetricsFactory()
+        _obj = SamtoolsFlagstatMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(SamtoolsFlagstatMetrics.objects.count(), 1)
@@ -458,7 +458,7 @@ class SamtoolsIdxstatsMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 0)
-        _obj = SamtoolsIdxstatsMetricsFactory()
+        _obj = SamtoolsIdxstatsMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(SamtoolsIdxstatsMetrics.objects.count(), 1)
@@ -474,7 +474,7 @@ class CraminoMetricsTest(TestCase):
         self.assertEqual(Case.objects.count(), 0)
         self.assertEqual(CaseQc.objects.count(), 0)
         self.assertEqual(CraminoMetrics.objects.count(), 0)
-        _obj = CraminoMetricsFactory()
+        _obj = CraminoMetricsFactory()  # noqa: F841
         self.assertEqual(CaseQc.objects.count(), 1)
         self.assertEqual(Case.objects.count(), 1)
         self.assertEqual(CraminoMetrics.objects.count(), 1)

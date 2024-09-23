@@ -2,6 +2,7 @@ from copy import deepcopy
 import json
 import re
 
+from django.conf import settings
 from django.urls import reverse
 import jsonmatch
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
@@ -32,9 +33,9 @@ from variants.tests.factories import (
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
-RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
+RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
-TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIMEF = settings.REST_FRAMEWORK["DATETIME_FORMAT"]
 
 
 class TestCaseListAjaxView(TestProjectAPIPermissionBase):
@@ -58,6 +59,28 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
         for entry in expected0_pedigree:
             entry["name"] = entry["patient"]
             entry.pop("patient")
+        individuals = list(self.case.pedigree_obj.individual_set.all())
+        expected0_pedigree_obj = {
+            "sodar_uuid": str(self.case.pedigree_obj.sodar_uuid),
+            "date_created": RE_DATETIME,
+            "date_modified": RE_DATETIME,
+            "case": str(self.case.sodar_uuid),
+            "individual_set": [
+                {
+                    "sodar_uuid": str(individuals[0].sodar_uuid),
+                    "date_created": RE_DATETIME,
+                    "date_modified": RE_DATETIME,
+                    "sex": individuals[0].sex,
+                    "pedigree": str(self.case.pedigree_obj.sodar_uuid),
+                    "name": individuals[0].name,
+                    "father": individuals[0].father,
+                    "mother": individuals[0].mother,
+                    "karyotypic_sex": individuals[0].karyotypic_sex,
+                    "assay": individuals[0].assay,
+                    "affected": individuals[0].affected,
+                }
+            ],
+        }
         expected0_smallvariantqueryresultset = {
             "sodar_uuid": str(self.smallvariantqueryresultset.sodar_uuid),
             "date_created": self.smallvariantqueryresultset.date_created.strftime(TIMEF),
@@ -95,6 +118,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
                         "num_small_vars": None,
                         "num_svs": None,
                         "pedigree": expected0_pedigree,
+                        "pedigree_obj": expected0_pedigree_obj,
                         "project": str(self.project.sodar_uuid),
                         "presetset": str(self.presetset.sodar_uuid),
                         "release": self.case.release,
@@ -117,8 +141,8 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
 
         url = reverse("cases:ajax-case-list", kwargs={"project": self.project.sodar_uuid})
         with self.login(self.user_contributor):
-            # NB(2023-09-23): A call to listing all cases via AJAX triggered 47 queries, only 1 for fetching the cases.
-            with self.assertNumQueriesLessThan(48):
+            # NB(2024-08-19): A call to listing all cases via AJAX triggered 67 queries, only 1 for fetching the cases.
+            with self.assertNumQueriesLessThan(68):
                 response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

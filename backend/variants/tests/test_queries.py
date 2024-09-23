@@ -5468,7 +5468,7 @@ class TestSmallVariantNoExtraAnno(SupportQueryTestBase):
         """Create 3 variants and no extra anno entries."""
         super().setUp()
         _, variant_set, _ = CaseWithVariantSetFactory.get("small")
-        small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)
+        small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)  # noqa: F841
 
     def test_base_query_filter(self):
         res = self.run_query(CasePrefetchQuery, {}, 3)

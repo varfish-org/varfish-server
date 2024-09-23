@@ -3,6 +3,6 @@ from config.celery import app
 
 
 @app.task(bind=True)
-def run_caseimportactionbackgroundjob(_self, caseimportactionbackgroundjob_pk):
+def run_caseimportactionbackgroundjob(_self, *, caseimportactionbackgroundjob_pk: int):
     """Task to execute a ``cases_import.models.CaseImportActionBackgroundJob``."""
     return models.run_caseimportactionbackgroundjob(pk=caseimportactionbackgroundjob_pk)

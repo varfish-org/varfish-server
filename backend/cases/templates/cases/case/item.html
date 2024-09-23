@@ -35,7 +35,7 @@
     {% endwith %}
   </td>
   <td>
-    <a href="{{ item.get_absolute_url }}">
+    <a href="/-/cases/{{ item.project.sodar_uuid }}/detail/{{ item.sodar_uuid }}">
       {{ item.name }}
     </a>
     {% if not disable_pedigree_sex_check %}
@@ -72,7 +72,7 @@
     {{ item.release }}
   </td>
   <td style="width: 0px;">
-    <a href="{% url "cases:entrypoint" project=item.project.sodar_uuid %}#/variants/filter/{{ item.sodar_uuid }}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+    <a href="/-/cases/{{ item.project.sodar_uuid }}/variants/filter/{{ item.sodar_uuid }}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
       <i class="iconify" data-icon="mdi:filter"></i>
     </a>
   </td>

@@ -1,9 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-
+import { useCaseListStore } from '@/cases/stores/caseList'
 import { QueryPresetsClient } from '@/variants/api/queryPresetsClient'
 
 /** Define emits. */
@@ -52,12 +51,10 @@ onMounted(async () => {
     class="card mb-3 flex-grow-1"
     style="overflow-y: auto !important; max-height: 300px"
   >
-    <div class="row card-header p-2 pl-2">
-      <h5 class="col-auto ml-0 mr-0 mb-0">
-        <i-mdi-filter />
-        Query Related
-      </h5>
-      <div class="btn-group ml-auto">
+    <h5 class="card-header p-2">
+      <i-mdi-filter />
+      Query Related
+      <div class="btn-group float-right">
         <a
           class="btn btn-sm btn-primary"
           href="#"
@@ -67,9 +64,9 @@ onMounted(async () => {
           Edit Query Presets
         </a>
       </div>
-    </div>
+    </h5>
     <ul v-if="caseDetailsStore?.caseObj" class="list-group list-group-flush">
-      <li class="list-group-item pl-0">
+      <li class="list-group-item pl-3">
         <div class="row">
           <span class="col-3 text-nowrap font-weight-bold">
             Query Presets
@@ -112,4 +109,8 @@ onMounted(async () => {
     transform: rotate(360deg);
   }
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

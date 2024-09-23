@@ -1,8 +1,8 @@
 <script setup>
 import { useRouter } from 'vue-router'
 
-import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 import SvFilterResultsTable from '@/svs/components/SvFilterResultsTable.vue'
+import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
 
 const router = useRouter()
 
@@ -41,3 +41,7 @@ const showStructuralVariantDetails = async (event) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

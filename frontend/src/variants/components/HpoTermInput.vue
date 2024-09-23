@@ -1,4 +1,5 @@
 <script setup>
+import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 import Multiselect from '@vueform/multiselect'
 import { onMounted, ref, watch } from 'vue'
 
@@ -7,13 +8,10 @@ import {
   hpoInheritance,
 } from '@/variants/components/HpoTermInput.values'
 import { declareWrapper } from '@/variants/helpers'
-import { VigunoClient } from '@bihealth/reev-frontend-lib/api/viguno/client'
 
 const vigunoClient = new VigunoClient()
 
 const props = defineProps({
-  // eslint-disable-next-line vue/require-default-prop
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   modelValue: {
     type: Array,
@@ -22,6 +20,10 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
   id: String,
   showHpoShortcutsButton: Boolean,
+  includeOmim: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -35,31 +37,69 @@ const textValue = ref(null)
 /** Whether the Multiselect is loading from server. */
 const loading = ref(false)
 
+const hpoTermValidationError = ref('')
+
+/** Calculate the Levenshtein distance between two strings for ranking the search results.
+    Source: https://www.30secondsofcode.org/js/s/levenshtein-distance/
+*/
+const levenshteinDistance = (s, t) => {
+  if (!s.length) return t.length
+  if (!t.length) return s.length
+  const arr = []
+  for (let i = 0; i <= t.length; i++) {
+    arr[i] = [i]
+    for (let j = 1; j <= s.length; j++) {
+      arr[i][j] =
+        i === 0
+          ? j
+          : Math.min(
+              arr[i - 1][j] + 1,
+              arr[i][j - 1] + 1,
+              arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1),
+            )
+    }
+  }
+  return arr[t.length][s.length]
+}
+
 const fetchHpoTerm = async (query) => {
   const queryArg = encodeURIComponent(query)
+  const queryLower = query.toLowerCase()
   let results
   if (query.startsWith('HP:')) {
-    results = await vigunoClient.resolveHpoTermById(queryArg)
-    results = results.result
+    try {
+      results = await vigunoClient.resolveHpoTermById(queryArg)
+      results = results.result
+    } catch (error) {
+      return [{ error: error.message, term: query }]
+    }
   } else if (query.startsWith('OMIM:')) {
-    const queryArg2 = encodeURIComponent(query.replace('OMIM:', ''))
-    results = await vigunoClient.resolveOmimTermById(queryArg2)
+    results = await vigunoClient.resolveOmimTermById(queryArg)
     results = results.result
   } else {
-    let results1 = await vigunoClient.queryHpoTermsByName(queryArg)
-    results1 = results1.result
-    let results2 = await vigunoClient.queryOmimTermsByName(queryArg)
-    results2 = results2.result
-    if (results1.length < 2 && results2.length > 2) {
-      results2 = results2.slice(0, 2 + results1.length)
-    } else if (results2.length < 2 && results1.length > 2) {
-      results1 = results1.slice(0, 2 + results2.length)
+    const results1 = await vigunoClient.queryHpoTermsByName(queryArg)
+    if (props.includeOmim) {
+      const results2 = await vigunoClient.queryOmimTermsByName(queryArg)
+      results = results1.result.concat(results2.result)
     } else {
-      results1 = results1.slice(0, 2)
-      results2 = results2.slice(0, 2)
+      results = results1.result
     }
-    results = results1.concat(results2)
+
+    for (const r of results) {
+      const nameLower = r.name.toLowerCase()
+      r.distance = levenshteinDistance(queryLower, nameLower)
+      r.includes = nameLower.includes(queryLower)
+    }
+
+    results = results.sort((a, b) => {
+      if (a.includes && !b.includes) return -1
+      if (!a.includes && b.includes) return 1
+      if (a.distance < b.distance) return -1
+      if (a.distance > b.distance) return 1
+      return 0
+    })
   }
+
   const data = results.map(({ termId, omimId, name }) => {
     const id = termId || omimId
     return {
@@ -83,24 +123,32 @@ const fetchHpoTermsForMultiselect = async (query) => {
 
 /** Refresh text value from terms. */
 const refreshTextValue = async (termsArray) => {
-  const withLabelUnfiltered = await Promise.all(
+  const termsValidationResults = await Promise.all(
     termsArray.map(async (hpoTerm) => {
       const fetched = await fetchHpoTerm(hpoTerm)
       if (fetched && fetched.length > 0) {
-        return fetched[0].label
+        return fetched[0]
       } else {
         return null
       }
     }),
   )
-  const withLabel = withLabelUnfiltered.filter((elem) => elem !== null)
+  const withError = termsValidationResults
+    .filter(
+      (elem) =>
+        elem !== null && 'error' in elem && elem.error === 'HPO term not found',
+    )
+    .map((elem) => elem.term)
+  hpoTermValidationError.value = withError.join('; ')
+  const withLabel = termsValidationResults
+    .filter((elem) => elem !== null && 'label' in elem)
+    .map((elem) => elem.label)
   textValue.value = withLabel.join('; ')
 }
 
 /** Refresh model value from text value. */
 const refreshModelValue = () => {
-  const regex =
-    /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;,]+)?(;|,|$)/g
+  const regex = /(HP:\d+|OMIM:\d+|DECIPHER:\d+|ORPHA:\d+)( - [^;,]+)?(;|,|$)/g
   const cleanTextValue = (textValue.value || '')
     .replace(/^\s*[;,]?\s*|\s*[;,]?\s*$/g, '') // replace any cruft in beginning or end of the string
     .replace(/\s{2,}/g, ' ') // replace double (or more) spaces with one space
@@ -173,7 +221,9 @@ onMounted(() => {
         :id="id"
         v-model="textValue"
         class="form-control"
+        :class="{ 'is-invalid': hpoTermValidationError.length > 0 }"
         rows="3"
+        aria-describedby="hpoTermValidationFeedback"
       ></textarea>
       <div class="input-group-append">
         <span
@@ -183,6 +233,10 @@ onMounted(() => {
         >
           <i-mdi-refresh :class="{ spin: refreshing }" />
         </span>
+      </div>
+      <div id="hpoTermValidationFeedback" class="invalid-feedback">
+        There was a problem validating the following HPO terms:
+        <strong>{{ hpoTermValidationError }}</strong>
       </div>
     </div>
     <code v-if="debugTerms">{{ props.modelValue }}</code>
@@ -274,3 +328,7 @@ onMounted(() => {
 </style>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -3,15 +3,10 @@
 from django.urls import reverse
 from projectroles.app_settings import AppSettingAPI
 from projectroles.templatetags.projectroles_common_tags import site_version
-from requests_mock import Mocker
 
 from clinvar.tests.factories import ClinvarFactory
-from cohorts.tests.factories import TestCohortBase
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.models import (
-    Case,
-    ComputeProjectVariantsStatsBgJob,
-    DistillerSubmissionBgJob,
     ExportFileBgJob,
     ExportProjectCasesFileBgJob,
     FilterBgJob,
@@ -27,11 +22,9 @@ from variants.tests.factories import (
     ExportProjectCasesFileBgJobFactory,
     ExportProjectCasesFileBgJobResultFactory,
     FilterBgJobFactory,
-    FormDataFactory,
     ProjectCasesFilterBgJobFactory,
     ProjectFactory,
     SmallVariantFactory,
-    SmallVariantQueryFactory,
 )
 from variants.tests.helpers import ViewTestBase
 

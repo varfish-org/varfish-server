@@ -108,4 +108,4 @@ def fixture_setup_case1_simple():
     Hgnc.objects.create(hgnc_id="HGNC:1", symbol="AAA")
     RefseqToHgnc.objects.create(entrez_id="1234", hgnc_id="HGNC:1")
 
-    rebuild_case_variant_stats(get_engine(), case)
+    rebuild_case_variant_stats(aldjemy.core.get_engine(), case)

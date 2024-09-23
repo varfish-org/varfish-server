@@ -1,32 +1,28 @@
 <script setup>
-import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
-import { useRouter } from 'vue-router'
+import $ from 'jquery'
+import { nextTick, onBeforeMount, onMounted, watch } from 'vue'
 
-import { State } from '@/varfish/storeUtils'
-import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
-import { useVariantCommentsStore } from '@/variants/stores/variantComments'
-import { useVariantQueryStore } from '@/variants/stores/variantQuery'
-import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
-import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import { updateUserSetting } from '@/varfish/userSettings'
-import { QueryStates, QueryStateToText } from '@/variants/enums'
-
-import Header from '@/variants/components/FilterApp/Header.vue'
 import FilterForm from '@/variants/components/FilterForm.vue'
 import FilterResultsTable from '@/variants/components/FilterResultsTable.vue'
+import { QueryStateToText, QueryStates } from '@/variants/enums'
+import { useVariantAcmgRatingStore } from '@/variants/stores/variantAcmgRating'
+import { useVariantCommentsStore } from '@/variants/stores/variantComments'
+import { useVariantFlagsStore } from '@/variants/stores/variantFlags'
+import { useVariantQueryStore } from '@/variants/stores/variantQuery'
+import { useVariantResultSetStore } from '@/variants/stores/variantResultSet'
 
 const props = defineProps({
+  /** The project UUID. */
+  projectUuid: String,
   /** The case UUID. */
   caseUuid: String,
 })
 
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
-
-const router = useRouter()
+const ctxStore = useCtxStore()
 
 const variantQueryStore = useVariantQueryStore()
 const variantFlagsStore = useVariantFlagsStore()
@@ -35,28 +31,28 @@ const variantAcmgRatingStore = useVariantAcmgRatingStore()
 const caseDetailsStore = useCaseDetailsStore()
 const variantResultSetStore = useVariantResultSetStore()
 
+/**
+ * Define the emitted events.
+ */
+const emit = defineEmits([
+  /** Variant has been selected. */
+  'variantSelected',
+])
+
 const showDetails = async (event) => {
-  variantQueryStore.lastPosition = document.querySelector(
-    'div#sodar-app-container',
-  ).scrollTop
-  router.push({
-    name: 'seqvar-details',
-    params: {
-      row: event.smallvariantresultrow,
-      selectedSection: event.selectedSection ?? null,
-    },
-  })
+  emit('variantSelected', event)
 }
 
 /** Whether the form is visible. */
-const formVisible = ref(true)
+const filterFormVisible = defineModel('filterFormVisible', {
+  type: Boolean,
+  default: true,
+})
 /** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
+const queryLogsVisible = defineModel('queryLogsVisible', {
+  type: Boolean,
+  default: true,
+})
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -64,7 +60,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== undefined && newValue !== null && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_inline_help',
         newValue,
       )
@@ -77,7 +73,7 @@ watch(
   (newValue, oldValue) => {
     if (newValue !== null && newValue !== undefined && newValue !== oldValue) {
       updateUserSetting(
-        appContext.csrf_token,
+        ctxStore.csrfToken,
         'vueapp.filtration_complexity_mode',
         newValue,
       )
@@ -115,42 +111,32 @@ const refreshStores = async () => {
   variantFlagsStore.$reset()
   variantCommentsStore.$reset()
   variantAcmgRatingStore.$reset()
-  variantResultSetStore.$reset()
+  // Do not reset the result set store, as we need to keep the table settings when returning from
+  // variant details.
 
-  await caseDetailsStore.initialize(
-    appContext.csrf_token,
-    appContext.project?.sodar_uuid,
-    props.caseUuid,
-  )
+  await caseDetailsStore.initialize(props.projectUuid, props.caseUuid)
 
-  Promise.all([
-    variantQueryStore.initialize(
-      appContext.csrf_token,
-      appContext?.project?.sodar_uuid,
-      props.caseUuid,
-      appContext,
-    ),
+  await Promise.all([
+    variantQueryStore.initialize(props.projectUuid, props.caseUuid),
     variantFlagsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantCommentsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
     variantAcmgRatingStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       caseDetailsStore.caseObj.sodar_uuid,
     ),
-    variantResultSetStore.initialize(appContext.csrf_token),
-  ]).then(async () => {
+    variantResultSetStore.initialize(),
+  ])
+  if (variantQueryStore.queryUuid) {
     await variantResultSetStore.loadResultSetViaQuery(
       variantQueryStore.queryUuid,
     )
-  })
+  }
 }
 
 // Initialize (=refresh) stores when mounted.
@@ -170,13 +156,13 @@ window.middlewareUrl = "{{ settings.VARFISH_MIDDLEWARE_URL }}";
 <template>
   <div
     v-if="variantQueryStore.storeState.state === State.Active"
-    class="d-flex flex-column h-100"
+    class="d-flex flex-column h-100 mx-3"
   >
-    <!-- title etc. -->
-    <Header :form-visible="formVisible" @toggle-form="toggleForm()" />
-
     <!-- query form -->
-    <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
+    <div
+      v-if="filterFormVisible"
+      class="container-fluid sodar-page-container p-0 mb-2"
+    >
       <div
         v-if="variantQueryStore.showFiltrationInlineHelp"
         class="alert alert-secondary small p-2"
@@ -215,6 +201,9 @@ window.middlewareUrl = "{{ settings.VARFISH_MIDDLEWARE_URL }}";
       v-if="variantQueryStore.queryState === QueryStates.Fetched.value"
       class="flex-grow-1 mb-2"
     >
+      <pre v-show="queryLogsVisible">{{
+        variantQueryStore.queryLogs?.join('\n')
+      }}</pre>
       <FilterResultsTable
         :patho-enabled="
           variantQueryStore.previousQueryDetails.query_settings.patho_enabled
@@ -247,15 +236,7 @@ window.middlewareUrl = "{{ settings.VARFISH_MIDDLEWARE_URL }}";
       <strong class="pl-2"
         >{{ QueryStateToText[variantQueryStore.queryState] }} ...</strong
       >
-      <button
-        class="ml-3 btn btn-sm btn-info"
-        @click="queryLogsVisible = !queryLogsVisible"
-      >
-        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
-      </button>
-      <pre v-show="queryLogsVisible">{{
-        variantQueryStore.queryLogs?.join('\n')
-      }}</pre>
+      <pre>{{ variantQueryStore.queryLogs?.join('\n') }}</pre>
     </div>
     <div v-else class="alert alert-info">
       <strong>
@@ -288,10 +269,12 @@ window.middlewareUrl = "{{ settings.VARFISH_MIDDLEWARE_URL }}";
       </div>
     </div>
   </div>
-  <div v-else class="alert alert-info">
+  <div v-else class="alert alert-info m-3">
     <i-fa-solid-circle-notch class="spin" />
     <strong class="pl-2">Loading site ...</strong>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

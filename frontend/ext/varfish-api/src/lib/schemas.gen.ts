@@ -33,6 +33,55 @@ export const $AnnotationReleaseInfo = {
     required: ['genomebuild', 'release', 'table', 'timestamp']
 } as const;
 
+export const $AppSetting = {
+    type: 'object',
+    description: `Serializer for the AppSetting model. Should only be used for read and list
+views. The sodar_uuid is not provided, as interacting with database objects
+directly is not the intended way to set/get app settings.`,
+    properties: {
+        app_name: {
+            type: 'string',
+            readOnly: true
+        },
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        user: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        name: {
+            type: 'string',
+            readOnly: true,
+            description: 'Name of the setting'
+        },
+        type: {
+            type: 'string',
+            readOnly: true,
+            description: 'Type of the setting'
+        },
+        value: {
+            type: 'string',
+            readOnly: true,
+            nullable: true,
+            description: 'Value of the setting'
+        },
+        user_modifiable: {
+            type: 'boolean',
+            readOnly: true,
+            description: 'Setting visibility in forms'
+        }
+    },
+    required: ['app_name', 'name', 'project', 'type', 'user', 'user_modifiable', 'value']
+} as const;
+
 export const $BcftoolsStatsAfRecordList = {
     type: 'array',
     items: {
@@ -471,6 +520,18 @@ export const $CaseComment = {
     required: ['case', 'comment', 'date_created', 'date_modified', 'sodar_uuid', 'user']
 } as const;
 
+export const $CaseCommentRequest = {
+    type: 'object',
+    description: 'Serializer for ``CaseComments``.',
+    properties: {
+        comment: {
+            type: 'string',
+            minLength: 1
+        }
+    },
+    required: ['comment']
+} as const;
+
 export const $CaseImportAction = {
     type: 'object',
     description: 'Serializer for the ``CaseImportAction`` model.',
@@ -507,6 +568,24 @@ export const $CaseImportAction = {
         }
     },
     required: ['date_created', 'date_modified', 'payload', 'project', 'sodar_uuid', 'state']
+} as const;
+
+export const $CaseImportActionRequest = {
+    type: 'object',
+    description: 'Serializer for the ``CaseImportAction`` model.',
+    properties: {
+        state: {
+            '$ref': '#/components/schemas/CaseImportActionStateEnum'
+        },
+        action: {
+            '$ref': '#/components/schemas/ActionEnum'
+        },
+        payload: {},
+        overwrite_terms: {
+            type: 'boolean'
+        }
+    },
+    required: ['payload', 'state']
 } as const;
 
 export const $CaseImportActionStateEnum = {
@@ -550,6 +629,21 @@ export const $CasePhenotypeTerms = {
         terms: {}
     },
     required: ['case', 'date_created', 'date_modified', 'individual', 'sodar_uuid', 'terms']
+} as const;
+
+export const $CasePhenotypeTermsRequest = {
+    type: 'object',
+    description: 'Base serializer for any SODAR model with a sodar_uuid field',
+    properties: {
+        individual: {
+            type: 'string',
+            minLength: 1,
+            description: 'Individual',
+            maxLength: 128
+        },
+        terms: {}
+    },
+    required: ['individual', 'terms']
 } as const;
 
 export const $CaseQc = {
@@ -866,6 +960,27 @@ perform serialization of nested attributes and thus does not trigger a large que
 If there is no such record then return \`\`None\`\`.`,
             readOnly: true
         },
+        pedigree_obj: {
+            type: 'object',
+            additionalProperties: {
+                oneOf: [
+                    {
+                        type: 'integer'
+                    },
+                    {
+                        type: 'number',
+                        format: 'double'
+                    },
+                    {
+                        type: 'string'
+                    }
+                ],
+                nullable: true
+            },
+            nullable: true,
+            description: 'Obtain the pedigree for this case and serialize it.',
+            readOnly: true
+        },
         release: {
             type: 'string',
             readOnly: true,
@@ -879,7 +994,9 @@ If there is no such record then return \`\`None\`\`.`,
             type: 'string',
             maxLength: 512
         },
-        pedigree: {},
+        pedigree: {
+            readOnly: true
+        },
         notes: {
             type: 'string',
             nullable: true
@@ -939,7 +1056,49 @@ If there is no such record then return \`\`None\`\`.`,
             description: 'Number of structural variants, empty if no structural variants have been imported'
         }
     },
-    required: ['caseqc', 'date_created', 'date_modified', 'index', 'name', 'num_small_vars', 'num_svs', 'pedigree', 'presetset', 'project', 'release', 'sex_errors', 'smallvariantqueryresultset', 'sodar_uuid', 'state', 'svqueryresultset']
+    required: ['caseqc', 'date_created', 'date_modified', 'index', 'name', 'num_small_vars', 'num_svs', 'pedigree', 'pedigree_obj', 'presetset', 'project', 'release', 'sex_errors', 'smallvariantqueryresultset', 'sodar_uuid', 'state', 'svqueryresultset']
+} as const;
+
+export const $CaseSerializerNgRequest = {
+    type: 'object',
+    description: `Serializer for the \`\`Case\`\` model.
+
+In contrast to the old (legacy) \`\`CaseSerializer\`\` from \`\`variants.serializers.case\`\`, this class does not
+perform serialization of nested attributes and thus does not trigger a large query cascade.`,
+    properties: {
+        name: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 512
+        },
+        index: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 512
+        },
+        notes: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            '$ref': '#/components/schemas/CaseStatusEnum'
+        },
+        tags: {
+            type: 'array',
+            items: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 32
+            },
+            nullable: true
+        },
+        case_version: {
+            type: 'integer',
+            maximum: 2147483647,
+            minimum: -2147483648
+        }
+    },
+    required: ['index', 'name']
 } as const;
 
 export const $CaseSerializerNgStateEnum = {
@@ -961,11 +1120,85 @@ export const $CaseStatusEnum = {
 * \`closed-solved\` - closed as solved`
 } as const;
 
-export const $ClinvarGermlineAggregateDescriptionList = {
+export const $ClingenDosageAnnotationPydantic = {
+    description: 'Store Clingen dosage annotation.',
+    properties: {
+        haplo: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        triplo: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClingenDosageScoreChoice'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    required: ['haplo', 'triplo'],
+    title: 'ClingenDosageAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $ClingenDosageScoreChoice = {
+    description: 'Enumeration of the Clingen dosage score.',
+    enum: ['sufficient_evidence_available', 'some_evidence_available', 'little_evidence', 'no_evidence_available', 'recessive', 'unlikely'],
+    title: 'ClingenDosageScoreChoice',
+    type: 'string'
+} as const;
+
+export const $ClinvarAggregateGermlineReviewStatusChoice = {
+    description: 'Enumeration describing aggregate germline review status value.',
+    enum: ['no_classification_provided', 'no_assertion_criteria_provided', 'criteria_provided_single_submitter', 'criteria_provided_multiple_submitters_no_conflicts', 'criteria_provided_conflicting_classifications', 'reviewed_by_expert_panel', 'practice_guideline', 'no_classifications_from_unflagged_records', 'no_classification_for_the_single_variant'],
+    title: 'ClinvarAggregateGermlineReviewStatusChoice',
+    type: 'string'
+} as const;
+
+export const $ClinvarAnnotationPydantic = {
+    description: 'Store ClinVar-related annotation.',
+    properties: {
+        vcv_accession: {
+            title: 'Vcv Accession',
+            type: 'string'
+        },
+        germline_significance_description: {
+            title: 'Germline Significance Description',
+            type: 'string'
+        },
+        germline_review_status: {
+            '$ref': '#/components/schemas/ClinvarAggregateGermlineReviewStatusChoice'
+        },
+        effective_germline_significance_description: {
+            title: 'Effective Germline Significance Description',
+            type: 'string'
+        }
+    },
+    required: ['vcv_accession', 'germline_significance_description', 'germline_review_status', 'effective_germline_significance_description'],
+    title: 'ClinvarAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $ClinvarGermlineAggregateDescriptionChoice = {
+    description: 'The aggregate description for germline variants in ClinVar.',
+    enum: ['pathogenic', 'likely_pathogenic', 'uncertain_significance', 'likely_benign', 'benign'],
+    title: 'ClinvarGermlineAggregateDescriptionChoice',
+    type: 'string'
+} as const;
+
+export const $ClinvarGermlineAggregateDescriptionChoiceList = {
     type: 'array',
     items: {
         type: 'string',
-        title: 'ClinvarGermlineAggregateDescription',
+        title: 'ClinvarGermlineAggregateDescriptionChoice',
         enum: ['pathogenic', 'likely_pathogenic', 'uncertain_significance', 'likely_benign', 'benign']
     }
 } as const;
@@ -1057,7 +1290,7 @@ export const $CraminoSummaryRecordList = {
     }
 } as const;
 
-export const $DataSourceInfo = {
+export const $DataSourceInfoPydantic = {
     description: 'Describes the version version of a given datasource.',
     properties: {
         name: {
@@ -1070,7 +1303,24 @@ export const $DataSourceInfo = {
         }
     },
     required: ['name', 'version'],
-    title: 'DataSourceInfo',
+    title: 'DataSourceInfoPydantic',
+    type: 'object'
+} as const;
+
+export const $DecipherConstraintsPydantic = {
+    description: 'Store DECIPHER constraints.',
+    properties: {
+        hi_percentile: {
+            title: 'Hi Percentile',
+            type: 'number'
+        },
+        hi_index: {
+            title: 'Hi Index',
+            type: 'number'
+        }
+    },
+    required: ['hi_percentile', 'hi_index'],
+    title: 'DecipherConstraintsPydantic',
     type: 'object'
 } as const;
 
@@ -1972,60 +2222,64 @@ export const $EnrichmentKit = {
     required: ['date_created', 'date_modified', 'identifier', 'sodar_uuid', 'title']
 } as const;
 
-export const $GeneList = {
-    type: 'array',
-    items: {
-        description: 'Representation of a gene to query for.',
-        properties: {
-            hgnc_id: {
-                title: 'Hgnc Id',
-                type: 'string'
-            },
-            symbol: {
-                title: 'Symbol',
-                type: 'string'
-            },
-            name: {
-                anyOf: [
-                    {
-                        type: 'string'
-                    },
-                    {
-                        type: 'null'
-                    }
-                ],
-                default: null,
-                title: 'Name'
-            },
-            entrez_id: {
-                anyOf: [
-                    {
-                        type: 'integer'
-                    },
-                    {
-                        type: 'null'
-                    }
-                ],
-                default: null,
-                title: 'Entrez Id'
-            },
-            ensembl_id: {
-                anyOf: [
-                    {
-                        type: 'string'
-                    },
-                    {
-                        type: 'null'
-                    }
-                ],
-                default: null,
-                title: 'Ensembl Id'
-            }
+export const $EnrichmentKitRequest = {
+    type: 'object',
+    description: 'Serializer for ``EnrichmentKit``.',
+    properties: {
+        identifier: {
+            type: 'string',
+            minLength: 1,
+            description: "Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.",
+            pattern: '^[\\w_-]+$',
+            maxLength: 128
         },
-        required: ['hgnc_id', 'symbol'],
-        title: 'Gene',
-        type: 'object'
-    }
+        title: {
+            type: 'string',
+            minLength: 1,
+            description: 'Title of the enrichment kit',
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Optional description of the enrichment kit'
+        }
+    },
+    required: ['identifier', 'title']
+} as const;
+
+export const $ExtraAnnoFieldInfo = {
+    description: 'Description of an extra annotation field.',
+    properties: {
+        field: {
+            title: 'Field',
+            type: 'integer'
+        },
+        label: {
+            title: 'Label',
+            type: 'string'
+        }
+    },
+    required: ['field', 'label'],
+    title: 'ExtraAnnoFieldInfo',
+    type: 'object'
+} as const;
+
+export const $GeneIdentityPydantic = {
+    description: 'Store gene identity information.',
+    properties: {
+        hgnc_id: {
+            title: 'Hgnc Id',
+            type: 'string'
+        },
+        gene_symbol: {
+            title: 'Gene Symbol',
+            type: 'string'
+        }
+    },
+    required: ['hgnc_id', 'gene_symbol'],
+    title: 'GeneIdentityPydantic',
+    type: 'object'
 } as const;
 
 export const $GenePanel = {
@@ -2104,13 +2358,13 @@ export const $GenePanelCategory = {
     required: ['description', 'genepanel_set', 'title']
 } as const;
 
-export const $GenePanelList = {
+export const $GenePanelPydanticList = {
     type: 'array',
     items: {
         description: 'Representation of a gene panel to use in the query.',
         properties: {
             source: {
-                '$ref': '#/components/schemas/GenePanelSource'
+                '$ref': '#/components/schemas/GenePanelSourceChoice'
             },
             panel_id: {
                 title: 'Panel Id',
@@ -2126,15 +2380,15 @@ export const $GenePanelList = {
             }
         },
         required: ['source', 'panel_id', 'name', 'version'],
-        title: 'GenePanel',
+        title: 'GenePanelPydantic',
         type: 'object'
     }
 } as const;
 
-export const $GenePanelSource = {
+export const $GenePanelSourceChoice = {
     description: 'The source of a gene panel.',
     enum: ['panelapp', 'internal'],
-    title: 'GenePanelSource',
+    title: 'GenePanelSourceChoice',
     type: 'string'
 } as const;
 
@@ -2146,7 +2400,220 @@ export const $GenePanelStateEnum = {
 * \`retired\` - retired`
 } as const;
 
-export const $GenomeRegionList = {
+export const $GenePydanticList = {
+    type: 'array',
+    items: {
+        description: 'Representation of a gene to query for.',
+        properties: {
+            hgnc_id: {
+                title: 'Hgnc Id',
+                type: 'string'
+            },
+            symbol: {
+                title: 'Symbol',
+                type: 'string'
+            },
+            name: {
+                anyOf: [
+                    {
+                        type: 'string'
+                    },
+                    {
+                        type: 'null'
+                    }
+                ],
+                default: null,
+                title: 'Name'
+            },
+            entrez_id: {
+                anyOf: [
+                    {
+                        type: 'integer'
+                    },
+                    {
+                        type: 'null'
+                    }
+                ],
+                default: null,
+                title: 'Entrez Id'
+            },
+            ensembl_id: {
+                anyOf: [
+                    {
+                        type: 'string'
+                    },
+                    {
+                        type: 'null'
+                    }
+                ],
+                default: null,
+                title: 'Ensembl Id'
+            }
+        },
+        required: ['hgnc_id', 'symbol'],
+        title: 'GenePydantic',
+        type: 'object'
+    }
+} as const;
+
+export const $GeneRelatedAnnotationPydantic = {
+    description: 'Store gene-related annotation (always for a single gene).',
+    properties: {
+        identity: {
+            '$ref': '#/components/schemas/GeneIdentityPydantic'
+        },
+        consequences: {
+            '$ref': '#/components/schemas/GeneRelatedConsequencesPydantic'
+        },
+        phenotypes: {
+            '$ref': '#/components/schemas/GeneRelatedPhenotypesPydantic'
+        },
+        constraints: {
+            '$ref': '#/components/schemas/GeneRelatedConstraintsPydantic'
+        }
+    },
+    required: ['identity', 'consequences', 'phenotypes', 'constraints'],
+    title: 'GeneRelatedAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $GeneRelatedConsequencesPydantic = {
+    description: 'Store gene-related consequences.',
+    properties: {
+        hgvs_t: {
+            title: 'Hgvs T',
+            type: 'string'
+        },
+        hgvs_p: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Hgvs P'
+        },
+        consequences: {
+            items: {
+                '$ref': '#/components/schemas/SeqvarsVariantConsequenceChoice'
+            },
+            title: 'Consequences',
+            type: 'array'
+        }
+    },
+    required: ['hgvs_t', 'hgvs_p', 'consequences'],
+    title: 'GeneRelatedConsequencesPydantic',
+    type: 'object'
+} as const;
+
+export const $GeneRelatedConstraintsPydantic = {
+    description: 'Gene-wise constraints.',
+    properties: {
+        gnomad: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GnomadConstraintsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        decipher: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/DecipherConstraintsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        rcnv: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/RcnvConstraintsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        shet: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ShetConstraintsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        clingen: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClingenDosageAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'GeneRelatedConstraintsPydantic',
+    type: 'object'
+} as const;
+
+export const $GeneRelatedPhenotypesPydantic = {
+    description: 'Phenotype-related information, if any.',
+    properties: {
+        is_acmg_sf: {
+            default: false,
+            title: 'Is Acmg Sf',
+            type: 'boolean'
+        },
+        is_disease_gene: {
+            default: false,
+            title: 'Is Disease Gene',
+            type: 'boolean'
+        }
+    },
+    title: 'GeneRelatedPhenotypesPydantic',
+    type: 'object'
+} as const;
+
+export const $GenomeRegionPydantic = {
+    description: 'Representation of a genomic region to query for.',
+    properties: {
+        chromosome: {
+            title: 'Chromosome',
+            type: 'string'
+        },
+        range: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/OneBasedRangePydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    required: ['chromosome'],
+    title: 'GenomeRegionPydantic',
+    type: 'object'
+} as const;
+
+export const $GenomeRegionPydanticList = {
     type: 'array',
     items: {
         description: 'Representation of a genomic region to query for.',
@@ -2158,7 +2625,7 @@ export const $GenomeRegionList = {
             range: {
                 anyOf: [
                     {
-                        '$ref': '#/components/schemas/OneBasedRange'
+                        '$ref': '#/components/schemas/OneBasedRangePydantic'
                     },
                     {
                         type: 'null'
@@ -2168,9 +2635,16 @@ export const $GenomeRegionList = {
             }
         },
         required: ['chromosome'],
-        title: 'GenomeRegion',
+        title: 'GenomeRegionPydantic',
         type: 'object'
     }
+} as const;
+
+export const $GenomeReleaseChoice = {
+    description: 'Enumeration of the genome release.',
+    enum: ['grch37', 'grch38'],
+    title: 'GenomeReleaseChoice',
+    type: 'string'
 } as const;
 
 export const $GenomeReleaseEnum = {
@@ -2178,6 +2652,51 @@ export const $GenomeReleaseEnum = {
     type: 'string',
     description: `* \`grch37\` - GRCh37
 * \`grch38\` - GRCh38`
+} as const;
+
+export const $GnomadConstraintsPydantic = {
+    description: 'Store gnomAD constraints.',
+    properties: {
+        mis_z: {
+            title: 'Mis Z',
+            type: 'number'
+        },
+        oe_lof: {
+            title: 'Oe Lof',
+            type: 'number'
+        },
+        oe_lof_lower: {
+            title: 'Oe Lof Lower',
+            type: 'number'
+        },
+        oe_lof_upper: {
+            title: 'Oe Lof Upper',
+            type: 'number'
+        },
+        oe_mis: {
+            title: 'Oe Mis',
+            type: 'number'
+        },
+        oe_mis_lower: {
+            title: 'Oe Mis Lower',
+            type: 'number'
+        },
+        oe_mis_upper: {
+            title: 'Oe Mis Upper',
+            type: 'number'
+        },
+        pli: {
+            title: 'Pli',
+            type: 'number'
+        },
+        syn_z: {
+            title: 'Syn Z',
+            type: 'number'
+        }
+    },
+    required: ['mis_z', 'oe_lof', 'oe_lof_lower', 'oe_lof_upper', 'oe_mis', 'oe_mis_lower', 'oe_mis_upper', 'pli', 'syn_z'],
+    title: 'GnomadConstraintsPydantic',
+    type: 'object'
 } as const;
 
 export const $InsertSizeStats = {
@@ -2296,7 +2815,7 @@ export const $NullEnum = {
     ]
 } as const;
 
-export const $OneBasedRange = {
+export const $OneBasedRangePydantic = {
     description: 'Representation of a 1-based range.',
     properties: {
         start: {
@@ -2309,7 +2828,7 @@ export const $OneBasedRange = {
         }
     },
     required: ['start', 'end'],
-    title: 'OneBasedRange',
+    title: 'OneBasedRangePydantic',
     type: 'object'
 } as const;
 
@@ -2729,32 +3248,12 @@ export const $PaginatedSeqvarsResultSetList = {
     }
 } as const;
 
-export const $PatchedCaseImportAction = {
+export const $PatchedCaseImportActionRequest = {
     type: 'object',
     description: 'Serializer for the ``CaseImportAction`` model.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        },
-        project: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Project SODAR UUID',
-            readOnly: true
-        },
         state: {
             '$ref': '#/components/schemas/CaseImportActionStateEnum'
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
         },
         action: {
             '$ref': '#/components/schemas/ActionEnum'
@@ -2766,34 +3265,13 @@ export const $PatchedCaseImportAction = {
     }
 } as const;
 
-export const $PatchedCasePhenotypeTerms = {
+export const $PatchedCasePhenotypeTermsRequest = {
     type: 'object',
     description: 'Base serializer for any SODAR model with a sodar_uuid field',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of creation'
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of last modification'
-        },
-        case: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Case SODAR UUID',
-            readOnly: true
-        },
         individual: {
             type: 'string',
+            minLength: 1,
             description: 'Individual',
             maxLength: 128
         },
@@ -2801,114 +3279,23 @@ export const $PatchedCasePhenotypeTerms = {
     }
 } as const;
 
-export const $PatchedCaseSerializerNg = {
+export const $PatchedCaseSerializerNgRequest = {
     type: 'object',
     description: `Serializer for the \`\`Case\`\` model.
 
 In contrast to the old (legacy) \`\`CaseSerializer\`\` from \`\`variants.serializers.case\`\`, this class does not
 perform serialization of nested attributes and thus does not trigger a large query cascade.`,
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        },
-        project: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Project SODAR UUID',
-            readOnly: true
-        },
-        presetset: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Cohort SODAR UUID',
-            readOnly: true
-        },
-        sex_errors: {
-            type: 'object',
-            additionalProperties: {
-                type: 'array',
-                items: {
-                    type: 'string'
-                }
-            },
-            readOnly: true
-        },
-        smallvariantqueryresultset: {
-            type: 'object',
-            additionalProperties: {
-                oneOf: [
-                    {
-                        type: 'integer'
-                    },
-                    {
-                        type: 'number',
-                        format: 'double'
-                    },
-                    {
-                        type: 'string'
-                    }
-                ],
-                nullable: true
-            },
-            readOnly: true
-        },
-        svqueryresultset: {
-            type: 'object',
-            additionalProperties: {
-                oneOf: [
-                    {
-                        type: 'integer'
-                    },
-                    {
-                        type: 'number',
-                        format: 'double'
-                    },
-                    {
-                        type: 'string'
-                    }
-                ],
-                nullable: true
-            },
-            readOnly: true
-        },
-        caseqc: {
-            type: 'object',
-            additionalProperties: {
-                oneOf: [
-                    {
-                        type: 'integer'
-                    },
-                    {
-                        type: 'number',
-                        format: 'double'
-                    },
-                    {
-                        type: 'string'
-                    }
-                ],
-                nullable: true
-            },
-            nullable: true,
-            description: `Obtain the latest CaseQC for this in active state and serialize it.
-
-If there is no such record then return \`\`None\`\`.`,
-            readOnly: true
-        },
-        release: {
-            type: 'string',
-            readOnly: true,
-            nullable: true
-        },
         name: {
             type: 'string',
+            minLength: 1,
             maxLength: 512
         },
         index: {
             type: 'string',
+            minLength: 1,
             maxLength: 512
         },
-        pedigree: {},
         notes: {
             type: 'string',
             nullable: true
@@ -2920,84 +3307,33 @@ If there is no such record then return \`\`None\`\`.`,
             type: 'array',
             items: {
                 type: 'string',
+                minLength: 1,
                 maxLength: 32
             },
             nullable: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of creation'
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of last modification'
         },
         case_version: {
             type: 'integer',
             maximum: 2147483647,
             minimum: -2147483648
-        },
-        state: {
-            readOnly: true,
-            nullable: true,
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/CaseSerializerNgStateEnum'
-                },
-                {
-                    '$ref': '#/components/schemas/NullEnum'
-                }
-            ]
-        },
-        num_small_vars: {
-            type: 'integer',
-            readOnly: true,
-            nullable: true,
-            title: 'Small variants',
-            description: 'Number of small variants, empty if no small variants have been imported'
-        },
-        num_svs: {
-            type: 'integer',
-            readOnly: true,
-            nullable: true,
-            title: 'Structural variants',
-            description: 'Number of structural variants, empty if no structural variants have been imported'
         }
     }
 } as const;
 
-export const $PatchedEnrichmentKit = {
+export const $PatchedEnrichmentKitRequest = {
     type: 'object',
     description: 'Serializer for ``EnrichmentKit``.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of creation'
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of last modification'
-        },
         identifier: {
             type: 'string',
+            minLength: 1,
             description: "Identifier of the enrichment kit, e.g., 'agilent-all-exon-v4'.",
             pattern: '^[\\w_-]+$',
             maxLength: 128
         },
         title: {
             type: 'string',
+            minLength: 1,
             description: 'Title of the enrichment kit',
             maxLength: 128
         },
@@ -3009,41 +3345,88 @@ export const $PatchedEnrichmentKit = {
     }
 } as const;
 
-export const $PatchedSeqvarsPredefinedQuery = {
+export const $PatchedProjectRequest = {
+    type: 'object',
+    description: 'Serializer for the Project model',
+    properties: {
+        title: {
+            type: 'string',
+            minLength: 1,
+            description: 'Project title',
+            maxLength: 255
+        },
+        type: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TypeEnum'
+                }
+            ],
+            description: `Type of project ("CATEGORY", "PROJECT")
+
+* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+        },
+        parent: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Short project description',
+            maxLength: 512
+        },
+        readme: {
+            type: 'string'
+        },
+        public_guest_access: {
+            type: 'boolean',
+            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
+        },
+        owner: {
+            type: 'string',
+            writeOnly: true,
+            minLength: 1
+        }
+    }
+} as const;
+
+export const $PatchedRoleAssignmentRequest = {
+    type: 'object',
+    description: 'Serializer for the RoleAssignment model',
+    properties: {
+        role: {
+            type: 'string',
+            minLength: 1,
+            description: 'Name of role'
+        },
+        user: {
+            type: 'string',
+            format: 'uuid',
+            description: 'User SODAR UUID'
+        }
+    }
+} as const;
+
+export const $PatchedSeqvarsPredefinedQueryRequest = {
     type: 'object',
     description: 'Serializer for ``PredefinedQuery``.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
         rank: {
             type: 'integer',
             default: 1
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         },
         included_in_sop: {
             type: 'boolean',
@@ -3066,13 +3449,14 @@ export const $PatchedSeqvarsPredefinedQuery = {
                             default: null
                         }
                     },
-                    title: 'SeqvarsGenotypePresets',
+                    title: 'SeqvarsGenotypePresetsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         quality: {
             type: 'string',
@@ -3117,51 +3501,32 @@ export const $PatchedSeqvarsPredefinedQuery = {
     }
 } as const;
 
-export const $PatchedSeqvarsQueryDetails = {
+export const $PatchedSeqvarsQueryDetailsRequest = {
     type: 'object',
     description: `Serializer for \`\`Query\`\` (for \`\`*-detail\`\`).
 
 For retrieve, update, or delete operations, we also render the nested query settings
 in detail.`,
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
         rank: {
             type: 'integer',
             default: 1
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
-        session: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
         settings: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsDetails'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
         },
         columnsconfig: {
-            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfig'
+            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsClinvar = {
+export const $PatchedSeqvarsQueryPresetsClinvarRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsClinvar\`\`.
 
@@ -3172,26 +3537,11 @@ Not used directly but used as base class.`,
             default: false
         },
         clinvar_germline_aggregate_description: {
-            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionList'
+            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoiceList'
         },
         allow_conflicting_interpretations: {
             type: 'boolean',
             default: false
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
         },
         rank: {
             type: 'integer',
@@ -3199,43 +3549,25 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsColumns = {
+export const $PatchedSeqvarsQueryPresetsColumnsRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsColumns\`\`.
 
 Not used directly but used as base class.`,
     properties: {
         column_settings: {
-            '$ref': '#/components/schemas/SeqvarsColumnConfigList'
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
         },
         rank: {
             type: 'integer',
@@ -3243,21 +3575,18 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsConsequence = {
+export const $PatchedSeqvarsQueryPresetsConsequenceRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsConsequence\`\`.
 
@@ -3276,42 +3605,24 @@ Not used directly but used as base class.`,
             type: 'integer',
             nullable: true
         },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
         rank: {
             type: 'integer',
             default: 1
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsFrequency = {
+export const $PatchedSeqvarsQueryPresetsFrequencyRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsFrequency\`\`.
 
@@ -3327,18 +3638,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -3350,6 +3649,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -3376,13 +3687,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -3394,18 +3706,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -3417,6 +3717,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -3443,13 +3755,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -3498,13 +3811,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettings',
+                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -3553,13 +3867,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettings',
+                    title: 'HelixmtDbFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -3607,41 +3922,27 @@ Not used directly but used as base class.`,
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
-                    title: 'InhouseFrequencySettings',
+                    title: 'InhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
+            ],
+            nullable: true
         },
         rank: {
             type: 'integer',
@@ -3649,49 +3950,31 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsLocus = {
+export const $PatchedSeqvarsQueryPresetsLocusRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsLocus\`\`.
 
 Not used directly but used as base class.`,
     properties: {
         genes: {
-            '$ref': '#/components/schemas/GeneList'
+            '$ref': '#/components/schemas/GenePydanticList'
         },
         gene_panels: {
-            '$ref': '#/components/schemas/GenePanelList'
+            '$ref': '#/components/schemas/GenePanelPydanticList'
         },
         genome_regions: {
-            '$ref': '#/components/schemas/GenomeRegionList'
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
+            '$ref': '#/components/schemas/GenomeRegionPydanticList'
         },
         rank: {
             type: 'integer',
@@ -3699,21 +3982,18 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsPhenotypePrio = {
+export const $PatchedSeqvarsQueryPresetsPhenotypePrioRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsPhenotypePrio\`\`.
 
@@ -3726,25 +4006,11 @@ Not used directly but used as base class.`,
         phenotype_prio_algorithm: {
             type: 'string',
             nullable: true,
+            minLength: 1,
             maxLength: 128
         },
         terms: {
-            '$ref': '#/components/schemas/TermPresenceList'
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
+            '$ref': '#/components/schemas/TermPresencePydanticList'
         },
         rank: {
             type: 'integer',
@@ -3752,57 +4018,36 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsQuality = {
+export const $PatchedSeqvarsQueryPresetsQualityRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsQuality\`\`.
 
 Not used directly but used as base class.`,
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
         rank: {
             type: 'integer',
             default: 1
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         },
         filter_active: {
             type: 'boolean',
@@ -3836,70 +4081,31 @@ Not used directly but used as base class.`,
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsSet = {
+export const $PatchedSeqvarsQueryPresetsSetRequest = {
     type: 'object',
     description: 'Serializer for ``QueryPresetsSet``.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
         rank: {
             type: 'integer',
             default: 1
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        project: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Project SODAR UUID',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsSetVersion = {
+export const $PatchedSeqvarsQueryPresetsSetVersionRequest = {
     type: 'object',
     description: 'Serializer for ``QueryPresetsSetVersion``.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        presetsset: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
         version_major: {
             type: 'integer',
             default: 1
@@ -3910,20 +4116,13 @@ export const $PatchedSeqvarsQueryPresetsSetVersion = {
         },
         status: {
             type: 'string',
+            minLength: 1,
             default: 'draft'
-        },
-        signed_off_by: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SODARUser'
-                }
-            ],
-            readOnly: true
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQueryPresetsVariantPrio = {
+export const $PatchedSeqvarsQueryPresetsVariantPrioRequest = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsVariantPrio\`\`.
 
@@ -3934,22 +4133,7 @@ Not used directly but used as base class.`,
             default: false
         },
         services: {
-            '$ref': '#/components/schemas/SeqvarsPrioServiceList'
-        },
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
+            '$ref': '#/components/schemas/SeqvarsPrioServicePydanticList'
         },
         rank: {
             type: 'integer',
@@ -3957,57 +4141,24 @@ Not used directly but used as base class.`,
         },
         label: {
             type: 'string',
+            minLength: 1,
             maxLength: 128
         },
         description: {
             type: 'string',
-            nullable: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
+            nullable: true,
+            minLength: 1
         }
     }
 } as const;
 
-export const $PatchedSeqvarsQuerySettingsDetails = {
+export const $PatchedSeqvarsQuerySettingsDetailsRequest = {
     type: 'object',
     description: `Serializer for \`\`QuerySettings\`\` (for \`\`*-detail\`\`).
 
 For retrieve, update, or delete operations, we also render the nested
 owned category settings.`,
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        session: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        presetssetversion: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        predefinedquery: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
         genotypepresets: {
             oneOf: [
                 {
@@ -4025,13 +4176,14 @@ owned category settings.`,
                             default: null
                         }
                     },
-                    title: 'SeqvarsGenotypePresets',
+                    title: 'SeqvarsGenotypePresetsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -4068,61 +4220,45 @@ owned category settings.`,
             format: 'uuid',
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
         },
         quality: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsQuality'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsQualityRequest'
         },
         consequence: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsConsequence'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsConsequenceRequest'
         },
         locus: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsLocus'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsLocusRequest'
         },
         frequency: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsFrequency'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsFrequencyRequest'
         },
         phenotypeprio: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsPhenotypePrio'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsPhenotypePrioRequest'
         },
         variantprio: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsVariantPrio'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
         },
         clinvar: {
-            '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvar'
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
         }
     }
 } as const;
 
-export const $PatchedTargetBedFile = {
+export const $PatchedTargetBedFileRequest = {
     type: 'object',
     description: 'Serializer for ``TargetBedFile``.',
     properties: {
-        sodar_uuid: {
-            type: 'string',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of creation'
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true,
-            description: 'DateTime of last modification'
-        },
-        enrichmentkit: {
-            type: 'string',
-            format: 'uuid',
-            description: 'Record SODAR UUID',
-            readOnly: true
-        },
         file_uri: {
             type: 'string',
+            minLength: 1,
             description: "The file's URI.",
             maxLength: 512
         },
@@ -4139,6 +4275,226 @@ export const $PatchedTargetBedFile = {
 * \`grch38\` - GRCh38`
         }
     }
+} as const;
+
+export const $Project = {
+    type: 'object',
+    description: 'Serializer for the Project model',
+    properties: {
+        title: {
+            type: 'string',
+            description: 'Project title',
+            maxLength: 255
+        },
+        type: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TypeEnum'
+                }
+            ],
+            description: `Type of project ("CATEGORY", "PROJECT")
+
+* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+        },
+        parent: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Short project description',
+            maxLength: 512
+        },
+        readme: {
+            type: 'string'
+        },
+        public_guest_access: {
+            type: 'boolean',
+            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
+        },
+        archive: {
+            type: 'boolean',
+            readOnly: true
+        },
+        roles: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/RoleAssignmentNestedList'
+            },
+            readOnly: true
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['archive', 'parent', 'roles', 'sodar_uuid', 'title']
+} as const;
+
+export const $ProjectInvite = {
+    type: 'object',
+    description: 'Serializer for the ProjectInvite model',
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            description: 'Email address of the person to be invited',
+            maxLength: 254
+        },
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        issuer: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        date_created: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true,
+            description: 'DateTime of invite creation'
+        },
+        date_expire: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true,
+            description: 'Expiration of invite as DateTime'
+        },
+        message: {
+            type: 'string',
+            description: 'Message to be included in the invite email (optional)'
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['date_created', 'date_expire', 'email', 'issuer', 'project', 'role', 'sodar_uuid']
+} as const;
+
+export const $ProjectInviteRequest = {
+    type: 'object',
+    description: 'Serializer for the ProjectInvite model',
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            minLength: 1,
+            description: 'Email address of the person to be invited',
+            maxLength: 254
+        },
+        role: {
+            type: 'string',
+            minLength: 1,
+            description: 'Name of role'
+        },
+        message: {
+            type: 'string',
+            description: 'Message to be included in the invite email (optional)'
+        }
+    },
+    required: ['email', 'role']
+} as const;
+
+export const $ProjectRequest = {
+    type: 'object',
+    description: 'Serializer for the Project model',
+    properties: {
+        title: {
+            type: 'string',
+            minLength: 1,
+            description: 'Project title',
+            maxLength: 255
+        },
+        type: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TypeEnum'
+                }
+            ],
+            description: `Type of project ("CATEGORY", "PROJECT")
+
+* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+        },
+        parent: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            description: 'Short project description',
+            maxLength: 512
+        },
+        readme: {
+            type: 'string'
+        },
+        public_guest_access: {
+            type: 'boolean',
+            description: 'Allow public guest access for the project, also including unauthenticated users if allowed on the site'
+        },
+        owner: {
+            type: 'string',
+            writeOnly: true,
+            minLength: 1
+        }
+    },
+    required: ['parent', 'title']
+} as const;
+
+export const $RcnvConstraintsPydantic = {
+    description: 'Store RCNV constraints.',
+    properties: {
+        p_haplo: {
+            title: 'P Haplo',
+            type: 'number'
+        },
+        p_triplo: {
+            title: 'P Triplo',
+            type: 'number'
+        }
+    },
+    required: ['p_haplo', 'p_triplo'],
+    title: 'RcnvConstraintsPydantic',
+    type: 'object'
+} as const;
+
+export const $RecessiveModeEnum = {
+    enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
+    type: 'string',
+    description: `* \`disabled\` - disabled
+* \`comphet_recessive\` - comphet_recessive
+* \`homozygous_recessive\` - homozygous_recessive
+* \`recessive\` - recessive`
+} as const;
+
+export const $RecordCount = {
+    type: 'object',
+    description: 'Serializer for the record count.',
+    properties: {
+        count: {
+            type: 'integer'
+        }
+    },
+    required: ['count']
 } as const;
 
 export const $RegionCoverageStats = {
@@ -4213,6 +4569,127 @@ export const $RegionVariantStats = {
     type: 'object'
 } as const;
 
+export const $ResourcesUsedPydantic = {
+    description: 'Store resource usage information.',
+    properties: {
+        start_time: {
+            anyOf: [
+                {
+                    format: 'date-time',
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Start Time'
+        },
+        end_time: {
+            anyOf: [
+                {
+                    format: 'date-time',
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'End Time'
+        },
+        memory_used: {
+            default: 0,
+            title: 'Memory Used',
+            type: 'integer'
+        }
+    },
+    title: 'ResourcesUsedPydantic',
+    type: 'object'
+} as const;
+
+export const $RoleAssignment = {
+    type: 'object',
+    description: 'Serializer for the RoleAssignment model',
+    properties: {
+        project: {
+            type: 'string',
+            format: 'uuid',
+            description: 'Project SODAR UUID',
+            readOnly: true
+        },
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        user: {
+            type: 'string',
+            format: 'uuid',
+            description: 'User SODAR UUID'
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['project', 'role', 'sodar_uuid', 'user']
+} as const;
+
+export const $RoleAssignmentNestedList = {
+    type: 'object',
+    description: 'Nested list serializer for the RoleAssignment model.',
+    properties: {
+        role: {
+            type: 'string',
+            description: 'Name of role'
+        },
+        user: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SODARUser'
+                }
+            ],
+            readOnly: true
+        },
+        sodar_uuid: {
+            type: 'string',
+            readOnly: true
+        }
+    },
+    required: ['role', 'sodar_uuid', 'user']
+} as const;
+
+export const $RoleAssignmentNestedListRequest = {
+    type: 'object',
+    description: 'Nested list serializer for the RoleAssignment model.',
+    properties: {
+        role: {
+            type: 'string',
+            minLength: 1,
+            description: 'Name of role'
+        }
+    },
+    required: ['role']
+} as const;
+
+export const $RoleAssignmentRequest = {
+    type: 'object',
+    description: 'Serializer for the RoleAssignment model',
+    properties: {
+        role: {
+            type: 'string',
+            minLength: 1,
+            description: 'Name of role'
+        },
+        user: {
+            type: 'string',
+            format: 'uuid',
+            description: 'User SODAR UUID'
+        }
+    },
+    required: ['role', 'user']
+} as const;
+
 export const $SODARUser = {
     type: 'object',
     description: 'Serializer for the user model used in SODAR Core based sites',
@@ -4245,6 +4722,37 @@ export const $SODARUser = {
         }
     },
     required: ['sodar_uuid', 'username']
+} as const;
+
+export const $SODARUserRequest = {
+    type: 'object',
+    description: 'Serializer for the user model used in SODAR Core based sites',
+    properties: {
+        username: {
+            type: 'string',
+            minLength: 1,
+            description: 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+            pattern: '^[\\w.@+-]+$',
+            maxLength: 150
+        },
+        name: {
+            type: 'string',
+            title: 'Name of User',
+            maxLength: 255
+        },
+        email: {
+            type: 'string',
+            format: 'email',
+            title: 'Email address',
+            maxLength: 254
+        },
+        is_superuser: {
+            type: 'boolean',
+            title: 'Superuser status',
+            description: 'Designates that this user has all permissions without explicitly assigning them.'
+        }
+    },
+    required: ['username']
 } as const;
 
 export const $SampleAlignmentStatsList = {
@@ -5077,7 +5585,97 @@ export const $SamtoolsStatsSupplementaryMetrics = {
     required: ['caseqc', 'date_created', 'date_modified', 'gcc', 'gcf', 'gcl', 'gct', 'ic', 'mapq', 'rl', 'sample', 'sodar_uuid']
 } as const;
 
-export const $SeqvarsColumnConfigList = {
+export const $SeqvarsCallRelatedAnnotationPydantic = {
+    description: 'Store call-related annotation.',
+    properties: {
+        call_infos: {
+            additionalProperties: {
+                '$ref': '#/components/schemas/SeqvarsSampleCallInfoPydantic'
+            },
+            default: {},
+            title: 'Call Infos',
+            type: 'object'
+        }
+    },
+    title: 'SeqvarsCallRelatedAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsCaseQueryPydantic = {
+    description: 'Pydantic representation of ``SeqvarsCaseQuery``.',
+    properties: {
+        genotype: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotypePydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        quality: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsQualityPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        frequency: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        consequence: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsConsequencePydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        locus: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsLocusPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        clinvar: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvarPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'SeqvarsCaseQueryPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsColumnConfigPydanticList = {
     type: 'array',
     items: {
         description: 'Configuration for a single column in the result table.',
@@ -5112,14 +5710,97 @@ export const $SeqvarsColumnConfigList = {
             }
         },
         required: ['name', 'label', 'width', 'visible'],
-        title: 'SeqvarsColumnConfig',
+        title: 'SeqvarsColumnConfigPydantic',
         type: 'object'
     }
 } as const;
 
+export const $SeqvarsDbIdsPydantic = {
+    description: 'Store database identifiers.',
+    properties: {
+        dbsnp_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Dbsnp Id'
+        }
+    },
+    title: 'SeqvarsDbIdsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsFrequencyAnnotationPydantic = {
+    description: 'SPopulation frequency information',
+    properties: {
+        gnomad_exomes: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        gnomad_genomes: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        gnomad_mtdna: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsGnomadMitochondrialFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        helixmtdb: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsHelixMtDbFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        inhouse: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencyPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'SeqvarsFrequencyAnnotationPydantic',
+    type: 'object'
+} as const;
+
 export const $SeqvarsGenotypeChoice = {
     description: 'Store genotype choice of a ``SampleGenotype``.',
-    enum: ['any', 'ref', 'het', 'hom', 'non-hom', 'variant', 'comphet_index', 'recessive_index', 'recessive_parent'],
+    enum: ['any', 'ref', 'het', 'hom', 'non_het', 'non_hom', 'variant', 'recessive_index', 'recessive_father', 'recessive_mother'],
     title: 'SeqvarsGenotypeChoice',
     type: 'string'
 } as const;
@@ -5129,6 +5810,280 @@ export const $SeqvarsGenotypePresetChoice = {
     enum: ['any', 'de_novo', 'dominant', 'homozygous_recessive', 'compound_heterozygous_recessive', 'recessive', 'x_recessive', 'affected_carriers'],
     title: 'SeqvarsGenotypePresetChoice',
     type: 'string'
+} as const;
+
+export const $SeqvarsGnomadMitochondrialFrequencyPydantic = {
+    description: 'Store gnomAD mitochondrial frequency information.',
+    properties: {
+        an: {
+            default: 0,
+            title: 'An',
+            type: 'integer'
+        },
+        het: {
+            default: 0,
+            title: 'Het',
+            type: 'integer'
+        },
+        homalt: {
+            default: 0,
+            title: 'Homalt',
+            type: 'integer'
+        },
+        af: {
+            default: 0,
+            title: 'Af',
+            type: 'number'
+        }
+    },
+    title: 'SeqvarsGnomadMitochondrialFrequencyPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
+    description: 'gnomAD mitochondrial filter options.',
+    properties: {
+        enabled: {
+            default: false,
+            title: 'Enabled',
+            type: 'boolean'
+        },
+        heteroplasmic: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Heteroplasmic'
+        },
+        homoplasmic: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Homoplasmic'
+        },
+        frequency: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Frequency'
+        }
+    },
+    title: 'SeqvarsGnomadMitochondrialFrequencySettingsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsHelixMtDbFrequencyPydantic = {
+    description: 'Store HelixMtDb frequency information.',
+    properties: {
+        an: {
+            default: 0,
+            title: 'An',
+            type: 'integer'
+        },
+        het: {
+            default: 0,
+            title: 'Het',
+            type: 'integer'
+        },
+        homalt: {
+            default: 0,
+            title: 'Homalt',
+            type: 'integer'
+        },
+        af: {
+            default: 0,
+            title: 'Af',
+            type: 'number'
+        }
+    },
+    title: 'SeqvarsHelixMtDbFrequencyPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsHelixMtDbFrequencySettingsPydantic = {
+    description: 'HelixMtDb filter options.',
+    properties: {
+        enabled: {
+            default: false,
+            title: 'Enabled',
+            type: 'boolean'
+        },
+        heteroplasmic: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Heteroplasmic'
+        },
+        homoplasmic: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Homoplasmic'
+        },
+        frequency: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Frequency'
+        }
+    },
+    title: 'SeqvarsHelixMtDbFrequencySettingsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsNuclearFrequencyPydantic = {
+    description: 'Store gnomAD and in-house nuclear frequency information.',
+    properties: {
+        an: {
+            default: 0,
+            title: 'An',
+            type: 'integer'
+        },
+        het: {
+            default: 0,
+            title: 'Het',
+            type: 'integer'
+        },
+        homalt: {
+            default: 0,
+            title: 'Homalt',
+            type: 'integer'
+        },
+        hemialt: {
+            default: 0,
+            title: 'Hemialt',
+            type: 'integer'
+        },
+        af: {
+            default: 0,
+            title: 'Af',
+            type: 'number'
+        }
+    },
+    title: 'SeqvarsNuclearFrequencyPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsNuclearFrequencySettingsPydantic = {
+    description: 'gnomAD and in-house nuclear filter options.',
+    properties: {
+        enabled: {
+            default: false,
+            title: 'Enabled',
+            type: 'boolean'
+        },
+        heterozygous: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Heterozygous'
+        },
+        homozygous: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Homozygous'
+        },
+        hemizygous: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Hemizygous'
+        },
+        frequency: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Frequency'
+        }
+    },
+    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsOutputStatisticsPydantic = {
+    description: 'Store statistics about the output.',
+    properties: {
+        count_total: {
+            default: 0,
+            title: 'Count Total',
+            type: 'integer'
+        },
+        count_passed: {
+            default: 0,
+            title: 'Count Passed',
+            type: 'integer'
+        },
+        passed_by_consequences: {
+            additionalProperties: {
+                type: 'integer'
+            },
+            default: {},
+            title: 'Passed By Consequences',
+            type: 'object'
+        }
+    },
+    title: 'SeqvarsOutputStatisticsPydantic',
+    type: 'object'
 } as const;
 
 export const $SeqvarsPredefinedQuery = {
@@ -5188,13 +6143,14 @@ export const $SeqvarsPredefinedQuery = {
                             default: null
                         }
                     },
-                    title: 'SeqvarsGenotypePresets',
+                    title: 'SeqvarsGenotypePresetsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         quality: {
             type: 'string',
@@ -5240,7 +6196,99 @@ export const $SeqvarsPredefinedQuery = {
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
 } as const;
 
-export const $SeqvarsPrioServiceList = {
+export const $SeqvarsPredefinedQueryRequest = {
+    type: 'object',
+    description: 'Serializer for ``PredefinedQuery``.',
+    properties: {
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        },
+        included_in_sop: {
+            type: 'boolean',
+            default: false
+        },
+        genotype: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresetsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        quality: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequency: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequence: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locus: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypeprio: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantprio: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvar: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        columns: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        }
+    },
+    required: ['label']
+} as const;
+
+export const $SeqvarsPrioServicePydanticList = {
     type: 'array',
     items: {
         description: 'Representation of a variant pathogenicity service.',
@@ -5255,7 +6303,7 @@ export const $SeqvarsPrioServiceList = {
             }
         },
         required: ['name', 'version'],
-        title: 'SeqvarsPrioService',
+        title: 'SeqvarsPrioServicePydantic',
         type: 'object'
     }
 } as const;
@@ -5326,10 +6374,37 @@ export const $SeqvarsQueryColumnsConfig = {
             readOnly: true
         },
         column_settings: {
-            '$ref': '#/components/schemas/SeqvarsColumnConfigList'
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
         }
     },
     required: ['date_created', 'date_modified', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryColumnsConfigRequest = {
+    type: 'object',
+    description: 'Serializer for ``QueryColumnsConfig``.',
+    properties: {
+        column_settings: {
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
+        }
+    }
+} as const;
+
+export const $SeqvarsQueryCreateFromRequest = {
+    type: 'object',
+    description: 'Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.',
+    properties: {
+        predefinedquery: {
+            type: 'string',
+            format: 'uuid'
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        }
+    },
+    required: ['label', 'predefinedquery']
 } as const;
 
 export const $SeqvarsQueryDetails = {
@@ -5375,6 +6450,32 @@ in detail.`,
         }
     },
     required: ['columnsconfig', 'date_created', 'date_modified', 'label', 'session', 'settings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryDetailsRequest = {
+    type: 'object',
+    description: `Serializer for \`\`Query\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested query settings
+in detail.`,
+    properties: {
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        settings: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
+        },
+        columnsconfig: {
+            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
+        }
+    },
+    required: ['columnsconfig', 'label', 'settings']
 } as const;
 
 export const $SeqvarsQueryExecution = {
@@ -5525,7 +6626,7 @@ Not used directly but used as base class.`,
             default: false
         },
         clinvar_germline_aggregate_description: {
-            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionList'
+            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoiceList'
         },
         allow_conflicting_interpretations: {
             type: 'boolean',
@@ -5567,6 +6668,41 @@ Not used directly but used as base class.`,
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsClinvarRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsClinvar\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        clinvar_presence_required: {
+            type: 'boolean',
+            default: false
+        },
+        clinvar_germline_aggregate_description: {
+            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoiceList'
+        },
+        allow_conflicting_interpretations: {
+            type: 'boolean',
+            default: false
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
+} as const;
+
 export const $SeqvarsQueryPresetsColumns = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsColumns\`\`.
@@ -5574,7 +6710,7 @@ export const $SeqvarsQueryPresetsColumns = {
 Not used directly but used as base class.`,
     properties: {
         column_settings: {
-            '$ref': '#/components/schemas/SeqvarsColumnConfigList'
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -5610,6 +6746,33 @@ Not used directly but used as base class.`,
         }
     },
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryPresetsColumnsRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsColumns\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        column_settings: {
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQueryPresetsConsequence = {
@@ -5667,6 +6830,43 @@ Not used directly but used as base class.`,
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsConsequenceRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsConsequence\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        variant_types: {
+            '$ref': '#/components/schemas/SeqvarsVariantTypeChoiceList'
+        },
+        transcript_types: {
+            '$ref': '#/components/schemas/SeqvarsTranscriptTypeChoiceList'
+        },
+        variant_consequences: {
+            '$ref': '#/components/schemas/SeqvarsVariantConsequenceChoiceList'
+        },
+        max_distance_to_exon: {
+            type: 'integer',
+            nullable: true
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
+} as const;
+
 export const $SeqvarsQueryPresetsFrequency = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsFrequency\`\`.
@@ -5683,18 +6883,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -5706,6 +6894,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -5732,13 +6932,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -5750,18 +6951,6 @@ Not used directly but used as base class.`,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -5773,6 +6962,18 @@ Not used directly but used as base class.`,
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -5799,13 +7000,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -5854,13 +7056,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettings',
+                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -5909,13 +7112,14 @@ Not used directly but used as base class.`,
                             title: 'Frequency'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettings',
+                    title: 'HelixmtDbFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -5963,26 +7167,27 @@ Not used directly but used as base class.`,
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
-                    title: 'InhouseFrequencySettings',
+                    title: 'InhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         sodar_uuid: {
             type: 'string',
@@ -6020,6 +7225,346 @@ Not used directly but used as base class.`,
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsFrequencyRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsFrequency\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        gnomad_exomes: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        gnomad_genomes: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        gnomad_mitochondrial: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        helixmtdb: {
+            oneOf: [
+                {
+                    description: 'Settings for HelixMtDb frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        inhouse: {
+            oneOf: [
+                {
+                    description: 'Settings for in-house frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'InhouseFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
+} as const;
+
 export const $SeqvarsQueryPresetsLocus = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsLocus\`\`.
@@ -6027,13 +7572,13 @@ export const $SeqvarsQueryPresetsLocus = {
 Not used directly but used as base class.`,
     properties: {
         genes: {
-            '$ref': '#/components/schemas/GeneList'
+            '$ref': '#/components/schemas/GenePydanticList'
         },
         gene_panels: {
-            '$ref': '#/components/schemas/GenePanelList'
+            '$ref': '#/components/schemas/GenePanelPydanticList'
         },
         genome_regions: {
-            '$ref': '#/components/schemas/GenomeRegionList'
+            '$ref': '#/components/schemas/GenomeRegionPydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -6069,6 +7614,39 @@ Not used directly but used as base class.`,
         }
     },
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryPresetsLocusRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsLocus\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        genes: {
+            '$ref': '#/components/schemas/GenePydanticList'
+        },
+        gene_panels: {
+            '$ref': '#/components/schemas/GenePanelPydanticList'
+        },
+        genome_regions: {
+            '$ref': '#/components/schemas/GenomeRegionPydanticList'
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQueryPresetsPhenotypePrio = {
@@ -6087,7 +7665,7 @@ Not used directly but used as base class.`,
             maxLength: 128
         },
         terms: {
-            '$ref': '#/components/schemas/TermPresenceList'
+            '$ref': '#/components/schemas/TermPresencePydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -6123,6 +7701,43 @@ Not used directly but used as base class.`,
         }
     },
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryPresetsPhenotypePrioRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsPhenotypePrio\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        phenotype_prio_enabled: {
+            type: 'boolean',
+            default: false
+        },
+        phenotype_prio_algorithm: {
+            type: 'string',
+            nullable: true,
+            minLength: 1,
+            maxLength: 128
+        },
+        terms: {
+            '$ref': '#/components/schemas/TermPresencePydanticList'
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQueryPresetsQuality = {
@@ -6196,6 +7811,59 @@ Not used directly but used as base class.`,
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsQualityRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsQuality\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        },
+        filter_active: {
+            type: 'boolean',
+            default: false
+        },
+        min_dp_het: {
+            type: 'integer',
+            nullable: true
+        },
+        min_dp_hom: {
+            type: 'integer',
+            nullable: true
+        },
+        min_ab_het: {
+            type: 'number',
+            format: 'double',
+            nullable: true
+        },
+        min_gq: {
+            type: 'integer',
+            nullable: true
+        },
+        min_ad: {
+            type: 'integer',
+            nullable: true
+        },
+        max_ad: {
+            type: 'integer',
+            nullable: true
+        }
+    },
+    required: ['label']
+} as const;
+
 export const $SeqvarsQueryPresetsSet = {
     type: 'object',
     description: 'Serializer for ``QueryPresetsSet``.',
@@ -6235,6 +7903,19 @@ export const $SeqvarsQueryPresetsSet = {
         }
     },
     required: ['date_created', 'date_modified', 'label', 'project', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryPresetsSetCopyFromRequest = {
+    type: 'object',
+    description: 'Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``.',
+    properties: {
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQueryPresetsSetDetails = {
@@ -6283,6 +7964,28 @@ export const $SeqvarsQueryPresetsSetDetails = {
         }
     },
     required: ['date_created', 'date_modified', 'label', 'project', 'sodar_uuid', 'versions']
+} as const;
+
+export const $SeqvarsQueryPresetsSetRequest = {
+    type: 'object',
+    description: 'Serializer for ``QueryPresetsSet``.',
+    properties: {
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQueryPresetsSetVersion = {
@@ -6450,6 +8153,49 @@ owned records as well as the presetsset.`,
     required: ['date_created', 'date_modified', 'presetsset', 'seqvarspredefinedquery_set', 'seqvarsquerypresetsclinvar_set', 'seqvarsquerypresetscolumns_set', 'seqvarsquerypresetsconsequence_set', 'seqvarsquerypresetsfrequency_set', 'seqvarsquerypresetslocus_set', 'seqvarsquerypresetsphenotypeprio_set', 'seqvarsquerypresetsquality_set', 'seqvarsquerypresetsvariantprio_set', 'signed_off_by', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQueryPresetsSetVersionDetailsRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsSetVersion\`\` (for \`\`*-detail\`\`).
+
+When retrieving the details of a seqvar query preset set version, we also render the
+owned records as well as the presetsset.`,
+    properties: {
+        version_major: {
+            type: 'integer',
+            default: 1
+        },
+        version_minor: {
+            type: 'integer',
+            default: 0
+        },
+        status: {
+            type: 'string',
+            minLength: 1,
+            default: 'draft'
+        }
+    }
+} as const;
+
+export const $SeqvarsQueryPresetsSetVersionRequest = {
+    type: 'object',
+    description: 'Serializer for ``QueryPresetsSetVersion``.',
+    properties: {
+        version_major: {
+            type: 'integer',
+            default: 1
+        },
+        version_minor: {
+            type: 'integer',
+            default: 0
+        },
+        status: {
+            type: 'string',
+            minLength: 1,
+            default: 'draft'
+        }
+    }
+} as const;
+
 export const $SeqvarsQueryPresetsVariantPrio = {
     type: 'object',
     description: `Serializer for \`\`QueryPresetsVariantPrio\`\`.
@@ -6461,7 +8207,7 @@ Not used directly but used as base class.`,
             default: false
         },
         services: {
-            '$ref': '#/components/schemas/SeqvarsPrioServiceList'
+            '$ref': '#/components/schemas/SeqvarsPrioServicePydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -6497,6 +8243,37 @@ Not used directly but used as base class.`,
         }
     },
     required: ['date_created', 'date_modified', 'label', 'presetssetversion', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQueryPresetsVariantPrioRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QueryPresetsVariantPrio\`\`.
+
+Not used directly but used as base class.`,
+    properties: {
+        variant_prio_enabled: {
+            type: 'boolean',
+            default: false
+        },
+        services: {
+            '$ref': '#/components/schemas/SeqvarsPrioServicePydanticList'
+        },
+        rank: {
+            type: 'integer',
+            default: 1
+        },
+        label: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 128
+        },
+        description: {
+            type: 'string',
+            nullable: true,
+            minLength: 1
+        }
+    },
+    required: ['label']
 } as const;
 
 export const $SeqvarsQuerySettings = {
@@ -6550,13 +8327,14 @@ export const $SeqvarsQuerySettings = {
                             default: null
                         }
                     },
-                    title: 'SeqvarsGenotypePresets',
+                    title: 'SeqvarsGenotypePresetsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -6595,6 +8373,12 @@ export const $SeqvarsQuerySettings = {
             nullable: true
         },
         clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true,
+            nullable: true
+        },
+        columnspresets: {
             type: 'string',
             format: 'uuid',
             readOnly: true,
@@ -6641,7 +8425,7 @@ export const $SeqvarsQuerySettings = {
             readOnly: true
         }
     },
-    required: ['clinvar', 'clinvarpresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
+    required: ['clinvar', 'clinvarpresets', 'columnspresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -6653,7 +8437,7 @@ export const $SeqvarsQuerySettingsClinvar = {
             default: false
         },
         clinvar_germline_aggregate_description: {
-            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionList'
+            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoiceList'
         },
         allow_conflicting_interpretations: {
             type: 'boolean',
@@ -6681,6 +8465,50 @@ export const $SeqvarsQuerySettingsClinvar = {
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsClinvarPydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsClinvar``.',
+    properties: {
+        presence_required: {
+            title: 'Presence Required',
+            type: 'boolean'
+        },
+        germline_descriptions: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoice'
+            },
+            title: 'Germline Descriptions',
+            type: 'array'
+        },
+        allow_conflicting_interpretations: {
+            default: false,
+            title: 'Allow Conflicting Interpretations',
+            type: 'boolean'
+        }
+    },
+    required: ['presence_required'],
+    title: 'SeqvarsQuerySettingsClinvarPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsClinvarRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsClinvar``.',
+    properties: {
+        clinvar_presence_required: {
+            type: 'boolean',
+            default: false
+        },
+        clinvar_germline_aggregate_description: {
+            '$ref': '#/components/schemas/ClinvarGermlineAggregateDescriptionChoiceList'
+        },
+        allow_conflicting_interpretations: {
+            type: 'boolean',
+            default: false
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsConsequence = {
@@ -6722,6 +8550,70 @@ export const $SeqvarsQuerySettingsConsequence = {
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsConsequencePydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsConsequence``.',
+    properties: {
+        variant_types: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsVariantTypeChoice'
+            },
+            title: 'Variant Types',
+            type: 'array'
+        },
+        transcript_types: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsTranscriptTypeChoice'
+            },
+            title: 'Transcript Types',
+            type: 'array'
+        },
+        consequences: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsVariantConsequenceChoice'
+            },
+            title: 'Consequences',
+            type: 'array'
+        },
+        max_dist_to_exon: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Dist To Exon'
+        }
+    },
+    title: 'SeqvarsQuerySettingsConsequencePydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsConsequenceRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsConsequence``.',
+    properties: {
+        variant_types: {
+            '$ref': '#/components/schemas/SeqvarsVariantTypeChoiceList'
+        },
+        transcript_types: {
+            '$ref': '#/components/schemas/SeqvarsTranscriptTypeChoiceList'
+        },
+        variant_consequences: {
+            '$ref': '#/components/schemas/SeqvarsVariantConsequenceChoiceList'
+        },
+        max_distance_to_exon: {
+            type: 'integer',
+            nullable: true
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsDetails = {
@@ -6778,13 +8670,14 @@ owned category settings.`,
                             default: null
                         }
                     },
-                    title: 'SeqvarsGenotypePresets',
+                    title: 'SeqvarsGenotypePresetsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         qualitypresets: {
             type: 'string',
@@ -6821,6 +8714,11 @@ owned category settings.`,
             format: 'uuid',
             nullable: true
         },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
         genotype: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotype'
         },
@@ -6849,6 +8747,107 @@ owned category settings.`,
     required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
 } as const;
 
+export const $SeqvarsQuerySettingsDetailsRequest = {
+    type: 'object',
+    description: `Serializer for \`\`QuerySettings\`\` (for \`\`*-detail\`\`).
+
+For retrieve, update, or delete operations, we also render the nested
+owned category settings.`,
+    properties: {
+        genotypepresets: {
+            oneOf: [
+                {
+                    description: 'Configuration for a single column in the result table.',
+                    properties: {
+                        choice: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsGenotypePresetChoice'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null
+                        }
+                    },
+                    title: 'SeqvarsGenotypePresetsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        qualitypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        consequencepresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        locuspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        frequencypresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        phenotypepriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        variantpriopresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        clinvarpresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        columnspresets: {
+            type: 'string',
+            format: 'uuid',
+            nullable: true
+        },
+        genotype: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsGenotypeRequest'
+        },
+        quality: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsQualityRequest'
+        },
+        consequence: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsConsequenceRequest'
+        },
+        locus: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsLocusRequest'
+        },
+        frequency: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsFrequencyRequest'
+        },
+        phenotypeprio: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsPhenotypePrioRequest'
+        },
+        variantprio: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
+        },
+        clinvar: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+        }
+    },
+    required: ['clinvar', 'consequence', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'quality', 'variantprio']
+} as const;
+
 export const $SeqvarsQuerySettingsFrequency = {
     type: 'object',
     description: 'Serializer for ``QuerySettingsFrequency``.',
@@ -6863,18 +8862,6 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6886,6 +8873,18 @@ export const $SeqvarsQuerySettingsFrequency = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -6912,13 +8911,14 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_genomes: {
             oneOf: [
@@ -6930,18 +8930,6 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        homozygous: {
-                            anyOf: [
-                                {
-                                    type: 'integer'
-                                },
-                                {
-                                    type: 'null'
-                                }
-                            ],
-                            default: null,
-                            title: 'Homozygous'
-                        },
                         heterozygous: {
                             anyOf: [
                                 {
@@ -6953,6 +8941,18 @@ export const $SeqvarsQuerySettingsFrequency = {
                             ],
                             default: null,
                             title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
                         },
                         hemizygous: {
                             anyOf: [
@@ -6979,13 +8979,14 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettings',
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         gnomad_mitochondrial: {
             oneOf: [
@@ -7034,13 +9035,14 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Frequency'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettings',
+                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         helixmtdb: {
             oneOf: [
@@ -7089,13 +9091,14 @@ export const $SeqvarsQuerySettingsFrequency = {
                             title: 'Frequency'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettings',
+                    title: 'HelixmtDbFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         inhouse: {
             oneOf: [
@@ -7143,26 +9146,27 @@ export const $SeqvarsQuerySettingsFrequency = {
                             default: null,
                             title: 'Hemizygous'
                         },
-                        carriers: {
+                        frequency: {
                             anyOf: [
                                 {
-                                    type: 'integer'
+                                    type: 'number'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Carriers'
+                            title: 'Frequency'
                         }
                     },
-                    title: 'InhouseFrequencySettings',
+                    title: 'InhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            nullable: true
         },
         sodar_uuid: {
             type: 'string',
@@ -7186,6 +9190,392 @@ export const $SeqvarsQuerySettingsFrequency = {
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsFrequencyPydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsFrequency``.',
+    properties: {
+        gnomad_exomes: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        gnomad_genomes: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        gnomad_mtdna: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsGnomadMitochondrialFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        helixmtdb: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsHelixMtDbFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        inhouse: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'SeqvarsQuerySettingsFrequencyPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsFrequencyRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsFrequency``.',
+    properties: {
+        gnomad_exomes: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        gnomad_genomes: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        gnomad_mitochondrial: {
+            oneOf: [
+                {
+                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        helixmtdb: {
+            oneOf: [
+                {
+                    description: 'Settings for HelixMtDb frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heteroplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heteroplasmic'
+                        },
+                        homoplasmic: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homoplasmic'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        },
+        inhouse: {
+            oneOf: [
+                {
+                    description: 'Settings for in-house frequency filtering.',
+                    properties: {
+                        enabled: {
+                            default: false,
+                            title: 'Enabled',
+                            type: 'boolean'
+                        },
+                        heterozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Heterozygous'
+                        },
+                        homozygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Homozygous'
+                        },
+                        hemizygous: {
+                            anyOf: [
+                                {
+                                    type: 'integer'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Hemizygous'
+                        },
+                        frequency: {
+                            anyOf: [
+                                {
+                                    type: 'number'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ],
+                            default: null,
+                            title: 'Frequency'
+                        }
+                    },
+                    title: 'InhouseFrequencySettingsPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            nullable: true
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsGenotype = {
@@ -7212,11 +9602,61 @@ export const $SeqvarsQuerySettingsGenotype = {
             format: 'uuid',
             readOnly: true
         },
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RecessiveModeEnum'
+                }
+            ],
+            default: 'disabled'
+        },
         sample_genotype_choices: {
-            '$ref': '#/components/schemas/SeqvarsSampleGenotypeChoiceList'
+            '$ref': '#/components/schemas/SeqvarsSampleGenotypePydanticList'
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsGenotypePydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsGenotype``.',
+    properties: {
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsRecessiveModeChoice'
+                }
+            ],
+            default: 'disabled'
+        },
+        sample_genotypes: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsSampleGenotypePydantic'
+            },
+            title: 'Sample Genotypes',
+            type: 'array'
+        }
+    },
+    title: 'SeqvarsQuerySettingsGenotypePydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsGenotypeRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsGenotype``.',
+    properties: {
+        recessive_mode: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RecessiveModeEnum'
+                }
+            ],
+            default: 'disabled'
+        },
+        sample_genotype_choices: {
+            '$ref': '#/components/schemas/SeqvarsSampleGenotypePydanticList'
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsLocus = {
@@ -7224,13 +9664,13 @@ export const $SeqvarsQuerySettingsLocus = {
     description: 'Serializer for ``QuerySettingsLocus``.',
     properties: {
         genes: {
-            '$ref': '#/components/schemas/GeneList'
+            '$ref': '#/components/schemas/GenePydanticList'
         },
         gene_panels: {
-            '$ref': '#/components/schemas/GenePanelList'
+            '$ref': '#/components/schemas/GenePanelPydanticList'
         },
         genome_regions: {
-            '$ref': '#/components/schemas/GenomeRegionList'
+            '$ref': '#/components/schemas/GenomeRegionPydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -7254,6 +9694,46 @@ export const $SeqvarsQuerySettingsLocus = {
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsLocusPydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsLocus``.',
+    properties: {
+        genes: {
+            default: [],
+            items: {
+                type: 'string'
+            },
+            title: 'Genes',
+            type: 'array'
+        },
+        genome_regions: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/GenomeRegionPydantic'
+            },
+            title: 'Genome Regions',
+            type: 'array'
+        }
+    },
+    title: 'SeqvarsQuerySettingsLocusPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsLocusRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsLocus``.',
+    properties: {
+        genes: {
+            '$ref': '#/components/schemas/GenePydanticList'
+        },
+        gene_panels: {
+            '$ref': '#/components/schemas/GenePanelPydanticList'
+        },
+        genome_regions: {
+            '$ref': '#/components/schemas/GenomeRegionPydanticList'
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsPhenotypePrio = {
@@ -7270,7 +9750,7 @@ export const $SeqvarsQuerySettingsPhenotypePrio = {
             maxLength: 128
         },
         terms: {
-            '$ref': '#/components/schemas/TermPresenceList'
+            '$ref': '#/components/schemas/TermPresencePydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -7294,6 +9774,26 @@ export const $SeqvarsQuerySettingsPhenotypePrio = {
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsPhenotypePrioRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsPhenotypePrio``.',
+    properties: {
+        phenotype_prio_enabled: {
+            type: 'boolean',
+            default: false
+        },
+        phenotype_prio_algorithm: {
+            type: 'string',
+            nullable: true,
+            minLength: 1,
+            maxLength: 128
+        },
+        terms: {
+            '$ref': '#/components/schemas/TermPresencePydanticList'
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsQuality = {
@@ -7321,10 +9821,36 @@ export const $SeqvarsQuerySettingsQuality = {
             readOnly: true
         },
         sample_quality_filters: {
-            '$ref': '#/components/schemas/SeqvarsSampleQualityFilterList'
+            '$ref': '#/components/schemas/SeqvarsSampleQualityFilterPydanticList'
         }
     },
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsQualityPydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsQuality``.',
+    properties: {
+        sample_quality_settings: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsSampleQualitySettingsPydantic'
+            },
+            title: 'Sample Quality Settings',
+            type: 'array'
+        }
+    },
+    title: 'SeqvarsQuerySettingsQualityPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsQualityRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsQuality``.',
+    properties: {
+        sample_quality_filters: {
+            '$ref': '#/components/schemas/SeqvarsSampleQualityFilterPydanticList'
+        }
+    }
 } as const;
 
 export const $SeqvarsQuerySettingsVariantPrio = {
@@ -7336,7 +9862,7 @@ export const $SeqvarsQuerySettingsVariantPrio = {
             default: false
         },
         services: {
-            '$ref': '#/components/schemas/SeqvarsPrioServiceList'
+            '$ref': '#/components/schemas/SeqvarsPrioServicePydanticList'
         },
         sodar_uuid: {
             type: 'string',
@@ -7362,6 +9888,27 @@ export const $SeqvarsQuerySettingsVariantPrio = {
     required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
 } as const;
 
+export const $SeqvarsQuerySettingsVariantPrioRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsVariantPrio``.',
+    properties: {
+        variant_prio_enabled: {
+            type: 'boolean',
+            default: false
+        },
+        services: {
+            '$ref': '#/components/schemas/SeqvarsPrioServicePydanticList'
+        }
+    }
+} as const;
+
+export const $SeqvarsRecessiveModeChoice = {
+    description: 'Enumeration for the recessive mode in pydantic models.',
+    enum: ['disabled', 'comphet_recessive', 'homozygous_recessive', 'recessive'],
+    title: 'SeqvarsRecessiveModeChoice',
+    type: 'string'
+} as const;
+
 export const $SeqvarsResultRow = {
     type: 'object',
     description: 'Serializer for ``ResultRow``.',
@@ -7376,48 +9923,79 @@ export const $SeqvarsResultRow = {
             format: 'uuid',
             readOnly: true
         },
-        release: {
+        genome_release: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/GenomeReleaseEnum'
+                }
+            ],
+            readOnly: true
+        },
+        chrom: {
             type: 'string',
             readOnly: true
         },
-        chromosome: {
+        chrom_no: {
+            type: 'integer',
+            readOnly: true
+        },
+        pos: {
+            type: 'integer',
+            readOnly: true
+        },
+        ref_allele: {
             type: 'string',
             readOnly: true
         },
-        chromosome_no: {
-            type: 'integer',
-            readOnly: true
-        },
-        start: {
-            type: 'integer',
-            readOnly: true
-        },
-        stop: {
-            type: 'integer',
-            readOnly: true
-        },
-        reference: {
-            type: 'string',
-            readOnly: true
-        },
-        alternative: {
+        alt_allele: {
             type: 'string',
             readOnly: true
         },
         payload: {
-            description: 'Payload for one result row of a seqvar query.',
-            properties: {
-                foo: {
-                    title: 'Foo',
-                    type: 'integer'
+            oneOf: [
+                {
+                    description: 'Store a single output record.',
+                    properties: {
+                        uuid: {
+                            title: 'Uuid',
+                            type: 'string'
+                        },
+                        case_uuid: {
+                            title: 'Case Uuid',
+                            type: 'string'
+                        },
+                        vcf_variant: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsVcfVariantPydantic'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ]
+                        },
+                        variant_annotation: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsVariantAnnotationPydantic'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ]
+                        }
+                    },
+                    required: ['uuid', 'case_uuid', 'vcf_variant', 'variant_annotation'],
+                    title: 'SeqvarsOutputRecordPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
                 }
-            },
-            required: ['foo'],
-            title: 'SeqvarsResultRowPayload',
-            type: 'object'
+            ]
         }
     },
-    required: ['alternative', 'chromosome', 'chromosome_no', 'payload', 'reference', 'release', 'resultset', 'sodar_uuid', 'start', 'stop']
+    required: ['alt_allele', 'chrom', 'chrom_no', 'genome_release', 'payload', 'pos', 'ref_allele', 'resultset', 'sodar_uuid']
 } as const;
 
 export const $SeqvarsResultSet = {
@@ -7448,22 +10026,188 @@ export const $SeqvarsResultSet = {
             description: 'Container for ``DataSourceInfo`` records.',
             properties: {
                 infos: {
+                    default: [],
                     items: {
-                        '$ref': '#/components/schemas/DataSourceInfo'
+                        '$ref': '#/components/schemas/DataSourceInfoPydantic'
                     },
                     title: 'Infos',
                     type: 'array'
                 }
             },
-            required: ['infos'],
-            title: 'DataSourceInfos',
+            title: 'DataSourceInfosPydantic',
             type: 'object'
+        },
+        output_header: {
+            oneOf: [
+                {
+                    description: 'Store meta information about the query results.',
+                    properties: {
+                        genome_release: {
+                            '$ref': '#/components/schemas/GenomeReleaseChoice'
+                        },
+                        versions: {
+                            additionalProperties: {
+                                type: 'string'
+                            },
+                            title: 'Versions',
+                            type: 'object'
+                        },
+                        query: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsCaseQueryPydantic'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ]
+                        },
+                        case_uuid: {
+                            title: 'Case Uuid',
+                            type: 'string'
+                        },
+                        resources: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/ResourcesUsedPydantic'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ]
+                        },
+                        statistics: {
+                            anyOf: [
+                                {
+                                    '$ref': '#/components/schemas/SeqvarsOutputStatisticsPydantic'
+                                },
+                                {
+                                    type: 'null'
+                                }
+                            ]
+                        },
+                        variant_score_columns: {
+                            default: [],
+                            items: {
+                                '$ref': '#/components/schemas/SeqvarsVariantScoreColumnPydantic'
+                            },
+                            title: 'Variant Score Columns',
+                            type: 'array'
+                        }
+                    },
+                    required: ['genome_release', 'versions', 'query', 'case_uuid', 'resources', 'statistics'],
+                    title: 'SeqvarsOutputHeaderPydantic',
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
-    required: ['datasource_infos', 'date_created', 'date_modified', 'queryexecution', 'sodar_uuid']
+    required: ['datasource_infos', 'date_created', 'date_modified', 'output_header', 'queryexecution', 'sodar_uuid']
 } as const;
 
-export const $SeqvarsSampleGenotypeChoiceList = {
+export const $SeqvarsSampleCallInfoPydantic = {
+    description: 'Store call-related annotation.',
+    properties: {
+        sample: {
+            title: 'Sample',
+            type: 'string'
+        },
+        genotype: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Genotype'
+        },
+        dp: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Dp'
+        },
+        ad: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Ad'
+        },
+        gq: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Gq'
+        },
+        ps: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Ps'
+        }
+    },
+    required: ['sample'],
+    title: 'SeqvarsSampleCallInfoPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsSampleGenotypePydantic = {
+    description: 'Store the genotype of a sample.',
+    properties: {
+        sample: {
+            title: 'Sample',
+            type: 'string'
+        },
+        genotype: {
+            '$ref': '#/components/schemas/SeqvarsGenotypeChoice'
+        },
+        include_no_call: {
+            default: false,
+            title: 'Include No Call',
+            type: 'boolean'
+        },
+        enabled: {
+            default: true,
+            title: 'Enabled',
+            type: 'boolean'
+        }
+    },
+    required: ['sample', 'genotype'],
+    title: 'SeqvarsSampleGenotypePydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsSampleGenotypePydanticList = {
     type: 'array',
     items: {
         description: 'Store the genotype of a sample.',
@@ -7474,15 +10218,25 @@ export const $SeqvarsSampleGenotypeChoiceList = {
             },
             genotype: {
                 '$ref': '#/components/schemas/SeqvarsGenotypeChoice'
+            },
+            include_no_call: {
+                default: false,
+                title: 'Include No Call',
+                type: 'boolean'
+            },
+            enabled: {
+                default: true,
+                title: 'Enabled',
+                type: 'boolean'
             }
         },
         required: ['sample', 'genotype'],
-        title: 'SeqvarsSampleGenotypeChoice',
+        title: 'SeqvarsSampleGenotypePydantic',
         type: 'object'
     }
 } as const;
 
-export const $SeqvarsSampleQualityFilterList = {
+export const $SeqvarsSampleQualityFilterPydanticList = {
     type: 'array',
     items: {
         description: 'Stores per-sample quality filter settings for a particular query.',
@@ -7570,9 +10324,135 @@ export const $SeqvarsSampleQualityFilterList = {
             }
         },
         required: ['sample'],
-        title: 'SeqvarsSampleQualityFilter',
+        title: 'SeqvarsSampleQualityFilterPydantic',
         type: 'object'
     }
+} as const;
+
+export const $SeqvarsSampleQualitySettingsPydantic = {
+    description: 'Quality settings for one sample.',
+    properties: {
+        sample: {
+            title: 'Sample',
+            type: 'string'
+        },
+        filter_active: {
+            default: false,
+            title: 'Filter Active',
+            type: 'boolean'
+        },
+        min_dp_het: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Min Dp Het'
+        },
+        min_dp_hom: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Min Dp Hom'
+        },
+        min_gq: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Min Gq'
+        },
+        min_ab: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Min Ab'
+        },
+        min_ad: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Min Ad'
+        },
+        max_ad: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: [],
+            title: 'Max Ad'
+        }
+    },
+    required: ['sample'],
+    title: 'SeqvarsSampleQualitySettingsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsScoreAnnotationsPydantic = {
+    description: 'Store the score annotations.',
+    properties: {
+        entries: {
+            additionalProperties: {
+                anyOf: [
+                    {
+                        type: 'string'
+                    },
+                    {
+                        type: 'integer'
+                    },
+                    {
+                        type: 'number'
+                    },
+                    {
+                        type: 'null'
+                    }
+                ]
+            },
+            default: {},
+            title: 'Entries',
+            type: 'object'
+        }
+    },
+    title: 'SeqvarsScoreAnnotationsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsTranscriptTypeChoice = {
+    description: 'The type of a transcript.',
+    enum: ['coding', 'non_coding'],
+    title: 'SeqvarsTranscriptTypeChoice',
+    type: 'string'
 } as const;
 
 export const $SeqvarsTranscriptTypeChoiceList = {
@@ -7584,13 +10464,159 @@ export const $SeqvarsTranscriptTypeChoiceList = {
     }
 } as const;
 
+export const $SeqvarsVariantAnnotationPydantic = {
+    description: 'Store the variant annotation payload (always for a single gene).',
+    properties: {
+        gene: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GeneRelatedAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        variant: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsVariantRelatedAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        call: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsCallRelatedAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'SeqvarsVariantAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsVariantConsequenceChoice = {
+    description: 'The variant consequence.',
+    enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'feature_elongation', 'feature_truncation', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', 'mature_miRNA_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'TFBS_ablation', 'TFBS_amplification', 'TF_binding_site_variant', 'regulatory_region_ablation', 'regulatory_region_amplification', 'regulatory_region_variant', 'intergenic_variant', 'intron_variant', 'gene_variant'],
+    title: 'SeqvarsVariantConsequenceChoice',
+    type: 'string'
+} as const;
+
 export const $SeqvarsVariantConsequenceChoiceList = {
     type: 'array',
     items: {
         type: 'string',
         title: 'SeqvarsVariantConsequenceChoice',
-        enum: ['frameshift_variant', 'rare_amino_acid_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'start_lost', 'stop_gained', 'stop_lost', '3_prime_UTR_truncation', '5_prime_UTR_truncation', 'conservative_inframe_deletion', 'conservative_inframe_insertion', 'disruptive_inframe_deletion', 'disruptive_inframe_insertion', 'missense_variant', 'splice_region_variant', 'initiator_codon_variant', 'start_retained', 'stop_retained_variant', 'synonymous_variant', 'downstream_gene_variant', 'intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', '5_prime_UTR_variant', 'coding_sequence_variant', 'upstream_gene_variant', '3_prime_UTR_variant-exon_variant', '5_prime_UTR_variant-exon_variant', '3_prime_UTR_variant-intron_variant', '5_prime_UTR_variant-intron_variant']
+        enum: ['transcript_ablation', 'exon_loss_variant', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'stop_lost', 'start_lost', 'transcript_amplification', 'feature_elongation', 'feature_truncation', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'missense_variant', 'splice_donor_5th_base_variant', 'splice_region_variant', 'splice_donor_region_variant', 'splice_polypyrimidine_tract_variant', 'start_retained_variant', 'stop_retained_variant', 'synonymous_variant', 'coding_sequence_variant', 'mature_miRNA_variant', '5_prime_UTR_exon_variant', '5_prime_UTR_intron_variant', '3_prime_UTR_exon_variant', '3_prime_UTR_intron_variant', 'non_coding_transcript_exon_variant', 'non_coding_transcript_intron_variant', 'upstream_gene_variant', 'downstream_gene_variant', 'TFBS_ablation', 'TFBS_amplification', 'TF_binding_site_variant', 'regulatory_region_ablation', 'regulatory_region_amplification', 'regulatory_region_variant', 'intergenic_variant', 'intron_variant', 'gene_variant']
     }
+} as const;
+
+export const $SeqvarsVariantRelatedAnnotationPydantic = {
+    description: 'Store variant-related annotation.',
+    properties: {
+        dbids: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsDbIdsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        frequency: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsFrequencyAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        clinvar: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ClinvarAnnotationPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        },
+        scores: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsScoreAnnotationsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
+        }
+    },
+    title: 'SeqvarsVariantRelatedAnnotationPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsVariantScoreColumnPydantic = {
+    description: 'Store information about the variant score columns in the output.',
+    properties: {
+        name: {
+            title: 'Name',
+            type: 'string'
+        },
+        label: {
+            title: 'Label',
+            type: 'string'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Description'
+        },
+        type: {
+            '$ref': '#/components/schemas/SeqvarsVariantScoreColumnTypeChoice'
+        }
+    },
+    required: ['name', 'label', 'type'],
+    title: 'SeqvarsVariantScoreColumnPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsVariantScoreColumnTypeChoice = {
+    description: 'Enumeration of the variant score type.',
+    enum: ['number', 'string'],
+    title: 'SeqvarsVariantScoreColumnTypeChoice',
+    type: 'string'
+} as const;
+
+export const $SeqvarsVariantTypeChoice = {
+    description: 'The type of a variant.',
+    enum: ['snv', 'indel', 'mnv', 'complex_substitution'],
+    title: 'SeqvarsVariantTypeChoice',
+    type: 'string'
 } as const;
 
 export const $SeqvarsVariantTypeChoiceList = {
@@ -7600,6 +10626,51 @@ export const $SeqvarsVariantTypeChoiceList = {
         title: 'SeqvarsVariantTypeChoice',
         enum: ['snv', 'indel', 'mnv', 'complex_substitution']
     }
+} as const;
+
+export const $SeqvarsVcfVariantPydantic = {
+    description: 'Store a single VCF variant.',
+    properties: {
+        genome_release: {
+            '$ref': '#/components/schemas/GenomeReleaseChoice'
+        },
+        chrom: {
+            title: 'Chrom',
+            type: 'string'
+        },
+        chrom_no: {
+            title: 'Chrom No',
+            type: 'integer'
+        },
+        pos: {
+            title: 'Pos',
+            type: 'integer'
+        },
+        ref_allele: {
+            title: 'Ref Allele',
+            type: 'string'
+        },
+        alt_allele: {
+            title: 'Alt Allele',
+            type: 'string'
+        }
+    },
+    required: ['genome_release', 'chrom', 'chrom_no', 'pos', 'ref_allele', 'alt_allele'],
+    title: 'SeqvarsVcfVariantPydantic',
+    type: 'object'
+} as const;
+
+export const $ShetConstraintsPydantic = {
+    description: 'Store sHET constraints.',
+    properties: {
+        s_het: {
+            title: 'S Het',
+            type: 'number'
+        }
+    },
+    required: ['s_het'],
+    title: 'ShetConstraintsPydantic',
+    type: 'object'
 } as const;
 
 export const $SvAnnotationReleaseInfo = {
@@ -7674,7 +10745,60 @@ export const $TargetBedFile = {
     required: ['date_created', 'date_modified', 'enrichmentkit', 'file_uri', 'sodar_uuid']
 } as const;
 
-export const $Term = {
+export const $TargetBedFileRequest = {
+    type: 'object',
+    description: 'Serializer for ``TargetBedFile``.',
+    properties: {
+        file_uri: {
+            type: 'string',
+            minLength: 1,
+            description: "The file's URI.",
+            maxLength: 512
+        },
+        genome_release: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/GenomeReleaseEnum'
+                }
+            ],
+            default: 'grch37',
+            description: `The file's reference genome.
+
+* \`grch37\` - GRCh37
+* \`grch38\` - GRCh38`
+        }
+    },
+    required: ['file_uri']
+} as const;
+
+export const $TermPresencePydanticList = {
+    type: 'array',
+    items: {
+        description: 'Representation of a term with optional presence (default is not excluded).',
+        properties: {
+            term: {
+                '$ref': '#/components/schemas/TermPydantic'
+            },
+            excluded: {
+                anyOf: [
+                    {
+                        type: 'boolean'
+                    },
+                    {
+                        type: 'null'
+                    }
+                ],
+                default: null,
+                title: 'Excluded'
+            }
+        },
+        required: ['term'],
+        title: 'TermPresencePydantic',
+        type: 'object'
+    }
+} as const;
+
+export const $TermPydantic = {
     description: 'Representation of a condition (phenotype / disease) term.',
     properties: {
         term_id: {
@@ -7694,35 +10818,72 @@ export const $Term = {
         }
     },
     required: ['term_id', 'label'],
-    title: 'Term',
+    title: 'TermPydantic',
     type: 'object'
 } as const;
 
-export const $TermPresenceList = {
-    type: 'array',
-    items: {
-        description: 'Representation of a term with optional presence (default is not excluded).',
-        properties: {
-            term: {
-                '$ref': '#/components/schemas/Term'
+export const $TypeEnum = {
+    enum: ['CATEGORY', 'PROJECT'],
+    type: 'string',
+    description: `* \`CATEGORY\` - Category
+* \`PROJECT\` - Project`
+} as const;
+
+export const $UserAndGlobalSettings = {
+    type: 'object',
+    description: 'Serializer for ``UserAndGlobalSettingsSerializer``.',
+    properties: {
+        user_settings: {
+            description: 'Transient information about user settings.',
+            properties: {
+                umd_predictor_api_token: {
+                    anyOf: [
+                        {
+                            type: 'string'
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ],
+                    title: 'Umd Predictor Api Token'
+                },
+                ga4gh_beacon_network_widget_enabled: {
+                    default: false,
+                    title: 'Ga4Gh Beacon Network Widget Enabled',
+                    type: 'boolean'
+                }
             },
-            excluded: {
-                anyOf: [
-                    {
-                        type: 'boolean'
-                    },
-                    {
-                        type: 'null'
-                    }
-                ],
-                default: null,
-                title: 'Excluded'
-            }
+            required: ['umd_predictor_api_token'],
+            title: 'UserSettings',
+            type: 'object'
         },
-        required: ['term'],
-        title: 'TermPresence',
-        type: 'object'
-    }
+        global_settings: {
+            description: 'Transient information about global settings.',
+            properties: {
+                exomiser_enabled: {
+                    default: false,
+                    title: 'Exomiser Enabled',
+                    type: 'boolean'
+                },
+                cadd_enabled: {
+                    default: false,
+                    title: 'Cadd Enabled',
+                    type: 'boolean'
+                },
+                extra_anno_fields: {
+                    items: {
+                        '$ref': '#/components/schemas/ExtraAnnoFieldInfo'
+                    },
+                    title: 'Extra Anno Fields',
+                    type: 'array'
+                }
+            },
+            required: ['extra_anno_fields'],
+            title: 'GlobalSettings',
+            type: 'object'
+        }
+    },
+    required: ['global_settings', 'user_settings']
 } as const;
 
 export const $VarfishStats = {

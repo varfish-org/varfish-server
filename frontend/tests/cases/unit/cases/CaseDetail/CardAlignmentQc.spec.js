@@ -1,5 +1,6 @@
-import CaseDetailCardAlignmentQc from '@/cases/components/CaseDetail/CardAlignmentQc.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailCardAlignmentQc from '@/cases/components/CaseDetail/CardAlignmentQc.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'
@@ -14,7 +15,7 @@ describe('CaseDetail/CardAlignmentQc.vue', () => {
     const wrapper = makeWrapper(CaseDetailCardAlignmentQc)
 
     expect(wrapper.html()).matches(/No coverage information provided/)
-    expect(wrapper.html()).not.matches(/<th>NA12878<\/th>/)
+    expect(wrapper.html()).not.matches(/<th.*>NA12878<\/th>/)
   })
 
   test('test with case detail store data', async () => {
@@ -23,6 +24,6 @@ describe('CaseDetail/CardAlignmentQc.vue', () => {
     })
 
     expect(wrapper.html()).not.matches(/No coverage information provided/)
-    expect(wrapper.html()).matches(/<th>NA12878<\/th>/)
+    expect(wrapper.html()).matches(/<th.*>NA12878<\/th>/)
   })
 })

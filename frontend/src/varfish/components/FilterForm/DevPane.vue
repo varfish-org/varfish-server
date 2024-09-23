@@ -1,6 +1,6 @@
 <script setup>
-import useClipboard from 'vue-clipboard3'
 import { computed, ref } from 'vue'
+import useClipboard from 'vue-clipboard3'
 
 const props = defineProps({
   querySettings: Object,

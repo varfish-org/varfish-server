@@ -1,7 +1,8 @@
+import { computed, nextTick, onMounted, watch } from 'vue'
+
 import { useCohortsStore } from '@/cohorts/stores/cohorts'
 import { StoreState } from '@/varfish/storeUtils'
 import { updateUserSetting } from '@/varfish/userSettings'
-import { computed, nextTick, onMounted, watch } from 'vue'
 
 export const overlayShow = computed(() => {
   const cohortsStore = useCohortsStore()

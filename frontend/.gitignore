@@ -1,5 +1,7 @@
 /components.d.ts
+/test-results
 
+!lib
 !/src
 !/ext/varfish-api/src/lib
 /static

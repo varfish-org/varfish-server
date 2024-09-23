@@ -1,31 +1,34 @@
 import typing
 from typing import Optional
 
-from django_pydantic_field.rest_framework import SchemaField
+from django.db import transaction
+from django_pydantic_field.v2.rest_framework.fields import SchemaField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from projectroles.serializers import SODARUserSerializer
 from rest_framework import serializers
 
-from seqvars.models import (
-    ClinvarGermlineAggregateDescription,
-    DataSourceInfos,
-    Gene,
-    GenePanel,
-    GenomeRegion,
-    GnomadMitochondrialFrequencySettings,
-    GnomadNuclearFrequencySettings,
-    HelixmtDbFrequencySettings,
-    InhouseFrequencySettings,
+from seqvars.models.base import (
+    ClinvarGermlineAggregateDescriptionChoice,
+    DataSourceInfosPydantic,
+    GenePanelPydantic,
+    GenePydantic,
+    GenomeRegionPydantic,
+    GnomadMitochondrialFrequencySettingsPydantic,
+    GnomadNuclearFrequencySettingsPydantic,
+    HelixmtDbFrequencySettingsPydantic,
+    InhouseFrequencySettingsPydantic,
     SeqvarsClinvarSettingsBase,
-    SeqvarsColumnConfig,
+    SeqvarsColumnConfigPydantic,
     SeqvarsColumnsSettingsBase,
     SeqvarsConsequenceSettingsBase,
     SeqvarsFrequencySettingsBase,
-    SeqvarsGenotypePresets,
+    SeqvarsGenotypePresetsPydantic,
     SeqvarsLocusSettingsBase,
+    SeqvarsOutputHeaderPydantic,
+    SeqvarsOutputRecordPydantic,
     SeqvarsPhenotypePrioSettingsBase,
     SeqvarsPredefinedQuery,
-    SeqvarsPrioService,
+    SeqvarsPrioServicePydantic,
     SeqvarsQuery,
     SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
@@ -50,16 +53,40 @@ from seqvars.models import (
     SeqvarsQuerySettingsQuality,
     SeqvarsQuerySettingsVariantPrio,
     SeqvarsResultRow,
-    SeqvarsResultRowPayload,
     SeqvarsResultSet,
-    SeqvarsSampleGenotypeChoice,
-    SeqvarsSampleQualityFilter,
+    SeqvarsSampleGenotypePydantic,
+    SeqvarsSampleQualityFilterPydantic,
     SeqvarsTranscriptTypeChoice,
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantPrioSettingsBase,
     SeqvarsVariantTypeChoice,
-    TermPresence,
+    TermPresencePydantic,
 )
+
+
+class SodarUuidWritableNestedModelSerializer(WritableNestedModelSerializer):
+    """Adjusted version of ``WritableNestedModelSerializer`` that allows to work with
+    ``sodar_uuid`` rather than ``pk`.
+
+    NB that this is a simple workaround as we use UUIDs in the URLS in addition to
+    primary keys in the objects themselves.  We inherited this probelm from SODAR
+    and sodar-core.  The workaround is not complete yet for ``drf_writable_nested``
+    but it works nicely for our use case.
+    """
+
+    def _get_related_pk(self, data, model_class):
+        """Override to allow looking up via ``sodar_uuid`` first."""
+        pk = super()._get_related_pk(data, model_class)
+        if pk:
+            return pk
+
+        sodar_uuid = data.get("sodar_uuid")
+        if sodar_uuid:
+            try:
+                return model_class.objects.get(sodar_uuid=sodar_uuid).pk
+            except model_class.DoesNotExist:
+                pass  # swallow; will return None
+        return None
 
 
 class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
@@ -69,18 +96,20 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     gnomad_exomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
     gnomad_genomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
     gnomad_mitochondrial = SchemaField(
-        schema=Optional[GnomadMitochondrialFrequencySettings], allow_null=True, default=None
+        schema=Optional[GnomadMitochondrialFrequencySettingsPydantic], allow_null=True, default=None
     )
     helixmtdb = SchemaField(
-        schema=Optional[HelixmtDbFrequencySettings], allow_null=True, default=None
+        schema=Optional[HelixmtDbFrequencySettingsPydantic], allow_null=True, default=None
     )
-    inhouse = SchemaField(schema=Optional[InhouseFrequencySettings], allow_null=True, default=None)
+    inhouse = SchemaField(
+        schema=Optional[InhouseFrequencySettingsPydantic], allow_null=True, default=None
+    )
 
     class Meta:
         model = SeqvarsFrequencySettingsBase
@@ -120,9 +149,9 @@ class LocusSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    genes = SchemaField(schema=list[Gene], default=list)
-    gene_panels = SchemaField(schema=list[GenePanel], default=list)
-    genome_regions = SchemaField(schema=list[GenomeRegion], default=list)
+    genes = SchemaField(schema=list[GenePydantic], default=list)
+    gene_panels = SchemaField(schema=list[GenePanelPydantic], default=list)
+    genome_regions = SchemaField(schema=list[GenomeRegionPydantic], default=list)
 
     class Meta:
         model = SeqvarsLocusSettingsBase
@@ -143,7 +172,7 @@ class PhenotypePrioSettingsBaseSerializer(serializers.ModelSerializer):
     phenotype_prio_algorithm = serializers.CharField(
         max_length=128, allow_null=True, required=False
     )
-    terms = SchemaField(schema=list[TermPresence], default=list)
+    terms = SchemaField(schema=list[TermPresencePydantic], default=list)
 
     class Meta:
         model = SeqvarsPhenotypePrioSettingsBase
@@ -161,7 +190,7 @@ class VariantPrioSettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     variant_prio_enabled = serializers.BooleanField(default=False, allow_null=False)
-    services = SchemaField(schema=list[SeqvarsPrioService], default=list)
+    services = SchemaField(schema=list[SeqvarsPrioServicePydantic], default=list)
 
     class Meta:
         model = SeqvarsVariantPrioSettingsBase
@@ -179,7 +208,7 @@ class ClinvarSettingsBaseSerializer(serializers.ModelSerializer):
 
     clinvar_presence_required = serializers.BooleanField(default=False, allow_null=False)
     clinvar_germline_aggregate_description = SchemaField(
-        schema=list[ClinvarGermlineAggregateDescription], default=list
+        schema=list[ClinvarGermlineAggregateDescriptionChoice], default=list
     )
     allow_conflicting_interpretations = serializers.BooleanField(default=False, allow_null=False)
 
@@ -198,7 +227,7 @@ class ColumnsSettingsBaseSerializer(serializers.ModelSerializer):
     Not used directly but used as base class.
     """
 
-    column_settings = SchemaField(schema=list[SeqvarsColumnConfig], default=list)
+    column_settings = SchemaField(schema=list[SeqvarsColumnConfigPydantic], default=list)
 
     class Meta:
         model = SeqvarsColumnsSettingsBase
@@ -254,9 +283,25 @@ class QueryPresetsBaseSerializer(LabeledSortableBaseModelSerializer):
     presetssetversion = serializers.ReadOnlyField(source="presetssetversion.sodar_uuid")
 
     def validate(self, attrs):
-        """Augment the attributes by the presets set object from context."""
+        """Augment the attributes by the presetsset from context and then check consistency
+        with the instance status.
+        """
+        # First, augment attributes.
         if "presetssetversion" in self.context:
             attrs["presetssetversion"] = self.context["presetssetversion"]
+
+        # Then, validate the corresponding version status.
+        if self.instance:
+            presetssetversion = self.instance.presetssetversion
+        else:
+            presetssetversion = SeqvarsQueryPresetsSetVersion.objects.get(
+                sodar_uuid=attrs["presetssetversion"].sodar_uuid
+            )
+        if presetssetversion.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
+            raise serializers.ValidationError(
+                {"non_field_errors": "Can only update/create presets in draft preset set versions."}
+            )
+
         return attrs
 
     class Meta:
@@ -411,7 +456,7 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
     included_in_sop = serializers.BooleanField(required=False, default=False)
 
     genotype = SchemaField(
-        schema=Optional[SeqvarsGenotypePresets],
+        schema=Optional[SeqvarsGenotypePresetsPydantic],
         required=False,
         allow_null=True,
         default=None,
@@ -476,7 +521,7 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
 
     def validate(self, data):
         if "project" not in self.context:
-            raise ValueError("Project is required in serializer context")
+            raise serializers.ValidationError("Project is required in serializer context")
 
         result = super().validate(data)
 
@@ -493,7 +538,9 @@ class SeqvarsPredefinedQuerySerializer(QueryPresetsBaseSerializer):
         for key in keys:
             if result.get(key):
                 if result[key].presetssetversion.presetsset.project != self.context["project"]:
-                    raise ValueError(f"Predefined query {key} does not belong to the same project")
+                    raise serializers.ValidationError(
+                        f"Predefined query {key} does not belong to the same project"
+                    )
 
         return result
 
@@ -534,6 +581,12 @@ class SeqvarsQueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
         read_only_fields = fields
 
 
+class SeqvarsQueryPresetsSetCopyFromSerializer(serializers.Serializer):
+    """Serializer used for drf-spectacular arguments for ``SeqvarsQueryPresetsSetViewSet.copy_from``."""
+
+    label = serializers.CharField(max_length=128, required=True)
+
+
 class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
     """Serializer for ``QueryPresetsSetVersion``."""
 
@@ -556,12 +609,49 @@ class SeqvarsQueryPresetsSetVersionSerializer(BaseModelSerializer):
     signed_off_by = SODARUserSerializer(read_only=True)
 
     def validate(self, attrs):
-        """Augment the attributes by the presetsset from context."""
+        """Augment the attributes by the presetsset from context and then check consistency
+        with the instance status.
+        """
+        # First, augment attributes.
         if "presetsset" in self.context:
             attrs["presetsset"] = self.context["presetsset"]
-        if self.context.get("current_user"):
-            attrs["signed_off_by"] = self.context["current_user"]
+
+        # Then, validate the instance status.
+        if self.instance:
+            # update
+            if self.instance.status != SeqvarsQueryPresetsSetVersion.STATUS_DRAFT:
+                raise serializers.ValidationError(
+                    {"non_field_errors": "Can only update preset set versions in draft status"}
+                )
+            if "status" in attrs:
+                if attrs["status"] != SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
+                    raise serializers.ValidationError(
+                        {"status": "Can only update preset set versions to active status"}
+                    )
+                if self.context.get("current_user"):
+                    attrs["signed_off_by"] = self.context["current_user"]
+        else:
+            # create
+            if "status" in attrs and attrs["status"] not in (
+                SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+                SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
+            ):
+                raise serializers.ValidationError(
+                    {"status": "Can only create preset set versions in active or draft status"}
+                )
+
         return attrs
+
+    def update(self, instance, validated_data):
+        """Handle update of the status to active (mark all other versions as retired)."""
+        with transaction.atomic():
+            if validated_data.get("status") == SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE:
+                SeqvarsQueryPresetsSetVersion.objects.filter(
+                    presetsset=instance.presetsset
+                ).exclude(sodar_uuid=instance.sodar_uuid).update(
+                    status=SeqvarsQueryPresetsSetVersion.STATUS_RETIRED
+                )
+            return super().update(instance, validated_data)
 
     class Meta:
         model = SeqvarsQueryPresetsSetVersion
@@ -663,18 +753,29 @@ class SeqvarsQuerySettingsBaseSerializer(BaseModelSerializer):
 class SeqvarsQuerySettingsGenotypeSerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsGenotype``."""
 
-    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypeChoice], default=list)
+    recessive_mode = serializers.ChoiceField(
+        choices=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_CHOICES,
+        default=SeqvarsQuerySettingsGenotype.RECESSIVE_MODE_DISABLED,
+        required=False,
+    )
+
+    sample_genotype_choices = SchemaField(schema=list[SeqvarsSampleGenotypePydantic], default=list)
 
     class Meta:
         model = SeqvarsQuerySettingsGenotype
-        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + ["sample_genotype_choices"]
+        fields = SeqvarsQuerySettingsBaseSerializer.Meta.fields + [
+            "recessive_mode",
+            "sample_genotype_choices",
+        ]
         read_only_fields = fields
 
 
 class SeqvarsQuerySettingsQualitySerializer(SeqvarsQuerySettingsBaseSerializer):
     """Serializer for ``QuerySettingsQuality``."""
 
-    sample_quality_filters = SchemaField(schema=list[SeqvarsSampleQualityFilter], default=list)
+    sample_quality_filters = SchemaField(
+        schema=list[SeqvarsSampleQualityFilterPydantic], default=list
+    )
 
     class Meta:
         model = SeqvarsQuerySettingsQuality
@@ -778,7 +879,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
 
     #: Serialize ``genotypepresets`` as its ``sodar_uuid``.
     genotypepresets = SchemaField(
-        schema=typing.Optional[SeqvarsGenotypePresets],
+        schema=typing.Optional[SeqvarsGenotypePresetsPydantic],
         required=False,
         allow_null=True,
         default=None,
@@ -810,6 +911,10 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     #: Serialize ``clinvarpresets`` as its ``sodar_uuid``.
     clinvarpresets = serializers.ReadOnlyField(
         source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``columnspresets`` as its ``sodar_uuid``.
+    columnspresets = serializers.ReadOnlyField(
+        source="columnspresets.sodar_uuid", required=False, allow_null=True, default=None
     )
 
     #: Serialize ``genotype`` as its ``sodar_uuid``.
@@ -849,6 +954,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
             "phenotypepriopresets",
             "variantpriopresets",
             "clinvarpresets",
+            "columnspresets",
             "genotype",
             "quality",
             "consequence",
@@ -862,7 +968,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
 
 
 class SeqvarsQuerySettingsDetailsSerializer(
-    SeqvarsQuerySettingsSerializer, WritableNestedModelSerializer
+    SeqvarsQuerySettingsSerializer, SodarUuidWritableNestedModelSerializer
 ):
     """Serializer for ``QuerySettings`` (for ``*-detail``).
 
@@ -897,6 +1003,10 @@ class SeqvarsQuerySettingsDetailsSerializer(
     #: Serialize ``clinvarpresets`` as its ``sodar_uuid``.
     clinvarpresets = serializers.UUIDField(
         source="clinvarpresets.sodar_uuid", required=False, allow_null=True, default=None
+    )
+    #: Serialize ``columnspresets`` as its ``sodar_uuid``.
+    columnspresets = serializers.UUIDField(
+        source="columnspresets.sodar_uuid", required=False, allow_null=True, default=None
     )
 
     #: Nested serialization of the genotype settings.
@@ -961,6 +1071,12 @@ class SeqvarsQuerySettingsDetailsSerializer(
                 data["clinvarpresets"] = SeqvarsQueryPresetsClinvar.objects.get(
                     sodar_uuid=clinvarpresets_uuid
                 )
+        if "columnspresets" in data:
+            columnspresets_uuid = data.pop("columnspresets")["sodar_uuid"]
+            if columnspresets_uuid:
+                data["columnspresets"] = SeqvarsQueryPresetsColumns.objects.get(
+                    sodar_uuid=columnspresets_uuid
+                )
 
         return data
 
@@ -994,6 +1110,15 @@ class SeqvarsQueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseMod
         read_only_fields = fields
 
 
+class SeqvarsQueryCreateFromSerializer(serializers.Serializer):
+    """Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``."""
+
+    #: UUID of the ``SeqvarsPredefinedQuery`` to create the settings from.
+    predefinedquery = serializers.UUIDField(required=True)
+    #: The label to use.
+    label = serializers.CharField(max_length=128, required=True)
+
+
 class SeqvarsQuerySerializer(BaseModelSerializer):
     """Serializer for ``Query``."""
 
@@ -1025,7 +1150,7 @@ class SeqvarsQuerySerializer(BaseModelSerializer):
         read_only_fields = fields
 
 
-class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, WritableNestedModelSerializer):
+class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, SodarUuidWritableNestedModelSerializer):
     """Serializer for ``Query`` (for ``*-detail``).
 
     For retrieve, update, or delete operations, we also render the nested query settings
@@ -1081,15 +1206,18 @@ class SeqvarsResultSetSerializer(BaseModelSerializer):
     """Serializer for ``ResultSet``."""
 
     #: Explicitely provide django-pydantic-field schema for ``datasource_infos``.
-    datasource_infos = SchemaField(schema=DataSourceInfos)
+    datasource_infos = SchemaField(schema=DataSourceInfosPydantic)
     #: Serialize ``queryexecution`` as its ``sodar_uuid``.
     queryexecution = serializers.ReadOnlyField(source="queryexecution.sodar_uuid")
+    #: Explicitely provide django-pydantic-field schema for ``output_header``.
+    output_header = SchemaField(schema=typing.Optional[SeqvarsOutputHeaderPydantic])
 
     class Meta:
         model = SeqvarsResultSet
         fields = BaseModelSerializer.Meta.fields + [
             "queryexecution",
             "datasource_infos",
+            "output_header",
         ]
         read_only_fields = fields
 
@@ -1100,20 +1228,19 @@ class SeqvarsResultRowSerializer(serializers.ModelSerializer):
     #: Serialize ``resultset`` as its ``sodar_uuid``.
     resultset = serializers.ReadOnlyField(source="resultset.sodar_uuid")
     #: Explicitely provide django-pydantic-field schema for ``payload``.
-    payload = SchemaField(schema=SeqvarsResultRowPayload)
+    payload = SchemaField(schema=typing.Optional[SeqvarsOutputRecordPydantic])
 
     class Meta:
         model = SeqvarsResultRow
         fields = [
             "sodar_uuid",
             "resultset",
-            "release",
-            "chromosome",
-            "chromosome_no",
-            "start",
-            "stop",
-            "reference",
-            "alternative",
+            "genome_release",
+            "chrom",
+            "chrom_no",
+            "pos",
+            "ref_allele",
+            "alt_allele",
             "payload",
         ]
         read_only_fields = fields

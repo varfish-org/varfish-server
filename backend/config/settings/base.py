@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 # Apps specific for this project go here.
@@ -172,6 +173,9 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # Development is a separate thing (running vite server on dev), but fallback
 # is whether DEV is active.
 DEV = env.bool("DEV", DEBUG)
+
+# Whether to serve the frontend as static files.
+SERVE_FRONTEND = env.bool("SERVE_FRONTEND", not DEV)
 
 # GENERAL VARFISH SETTINGS
 # ------------------------------------------------------------------------------
@@ -677,6 +681,7 @@ REST_FRAMEWORK = {
         "knox.auth.TokenAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%SZ",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -685,6 +690,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "VarFish API",
     "VERSION": varfish_version,
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
         "varfish.spectacular_utils.spectacular_preprocess_hook",
@@ -695,8 +701,8 @@ SPECTACULAR_SETTINGS = {
         "GenomeBuildVerbatimEnum": "importer.models.GENOME_BUILD_CHOICES_VERBATIM",
         "GenomeBuildLowerEnum": "cases_files.models.GENOMEBUILD_CHOICES_LOWER",
         "CaseStatusEnum": "variants.models.case.CASE_STATUS_CHOICES",
-        "SeqvarsQueryExecutionStateEnum": "seqvars.models.SeqvarsQueryExecution.STATE_CHOICES",
-        "SeqvarsQueryPresetsSetVersionStatusEnum": "seqvars.models.SeqvarsQueryPresetsSetVersion.STATUS_CHOICES",
+        "SeqvarsQueryExecutionStateEnum": "seqvars.models.base.SeqvarsQueryExecution.STATE_CHOICES",
+        "SeqvarsQueryPresetsSetVersionStatusEnum": "seqvars.models.base.SeqvarsQueryPresetsSetVersion.STATUS_CHOICES",
     },
     # Sidecar Settings
     "SWAGGER_UI_DIST": "SIDECAR",

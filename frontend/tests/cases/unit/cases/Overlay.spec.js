@@ -1,6 +1,7 @@
-import Overlay from '@/varfish/components/Overlay.vue'
 import { mount } from '@vue/test-utils'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import Overlay from '@/varfish/components/Overlay.vue'
 
 describe('Overlay.vue', () => {
   beforeAll(() => {

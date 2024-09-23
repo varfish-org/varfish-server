@@ -5,6 +5,7 @@
     "types": [
       "vite/client",
       "jquery",
+      "unplugin-icons/types/vue"
     ],
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -28,13 +29,14 @@
     "paths": {
       "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
       "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"],
+      "@varfish-org/viguno-api/*": ["./ext/viguno-api/src/*"],
       "@tests/*": ["./tests/*"],
       "@/*": ["./src/*"]
     }
   },
   "include": [
-    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js",
-    "ext/**/*.ts", "ext/**/*.vue"
+    "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.json", "src/**/*.vue", "src/**/*.js",
+    "ext/**/*.ts", "ext/**/*.vue", "tests/**/*.json"
   ],
   "exclude": [
     "node_modules",

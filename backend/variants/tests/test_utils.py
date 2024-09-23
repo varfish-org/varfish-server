@@ -1032,7 +1032,7 @@ class TestFillSmQueryResultSet(TestCase):
         # Do not create: rows for query_result_set
         small_vars = SmallVariantFactory.create_batch(2, case_id=self.case1.id)
         query = SmallVariantQueryFactory(case=self.case1)
-        query_result_set = SmallVariantQueryResultSetFactory(
+        query_result_set = SmallVariantQueryResultSetFactory(  # noqa: F841
             case=self.case1, smallvariantquery=query
         )
         case_result_set = SmallVariantQueryResultSetFactory(case=self.case1, smallvariantquery=None)
@@ -1392,7 +1392,7 @@ class TestFillSvQueryResultSet(TestCase):
         # Do not create: rows for query_result_set
         svs = StructuralVariantFactory.create_batch(2, case_id=self.case1.id)
         query = SvQueryFactory(case=self.case1)
-        query_result_set = SvQueryResultSetFactory(case=self.case1, svquery=query)
+        _query_result_set = SvQueryResultSetFactory(case=self.case1, svquery=query)  # noqa: F841
         case_result_set = SvQueryResultSetFactory(case=self.case1, svquery=None)
         flag = StructuralVariantFlagsFactory(
             case=self.case1,
@@ -1783,7 +1783,7 @@ class TestClearSvQueryResultSet(TestCase):
             sv_type=anno.sv_type,
             sv_sub_type=anno.sv_sub_type,
         )
-        case_row = SvQueryResultRowFactory(
+        case_row = SvQueryResultRowFactory(  # noqa: F841
             svqueryresultset=case_result_set,
             release=anno.release,
             chromosome=anno.chromosome,
@@ -1861,7 +1861,7 @@ class TestClearSvQueryResultSet(TestCase):
             sv_type=flag1.sv_type,
             sv_sub_type=flag1.sv_sub_type,
         )
-        case_row2 = SvQueryResultRowFactory(
+        case_row2 = SvQueryResultRowFactory(  # noqa: F841
             svqueryresultset=case_result_set,
             release=flag2.release,
             chromosome=flag2.chromosome,
@@ -1870,7 +1870,7 @@ class TestClearSvQueryResultSet(TestCase):
             sv_type=flag2.sv_type,
             sv_sub_type=flag2.sv_sub_type,
         )
-        case_row3 = SvQueryResultRowFactory(
+        case_row3 = SvQueryResultRowFactory(  # noqa: F841
             svqueryresultset=case_result_set,
             release=svs[1].release,
             chromosome=svs[1].chromosome,
@@ -2190,7 +2190,7 @@ class TestClearSmQueryResultSet(TestCase):
             reference=anno.reference,
             alternative=anno.alternative,
         )
-        case_row = SmallVariantQueryResultRowFactory(
+        case_row = SmallVariantQueryResultRowFactory(  # noqa: F841
             smallvariantqueryresultset=case_result_set,
             release=anno.release,
             chromosome=anno.chromosome,
@@ -2293,7 +2293,7 @@ class TestClearSmQueryResultSet(TestCase):
             reference=flag1.reference,
             alternative=flag1.alternative,
         )
-        case_row2 = SmallVariantQueryResultRowFactory(
+        case_row2 = SmallVariantQueryResultRowFactory(  # noqa: F841
             smallvariantqueryresultset=case_result_set,
             release=flag2.release,
             chromosome=flag2.chromosome,
@@ -2302,7 +2302,7 @@ class TestClearSmQueryResultSet(TestCase):
             reference=flag2.reference,
             alternative=flag2.alternative,
         )
-        case_row3 = SmallVariantQueryResultRowFactory(
+        case_row3 = SmallVariantQueryResultRowFactory(  # noqa: F841
             smallvariantqueryresultset=case_result_set,
             release=sms[1].release,
             chromosome=sms[1].chromosome,

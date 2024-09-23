@@ -41,3 +41,7 @@ const props = defineProps({
     Export as {{ props.fileType.toUpperCase() }}
   </button>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

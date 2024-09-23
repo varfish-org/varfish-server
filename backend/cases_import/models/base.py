@@ -1,12 +1,16 @@
 import uuid as uuid_object
 
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from projectroles.models import Project
 
 from cases_import.proto import get_case_name_from_family_payload
 from varfish.utils import JSONField
+
+#: The User model to use.
+User = get_user_model()
 
 
 class CaseImportAction(models.Model):
@@ -76,15 +80,17 @@ class CaseImportBackgroundJobManager(models.Manager):
     together with the backing ``BackgroundJob``.
     """
 
-    def create_full(self, *, caseimportaction, project, user):
+    def create_full(self, *, caseimportaction: CaseImportAction, user: User):
         case_name = caseimportaction.get_case_name()
         bg_job = BackgroundJob.objects.create(
             name=f"Import of case '{case_name}'",
-            project=project,
+            project=caseimportaction.project,
             job_type=CaseImportBackgroundJob.spec_name,
             user=user,
         )
-        instance = super().create(project=project, bg_job=bg_job, caseimportaction=caseimportaction)
+        instance = super().create(
+            project=caseimportaction.project, bg_job=bg_job, caseimportaction=caseimportaction
+        )
         return instance
 
 
@@ -92,7 +98,7 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
     """Background job for importing cases with the ``cases_import`` app."""
 
     # We use a custom manager that provides creation together with the ``BackgroundJob``.
-    objects = CaseImportBackgroundJobManager()
+    objects: CaseImportBackgroundJobManager = CaseImportBackgroundJobManager()
 
     #: Task description for logging.
     task_desc = "Case Import"
@@ -119,6 +125,7 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
         help_text="Background job for state etc.",
         on_delete=models.CASCADE,
     )
+
     #: The case import action to perform.
     caseimportaction = models.ForeignKey(CaseImportAction, on_delete=models.CASCADE, null=False)
 

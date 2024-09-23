@@ -1,11 +1,11 @@
 <script setup>
-import { computed, reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
+import { computed, reactive } from 'vue'
 
 import { displayName } from '@/varfish/helpers'
-import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
+import FilterFormGenotypePaneSex from '@/variants/components/FilterForm/GenotypePaneSex.vue'
 
 /** Define component's props. */
 const props = defineProps({
@@ -226,4 +226,6 @@ defineExpose({ v$ })
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

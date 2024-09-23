@@ -81,6 +81,11 @@ ajax_urlpatterns = [
 
 api_urlpatterns = [
     url(
+        regex=r"^api/case/count/(?P<project>[0-9a-f-]+)/?$",
+        view=views_api.CaseCountApiView.as_view(),
+        name="api-case-count",
+    ),
+    url(
         regex=r"^api/case/list/(?P<project>[0-9a-f-]+)/?$",
         view=views_api.CaseListApiView.as_view(),
         name="api-case-list",
@@ -139,6 +144,11 @@ api_urlpatterns = [
         regex=r"^api/case-relatedness/list/(?P<case>[0-9a-f-]+)/?$",
         view=views_ajax.PedigreeRelatednessListAjaxView.as_view(),
         name="api-caserelatedness-list",
+    ),
+    url(
+        regex=r"^api/user-and-global-settings/?$",
+        view=views_api.UserAndGlobalSettingsView.as_view(),
+        name="api-userandglobalsettings",
     ),
 ]
 

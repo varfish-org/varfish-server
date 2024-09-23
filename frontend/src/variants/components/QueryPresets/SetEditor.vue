@@ -1,36 +1,30 @@
 <script setup>
 // eslint-disable
+
 /** Component for editing a single preset set.
  *
  * Displays the list of preset category entries on the left as an accordion.
  *
  * The individual preset categories are editable via child components.
  */
-import { computed, onMounted, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
-
 import Sortable from 'sortablejs'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { useCaseListStore } from '@/cases/stores/caseList'
-import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
-
 import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
 import ModalInput from '@/varfish/components/ModalInput.vue'
 import Toast from '@/varfish/components/Toast.vue'
-import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
-import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
 import FilterFormEffectPane from '@/variants/components/FilterForm/EffectPane.vue'
 import FilterFormFlagsPane from '@/variants/components/FilterForm/FlagsPane.vue'
-import FilterFormClinvarPane from '@/variants/components/FilterForm/ClinvarPane.vue'
+import FilterFormFrequencyPane from '@/variants/components/FilterForm/FrequencyPane.vue'
+import FilterFormGenesRegionsPane from '@/variants/components/FilterForm/GenesRegionsPane.vue'
+import QueryPresetsQualityPane from '@/variants/components/QueryPresets/QualityPane.vue'
 import QueryPresetsSetProperties from '@/variants/components/QueryPresets/SetProperties.vue'
 import QueryPresetsSetQuickPresets from '@/variants/components/QueryPresets/SetQuickPresets.vue'
-import QueryPresetsQualityPane from '@/variants/components/QueryPresets/QualityPane.vue'
-
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
-    '{}',
-)
+import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])
@@ -65,9 +59,12 @@ const Category = Object.freeze({
 
 /** Define the props. */
 const props = defineProps({
+  projectUuid: String,
   presetSetUuid: String,
 })
 
+/** Access to application context. */
+const ctxStore = useCtxStore()
 /** Access store with cases. */
 const caseListStore = useCaseListStore()
 /** Access store with query presets. */
@@ -132,14 +129,12 @@ const modalConfirmRef = ref(null)
 const modalInputRef = ref(null)
 /** Ref to the toast. */
 const toastRef = ref(null)
+/** Quick presets already sortable */
+const sortable = ref(null)
 
 /** Handle click on a presets category, will select first entry unless editing presets set properties. */
 const handleCategoryClicked = async (category) => {
-  queryPresetsStore.initialize(
-    caseListStore.csrfToken,
-    caseListStore.projectUuid,
-    true,
-  )
+  queryPresetsStore.initialize(caseListStore.projectUuid, true)
   if (presetSet.value) {
     selectedCategory.value = category
     if (
@@ -414,7 +409,7 @@ const handleDeleteClicked = async (category, presetsUuid) => {
 
 const setUpQuickPresetSortable = () => {
   var el = document.getElementById('quickpresets')
-  var sortable = Sortable.create(el, {
+  sortable.value = Sortable.create(el, {
     dataIdAttr: 'id',
     draggable: '.drag-item',
     store: {
@@ -448,15 +443,9 @@ const setUpQuickPresetSortable = () => {
 
 /** When mounted, start out with frequency presets. Initialize store if necessary. */
 onMounted(async () => {
-  await caseListStore.initialize(
-    appContext.sodar_uuid,
-    appContext.project.sodar_uuid,
-  )
-  await queryPresetsStore.initialize(
-    caseListStore.csrfToken,
-    caseListStore.projectUuid,
-  )
-  handleCategoryClicked('presetset')
+  await caseListStore.initialize(props.projectUuid)
+  await queryPresetsStore.initialize(caseListStore.projectUuid)
+  await handleCategoryClicked('presetset')
   if (getPresetSetEntries('quickpresets').length > 0) {
     setUpQuickPresetSortable()
   }
@@ -465,8 +454,11 @@ onMounted(async () => {
 /** Handle change of presetSetUuid. */
 watch(
   () => props.presetSetUuid,
-  (newValue) => {
-    handleCategoryClicked('presetset')
+  async (newValue) => {
+    await handleCategoryClicked('presetset')
+    if (sortable.value === null) {
+      setUpQuickPresetSortable()
+    }
   },
 )
 
@@ -649,8 +641,6 @@ watch(
               :currentDefaultPresetSet="
                 queryPresetsStore.getDefaultPresetSetName()
               "
-              filtration-complexity-mode="advanced"
-              :case="{ release: 'GRCh37' }"
             />
           </div>
           <!-- Quick Presets -->
@@ -696,7 +686,6 @@ watch(
             <FilterFormGenesRegionsPane
               filtration-complexity-mode="advanced"
               :query-settings="selectedPresets"
-              :csrf-token="queryPresetsStore.csrfToken"
             />
           </div>
           <!-- Quality -->
@@ -737,3 +726,7 @@ watch(
   </div>
   <!-- eslint-enable -->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

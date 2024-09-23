@@ -1,7 +1,6 @@
 """API views for ``variants`` app."""
 
 from itertools import chain
-import re
 import sys
 import typing
 import uuid
@@ -9,7 +8,6 @@ import uuid
 import attrs
 from bgjobs.models import BackgroundJob
 import cattr
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
@@ -38,7 +36,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from extra_annos.models import ExtraAnnoField
-from geneinfo.models import Hpo, HpoName
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 # # TOOD: timeline update
@@ -72,8 +69,6 @@ from variants.serializers import (
     CaseSerializer,
     ExportFileBgJobSerializer,
     ExtraAnnoFieldSerializer,
-    HpoTerms,
-    HpoTermSerializer,
     ProjectSettings,
     ProjectSettingsSerializer,
     SettingsShortcuts,
@@ -82,7 +77,6 @@ from variants.serializers import (
     SmallVariantCommentSerializer,
     SmallVariantFlagsProjectSerializer,
     SmallVariantFlagsSerializer,
-    SmallVariantQueryHpoTermSerializer,
     SmallVariantQueryResultRowSerializer,
     SmallVariantQueryResultSetSerializer,
     SmallVariantQuerySerializer,

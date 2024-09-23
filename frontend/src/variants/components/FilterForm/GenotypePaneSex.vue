@@ -17,3 +17,7 @@ const props = defineProps({
     <i-fa-solid-question v-else id="sex-unknown-icon" />
   </span>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

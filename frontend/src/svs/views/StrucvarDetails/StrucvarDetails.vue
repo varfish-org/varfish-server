@@ -9,60 +9,56 @@
  *
  * See `SeqvarDetails` for a peer app for sequence variants
  */
-
-import { onMounted, watch, ref, computed } from 'vue'
-import { svLocus } from './lib'
-
-import { useSvDetailsStore } from '@/svs/stores/svDetails'
-import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
-import { useSvCommentsStore } from '@/svs/stores/svComments'
-import { useSvResultSetStore } from '@/svs/stores/svResultSet'
-import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
-
-import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
-import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
-import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
-
-import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
-import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
-import StrucvarGenotypeCallCard from '@/svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
-
+import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
+import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
+import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
+import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
+import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
+import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
+import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
+import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
+import StrucvarGeneListCard from '@bihealth/reev-frontend-lib/components/StrucvarGeneListCard/StrucvarGeneListCard.vue'
+import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
 import {
   BreakendStrucvarImpl,
   LinearStrucvarImpl,
   Strucvar,
 } from '@bihealth/reev-frontend-lib/lib/genomicVars'
-import StrucvarGeneListCard from '@bihealth/reev-frontend-lib/components/StrucvarGeneListCard/StrucvarGeneListCard.vue'
-import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
-import GeneOverviewCard from '@bihealth/reev-frontend-lib/components/GeneOverviewCard/GeneOverviewCard.vue'
-import GenePathogenicityCard from '@bihealth/reev-frontend-lib/components/GenePathogenicityCard/GenePathogenicityCard.vue'
-import GeneConditionsCard from '@bihealth/reev-frontend-lib/components/GeneConditionsCard/GeneConditionsCard.vue'
-import GeneExpressionCard from '@bihealth/reev-frontend-lib/components/GeneExpressionCard/GeneExpressionCard.vue'
-import GeneClinvarCard from '@bihealth/reev-frontend-lib/components/GeneClinvarCard/GeneClinvarCard.vue'
-import GeneLiteratureCard from '@bihealth/reev-frontend-lib/components/GeneLiteratureCard/GeneLiteratureCard.vue'
-import StrucvarClinvarCard from '@bihealth/reev-frontend-lib/components/StrucvarClinvarCard/StrucvarClinvarCard.vue'
-import StrucvarToolsCard from '@bihealth/reev-frontend-lib/components/StrucvarToolsCard/StrucvarToolsCard.vue'
-import GenomeBrowserCard from '@bihealth/reev-frontend-lib/components/GenomeBrowserCard/GenomeBrowserCard.vue'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { State } from '@/varfish/storeUtils'
 import { StoreState } from '@bihealth/reev-frontend-lib/stores'
+import { useGeneInfoStore } from '@bihealth/reev-frontend-lib/stores/geneInfo'
 import { usePubtatorStore } from '@bihealth/reev-frontend-lib/stores/pubtator'
+import { useStrucvarInfoStore } from '@bihealth/reev-frontend-lib/stores/strucvarInfo'
+import { computed, onMounted, ref, watch } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import AcmgRatingCard from '@/svs/components/StrucvarAcmgRatingCard/StrucvarAcmgRatingCard.vue'
+import StrucvarDetailsHeader from '@/svs/components/StrucvarDetailsHeader/StrucvarDetailsHeader.vue'
+import StrucvarDetailsNavi from '@/svs/components/StrucvarDetailsNavi/StrucvarDetailsNavi.vue'
+import StrucvarGenotypeCallCard from '@/svs/components/StrucvarGenotypeCallCard/StrucvarGenotypeCallCard.vue'
+import { useSvFlagsStore } from '@/svs/stores/strucvarFlags'
+import { useSvCommentsStore } from '@/svs/stores/svComments'
+import { useSvDetailsStore } from '@/svs/stores/svDetails'
+import { useSvResultSetStore } from '@/svs/stores/svResultSet'
+import CommentsCard from '@/varfish/components/CommentsCard/CommentsCard.vue'
+import FlagsCard from '@/varfish/components/FlagsCard/FlagsCard.vue'
+import { State } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
+
+import { svLocus } from './lib'
 
 const props = defineProps<{
+  /** Project UUID. */
+  projectUuid: string
   /** UUID of the result row to display. */
   resultRowUuid?: string
   /** Identifier of the selected section. */
   selectedSection?: string
 }>()
 
-/** Obtain global application content (as for all entry level components) */
-const appContext = JSON.parse(
-  document
-    .getElementById('sodar-ss-app-context')
-    ?.getAttribute('app-context') ?? '{}',
-)
-
 // Store-related
+
+/** Application context. */
+const ctxStore = useCtxStore()
 
 /** Information about the strucvar, used to fetch information on load. */
 const strucvarInfoStore = useStrucvarInfoStore()
@@ -107,14 +103,13 @@ const loadGeneToStore = async (hgncId: string) => {
 /** Refresh the stores. */
 const refreshStores = async () => {
   if (props.resultRowUuid && props.selectedSection) {
-    await svResultSetStore.initialize(appContext.csrf_token)
+    await svResultSetStore.initialize()
     await svResultSetStore.fetchResultSetViaRow(props.resultRowUuid)
     if (!svResultSetStore.caseUuid) {
       throw new Error('caseUuid not set')
     }
     await caseDetailsStore.initialize(
-      appContext.csrf_token,
-      appContext.project?.sodar_uuid,
+      props.projectUuid,
       svResultSetStore.caseUuid,
     )
     let strucvar: Strucvar
@@ -137,21 +132,9 @@ const refreshStores = async () => {
     }
     await Promise.all([
       strucvarInfoStore.initialize(strucvar),
-      svFlagsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
-      svCommentsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
-      svDetailsStore.initialize(
-        appContext.csrf_token,
-        appContext.project?.sodar_uuid,
-        svResultSetStore.caseUuid,
-      ),
+      svFlagsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
+      svCommentsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
+      svDetailsStore.initialize(props.projectUuid, svResultSetStore.caseUuid),
     ])
     await svDetailsStore.fetchSvDetails(svResultSetStore.resultRow)
   }
@@ -177,13 +160,15 @@ watch(
     svDetailsStore.storeState,
   ],
   () => {
+    const completeStates = [State.Active, State.Error]
+    const completeStoreStates = [StoreState.Active, StoreState.Error]
     if (
-      svResultSetStore.storeState.state === State.Active &&
-      pubtatorStore.storeState === StoreState.Active &&
-      geneInfoStore.storeState === StoreState.Active &&
-      strucvarInfoStore.storeState === StoreState.Active &&
-      svCommentsStore.storeState.state === State.Active &&
-      svDetailsStore.storeState.state === State.Active
+      completeStates.includes(svResultSetStore.storeState.state) &&
+      completeStoreStates.includes(pubtatorStore.storeState) &&
+      completeStoreStates.includes(geneInfoStore.storeState) &&
+      completeStoreStates.includes(strucvarInfoStore.storeState) &&
+      completeStates.includes(svCommentsStore.storeState.state) &&
+      completeStates.includes(svDetailsStore.storeState.state)
     ) {
       setTimeout(() => {
         document.querySelector(`#${props.selectedSection}`)?.scrollIntoView()
@@ -326,11 +311,10 @@ watch(
               </div>
               <div id="strucvar-acmgrating" class="mt-3">
                 <AcmgRatingCard
-                  :project-uuid="appContext.project?.sodar_uuid"
+                  :project-uuid="props.projectUuid"
                   :case-uuid="caseDetailsStore.caseUuid ?? undefined"
                   :strucvar="strucvarInfoStore.strucvar"
                   :result-row-uuid="props.resultRowUuid ?? ''"
-                  :csrf-token="appContext.csrf_token"
                 />
               </div>
               <div id="strucvar-genomebrowser">

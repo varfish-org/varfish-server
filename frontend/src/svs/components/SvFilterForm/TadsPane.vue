@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
+import { computed, onMounted } from 'vue'
 
 // Define the component's props.
 const props = defineProps({
@@ -74,20 +74,16 @@ defineExpose({
     Adjust the settings in this tab to configure the annotation with TAD
     information.
   </div>
-  <div class="row">
-    <div class="col mt-2 mb-2">
-      <div class="form-inline">
-        <label for="tadSetInput"> TAD Set </label>
-        <div class="input-group input-group-sm ml-2 mr-4">
-          <select
-            v-model="v$.tad_set.$model"
-            class="custom-select custom-select-sm"
-          >
-            <option value="hesc">hESC TADs (Dixon et al., 2019)</option>
-            <option value="imr90">IMR90 TADs (Dixon et al., 2019)</option>
-          </select>
-        </div>
-      </div>
+  <div class="form-inline p-2">
+    <label for="tadSetInput"> TAD Set </label>
+    <div class="input-group input-group-sm ml-2 mr-4">
+      <select
+        v-model="v$.tad_set.$model"
+        class="custom-select custom-select-sm"
+      >
+        <option value="hesc">hESC TADs (Dixon et al., 2019)</option>
+        <option value="imr90">IMR90 TADs (Dixon et al., 2019)</option>
+      </select>
     </div>
   </div>
   <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
@@ -100,3 +96,7 @@ defineExpose({
     </code>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

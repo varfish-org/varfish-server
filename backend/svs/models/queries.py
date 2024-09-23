@@ -75,7 +75,7 @@ class SvQuery(models.Model):
         return self.case.project
 
     class Meta:
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
 
 
 class SvQueryResultSet(models.Model):
@@ -126,7 +126,7 @@ class SvQueryResultSet(models.Model):
         return self.svquery.case.project
 
     class Meta:
-        ordering = ("-date_created",)
+        ordering = ("-date_created", "pk")
 
 
 class SvQueryResultRow(models.Model):

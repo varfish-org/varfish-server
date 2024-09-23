@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
-import { StoreState, State } from '@/varfish/storeUtils'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { AnnonarsApiClient } from '@/varfish/api/annonars'
 import { MehariApiClient } from '@/varfish/api/mehari'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 type SmallVariant = any
 type GeneInfos = any
@@ -15,13 +16,13 @@ type TxCsq = any
 export const useVariantDetailsStore = defineStore('variantDetails', () => {
   // store dependencies
 
+  /** The ctx store */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -54,25 +55,18 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -85,7 +79,6 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
   }
@@ -104,12 +97,8 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     txCsq.value = null
 
     // Fetch new details
-    const annonarsClient = new AnnonarsApiClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
-    const mehariClient = new MehariApiClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const annonarsClient = new AnnonarsApiClient(ctxStore.csrfToken)
+    const mehariClient = new MehariApiClient(ctxStore.csrfToken)
     const hgncId = smallVariant$.payload.hgnc_id
 
     await Promise.all([
@@ -150,7 +139,6 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
 
   return {
     // data / state
-    csrfToken,
     projectUuid,
     caseUuid,
     storeState,

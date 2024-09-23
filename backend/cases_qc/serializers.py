@@ -1,4 +1,4 @@
-from django_pydantic_field.rest_framework import SchemaField
+from django_pydantic_field.v2.rest_framework.fields import SchemaField
 from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
 import rest_framework.serializers

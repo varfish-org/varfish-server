@@ -7,7 +7,12 @@
 // } from '@/variants/enums'
 // import { shallowMount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, test /*, vi*/ } from 'vitest'
+import {
+  beforeEach,
+  describe,
+  test,
+  /*, vi*/
+} from 'vitest'
 
 // const testStores = createTestingPinia({
 //   initialState: {
@@ -44,7 +49,6 @@ import { beforeEach, describe, test /*, vi*/ } from 'vitest'
 //     filterQuery: {
 //       showFiltrationInlineHelp: false,
 //       filtrationComplexityMode: null,
-//       csrfToken: null,
 //       caseUuid: null,
 //       case: null,
 //       querySettingsPresets: null,
