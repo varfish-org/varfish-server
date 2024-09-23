@@ -1,6 +1,7 @@
-import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormGenotypePaneAffected from '@/variants/components/FilterForm/GenotypePaneAffected.vue'
 
 describe('FilterFormGenotypePaneAffected.vue', () => {
   test('genotype affected', () => {

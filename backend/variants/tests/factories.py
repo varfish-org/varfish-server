@@ -321,7 +321,6 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
     release = factory.Sequence(lambda n: "GRCh%d" % (37 + n % 2))
     name = factory.LazyAttributeSequence(lambda o, n: "case %03d: %s" % (n, o.structure))
     index = factory.Sequence(lambda n: "index_%03d-N1-DNA1-WES1" % n)
-    pedigree = []
     project = factory.SubFactory(ProjectFactory)
 
     @factory.lazy_attribute_sequence
@@ -520,6 +519,9 @@ class CaseFactory(CoreCaseFactory):
 
     latest_variant_set = None
     latest_structural_variant_set = None
+    pedigree_obj = factory.RelatedFactory(
+        "cases.tests.factories.PedigreeFactory", factory_related_name="case"
+    )
 
     class Meta:
         model = Case

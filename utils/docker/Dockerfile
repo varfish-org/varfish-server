@@ -52,6 +52,8 @@ ENV PYTHONFAULTHANDLER 1
 ENV DEBIAN_FRONTEND noninteractive
 ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
 
+ENV SERVE_FRONTEND 1
+
 WORKDIR /usr/src/app
 
 # Add postgres 12 repository
@@ -137,7 +139,7 @@ ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait
 RUN chmod +x /usr/local/bin/wait
 
 # Copy the worker from the dedicated worker build.
-COPY --from=ghcr.io/varfish-org/varfish-server-worker:main /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+COPY --from=ghcr.io/varfish-org/varfish-server-worker:0.13.0 /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv

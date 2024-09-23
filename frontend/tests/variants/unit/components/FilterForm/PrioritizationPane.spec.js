@@ -1,12 +1,12 @@
-import FilterFormPrioritizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, test } from 'vitest'
+
+import FilterFormPrioritizationPane from '@/variants/components/FilterForm/PrioritizationPane.vue'
 
 describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization prefilled', () => {
     const wrapper = shallowMount(FilterFormPrioritizationPane, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: false,
         exomiserEnabled: true,
         caddEnabled: true,
@@ -43,7 +43,6 @@ describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization prefilled change values', async () => {
     const wrapper = shallowMount(FilterFormPrioritizationPane, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: false,
         exomiserEnabled: true,
         caddEnabled: true,
@@ -112,7 +111,6 @@ describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization prefilled with help', () => {
     const wrapper = shallowMount(FilterFormPrioritizationPane, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: true,
         exomiserEnabled: true,
         caddEnabled: true,
@@ -158,7 +156,6 @@ describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization prefilled with warning', () => {
     const wrapper = shallowMount(FilterFormPrioritizationPane, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: false,
         exomiserEnabled: true,
         caddEnabled: true,
@@ -181,7 +178,6 @@ describe('FilterFormPrioritizationPane.vue', () => {
   test('prioritization empty', () => {
     shallowMount(FilterFormPrioritizationPane, {
       props: {
-        csrfToken: 'fake token',
         showFiltrationInlineHelp: false,
         exomiserEnabled: false,
         caddEnabled: false,

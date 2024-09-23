@@ -6,7 +6,6 @@ from django.conf import settings
 from django.db import transaction
 from projectroles.plugins import get_backend_api
 
-from geneinfo.models import Hpo
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import get_engine
 from variants.models import (

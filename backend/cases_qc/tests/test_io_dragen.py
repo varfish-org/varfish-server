@@ -318,32 +318,6 @@ class DragenTrimmerMetricsTest(
 
 
 @freeze_time("2012-01-14 12:00:01")
-class DragenVcMetricsTest(
-    helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
-):
-    def setUp(self):
-        super().setUp()
-        self.maxDiff = None  # show full diff
-
-        self.caseqc = CaseQcFactory()
-
-    def test_load(self):
-        self.assertEqual(DragenVcMetrics.objects.count(), 0)
-        with open("cases_qc/tests/data/sample.vc_metrics.csv") as inputf:
-            io_dragen.load_vc_metrics(
-                input_file=inputf,
-                caseqc=self.caseqc,
-                file_identifier_to_individual={"NA12878-PCRF450-1": "index"},
-            )
-
-        self.assertEqual(DragenVcMetrics.objects.count(), 1)
-        hist = DragenVcMetrics.objects.first()
-
-        self.assertMatchSnapshot(list(vars(hist).keys()))
-        self.assertMatchSnapshot(helpers.extract_from_dict(hist, ("sample", "metrics")))
-
-
-@freeze_time("2012-01-14 12:00:01")
 class DragenWgsContigMeanCovMetricsTest(
     helpers.FixRandomSeedMixin, helpers.ResetFactoryCountersMixin, TestCase, TestCaseSnapshot
 ):

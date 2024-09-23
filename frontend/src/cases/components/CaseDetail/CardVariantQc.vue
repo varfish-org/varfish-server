@@ -1,7 +1,7 @@
 <script setup>
-import { State } from '@/varfish/storeUtils'
 import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { displayName, formatLargeInt } from '@/varfish/helpers'
+import { State } from '@/varfish/storeUtils'
 
 const caseDetailsStore = useCaseDetailsStore()
 
@@ -107,3 +107,7 @@ const tsTv = (member) => {
     </table>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

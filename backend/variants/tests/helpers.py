@@ -77,7 +77,7 @@ class SupportQueryTestBase(TestBase):
             appropriate query.
             """
             if query_type == "case":
-                if not "case_uuid" in cleaned_data_patch:
+                if "case_uuid" not in cleaned_data_patch:
                     obj = Case.objects.first()
                 else:
                     obj = Case.objects.get(sodar_uuid=cleaned_data_patch["case_uuid"])

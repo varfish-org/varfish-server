@@ -3,10 +3,11 @@
     "downlevelIteration": true,
     "allowJs": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@tests/*": ["./tests/*"],
       "@bihealth/reev-frontend-lib/*": ["./ext/reev-frontend-lib/src/*"],
-      "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"]
+      "@tests/*": ["./tests/*"],
+      "@/*": ["./src/*"],
+      "@varfish-org/varfish-api/*": ["./ext/varfish-api/src/*"],
+      "@varfish-org/viguno-api/*": ["./ext/viguno-api/src/*"]
     }
   }
 }

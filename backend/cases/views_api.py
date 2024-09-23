@@ -1,7 +1,12 @@
 import sys
 
 from bgjobs.models import BackgroundJob
+from django.conf import settings
 from django.db import transaction
+from django.middleware.csrf import get_token
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from modelcluster.queryset import FakeQuerySet
+from projectroles.app_settings import AppSettingAPI
 from projectroles.views_api import (
     SODARAPIBaseMixin,
     SODARAPIBaseProjectMixin,
@@ -10,20 +15,26 @@ from projectroles.views_api import (
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
 
+from cases.models import ExtraAnnoFieldInfo, GlobalSettings, UserAndGlobalSettings, UserSettings
 from cases.serializers import (
     CaseAlignmentStatsSerializer,
     CaseCommentSerializer,
     CaseGeneAnnotationSerializer,
     CaseSerializerNg,
     PedigreeRelatednessSerializer,
+    RecordCountSerializer,
     SampleVariantStatisticsSerializer,
+    UserAndGlobalSettingsSerializer,
 )
+from extra_annos.models import ExtraAnnoField
 from svs.models import SvAnnotationReleaseInfo
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models import (
@@ -52,6 +63,56 @@ class CasePagination(PageNumberPagination):
     max_page_size = 1000
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name="q", type=str),
+        ],
+        responses=RecordCountSerializer,
+    )
+)
+class CaseCountApiView(SODARAPIBaseProjectMixin, RetrieveAPIView):
+    """Return the number of cases, potentially filtered."""
+
+    permission_classes = [SODARAPIProjectPermission]
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    serializer_class = RecordCountSerializer
+
+    def get(self, request, *args, **kwargs):
+        return Response({"count": self.get_queryset().count()})
+
+    def get_queryset(self):
+        # Use ``select_related()`` so we do not have to explicitely fetch projects and preset sets for serializing as
+        # projects.sodar_uuid and presetset.sodar_uuid.
+        qs = Case.objects.filter(project__sodar_uuid=self.kwargs["project"])
+        if self.request.GET.get("q"):
+            qs = qs.filter(name__icontains=self.request.GET.get("q"))
+        order_by_str = self.request.query_params.get("order_by", "")
+        if order_by_str:
+            order_dir = self.request.query_params.get("order_dir", "asc")
+            order_by = order_by_str.split(",")
+            if order_dir == "desc":
+                qs = qs.order_by(*[f"-{value}" for value in order_by])
+            else:
+                qs = qs.order_by(*order_by)
+        qs = qs.select_related("project", "presetset")
+        return qs
+
+    def get_permission_required(self):
+        return "cases.view_data"
+
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name="order_by", type=str),
+            OpenApiParameter(name="order_dir", type=str),
+            OpenApiParameter(name="q", type=str),
+        ]
+    )
+)
 class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
     """
     List all cases in the current project.
@@ -477,3 +538,51 @@ class PedigreeRelatednessListApiView(PedigreeRelatednessApiMixin, ListAPIView):
 
     **Returns:** List of variant
     """
+
+
+class UserAndGlobalSettingsView(RetrieveAPIView):
+    """Retrieve user and global settings.
+
+    Also, send the CSRF token as a response token.
+    """
+
+    serializer_class = UserAndGlobalSettingsSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    def get_queryset(self):
+        """Return fake query set to support spectacular schema generation."""
+        return FakeQuerySet(model=UserAndGlobalSettings, results=[])
+
+    def get(self, request, *args, **kwargs):
+        result = super().get(request, *args, **kwargs)
+        get_token(request)
+        return result
+
+    def get_object(self) -> UserAndGlobalSettings:
+        setting_api = AppSettingAPI()
+
+        return UserAndGlobalSettings(
+            user_settings=UserSettings(
+                umd_predictor_api_token=setting_api.get(
+                    "variants", "umd_predictor_api_token", user=self.request.user
+                ),
+                ga4gh_beacon_network_widget_enabled=setting_api.get(
+                    "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
+                ),
+            ),
+            global_settings=GlobalSettings(
+                exomiser_enabled=settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
+                cadd_enabled=settings.VARFISH_ENABLE_CADD,
+                extra_anno_fields=self._get_extra_anno_fields(),
+            ),
+        )
+
+    def _get_extra_anno_fields(self):
+        return [
+            ExtraAnnoFieldInfo(
+                field=entry.field,
+                label=entry.label,
+            )
+            for entry in ExtraAnnoField.objects.all()
+        ]

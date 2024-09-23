@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
+import { computed, onMounted } from 'vue'
 
 // Define the component's props.
 const props = defineProps({
@@ -77,44 +77,38 @@ defineExpose({
     Adjust the settings in this tab to configure the annotation with built-in
     and user-defined regulatory elements VarFish instance.
   </div>
-  <div class="row">
-    <div class="col mt-2 mb-2">
-      <div class="form-inline">
-        <label for="regulatoryGeneralPaddingInput">
-          Allowed distance/padding
-        </label>
-        <div class="input-group input-group-sm ml-2 mr-4">
-          <input
-            id="regulatoryGeneralPaddingInput"
-            v-model.trim.lazy="v$.regulatory_general_padding.$model"
-            type="text"
-            class="form-control"
-            placeholder="allowed distance"
-            :class="{
-              'is-invalid': v$.regulatory_general_padding.$error,
-            }"
-          />
-          <div class="input-group-append">
-            <span class="input-group-text">bp</span>
-          </div>
-          <div
-            v-for="error of v$.regulatory_general_padding.$errors"
-            :key="error.$uid"
-            class="invalid-feedback"
-          >
-            {{ error.$message }}
-          </div>
-        </div>
+  <div class="form-inline p-2">
+    <label for="regulatoryGeneralPaddingInput">
+      Allowed distance/padding
+    </label>
+    <div class="input-group input-group-sm ml-2 mr-4">
+      <input
+        id="regulatoryGeneralPaddingInput"
+        v-model.trim.lazy="v$.regulatory_general_padding.$model"
+        type="text"
+        class="form-control"
+        placeholder="allowed distance"
+        :class="{
+          'is-invalid': v$.regulatory_general_padding.$error,
+        }"
+      />
+      <div class="input-group-append">
+        <span class="input-group-text">bp</span>
+      </div>
+      <div
+        v-for="error of v$.regulatory_general_padding.$errors"
+        :key="error.$uid"
+        class="invalid-feedback"
+      >
+        {{ error.$message }}
       </div>
     </div>
   </div>
-  <div class="row border-top mt-2">
-    <div class="col mt-2 mb-2">
-      <h5>
-        Custom Regulatory Maps
-        <span class="text-muted small">(Installed by Instance Admin)</span>
-      </h5>
-    </div>
+  <div class="p-2">
+    <h5>
+      Custom Regulatory Maps
+      <span class="text-muted small">(Installed by Instance Admin)</span>
+    </h5>
   </div>
   <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
     <span class="text-nowrap">
@@ -126,3 +120,7 @@ defineExpose({
     </code>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

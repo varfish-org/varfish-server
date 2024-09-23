@@ -1,21 +1,22 @@
 <script setup>
-import Overlay from '@/varfish/components/Overlay.vue'
-import FilterFormGenotypePane from '@/variants/components/FilterForm//GenotypePane.vue'
-import FilterFormFrequencyPane from '@/variants/components/FilterForm//FrequencyPane.vue'
-import FilterFormFooter from '@/variants/components/FilterForm//Footer.vue'
-import FilterFormPriotizationPane from '@/variants/components/FilterForm//PrioritizationPane.vue'
-import FilterFormEffectPane from '@/variants/components/FilterForm//EffectPane.vue'
-import FilterFormClinvarPane from '@/variants/components/FilterForm//ClinvarPane.vue'
-import FilterFormGenesRegionsPane from '@/variants/components/FilterForm//GenesRegionsPane.vue'
-import FilterFormFlagsPane from '@/variants/components/FilterForm//FlagsPane.vue'
+import { useVuelidate } from '@vuelidate/core'
+import { computed, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import FilterFormDevPane from '@/varfish/components/FilterForm//DevPane.vue'
+import Overlay from '@/varfish/components/Overlay.vue'
+import FilterFormClinvarPane from '@/variants/components/FilterForm//ClinvarPane.vue'
+import FilterFormEffectPane from '@/variants/components/FilterForm//EffectPane.vue'
+import FilterFormFlagsPane from '@/variants/components/FilterForm//FlagsPane.vue'
+import FilterFormFooter from '@/variants/components/FilterForm//Footer.vue'
+import FilterFormFrequencyPane from '@/variants/components/FilterForm//FrequencyPane.vue'
+import FilterFormGenesRegionsPane from '@/variants/components/FilterForm//GenesRegionsPane.vue'
+import FilterFormGenotypePane from '@/variants/components/FilterForm//GenotypePane.vue'
+import FilterFormPriotizationPane from '@/variants/components/FilterForm//PrioritizationPane.vue'
 import FilterFormQualityPane from '@/variants/components/FilterForm//QualityPane.vue'
 import FilterFormQuickPresets from '@/variants/components/FilterForm//QuickPresets.vue'
 import { QueryStates } from '@/variants/enums'
-import { computed, ref } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
 import { useVariantQueryStore } from '@/variants/stores/variantQuery'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 
 const variantQueryStore = useVariantQueryStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -110,7 +111,7 @@ const onSubmitCancelButtonClicked = () => {
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
     >
-      <div class="card-header">
+      <div class="card-header border-bottom-0">
         <FilterFormQuickPresets
           :show-filtration-inline-help="
             variantQueryStore.showFiltrationInlineHelp
@@ -121,7 +122,7 @@ const onSubmitCancelButtonClicked = () => {
           :case="caseDetailsStore.caseObj"
         />
       </div>
-      <div class="card-header row border-bottom-1 pt-1 pr-1">
+      <div class="card-header border-bottom-1 pt-0">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a
@@ -302,7 +303,6 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.querySettings.patho_enabled
               "
               v-model:patho-score="variantQueryStore.querySettings.patho_score"
-              :csrf-token="variantQueryStore.csrfToken"
               :show-filtration-inline-help="
                 variantQueryStore.showFiltrationInlineHelp
               "
@@ -446,4 +446,8 @@ footer.sodar-footer,
 .sodar-sub-navbar-container {
   display: none;
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

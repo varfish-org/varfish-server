@@ -1,22 +1,69 @@
-@use 'vuetify' with (
-  $utilities: (
-    margin: false,
-    margin-x: false,
-    margin-y: false,
-    margin-top: false,
-    margin-bottom: false,
-    margin-left: false,
-    margin-right: false,
-    margin-start: false,
-    margin-end: false,
-    negative-margin: false,
-    negative-margin-x: false,
-    negative-margin-y: false,
-    negative-margin-top: false,
-    negative-margin-bottom: false,
-    negative-margin-left: false,
-    negative-margin-right: false,
-    negative-margin-start: false,
-    negative-margin-end: false,
-  )
-);
+@use 'vuetify';
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src:
+    local('Open Sans Bold'),
+    local('OpenSans-Bold'),
+    url(https://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzJ1r3JsPcQLi8jytr04NNhU.woff)
+      format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src:
+    local('Open Sans Light'),
+    local('OpenSans-Light'),
+    url(https://themes.googleusercontent.com/static/fonts/opensans/v6/DXI1ORHCpsQm3Vp6mXoaTZ1r3JsPcQLi8jytr04NNhU.woff)
+      format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 800;
+  src:
+    local('Open Sans Extrabold'),
+    local('OpenSans-Extrabold'),
+    url(https://themes.googleusercontent.com/static/fonts/opensans/v6/EInbV5DfGHOiMmvb1Xr-hp1r3JsPcQLi8jytr04NNhU.woff)
+      format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local('Open Sans'),
+    local('OpenSans'),
+    url(https://themes.googleusercontent.com/static/fonts/opensans/v6/K88pR3goAWT7BTt32Z01mz8E0i7KZn-EPnyo3HZu7kw.woff)
+      format('woff');
+}
+
+:root {
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+}
+
+.group-title {
+  font-family: 'Open Sans';
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.ui-control-text {
+  color: var(--v-theme-ui-control-text, #242424);
+  font-family: 'Open Sans';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.v-selection-control .v-label {
+  margin-bottom: 0;
+}

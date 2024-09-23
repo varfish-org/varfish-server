@@ -1,0 +1,348 @@
+syntax = "proto3";
+
+package seqvars.pbs.query;
+
+// Enumeration for recessive mode queries.
+enum RecessiveMode {
+  // Unknown recessive mode.
+  RECESSIVE_MODE_UNSPECIFIED = 0;
+  // Disabled recessive mode.
+  RECESSIVE_MODE_DISABLED = 1;
+  // Compound heterozygous recessive mode.
+  RECESSIVE_MODE_COMPOUND_HETEROZYGOUS = 2;
+  // Homozygous recessive mode.
+  RECESSIVE_MODE_HOMOZYGOUS = 3;
+  // Generic recessive mode.
+  RECESSIVE_MODE_ANY = 4;
+}
+
+// Choice for genotype.
+enum GenotypeChoice {
+  // Unknown genotype.
+  GENOTYPE_CHOICE_UNSPECIFIED = 0;
+  // Any genoype.
+  GENOTYPE_CHOICE_ANY = 1;
+  // Reference genotype.
+  GENOTYPE_CHOICE_REF = 2;
+  // Heterozygous genotype.
+  GENOTYPE_CHOICE_HET = 3;
+  // Homozygous genotype.
+  GENOTYPE_CHOICE_HOM = 4;
+  // Non-heterozygous genotype.
+  GENOTYPE_CHOICE_NON_HET = 5;
+  // Non-homozygous genotype.
+  GENOTYPE_CHOICE_NON_HOM = 6;
+  // Variant genotype.
+  GENOTYPE_CHOICE_VARIANT = 7;
+  // Recessive index.
+  GENOTYPE_CHOICE_RECESSIVE_INDEX = 8;
+  // Recessive father.
+  GENOTYPE_CHOICE_RECESSIVE_FATHER = 9;
+  // Recessive mother.
+  GENOTYPE_CHOICE_RECESSIVE_MOTHER = 10;
+}
+
+// Genotype choice for one sample.
+message SampleGenotypeChoice {
+  // Name of the sample filtered for
+  string sample = 1;
+  // Genotype choice
+  GenotypeChoice genotype = 2;
+  // Whether to include no-call (will disable quality filter).
+  bool include_no_call = 3;
+  // Whether to enable sample in filtration
+  bool enabled = 4;
+}
+
+// Genotype-related filter settings.
+message QuerySettingsGenotype {
+  // Recessive mode
+  RecessiveMode recessive_mode = 1;
+  // List of sample genotype choices
+  repeated SampleGenotypeChoice sample_genotypes = 2;
+}
+
+// Quality settings for one sample.
+message SampleQualitySettings {
+  // Name of the sample filtered for
+  string sample = 1;
+  // Drop whole variant on failure
+  bool filter_active = 2;
+  // Minimal coverage for het. sites
+  optional int32 min_dp_het = 3;
+  // Minimal coverage for hom. sites
+  optional int32 min_dp_hom = 4;
+  // Minimal genotype quality
+  optional int32 min_gq = 5;
+  // Minimal allele balance for het. variants
+  optional float min_ab = 6;
+  // Minimal number of alternate reads
+  optional int32 min_ad = 7;
+  // Maximal number of alternate reads
+  optional int32 max_ad = 8;
+}
+
+// Per-sample quality filter settings.
+message QuerySettingsQuality {
+  // List of sample quality settings
+  repeated SampleQualitySettings sample_qualities = 1;
+}
+
+// gnomAD and In-house nuclear filter options.
+message NuclearFrequencySettings {
+  // Whether to enable filtration by 1000 Genomes.
+  bool enabled = 1;
+  // Maximal number of in-house heterozygous carriers
+  optional int32 heterozygous = 2;
+  // Maximal number of in-house homozygous carriers
+  optional int32 homozygous = 3;
+  // Maximal number of in-house hemizygous carriers
+  optional int32 hemizygous = 4;
+  // Maximal allele frequency.
+  optional float frequency = 5;
+}
+
+// gnomAD mitochondrial filter options.
+message GnomadMitochondrialFrequencySettings {
+  // Whether to enable filtration by 1000 Genomes.
+  bool enabled = 1;
+  // Maximal number of heteroplasmic carriers.
+  optional int32 heteroplasmic = 2;
+  // Maximal number of homoplasmic carriers.
+  optional int32 homoplasmic = 3;
+  // Maximal allele frequency.
+  optional float frequency = 4;
+}
+
+// HelixMtDb filter options.
+message HelixMtDbFrequencySettings {
+  // Whether to enable filtration by mtDB
+  bool enabled = 1;
+  // Maximal number of heterozygous carriers in HelixMtDb
+  optional int32 heteroplasmic = 2;
+  // Maximal number of homozygous carriers in HelixMtDb
+  optional int32 homoplasmic = 3;
+  // Maximal frequency in HelixMtDb
+  optional float frequency = 4;
+}
+
+
+// Population frequency filter options.
+message QuerySettingsFrequency {
+  // gnomAD-exomes filter
+  NuclearFrequencySettings gnomad_exomes = 1;
+  // gnomAD-genomes filter
+  NuclearFrequencySettings gnomad_genomes = 2;
+  // gnomAD-MT filter
+  GnomadMitochondrialFrequencySettings gnomad_mtdna = 3;
+  // HelixMtDb filter
+  HelixMtDbFrequencySettings helixmtdb = 4;
+  // In-house filter
+  NuclearFrequencySettings inhouse = 5;
+}
+
+// The variant types.
+enum VariantType {
+  // Unknown variant type
+  VARIANT_TYPE_UNSPECIFIED = 0;
+  // SNV
+  VARIANT_TYPE_SNV = 1;
+  // Indel
+  VARIANT_TYPE_INDEL = 2;
+  // MNV
+  VARIANT_TYPE_MNV = 3;
+  // Complex Substitution
+  VARIANT_TYPE_COMPLEX_SUBSTITUTION = 4;
+}
+
+// Transcript types to consider.
+enum TranscriptType {
+  // Unknown transcript type.
+  TRANSCRIPT_TYPE_UNSPECIFIED = 0;
+  // Coding transcript.
+  TRANSCRIPT_TYPE_CODING = 1;
+  // Non-coding transcript.
+  TRANSCRIPT_TYPE_NON_CODING = 2;
+}
+
+// The Variant consequence
+enum Consequence {
+  // Unknown consequence.
+  CONSEQUENCE_UNSPECIFIED = 0;
+  /*
+   * high impact
+   */
+  // Transcript ablation.
+  CONSEQUENCE_TRANSCRIPT_ABLATION = 1;
+  // Exon loss variant.
+  CONSEQUENCE_EXON_LOSS_VARIANT = 2;
+  // Splice acceptor variant
+  CONSEQUENCE_SPLICE_ACCEPTOR_VARIANT = 3;
+  // Splice donor variant
+  CONSEQUENCE_SPLICE_DONOR_VARIANT = 4;
+  // Stop gained
+  CONSEQUENCE_STOP_GAINED = 5;
+  // Frameshift variant
+  CONSEQUENCE_FRAMESHIFT_VARIANT = 6;
+  // Stop lost
+  CONSEQUENCE_STOP_LOST = 7;
+  // Start lost
+  CONSEQUENCE_START_LOST = 8;
+  // Transcript amplification
+  CONSEQUENCE_TRANSCRIPT_AMPLIFICATION = 9;
+  // Feature elongation.
+  CONSEQUENCE_FEATURE_ELONGATION = 10;
+  // Feature truncation.
+  CONSEQUENCE_FEATURE_TRUNCATION = 11;
+  /*
+   * moderate impact
+   */
+  // Disruptive inframe insertion
+  CONSEQUENCE_DISRUPTIVE_INFRAME_INSERTION = 12;
+  // Disruptive inframe deletion
+  CONSEQUENCE_DISRUPTIVE_INFRAME_DELETION = 13;
+  // Conservative inframe insertion
+  CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION = 14;
+  // Conservative inframe deletion
+  CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION = 15;
+  // Missense variant
+  CONSEQUENCE_MISSENSE_VARIANT = 16;
+  /*
+   * low impact
+   */
+  // Splice donor 5th base variant.
+  CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT = 17;
+  // Splice region variant.
+  CONSEQUENCE_SPLICE_REGION_VARIANT = 18;
+  // Splice donor region variant.
+  CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT = 19;
+  // Splice polypyrimidine tract variant.
+  CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT = 20;
+  // Start retained variant.
+  CONSEQUENCE_START_RETAINED_VARIANT = 21;
+  // Stop retained variant.
+  CONSEQUENCE_STOP_RETAINED_VARIANT = 22;
+  // Synonymous variant.
+  CONSEQUENCE_SYNONYMOUS_VARIANT = 23;
+  /*
+   * modifier
+   */
+  // Coding sequence variant.
+  CONSEQUENCE_CODING_SEQUENCE_VARIANT = 24;
+  // Mature miRNA variant.
+  CONSEQUENCE_MATURE_MIRNA_VARIANT = 25;
+  // 5' UTR exon variant.
+  CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT = 26;
+  // 5' UTR intron variant.
+  CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT = 27;
+  // 3' UTR exon variant.
+  CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT = 28;
+  // 3' UTR intron variant.
+  CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT = 29;
+  // Non-coding transcript exon variant.
+  CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT = 30;
+  // Non-coding transcript intron variant.
+  CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT = 31;
+  // Upstream gene variant.
+  CONSEQUENCE_UPSTREAM_GENE_VARIANT = 32;
+  // Downstream gene variant.
+  CONSEQUENCE_DOWNSTREAM_GENE_VARIANT = 33;
+  // TFBS ablation.
+  CONSEQUENCE_TFBS_ABLATION = 34;
+  // TFBS amplification.
+  CONSEQUENCE_TFBS_AMPLIFICATION = 35;
+  // TFBS binding site variant.
+  CONSEQUENCE_TF_BINDING_SITE_VARIANT = 36;
+  // Regulatory region ablation.
+  CONSEQUENCE_REGULATORY_REGION_ABLATION = 37;
+  // Regulatory region amplification.
+  CONSEQUENCE_REGULATORY_REGION_AMPLIFICATION = 38;
+  // Regulatory region variant.
+  CONSEQUENCE_REGULATORY_REGION_VARIANT = 39;
+  // Intergenic variant.
+  CONSEQUENCE_INTERGENIC_VARIANT = 40;
+  // Intron variant.
+  CONSEQUENCE_INTRON_VARIANT = 41;
+  // Gene variant.
+  CONSEQUENCE_GENE_VARIANT = 42;
+}
+
+// Consequence-related filter settings.
+message QuerySettingsConsequence {
+  // The variant types.
+  repeated VariantType variant_types = 1;
+  // The transcript types.
+  repeated TranscriptType transcript_types = 2;
+  // List of consequences to consider
+  repeated Consequence consequences = 3;
+  // Maximal distance to next exon, if any
+  optional int32 max_dist_to_exon = 4;
+}
+
+// An 1-based integer range.
+message Range {
+  // 1-based start position.
+  int32 start = 1;
+  // 1-based end position.
+  int32 end = 2;
+}
+
+// Genomic region.
+message GenomicRegion {
+  // Chromosome
+  string chrom = 1;
+  // Range of region
+  optional Range range = 2;
+}
+
+// Locus-related filter settings.
+message QuerySettingsLocus {
+  // List of HGNC identifiers for filtration to genes.
+  //
+  // The server will expand gene panels to gene lists here.
+  repeated string genes = 1;
+  // List of genomic regions to limit restrict the resulting variants to
+  repeated GenomicRegion genome_regions = 2;
+}
+
+// Enumeration of canonical ClinVar germline aggregte descriptions.
+enum ClinvarGermlineAggregateDescription {
+  // Unknown description.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_UNSPECIFIED = 0;
+  // Pathogenic.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_PATHOGENIC = 1;
+  // Likely pathogenic.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_LIKELY_PATHOGENIC = 2;
+  // Uncertain significance.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_UNCERTAIN_SIGNIFICANCE = 3;
+  // Likely benign.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_LIKELY_BENIGN = 4;
+  // Benign.
+  CLINVAR_GERMLINE_AGGREGATE_DESCRIPTION_BENIGN = 5;
+}
+
+// Clinvar-related query settings.
+message QuerySettingsClinVar {
+  // Wether to require ClinVar membership
+  bool presence_required = 1;
+  // The ClinVar germline aggregate description to include.
+  repeated ClinvarGermlineAggregateDescription germline_descriptions = 2;
+  // Whether to include conflicting interpretation ClinVar variants
+  bool allow_conflicting_interpretations = 3;
+}
+
+// Store query information for one case.
+message CaseQuery {
+  // Genotype query settings.
+  QuerySettingsGenotype genotype = 1;
+  // Quality query settings.
+  QuerySettingsQuality quality = 2;
+  // Frequency query settings.
+  QuerySettingsFrequency frequency = 3;
+  // Consequence query settings.
+  QuerySettingsConsequence consequence = 4;
+  // Locus query settings.
+  QuerySettingsLocus locus = 5;
+  // ClinVar query settings.
+  QuerySettingsClinVar clinvar = 6;
+}

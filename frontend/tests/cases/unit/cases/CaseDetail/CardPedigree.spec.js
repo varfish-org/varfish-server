@@ -1,5 +1,6 @@
-import CaseDetailCardPedigree from '@/cases/components/CaseDetail/CardPedigree.vue'
 import { beforeAll, describe, expect, test, vi } from 'vitest'
+
+import CaseDetailCardPedigree from '@/cases/components/CaseDetail/CardPedigree.vue'
 
 import caseDetailsStoreData from '../../../data/caseDetailsStoreData.json'
 import { makeWrapper } from '../CaseDetailApp.common'

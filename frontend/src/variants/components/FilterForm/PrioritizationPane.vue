@@ -1,11 +1,10 @@
 <script setup>
-import HpoTermInput from '@/variants/components/HpoTermInput.vue'
-
-import { declareWrapper } from '@/variants/helpers'
 import { useVuelidate } from '@vuelidate/core'
 
+import HpoTermInput from '@/variants/components/HpoTermInput.vue'
+import { declareWrapper } from '@/variants/helpers'
+
 const props = defineProps({
-  csrfToken: String,
   showFiltrationInlineHelp: Boolean,
   filtrationComplexityMode: String,
   exomiserEnabled: Boolean,
@@ -134,7 +133,7 @@ function selectOption() {
       </div>
       <div class="form-group pt-2">
         <label for="prio-hpo-terms"> HPO Terms </label>
-        <HpoTermInput v-model="prioHpoTermsWrapper" />
+        <HpoTermInput v-model="prioHpoTermsWrapper" :include-omim="false" />
       </div>
     </div>
 
@@ -257,3 +256,7 @@ function selectOption() {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

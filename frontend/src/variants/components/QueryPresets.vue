@@ -3,20 +3,18 @@
  *
  * Editing is allowed for using a child `QueryPresetsEditor` component.
  */
-
+import { minLength, required } from '@vuelidate/validators'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { minLength, required } from '@vuelidate/validators'
 
-import { overlayShow, overlayMessage } from '@/cases/common'
-import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
+import { overlayMessage, overlayShow } from '@/cases/common'
 import { useCaseListStore } from '@/cases/stores/caseList'
-
-import QueryPresetsSetEditor from '@/variants/components/QueryPresets/SetEditor.vue'
-import Overlay from '@/varfish/components/Overlay.vue'
-import ModalInput from '@/varfish/components/ModalInput.vue'
 import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
+import ModalInput from '@/varfish/components/ModalInput.vue'
+import Overlay from '@/varfish/components/Overlay.vue'
 import Toast from '@/varfish/components/Toast.vue'
+import QueryPresetsSetEditor from '@/variants/components/QueryPresets/SetEditor.vue'
+import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
 
 /** Reuseable definition for the labels. */
 const labelRules = Object.freeze([required, minLength(5)])
@@ -182,10 +180,7 @@ const handleEditClicked = async () => {
 /** Initialize store on first mount. */
 onMounted(async () => {
   await caseListStore.initializeRes
-  await queryPresetsStore.initialize(
-    caseListStore.csrfToken,
-    caseListStore.projectUuid,
-  )
+  await queryPresetsStore.initialize(caseListStore.projectUuid)
 })
 
 /** Return list of presets sets in a null/undefined safe manner. */
@@ -282,3 +277,7 @@ const presetSetModel = computed({
     <Overlay v-if="overlayShow" :message="overlayMessage" />
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -848,17 +848,16 @@ class SeqvarsImportExecutor(VariantImportExecutorBase):
             "--id-mapping",
             f"@{path_id_map}",
         ]
-        # if settings.DEBUG: # XXX remove this
-        #     args += ["--max-var-count", "1000"]
         # Setup environment so the worker can access the internal S3 storage.
-        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
-        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
         env = {
             **dict(os.environ.items()),
             "LC_ALL": "C",
             "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
             "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
-            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            "AWS_ENDPOINT_URL": (
+                f"http://{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host}"
+                f":{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port}"
+            ),
             "AWS_REGION": "us-east-1",
         }
         # Actually execute the worker.
@@ -929,14 +928,15 @@ class SeqvarsImportExecutor(VariantImportExecutorBase):
             f"{bucket}/{ingested_on_s3.path}",
         ]
         # Setup environment so the worker can access the internal S3 storage.
-        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
-        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
         env = {
             **dict(os.environ.items()),
             "LC_ALL": "C",
             "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
             "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
-            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            "AWS_ENDPOINT_URL": (
+                f"http://{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host}"
+                f":{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port}"
+            ),
             "AWS_REGION": "us-east-1",
         }
         # Actually execute the worker.
@@ -1007,14 +1007,15 @@ class StrucvarsImportExecutor(VariantImportExecutorBase):
             args += ["--path-in", f"{bucket}/{entry.path}"]
         args += ["--path-out", f"{bucket}/{path_out}", "--id-mapping", f"@{path_id_map}"]
         # Setup environment so the worker can access the internal S3 storage.
-        endpoint_host = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host
-        endpoint_port = settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port
         env = {
             **dict(os.environ.items()),
             "LC_ALL": "C",
             "AWS_ACCESS_KEY_ID": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.access_key,
             "AWS_SECRET_ACCESS_KEY": settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.secret_key,
-            "AWS_ENDPOINT_URL": f"http://{endpoint_host}:{endpoint_port}",
+            "AWS_ENDPOINT_URL": (
+                f"http://{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.host}"
+                f":{settings.VARFISH_CASE_IMPORT_INTERNAL_STORAGE.port}"
+            ),
             "AWS_REGION": "us-east-1",
         }
         # Actually execute the worker.
@@ -1189,6 +1190,12 @@ class CaseImportBackgroundJobExecutor:
             individual = Individual.objects.create(
                 pedigree=pedigree,
                 name=person.individual_id,
+                father=(
+                    person.paternal_id if person.paternal_id and person.paternal_id != "0" else None
+                ),
+                mother=(
+                    person.maternal_id if person.maternal_id and person.maternal_id != "0" else None
+                ),
                 sex=SEX_MAP[person.sex],
                 karyotypic_sex=karyotypic_sex[person.individual_id],
                 assay=assay[person.individual_id],

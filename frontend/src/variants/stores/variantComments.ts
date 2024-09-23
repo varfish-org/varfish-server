@@ -5,13 +5,14 @@
  *
  * - `caseDetailsStore`
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { VariantClient } from '@/variants/api/variantClient'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Seqvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { VariantClient } from '@/variants/api/variantClient'
 
 /** Alias definition of SmallVariantComments type; to be defined later. */
 type SmallVariantComment = any
@@ -19,13 +20,13 @@ type SmallVariantComment = any
 export const useVariantCommentsStore = defineStore('variantComments', () => {
   // store dependencies
 
+  /** The ctx store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -60,25 +61,18 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -93,7 +87,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     $reset()
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -101,9 +94,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       variantClient.listComment(caseUuid.value).then((result) => {
@@ -150,9 +141,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       throw new Error('caseUuid not set')
     }
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     comments.value = null
     storeState.state = State.Fetching
@@ -183,9 +172,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     if (!caseUuid.value) {
       throw new Error('caseUuid not set')
     }
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -230,9 +217,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     if (!seqvar.value) {
       throw new Error('seqvar not set')
     }
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -276,9 +261,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
    * Delete a comment by UUID.
    */
   const deleteComment = async (commentUuid: string) => {
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -344,9 +327,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       throw new Error('projectUuid not set')
     }
 
-    const variantClient = new VariantClient(
-      csrfToken.value ?? 'undefined-csrf-token',
-    )
+    const variantClient = new VariantClient(ctxStore.csrfToken)
 
     projectWideVariantComments.value = []
     storeState.state = State.Fetching
@@ -374,7 +355,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     storeState.serverInteractions = 0
     storeState.message = null
 
-    csrfToken.value = null
     caseUuid.value = null
     projectUuid.value = null
     seqvar.value = null
@@ -385,7 +365,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

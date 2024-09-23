@@ -6,10 +6,14 @@ from parameterized import parameterized
 from snapshottest.unittest import TestCase as TestCaseSnapshot
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
-from seqvars.factory_defaults import create_seqvarspresetsset_short_read_genome
-from seqvars.models import (
+from seqvars.factory_defaults import (
+    create_seqvarspresetsset_short_read_exome_legacy,
+    create_seqvarspresetsset_short_read_genome,
+)
+from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
+    SeqvarsQueryExecution,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
     SeqvarsQueryPresetsConsequence,
@@ -244,7 +248,8 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
         super().setUp()
         self.querypresetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
         self.querypresetssetversion = SeqvarsQueryPresetsSetVersionFactory(
-            presetsset=self.querypresetsset
+            presetsset=self.querypresetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
         )
 
     def test_list(self):
@@ -386,7 +391,10 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsquality = SeqvarsQueryPresetsQualityFactory(
             presetssetversion=self.presetssetversion
         )
@@ -519,7 +527,10 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsconsequence = SeqvarsQueryPresetsConsequenceFactory(
             presetssetversion=self.presetssetversion
         )
@@ -652,7 +663,10 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
             presetssetversion=self.presetssetversion
         )
@@ -785,7 +799,10 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetslocus = SeqvarsQueryPresetsLocusFactory(
             presetssetversion=self.presetssetversion
         )
@@ -918,7 +935,10 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsphenotypeprio = SeqvarsQueryPresetsPhenotypePrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1051,7 +1071,10 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsvariantprio = SeqvarsQueryPresetsVariantPrioFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1184,7 +1207,10 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetscolumns = SeqvarsQueryPresetsColumnsFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1317,7 +1343,10 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.presetsclinvar = SeqvarsQueryPresetsClinvarFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1450,7 +1479,10 @@ class PredefinedQueryViewSet(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
-        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(presetsset=self.presetsset)
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory(
+            presetsset=self.presetsset,
+            status=SeqvarsQueryPresetsSetVersion.STATUS_DRAFT,
+        )
         self.predefinedquery = SeqvarsPredefinedQueryFactory(
             presetssetversion=self.presetssetversion
         )
@@ -1886,7 +1918,7 @@ class TestQueryViewSet(ApiViewTestBase):
             [{"settings": {"frequency": {"gnomad_genomes": {"enabled": True}}}}],
         ]
     )
-    def test_patch(self, data: dict[str, Any]):
+    def test_patch(self, data: dict[str, Any]):  # noqa: C901
         keys = [
             "genotype",
             "quality",
@@ -1898,7 +1930,7 @@ class TestQueryViewSet(ApiViewTestBase):
             "clinvar",
         ]
         for key in keys:
-            if not key in data["settings"]:
+            if key not in data["settings"]:
                 if key == "frequency":
                     data["settings"][key] = {
                         "gnomad_genomes": {},
@@ -2005,6 +2037,35 @@ class TestQueryViewSet(ApiViewTestBase):
 
         self.assertEqual(SeqvarsQuery.objects.count(), 0)
 
+    def test_create_from(self):
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 1)
+        with self.login(self.superuser):
+            # TODO: change after https://github.com/varfish-org/varfish-server/issues/1920
+            presetsset_factory = create_seqvarspresetsset_short_read_exome_legacy()
+            presetsset = presetsset_factory.clone_with_latest_version(project=self.project)
+            version = presetsset.versions.all()[0]
+            predefinedquery = version.seqvarspredefinedquery_set.all()[0]
+
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-query-create-from",
+                    kwargs={
+                        "session": self.session.sodar_uuid,
+                    },
+                ),
+                format="json",
+                data={
+                    "predefinedquery": predefinedquery.sodar_uuid,
+                    "label": "test label",
+                },
+            )
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(SeqvarsQuery.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettings.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsFrequency.objects.count(), 2)
+
 
 @freeze_time("2012-01-14 12:00:01")
 class TestQueryExecutionViewSet(ApiViewTestBase):
@@ -2075,6 +2136,35 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
                 )
             )
         self.assertEqual(response.status_code, 404)
+
+    def test_start(self):
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 1)
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "seqvars:api-queryexecution-start",
+                    kwargs={
+                        "query": self.query.sodar_uuid,
+                    },
+                ),
+            )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(SeqvarsQuery.objects.count(), 1)
+        self.assertEqual(SeqvarsQueryExecution.objects.count(), 2)
+        self.assertEqual(
+            self.query.seqvarsqueryexecution_set.count(),
+            2,
+        )
+        new_seqvarqueryexecution = SeqvarsQueryExecution.objects.exclude(
+            pk=self.queryexecution.pk
+        ).first()
+        self.assertEqual(
+            new_seqvarqueryexecution.state,
+            SeqvarsQueryExecution.STATE_QUEUED,
+        )
 
 
 @freeze_time("2012-01-14 12:00:01")

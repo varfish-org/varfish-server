@@ -15,7 +15,10 @@ const interpretations = [
 </script>
 
 <template>
-  <div class="row">
+  <div
+    class="row p-2"
+    v-if="querySettings !== null && querySettings !== undefined"
+  >
     <div class="col-lg-6 col-md-12">
       <div
         v-if="props.showFiltrationInlineHelp"
@@ -70,7 +73,7 @@ const interpretations = [
         </small>
       </div>
     </div>
-    <div class="col-lg-6 col-md-12 mb-3">
+    <div class="col-lg-6 col-md-12">
       <div class="font-weight-bold mt-2">ClinVar Interpretations</div>
       <div class="text-form text-muted small mt-2 mb-2">
         Check the ClinVar (summary) interpretations that you want to limit your
@@ -218,3 +221,7 @@ const interpretations = [
   <!--    </div>-->
   <!--  </div>-->
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

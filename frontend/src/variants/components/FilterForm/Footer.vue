@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { declareWrapper } from '@/variants/helpers'
+
 import { QueryStates } from '@/variants/enums'
+import { declareWrapper } from '@/variants/helpers'
 import { useVariantQueryStore } from '@/variants/stores/variantQuery'
 
 const props = defineProps({
@@ -137,4 +138,8 @@ const devStoreState = () => {
     transform: rotate(360deg);
   }
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

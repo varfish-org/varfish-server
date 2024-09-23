@@ -1,7 +1,10 @@
 from django.forms import model_to_dict
 from freezegun import freeze_time
+from parameterized import parameterized
+from rest_framework import serializers
 from test_plus import TestCase
 
+from seqvars.models.base import SeqvarsQueryPresetsSetVersion
 from seqvars.serializers import (
     SeqvarsPredefinedQuerySerializer,
     SeqvarsQueryColumnsConfigSerializer,
@@ -104,6 +107,106 @@ class TestSeqvarsQueryPresetsQualitySerializer(TestCase):
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestSeqvarsQueryPresetsBaseSerializer(TestCase):
+    """Test the code from ``FrequencySettingsBase`` for the representative example of
+    ``SeqvarsQueryPresetsFrequency``."""
+
+    def setUp(self):
+        super().setUp()
+        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory()
+        self.presetssetversion = self.seqvarsquerypresetsfrequency.presetssetversion
+        self.presetsset = self.presetssetversion.presetsset
+
+    def test_validation_status_draft_on_create(self):
+        # Update the status of the preset set version.
+        self.presetssetversion.status = SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsFrequencySerializer(
+            data={
+                "rank": 100,
+            },
+            context={
+                "presetssetversion": self.presetssetversion,
+            },
+            partial=True,
+        )
+        # Execute validation and saving.
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+    @parameterized.expand(
+        [
+            [SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE],
+            [SeqvarsQueryPresetsSetVersion.STATUS_RETIRED],
+        ]
+    )
+    def test_validation_status_not_draft_on_create(self, status: str):
+        # Update the status of the preset set version.
+        self.presetssetversion.status = status
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsFrequencySerializer(
+            data={
+                "rank": 100,
+            },
+            context={
+                "presetssetversion": self.presetssetversion,
+            },
+            partial=True,
+        )
+        # Execute the expected-to-fail validation.
+        with self.assertRaises(serializers.ValidationError) as ve:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn("non_field_errors", ve.exception.detail)
+
+    def test_validation_status_draft_on_update(self):
+        # Update the status of the preset set version.
+        self.presetssetversion.status = SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsFrequencySerializer(
+            instance=self.seqvarsquerypresetsfrequency,
+            data={},
+            context={
+                "presetssetversion": self.presetssetversion,
+            },
+            partial=True,
+        )
+        # Execute validation and saving.
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+    @parameterized.expand(
+        [
+            [SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE],
+            [SeqvarsQueryPresetsSetVersion.STATUS_RETIRED],
+        ]
+    )
+    def test_validation_status_not_draft_on_update(self, status: str):
+        # Update the status of the preset set version.
+        self.presetssetversion.status = status
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsFrequencySerializer(
+            instance=self.seqvarsquerypresetsfrequency,
+            data={},
+            context={
+                "presetssetversion": self.presetssetversion,
+            },
+            partial=True,
+        )
+        # Execute the expected-to-fail validation.
+        with self.assertRaises(serializers.ValidationError) as ve:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn("non_field_errors", ve.exception.detail)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -591,13 +694,18 @@ class TestSeqvarsQueryPresetsSetVersionSerializer(TestCase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.seqvarsquerypresetssetversion = SeqvarsQueryPresetsSetVersionFactory()
-        self.seqvarsquerypresetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
-            presetssetversion=self.seqvarsquerypresetssetversion
+
+        self.user = self.make_user("user")
+
+        self.presetssetversion = SeqvarsQueryPresetsSetVersionFactory()
+        self.presetsset = self.presetssetversion.presetsset
+        self.project = self.presetsset.project
+        self.presetsfrequency = SeqvarsQueryPresetsFrequencyFactory(
+            presetssetversion=self.presetssetversion
         )
 
     def test_serialize_existing(self):
-        serializer = SeqvarsQueryPresetsSetVersionSerializer(self.seqvarsquerypresetssetversion)
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(self.presetssetversion)
         fields = [
             # BaseModel
             "sodar_uuid",
@@ -611,11 +719,11 @@ class TestSeqvarsQueryPresetsSetVersionSerializer(TestCase):
             "signed_off_by",
         ]
         expected = model_to_dict(
-            self.seqvarsquerypresetssetversion,
+            self.presetssetversion,
             fields=fields,
         )
         # We replace the related objects with their UUIDs.
-        expected["presetsset"] = self.seqvarsquerypresetssetversion.presetsset.sodar_uuid
+        expected["presetsset"] = self.presetssetversion.presetsset.sodar_uuid
         # Note that "date_created", "date_modified" are ignored in model_to_dict as they
         # are not editable.
         expected["date_created"] = "2012-01-14T12:00:01Z"
@@ -623,6 +731,142 @@ class TestSeqvarsQueryPresetsSetVersionSerializer(TestCase):
 
         self.assertEqual(set(serializer.data.keys()), set(fields))
         self.assertDictEqual(dict(serializer.data), expected)
+
+    @parameterized.expand(
+        [
+            [SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE],
+            [SeqvarsQueryPresetsSetVersion.STATUS_DRAFT],
+        ]
+    )
+    def test_can_create_with_valid_state(self, status: str):
+        # Create a blank presets set.
+        presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            data={
+                "status": status,
+            },
+            context={
+                "presetsset": presetsset,
+            },
+        )
+
+        # Perform creation.
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+    def test_cannot_create_with_retired_state(self):
+        # Create a blank presets set.
+        presetsset = SeqvarsQueryPresetsSetFactory(project=self.project)
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            data={
+                "status": SeqvarsQueryPresetsSetVersion.STATUS_RETIRED,
+            },
+            context={
+                "presetsset": presetsset,
+            },
+        )
+
+        # Run the expected-to-fail validation.
+        with self.assertRaises(serializers.ValidationError) as ve:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn("status", ve.exception.detail)
+
+    def test_can_update_in_draft_state(self):
+        # Prepare the presets set version in draft/editable state.
+        self.presetssetversion.status = SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            instance=self.presetssetversion,
+            data={
+                "version_minor": 42,
+            },
+            context={
+                "presetsset": self.presetsset,
+            },
+            partial=True,
+        )
+
+        # Validate and save.
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        self.presetssetversion.refresh_from_db()
+        self.assertEqual(self.presetssetversion.version_minor, 42)
+
+    @parameterized.expand(
+        [
+            [SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE],
+            [SeqvarsQueryPresetsSetVersion.STATUS_RETIRED],
+        ]
+    )
+    def test_cannot_update_with_invalid_state(self, old_status: str):
+        # Prepare the presets set version in non-editable status.
+        self.presetssetversion.status = old_status
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            instance=self.presetssetversion,
+            data={},
+        )
+
+        # Run the expected-to-fail validation.
+        with self.assertRaises(serializers.ValidationError) as ve:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn("non_field_errors", ve.exception.detail)
+
+    def test_can_update_state_from_draft_to_active(self):
+        # Prepare the presets set version in draft/editable state.
+        self.presetssetversion.status = SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
+        self.presetssetversion.save()
+
+        # First, ensure that we can actually.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            instance=self.presetssetversion,
+            data={
+                "status": SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE,
+            },
+            context={
+                "current_user": self.user,
+            },
+        )
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        # Ensure that status has been updated and ``signed_off_by`` is set
+        self.presetssetversion.refresh_from_db()
+        self.assertEqual(self.presetssetversion.status, SeqvarsQueryPresetsSetVersion.STATUS_ACTIVE)
+        self.assertEqual(
+            self.presetssetversion.signed_off_by.pk,
+            self.user.pk,
+        )
+
+    @parameterized.expand(
+        [
+            [SeqvarsQueryPresetsSetVersion.STATUS_DRAFT],
+            [SeqvarsQueryPresetsSetVersion.STATUS_RETIRED],
+        ]
+    )
+    def test_cannot_update_state_from_draft_to_other(self, new_status: str):
+        # Prepare the presets set version in draft/editable state.
+        self.presetssetversion.status = SeqvarsQueryPresetsSetVersion.STATUS_DRAFT
+        self.presetssetversion.save()
+
+        # Prepare the serializer.
+        serializer = SeqvarsQueryPresetsSetVersionSerializer(
+            instance=self.presetssetversion,
+            data={"status": new_status},
+        )
+        # Run the expected-to-fail validation.
+        with self.assertRaises(serializers.ValidationError) as ve:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn("status", ve.exception.detail)
 
 
 @freeze_time("2012-01-14 12:00:01")
@@ -715,6 +959,7 @@ class TestSeqvarsQuerySettingsSerializer(TestCase):
             "qualitypresets",
             "clinvarpresets",
             "frequencypresets",
+            "columnspresets",
             "genotype",
             "quality",
             "consequence",
@@ -775,6 +1020,7 @@ class TestSeqvarsQuerySettingsDetailsSerializer(TestCase):
             "qualitypresets",
             "clinvarpresets",
             "frequencypresets",
+            "columnspresets",
             "genotype",
             "quality",
             "consequence",
@@ -837,6 +1083,7 @@ class TestSeqvarsQuerySettingsGenotypeSerializer(TestCase):
             # QuerySettingsBase
             "querysettings",
             # GenotypeSettingsBase
+            "recessive_mode",
             "sample_genotype_choices",
         ]
         expected = model_to_dict(
@@ -1316,6 +1563,7 @@ class TestSeqvarsResultSetSerializer(TestCase):
             # ResultSet
             "queryexecution",
             "datasource_infos",
+            "output_header",
         ]
         expected = model_to_dict(
             self.resultset,
@@ -1346,13 +1594,12 @@ class TestSeqvarsResultRowSerializer(TestCase):
         fields = [
             "sodar_uuid",
             "resultset",
-            "release",
-            "chromosome",
-            "chromosome_no",
-            "start",
-            "stop",
-            "reference",
-            "alternative",
+            "genome_release",
+            "chrom",
+            "chrom_no",
+            "pos",
+            "ref_allele",
+            "alt_allele",
             "payload",
         ]
         expected = model_to_dict(

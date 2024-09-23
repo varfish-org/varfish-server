@@ -1,18 +1,18 @@
 <script setup>
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
-import { useCaseListStore } from '@/cases/stores/caseList'
 import { computed, reactive } from 'vue'
 
-import QcPlotRelatedness from '@/cases/components/CaseDetail/QcPlotRelatedness.vue'
-import QcPlotDepthHet from '@/cases/components/CaseDetail/QcPlotDepthHet.vue'
-import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
-import QcPlotVarType from '@/cases/components/CaseDetail/QcPlotVarType.vue'
-import QcPlotVarEffect from '@/cases/components/CaseDetail/QcPlotVarEffect.vue'
-import QcPlotIndelSize from '@/cases/components/CaseDetail/QcPlotIndelSize.vue'
-import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
-import QcTableAlignmentStats from '@/cases/components/CaseDetail/QcTableAlignmentStats.vue'
-import { displayName, quantiles } from '@/varfish/helpers'
 import { downloadPerSampleMetrics, downloadRelatedness } from '@/cases/common'
+import QcPlotChrXRatio from '@/cases/components/CaseDetail/QcPlotChrXRatio.vue'
+import QcPlotDepthHet from '@/cases/components/CaseDetail/QcPlotDepthHet.vue'
+import QcPlotIndelSize from '@/cases/components/CaseDetail/QcPlotIndelSize.vue'
+import QcPlotRelatedness from '@/cases/components/CaseDetail/QcPlotRelatedness.vue'
+import QcPlotVarEffect from '@/cases/components/CaseDetail/QcPlotVarEffect.vue'
+import QcPlotVarType from '@/cases/components/CaseDetail/QcPlotVarType.vue'
+import QcTableAlignmentStats from '@/cases/components/CaseDetail/QcTableAlignmentStats.vue'
+import QcTableVarStats from '@/cases/components/CaseDetail/QcTableVarStats.vue'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { useCaseListStore } from '@/cases/stores/caseList'
+import { displayName, quantiles } from '@/varfish/helpers'
 
 const caseListStore = useCaseListStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -238,3 +238,7 @@ const varStats = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

@@ -1,12 +1,15 @@
 import sys
+import typing
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.openapi import AutoSchema
+from drf_spectacular.utils import extend_schema
 from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
@@ -17,9 +20,11 @@ from seqvars.factory_defaults import (
     create_seqvarspresetsset_short_read_exome_modern,
     create_seqvarspresetsset_short_read_genome,
 )
-from seqvars.models import (
+from seqvars.models.base import (
+    SeqvarsPredefinedQuery,
     SeqvarsQuery,
     SeqvarsQueryExecution,
+    SeqvarsQueryExecutionBackgroundJob,
     SeqvarsQueryPresetsSet,
     SeqvarsQueryPresetsSetVersion,
     SeqvarsQuerySettings,
@@ -28,6 +33,7 @@ from seqvars.models import (
 )
 from seqvars.serializers import (
     SeqvarsPredefinedQuerySerializer,
+    SeqvarsQueryCreateFromSerializer,
     SeqvarsQueryDetailsSerializer,
     SeqvarsQueryExecutionDetailsSerializer,
     SeqvarsQueryExecutionSerializer,
@@ -38,6 +44,7 @@ from seqvars.serializers import (
     SeqvarsQueryPresetsLocusSerializer,
     SeqvarsQueryPresetsPhenotypePrioSerializer,
     SeqvarsQueryPresetsQualitySerializer,
+    SeqvarsQueryPresetsSetCopyFromSerializer,
     SeqvarsQueryPresetsSetDetailsSerializer,
     SeqvarsQueryPresetsSetSerializer,
     SeqvarsQueryPresetsSetVersionDetailsSerializer,
@@ -185,23 +192,27 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = result.filter(project__sodar_uuid=self.kwargs["project"])
         return result
 
-    @action(detail=True)
+    @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
+    @action(methods=["post"], detail=True)
     def copy_from(self, *args, **kwargs):
-        """Copy from another presets set."""
+        """Create a copy/clone of the given preset set."""
         source = None
         try:
-            source = self.get_queryset().get(sodar_uuid=kwargs["sodar_uuid"])
+            source = self.get_queryset().get(sodar_uuid=kwargs["querypresetsset"])
         except ObjectDoesNotExist:
             for value in (
                 create_seqvarspresetsset_short_read_genome(),
                 create_seqvarspresetsset_short_read_exome_modern(),
                 create_seqvarspresetsset_short_read_exome_legacy(),
             ):
-                if str(value.sodar_uuid) == kwargs["sodar_uuid"]:
+                if str(value.sodar_uuid) == kwargs["querypresetsset"]:
                     source = value
                     break
 
-        instance = source.clone_with_latest_version()
+        instance = source.clone_with_latest_version(
+            label=self.request.data.get("label"),
+            project=get_project(self.kwargs),
+        )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -271,8 +282,11 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
     lookup_url_kwarg = "querypresetssetversion"
     #: The default serializer class to use.
     serializer_class = SeqvarsQueryPresetsSetVersionSerializer
-    #: Override ``retrieve`` serializer to render all presets.
-    action_serializers = {"retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer}
+    #: Override ``retrieve`` and ``copy_from`` serializer to render all presets.
+    action_serializers = {
+        "retrieve": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+        "copy_from": SeqvarsQueryPresetsSetVersionDetailsSerializer,
+    }
 
     def get_queryset(self):
         """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
@@ -294,6 +308,14 @@ class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSe
         # Set the current user from the request into the context.
         context["current_user"] = self.request.user
         return context
+
+    @action(methods=["post"], detail=True)
+    def copy_from(self, *args, **kwargs):
+        """Copy from another presets set version."""
+        source = self.get_queryset().get(sodar_uuid=kwargs["querypresetssetversion"])
+        instance = source.clone_with_presetsset(presetsset=source.presetsset)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class SeqvarsCategoryPresetsViewSetBase(ProjectContextBaseViewSet, BaseViewSet):
@@ -426,20 +448,52 @@ class SeqvarsQuerySettingsViewSet(BaseViewSet):
 class SeqvarsQueryViewSet(BaseViewSet):
     """Allow CRUD of the user's queries."""
 
-    # TODO XXX XXX ADD LAUNCH ACTION XXX XXX TODO
-
     #: Define lookup URL kwarg.
     lookup_url_kwarg = "query"
     #: The default serializer class to use.
     serializer_class = SeqvarsQuerySerializer
-    #: Override ``create`` and ``*-detail`` serializer to render all presets.
+    #: Override non-list serializers to serialize all preses.
     action_serializers = {
         "create": SeqvarsQueryDetailsSerializer,
         "retrieve": SeqvarsQueryDetailsSerializer,
         "update": SeqvarsQueryDetailsSerializer,
         "partial_update": SeqvarsQueryDetailsSerializer,
         "delete": SeqvarsQueryDetailsSerializer,
+        "create_from": SeqvarsQueryDetailsSerializer,
     }
+
+    @extend_schema(request=SeqvarsQueryCreateFromSerializer)
+    @action(methods=["post"], detail=False)
+    @transaction.atomic()
+    def create_from(self, *args, **kwargs):
+        """Create a new seqvars query from a predefined query."""
+        source = None
+        predefinedquery_uuid: str = self.request.data["predefinedquery"]
+        label: typing.Optional[str] = self.request.data.get("label")
+        try:
+            # TODO: check permissions on the source's project
+            source = SeqvarsPredefinedQuery.objects.get(sodar_uuid=predefinedquery_uuid)
+        except ObjectDoesNotExist:
+            for presetsset in (
+                create_seqvarspresetsset_short_read_genome(),
+                create_seqvarspresetsset_short_read_exome_modern(),
+                create_seqvarspresetsset_short_read_exome_legacy(),
+            ):
+                for version in presetsset.versions.all():
+                    for predefinedquery in version.seqvarspredefinedquery_set.all():
+                        if str(predefinedquery.sodar_uuid) == predefinedquery_uuid:
+                            source = predefinedquery
+                            break
+        if not source:
+            raise ObjectDoesNotExist
+
+        instance = SeqvarsQuery.objects.from_predefinedquery(
+            session=CaseAnalysisSession.objects.get(sodar_uuid=self.kwargs["session"]),
+            predefinedquery=source,
+            label=label,
+        )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def get_queryset(self):
         """Return queryset with all ``Query`` records for the given case
@@ -477,7 +531,31 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
     #: Override ``retrieve`` serializer to render all presets.
     action_serializers = {
         "retrieve": SeqvarsQueryExecutionDetailsSerializer,
+        "start": SeqvarsQueryExecutionDetailsSerializer,
     }
+
+    @extend_schema(request=serializers.Serializer)
+    @action(methods=["post"], detail=False)
+    @transaction.atomic()
+    def start(self, *args, **kwargs):
+        """Create a new query execution for the given query.
+
+        Also, start the execution of a background job.
+        """
+        query = None
+        # TODO: check permissions on the source's project
+        query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
+        queryexecution = SeqvarsQueryExecution.objects.create(
+            state=SeqvarsQueryExecution.STATE_QUEUED,
+            query=query,
+            querysettings=query.settings.make_clone(),
+        )
+        SeqvarsQueryExecutionBackgroundJob.objects.create_full(
+            seqvarsqueryexecution=queryexecution,
+            user=self.request.user,
+        )
+        serializer = self.get_serializer(queryexecution)
+        return Response(serializer.data)
 
     def get_queryset(self):
         """Return queryset with all ``QueryExecution`` records for the given query."""
@@ -512,7 +590,7 @@ class SeqvarsResultSetViewSet(BaseReadOnlyViewSet):
 class SeqvarsResultRowPagination(StandardPagination):
     """Cursor navigation for result rows."""
 
-    ordering = ["-chromosome_no", "start"]
+    ordering = ["chrom_no", "pos"]
 
 
 class SeqvarsResultRowViewSet(BaseReadOnlyViewSet):

@@ -1,7 +1,7 @@
 <script setup>
-import { displayName, formatLargeInt } from '@/varfish/helpers'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { tsTvRatio } from '@/cases/common'
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { displayName, formatLargeInt } from '@/varfish/helpers'
 
 const props = defineProps({
   // eslint-disable-next-line vue/require-default-prop
@@ -79,3 +79,7 @@ const caseDetailsStore = useCaseDetailsStore()
     </tbody>
   </table>
 </template>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
+</style>

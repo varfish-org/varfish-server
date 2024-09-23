@@ -9,6 +9,7 @@ from test_plus.test import TestCase
 from variants.query_schemas import (
     SCHEMA_QUERY,
     DefaultValidatingDraft7Validator,
+    FormToQueryJsonConverter,
     convert_query_json_to_small_variant_filter_form,
     load_json,
 )
@@ -80,3 +81,8 @@ class TestQuerySchema(TestCase):
         self.assertEqual(result, QUERY_SETTINGS_CONVERTED)
         self.assertEqual(version.major, 0)
         self.assertEqual(version.minor, 0)
+
+    def test_form_to_query_json_converter(self):
+        """Test conversion from query settings to small variant filter form"""
+        result = FormToQueryJsonConverter().convert(QUERY_SETTINGS_CONVERTED)
+        self.assertEqual(result, QUERY_SETTINGS)

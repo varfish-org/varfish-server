@@ -1,8 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { declareWrapper } from '@/variants/helpers'
-import { QueryStates } from '@/variants/enums'
+
 import { useSvQueryStore } from '@/svs/stores/svQuery'
+import { QueryStates } from '@/variants/enums'
+import { declareWrapper } from '@/variants/helpers'
 
 const props = defineProps({
   filtrationComplexityMode: String,
@@ -122,4 +123,8 @@ const devStoreState = () => {
     transform: rotate(360deg);
   }
 }
+</style>
+
+<style scoped>
+@import 'bootstrap/dist/css/bootstrap.css';
 </style>

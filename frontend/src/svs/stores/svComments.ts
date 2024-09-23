@@ -5,15 +5,16 @@
  *
  * - `caseDetailsStore`
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { SvClient } from '@/svs/api/strucvarClient'
-import { reciprocalOverlap } from '@/varfish/helpers'
-import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
 import { Strucvar } from '@bihealth/reev-frontend-lib/lib/genomicVars'
 import isEqual from 'fast-deep-equal'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { useCaseDetailsStore } from '@/cases/stores/caseDetails'
+import { SvClient } from '@/svs/api/strucvarClient'
+import { reciprocalOverlap } from '@/varfish/helpers'
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
 
 /** Alias definition of StructuralVariantComment type; to be defined later. */
 type StructuralVariantComment = any
@@ -21,13 +22,13 @@ type StructuralVariantComment = any
 export const useSvCommentsStore = defineStore('svComments', () => {
   // store dependencies
 
+  /** Context store. */
+  const ctxStore = useCtxStore()
   /** The caseDetails store */
   const caseDetailsStore = useCaseDetailsStore()
 
   // data passed to `initialize` and store state
 
-  /** The CSRF token. */
-  const csrfToken = ref<string | null>(null)
   /** UUID of the project.  */
   const projectUuid = ref<string | null>(null)
   /** UUID of the case that this store holds annotations for. */
@@ -58,25 +59,18 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    *
    * This will also initialize the store dependencies.
    *
-   * @param csrfToken$ CSRF token to use.
    * @param projectUuid$ UUID of the project.
    * @param caseUuid$ UUID of the case to use.
    * @param forceReload Whether to force the reload.
    * @returns Promise with the finalization results.
    */
   const initialize = async (
-    csrfToken$: string,
     projectUuid$: string,
     caseUuid$: string,
     forceReload: boolean = false,
   ): Promise<any> => {
     // Initialize store dependencies.
-    await caseDetailsStore.initialize(
-      csrfToken$,
-      projectUuid$,
-      caseUuid$,
-      forceReload,
-    )
+    await caseDetailsStore.initialize(projectUuid$, caseUuid$, forceReload)
 
     // Initialize only once for each case.
     if (
@@ -89,7 +83,6 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     }
 
     // Set simple properties.
-    csrfToken.value = csrfToken$
     projectUuid.value = projectUuid$
     caseUuid.value = caseUuid$
 
@@ -97,7 +90,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     initializeRes.value = Promise.all([
       svClient.listComment(caseUuid.value).then((comments) => {
@@ -109,7 +102,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       svClient
         .listProjectComment(projectUuid.value, caseUuid.value)
         .then((result) => {
-          projectWideVariantComments.value = result
+          projectWideComments.value = result
         }),
     ]).catch((err) => {
       console.error('Problem initializing svComments store', err)
@@ -136,7 +129,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       throw new Error('Case UUID is not set')
     }
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     sv.value = null
     storeState.state = State.Fetching
@@ -167,7 +160,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     strucvar: Strucvar,
     text: string,
   ): Promise<Strucvar> => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
     // Error if case UUID is unset.
     if (!caseUuid.value) {
       throw new Error('Case UUID is not set')
@@ -219,7 +212,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
     commentUuid: string,
     text: string,
   ): Promise<Strucvar> => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -256,7 +249,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    * Delete a comment by UUID.
    */
   const deleteComment = async (commentUuid: string) => {
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -328,7 +321,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       throw new Error('projectUuid not set')
     }
 
-    const svClient = new SvClient(csrfToken.value ?? 'undefined-csrf-token')
+    const svClient = new SvClient(ctxStore.csrfToken)
 
     projectWideVariantComments.value = []
     storeState.state = State.Fetching
@@ -353,7 +346,6 @@ export const useSvCommentsStore = defineStore('svComments', () => {
 
   return {
     // data / state
-    csrfToken,
     storeState,
     caseUuid,
     projectUuid,

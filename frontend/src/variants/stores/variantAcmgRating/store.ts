@@ -1,12 +1,13 @@
 /**
  * Pinia store for handling per-variant ACMG rating.
  */
-import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
-
-import { StoreState, State } from '@/varfish/storeUtils'
-import { VariantClient } from '@/variants/api/variantClient'
 import { Seqvar, SeqvarImpl } from '@bihealth/reev-frontend-lib/lib/genomicVars'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+
+import { State, StoreState } from '@/varfish/storeUtils'
+import { useCtxStore } from '@/varfish/stores/ctx'
+import { VariantClient } from '@/variants/api/variantClient'
 import { AcmgRating, seqvarEqual } from '@/variants/api/variantClient'
 
 export const useVariantAcmgRatingStore = defineStore(
@@ -14,10 +15,11 @@ export const useVariantAcmgRatingStore = defineStore(
   () => {
     // store dependencies
 
+    /** The ctx store. */
+    const ctxStore = useCtxStore()
+
     // data passed to `initialize` and store state
 
-    /** The CSRF token. */
-    const csrfToken = ref<string | undefined>(undefined)
     /** UUID of the project.  */
     const projectUuid = ref<string | undefined>(undefined)
     /** UUID of the case that this store holds annotations for. */
@@ -44,14 +46,12 @@ export const useVariantAcmgRatingStore = defineStore(
      *
      * This will also initialize the store dependencies.
      *
-     * @param csrfToken$ CSRF token to use.
      * @param projectUuid$ UUID of the project.
      * @param caseUuid$ UUID of the case to use.
      * @param forceReload Whether to force the reload.
      * @returns Promise with the finalization results.
      */
     const initialize = async (
-      csrfToken$: string,
       projectUuid$: string,
       caseUuid$: string,
       forceReload: boolean = false,
@@ -69,7 +69,6 @@ export const useVariantAcmgRatingStore = defineStore(
       $reset()
 
       // Set simple properties.
-      csrfToken.value = csrfToken$
       projectUuid.value = projectUuid$
       caseUuid.value = caseUuid$
 
@@ -77,9 +76,7 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
 
-      const variantClient = new VariantClient(
-        csrfToken.value ?? 'undefined-csrf-token',
-      )
+      const variantClient = new VariantClient(ctxStore.csrfToken)
 
       // Fetch all ratings via API.
       //
@@ -140,9 +137,7 @@ export const useVariantAcmgRatingStore = defineStore(
       if (!caseUuid.value) {
         throw new Error('No case UUID set')
       }
-      const variantClient = new VariantClient(
-        csrfToken.value ?? 'undefined-csrf-token',
-      )
+      const variantClient = new VariantClient(ctxStore.csrfToken)
 
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
@@ -176,9 +171,7 @@ export const useVariantAcmgRatingStore = defineStore(
     const updateAcmgRating = async (
       acmgRating$: AcmgRating,
     ): Promise<AcmgRating> => {
-      const variantClient = new VariantClient(
-        csrfToken.value ?? 'undefined-csrf-token',
-      )
+      const variantClient = new VariantClient(ctxStore.csrfToken)
 
       if (!acmgRating.value) {
         throw new Error(
@@ -228,9 +221,7 @@ export const useVariantAcmgRatingStore = defineStore(
           'Trying to delete acmgRating with acmgRating.value being falsy',
         )
       }
-      const variantClient = new VariantClient(
-        csrfToken.value ?? 'undefined-csrf-token',
-      )
+      const variantClient = new VariantClient(ctxStore.csrfToken)
 
       storeState.state = State.Fetching
       storeState.serverInteractions += 1
@@ -268,7 +259,6 @@ export const useVariantAcmgRatingStore = defineStore(
       storeState.serverInteractions = 0
       storeState.message = null
 
-      csrfToken.value = undefined
       caseUuid.value = undefined
       projectUuid.value = undefined
       seqvar.value = undefined
@@ -279,7 +269,6 @@ export const useVariantAcmgRatingStore = defineStore(
 
     return {
       // data / state
-      csrfToken,
       storeState,
       caseUuid,
       projectUuid,

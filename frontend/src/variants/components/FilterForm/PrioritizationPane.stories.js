@@ -49,7 +49,6 @@ const Template = (args) => ({
   },
   template:
     '<FilterFormPriotizationPane\n' +
-    '    :csrf-token="args.csrfToken"\n' +
     '    :show-filtration-inline-help="args.showFiltrationInlineHelp"\n' +
     '    :exomiser-enabled="args.exomiserEnabled"\n' +
     '    :cadd-enabled="args.caddEnabled"\n' +
@@ -68,7 +67,6 @@ const Template = (args) => ({
 
 export const Prefilled = Template.bind({})
 Prefilled.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: false,
   exomiserEnabled: true,
   caddEnabled: true,
@@ -86,7 +84,6 @@ Prefilled.args = {
 
 export const PrefilledWithHelp = Template.bind({})
 PrefilledWithHelp.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: true,
   exomiserEnabled: true,
   caddEnabled: true,
@@ -104,7 +101,6 @@ PrefilledWithHelp.args = {
 
 export const PrefilledWithWarning = Template.bind({})
 PrefilledWithWarning.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: false,
   exomiserEnabled: true,
   caddEnabled: true,
@@ -122,7 +118,6 @@ PrefilledWithWarning.args = {
 
 export const Empty = Template.bind({})
 Empty.args = {
-  csrfToken: 'fake token',
   showFiltrationInlineHelp: false,
   exomiserEnabled: false,
   caddEnabled: false,
