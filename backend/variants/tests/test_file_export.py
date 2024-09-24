@@ -406,7 +406,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
     @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     @Mocker()
     def test_export_xlsx(self, mock):
         self.export_job.query_args["pedia_enabled"] = True
