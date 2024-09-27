@@ -3,10 +3,12 @@
 from datetime import timedelta
 import gzip
 import io
+import json
 import tempfile
 from unittest.mock import patch
 
 from bgjobs.models import BackgroundJob
+import django
 from django.conf import settings
 from django.utils import timezone
 import openpyxl
@@ -117,7 +119,17 @@ class ExportTestBase(TestCase):
             project=self.bg_job.project,
             bg_job=self.bg_job,
             case=self.case,
-            query_args={"export_flags": True, "export_comments": True},
+            query_args={
+                "export_flags": True,
+                "export_comments": True,
+                "pedia_enabled": True,
+                "gm_enabled": True,
+                "patho_enabled": True,
+                "patho_score": "CADD",
+                "prio_enabled": True,
+                "prio_algorithm": "CADA",
+                "prio_hpo_terms": [],
+            },
             file_type="xlsx",
         )
 
@@ -144,6 +156,71 @@ class ExportTestBase(TestCase):
                 ensembl_transcript_id=small_var.ensembl_transcript_id,
             )
 
+    def _set_cada_mocker(self, mock_):
+        mock_.post(
+            django.conf.settings.VARFISH_CADA_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                [
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[0].refseq_gene_id,
+                        "geneSymbol": "ASPSCR1",
+                        "score": 0.1,
+                    },
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[1].refseq_gene_id,
+                        "geneSymbol": "NFKBIL1",
+                        "score": 0.2,
+                    },
+                ]
+            ),
+        )
+
+    def _set_pedia_mocker(self, mock_):
+        mock_.post(
+            django.conf.settings.VARFISH_PEDIA_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                [
+                    {
+                        "gene_id": self.small_vars[0].refseq_gene_id,
+                        "gene_name": "ASPSCR1",
+                        "pedia_score": 0.4,
+                    },
+                    {
+                        "gene_id": self.small_vars[1].refseq_gene_id,
+                        "gene_name": "NFKBIL1",
+                        "pedia_score": -0.2,
+                    },
+                ]
+            ),
+        )
+
+    def _set_cadd_mocker(self, mock_):
+        def _key_gen(s):
+            return "%s-%d-%s-%s" % (s.chromosome, s.start, s.reference, s.alternative)
+
+        mock_.post(
+            django.conf.settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+            status_code=200,
+            text=json.dumps({"uuid": "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"}),
+        )
+        mock_.post(
+            django.conf.settings.VARFISH_CADD_REST_API_URL + "/result/",
+            status_code=200,
+            text=json.dumps(
+                {
+                    "status": "finished",
+                    "info": {"cadd_rest_api_version": 0.1},
+                    "scores": {
+                        _key_gen(self.small_vars[0]): [0.345146, 7.773],
+                        _key_gen(self.small_vars[1]): [0.345179, 7.773],
+                        _key_gen(self.small_vars[2]): [0.345212, 7.774],
+                    },
+                }
+            ),
+        )
+
 
 class CaseExporterTest(MehariMockerMixin, ExportTestBase):
     def setUp(self):
@@ -155,6 +232,9 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
 
     def _test_export_xlsx(self, database, mock_):
         self._set_mehari_mocker(mock_)
+        self._set_cada_mocker(mock_)
+        self._set_pedia_mocker(mock_)
+        self._set_cadd_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
@@ -198,7 +278,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
         if not mehari_enable:
-            self.assertEquals(len(arrs[0]), 58)
+            self.assertEquals(len(arrs[0]), 68)
         else:
             self.assertEquals(len(arrs[0]), 59)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
@@ -319,9 +399,23 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
             )
         self.assertEquals(content[3], "")
 
-    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_ENABLE_GESTALT_MATCHER", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_PEDIA", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
+    @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
+    @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
     @Mocker()
     def test_export_xlsx(self, mock):
+        self.export_job.query_args["pedia_enabled"] = True
+        self.export_job.query_args["gm_enabled"] = True
+        self.export_job.query_args["patho_enabled"] = True
+        self.export_job.query_args["patho_score"] = "cadd"
+        self.export_job.query_args["prio_enabled"] = True
+        self.export_job.query_args["prio_algorithm"] = "CADA"
+        self.export_job.query_args["prio_hpo_terms"] = ["HP:0001234"]
         self._test_export_xlsx("refseq", mock)
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")

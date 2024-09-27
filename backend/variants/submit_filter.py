@@ -1,4 +1,6 @@
 import contextlib
+from decimal import Decimal
+import json
 
 from django.conf import settings
 from django.db import transaction
@@ -6,7 +8,12 @@ from projectroles.plugins import get_backend_api
 
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import get_engine
-from variants.models import VariantScoresFactory, prioritize_genes
+from variants.models import (
+    VariantScoresFactory,
+    prioritize_genes,
+    prioritize_genes_gm,
+    prioritize_genes_pedia,
+)
 
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
@@ -50,6 +57,8 @@ class FilterBase:
             self._store_results(_results)
             self._prioritize_gene_phenotype(_results)
             self._prioritize_variant_pathogenicity(_results)
+            self._prioritize_gene_gm(_results)
+            self._prioritize_gene_pedia(_results)
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
@@ -97,6 +106,60 @@ class FilterBase:
         except ConnectionError as e:
             self.job.add_log_entry(e)
 
+    def _prioritize_gene_gm(self, results):
+        """Prioritize genes in ``results`` and store in ``SmallVariantQueryGestaltMatcherScores``."""
+        gm_enabled = self.variant_query.query_settings.get("gm_enabled")
+        gm_response = self.variant_query.query_settings.get("prio_gm")
+
+        if not all((settings.VARFISH_ENABLE_GESTALT_MATCHER, gm_enabled, gm_response)):
+            return
+
+        self.job.add_log_entry("Prioritize genes with GestaltMatcher scores ...")
+        try:
+            for gene_id, gene_symbol, score, priority_type in prioritize_genes_gm(
+                gm_response, logging=self.job.add_log_entry
+            ):
+                self.variant_query.smallvariantquerygestaltmatcherscores_set.create(
+                    gene_id=gene_id,
+                    gene_symbol=gene_symbol,
+                    score=score,
+                    priority_type=priority_type,
+                )
+        except ConnectionError as e:
+            self.job.add_log_entry(e)
+
+    def _prioritize_gene_pedia(self, results):
+        """Prioritize genes in ``results`` and store in ``SmallVariantQueryPEDIAScores``."""
+        pedia_enabled = self.variant_query.query_settings.get("pedia_enabled")
+
+        if not all((settings.VARFISH_ENABLE_PEDIA, pedia_enabled)):
+            return
+
+        self.job.add_log_entry("Prioritize genes with PEDIA scores ...")
+        try:
+            patho_enabled = self.variant_query.query_settings.get("patho_enabled")
+            prio_enabled = self.variant_query.query_settings.get("prio_enabled")
+            gm_enabled = self.variant_query.query_settings.get("gm_enabled")
+            case_id = self.variant_query.sodar_uuid
+            case_name = self.variant_query.case.name
+            for gene_id, gene_symbol, score in prioritize_genes_pedia(
+                self,
+                patho_enabled,
+                prio_enabled,
+                gm_enabled,
+                case_id,
+                case_name,
+                results,
+                logging=self.job.add_log_entry,
+            ):
+                self.variant_query.smallvariantquerypediascores_set.create(
+                    gene_id=gene_id,
+                    gene_symbol=gene_symbol,
+                    score=score,
+                )
+        except ConnectionError as e:
+            self.job.add_log_entry(e)
+
     def _prioritize_variant_pathogenicity(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryVariantScores``."""
         patho_enabled = self.variant_query.query_settings.get("patho_enabled")
@@ -126,6 +189,13 @@ class FilterBase:
                     ).create(**score),
         except ConnectionError as e:
             self.job.add_log_entry(e)
+
+
+class RowEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 class CaseFilter(FilterBase):

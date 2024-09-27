@@ -59,6 +59,7 @@ class EntrypointView(
                 ),
                 "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
                 "cadd_enabled": settings.VARFISH_ENABLE_CADD,
+                "cada_enabled": settings.VARFISH_ENABLE_CADA,
                 "extra_anno_fields": extra_anno_fields,
                 "url_prefixes": {
                     "annonars": settings.VARFISH_BACKEND_URL_PREFIX_ANNONARS,

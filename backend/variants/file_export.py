@@ -24,11 +24,15 @@ from .models import (
     ExportProjectCasesFileBgJobResult,
     SmallVariantComment,
     VariantScoresFactory,
+    annotate_with_gm_scores,
     annotate_with_joint_scores,
     annotate_with_pathogenicity_scores,
+    annotate_with_pedia_scores,
     annotate_with_phenotype_scores,
     annotate_with_transcripts,
+    get_pedia_scores,
     prioritize_genes,
+    prioritize_genes_gm,
     unroll_extra_annos_result,
 )
 from .queries import (
@@ -120,6 +124,16 @@ if settings.KIOSK_MODE:
 HEADERS_PHENO_SCORES = (
     ("phenotype_score", "Phenotype Score", float),
     ("phenotype_rank", "Phenotype Rank", int),
+)
+
+HEADERS_GM_SCORES = (
+    ("gm_score", "Gestalt Score", float),
+    ("gm_rank", "Gestalt Rank", int),
+)
+
+HEADERS_PEDIA_SCORES = (
+    ("pedia_score", "PEDIA Score", float),
+    ("pedia_rank", "PEDIA Rank", int),
 )
 
 #: Names of the pathogenicity scoring header columns.
@@ -318,6 +332,14 @@ class CaseExporterBase:
             )
         )
 
+    def _is_gm_enabled(self):
+        """Return whether Gestalt Matcher prioritization is enabled in this query."""
+        return settings.VARFISH_ENABLE_GESTALT_MATCHER and self.query_args.get("gm_enabled")
+
+    def _is_pedia_enabled(self):
+        """Return whether PEDIA prioritization is enabled in this query."""
+        return settings.VARFISH_ENABLE_PEDIA and self.query_args.get("pedia_enabled")
+
     def _is_pathogenicity_enabled(self):
         """Return whether pathogenicity scoring is enabled in this query."""
         return settings.VARFISH_ENABLE_CADD and all(
@@ -352,6 +374,10 @@ class CaseExporterBase:
             header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
+        if self._is_gm_enabled():
+            header += HEADERS_GM_SCORES
+        if self._is_pedia_enabled():
+            header += HEADERS_PEDIA_SCORES
         header += HEADER_FLAGS
         header += HEADER_COMMENTS
         header += self.get_extra_annos_headers()
@@ -391,13 +417,25 @@ class CaseExporterBase:
                 _result = annotate_with_pathogenicity_scores(_result, variant_scores)
             if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
                 _result = annotate_with_joint_scores(_result)
+            if self._is_gm_enabled():
+                gene_scores = self._fetch_gm_scores([entry.entrez_id for entry in _result])
+                _result = annotate_with_gm_scores(_result, gene_scores)
+            if self._is_pedia_enabled():
+                pedia_scores = self._fetch_pedia_scores(_result)
+                if pedia_scores:
+                    _result = annotate_with_pedia_scores(_result, pedia_scores)
             fields = {x[1].label: x[0] for x in enumerate(list(ExtraAnnoField.objects.all()))}
             _result = unroll_extra_annos_result(_result, fields)
             self.job.add_log_entry("Writing output file...")
             total = len(_result)
             steps = math.ceil(total / 10)
             for i, small_var in enumerate(_result):
-                if self._is_prioritization_enabled() or self._is_pathogenicity_enabled():
+                if (
+                    self._is_prioritization_enabled()
+                    or self._is_pathogenicity_enabled()
+                    or self._is_gm_enabled
+                    or self._is_pedia_enabled()
+                ):
                     if i % steps == 0:
                         self.job.add_log_entry("{}%".format(int(100 * i / total)))
                 else:
@@ -428,6 +466,63 @@ class CaseExporterBase:
                         entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
                     )
                 }
+            except ConnectionError as e:
+                self.job.add_log_entry(e)
+        else:
+            return {}
+
+    def _fetch_gm_scores(self, entrez_ids):
+        prio_gm = self.query_args.get("prio_gm")
+        if all((self._is_gm_enabled(), prio_gm)):
+            try:
+                return {
+                    str(gene_id): score
+                    for gene_id, gene_symbol, score, priority_type in prioritize_genes_gm(
+                        prio_gm, logging=self.job.add_log_entry
+                    )
+                }
+            except ConnectionError as e:
+                self.job.add_log_entry(e)
+        else:
+            return {}
+
+    def _fetch_pedia_scores(self, result):
+        if self._is_pedia_enabled():
+            try:
+                payloadList = []
+
+                """Read and json object by reading ``result`` ."""
+                for line in result:
+                    payload = dict()
+
+                    if all(
+                        (
+                            line.entrez_id,
+                            hasattr(line, "phenotype_score"),
+                            hasattr(line, "pathogenicity_score"),
+                            hasattr(line, "gm_score"),
+                        )
+                    ):
+                        payload["gene_name"] = line.symbol
+                        payload["gene_id"] = line.entrez_id
+
+                        payload["cada_score"] = line.phenotype_score
+                        payload["cadd_score"] = line.pathogenicity_score
+                        payload["gestalt_score"] = (
+                            0 if line.gm_score == float("inf") else line.gm_score
+                        )
+
+                    payload["label"] = False
+                    payloadList.append(payload)
+
+                case_name = self.job.case.name
+                if case_name.startswith("F_"):
+                    name = case_name[2:]  # Remove the first two characters ("F_")
+                else:
+                    name = case_name
+                scores = {"case_name": name, "genes": payloadList}
+
+                return {str(gene_id): score for gene_id, _, score in get_pedia_scores(scores)}
             except ConnectionError as e:
                 self.job.add_log_entry(e)
         else:

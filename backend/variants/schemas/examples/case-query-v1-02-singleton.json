@@ -100,10 +100,13 @@
   "patho_enabled": true,
   "patho_score": "cadd",
   "prio_enabled": true,
+  "gm_enabled": true,
+  "pedia_enabled": true,
   "prio_algorithm": "hiphive-human",
   "prio_hpo_terms": [
     "HP:0000001"
   ],
+  "prio_gm": "",
   "thousand_genomes_enabled": true,
   "thousand_genomes_frequency": 0.001,
   "thousand_genomes_hemizygous": 10,

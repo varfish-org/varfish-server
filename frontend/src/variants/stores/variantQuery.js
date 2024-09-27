@@ -125,8 +125,20 @@ const fetchDefaultSettings = async (
   if (querySettings.value.prio_enabled === undefined) {
     querySettings.value.prio_enabled = false
   }
+  if (querySettings.value.gm_enabled === undefined) {
+    querySettings.value.gm_enabled = false
+  }
+  if (querySettings.value.pedia_enabled === undefined) {
+    querySettings.value.pedia_enabled = false
+  }
   if (querySettings.value.prio_algorithm === undefined) {
     querySettings.value.prio_algorithm = 'hiphive-human'
+  }
+  if (querySettings.value.prio_gm === undefined) {
+    querySettings.value.prio_gm = ''
+  }
+  if (querySettings.value.photo_file === undefined) {
+    querySettings.value.photo_file = ''
   }
   if (querySettings.value.prio_hpo_terms === undefined) {
     querySettings.value.prio_hpo_terms = []
@@ -222,6 +234,14 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
   const exomiserEnabled = ref(null)
   /** Whether CADD is enabled (from app context). */
   const caddEnabled = ref(null)
+  /** Whether CADA is enabled (from app context). */
+  const cadaEnabled = ref(null)
+  /** Whether GestaltMatcher prioritization is enabled (from app context). */
+  const gmEnabled = ref(null)
+  /** Whether PEDIA prioritization is enabled (from app context). */
+  const pediaEnabled = ref(null)
+  /** The response from gestaltMatcher (from app context). */
+  const prioGm = ref(null)
 
   // loaded via API
   /** Query settings presets. */
@@ -508,6 +528,12 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
       ctxStore.userAndGlobalSettings.global_settings.exomiser_enabled
     caddEnabled.value =
       ctxStore.userAndGlobalSettings.global_settings.cadd_enabled
+    cadaEnabled.value =
+      ctxStore.userAndGlobalSettings.global_settings.cada_enabled
+    gmEnabled.value = ctxStore.userAndGlobalSettings.global_settings.gm_enabled
+    pediaEnabled.value =
+      ctxStore.userAndGlobalSettings.global_settings.pedia_enabled
+    prioGm.value = ctxStore.userAndGlobalSettings.global_settings.prio_gm
 
     storeState.state = State.Fetching
     storeState.serverInteractions += 1
@@ -607,6 +633,10 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     ga4ghBeaconNetworkWidgetEnabled.value = null
     exomiserEnabled.value = null
     caddEnabled.value = null
+    cadaEnabled.value = null
+    gmEnabled.value = null
+    pediaEnabled.value = null
+    prioGm.value = null
     querySettingsPresets.value = null
     querySettings.value = null
     previousQueryDetails.value = null
@@ -647,6 +677,10 @@ export const useVariantQueryStore = defineStore('variantQuery', () => {
     ga4ghBeaconNetworkWidgetEnabled,
     exomiserEnabled,
     caddEnabled,
+    cadaEnabled,
+    gmEnabled,
+    pediaEnabled,
+    prioGm,
     querySettingsPresets,
     querySettings,
     previousQueryDetails,

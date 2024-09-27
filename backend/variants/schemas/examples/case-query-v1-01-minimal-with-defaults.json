@@ -15,6 +15,7 @@
   "genotype": {
     "index": "variant"
   },
+  "gm_enabled": false,
   "database": "refseq",
   "exac_enabled": false,
   "gnomad_exomes_enabled": false,
@@ -69,5 +70,8 @@
   "clinvar_paranoid_mode": false,
   "genomic_region": [],
   "patho_enabled": false,
-  "prio_enabled": false
+  "pedia_enabled": false,
+  "photo_file": "Empty",
+  "prio_enabled": false,
+  "prio_gm": ""
 }
