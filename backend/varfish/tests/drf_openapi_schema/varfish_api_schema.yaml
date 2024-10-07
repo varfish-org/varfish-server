@@ -12652,8 +12652,7 @@ components:
       description: Pydantic representation of ``SeqvarsQuerySettingsGenotype``.
       properties:
         recessive_mode:
-          allOf:
-          - $ref: '#/components/schemas/SeqvarsRecessiveModeChoice'
+          $ref: '#/components/schemas/SeqvarsRecessiveModeChoice'
           default: disabled
         sample_genotypes:
           default: []
