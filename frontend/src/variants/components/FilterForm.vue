@@ -59,10 +59,10 @@ const showOverlay = computed(() =>
   ['initial', 'initializing'].includes(variantQueryStore.storeState),
 )
 
-var eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent'
-var eventer = window[eventMethod]
-var messageEvent = eventMethod == 'attachEvent' ? 'onmessage' : 'message'
-var imageRes
+const eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent'
+const eventer = window[eventMethod]
+const messageEvent = eventMethod == 'attachEvent' ? 'onmessage' : 'message'
+let imageRes
 
 // Get the URL dynamically from Django settings
 const middlewareUrl = window.middlewareUrl
@@ -71,7 +71,7 @@ const middlewareUrl = window.middlewareUrl
 eventer(
   messageEvent,
   function (event) {
-    var key = event.message ? 'jsonRes' : 'data'
+    const key = event.message ? 'jsonRes' : 'data'
     imageRes = event[key]
 
     if (event.origin == middlewareUrl) {
@@ -303,12 +303,6 @@ const onSubmitCancelButtonClicked = () => {
                 variantQueryStore.querySettings.patho_enabled
               "
               v-model:patho-score="variantQueryStore.querySettings.patho_score"
-              :show-filtration-inline-help="
-                variantQueryStore.showFiltrationInlineHelp
-              "
-              :exomiser-enabled="variantQueryStore.exomiserEnabled"
-              :cadd-enabled="variantQueryStore.caddEnabled"
-              :cada-enabled="variantQueryStore.cadaEnabled"
               v-model:prio-enabled="
                 variantQueryStore.querySettings.prio_enabled
               "
@@ -321,6 +315,12 @@ const onSubmitCancelButtonClicked = () => {
               v-model:prio-gm="variantQueryStore.querySettings.prio_gm"
               v-model:photo-file="variantQueryStore.querySettings.photo_file"
               v-model:gm-enabled="variantQueryStore.querySettings.gm_enabled"
+              :show-filtration-inline-help="
+                variantQueryStore.showFiltrationInlineHelp
+              "
+              :exomiser-enabled="variantQueryStore.exomiserEnabled"
+              :cadd-enabled="variantQueryStore.caddEnabled"
+              :cada-enabled="variantQueryStore.cadaEnabled"
             />
           </div>
           <div
