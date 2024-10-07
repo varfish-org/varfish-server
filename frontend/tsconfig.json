@@ -40,7 +40,8 @@
   ],
   "exclude": [
     "node_modules",
-    "src/ext/reev-frontend-lib/node_modules",
+    "ext/reev-frontend-lib/node_modules",
+    "ext/reev-frontend-lib/openapi-ts.config.*.ts"
   ],
   "references": [
     {
