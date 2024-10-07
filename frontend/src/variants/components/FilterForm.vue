@@ -59,6 +59,33 @@ const showOverlay = computed(() =>
   ['initial', 'initializing'].includes(variantQueryStore.storeState),
 )
 
+var eventMethod = window.addEventListener ? 'addEventListener' : 'attachEvent'
+var eventer = window[eventMethod]
+var messageEvent = eventMethod == 'attachEvent' ? 'onmessage' : 'message'
+var imageRes
+
+// Get the URL dynamically from Django settings
+const middlewareUrl = window.middlewareUrl
+
+// Listen to message from child window
+eventer(
+  messageEvent,
+  function (event) {
+    var key = event.message ? 'jsonRes' : 'data'
+    imageRes = event[key]
+
+    if (event.origin == middlewareUrl) {
+      if (JSON.stringify(imageRes).includes('gene_entrez_id')) {
+        variantQueryStore.querySettings.prio_gm = JSON.stringify(imageRes)
+      } else if (JSON.stringify(imageRes).includes('ImageName')) {
+        variantQueryStore.querySettings.photo_file =
+          JSON.stringify(imageRes).split(':')[1]
+      }
+    }
+  },
+  false,
+)
+
 const onSubmitCancelButtonClicked = () => {
   const cancelableStates = [
     QueryStates.Running.value,
@@ -269,14 +296,8 @@ const onSubmitCancelButtonClicked = () => {
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
-              v-model:prio-enabled="
-                variantQueryStore.querySettings.prio_enabled
-              "
-              v-model:prio-algorithm="
-                variantQueryStore.querySettings.prio_algorithm
-              "
-              v-model:prio-hpo-terms="
-                variantQueryStore.querySettings.prio_hpo_terms
+              v-model:pedia-enabled="
+                variantQueryStore.querySettings.pedia_enabled
               "
               v-model:patho-enabled="
                 variantQueryStore.querySettings.patho_enabled
@@ -287,6 +308,19 @@ const onSubmitCancelButtonClicked = () => {
               "
               :exomiser-enabled="variantQueryStore.exomiserEnabled"
               :cadd-enabled="variantQueryStore.caddEnabled"
+              :cada-enabled="variantQueryStore.cadaEnabled"
+              v-model:prio-enabled="
+                variantQueryStore.querySettings.prio_enabled
+              "
+              v-model:prio-algorithm="
+                variantQueryStore.querySettings.prio_algorithm
+              "
+              v-model:prio-hpo-terms="
+                variantQueryStore.querySettings.prio_hpo_terms
+              "
+              v-model:prio-gm="variantQueryStore.querySettings.prio_gm"
+              v-model:photo-file="variantQueryStore.querySettings.photo_file"
+              v-model:gm-enabled="variantQueryStore.querySettings.gm_enabled"
             />
           </div>
           <div

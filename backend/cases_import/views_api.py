@@ -1,16 +1,15 @@
-import sys
 import typing
 
 from django.db import transaction
-from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
-from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from projectroles.views_api import SODARAPIProjectPermission
+from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from cases_import import tasks
 from cases_import.models.base import CaseImportAction, CaseImportBackgroundJob
 from cases_import.serializers import CaseImportActionSerializer
+from seqvars.views_api import ProjectContextBaseViewSet
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 
@@ -20,29 +19,26 @@ class CaseImportPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
+class CaseImportActionViewSet(ProjectContextBaseViewSet, viewsets.ModelViewSet):
     pagination_class = CaseImportPagination
     permission_classes = [SODARAPIProjectPermission]
     queryset = CaseImportAction.objects.all()
     renderer_classes = [VarfishApiRenderer]
     serializer_class = CaseImportActionSerializer
     versioning_class = VarfishApiVersioning
-
-    def get_serializer_context(self):
-        result = super().get_serializer_context()
-        if sys.argv[1:2] == ["generateschema"]:
-            return result
-        result["project"] = self.get_project(request=self.request)
-        return result
+    lookup_url_kwarg = "caseimportaction"
 
     def get_queryset(self):
         return CaseImportAction.objects.filter(project__sodar_uuid=self.kwargs["project"])
 
     def get_permission_required(self):
-        if self.request.method == "POST":
+        if self.action == "create":
             return "cases_import.create_data"
-        else:
-            return "cases_import.view_data"
+        elif self.action == "update" or self.action == "partial_update":
+            return "cases_import.update_data"
+        elif self.action == "destroy":
+            return "cases_import.delete_data"
+        return "cases_import.view_data"
 
     def create(self, request, *args, **kwargs):
         """Override to ensure creation happens in a transaction.
@@ -76,20 +72,6 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
             )
         else:
             return None
-
-
-class CaseImportActionRetrieveUpdateDestroyApiView(
-    SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
-):
-    lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "caseimportaction"
-
-    pagination_class = CaseImportPagination
-    permission_classes = [SODARAPIProjectPermission]
-    queryset = CaseImportAction.objects.all()
-    renderer_classes = [VarfishApiRenderer]
-    serializer_class = CaseImportActionSerializer
-    versioning_class = VarfishApiVersioning
 
     def update(self, request, *args, **kwargs):
         """Override to ensure creation happens in a transaction.
@@ -141,11 +123,3 @@ class CaseImportActionRetrieveUpdateDestroyApiView(
             else:
                 self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def get_permission_required(self):
-        if self.request.method == "GET":
-            return "cases_import.view_data"
-        elif self.request.method == "DELETE":
-            return "cases_import.delete_data"
-        else:
-            return "cases_import.update_data"

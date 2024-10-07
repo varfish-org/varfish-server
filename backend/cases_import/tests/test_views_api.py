@@ -43,7 +43,7 @@ class CaseImportActionListTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 **extra,
@@ -60,8 +60,8 @@ class CaseImportActionListTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
-                    kwargs={"project": self.project.sodar_uuid},
+                    "cases_import:api-caseimportaction-list",
+                    kwargs={"project": str(self.project.sodar_uuid)},
                 ),
                 **extra,
             )
@@ -106,7 +106,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -181,7 +181,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -206,7 +206,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -229,7 +229,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -253,7 +253,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -314,7 +314,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -339,7 +339,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -365,7 +365,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -389,7 +389,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -440,7 +440,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "cases_import:api-caseimportaction-listcreate",
+                    "cases_import:api-caseimportaction-list",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 data={
@@ -472,8 +472,11 @@ class CaseImportActionRetrieveTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": caseimportaction.sodar_uuid,
+                    },
                 ),
                 format="json",
                 **extra,
@@ -493,8 +496,11 @@ class CaseImportActionRetrieveTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": caseimportaction.sodar_uuid,
+                    },
                 ),
                 format="json",
                 **extra,
@@ -521,8 +527,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -580,8 +589,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -602,8 +614,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -664,8 +679,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -689,8 +707,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -715,8 +736,11 @@ class CaseImportActionUpdateTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.patch(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 data={
                     "action": CaseImportAction.ACTION_CREATE,
@@ -758,8 +782,11 @@ class CaseImportActionDeleteTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 **extra,
             )
@@ -795,8 +822,11 @@ class CaseImportActionDeleteTest(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.client.delete(
                 reverse(
-                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
-                    kwargs={"caseimportaction": self.caseimportaction.sodar_uuid},
+                    "cases_import:api-caseimportaction-detail",
+                    kwargs={
+                        "project": self.project.sodar_uuid,
+                        "caseimportaction": self.caseimportaction.sodar_uuid,
+                    },
                 ),
                 **extra,
             )
