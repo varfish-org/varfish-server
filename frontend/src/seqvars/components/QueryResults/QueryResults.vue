@@ -113,12 +113,12 @@ const latestResultSet = computed<SeqvarsResultSet | undefined>(() => {
 
         <v-card-text>
           <div
-            class="font-italic text-center text-body-1"
             v-if="
               !selectedQueryUuid ||
               !latestQueryExecution?.sodar_uuid ||
               !latestResultSet?.sodar_uuid
             "
+            class="font-italic text-center text-body-1"
           >
             No query results yet.
           </div>

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { SeqvarsResultRow } from '@varfish-org/varfish-api/lib'
+import {
+  SeqvarsModeOfInheritance,
+  SeqvarsResultRow,
+} from '@varfish-org/varfish-api/lib'
 
 import AbbrHint from '../QueryEditor/ui/AbbrHint.vue'
 
@@ -17,7 +20,10 @@ const props = withDefaults(
   },
 )
 
-const moiIncludes = (item: SeqvarsResultRow, moiType: string) => {
+const moiIncludes = (
+  item: SeqvarsResultRow,
+  moiType: SeqvarsModeOfInheritance,
+) => {
   return (
     item?.payload?.variant_annotation?.gene?.phenotypes?.mode_of_inheritances ??
     []
@@ -30,7 +36,7 @@ const moiIncludes = (item: SeqvarsResultRow, moiType: string) => {
     <AbbrHint
       :hint="
         item?.payload?.variant_annotation?.gene?.phenotypes?.is_acmg_sf
-          ? 'PRECENSE of gene on the ACMG Supplementary Findings List'
+          ? 'PRESENCE of gene on the ACMG Supplementary Findings List'
           : 'ABSENCE of gene on the ACMG Supplementary Findings List'
       "
       :hints-enabled="hintsEnabled"

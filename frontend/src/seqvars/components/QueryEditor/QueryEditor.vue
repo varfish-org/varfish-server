@@ -73,7 +73,7 @@ const props = withDefaults(
     hintsEnabled?: boolean
   }>(),
   {
-    openQueryUuids: [],
+    openQueryUuids: () => [],
     collapsed: false,
     teleportedQueriesLabels: false,
     hintsEnabled: false,

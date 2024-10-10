@@ -23,13 +23,13 @@ const props = withDefaults(
   },
 )
 
-const eventLabel = computed<string>(() => {
-  if (props.event === 'haploinsufficiency') {
-    return 'Haploinsufficiency'
-  } else {
-    return 'Triplosensitivity'
-  }
-})
+// const eventLabel = computed<string>(() => {
+//   if (props.event === 'haploinsufficiency') {
+//     return 'Haploinsufficiency'
+//   } else {
+//     return 'Triplosensitivity'
+//   }
+// })
 
 const score = computed<ClingenDosageScoreChoice>(() => {
   if (props.event === 'haploinsufficiency') {
@@ -45,7 +45,7 @@ const score = computed<ClingenDosageScoreChoice>(() => {
   }
 })
 
-const LABELS: { [ClingenDosageScoreChoice]: string } = {
+const LABELS: Record<ClingenDosageScoreChoice, string> = {
   sufficient_evidence_available: 'Sufficient Evidence',
   some_evidence_available: 'Emerging Evidence',
   little_evidence: 'Little Evidence',
@@ -54,7 +54,7 @@ const LABELS: { [ClingenDosageScoreChoice]: string } = {
   unlikely: 'Sensitivity Unlikely',
 }
 
-const SCORES: { [ClingenDosageScoreChoice]: number } = {
+const SCORES: Record<ClingenDosageScoreChoice, number> = {
   sufficient_evidence_available: 3,
   some_evidence_available: 2,
   little_evidence: 1,
@@ -63,7 +63,7 @@ const SCORES: { [ClingenDosageScoreChoice]: number } = {
   unlikely: 40,
 }
 
-const COLORS: { [ClingenDosageScoreChoice]: string } = {
+const COLORS: Record<ClingenDosageScoreChoice, string> = {
   sufficient_evidence_available: 'red',
   some_evidence_available: 'orange',
   little_evidence: 'yellow',
