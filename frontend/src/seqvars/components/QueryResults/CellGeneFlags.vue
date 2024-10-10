@@ -164,7 +164,7 @@ const moiIncludes = (
       <AbbrHint
         :hint="
           moiIncludes(item, 'y_linked')
-            ? 'X-LINKED is known mode of inheritance for condition'
+            ? 'Y-LINKED is known mode of inheritance for condition'
             : 'Not known to cause Y-linked conditions'
         "
         :hints-enabled="hintsEnabled"
