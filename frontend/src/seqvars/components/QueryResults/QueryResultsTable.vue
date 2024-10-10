@@ -236,8 +236,7 @@ const BASE_HEADERS: HeaderDef[] = [
 const callHeaders = computed<HeaderDef[]>(() => {
   const result = []
   // in the next line, ignore typescript at all
-  // @ts-ignore
-  for (const { name } of props.caseObj.pedigree_obj?.individual_set ?? {}) {
+  for (const { name } of props.caseObj.pedigree_obj?.individual_set ?? []) {
     result.push(
       {
         title: `Genotype ${name}`,
