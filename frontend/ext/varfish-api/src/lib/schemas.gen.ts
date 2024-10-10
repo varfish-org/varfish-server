@@ -2460,16 +2460,44 @@ export const $GeneRelatedAnnotationPydantic = {
     description: 'Store gene-related annotation (always for a single gene).',
     properties: {
         identity: {
-            '$ref': '#/components/schemas/GeneIdentityPydantic'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GeneIdentityPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         consequences: {
-            '$ref': '#/components/schemas/GeneRelatedConsequencesPydantic'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GeneRelatedConsequencesPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         phenotypes: {
-            '$ref': '#/components/schemas/GeneRelatedPhenotypesPydantic'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GeneRelatedPhenotypesPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         },
         constraints: {
-            '$ref': '#/components/schemas/GeneRelatedConstraintsPydantic'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/GeneRelatedConstraintsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
     required: ['identity', 'consequences', 'phenotypes', 'constraints'],
@@ -2583,6 +2611,14 @@ export const $GeneRelatedPhenotypesPydantic = {
             default: false,
             title: 'Is Disease Gene',
             type: 'boolean'
+        },
+        mode_of_inheritances: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsModeOfInheritance'
+            },
+            title: 'Mode Of Inheritances',
+            type: 'array'
         }
     },
     title: 'GeneRelatedPhenotypesPydantic',
@@ -2931,13 +2967,21 @@ export const $PaginatedCaseSerializerNgList = {
 export const $PaginatedSeqvarsPredefinedQueryList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -2951,13 +2995,21 @@ export const $PaginatedSeqvarsPredefinedQueryList = {
 export const $PaginatedSeqvarsQueryExecutionList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -2971,13 +3023,21 @@ export const $PaginatedSeqvarsQueryExecutionList = {
 export const $PaginatedSeqvarsQueryList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -2991,13 +3051,21 @@ export const $PaginatedSeqvarsQueryList = {
 export const $PaginatedSeqvarsQueryPresetsClinvarList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3011,13 +3079,21 @@ export const $PaginatedSeqvarsQueryPresetsClinvarList = {
 export const $PaginatedSeqvarsQueryPresetsColumnsList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3031,13 +3107,21 @@ export const $PaginatedSeqvarsQueryPresetsColumnsList = {
 export const $PaginatedSeqvarsQueryPresetsConsequenceList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3051,13 +3135,21 @@ export const $PaginatedSeqvarsQueryPresetsConsequenceList = {
 export const $PaginatedSeqvarsQueryPresetsFrequencyList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3071,13 +3163,21 @@ export const $PaginatedSeqvarsQueryPresetsFrequencyList = {
 export const $PaginatedSeqvarsQueryPresetsLocusList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3091,13 +3191,21 @@ export const $PaginatedSeqvarsQueryPresetsLocusList = {
 export const $PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3111,13 +3219,21 @@ export const $PaginatedSeqvarsQueryPresetsPhenotypePrioList = {
 export const $PaginatedSeqvarsQueryPresetsQualityList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3131,13 +3247,21 @@ export const $PaginatedSeqvarsQueryPresetsQualityList = {
 export const $PaginatedSeqvarsQueryPresetsSetList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3151,13 +3275,21 @@ export const $PaginatedSeqvarsQueryPresetsSetList = {
 export const $PaginatedSeqvarsQueryPresetsSetVersionList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3171,13 +3303,21 @@ export const $PaginatedSeqvarsQueryPresetsSetVersionList = {
 export const $PaginatedSeqvarsQueryPresetsVariantPrioList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3191,13 +3331,21 @@ export const $PaginatedSeqvarsQueryPresetsVariantPrioList = {
 export const $PaginatedSeqvarsQuerySettingsList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3211,13 +3359,21 @@ export const $PaginatedSeqvarsQuerySettingsList = {
 export const $PaginatedSeqvarsResultRowList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -3231,13 +3387,21 @@ export const $PaginatedSeqvarsResultRowList = {
 export const $PaginatedSeqvarsResultSetList = {
     type: 'object',
     properties: {
+        count: {
+            type: 'integer',
+            example: 123
+        },
         next: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=4'
         },
         previous: {
             type: 'string',
-            nullable: true
+            nullable: true,
+            format: 'uri',
+            example: 'http://api.example.org/accounts/?page=2'
         },
         results: {
             type: 'array',
@@ -5964,6 +6128,13 @@ export const $SeqvarsHelixMtDbFrequencySettingsPydantic = {
     },
     title: 'SeqvarsHelixMtDbFrequencySettingsPydantic',
     type: 'object'
+} as const;
+
+export const $SeqvarsModeOfInheritance = {
+    description: 'Mode of inheritance gene annotation.',
+    enum: ['autosomal_dominant', 'autosomal_recessive', 'x_linked_dominant', 'x_linked_recessive', 'y_linked', 'mitochondrial'],
+    title: 'SeqvarsModeOfInheritance',
+    type: 'string'
 } as const;
 
 export const $SeqvarsNuclearFrequencyPydantic = {
@@ -9621,11 +9792,7 @@ export const $SeqvarsQuerySettingsGenotypePydantic = {
     description: 'Pydantic representation of ``SeqvarsQuerySettingsGenotype``.',
     properties: {
         recessive_mode: {
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SeqvarsRecessiveModeChoice'
-                }
-            ],
+            '$ref': '#/components/schemas/SeqvarsRecessiveModeChoice',
             default: 'disabled'
         },
         sample_genotypes: {

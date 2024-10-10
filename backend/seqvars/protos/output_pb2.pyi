@@ -78,6 +78,49 @@ GENOME_RELEASE_GRCH38: GenomeRelease.ValueType  # 2
 """GRCh38."""
 global___GenomeRelease = GenomeRelease
 
+class _ModeOfInheritance:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _ModeOfInheritanceEnumTypeWrapper(
+    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ModeOfInheritance.ValueType],
+    builtins.type,
+):  # noqa: F821
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    MODE_OF_INHERITANCE_UNSPECIFIED: _ModeOfInheritance.ValueType  # 0
+    """Unspecified mode of inheritance."""
+    MODE_OF_INHERITANCE_AUTOSOMAL_DOMINANT: _ModeOfInheritance.ValueType  # 1
+    """Autosomal dominant inheritance (HP:0000006)."""
+    MODE_OF_INHERITANCE_AUTOSOMAL_RECESSIVE: _ModeOfInheritance.ValueType  # 2
+    """Autosomal recessive inheritance (HP:0000007)."""
+    MODE_OF_INHERITANCE_X_LINKED_DOMINANT: _ModeOfInheritance.ValueType  # 3
+    """X-linked dominant inheritance (HP:0001419)."""
+    MODE_OF_INHERITANCE_X_LINKED_RECESSIVE: _ModeOfInheritance.ValueType  # 4
+    """X-linked recessive inheritance (HP:0001423)."""
+    MODE_OF_INHERITANCE_Y_LINKED: _ModeOfInheritance.ValueType  # 5
+    """Y-linked inheritance (HP:0001450)."""
+    MODE_OF_INHERITANCE_MITOCHONDRIAL: _ModeOfInheritance.ValueType  # 6
+    """Mitochondrial inheritance (HP:0001427)."""
+
+class ModeOfInheritance(_ModeOfInheritance, metaclass=_ModeOfInheritanceEnumTypeWrapper):
+    """Enumerations with modes of inheritance from HPO."""
+
+MODE_OF_INHERITANCE_UNSPECIFIED: ModeOfInheritance.ValueType  # 0
+"""Unspecified mode of inheritance."""
+MODE_OF_INHERITANCE_AUTOSOMAL_DOMINANT: ModeOfInheritance.ValueType  # 1
+"""Autosomal dominant inheritance (HP:0000006)."""
+MODE_OF_INHERITANCE_AUTOSOMAL_RECESSIVE: ModeOfInheritance.ValueType  # 2
+"""Autosomal recessive inheritance (HP:0000007)."""
+MODE_OF_INHERITANCE_X_LINKED_DOMINANT: ModeOfInheritance.ValueType  # 3
+"""X-linked dominant inheritance (HP:0001419)."""
+MODE_OF_INHERITANCE_X_LINKED_RECESSIVE: ModeOfInheritance.ValueType  # 4
+"""X-linked recessive inheritance (HP:0001423)."""
+MODE_OF_INHERITANCE_Y_LINKED: ModeOfInheritance.ValueType  # 5
+"""Y-linked inheritance (HP:0001450)."""
+MODE_OF_INHERITANCE_MITOCHONDRIAL: ModeOfInheritance.ValueType  # 6
+"""Mitochondrial inheritance (HP:0001427)."""
+global___ModeOfInheritance = ModeOfInheritance
+
 class _ClingenDosageScore:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
@@ -897,20 +940,37 @@ class GeneRelatedPhenotypes(google.protobuf.message.Message):
 
     IS_ACMG_SF_FIELD_NUMBER: builtins.int
     IS_DISEASE_GENE_FIELD_NUMBER: builtins.int
+    MODE_OF_INHERITANCES_FIELD_NUMBER: builtins.int
     is_acmg_sf: builtins.bool
     """ACMG supplementary finding list."""
     is_disease_gene: builtins.bool
     """Whether is a known disease gene."""
+    @property
+    def mode_of_inheritances(
+        self,
+    ) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[
+        global___ModeOfInheritance.ValueType
+    ]:
+        """Linked modes of inheritance."""
+
     def __init__(
         self,
         *,
         is_acmg_sf: builtins.bool = ...,
         is_disease_gene: builtins.bool = ...,
+        mode_of_inheritances: (
+            collections.abc.Iterable[global___ModeOfInheritance.ValueType] | None
+        ) = ...,
     ) -> None: ...
     def ClearField(
         self,
         field_name: typing_extensions.Literal[
-            "is_acmg_sf", b"is_acmg_sf", "is_disease_gene", b"is_disease_gene"
+            "is_acmg_sf",
+            b"is_acmg_sf",
+            "is_disease_gene",
+            b"is_disease_gene",
+            "mode_of_inheritances",
+            b"mode_of_inheritances",
         ],
     ) -> None: ...
 

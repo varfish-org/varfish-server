@@ -93,6 +93,12 @@ export const useCaseCountQuery = ({
     enabled: () => !!toValue(projectUuid),
   })
 
+/**
+ * Query for a single case details.
+ *
+ * @param caseUuid UUID of the case to load.
+ * @returns Query result with case details.
+ */
 export const useCaseRetrieveQuery = ({
   caseUuid,
 }: {

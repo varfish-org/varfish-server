@@ -7,6 +7,7 @@ from snapshottest import Snapshot
 snapshots = Snapshot()
 
 snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_list 1"] = {
+    "count": 3,
     "next": None,
     "previous": None,
     "results": [

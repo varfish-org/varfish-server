@@ -81,7 +81,7 @@ router.register(
     basename="api-queryexecution",
 )
 router.register(
-    r"api/resultset/(?P<query>[0-9a-f-]+)",
+    r"api/resultset/(?P<queryexecution>[0-9a-f-]+)",
     views_api.SeqvarsResultSetViewSet,
     basename="api-resultset",
 )

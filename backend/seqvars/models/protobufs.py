@@ -32,6 +32,7 @@ from seqvars.models.base import (
     SeqvarsGnomadMitochondrialFrequencySettingsPydantic,
     SeqvarsHelixMtDbFrequencyPydantic,
     SeqvarsHelixMtDbFrequencySettingsPydantic,
+    SeqvarsModeOfInheritance,
     SeqvarsNuclearFrequencyPydantic,
     SeqvarsNuclearFrequencySettingsPydantic,
     SeqvarsOutputHeaderPydantic,
@@ -84,6 +85,7 @@ from seqvars.protos.output_pb2 import (
     GnomadConstraints,
     GnomadMitochondrialFrequency,
     HelixMtDbFrequency,
+    ModeOfInheritance,
     NuclearFrequency,
     OutputHeader,
     OutputRecord,
@@ -772,10 +774,31 @@ def _consequences_from_protobuf(
     )
 
 
+MODE_OF_INHERITANCE_MAPPING: dict[
+    ModeOfInheritance.ValueType : SeqvarsVariantScoreColumnTypeChoice
+] = {
+    ModeOfInheritance.MODE_OF_INHERITANCE_AUTOSOMAL_DOMINANT: SeqvarsModeOfInheritance.AUTOSOMAL_DOMINANT,
+    ModeOfInheritance.MODE_OF_INHERITANCE_AUTOSOMAL_RECESSIVE: SeqvarsModeOfInheritance.AUTOSOMAL_RECESSIVE,
+    ModeOfInheritance.MODE_OF_INHERITANCE_X_LINKED_DOMINANT: SeqvarsModeOfInheritance.X_LINKED_DOMINANT,
+    ModeOfInheritance.MODE_OF_INHERITANCE_X_LINKED_RECESSIVE: SeqvarsModeOfInheritance.X_LINKED_RECESSIVE,
+    ModeOfInheritance.MODE_OF_INHERITANCE_Y_LINKED: SeqvarsModeOfInheritance.Y_LINKED,
+    ModeOfInheritance.MODE_OF_INHERITANCE_MITOCHONDRIAL: SeqvarsModeOfInheritance.MITOCHONDRIAL,
+}
+
+
+def _mode_of_inheritance_from_protobuf(
+    mode_of_inheritance: ModeOfInheritance.ValueType,
+) -> SeqvarsModeOfInheritance:
+    return MODE_OF_INHERITANCE_MAPPING[mode_of_inheritance]
+
+
 def _phenotypes_from_protobuf(phenotypes: GeneRelatedPhenotypes) -> GeneRelatedPhenotypesPydantic:
     return GeneRelatedPhenotypesPydantic(
         is_acmg_sf=phenotypes.is_acmg_sf,
         is_disease_gene=phenotypes.is_disease_gene,
+        mode_of_inheritances=list(
+            map(_mode_of_inheritance_from_protobuf, phenotypes.mode_of_inheritances)
+        ),
     )
 
 

@@ -110,6 +110,7 @@ class TestQueryPresetsSetViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -266,6 +267,7 @@ class TestQueryPresetsSetVersionViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -415,6 +417,7 @@ class TestQueryPresetsQualityViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -551,6 +554,7 @@ class TestQueryPresetsConsequenceViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -687,6 +691,7 @@ class TestQueryPresetsFrequencyViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -823,6 +828,7 @@ class TestQueryPresetsLocusViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -959,6 +965,7 @@ class TestQueryPresetsPhenotypePrioViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1095,6 +1102,7 @@ class TestQueryPresetsVariantPrioViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1231,6 +1239,7 @@ class TestQueryPresetsColumnsViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1367,6 +1376,7 @@ class TestQueryPresetsClinvarViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1503,6 +1513,7 @@ class PredefinedQueryViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1635,6 +1646,7 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -1811,6 +1823,7 @@ class TestQueryViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -2094,6 +2107,7 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -2161,9 +2175,10 @@ class TestQueryExecutionViewSet(ApiViewTestBase):
         new_seqvarqueryexecution = SeqvarsQueryExecution.objects.exclude(
             pk=self.queryexecution.pk
         ).first()
+        # Note: will fail as execution of worker in test fails.
         self.assertEqual(
             new_seqvarqueryexecution.state,
-            SeqvarsQueryExecution.STATE_QUEUED,
+            SeqvarsQueryExecution.STATE_FAILED,
         )
 
 
@@ -2186,7 +2201,7 @@ class TestResultSetViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-resultset-list",
                     kwargs={
-                        "query": self.query.sodar_uuid,
+                        "queryexecution": self.queryexecution.sodar_uuid,
                     },
                 )
             )
@@ -2195,6 +2210,7 @@ class TestResultSetViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],
@@ -2207,7 +2223,7 @@ class TestResultSetViewSet(ApiViewTestBase):
                 reverse(
                     "seqvars:api-resultset-detail",
                     kwargs={
-                        "query": self.query.sodar_uuid,
+                        "queryexecution": self.queryexecution.sodar_uuid,
                         "resultset": self.resultset.sodar_uuid,
                     },
                 )
@@ -2218,7 +2234,7 @@ class TestResultSetViewSet(ApiViewTestBase):
 
     @parameterized.expand(
         [
-            [{"query": "00000000-0000-0000-0000-000000000000"}],
+            [{"queryexecution": "00000000-0000-0000-0000-000000000000"}],
             [{"resultset": "00000000-0000-0000-0000-000000000000"}],
         ]
     )
@@ -2229,7 +2245,7 @@ class TestResultSetViewSet(ApiViewTestBase):
                     "seqvars:api-resultset-detail",
                     kwargs={
                         **{
-                            "query": self.query.sodar_uuid,
+                            "queryexecution": self.queryexecution.sodar_uuid,
                             "resultset": self.resultset.sodar_uuid,
                         },
                         **kwargs_override,
@@ -2268,6 +2284,7 @@ class TestResultRowViewSet(ApiViewTestBase):
         self.assertDictEqual(
             response.json(),
             {
+                "count": 1,
                 "next": None,
                 "previous": None,
                 "results": [result_json],

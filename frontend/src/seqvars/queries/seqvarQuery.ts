@@ -85,6 +85,7 @@ export const useSeqvarQueryListInfiniteQuery = ({
     }),
     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
     enabled: () => !!toValue(sessionUuid),
+    // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
     getNextPageParam: (lastPage) => lastPage.next,
   })
 }

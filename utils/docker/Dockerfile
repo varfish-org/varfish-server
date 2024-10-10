@@ -139,7 +139,7 @@ ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait
 RUN chmod +x /usr/local/bin/wait
 
 # Copy the worker from the dedicated worker build.
-COPY --from=ghcr.io/varfish-org/varfish-server-worker:0.13.2 /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+COPY --from=ghcr.io/varfish-org/varfish-server-worker:0.14.0 /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv

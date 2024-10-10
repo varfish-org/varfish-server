@@ -2189,12 +2189,12 @@ paths:
       operationId: seqvars_api_predefinedquery_list
       description: ViewSet for the ``PredefinedQuery`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -2396,12 +2396,12 @@ paths:
       operationId: seqvars_api_query_list
       description: Allow CRUD of the user's queries.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -2639,12 +2639,12 @@ paths:
       operationId: seqvars_api_queryexecution_list
       description: ViewSet for retrieving ``QueryExecution`` records.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -2732,12 +2732,12 @@ paths:
       operationId: seqvars_api_querypresetsclinvar_list
       description: ViewSet for the ``QueryPresetsClinvar`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -2939,12 +2939,12 @@ paths:
       operationId: seqvars_api_querypresetscolumns_list
       description: ViewSet for the ``QueryPresetsColumns`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -3146,12 +3146,12 @@ paths:
       operationId: seqvars_api_querypresetsconsequence_list
       description: ViewSet for the ``QueryPresetsConsequence`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -3356,12 +3356,12 @@ paths:
 
         This is a public view, no permissions are required.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -3415,12 +3415,12 @@ paths:
       operationId: seqvars_api_querypresetsfrequency_list
       description: ViewSet for the ``QueryPresetsFrequency`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -3622,12 +3622,12 @@ paths:
       operationId: seqvars_api_querypresetslocus_list
       description: ViewSet for the ``QueryPresetsLocus`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -3829,12 +3829,12 @@ paths:
       operationId: seqvars_api_querypresetsphenotypeprio_list
       description: ViewSet for the ``QueryPresetsPhenotypePrio`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -4036,12 +4036,12 @@ paths:
       operationId: seqvars_api_querypresetsquality_list
       description: ViewSet for the ``QueryPresetsQuality`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -4243,12 +4243,12 @@ paths:
       operationId: seqvars_api_querypresetsset_list
       description: ViewSet for the ``QueryPresetsSet`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -4492,12 +4492,12 @@ paths:
       operationId: seqvars_api_querypresetssetversion_list
       description: ViewSet for the ``QueryPresetsSetVersion`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -4738,12 +4738,12 @@ paths:
       operationId: seqvars_api_querypresetsvariantprio_list
       description: ViewSet for the ``QueryPresetsVariantPrio`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -4945,12 +4945,12 @@ paths:
       operationId: seqvars_api_querysettings_list
       description: ViewSet for the ``QuerySettings`` model.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -5152,12 +5152,20 @@ paths:
       operationId: seqvars_api_resultrow_list
       description: ViewSet for retrieving ``ResultRow`` records.
       parameters:
-      - name: cursor
-        required: false
-        in: query
-        description: The pagination cursor value.
+      - in: query
+        name: order_by
         schema:
           type: string
+      - in: query
+        name: order_dir
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -5213,17 +5221,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/SeqvarsResultRow'
           description: ''
-  /seqvars/api/resultset/{query}/:
+  /seqvars/api/resultset/{queryexecution}/:
     get:
       operationId: seqvars_api_resultset_list
       description: ViewSet for retrieving ``ResultSet`` records.
       parameters:
-      - name: cursor
+      - name: page
         required: false
         in: query
-        description: The pagination cursor value.
+        description: A page number within the paginated result set.
         schema:
-          type: string
+          type: integer
       - name: page_size
         required: false
         in: query
@@ -5231,7 +5239,7 @@ paths:
         schema:
           type: integer
       - in: path
-        name: query
+        name: queryexecution
         schema:
           type: string
           pattern: ^[0-9a-f-]+$
@@ -5249,13 +5257,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedSeqvarsResultSetList'
           description: ''
-  /seqvars/api/resultset/{query}/{resultset}/:
+  /seqvars/api/resultset/{queryexecution}/{resultset}/:
     get:
       operationId: seqvars_api_resultset_retrieve
       description: ViewSet for retrieving ``ResultSet`` records.
       parameters:
       - in: path
-        name: query
+        name: queryexecution
         schema:
           type: string
           pattern: ^[0-9a-f-]+$
@@ -7412,13 +7420,21 @@ components:
       description: Store gene-related annotation (always for a single gene).
       properties:
         identity:
-          $ref: '#/components/schemas/GeneIdentityPydantic'
+          anyOf:
+          - $ref: '#/components/schemas/GeneIdentityPydantic'
+          - type: 'null'
         consequences:
-          $ref: '#/components/schemas/GeneRelatedConsequencesPydantic'
+          anyOf:
+          - $ref: '#/components/schemas/GeneRelatedConsequencesPydantic'
+          - type: 'null'
         phenotypes:
-          $ref: '#/components/schemas/GeneRelatedPhenotypesPydantic'
+          anyOf:
+          - $ref: '#/components/schemas/GeneRelatedPhenotypesPydantic'
+          - type: 'null'
         constraints:
-          $ref: '#/components/schemas/GeneRelatedConstraintsPydantic'
+          anyOf:
+          - $ref: '#/components/schemas/GeneRelatedConstraintsPydantic'
+          - type: 'null'
       required:
       - identity
       - consequences
@@ -7489,6 +7505,12 @@ components:
           default: false
           title: Is Disease Gene
           type: boolean
+        mode_of_inheritances:
+          default: []
+          items:
+            $ref: '#/components/schemas/SeqvarsModeOfInheritance'
+          title: Mode Of Inheritances
+          type: array
       title: GeneRelatedPhenotypesPydantic
       type: object
     GenomeRegionPydantic:
@@ -7750,12 +7772,19 @@ components:
     PaginatedSeqvarsPredefinedQueryList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7763,12 +7792,19 @@ components:
     PaginatedSeqvarsQueryExecutionList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7776,12 +7812,19 @@ components:
     PaginatedSeqvarsQueryList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7789,12 +7832,19 @@ components:
     PaginatedSeqvarsQueryPresetsClinvarList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7802,12 +7852,19 @@ components:
     PaginatedSeqvarsQueryPresetsColumnsList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7815,12 +7872,19 @@ components:
     PaginatedSeqvarsQueryPresetsConsequenceList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7828,12 +7892,19 @@ components:
     PaginatedSeqvarsQueryPresetsFrequencyList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7841,12 +7912,19 @@ components:
     PaginatedSeqvarsQueryPresetsLocusList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7854,12 +7932,19 @@ components:
     PaginatedSeqvarsQueryPresetsPhenotypePrioList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7867,12 +7952,19 @@ components:
     PaginatedSeqvarsQueryPresetsQualityList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7880,12 +7972,19 @@ components:
     PaginatedSeqvarsQueryPresetsSetList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7893,12 +7992,19 @@ components:
     PaginatedSeqvarsQueryPresetsSetVersionList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7906,12 +8012,19 @@ components:
     PaginatedSeqvarsQueryPresetsVariantPrioList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7919,12 +8032,19 @@ components:
     PaginatedSeqvarsQuerySettingsList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7932,12 +8052,19 @@ components:
     PaginatedSeqvarsResultRowList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -7945,12 +8072,19 @@ components:
     PaginatedSeqvarsResultSetList:
       type: object
       properties:
+        count:
+          type: integer
+          example: 123
         next:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
         previous:
           type: string
           nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
         results:
           type: array
           items:
@@ -9979,6 +10113,17 @@ components:
           title: Frequency
       title: SeqvarsHelixMtDbFrequencySettingsPydantic
       type: object
+    SeqvarsModeOfInheritance:
+      description: Mode of inheritance gene annotation.
+      enum:
+      - autosomal_dominant
+      - autosomal_recessive
+      - x_linked_dominant
+      - x_linked_recessive
+      - y_linked
+      - mitochondrial
+      title: SeqvarsModeOfInheritance
+      type: string
     SeqvarsNuclearFrequencyPydantic:
       description: Store gnomAD and in-house nuclear frequency information.
       properties:

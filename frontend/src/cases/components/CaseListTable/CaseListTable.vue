@@ -129,6 +129,9 @@ watch(
     item-value="name"
     @update:options="updateQueryDebounced"
   >
+    <template #[`item.index`]="{ index }">
+      {{ index + 1 }}
+    </template>
     <template #[`item.name`]="{ item }">
       <router-link
         :to="{

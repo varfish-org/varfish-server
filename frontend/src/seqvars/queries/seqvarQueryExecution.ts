@@ -5,6 +5,7 @@ import {
   QueryClient,
   useMutation,
   useQueries,
+  useQuery,
   useQueryClient,
 } from '@tanstack/vue-query'
 import {
@@ -13,6 +14,8 @@ import {
   seqvarsApiQueryexecutionStartCreateMutation,
 } from '@varfish-org/varfish-api/lib/@tanstack/vue-query.gen'
 import { MaybeRefOrGetter, computed, toValue } from 'vue'
+
+import { client } from '@/cases/plugins/heyApi'
 
 /**
  * Helper to invalidate execution keys for lists and retrieval for a single
@@ -30,10 +33,10 @@ const invalidateSeqvarQueryExecutionKeys = (
   queryClient: QueryClient,
   {
     query,
-    queryexecution: queryExecution,
+    queryExecution,
   }: {
     query: string
-    queryexecution?: string
+    queryExecution?: string
   },
   { destroy }: { destroy?: boolean } = { destroy: false },
 ) => {
@@ -79,9 +82,33 @@ export const useSeqvarQueryExecutionStartMutation = () => {
 }
 
 /**
+ * Query for query execution of one seqvar query.
+ *
+ * @param seqvarQueryUuid UUID of the seqvar query to load executions for.
+ * @returns Query result with pages of seqvar query executions.
+ */
+export const useSeqvarQueryExecutionListQuery = ({
+  seqvarQueryUuid,
+}: {
+  seqvarQueryUuid: MaybeRefOrGetter<string | undefined>
+}) => {
+  return useQuery({
+    ...seqvarsApiQueryexecutionListOptions({
+      client,
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        query: () => toValue(seqvarQueryUuid)!,
+      },
+    }),
+    enabled: () => !!toValue(seqvarQueryUuid),
+    staleTime: 1000 * 5,
+  })
+}
+
+/**
  * Query for query execution of a list of seqvar queries.
  *
- * @param seqvarQueryUuids UUID of the seqvar query to load executions for.
+ * @param seqvarQueryUuids UUIDs of the seqvar queries to load executions for.
  * @returns Query result with pages of seqvar query executions.
  */
 export const useSeqvarQueryExecutionListQueries = ({
@@ -93,6 +120,7 @@ export const useSeqvarQueryExecutionListQueries = ({
     queries: computed(() =>
       (toValue(seqvarQueryUuids) ?? []).map((seqvarQueryUuid) => ({
         ...seqvarsApiQueryexecutionListOptions({
+          client,
           path: {
             query: seqvarQueryUuid,
           },
@@ -127,10 +155,12 @@ export const useSeqvarQueryExecutionListQueries = ({
 //   return useQuery(
 //     {
 //       ...seqvarsApiQueryexecutionRetrieveOptions({
+//        client,
 //         path: {
 //           // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
 //           query: () => toValue(queryUuid),
-//           queryexecution: toValue(queryExecutionUuid)!,
+//           // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+//           queryexecution: () => toValue(queryExecutionUuid)!,
 //         },
 //       }),
 //       enabled: () => !!toValue(queryUuid) && !!toValue(queryExecutionUuid),

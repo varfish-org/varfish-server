@@ -166,12 +166,32 @@ message GeneRelatedConsequences {
   repeated seqvars.pbs.query.Consequence consequences = 3;
 }
 
+// Enumerations with modes of inheritance from HPO.
+enum ModeOfInheritance {
+  // Unspecified mode of inheritance.
+  MODE_OF_INHERITANCE_UNSPECIFIED = 0;
+  // Autosomal dominant inheritance (HP:0000006).
+  MODE_OF_INHERITANCE_AUTOSOMAL_DOMINANT = 1;
+  // Autosomal recessive inheritance (HP:0000007).
+  MODE_OF_INHERITANCE_AUTOSOMAL_RECESSIVE = 2;
+  // X-linked dominant inheritance (HP:0001419).
+  MODE_OF_INHERITANCE_X_LINKED_DOMINANT = 3;
+  // X-linked recessive inheritance (HP:0001423).
+  MODE_OF_INHERITANCE_X_LINKED_RECESSIVE = 4;
+  // Y-linked inheritance (HP:0001450).
+  MODE_OF_INHERITANCE_Y_LINKED = 5;
+  // Mitochondrial inheritance (HP:0001427).
+  MODE_OF_INHERITANCE_MITOCHONDRIAL = 6;
+}
+
 // Phenotype-related information, if any.
 message GeneRelatedPhenotypes {
   // ACMG supplementary finding list.
   bool is_acmg_sf = 1;
   // Whether is a known disease gene.
   bool is_disease_gene = 2;
+  // Linked modes of inheritance.
+  repeated ModeOfInheritance mode_of_inheritances = 3;
 }
 
 // Gene-wise constraints.
