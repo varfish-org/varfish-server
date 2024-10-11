@@ -108,7 +108,10 @@ export function displayName(name: string): string {
  * @param nullValue String to use if `value` is nullish.
  * @returns Formatted integer.
  */
-export function formatLargeInt(value: number, nullValue: string = '-'): string {
+export function formatLargeInt(
+  value: number | null | undefined,
+  nullValue: string = '-',
+): string {
   if (value === null || value === undefined) {
     return nullValue
   } else {

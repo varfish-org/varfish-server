@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { CaseSerializerNg } from '@varfish-org/varfish-api/lib'
+import {
+  CaseSerializerNg,
+  SeqvarsVariantConsequenceChoice,
+} from '@varfish-org/varfish-api/lib'
 import debounce from 'lodash.debounce'
+import { sprintf } from 'sprintf-js'
 import { Ref, computed, ref, watch } from 'vue'
 
 import { SortBy } from '@/cases/components/CaseListTable/types'
@@ -8,6 +12,9 @@ import CellGeneFlags from '@/seqvars/components/QueryResults/CellGeneFlags.vue'
 import ClingenDosage from '@/seqvars/components/QueryResults/ClingenDosage.vue'
 import { useResultRowListQuery } from '@/seqvars/queries/seqvarResultRow'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+import { formatLargeInt } from '@/varfish/helpers'
+
+import { threeToOneAa } from './lib'
 
 /**
  * Displays the results table for query results.
@@ -53,184 +60,230 @@ interface HeaderDef {
   sortable?: boolean
 }
 
+/** Labels for consequences */
+const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
+  transcript_ablation: 'tx ablation',
+  exon_loss_variant: 'exon loss',
+  splice_acceptor_variant: 'spl acceptor',
+  splice_donor_variant: 'spl donor',
+  stop_gained: 'stop gained',
+  frameshift_variant: 'frameshift',
+  stop_lost: 'stop-loss',
+  start_lost: 'start-loss',
+  transcript_amplification: 'tx amplification',
+  feature_elongation: 'tx elongation',
+  feature_truncation: 'tx truncation',
+  disruptive_inframe_insertion: 'inframe ins',
+  disruptive_inframe_deletion: 'inframe del',
+  conservative_inframe_insertion: 'inframe ins',
+  conservative_inframe_deletion: 'inframe del',
+  missense_variant: 'missense',
+  splice_donor_5th_base_variant: 'spl donor 5th',
+  splice_region_variant: 'spl region',
+  splice_donor_region_variant: 'spl region',
+  splice_polypyrimidine_tract_variant: 'spl polypyrimidime tract',
+  start_retained_variant: 'start retained',
+  stop_retained_variant: 'stop retained',
+  synonymous_variant: 'synonymous',
+  coding_sequence_variant: 'coding seq',
+  mature_miRNA_variant: 'mature miRNA',
+  '5_prime_UTR_exon_variant': "5' UTR exon",
+  '5_prime_UTR_intron_variant': "5' UTR intron",
+  '3_prime_UTR_exon_variant': "3' UTR exon",
+  '3_prime_UTR_intron_variant': "3' UTR intron",
+  non_coding_transcript_exon_variant: 'nc tx exon',
+  non_coding_transcript_intron_variant: 'nc tx intron',
+  upstream_gene_variant: 'upstream',
+  downstream_gene_variant: 'downstream',
+  TFBS_ablation: 'TFBS ablation',
+  TFBS_amplification: 'TFBS amplification',
+  TF_binding_site_variant: 'TF binding site',
+  regulatory_region_ablation: 'regulatory region ablation',
+  regulatory_region_amplification: 'regulatory region amplification',
+  regulatory_region_variant: 'regulatory region variant',
+  intergenic_variant: 'intergenic',
+  intron_variant: 'intronic',
+  gene_variant: 'gene variant',
+}
+
 /** Headers to be used in the `VDataTableServer`. */
 const BASE_HEADERS: HeaderDef[] = [
   { title: '#', key: 'index', width: 50, sortable: false },
-  { title: 'chrom', key: 'chrom', width: 100, sortable: true },
-  { title: 'pos', key: 'pos', width: 50, sortable: true },
-  { title: 'ref_allele', key: 'ref_allele', width: 50, sortable: true },
-  { title: 'alt_allele', key: 'alt_allele', width: 50, sortable: true },
+  { title: 'chrom/pos', key: '__chrom_pos__', width: 100, sortable: true },
+  { title: 'ref', key: 'ref_allele', sortable: false },
+  { title: 'alt', key: 'alt_allele', sortable: false },
   {
-    title: 'gene symbol',
+    title: 'gene',
     key: 'payload.variant_annotation.gene.identity.gene_symbol',
   },
-  {
-    title: 'HGNC ID',
-    key: 'payload.variant_annotation.gene.identity.hgnc_id',
-  },
-  {
-    title: 'hgvs_t',
-    key: 'payload.variant_annotation.gene.consequences.hgvs_t',
-  },
-  {
-    title: 'hgvs_p',
-    key: 'payload.variant_annotation.gene.consequences.hgvs_p',
-  },
-  {
-    title: 'ClinGen HI',
-    key: '__clingen_hi__',
-  },
-  {
-    title: 'ClinGen TS',
-    key: '__clingen_ts__',
-  },
-  {
-    title: 'gene flags',
-    key: '__gene_flags__',
-  },
-  {
-    title: 'effect',
-    key: '__effect__',
-  },
-  {
-    title: 'consequences',
-    key: 'payload.variant_annotation.gene.consequences.consequences',
-  },
-  {
-    title: 'pLI gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.pli',
-  },
-  {
-    title: 'mis-z gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.mis_z',
-  },
-  {
-    title: 'syn-z gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.syn_z',
-  },
-  {
-    title: 'o/e lof gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof',
-  },
-  {
-    title: 'o/e mis gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis',
-  },
-  {
-    title: 'o/e lof lower gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower',
-  },
-  {
-    title: 'LOEUF gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper',
-  },
-  {
-    title: 'o/e mis lower gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower',
-  },
-  {
-    title: 'o/e mis upper gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper',
-  },
-  {
-    title: 'HI Percentile',
-    key: 'payload.variant_annotation.gene.constraints.decipher.hi_percentile',
-  },
-  {
-    title: 'HI Index',
-    key: 'payload.variant_annotation.gene.constraints.decipher.hi_index',
-  },
-  {
-    title: 'RCNV pHaplo',
-    key: 'payload.variant_annotation.gene.constraints.rcnv.p_haplo',
-  },
-  {
-    title: 'RCNV pTriplo',
-    key: 'payload.variant_annotation.gene.constraints.rcnv.p_triplo',
-  },
-  {
-    title: 'sHet',
-    key: 'payload.variant_annotation.gene.constraints.shet.s_het',
-  },
-  {
-    title: 'dbSNP ID',
-    key: 'payload.variant_annotation.variant.dbids.dbsnp_id',
-  },
-  {
-    title: '% freq. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.af',
-  },
-  {
-    title: '# hom.alt. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.homalt',
-  },
-  {
-    title: '# het. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.het',
-  },
-  {
-    title: '# hemi.alt. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.hemialt',
-  },
-  {
-    title: '% freq. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.af',
-  },
-  {
-    title: '# hom.alt. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.homalt',
-  },
-  {
-    title: '# het. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.het',
-  },
-  {
-    title: '# hemi.alt. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.hemialt',
-  },
-  {
-    title: '% freq. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.af',
-  },
-  {
-    title: '# het. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.het',
-  },
-  {
-    title: '# hom.alt. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.homalt',
-  },
-  {
-    title: '% freq. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.af',
-  },
-  {
-    title: '# het. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.het',
-  },
-  {
-    title: '# hom.alt. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt',
-  },
-  {
-    title: '# het. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.het',
-  },
-  {
-    title: '# hom.alt. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.homalt',
-  },
-  {
-    title: '# hemi.alt. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.hemialt',
-  },
+  // {
+  //   title: 'HGNC ID',
+  //   key: 'payload.variant_annotation.gene.identity.hgnc_id',
+  // },
+  // {
+  //   title: 'HGVS(t)',
+  //   key: 'payload.variant_annotation.gene.consequences.hgvs_t',
+  // },
+  // {
+  //   title: 'HGVS(p)',
+  //   key: 'payload.variant_annotation.gene.consequences.hgvs_p',
+  // },
+  // // needs review
+  // {
+  //   title: 'ClinGen HI',
+  //   key: '__clingen_hi__',
+  // },
+  // {
+  //   title: 'ClinGen TS',
+  //   key: '__clingen_ts__',
+  // },
+  // {
+  //   title: 'gene flags',
+  //   key: '__gene_flags__',
+  // },
+  // {
+  //   title: 'effect',
+  //   key: '__effect__',
+  // },
+  // {
+  //   title: 'consequences',
+  //   key: 'payload.variant_annotation.gene.consequences.consequences',
+  // },
+  // {
+  //   title: 'pLI gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.pli',
+  // },
+  // {
+  //   title: 'mis-z gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.mis_z',
+  // },
+  // {
+  //   title: 'syn-z gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.syn_z',
+  // },
+  // {
+  //   title: 'o/e lof gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof',
+  // },
+  // {
+  //   title: 'o/e mis gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis',
+  // },
+  // {
+  //   title: 'o/e lof lower gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower',
+  // },
+  // {
+  //   title: 'LOEUF gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper',
+  // },
+  // {
+  //   title: 'o/e mis lower gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower',
+  // },
+  // {
+  //   title: 'o/e mis upper gnomAD',
+  //   key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper',
+  // },
+  // {
+  //   title: 'HI Percentile',
+  //   key: 'payload.variant_annotation.gene.constraints.decipher.hi_percentile',
+  // },
+  // {
+  //   title: 'HI Index',
+  //   key: 'payload.variant_annotation.gene.constraints.decipher.hi_index',
+  // },
+  // {
+  //   title: 'RCNV pHaplo',
+  //   key: 'payload.variant_annotation.gene.constraints.rcnv.p_haplo',
+  // },
+  // {
+  //   title: 'RCNV pTriplo',
+  //   key: 'payload.variant_annotation.gene.constraints.rcnv.p_triplo',
+  // },
+  // {
+  //   title: 'sHet',
+  //   key: 'payload.variant_annotation.gene.constraints.shet.s_het',
+  // },
+  // {
+  //   title: 'dbSNP ID',
+  //   key: 'payload.variant_annotation.variant.dbids.dbsnp_id',
+  // },
+  // {
+  //   title: '% freq. gnomAD-exomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.af',
+  // },
+  // {
+  //   title: '# hom.alt. gnomAD-exomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.homalt',
+  // },
+  // {
+  //   title: '# het. gnomAD-exomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.het',
+  // },
+  // {
+  //   title: '# hemi.alt. gnomAD-exomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.hemialt',
+  // },
+  // {
+  //   title: '% freq. gnomAD-genomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.af',
+  // },
+  // {
+  //   title: '# hom.alt. gnomAD-genomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.homalt',
+  // },
+  // {
+  //   title: '# het. gnomAD-genomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.het',
+  // },
+  // {
+  //   title: '# hemi.alt. gnomAD-genomes',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.hemialt',
+  // },
+  // {
+  //   title: '% freq. HelixMtDb',
+  //   key: 'payload.variant_annotation.variant.frequency.helixmtdb.af',
+  // },
+  // {
+  //   title: '# het. HelixMtDb',
+  //   key: 'payload.variant_annotation.variant.frequency.helixmtdb.het',
+  // },
+  // {
+  //   title: '# hom.alt. HelixMtDb',
+  //   key: 'payload.variant_annotation.variant.frequency.helixmtdb.homalt',
+  // },
+  // {
+  //   title: '% freq. gnomAD-mtDNA',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.af',
+  // },
+  // {
+  //   title: '# het. gnomAD-mtDNA',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.het',
+  // },
+  // {
+  //   title: '# hom.alt. gnomAD-mtDNA',
+  //   key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt',
+  // },
+  // {
+  //   title: '# het. in-house',
+  //   key: 'payload.variant_annotation.variant.frequency.inhouse.het',
+  // },
+  // {
+  //   title: '# hom.alt. in-house',
+  //   key: 'payload.variant_annotation.variant.frequency.inhouse.homalt',
+  // },
+  // {
+  //   title: '# hemi.alt. in-house',
+  //   key: 'payload.variant_annotation.variant.frequency.inhouse.hemialt',
+  // },
   // CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING
   // CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING
   // CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING CLINVAR MISSING
-  {
-    title: 'CADD Phred',
-    key: 'payload.variant_annotation.variant.scores.entries.cadd_phred',
-  },
+  // {
+  //   title: 'CADD Phred',
+  //   key: 'payload.variant_annotation.variant.scores.entries.cadd_phred',
+  // },
 ]
 /** Headers for genotype call-related infos. */
 const callHeaders = computed<HeaderDef[]>(() => {
@@ -243,22 +296,22 @@ const callHeaders = computed<HeaderDef[]>(() => {
         title: `Genotype ${name}`,
         key: `payload.variant_annotation.call.call_infos.${name}.genotype`,
       },
-      {
-        title: `Total Depth ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.dp`,
-      },
-      {
-        title: `Alternate Depth ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.ad`,
-      },
-      {
-        title: `Genotype Quality ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.gq`,
-      },
-      {
-        title: `Phase Set ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.ps`,
-      },
+      // {
+      //   title: `Total Depth ${name}`,
+      //   key: `payload.variant_annotation.call.call_infos.${name}.dp`,
+      // },
+      // {
+      //   title: `Alternate Depth ${name}`,
+      //   key: `payload.variant_annotation.call.call_infos.${name}.ad`,
+      // },
+      // {
+      //   title: `Genotype Quality ${name}`,
+      //   key: `payload.variant_annotation.call.call_infos.${name}.gq`,
+      // },
+      // {
+      //   title: `Phase Set ${name}`,
+      //   key: `payload.variant_annotation.call.call_infos.${name}.ps`,
+      // },
     )
   }
   return result
@@ -312,6 +365,46 @@ const updateQuery = async ({
   sortBy.value = sortBy$
 }
 
+const formatFixedFloat = (
+  value: number | string | null | undefined,
+  options?: { decimal?: number; precision?: number; signed?: boolean },
+) => {
+  const precision = options?.precision ?? 4
+  if (typeof value === "string") {
+    return value
+  } else if (value === undefined || value === null) {
+    return '-'
+  } else if (precision === 0) {
+    console.log(`% ${options?.decimal ?? 0}d`)
+    const result = sprintf(`%${options?.decimal ?? 0}d`, value)
+    const decimal = options?.decimal ?? 1
+    if (result.length < decimal) {
+      return ' '.repeat(decimal - result.length) + result
+    } else {
+      return result
+    }
+  } else {
+    const sign = value < 0 ? -1 : 1
+    const absValue = Math.abs(value)
+    let rawResult = sprintf(`%.${precision}f`, value)
+    console.log(rawResult, sprintf(`%.${precision}f`, 0))
+    if (rawResult === sprintf(`%.${precision}f`, 0)) {
+      rawResult = `0.${' '.repeat(precision)}`
+    }
+    const decimalInStr = absValue.toString().split('.')[0].length
+    const deciamlPadding =
+      options?.decimal === undefined
+        ? ''
+        : ' '.repeat(options?.decimal - decimalInStr)
+
+    return (
+      (sign === -1 ? '-' : options?.signed ? ' ' : '') +
+      deciamlPadding +
+      rawResult
+    )
+  }
+}
+
 /** Debounced version of `updateQuery`. */
 const updateQueryDebounced = debounce(updateQuery, 500)
 
@@ -343,6 +436,25 @@ watch(
     item-value="name"
     @update:options="updateQueryDebounced"
   >
+    <template #[`item.__chrom_pos__`]="{ item }">
+      <span class="font-monospaced">
+        <template v-if="item.chrom.length == 1">&nbsp;</template
+        >{{ item.chrom }}:{{ formatLargeInt(item.pos) }}
+      </span>
+    </template>
+
+    <template #[`item.ref_allele`]="{ item }">
+      <div class="mono-overfloat-4" :title="item.ref_allele">
+        {{ item.ref_allele }}
+      </div>
+    </template>
+
+    <template #[`item.alt_allele`]="{ item }">
+      <div class="mono-overfloat-4" :title="item.alt_allele">
+        {{ item.alt_allele }}
+      </div>
+    </template>
+
     <template #[`item.__gene_flags__`]="{ item }">
       <CellGeneFlags :item="item" :hints-enabled="hintsEnabled" />
     </template>
@@ -362,18 +474,38 @@ watch(
       />
     </template>
 
-    <template #[`item.__effect__`]="{ item }">
-      <template
+    <template
+      #[`item.payload.variant_annotation.gene.consequences.hgvs_t`]="{ item }"
+    >
+      <div
+        class="hide-overfloat-120"
+        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
         v-if="
-          (item.payload?.variant_annotation?.gene?.consequences?.hgvs_p ??
-            'p.?') === 'p.?'
+          item.payload?.variant_annotation?.gene?.consequences?.hgvs_t?.length
         "
       >
         {{ item.payload?.variant_annotation?.gene?.consequences?.hgvs_t }}
-      </template>
-      <template v-else>
-        {{ item.payload?.variant_annotation?.gene?.consequences?.hgvs_p }}
-      </template>
+      </div>
+      <div v-else>-</div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.consequences.hgvs_p`]="{ item }"
+    >
+      <div
+        class="hide-overfloat-120"
+        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_p"
+        v-if="
+          item.payload?.variant_annotation?.gene?.consequences?.hgvs_p?.length
+        "
+      >
+        {{
+          threeToOneAa(
+            item.payload?.variant_annotation?.gene?.consequences?.hgvs_p,
+          )
+        }}
+      </div>
+      <div v-else>-</div>
     </template>
 
     <template
@@ -381,11 +513,564 @@ watch(
         item,
       }"
     >
-      {{
-        item.payload?.variant_annotation?.gene?.consequences?.consequences?.join(
-          ', ',
-        )
-      }}
+      <div
+        class="hide-overfloat-120"
+        :title="
+          item.payload?.variant_annotation?.gene?.consequences?.consequences
+            ?.map((csq) => CONSEQUENCE_LABEL[csq])
+            .join(', ')
+        "
+        v-if="
+          item.payload?.variant_annotation?.gene?.consequences?.consequences
+            ?.length
+        "
+      >
+        {{
+          item.payload?.variant_annotation?.gene?.consequences?.consequences
+            ?.map((csq) => CONSEQUENCE_LABEL[csq])
+            .join(', ')
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.pli`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad?.pli,
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.mis_z`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad?.mis_z,
+            { precision: 2, signed: true },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.syn_z`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad?.syn_z,
+            { precision: 2, signed: true },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_lof`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad?.oe_lof,
+            { precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_mis`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad?.oe_mis,
+            { precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad
+              ?.oe_lof_lower,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad
+              ?.oe_lof_upper,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad
+              ?.oe_mis_lower,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.gnomad
+              ?.oe_mis_upper,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.decipher.hi_percentile`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.decipher
+              ?.hi_percentile,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.decipher.hi_index`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.decipher
+              ?.hi_index,
+            { decimal: 2, precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.rcnv.p_haplo`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.rcnv?.p_haplo,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.rcnv.p_triplo`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.rcnv?.p_triplo,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.gene.constraints.shet.s_het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.gene?.constraints?.shet?.s_het,
+            { precision: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_exomes.af`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            (item.payload?.variant_annotation?.variant?.frequency?.gnomad_exomes
+              ?.af ?? 0) * 100.0,
+            { decimal: 2, precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_exomes.homalt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_exomes
+              ?.homalt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_exomes.het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_exomes
+              ?.het ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_exomes.hemialt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_exomes
+              ?.hemialt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_genomes.af`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            (item.payload?.variant_annotation?.variant?.frequency?.gnomad_genomes
+              ?.af ?? 0) * 100.0,
+            { decimal: 2, precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_genomes.homalt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_genomes
+              ?.homalt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_genomes.het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_genomes
+              ?.het ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_genomes.hemialt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_genomes
+              ?.hemialt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.helixmtdb.af`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            (item.payload?.variant_annotation?.variant?.frequency?.helixmtdb
+              ?.af ?? 0) * 100.0,
+            { decimal: 2, precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.helixmtdb.homalt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.helixmtdb
+              ?.homalt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.helixmtdb.het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.helixmtdb
+              ?.het ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_mtdna.af`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            (item.payload?.variant_annotation?.variant?.frequency?.gnomad_mtdna
+              ?.af ?? 0) * 100.0,
+            { decimal: 2, precision: 2 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_mtdna
+              ?.homalt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.gnomad_mtdna.het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.gnomad_mtdna
+              ?.het ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.inhouse.het`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.inhouse
+              ?.het ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.inhouse.homalt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.inhouse
+              ?.homalt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.frequency.inhouse.hemialt`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.frequency?.inhouse
+              ?.hemialt ?? 0,
+            { precision: 0, decimal: 4 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.cadd_phred`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.cadd_phred,
+            { precision: 2, decimal: 3 },
+          )
+        }}
+      </div>
+    </template>
+
+    <template #[`item.__effect__`]="{ item }">
+      <template
+        v-if="
+          (item.payload?.variant_annotation?.gene?.consequences?.hgvs_p ??
+            'p.?') === 'p.?'
+        "
+      >
+        <div
+          class="hide-overfloat-100"
+          :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
+          v-if="
+            item.payload?.variant_annotation?.gene?.consequences?.hgvs_t?.length
+          "
+        >
+          {{ item.payload?.variant_annotation?.gene?.consequences?.hgvs_t }}
+        </div>
+        <div v-else>-</div>
+      </template>
+      <div
+        class="hide-overfloat-100"
+        :title="
+          threeToOneAa(
+            item.payload?.variant_annotation?.gene?.consequences?.hgvs_p,
+          )
+        "
+        v-else-if="
+          item.payload?.variant_annotation?.gene?.consequences?.hgvs_p?.length
+        "
+      >
+        {{
+          threeToOneAa(
+            item.payload?.variant_annotation?.gene?.consequences?.hgvs_p,
+          )
+        }}
+      </div>
+      <div v-else>-</div>
     </template>
 
     <template #bottom>
@@ -429,3 +1114,71 @@ watch(
     </template>
   </v-data-table-server>
 </template>
+
+<style scoped lang="scss">
+// Monospaced font.
+.font-monospaced {
+  font-family: 'Roboto Mono', monospace;
+}
+
+// Mixin for <div> with Monospaced font that has a width set but does not overflow.
+@mixin mono-width($width: 10ch) {
+  font-family: 'Roboto Mono', monospace;
+  width: $width;
+  white-space: nowrap;
+}
+
+// <div>s with monospaced font and different widths.
+div.mono-width-5 {
+  @include mono-width(5ch);
+}
+
+// Mixin for <div> with Monospaced font that can overflow when width is set.
+@mixin mono-overfloat($width: 10ch) {
+  @include mono-width($width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// <div>s with monospaced font and different widths.
+div.mono-overfloat-1 {
+  @include mono-overfloat(1ch);
+}
+div.mono-overfloat-2 {
+  @include mono-overfloat(2ch);
+}
+div.mono-overfloat-3 {
+  @include mono-overfloat(3ch);
+}
+div.mono-overfloat-4 {
+  @include mono-overfloat(4ch);
+}
+div.mono-overfloat-5 {
+  @include mono-overfloat(5ch);
+}
+
+// Mixin for <div> that can overflow when width is set.
+@mixin hide-overfloat($width: 100px) {
+  width: $width;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// <div>s with different widths.
+div.hide-overfloat-20 {
+  @include hide-overfloat(20px);
+}
+div.hide-overfloat-50 {
+  @include hide-overfloat(50px);
+}
+div.hide-overfloat-100 {
+  @include hide-overfloat(100px);
+}
+div.hide-overfloat-120 {
+  @include hide-overfloat(120px);
+}
+div.hide-overfloat-150 {
+  @include hide-overfloat(150px);
+}
+</style>
