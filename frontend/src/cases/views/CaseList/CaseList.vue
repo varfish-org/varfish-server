@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { ref } from 'vue'
+import { onMounted } from 'vue'
 
 import CaseListQc from '@/cases/components/CaseListQc/CaseListQc.vue'
 import CaseListTable from '@/cases/components/CaseListTable/CaseListTable.vue'
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
 import TheNavBar from '@/cases/components/TheNavBar/TheNavBar.vue'
+import { useCaseListStore } from '@/cases/stores/caseList'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import QueryPresets from '@/variants/components/QueryPresets.vue'
 
@@ -20,6 +22,8 @@ const props = defineProps<{
   presetSet?: string
 }>()
 
+const caseListStore = useCaseListStore()
+
 // Whether to hide the navigation bar; component state.
 const navbarShown = ref<boolean>(true)
 /** Messages to display in VSnackbarQueue; component state. */
@@ -29,6 +33,10 @@ const messages = ref<SnackbarMessage[]>([])
 const queueMessage = (message: SnackbarMessage) => {
   messages.value.push(message)
 }
+
+onMounted(async () => {
+  await caseListStore.initialize(props.projectUuid)
+})
 </script>
 
 <template>
@@ -95,7 +103,7 @@ const queueMessage = (message: SnackbarMessage) => {
           <CaseListQc />
         </div>
         <div v-else-if="props.currentTab === Tab.QUERY_PRESETS">
-          <QueryPresets :preset-set="presetSet" />
+          <QueryPresets :project-uuid="projectUuid" :preset-set="presetSet" />
         </div>
         <div v-else>
           <v-alert type="error">Unknown tab: {{ props.currentTab }}</v-alert>

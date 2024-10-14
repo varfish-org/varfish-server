@@ -250,6 +250,7 @@ const handleAddClicked = async (category) => {
         quality: null,
         chromosome: null,
         flagsetc: null,
+        inheritance: null,
       }
     } else if (category === 'qualitypresets') {
       payload = {
