@@ -115,7 +115,7 @@ const inheritanceWrapper = computed({
     return inheritanceRef.value
   },
   set(newValue) {
-    if (newValue !== 'custom') {
+    if (newValue && newValue !== 'custom') {
       props.querySettings.genotype = copy(
         props.categoryPresets.inheritance[newValue].genotype,
       )
@@ -189,7 +189,7 @@ const qualityWrapper = computed({
     return qualityRef.value
   },
   set(newValue) {
-    if (newValue !== 'custom') {
+    if (newValue && newValue !== 'custom') {
       for (const member of Object.values(props.case.pedigree)) {
         props.querySettings.quality[member.name] = _objectWithoutKeys(
           props.categoryPresets.quality[newValue],
@@ -251,7 +251,7 @@ const makeWrapper = (name) =>
       return valueRefs[name].value
     },
     set(newValue) {
-      if (newValue !== 'custom') {
+      if (newValue && newValue !== 'custom') {
         const oldBlockRefresh = blockRefresh.value
         blockRefresh.value = true
         for (const [key, value] of Object.entries(
