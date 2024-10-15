@@ -185,6 +185,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const createFlags = async (
     strucvar: Strucvar,
     payload: StructuralVariantFlags,
+    resultRowUuid: string,
   ): Promise<StructuralVariantFlags> => {
     const svClient = new SvClient(ctxStore.csrfToken)
     // Throw error if case UUID has not been set.
@@ -212,6 +213,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
           end,
           sv_type: strucvar.svType,
           sv_sub_type: strucvar.svType,
+          sodar_uuid: resultRowUuid,
         },
         ...payload,
       })

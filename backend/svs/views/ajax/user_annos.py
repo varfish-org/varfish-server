@@ -5,6 +5,7 @@ import uuid
 
 from iterable_orm import QuerySet
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from svs.models import StructuralVariantComment, StructuralVariantFlags, SvQueryResultRow
@@ -142,11 +143,14 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
         return qs
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SvQueryResultRow required. Aborting flag creation."
+                }
+            )
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
 
         result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
         result_set = case.svqueryresultset_set.filter(svquery=None).first()
@@ -277,11 +281,15 @@ class StructuralVariantCommentListCreateAjaxView(
         return qs
 
     def perform_create(self, serializer):
+        if not self.request.data.get("sodar_uuid"):
+            raise ValidationError(
+                detail={
+                    "error": "`sodar_uuid` of SvQueryResultRow required. Aborting comment creation."
+                }
+            )
+
         super().perform_create(serializer)
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
-
-        if not self.request.data.get("sodar_uuid"):
-            return
 
         result_row = SvQueryResultRow.objects.get(sodar_uuid=self.request.data.get("sodar_uuid"))
         result_set = case.svqueryresultset_set.filter(svquery=None).first()

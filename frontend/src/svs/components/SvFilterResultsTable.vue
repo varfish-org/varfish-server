@@ -492,7 +492,12 @@ watch(
           <!-- comments -->
           <i-fa-solid-comment
             v-if="
-              svCommentsStore.hasComment({ chromosome, start, end, sv_type })
+              svCommentsStore.hasComment({
+                chrom: chromosome,
+                start: start,
+                stop: end,
+                svType: sv_type,
+              })
             "
             :class="`${svCommentsStore.hasProjectWideComments({ chromosome, start, end, sv_type }) ? 'text-warning' : 'text-muted'} ml-1`"
             role="button"
