@@ -1,5 +1,5 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
 
 from beaconsite.tests.factories import ConsortiumFactory, SiteFactory
 
@@ -24,14 +24,14 @@ class UsersMixin:
         ]
 
 
-class TestIndexView(UsersMixin, TestProjectPermissionBase):
+class TestIndexView(UsersMixin, ProjectPermissionTestBase):
     def test_index(self):
         url = reverse("beaconsite:index")
         self.assert_response(url, self.good_users, 200)
         self.assert_response(url, self.bad_users, 302)
 
 
-class TestConsortiumViews(UsersMixin, TestProjectPermissionBase):
+class TestConsortiumViews(UsersMixin, ProjectPermissionTestBase):
     def test_list(self):
         url = reverse("beaconsite:consortium-list")
         self.assert_response(url, self.good_users, 200)
@@ -59,7 +59,7 @@ class TestConsortiumViews(UsersMixin, TestProjectPermissionBase):
         self.assert_response(url, self.bad_users, 302)
 
 
-class TestSiteViews(UsersMixin, TestProjectPermissionBase):
+class TestSiteViews(UsersMixin, ProjectPermissionTestBase):
     def test_list(self):
         url = reverse("beaconsite:site-list")
         self.assert_response(url, self.good_users, 200)

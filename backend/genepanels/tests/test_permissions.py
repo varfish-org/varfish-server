@@ -1,5 +1,5 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
 
 from genepanels.models import GenePanelState
 from genepanels.tests.factories import GenePanelFactory
@@ -26,7 +26,7 @@ class UsersMixin:
         ]
 
 
-class TestGenepanelsView(UsersMixin, TestProjectPermissionBase):
+class TestGenepanelsView(UsersMixin, ProjectPermissionTestBase):
     def test_index(self):
         url = reverse("genepanels:index")
         self.assert_response(url, self.users_edit + self.users_view, 200)

@@ -15,7 +15,7 @@ import openpyxl
 from projectroles.models import Project
 from requests_mock import Mocker
 from test_plus.test import TestCase
-from timeline.models import ProjectEvent
+from timeline.models import TimelineEvent
 
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
@@ -975,7 +975,7 @@ class ExportCaseTest(ExportTestBase):
         self.assertIsNotNone(self.export_job.export_result)
         self.assertEquals(self.export_job.export_result.payload, _fake_generate(self))
         # Check side effects
-        self.assertEquals(ProjectEvent.objects.count(), 1)
+        self.assertEquals(TimelineEvent.objects.count(), 1)
 
     @patch.object(file_export.CaseExporterTsv, "generate", new=_fake_generate, create=True)
     def test_export_tsv(self):
