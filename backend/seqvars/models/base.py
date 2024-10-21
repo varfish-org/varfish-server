@@ -457,9 +457,9 @@ class SeqvarsColumnConfigPydantic(pydantic.BaseModel):
     #: The column description.
     description: typing.Optional[str] = None
     #: The column width.
-    width: int
+    width: int = 100
     #: The column visibility.
-    visible: bool
+    visible: bool = False
 
 
 class SeqvarsColumnsSettingsBase(models.Model):
@@ -1760,6 +1760,9 @@ class SeqvarsQueryExecution(BaseModel):
 
     def __str__(self):
         return f"SeqvarsQueryExecution '{self.sodar_uuid}'"
+
+    class Meta:
+        ordering = ["-date_created"]
 
 
 class SeqvarsRecessiveModeChoice(str, Enum):

@@ -547,9 +547,9 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
 
         Also, start the execution of a background job.
         """
-        query = None
         # TODO: check permissions on the source's project
         query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
+        # import pdb; pdb.set_trace()
         with transaction.atomic():
             queryexecution = SeqvarsQueryExecution.objects.create(
                 state=SeqvarsQueryExecution.STATE_QUEUED,

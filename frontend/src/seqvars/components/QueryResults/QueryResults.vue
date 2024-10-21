@@ -11,7 +11,7 @@ import {
 import { computed, ref } from 'vue'
 
 import { useSeqvarQueryRetrieveQueries } from '@/seqvars/queries/seqvarQuery'
-import { useSeqvarQueryExecutionListQuery } from '@/seqvars/queries/seqvarQueryExecution'
+import { useSeqvarQueryExecutionListQuery, useSeqvarQueryExecutionRetrieveQuery } from '@/seqvars/queries/seqvarQueryExecution'
 import { useSeqvarResultSetListQuery } from '@/seqvars/queries/seqvarResultSet'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -76,13 +76,22 @@ const selectedQueryIndex = computed<number>(() => {
 const queryExecutionListRes = useSeqvarQueryExecutionListQuery({
   seqvarQueryUuid: selectedQueryUuid,
 })
-/** Provide access to the latest query execution of the currently selected query. */
-const latestQueryExecution = computed<SeqvarsQueryExecution | undefined>(() => {
+/**
+ * Provide access to the latest query execution of the currently selected query.
+ * The object is objtained from the list, so it does not feature the full query
+ * settings.
+ */
+const latestQueryExecutionListItem = computed<SeqvarsQueryExecution | undefined>(() => {
   return queryExecutionListRes.data?.value?.results?.[0]
 })
 /** Provide access to UUID of latest query execution. */
 const latestQueryExecutionUuid = computed<string | undefined>(() => {
-  return latestQueryExecution.value?.sodar_uuid
+  return latestQueryExecutionListItem.value?.sodar_uuid
+})
+/** Full details of latest query execution item. */
+const latestQueryExecutionRes = useSeqvarQueryExecutionRetrieveQuery({
+  queryUuid: selectedQueryUuid,
+  queryExecutionUuid: latestQueryExecutionUuid,
 })
 
 /** Provide access to list of seqvar result sets for the execution. */
@@ -115,7 +124,7 @@ const latestResultSet = computed<SeqvarsResultSet | undefined>(() => {
           <div
             v-if="
               !selectedQueryUuid ||
-              !latestQueryExecution?.sodar_uuid ||
+              !latestQueryExecutionUuid ||
               !latestResultSet?.sodar_uuid
             "
             class="font-italic text-center text-body-1"
@@ -128,7 +137,7 @@ const latestResultSet = computed<SeqvarsResultSet | undefined>(() => {
               :case-uuid="props.caseUuid"
               :session-uuid="props.sessionUuid"
               :query-uuid="selectedQueryUuid"
-              :query-execution-uuid="latestQueryExecution?.sodar_uuid"
+              :query-execution-uuid="latestQueryExecutionUuid"
               :result-set-uuid="latestResultSet?.sodar_uuid"
               :total-row-count="
                 latestResultSet?.output_header?.statistics?.count_passed ?? 0

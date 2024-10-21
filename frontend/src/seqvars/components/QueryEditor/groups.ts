@@ -1,6 +1,7 @@
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
+  SeqvarsQueryColumnsConfig,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
   SeqvarsQuerySettingsDetails,
@@ -144,8 +145,8 @@ export const GROUPS = [
   new FilterGroup({
     id: 'quality',
     title: 'Quality',
-    getCompareFields: (v) =>
-      (v.sample_quality_filters ?? []).flatMap((v) => [
+    getCompareFields: (c) =>
+      (c.sample_quality_filters ?? []).flatMap((v) => [
         v.filter_active,
         v.max_ad,
         v.min_ab_het,
