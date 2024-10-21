@@ -323,6 +323,30 @@ const quickPresetWrapper = computed({
   },
 })
 
+const quickPresetsComplete = computed(() => {
+  const result = {}
+  for (const [name, theQuickPresets] of Object.entries(props.quickPresets)) {
+    let skip = false
+    for (const key of [
+      'inheritance',
+      'frequency',
+      'impact',
+      'quality',
+      'chromosomes',
+      'flagsetc',
+    ]) {
+      if (!theQuickPresets[key]) {
+        skip = true
+        break
+      }
+    }
+    if (!skip) {
+      result[name] = theQuickPresets
+    }
+  }
+  return result
+})
+
 /** Refresh all presets. */
 const refreshAllRefs = () => {
   refreshInheritanceRef()
@@ -366,7 +390,7 @@ onMounted(() => {
         v-model="quickPresetWrapper"
         class="custom-select custom-select-sm"
       >
-        <option v-for="(value, name) in quickPresets" :value="name">
+        <option v-for="(value, name) in quickPresetsComplete" :value="name">
           {{ value.label ?? name }}
         </option>
         <option disabled>custom</option>
