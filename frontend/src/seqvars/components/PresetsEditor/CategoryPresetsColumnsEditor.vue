@@ -180,6 +180,27 @@ const updateColumnsPresets = async (rankDelta: number = 0) => {
 }
 
 /**
+ * Move the column at `index` by `delta`.
+ */
+const moveColumn = (index: number, delta: number) => {
+  if (data.value === undefined || data.value.column_settings === undefined) {
+    return
+  }
+  const newIndex = index + delta
+  if (
+    newIndex < 0 ||
+    newIndex >= data.value.column_settings.length ||
+    index < 0 ||
+    index >= data.value.column_settings.length
+  ) {
+    return
+  }
+  const tmp = data.value.column_settings[index]
+  data.value.column_settings[index] = data.value.column_settings[newIndex]
+  data.value.column_settings[newIndex] = tmp
+}
+
+/**
  * Update the columns presets in the store -- debounced.
  *
  * Used for updating non-rank fields so that the UI does not lag.
@@ -238,8 +259,56 @@ watch(data, () => updateColumnsPresetsDebounced(), { deep: true })
       </v-btn-group>
     </div>
 
-    <v-sheet class="text-center font-italic bg-grey-lighten-3 pa-3 mt-3">
-      Columns presets editor is not implemented yet.
-    </v-sheet>
+    <v-list lines="two">
+      <v-list-item
+        v-for="(item, index) in data.column_settings"
+        :key="index"
+        :title="item.label"
+        :subtitle="item.description ?? '-'"
+        class="bg-grey-lighten-3 rounded-lg mb-2"
+      >
+        <template #prepend>
+          <div class="mr-6"># {{ index + 1 }}</div>
+        </template>
+        <template #append>
+          <div class="d-flex flex-row align-self-end">
+            <v-switch
+              v-model="item.visible"
+              hide-details
+              :color="item.visible ? 'primary' : 'red'"
+              variant="outlined"
+              class="mr-3"
+            />
+
+            <v-number-input
+              v-model="item.width"
+              :reverse="false"
+              density="compact"
+              label="width"
+              :hide-input="false"
+              :inset="true"
+              variant="outlined"
+              class="mr-3"
+              hide-details
+              :step="10"
+            />
+            <v-btn-group variant="outlined" divided>
+              <v-btn
+                icon="mdi-arrow-up"
+                :disabled="index === 0"
+                size="small"
+                @click="moveColumn(index, -1)"
+              />
+              <v-btn
+                icon="mdi-arrow-down"
+                :disabled="index === data.column_settings!.length - 1"
+                size="small"
+                @click="moveColumn(index, 1)"
+              />
+            </v-btn-group>
+          </div>
+        </template>
+      </v-list-item>
+    </v-list>
   </v-form>
 </template>

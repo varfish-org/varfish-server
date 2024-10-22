@@ -17,6 +17,7 @@ from seqvars.models.base import (
     HelixmtDbFrequencySettingsPydantic,
     InhouseFrequencySettingsPydantic,
     LabeledSortableBaseModel,
+    SeqvarsColumnConfigPydantic,
     SeqvarsGenotypePresetChoice,
     SeqvarsGenotypePresetsPydantic,
     SeqvarsPredefinedQuery,
@@ -796,7 +797,348 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
     ]
 
 
+#: The predefined columns.
+ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
+    # INFO columns
+    SeqvarsColumnConfigPydantic(label="#", name="index", description="Number of row in result set"),
+    SeqvarsColumnConfigPydantic(
+        label="chrom/pos", name="__chrom_pos__", description="Chromosome and position"
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="ref", name="ref_allele", description="Genome reference allele"
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="alt", name="alt_allele", description="Genome alternative allele"
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="gene",
+        name="payload.variant_annotation.gene.identity.gene_symbol",
+        description="HGNC gene symbol",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="HGNC ID",
+        name="payload.variant_annotation.gene.identity.hgnc_id",
+        description="HGNC gene ID",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="HGVS(t)",
+        name="payload.variant_annotation.gene.consequences.hgvs_t",
+        description="HGVS description at CDS/transcript level",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="HGVS(p)",
+        name="payload.variant_annotation.gene.consequences.hgvs_p",
+        description="HGVS description at protein level",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="ClinGen HI",
+        name="__clingen_hi__",
+        description="ClinGen Haploinsufficiency score",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="ClinGen TS",
+        name="__clingen_ts__",
+        description="ClinGen Triplosensitivity score",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="gene flags",
+        name="__gene_flags__",
+        description="Gene flags (ACMG SF, OMIM, HPO: AD/AR/XD/XR/YL/MT)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="effect",
+        name="__effect__",
+        description="HGVS effect description (protein/CDS/transcript)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="consequences",
+        name="payload.variant_annotation.gene.consequences.consequences",
+        description="Molecular consequence of variant as sequence ontology (SO) terms",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="pLI gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.pli",
+        description="gnomAD pLI score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="mis-z gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.mis_z",
+        description="gnomAD missense z-score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="syn-z gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.syn_z",
+        description="gnomAD synonymous z-score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="o/e lof gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_lof",
+        description="gnomAD observed/expected loss-of-function score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="o/e mis gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_mis",
+        description="gnomAD observed/expected missense score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="o/e lof lower gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower",
+        description="90% confidence interval for the lower bound of observed/expected loss-of-function for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="LOEUF gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper",
+        description="90% confidence interval for the upper bound of observed/expected loss-of-function for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="o/e mis lower gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower",
+        description="90% confidence interval for the lower bound of observed/expected missense for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="o/e mis upper gnomAD",
+        name="payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper",
+        description="90% confidence interval for the upper bound of observed/expected missense for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="HI Percentile",
+        name="payload.variant_annotation.gene.constraints.decipher.hi_percentile",
+        description="Decipher Haploinsufficiency Index (HI) percentile rank for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="HI Index",
+        name="payload.variant_annotation.gene.constraints.decipher.hi_index",
+        description="Decipher Haploinsufficiency Index (HI) index for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="RCNV pHaplo",
+        name="payload.variant_annotation.gene.constraints.rcnv.p_haplo",
+        description="RCNV pHaplo haploinsufficiency score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="RCNV pTriplo",
+        name="payload.variant_annotation.gene.constraints.rcnv.p_triplo",
+        description="RCNV pTriplo triplosensitivity score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="sHet",
+        name="payload.variant_annotation.gene.constraints.shet.s_het",
+        description="sHet score for gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="dbSNP ID",
+        name="payload.variant_annotation.variant.dbids.dbsnp_id",
+        description="dbSNP ID for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="% freq. gnomAD-exomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_exomes.af",
+        description="gnomAD-exomes global allele frequency for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hom.alt. gnomAD-exomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_exomes.homalt",
+        description="gnomAD-exomes total number of hom. alt. carriers",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# het. gnomAD-exomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_exomes.het",
+        description="gnomAD-exomes total number of het. carriers",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hemi.alt. gnomAD-exomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_exomes.hemialt",
+        description="gnomAD-exomes total number of hemi. alt. carriers",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="% freq. gnomAD-genomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_genomes.af",
+        description="gnomAD-genomes global allele frequency for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hom.alt. gnomAD-genomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_genomes.homalt",
+        description="gnomAD-genomes total number of hom. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# het. gnomAD-genomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_genomes.het",
+        description="gnomAD-genomes total number of het. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hemi.alt. gnomAD-genomes",
+        name="payload.variant_annotation.variant.frequency.gnomad_genomes.hemialt",
+        description="gnomAD-genomes total number of hemi. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="% freq. HelixMtDb",
+        name="payload.variant_annotation.variant.frequency.helixmtdb.af",
+        description="HelixMtDb global allele frequency for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# het. HelixMtDb",
+        name="payload.variant_annotation.variant.frequency.helixmtdb.het",
+        description="HelixMtDb total number of het. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hom.alt. HelixMtDb",
+        name="payload.variant_annotation.variant.frequency.helixmtdb.homalt",
+        description="HelixMtDb total number of hom. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="% freq. gnomAD-mtDNA",
+        name="payload.variant_annotation.variant.frequency.gnomad_mtdna.af",
+        description="gnomAD-mtDNA global allele frequency for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# het. gnomAD-mtDNA",
+        name="payload.variant_annotation.variant.frequency.gnomad_mtdna.het",
+        description="gnomAD-mtDNA number of het. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hom.alt. gnomAD-mtDNA",
+        name="payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt",
+        description="gnomAD-mtDNA total number of hom. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# het. in-house",
+        name="payload.variant_annotation.variant.frequency.inhouse.het",
+        description="In-house number of het. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hom.alt. in-house",
+        name="payload.variant_annotation.variant.frequency.inhouse.homalt",
+        description="In-house number of hom. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="# hemi.alt. in-house",
+        name="payload.variant_annotation.variant.frequency.inhouse.hemialt",
+        description="In-house number of hemi. alt. carriers for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Clinvar VCV",
+        name="payload.variant_annotation.variant.clinvar.vcv_accession",
+        description="ClinVar VCV accession for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Clinvar Significance",
+        name="payload.variant_annotation.variant.clinvar.germline_significance_description",
+        description="ClinVar germline significance description for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Clinvar Review Status",
+        name="payload.variant_annotation.variant.clinvar.germline_review_status",
+        description="ClinVar germline review status for variant / star rating",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Clinvar Sig. (Effective)",
+        name="payload.variant_annotation.variant.clinvar.effective_germline_significance_description",
+        description="ClinVar effective germline significance description for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="CADD Phred",
+        name="payload.variant_annotation.variant.scores.entries.cadd_phred",
+        description="CADD score in PHRED-scale for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="SIFT",
+        name="payload.variant_annotation.variant.scores.entries.sift",
+        description="SIFT score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Polyphen",
+        name="payload.variant_annotation.variant.scores.entries.polyphen",
+        description="Polyphen score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="SpliceAI",
+        name="payload.variant_annotation.variant.scores.entries.spliceai",
+        description="SpliceAI score for variant (max of all models)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="SpliceAI model",
+        name="payload.variant_annotation.variant.scores.entries.spliceai_argmax",
+        description="The model of the maximal SpliceAI score",
+    ),
+    # Ppredefined ``FORMAT`` columns.
+    SeqvarsColumnConfigPydantic(
+        label="Genotype __SAMPLE__",
+        name="payload.variant_annotation.call.call_infos.__SAMPLE__.genotype",
+        description="Called genotype for sample",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Total Depth __SAMPLE__",
+        name="payload.variant_annotation.call.call_infos.__SAMPLE__.dp",
+        description="Total depth of coverage for sample",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Alternate Depth __SAMPLE__",
+        name="payload.variant_annotation.call.call_infos.__SAMPLE__.ad",
+        description="Alternate allele coverage for sample",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Genotype Quality __SAMPLE__",
+        name="payload.variant_annotation.call.call_infos.__SAMPLE__.gq",
+        description="Genotype quality for sample",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Phase Set __SAMPLE__",
+        name="payload.variant_annotation.call.call_infos.__SAMPLE__.ps",
+        description="Phase set of alternate allele for sample",
+    ),
+)
+
+
 def create_seqvarsquerypresetscolumns(faker: Faker) -> list[SeqvarsQueryPresetsColumns]:
+    # default column names
+    COLUMNS_DEFAULT = (
+        "index",
+        "__chrom_pos__",
+        "payload.variant_annotation.gene.identity.gene_symbol",
+        "payload.variant_annotation.gene.consequences.hgvs_p",
+        "__gene_flags__",
+        "__effect__",
+        "payload.variant_annotation.gene.consequences.consequences",
+        "payload.variant_annotation.gene.constraints.gnomad.pli",
+        "payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper",
+        "payload.variant_annotation.variant.frequency.gnomad_exomes.af",
+        "payload.variant_annotation.variant.frequency.gnomad_exomes.homalt",
+        "payload.variant_annotation.variant.frequency.gnomad_genomes.af",
+        "payload.variant_annotation.variant.frequency.gnomad_genomes.homalt",
+        "payload.variant_annotation.variant.frequency.inhouse.het",
+        "payload.variant_annotation.variant.frequency.inhouse.homalt",
+        "payload.variant_annotation.variant.clinvar.germline_significance_description",
+        "payload.variant_annotation.variant.clinvar.germline_review_status",
+        "payload.variant_annotation.variant.scores.entries.cadd_phred",
+        "payload.variant_annotation.variant.scores.entries.sift",
+        "payload.variant_annotation.variant.scores.entries.spliceai",
+        "payload.variant_annotation.call.call_infos.__SAMPLE__.genotype",
+    )
+    # clinvar filter column names
+    COLUMNS_CLINVAR = (
+        "index",
+        "__chrom_pos__",
+        "payload.variant_annotation.gene.identity.gene_symbol",
+        "payload.variant_annotation.gene.consequences.hgvs_p",
+        "__gene_flags__",
+        "__effect__",
+        "payload.variant_annotation.gene.consequences.consequences",
+        "payload.variant_annotation.gene.constraints.gnomad.pli",
+        "payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper",
+        "payload.variant_annotation.variant.frequency.gnomad_exomes.af",
+        "payload.variant_annotation.variant.frequency.gnomad_exomes.homalt",
+        "payload.variant_annotation.variant.frequency.gnomad_genomes.af",
+        "payload.variant_annotation.variant.frequency.gnomad_genomes.homalt",
+        "payload.variant_annotation.variant.frequency.inhouse.het",
+        "payload.variant_annotation.variant.frequency.inhouse.homalt",
+        "payload.variant_annotation.variant.clinvar.germline_significance_description",
+        "payload.variant_annotation.variant.clinvar.germline_review_status",
+        "payload.variant_annotation.variant.scores.entries.cadd_phred",
+        "payload.variant_annotation.variant.scores.entries.sift",
+        "payload.variant_annotation.variant.scores.entries.spliceai",
+        "payload.variant_annotation.call.call_infos.__SAMPLE__.genotype",
+    )
+
     return [
         SeqvarsQueryPresetsColumns(
             sodar_uuid=faker.uuid4(),
@@ -804,6 +1146,31 @@ def create_seqvarsquerypresetscolumns(faker: Faker) -> list[SeqvarsQueryPresetsC
             date_modified=TIME_VERSION_1_0,
             rank=1,
             label="defaults",
+            column_settings=[
+                column_config.model_copy(update={"visible": column_config.name in COLUMNS_DEFAULT})
+                for column_config in ALL_COLUMNS
+            ],
+        ),
+        SeqvarsQueryPresetsColumns(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=2,
+            label="ClinVar",
+            column_settings=[
+                column_config.model_copy(update={"visible": column_config.name in COLUMNS_CLINVAR})
+                for column_config in ALL_COLUMNS
+            ],
+        ),
+        SeqvarsQueryPresetsColumns(
+            sodar_uuid=faker.uuid4(),
+            date_created=TIME_VERSION_1_0,
+            date_modified=TIME_VERSION_1_0,
+            rank=3,
+            label="all",
+            column_settings=[
+                column_config.model_copy(update={"visible": True}) for column_config in ALL_COLUMNS
+            ],
         ),
     ]
 

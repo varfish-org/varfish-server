@@ -307,11 +307,11 @@ def _consequence_to_protobuf(
 
 def _locus_to_protobuf(locus: SeqvarsQuerySettingsLocus) -> QuerySettingsLocus:
     # TODO: map genes in ``locus.gene_panels``!
-    QuerySettingsLocus(
+    return QuerySettingsLocus(
         genes=[gene.hgnc_id for gene in locus.genes],
         genome_regions=[
             GenomicRegion(
-                chromosome=region.chromosome,
+                chrom=region.chromosome,
                 range=(
                     None
                     if region.range is None
@@ -570,7 +570,7 @@ def _seqvars_query_settings_consequence_from_protobuf(
 
 def _genome_region_from_protobuf(region: GenomicRegion) -> GenomeRegionPydantic:
     return GenomeRegionPydantic(
-        chromosome=region.chromosome,
+        chromosome=region.chrom,
         range=(
             None
             if region.range is None

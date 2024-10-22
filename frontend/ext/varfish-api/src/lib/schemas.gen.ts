@@ -5865,15 +5865,17 @@ export const $SeqvarsColumnConfigPydanticList = {
                 title: 'Description'
             },
             width: {
+                default: 100,
                 title: 'Width',
                 type: 'integer'
             },
             visible: {
+                default: false,
                 title: 'Visible',
                 type: 'boolean'
             }
         },
-        required: ['name', 'label', 'width', 'visible'],
+        required: ['name', 'label'],
         title: 'SeqvarsColumnConfigPydantic',
         type: 'object'
     }

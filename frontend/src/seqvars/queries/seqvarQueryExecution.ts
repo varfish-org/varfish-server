@@ -17,6 +17,9 @@ import { MaybeRefOrGetter, computed, toValue } from 'vue'
 
 import { client } from '@/cases/plugins/heyApi'
 
+/** Short time for refreshing query exeuctions. */
+const REFRESH_TIME_SHORT = 500
+
 /**
  * Helper to invalidate execution keys for lists and retrieval for a single
  * execution.
@@ -101,7 +104,7 @@ export const useSeqvarQueryExecutionListQuery = ({
       },
     }),
     enabled: () => !!toValue(seqvarQueryUuid),
-    staleTime: 1000 * 5,
+    staleTime: REFRESH_TIME_SHORT,
   })
 }
 
@@ -126,44 +129,38 @@ export const useSeqvarQueryExecutionListQueries = ({
           },
         }),
         enabled: () => !!toValue(seqvarQueryUuids)?.length,
-        staleTime: 1000 * 5,
+        staleTime: REFRESH_TIME_SHORT,
       })),
     ),
   })
 }
 
-// TODO: currently unused
-//
-// /**
-//  * Query for a single seqvar query execution details within a seqvar query.
-//  *
-//  * The objects returned when retrieved are more nested and contain the actual
-//  * data.
-//  *
-//  * @param queryUuid UUID of the seqvar query that contains the execution.
-//  * @param queryExecutionUuid UUID of the seqvar query execution to load.
-//  */
-// export const useSeqvarQueryExecutionRetrieveQuery = (
-//   {
-//     queryUuid,
-//     queryExecutionUuid,
-//   }: {
-//     queryUuid: MaybeRefOrGetter<string | undefined>
-//     queryExecutionUuid: MaybeRefOrGetter<string | undefined>
-//   },
-// ) => {
-//   return useQuery(
-//     {
-//       ...seqvarsApiQueryexecutionRetrieveOptions({
-//        client,
-//         path: {
-//           // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-//           query: () => toValue(queryUuid),
-//           // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-//           queryexecution: () => toValue(queryExecutionUuid)!,
-//         },
-//       }),
-//       enabled: () => !!toValue(queryUuid) && !!toValue(queryExecutionUuid),
-//     },
-//   )
-// }
+/**
+ * Query for a single seqvar query execution details within a seqvar query.
+ *
+ * The objects returned when retrieved are more nested and contain the actual
+ * data.
+ *
+ * @param queryUuid UUID of the seqvar query that contains the execution.
+ * @param queryExecutionUuid UUID of the seqvar query execution to load.
+ */
+export const useSeqvarQueryExecutionRetrieveQuery = ({
+  queryUuid,
+  queryExecutionUuid,
+}: {
+  queryUuid: MaybeRefOrGetter<string | undefined>
+  queryExecutionUuid: MaybeRefOrGetter<string | undefined>
+}) => {
+  return useQuery({
+    ...seqvarsApiQueryexecutionRetrieveOptions({
+      client,
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        query: () => toValue(queryUuid),
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        queryexecution: () => toValue(queryExecutionUuid)!,
+      },
+    }),
+    enabled: () => !!toValue(queryUuid) && !!toValue(queryExecutionUuid),
+  })
+}

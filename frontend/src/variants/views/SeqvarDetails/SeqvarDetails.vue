@@ -152,7 +152,6 @@ const refreshStores = async () => {
 watch(
   () => props.resultRowUuid,
   async () => {
-    console.log('watch: resultRowUuid changed')
     await refreshStores()
   },
 )
