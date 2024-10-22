@@ -38,7 +38,6 @@ import {
   matchesGenotypePreset,
   matchesQualityPreset,
 } from '@/seqvars/components/QueryEditor/groups'
-import ColumnControls from './ColumnControls.vue'
 import { GENOTYPE_PRESET_TO_RECESSIVE_MODE } from '@/seqvars/components/QueryEditor/lib/constants'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
 import Item from '@/seqvars/components/QueryEditor/ui/Item.vue'
@@ -52,6 +51,8 @@ import {
 } from '@/seqvars/queries/seqvarQuery'
 import { useSeqvarQueryExecutionStartMutation } from '@/seqvars/queries/seqvarQueryExecution'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
+
+import ColumnControls from './ColumnControls.vue'
 
 /** This component's props. */
 const props = withDefaults(
@@ -729,15 +730,13 @@ watch(
       </CollapsibleGroup>
 
       <CollapsibleGroup
-      title="Columns"
-      hint="Configure columns to show in the query results"
-      :hints-enabled="hintsEnabled"
+        title="Columns"
+        hint="Configure columns to show in the query results"
+        :hints-enabled="hintsEnabled"
       >
-      <template #default>
-        <ColumnControls
-          :modelValue="selectedQuery"
-        />
-      </template>
+        <template #default>
+          <ColumnControls :modelValue="selectedQuery" />
+        </template>
       </CollapsibleGroup>
     </template>
   </div>

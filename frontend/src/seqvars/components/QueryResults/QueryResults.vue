@@ -11,7 +11,10 @@ import {
 import { computed, ref } from 'vue'
 
 import { useSeqvarQueryRetrieveQueries } from '@/seqvars/queries/seqvarQuery'
-import { useSeqvarQueryExecutionListQuery, useSeqvarQueryExecutionRetrieveQuery } from '@/seqvars/queries/seqvarQueryExecution'
+import {
+  useSeqvarQueryExecutionListQuery,
+  useSeqvarQueryExecutionRetrieveQuery,
+} from '@/seqvars/queries/seqvarQueryExecution'
 import { useSeqvarResultSetListQuery } from '@/seqvars/queries/seqvarResultSet'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -81,7 +84,9 @@ const queryExecutionListRes = useSeqvarQueryExecutionListQuery({
  * The object is objtained from the list, so it does not feature the full query
  * settings.
  */
-const latestQueryExecutionListItem = computed<SeqvarsQueryExecution | undefined>(() => {
+const latestQueryExecutionListItem = computed<
+  SeqvarsQueryExecution | undefined
+>(() => {
   return queryExecutionListRes.data?.value?.results?.[0]
 })
 /** Provide access to UUID of latest query execution. */

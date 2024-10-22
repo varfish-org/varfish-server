@@ -11,6 +11,7 @@ import { Ref, computed, ref, watch } from 'vue'
 import { SortBy } from '@/cases/components/CaseListTable/types'
 import CellGeneFlags from '@/seqvars/components/QueryResults/CellGeneFlags.vue'
 import ClingenDosage from '@/seqvars/components/QueryResults/ClingenDosage.vue'
+import { useSeqvarQueryRetrieveQuery } from '@/seqvars/queries/seqvarQuery'
 import { useResultRowListQuery } from '@/seqvars/queries/seqvarResultRow'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 import { formatLargeInt } from '@/varfish/helpers'
@@ -141,248 +142,44 @@ const REVIEW_STATUS_STARS: Record<
   no_classification_for_the_single_variant: 0,
 } as const
 
-/** Headers to be used in the `VDataTableServer`. */
-const BASE_HEADERS: HeaderDef[] = [
-  { title: '#', key: 'index', width: 50, sortable: false },
-  { title: 'chrom/pos', key: '__chrom_pos__', width: 100, sortable: true },
-  { title: 'ref', key: 'ref_allele', sortable: false },
-  { title: 'alt', key: 'alt_allele', sortable: false },
-  {
-    title: 'gene',
-    key: 'payload.variant_annotation.gene.identity.gene_symbol',
-  },
-  {
-    title: 'HGNC ID',
-    key: 'payload.variant_annotation.gene.identity.hgnc_id',
-  },
-  {
-    title: 'HGVS(t)',
-    key: 'payload.variant_annotation.gene.consequences.hgvs_t',
-  },
-  {
-    title: 'HGVS(p)',
-    key: 'payload.variant_annotation.gene.consequences.hgvs_p',
-  },
-  // needs review
-  {
-    title: 'ClinGen HI',
-    key: '__clingen_hi__',
-  },
-  {
-    title: 'ClinGen TS',
-    key: '__clingen_ts__',
-  },
-  {
-    title: 'gene flags',
-    key: '__gene_flags__',
-  },
-  {
-    title: 'effect',
-    key: '__effect__',
-  },
-  {
-    title: 'consequences',
-    key: 'payload.variant_annotation.gene.consequences.consequences',
-  },
-  {
-    title: 'pLI gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.pli',
-  },
-  {
-    title: 'mis-z gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.mis_z',
-  },
-  {
-    title: 'syn-z gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.syn_z',
-  },
-  {
-    title: 'o/e lof gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof',
-  },
-  {
-    title: 'o/e mis gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis',
-  },
-  {
-    title: 'o/e lof lower gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower',
-  },
-  {
-    title: 'LOEUF gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_lof_upper',
-  },
-  {
-    title: 'o/e mis lower gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower',
-  },
-  {
-    title: 'o/e mis upper gnomAD',
-    key: 'payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper',
-  },
-  {
-    title: 'HI Percentile',
-    key: 'payload.variant_annotation.gene.constraints.decipher.hi_percentile',
-  },
-  {
-    title: 'HI Index',
-    key: 'payload.variant_annotation.gene.constraints.decipher.hi_index',
-  },
-  {
-    title: 'RCNV pHaplo',
-    key: 'payload.variant_annotation.gene.constraints.rcnv.p_haplo',
-  },
-  {
-    title: 'RCNV pTriplo',
-    key: 'payload.variant_annotation.gene.constraints.rcnv.p_triplo',
-  },
-  {
-    title: 'sHet',
-    key: 'payload.variant_annotation.gene.constraints.shet.s_het',
-  },
-  {
-    title: 'dbSNP ID',
-    key: 'payload.variant_annotation.variant.dbids.dbsnp_id',
-  },
-  {
-    title: '% freq. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.af',
-  },
-  {
-    title: '# hom.alt. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.homalt',
-  },
-  {
-    title: '# het. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.het',
-  },
-  {
-    title: '# hemi.alt. gnomAD-exomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_exomes.hemialt',
-  },
-  {
-    title: '% freq. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.af',
-  },
-  {
-    title: '# hom.alt. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.homalt',
-  },
-  {
-    title: '# het. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.het',
-  },
-  {
-    title: '# hemi.alt. gnomAD-genomes',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_genomes.hemialt',
-  },
-  {
-    title: '% freq. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.af',
-  },
-  {
-    title: '# het. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.het',
-  },
-  {
-    title: '# hom.alt. HelixMtDb',
-    key: 'payload.variant_annotation.variant.frequency.helixmtdb.homalt',
-  },
-  {
-    title: '% freq. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.af',
-  },
-  {
-    title: '# het. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.het',
-  },
-  {
-    title: '# hom.alt. gnomAD-mtDNA',
-    key: 'payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt',
-  },
-  {
-    title: '# het. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.het',
-  },
-  {
-    title: '# hom.alt. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.homalt',
-  },
-  {
-    title: '# hemi.alt. in-house',
-    key: 'payload.variant_annotation.variant.frequency.inhouse.hemialt',
-  },
-  {
-    title: 'Clinvar VCV',
-    key: 'payload.variant_annotation.variant.clinvar.vcv_accession',
-  },
-  {
-    title: 'Clinvar Significance',
-    key: 'payload.variant_annotation.variant.clinvar.germline_significance_description',
-  },
-  {
-    title: 'Clinvar Review Status',
-    key: 'payload.variant_annotation.variant.clinvar.germline_review_status',
-  },
-  {
-    title: 'Clinvar Sig. (Effective)',
-    key: 'payload.variant_annotation.variant.clinvar.effective_germline_significance_description',
-  },
-  {
-    title: 'CADD Phred',
-    key: 'payload.variant_annotation.variant.scores.entries.cadd_phred',
-  },
-  {
-    title: 'SIFT',
-    key: 'payload.variant_annotation.variant.scores.entries.sift',
-  },
-  {
-    title: 'Polyphen',
-    key: 'payload.variant_annotation.variant.scores.entries.polyphen',
-  },
-  {
-    title: 'SpliceAI',
-    key: 'payload.variant_annotation.variant.scores.entries.spliceai',
-  },
-  {
-    title: 'SpliceAI argmax',
-    key: 'payload.variant_annotation.variant.scores.entries.spliceai_argmax',
-  },
-]
-/** Headers for genotype call-related infos. */
-const callHeaders = computed<HeaderDef[]>(() => {
-  const result = []
-  // in the next line, ignore typescript at all
-  for (const { name } of (props.caseObj.pedigree_obj
-    ?.individual_set as unknown as { name: string }[]) ?? []) {
-    result.push(
-      {
-        title: `Genotype ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.genotype`,
-      },
-      {
-        title: `Total Depth ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.dp`,
-      },
-      {
-        title: `Alternate Depth ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.ad`,
-      },
-      {
-        title: `Genotype Quality ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.gq`,
-      },
-      {
-        title: `Phase Set ${name}`,
-        key: `payload.variant_annotation.call.call_infos.${name}.ps`,
-      },
-    )
-  }
-  return result
+/** Query as retrieved via TanStack Query. */
+const seqvarQueryRes = useSeqvarQueryRetrieveQuery({
+  sessionUuid: props.sessionUuid,
+  seqvarQueryUuid: props.queryUuid,
 })
+
 /** The headers to display, including from calls. */
 const headers = computed<HeaderDef[]>(() => {
-  return [...BASE_HEADERS, ...callHeaders.value]
+  const result = []
+  const formatColumns = []
+
+  // Collect `INFO` headers.
+  for (const column of seqvarQueryRes.data.value?.columnsconfig
+    .column_settings ?? []) {
+    if (column.visible) {
+      if (column.name.includes('__SAMPLE__')) {
+        formatColumns.push(column)
+      } else {
+        result.push({
+          title: column.label,
+          key: column.name,
+        })
+      }
+    }
+  }
+
+  // Collect `FORMAT` headers.
+  for (const { name } of (props.caseObj.pedigree_obj
+    ?.individual_set as unknown as { name: string }[]) ?? []) {
+    for (const column of formatColumns) {
+      result.push({
+        title: column.label.replace('__SAMPLE__', name),
+        key: column.name.replace('__SAMPLE__', name),
+      })
+    }
+  }
+
+  return result
 })
 /** Current page in `VDataTableServer`; component state. */
 const page = ref<number | undefined>(undefined)

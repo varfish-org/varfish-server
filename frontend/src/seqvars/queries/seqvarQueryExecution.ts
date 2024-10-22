@@ -141,27 +141,23 @@ export const useSeqvarQueryExecutionListQueries = ({
  * @param queryUuid UUID of the seqvar query that contains the execution.
  * @param queryExecutionUuid UUID of the seqvar query execution to load.
  */
-export const useSeqvarQueryExecutionRetrieveQuery = (
-  {
-    queryUuid,
-    queryExecutionUuid,
-  }: {
-    queryUuid: MaybeRefOrGetter<string | undefined>
-    queryExecutionUuid: MaybeRefOrGetter<string | undefined>
-  },
-) => {
-  return useQuery(
-    {
-      ...seqvarsApiQueryexecutionRetrieveOptions({
-       client,
-        path: {
-          // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-          query: () => toValue(queryUuid),
-          // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-          queryexecution: () => toValue(queryExecutionUuid)!,
-        },
-      }),
-      enabled: () => !!toValue(queryUuid) && !!toValue(queryExecutionUuid),
-    },
-  )
+export const useSeqvarQueryExecutionRetrieveQuery = ({
+  queryUuid,
+  queryExecutionUuid,
+}: {
+  queryUuid: MaybeRefOrGetter<string | undefined>
+  queryExecutionUuid: MaybeRefOrGetter<string | undefined>
+}) => {
+  return useQuery({
+    ...seqvarsApiQueryexecutionRetrieveOptions({
+      client,
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        query: () => toValue(queryUuid),
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        queryexecution: () => toValue(queryExecutionUuid)!,
+      },
+    }),
+    enabled: () => !!toValue(queryUuid) && !!toValue(queryExecutionUuid),
+  })
 }

@@ -800,7 +800,7 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
 #: The predefined columns.
 ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     # INFO columns
-    SeqvarsColumnConfigPydantic(label="#", name="index", description="Nubmer of row in result set"),
+    SeqvarsColumnConfigPydantic(label="#", name="index", description="Number of row in result set"),
     SeqvarsColumnConfigPydantic(label="chrom/pos", name="__chrom_pos__", description="Chromosome and position"),
     SeqvarsColumnConfigPydantic(label="ref", name="ref_allele", description="Genome reference allele"),
     SeqvarsColumnConfigPydantic(label="alt", name="alt_allele", description="Genome alternative allele"),

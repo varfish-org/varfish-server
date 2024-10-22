@@ -6,6 +6,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQueries,
+  useQuery,
   useQueryClient,
 } from '@tanstack/vue-query'
 import { SeqvarsApiQueryUpdateData } from '@varfish-org/varfish-api/lib'
@@ -17,7 +18,7 @@ import {
   seqvarsApiQueryUpdateMutation,
 } from '@varfish-org/varfish-api/lib/@tanstack/vue-query.gen'
 import { deepmergeCustom } from 'deepmerge-ts'
-import { MaybeRefOrGetter, computed, toValue } from 'vue'
+import { MaybeRefOrGetter, computed, toRaw, toValue } from 'vue'
 
 /**
  * Helper to invalidate query keys for lists and retrieval for a single query.
@@ -90,37 +91,35 @@ export const useSeqvarQueryListInfiniteQuery = ({
   })
 }
 
-// TODO: currently unused
-//
-// /**
-//  * Query for a single seqvar query details within a case analysis session.
-//  *
-//  * The objects returned when retrieved are more nested and contain the actual
-//  * data.
-//  *
-//  * @param sessionUuid
-//  *    UUID of the case analysis session that contains the seqvar query.
-//  * @param seqvarQueryUuid UUID of the seqvar query to load.
-//  */
-// export const useSeqvarQueryRetrieveQuery = ({
-//   sessionUuid,
-//   seqvarQueryUuid,
-// }: {
-//   sessionUuid: MaybeRefOrGetter<string | undefined>
-//   seqvarQueryUuid: MaybeRefOrGetter<string | undefined>
-// }) =>
-//   useQuery({
-//     ...seqvarsApiQueryRetrieveOptions({
-//       path: {
-//         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-//         session: () => toValue(sessionUuid)!,
-//         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-//         query: () => toValue(seqvarQueryUuid)!,
-//       },
-//     }),
-//     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-//     enabled: () => !!toValue(sessionUuid) && !!toValue(seqvarQueryUuid),
-//   })
+/**
+ * Query for a single seqvar query details within a case analysis session.
+ *
+ * The objects returned when retrieved are more nested and contain the actual
+ * data.
+ *
+ * @param sessionUuid
+ *    UUID of the case analysis session that contains the seqvar query.
+ * @param seqvarQueryUuid UUID of the seqvar query to load.
+ */
+export const useSeqvarQueryRetrieveQuery = ({
+  sessionUuid,
+  seqvarQueryUuid,
+}: {
+  sessionUuid: MaybeRefOrGetter<string | undefined>
+  seqvarQueryUuid: MaybeRefOrGetter<string | undefined>
+}) =>
+  useQuery({
+    ...seqvarsApiQueryRetrieveOptions({
+      path: {
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        session: () => toValue(sessionUuid)!,
+        // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+        query: () => toValue(seqvarQueryUuid)!,
+      },
+    }),
+    // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+    enabled: () => !!toValue(sessionUuid) && !!toValue(seqvarQueryUuid),
+  })
 
 /**
  * Query for a list of seqvar queries within a case analysis session.
@@ -229,6 +228,16 @@ export const useSeqvarQueryUpdateMutation = () => {
         previousValue === undefined
           ? undefined
           : deepmergeCustom({ mergeArrays: false })(previousValue, data.body)
+      if (
+        newValue !== undefined &&
+        data.body.columnsconfig.column_settings !== undefined
+      ) {
+        // Need to manually clone the column settings as we disable merging of
+        // arrays in `deepmergeCustom()` call.
+        newValue.columnsconfig.column_settings = structuredClone(
+          toRaw(data.body.columnsconfig.column_settings),
+        )
+      }
       queryClient.setQueryData(queryKey, newValue)
       // Return a context with the previous and new data.
       return { previousValue, newValue }
