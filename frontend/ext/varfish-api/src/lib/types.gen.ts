@@ -1961,8 +1961,8 @@ export type SeqvarsColumnConfigPydanticList = Array<{
     name: string;
     label: string;
     description?: (string | null);
-    width: number;
-    visible: boolean;
+    width?: number;
+    visible?: boolean;
 }>;
 
 /**
