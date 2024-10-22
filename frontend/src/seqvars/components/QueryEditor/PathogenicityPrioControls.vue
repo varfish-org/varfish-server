@@ -76,6 +76,9 @@ const applyMutation = async (
     },
   })
 }
+
+/** Whether the recessive mode collapsible group is opend. */
+const collapsibleGroupOpen = ref<boolean>(true)
 </script>
 
 <template>
@@ -97,7 +100,9 @@ const applyMutation = async (
 
   <CollapsibleGroup
     v-model:is-open="detailsOpen"
-    title="Phenotype similarity algorithm"
+    v-model="collapsibleGroupOpen"
+    title="Pathogenicity scores priorization"
+    storage-name="pathogenicity-scores"
   >
     <template #summary>
       {{ modelValue.settings.variantprio.services?.[0]?.name }}

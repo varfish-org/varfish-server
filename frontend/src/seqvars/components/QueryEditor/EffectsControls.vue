@@ -205,7 +205,11 @@ const maxExonDistance = computed<number | null | undefined>({
       />
     </div>
 
-    <CollapsibleGroup v-model:is-open="detailsOpen" title="Customize effects">
+    <CollapsibleGroup
+      v-model="detailsOpen"
+      title="Customize effects"
+      storage-name="effects-details"
+    >
       <div style="display: flex; flex-direction: column; gap: 8px">
         <div v-for="(choices, title) in CUSTOMIZATION">
           <div class="text-body-2">{{ title }}</div>

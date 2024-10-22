@@ -4,7 +4,7 @@ import {
   SeqvarsQueryDetails,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 
@@ -47,13 +47,18 @@ const emit = defineEmits<{
   /** Revert modifications. */
   revert: []
 }>()
+
+/** Whether the recessive mode collapsible group is opend. */
+const collapsibleGroupOpen = ref<boolean>(true)
 </script>
 
 <template>
   <CollapsibleGroup
+    v-model="collapsibleGroupOpen"
     title="Predefined Queries"
     :hints-enabled="hintsEnabled"
     hint="Create a new query using the buttons on the right. Selected predefined query settings for custom query."
+    storage-name="predefined-query-list"
   >
     <template #summary>
       <Item

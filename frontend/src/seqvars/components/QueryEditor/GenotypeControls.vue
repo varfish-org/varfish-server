@@ -5,6 +5,7 @@ import {
   SeqvarsQueryDetailsRequest,
   SeqvarsSampleGenotypePydantic,
 } from '@varfish-org/varfish-api/lib'
+import { ref } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 import CollapsibleGroup from '@/seqvars/components/QueryEditor/ui/CollapsibleGroup.vue'
@@ -191,11 +192,15 @@ const coerceRecessiveMarkers = <T extends SeqvarsQueryDetails>(
 
   return newData
 }
+
+/** Whether the recessive mode collapsible group is opend. */
+const collapsibleGroupOpen = ref<boolean>(true)
 </script>
 
 <template>
   <div class="w-100 d-flex flex-column ga-2">
     <CollapsibleGroup
+      v-model="collapsibleGroupOpen"
       title="Recessive Mode"
       :hints-enabled="hintsEnabled"
       hint="To find biallelic variants beyond homozygous ones in the index, you can use one of the recessive modes."
@@ -205,6 +210,7 @@ const coerceRecessiveMarkers = <T extends SeqvarsQueryDetails>(
             item.value === seqvarsQuery.settings.genotype.recessive_mode,
         )?.title ?? 'NONE'
       "
+      storage-name="genotype-recessive-mode"
     >
       <template #default>
         <Item

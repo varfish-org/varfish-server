@@ -34,6 +34,7 @@ import QueryList from '@/seqvars/components/QueryEditor/QueryList.vue'
 import {
   FilterGroup,
   GROUPS,
+  QueryKey,
   createGenotypeFromPreset,
   createQualityFromPreset,
   matchesGenotypePreset,
@@ -533,6 +534,26 @@ watch(
   () => [seqvarQueries.value.values()],
   () => updateSelectedQueryUuid(),
 )
+
+/** Whether the recessive mode collapsible group for genotype is opend. */
+const collapsibleGroupOpenGenotype = ref<boolean>(true)
+/** Whether the recessive mode collapsible group for genotype is opend. */
+const collapsibleGroupOpenColumns = ref<boolean>(true)
+/** Whether the collapsible group for the given ID is opened. */
+const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
+  frequency: true,
+  sodar_uuid: true,
+  date_created: true,
+  date_modified: true,
+  presetssetversion: true,
+  genotype: true,
+  quality: true,
+  consequence: true,
+  locus: true,
+  phenotypeprio: true,
+  variantprio: true,
+  clinvar: true,
+})
 </script>
 
 <template>
@@ -599,6 +620,7 @@ watch(
 
     <template v-if="!!selectedQuery">
       <CollapsibleGroup
+        v-model="collapsibleGroupOpenGenotype"
         title="Genotype"
         :hints-enabled="hintsEnabled"
         hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
@@ -615,6 +637,7 @@ watch(
               ]
             : ''
         "
+        storage-name="query-editor-genotype"
         @revert="revertGenotypeToPresets"
       >
         <template
@@ -684,6 +707,7 @@ watch(
       <CollapsibleGroup
         v-for="group in GROUPS"
         :key="group.id"
+        v-model="collapsibleGroupOpenGeneric[group.id]"
         :title="group.title"
         :hint="group.hint"
         :hints-enabled="hintsEnabled"
@@ -700,6 +724,7 @@ watch(
               p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
           )?.sodar_uuid !== baselinePredefinedQuery?.[group.id]
         "
+        :storage-name="`query-editor-${group.id}`"
         @revert="() => revertGroupToPresets(group)"
       >
         <template #summary>
@@ -781,6 +806,7 @@ watch(
       </CollapsibleGroup>
 
       <CollapsibleGroup
+        v-model="collapsibleGroupOpenColumns"
         title="Columns"
         hint="Configure columns to show in the query results"
         :hints-enabled="hintsEnabled"
@@ -802,6 +828,7 @@ watch(
               selectedQuery.settings.columnspresets,
             ))
         "
+        storage-name="query-editor-columns"
         @revert="
           async () => {
             if (!!baselinePredefinedQuery?.columns) {
