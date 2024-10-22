@@ -83,7 +83,7 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   splice_donor_5th_base_variant: 'spl donor 5th',
   splice_region_variant: 'spl region',
   splice_donor_region_variant: 'spl region',
-  splice_polypyrimidine_tract_variant: 'spl polypyrimidime tract',
+  splice_polypyrimidine_tract_variant: 'spl polypyrimidine tract',
   start_retained_variant: 'start retained',
   stop_retained_variant: 'stop retained',
   synonymous_variant: 'synonymous',
@@ -169,8 +169,11 @@ const headers = computed<HeaderDef[]>(() => {
   }
 
   // Collect `FORMAT` headers.
+  interface Individual {
+    name: string
+  }
   for (const { name } of (props.caseObj.pedigree_obj
-    ?.individual_set as unknown as { name: string }[]) ?? []) {
+    ?.individual_set as unknown as Individual[]) ?? []) {
     for (const column of formatColumns) {
       result.push({
         title: column.label.replace('__SAMPLE__', name),
@@ -251,14 +254,14 @@ const formatFixedFloat = (
       rawResult = `0.${' '.repeat(precision)}`
     }
     const decimalInStr = absValue.toString().split('.')[0].length
-    const deciamlPadding =
+    const decimalPadding =
       options?.decimal === undefined
         ? ''
         : ' '.repeat(options?.decimal - decimalInStr)
 
     return (
       (sign === -1 ? '-' : options?.signed ? ' ' : '') +
-      deciamlPadding +
+      decimalPadding +
       rawResult
     )
   }
@@ -297,8 +300,8 @@ watch(
   >
     <template #[`item.__chrom_pos__`]="{ item }">
       <span class="font-monospaced">
-        <template v-if="item.chrom.length == 1">&nbsp;</template
-        >{{ item.chrom }}:{{ formatLargeInt(item.pos) }}
+        <template v-if="item.chrom.length == 1">&nbsp;</template>
+        {{ item.chrom }}:{{ formatLargeInt(item.pos) }}
       </span>
     </template>
 

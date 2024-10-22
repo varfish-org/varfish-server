@@ -17,6 +17,9 @@ import { MaybeRefOrGetter, computed, toValue } from 'vue'
 
 import { client } from '@/cases/plugins/heyApi'
 
+/** Short time for refreshing query exeuctions. */
+const REFRESH_TIME_SHORT = 500
+
 /**
  * Helper to invalidate execution keys for lists and retrieval for a single
  * execution.
@@ -101,7 +104,7 @@ export const useSeqvarQueryExecutionListQuery = ({
       },
     }),
     enabled: () => !!toValue(seqvarQueryUuid),
-    staleTime: 500,
+    staleTime: REFRESH_TIME_SHORT,
   })
 }
 
@@ -126,7 +129,7 @@ export const useSeqvarQueryExecutionListQueries = ({
           },
         }),
         enabled: () => !!toValue(seqvarQueryUuids)?.length,
-        staleTime: 500,
+        staleTime: REFRESH_TIME_SHORT,
       })),
     ),
   })

@@ -25,15 +25,23 @@ const THREE_LETTER_TO_ONE_LETTER = {
 } as const
 
 /**
- * Convert a three-letter amino acid code to a one-letter amino acid code.
+ * Convert all three-letter amino acid codes one-letter amino acid codes in a string.
+ * This is not limited to a protein string as we also want to be able to process
+ * HGVS strings.
  *
  * @param threeLetter - The three-letter amino acid code.
  * @returns The one-letter amino acid code.
  */
 export const threeToOneAa = (threeLetter: string): string => {
-  let result = threeLetter
-  for (const [three, one] of Object.entries(THREE_LETTER_TO_ONE_LETTER)) {
-    result = result.replace(three, one)
-  }
-  return result
+  const regex = new RegExp(
+    Object.keys(THREE_LETTER_TO_ONE_LETTER).join('|'),
+    'g',
+  )
+  return threeLetter.replace(
+    regex,
+    (match) =>
+      THREE_LETTER_TO_ONE_LETTER[
+        match as keyof typeof THREE_LETTER_TO_ONE_LETTER
+      ],
+  )
 }

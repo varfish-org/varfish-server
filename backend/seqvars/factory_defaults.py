@@ -918,7 +918,7 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="RCNV pTriplo",
         name="payload.variant_annotation.gene.constraints.rcnv.p_triplo",
-        description="RCNV pHaplo triplosensitivity score for gene",
+        description="RCNV pTriplo triplosensitivity score for gene",
     ),
     SeqvarsColumnConfigPydantic(
         label="sHet",
@@ -998,7 +998,7 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="# hom.alt. gnomAD-mtDNA",
         name="payload.variant_annotation.variant.frequency.gnomad_mtdna.homalt",
-        description="HelixMtDb total number of hom. alt. carriers for variant",
+        description="gnomAD-mtDNA total number of hom. alt. carriers for variant",
     ),
     SeqvarsColumnConfigPydantic(
         label="# het. in-house",
