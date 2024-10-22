@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core'
+import { watch } from 'vue'
+
 import HintButton from './HintButton.vue'
 
 const props = withDefaults(
   defineProps<{
+    /** Whether the group is open. */
+    modelValue: boolean
     /** The title to display. */
     title: string
     /** Whether to enable the `[i]` icon with `hint`. */
@@ -16,10 +21,17 @@ const props = withDefaults(
     summary?: string
     /** Whether to display "modified" icon if non-default selection is made. */
     modified?: boolean
+    /** Name for storing the result, if any. */
+    storageName?: string
+    /** Type of the storage. */
+    storageType?: 'local' | 'session'
   }>(),
   {
+    modelValue: true,
     hintsEnabled: false,
     modified: false,
+    storageName: 'default',
+    storageType: 'local',
   },
 )
 
@@ -27,23 +39,48 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** Revert modifications for this item. */
   revert: []
+  /** Update the state. */
+  'update:modelValue': [newValue: boolean]
 }>()
 
-const isOpen = defineModel<boolean>('isOpen', { default: true })
+interface State {
+  isOpen: boolean
+}
+
+const state = useStorage(
+  `collapsible-group-${props.storageName}`,
+  { isOpen: true } as State,
+  props.storageType === 'local' ? localStorage : sessionStorage,
+  { mergeDefaults: true },
+)
+
+const updateValueAndEmit = (newValue: boolean) => {
+  if (newValue !== state.value.isOpen) {
+    state.value.isOpen = newValue
+    emit('update:modelValue', newValue)
+  }
+}
+
+watch(
+  () => props.modelValue,
+  (newValue) => updateValueAndEmit(newValue),
+)
 </script>
 
 <template>
   <details
-    :open="isOpen"
+    :open="state.isOpen"
     @toggle="
       (event: ToggleEvent) => {
-        isOpen = (event.target as HTMLDetailsElement).open
+        if (!!state) {
+          state.isOpen = (event.target as HTMLDetailsElement).open
+        }
       }
     "
   >
     <summary style="display: flex">
       <v-icon
-        :icon="isOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+        :icon="state.isOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'"
         size="small"
         style="opacity: 0.4"
       ></v-icon>
@@ -77,7 +114,7 @@ const isOpen = defineModel<boolean>('isOpen', { default: true })
             </div>
           </slot>
         </div>
-        <div v-if="!isOpen">
+        <div v-if="!state.isOpen">
           <slot name="summary">
             {{ props.summary }}
           </slot>
@@ -85,7 +122,11 @@ const isOpen = defineModel<boolean>('isOpen', { default: true })
       </div>
     </summary>
     <div style="display: flex" :aria-label="props.title">
-      <button type="button" class="side-toggle" @click="isOpen = !isOpen">
+      <button
+        type="button"
+        class="side-toggle"
+        @click="updateValueAndEmit(!state.isOpen)"
+      >
         <div class="indicator"></div>
       </button>
       <div style="width: 100%">

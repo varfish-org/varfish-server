@@ -39,7 +39,8 @@ type LocalFields<T> = Omit<
   | 'presetssetversion'
 >
 
-type QueryKey = keyof SeqvarsQuerySettingsDetails & keyof SeqvarsPredefinedQuery
+export type QueryKey = keyof SeqvarsQuerySettingsDetails &
+  keyof SeqvarsPredefinedQuery
 
 type GetCompareFields<Id extends keyof SeqvarsQuerySettingsDetails, Preset> = (
   v: LocalFields<SeqvarsQuerySettingsDetails[Id]> & Preset,

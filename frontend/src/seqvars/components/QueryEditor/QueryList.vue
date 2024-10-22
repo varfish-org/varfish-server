@@ -5,7 +5,7 @@ import {
   SeqvarsQueryExecution,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { PedigreeObj } from '@/cases/stores/caseDetails'
 import { useSeqvarQueryExecutionListQueries } from '@/seqvars/queries/seqvarQueryExecution'
@@ -122,13 +122,18 @@ const queryExecution = (
 const queryExecutionState = (queryUuid: string) => {
   return queryExecution(queryUuid)?.state ?? 'initial'
 }
+
+/** Whether the recessive mode collapsible group is opend. */
+const collapsibleGroupOpen = ref<boolean>(false)
 </script>
 
 <template>
   <CollapsibleGroup
+    v-model="collapsibleGroupOpen"
     title="Queries / Results"
     :hints-enabled="hintsEnabled"
     hint="Here you can find the queries and their results."
+    storage-name="query-list"
   >
     <template
       v-if="!!selectedQueryUuid && queries.has(selectedQueryUuid)"
