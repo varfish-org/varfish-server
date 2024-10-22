@@ -801,9 +801,15 @@ def create_seqvarsquerypresetsclinvar(faker: Faker) -> list[SeqvarsQueryPresetsC
 ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     # INFO columns
     SeqvarsColumnConfigPydantic(label="#", name="index", description="Number of row in result set"),
-    SeqvarsColumnConfigPydantic(label="chrom/pos", name="__chrom_pos__", description="Chromosome and position"),
-    SeqvarsColumnConfigPydantic(label="ref", name="ref_allele", description="Genome reference allele"),
-    SeqvarsColumnConfigPydantic(label="alt", name="alt_allele", description="Genome alternative allele"),
+    SeqvarsColumnConfigPydantic(
+        label="chrom/pos", name="__chrom_pos__", description="Chromosome and position"
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="ref", name="ref_allele", description="Genome reference allele"
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="alt", name="alt_allele", description="Genome alternative allele"
+    ),
     SeqvarsColumnConfigPydantic(
         label="gene",
         name="payload.variant_annotation.gene.identity.gene_symbol",
@@ -842,12 +848,12 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="effect",
         name="__effect__",
-        description="HGVS effect description (protein/CDS/transcript)"
+        description="HGVS effect description (protein/CDS/transcript)",
     ),
     SeqvarsColumnConfigPydantic(
         label="consequences",
         name="payload.variant_annotation.gene.consequences.consequences",
-        description="Molecular consequence of variant as sequence ontology (SO) terms"
+        description="Molecular consequence of variant as sequence ontology (SO) terms",
     ),
     SeqvarsColumnConfigPydantic(
         label="pLI gnomAD",
@@ -878,7 +884,6 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
         label="o/e lof lower gnomAD",
         name="payload.variant_annotation.gene.constraints.gnomad.oe_lof_lower",
         description="90% confidence interval for the lower bound of observed/expected loss-of-function for gene",
-
     ),
     SeqvarsColumnConfigPydantic(
         label="LOEUF gnomAD",
@@ -888,12 +893,12 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="o/e mis lower gnomAD",
         name="payload.variant_annotation.gene.constraints.gnomad.oe_mis_lower",
-        description="90% confidence interval for the lower bound of observed/expected missense for gene"
+        description="90% confidence interval for the lower bound of observed/expected missense for gene",
     ),
     SeqvarsColumnConfigPydantic(
         label="o/e mis upper gnomAD",
         name="payload.variant_annotation.gene.constraints.gnomad.oe_mis_upper",
-        description="90% confidence interval for the upper bound of observed/expected missense for gene"
+        description="90% confidence interval for the upper bound of observed/expected missense for gene",
     ),
     SeqvarsColumnConfigPydantic(
         label="HI Percentile",
@@ -928,7 +933,7 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="% freq. gnomAD-exomes",
         name="payload.variant_annotation.variant.frequency.gnomad_exomes.af",
-        description="gnomAD-exomes global allele frequency for variant"
+        description="gnomAD-exomes global allele frequency for variant",
     ),
     SeqvarsColumnConfigPydantic(
         label="# hom.alt. gnomAD-exomes",
@@ -1013,7 +1018,7 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="Clinvar VCV",
         name="payload.variant_annotation.variant.clinvar.vcv_accession",
-        description="ClinVar VCV accession for variant"
+        description="ClinVar VCV accession for variant",
     ),
     SeqvarsColumnConfigPydantic(
         label="Clinvar Significance",
@@ -1038,12 +1043,12 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="SIFT",
         name="payload.variant_annotation.variant.scores.entries.sift",
-        description="SIFT score for variant (missense only)"
+        description="SIFT score for variant (missense only)",
     ),
     SeqvarsColumnConfigPydantic(
         label="Polyphen",
         name="payload.variant_annotation.variant.scores.entries.polyphen",
-        description="Polyphen score for variant (missense only)"
+        description="Polyphen score for variant (missense only)",
     ),
     SeqvarsColumnConfigPydantic(
         label="SpliceAI",
@@ -1079,7 +1084,7 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
     SeqvarsColumnConfigPydantic(
         label="Phase Set __SAMPLE__",
         name="payload.variant_annotation.call.call_infos.__SAMPLE__.ps",
-        description="Phase set of alternate allele for sample"
+        description="Phase set of alternate allele for sample",
     ),
 )
 

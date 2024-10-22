@@ -306,7 +306,6 @@ def _consequence_to_protobuf(
 
 
 def _locus_to_protobuf(locus: SeqvarsQuerySettingsLocus) -> QuerySettingsLocus:
-    # import pdb; pdb.set_trace()
     # TODO: map genes in ``locus.gene_panels``!
     return QuerySettingsLocus(
         genes=[gene.hgnc_id for gene in locus.genes],

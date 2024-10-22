@@ -549,7 +549,6 @@ class SeqvarsQueryExecutionViewSet(BaseReadOnlyViewSet):
         """
         # TODO: check permissions on the source's project
         query = SeqvarsQuery.objects.get(sodar_uuid=self.kwargs["query"])
-        # import pdb; pdb.set_trace()
         with transaction.atomic():
             queryexecution = SeqvarsQueryExecution.objects.create(
                 state=SeqvarsQueryExecution.STATE_QUEUED,
