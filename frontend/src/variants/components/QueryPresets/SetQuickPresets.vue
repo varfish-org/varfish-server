@@ -1,6 +1,8 @@
 <script setup>
 /** Editor component for quick presets.
  */
+import { computed } from 'vue'
+
 import { randomString } from '@/varfish/common'
 
 /** Define props. */
@@ -15,11 +17,31 @@ const props = defineProps({
     default: randomString(),
   },
 })
+
+const isIncomplete = computed(() => {
+  for (const key of [
+    'inheritance',
+    'frequency',
+    'impact',
+    'quality',
+    'chromosome',
+    'flagsetc',
+  ]) {
+    if (!props.querySettings[key]) {
+      return true
+    }
+  }
+  return false
+})
 </script>
 
 <template>
   <!-- eslint-disable -->
   <div v-if="querySettings" class="mr-2 mt-2">
+    <div class="alert alert-warning" v-if="isIncomplete">
+      <strong>Warning!</strong> The query settings are incomplete and will not
+      be available in the filter form unless all values are set.
+    </div>
     <div class="form-group">
       <label :for="'inheritance' + idSuffix"> Inheritance </label>
       <select

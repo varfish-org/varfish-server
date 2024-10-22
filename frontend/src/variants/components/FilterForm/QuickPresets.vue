@@ -115,7 +115,7 @@ const inheritanceWrapper = computed({
     return inheritanceRef.value
   },
   set(newValue) {
-    if (newValue !== 'custom') {
+    if (newValue && newValue !== 'custom') {
       props.querySettings.genotype = copy(
         props.categoryPresets.inheritance[newValue].genotype,
       )
@@ -189,7 +189,7 @@ const qualityWrapper = computed({
     return qualityRef.value
   },
   set(newValue) {
-    if (newValue !== 'custom') {
+    if (newValue && newValue !== 'custom') {
       for (const member of Object.values(props.case.pedigree)) {
         props.querySettings.quality[member.name] = _objectWithoutKeys(
           props.categoryPresets.quality[newValue],
@@ -251,7 +251,7 @@ const makeWrapper = (name) =>
       return valueRefs[name].value
     },
     set(newValue) {
-      if (newValue !== 'custom') {
+      if (newValue && newValue !== 'custom') {
         const oldBlockRefresh = blockRefresh.value
         blockRefresh.value = true
         for (const [key, value] of Object.entries(
@@ -323,6 +323,30 @@ const quickPresetWrapper = computed({
   },
 })
 
+const quickPresetsComplete = computed(() => {
+  const result = {}
+  for (const [name, theQuickPresets] of Object.entries(props.quickPresets)) {
+    let skip = false
+    for (const key of [
+      'inheritance',
+      'frequency',
+      'impact',
+      'quality',
+      'chromosomes',
+      'flagsetc',
+    ]) {
+      if (!theQuickPresets[key]) {
+        skip = true
+        break
+      }
+    }
+    if (!skip) {
+      result[name] = theQuickPresets
+    }
+  }
+  return result
+})
+
 /** Refresh all presets. */
 const refreshAllRefs = () => {
   refreshInheritanceRef()
@@ -366,7 +390,7 @@ onMounted(() => {
         v-model="quickPresetWrapper"
         class="custom-select custom-select-sm"
       >
-        <option v-for="(value, name) in quickPresets" :value="name">
+        <option v-for="(value, name) in quickPresetsComplete" :value="name">
           {{ value.label ?? name }}
         </option>
         <option disabled>custom</option>

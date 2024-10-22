@@ -8,7 +8,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { overlayMessage, overlayShow } from '@/cases/common'
-import { useCaseListStore } from '@/cases/stores/caseList'
 import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
 import ModalInput from '@/varfish/components/ModalInput.vue'
 import Overlay from '@/varfish/components/Overlay.vue'
@@ -23,10 +22,9 @@ const labelRules = Object.freeze([required, minLength(5)])
 const props = defineProps({
   // eslint-ignore-next-line vue/require-default-prop
   presetSet: String,
+  projectUuid: String,
 })
 
-/** Access store with case list. */
-const caseListStore = useCaseListStore()
 /** Access store with query presets. */
 const queryPresetsStore = useQueryPresetsStore()
 /** Access the router. */
@@ -179,8 +177,7 @@ const handleEditClicked = async () => {
 
 /** Initialize store on first mount. */
 onMounted(async () => {
-  await caseListStore.initializeRes
-  await queryPresetsStore.initialize(caseListStore.projectUuid)
+  await queryPresetsStore.initialize(props.projectUuid)
 })
 
 /** Return list of presets sets in a null/undefined safe manner. */

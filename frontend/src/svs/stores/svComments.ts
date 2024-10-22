@@ -159,6 +159,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
   const createComment = async (
     strucvar: Strucvar,
     text: string,
+    resultRowUuid: string,
   ): Promise<Strucvar> => {
     const svClient = new SvClient(ctxStore.csrfToken)
     // Error if case UUID is unset.
@@ -186,6 +187,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
           end,
           sv_type: strucvar.svType,
           sv_sub_type: strucvar.svType,
+          sodar_uuid: resultRowUuid,
         },
         text,
       })
