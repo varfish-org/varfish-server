@@ -337,11 +337,11 @@ watch(
       #[`item.payload.variant_annotation.gene.consequences.hgvs_t`]="{ item }"
     >
       <div
-        class="hide-overfloat-120"
-        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
         v-if="
           item.payload?.variant_annotation?.gene?.consequences?.hgvs_t?.length
         "
+        class="hide-overfloat-120"
+        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
       >
         {{ item.payload?.variant_annotation?.gene?.consequences?.hgvs_t }}
       </div>
@@ -352,11 +352,11 @@ watch(
       #[`item.payload.variant_annotation.gene.consequences.hgvs_p`]="{ item }"
     >
       <div
-        class="hide-overfloat-120"
-        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_p"
         v-if="
           item.payload?.variant_annotation?.gene?.consequences?.hgvs_p?.length
         "
+        class="hide-overfloat-120"
+        :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_p"
       >
         {{
           threeToOneAa(
@@ -373,15 +373,15 @@ watch(
       }"
     >
       <div
+        v-if="
+          item.payload?.variant_annotation?.gene?.consequences?.consequences
+            ?.length
+        "
         class="hide-overfloat-120"
         :title="
           item.payload?.variant_annotation?.gene?.consequences?.consequences
             ?.map((csq) => CONSEQUENCE_LABEL[csq])
             .join(', ')
-        "
-        v-if="
-          item.payload?.variant_annotation?.gene?.consequences?.consequences
-            ?.length
         "
       >
         {{
@@ -919,21 +919,6 @@ watch(
     </template>
 
     <template
-      #[`item.payload.variant_annotation.variant.scores.entries.cadd_phred`]="{
-        item,
-      }"
-    >
-      <div class="mono-width-5 text-right" style="white-space: pre">
-        {{
-          formatFixedFloat(
-            item.payload?.variant_annotation?.variant?.scores?.entries
-              ?.cadd_phred,
-            { precision: 2, decimal: 3 },
-          )
-        }}
-      </div>
-    </template>
-    <template
       #[`item.payload.variant_annotation.variant.scores.entries.sift`]="{
         item,
       }"
@@ -1025,25 +1010,25 @@ watch(
         "
       >
         <div
-          class="hide-overfloat-100"
-          :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
           v-if="
             item.payload?.variant_annotation?.gene?.consequences?.hgvs_t?.length
           "
+          class="hide-overfloat-100"
+          :title="item.payload?.variant_annotation?.gene?.consequences?.hgvs_t"
         >
           {{ item.payload?.variant_annotation?.gene?.consequences?.hgvs_t }}
         </div>
         <div v-else>-</div>
       </template>
       <div
+        v-else-if="
+          item.payload?.variant_annotation?.gene?.consequences?.hgvs_p?.length
+        "
         class="hide-overfloat-100"
         :title="
           threeToOneAa(
             item.payload?.variant_annotation?.gene?.consequences?.hgvs_p,
           )
-        "
-        v-else-if="
-          item.payload?.variant_annotation?.gene?.consequences?.hgvs_p?.length
         "
       >
         {{

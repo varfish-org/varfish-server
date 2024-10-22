@@ -1,7 +1,6 @@
 import {
   SeqvarsGenotypePresetChoice,
   SeqvarsPredefinedQuery,
-  SeqvarsQueryColumnsConfig,
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
   SeqvarsQuerySettingsDetails,

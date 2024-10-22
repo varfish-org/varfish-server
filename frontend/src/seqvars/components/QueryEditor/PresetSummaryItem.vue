@@ -26,8 +26,8 @@ defineEmits<{ revert: [preset: Preset] }>()
   <Item
     v-if="preset"
     :modified="
-      preset.sodar_uuid == query.settings[group.queryPresetKey] &&
-      !(group.id == 'quality'
+      preset.sodar_uuid === query.settings[group.queryPresetKey] &&
+      !(group.id === 'quality'
         ? matchesQualityPreset(pedigree, presetsDetails, query.settings)
         : group.matchesPreset(presetsDetails, query.settings))
     "

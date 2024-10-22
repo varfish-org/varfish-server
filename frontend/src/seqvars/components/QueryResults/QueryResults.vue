@@ -11,10 +11,7 @@ import {
 import { computed, ref } from 'vue'
 
 import { useSeqvarQueryRetrieveQueries } from '@/seqvars/queries/seqvarQuery'
-import {
-  useSeqvarQueryExecutionListQuery,
-  useSeqvarQueryExecutionRetrieveQuery,
-} from '@/seqvars/queries/seqvarQueryExecution'
+import { useSeqvarQueryExecutionListQuery } from '@/seqvars/queries/seqvarQueryExecution'
 import { useSeqvarResultSetListQuery } from '@/seqvars/queries/seqvarResultSet'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -92,11 +89,6 @@ const latestQueryExecutionListItem = computed<
 /** Provide access to UUID of latest query execution. */
 const latestQueryExecutionUuid = computed<string | undefined>(() => {
   return latestQueryExecutionListItem.value?.sodar_uuid
-})
-/** Full details of latest query execution item. */
-const latestQueryExecutionRes = useSeqvarQueryExecutionRetrieveQuery({
-  queryUuid: selectedQueryUuid,
-  queryExecutionUuid: latestQueryExecutionUuid,
 })
 
 /** Provide access to list of seqvar result sets for the execution. */

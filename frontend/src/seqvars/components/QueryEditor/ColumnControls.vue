@@ -62,9 +62,9 @@ const applyMutation = async (data: { name: string; visible: boolean }) => {
 <template>
   <v-list density="compact">
     <v-list-item
-      density="compact"
       v-for="column in props.modelValue.columnsconfig?.column_settings ?? []"
       :key="column.name"
+      density="compact"
       :title="column.label"
       :active="column.visible"
       @click="
@@ -74,12 +74,12 @@ const applyMutation = async (data: { name: string; visible: boolean }) => {
         })
       "
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-list-item-action start>
           <v-checkbox-btn
             density="compact"
             :model-value="column.visible"
-            @update:modelValue="
+            @update:model-value="
               applyMutation({
                 name: column.name,
                 visible: !column.visible,

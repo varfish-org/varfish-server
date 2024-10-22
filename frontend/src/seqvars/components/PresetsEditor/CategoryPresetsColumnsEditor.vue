@@ -267,10 +267,10 @@ watch(data, () => updateColumnsPresetsDebounced(), { deep: true })
         :subtitle="item.description ?? '-'"
         class="bg-grey-lighten-3 rounded-lg mb-2"
       >
-        <template v-slot:prepend>
+        <template #prepend>
           <div class="mr-6"># {{ index + 1 }}</div>
         </template>
-        <template v-slot:append>
+        <template #append>
           <div class="d-flex flex-row align-self-end">
             <v-switch
               v-model="item.visible"
@@ -281,13 +281,13 @@ watch(data, () => updateColumnsPresetsDebounced(), { deep: true })
             />
 
             <v-number-input
+              v-model="item.width"
               :reverse="false"
               density="compact"
               label="width"
-              :hideInput="false"
+              :hide-input="false"
               :inset="true"
               variant="outlined"
-              v-model="item.width"
               class="mr-3"
               hide-details
               :step="10"
@@ -295,15 +295,15 @@ watch(data, () => updateColumnsPresetsDebounced(), { deep: true })
             <v-btn-group variant="outlined" divided>
               <v-btn
                 icon="mdi-arrow-up"
-                @click="moveColumn(index, -1)"
                 :disabled="index === 0"
                 size="small"
+                @click="moveColumn(index, -1)"
               />
               <v-btn
                 icon="mdi-arrow-down"
-                @click="moveColumn(index, 1)"
                 :disabled="index === data.column_settings!.length - 1"
                 size="small"
+                @click="moveColumn(index, 1)"
               />
             </v-btn-group>
           </div>
