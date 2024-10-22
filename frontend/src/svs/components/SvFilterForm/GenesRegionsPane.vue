@@ -306,14 +306,14 @@ defineExpose({
           :options="genomicsEnglandPanels"
           placeholder="Add from GE PanelApp"
           :searchable="true"
-          @select="insertGenomicsEnglandPanel"
           style="width: 400px"
+          @select="insertGenomicsEnglandPanel"
         />
         <label for="genomicsEnglandConfidence">with confidence</label>
         <select
+          id="genomicsEnglandConfidence"
           v-model="genomicsEnglandConfidence"
           class="form-control ml-2 mr-2"
-          id="genomicsEnglandConfidence"
         >
           <option value="3">green</option>
           <option value="2">amber</option>

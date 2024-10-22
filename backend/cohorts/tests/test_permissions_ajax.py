@@ -1,12 +1,12 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from cohorts.models import CohortCase
 from cohorts.tests.factories import CohortCaseFactory, CohortFactory
 from variants.tests.factories import CaseFactory
 
 
-class TestCohortApiView(TestProjectAPIPermissionBase):
+class TestCohortApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``Case``."""
 
     def setUp(self):
@@ -98,7 +98,7 @@ class TestCohortApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users, 403, method="DELETE")
 
 
-class TestAccessibleProjectsCasesApiView(TestProjectAPIPermissionBase):
+class TestAccessibleProjectsCasesApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views listing accessible projects included cases."""
 
     def setUp(self):
@@ -123,7 +123,7 @@ class TestAccessibleProjectsCasesApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users, 403, method="GET")
 
 
-class TestCohortCaseApiView(TestProjectAPIPermissionBase):
+class TestCohortCaseApiView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CohortCase``."""
 
     def setUp(self):

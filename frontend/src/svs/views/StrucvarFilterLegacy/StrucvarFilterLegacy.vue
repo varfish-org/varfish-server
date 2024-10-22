@@ -61,9 +61,9 @@ const logsVisible = ref<boolean>(false)
   <v-app id="strucvar-filter-legacy">
     <v-main>
       <TheAppBar
+        v-model:show-left-panel="navbarShown"
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-        v-model:show-left-panel="navbarShown"
       />
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
@@ -75,7 +75,7 @@ const logsVisible = ref<boolean>(false)
         >
           <template v-if="navbarShown"> Back to Case </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase" v-if="navbarShown">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           SV Analysis
         </v-list-subheader>
         <v-list-item
@@ -88,7 +88,7 @@ const logsVisible = ref<boolean>(false)
         >
           <template v-if="navbarShown"> Go To Variant Filtration </template>
         </v-list-item>
-        <v-list-subheader class="text-uppercase" v-if="navbarShown">
+        <v-list-subheader v-if="navbarShown" class="text-uppercase">
           Analysis Info
         </v-list-subheader>
         <v-list-item
@@ -112,10 +112,10 @@ const logsVisible = ref<boolean>(false)
         </v-list-item>
       </TheNavBar>
       <SvFilterApp
-        :project-uuid="props.projectUuid"
-        :case-uuid="props.caseUuid"
         v-model:filter-form-visible="filterFormVisible"
         v-model:query-logs-visible="logsVisible"
+        :project-uuid="props.projectUuid"
+        :case-uuid="props.caseUuid"
       />
     </v-main>
   </v-app>

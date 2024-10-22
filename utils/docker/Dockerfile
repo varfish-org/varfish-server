@@ -39,7 +39,7 @@ RUN npm run build --prefix frontend/
 # Python Base Image
 # ---------------------------------------------------------------------------
 
-FROM python:3.10-bookworm AS python-base
+FROM python:3.11-bookworm AS python-base
 
 LABEL org.opencontainers.image.authors="Manuel.Holtgrewe@bih-charite.de"
 LABEL org.opencontainers.image.source https://github.com/varfish-org/varfish-server
@@ -56,14 +56,14 @@ ENV SERVE_FRONTEND 1
 
 WORKDIR /usr/src/app
 
-# Add postgres 12 repository
+# Add postgres 14 repository
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | apt-key add - && \
     echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
     > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && \
     apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev \
-        postgresql-client-12
+        postgresql-client-14
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -166,6 +166,7 @@ RUN mkdir -p local-static/local/css && \
     wget -P local-static/local/css \
         https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css \
         https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css \
+        https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css.map \
         https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css \
         https://cdn.datatables.net/1.10.24/css/dataTables.jqueryui.min.css \
         https://cdn.jsdelivr.net/npm/bootstrap4-tagsinput@4.1.3/tagsinput.css && \
@@ -173,16 +174,21 @@ RUN mkdir -p local-static/local/css && \
     wget -P local-static/local/js \
         https://code.jquery.com/jquery-3.5.1.min.js \
         https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js \
+        https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js.map \
         https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.4/js/tether.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/shepherd/1.8.1/js/shepherd.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js \
         https://browser.sentry-cdn.com/6.2.5/bundle.tracing.min.js \
+        https://browser.sentry-cdn.com/6.2.5/bundle.tracing.min.js.map \
         https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js \
+        https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js.map \
         https://cdn.jsdelivr.net/npm/bootstrap4-tagsinput@4.1.3/tagsinput.js \
         https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.11/jsrender.min.js \
+        https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.11/jsrender.min.js.map \
         https://cdn.plot.ly/plotly-1.54.5.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js \
+        https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.map \
         https://cdnjs.cloudflare.com/ajax/libs/google-palette/1.1.0/palette.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js
 
