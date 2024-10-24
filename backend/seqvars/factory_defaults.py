@@ -1195,9 +1195,7 @@ def create_seqvarsquerypresetscolumns(faker: Faker) -> list[SeqvarsQueryPresetsC
     # default column names
     COLUMNS_DEFAULT = (
         "index",
-        "__chrom_pos__",
         "payload.variant_annotation.gene.identity.gene_symbol",
-        "payload.variant_annotation.gene.consequences.hgvs_p",
         "__gene_flags__",
         "__effect__",
         "payload.variant_annotation.gene.consequences.consequences",
@@ -1219,9 +1217,7 @@ def create_seqvarsquerypresetscolumns(faker: Faker) -> list[SeqvarsQueryPresetsC
     # clinvar filter column names
     COLUMNS_CLINVAR = (
         "index",
-        "__chrom_pos__",
         "payload.variant_annotation.gene.identity.gene_symbol",
-        "payload.variant_annotation.gene.consequences.hgvs_p",
         "__gene_flags__",
         "__effect__",
         "payload.variant_annotation.gene.consequences.consequences",
