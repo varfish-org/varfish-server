@@ -2047,6 +2047,19 @@ class GeneIdentityPydantic(pydantic.BaseModel):
     gene_symbol: str
 
 
+class VariantLocationChoice(str, Enum):
+    """Enumeration for the variant location."""
+
+    #: Upstream of gene.
+    UPSTREAM = "upstream"
+    #: Exonic.
+    EXON = "exon"
+    #: Intronic.
+    INTRON = "intron"
+    #: Downstream of gene.
+    DOWNSTREAM = "downstream"
+
+
 class GeneRelatedConsequencesPydantic(pydantic.BaseModel):
     """Store gene-related consequences."""
 
@@ -2056,6 +2069,16 @@ class GeneRelatedConsequencesPydantic(pydantic.BaseModel):
     hgvs_p: typing.Optional[str]
     #: Predicted variant consequences.
     consequences: list[SeqvarsVariantConsequenceChoice]
+    # Transcript accession without version.
+    tx_accession: typing.Optional[str]
+    # Transcript version.
+    tx_version: typing.Optional[int]
+    # Whether exon or intron is hit.
+    location: VariantLocationChoice
+    # Exon/intron number (1-based).
+    rank_ord: typing.Optional[int]
+    # Exon/intron total count.
+    rank_total: typing.Optional[int]
 
 
 class SeqvarsModeOfInheritance(str, Enum):

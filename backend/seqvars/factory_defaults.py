@@ -831,6 +831,41 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
         description="HGVS description at protein level",
     ),
     SeqvarsColumnConfigPydantic(
+        label="Transcript Accession",
+        name="payload.variant_annotation.gene.consequences.tx_accession",
+        description="Transcript accession without version",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Transcript Version",
+        name="payload.variant_annotation.gene.consequences.tx_version",
+        description="Transcript version",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Transcript",
+        name="__tx_accession_version__",
+        description="Transcript accession with version",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Variant Location",
+        name="payload.variant_annotation.gene.consequences.location",
+        description="Variant location with respect to gene",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Variant Location Rank No",
+        name="payload.variant_annotation.gene.consequences.rank_ord",
+        description="Number of exon/intron that variant is in",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Variant Location Rank Total",
+        name="payload.variant_annotation.gene.consequences.rank_total",
+        description="Total number of exons/introns in transcript",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Variant Location Rank No/Total",
+        name="__rank__",
+        description="Rank of exon/intron and total",
+    ),
+    SeqvarsColumnConfigPydantic(
         label="ClinGen HI",
         name="__clingen_hi__",
         description="ClinGen Haploinsufficiency score",

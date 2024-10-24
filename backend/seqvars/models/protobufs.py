@@ -66,6 +66,7 @@ from seqvars.models.base import (
     SeqvarsVariantTypeChoice,
     SeqvarsVcfVariantPydantic,
     ShetConstraintsPydantic,
+    VariantLocationChoice,
 )
 from seqvars.protos.output_pb2 import (
     AggregateGermlineReviewStatus,
@@ -95,6 +96,7 @@ from seqvars.protos.output_pb2 import (
     ScoreAnnotations,
     ShetConstraints,
     VariantAnnotation,
+    VariantLocation,
     VariantRelatedAnnotation,
     VariantScoreColumn,
     VariantScoreColumnType,
@@ -761,6 +763,20 @@ def _gene_identity_from_protobuf(identity: GeneIdentity) -> GeneIdentityPydantic
     )
 
 
+VARIANT_LOCATION_MAPPING: dict[VariantLocation.ValueType : VariantLocationChoice] = {
+    VariantLocation.VARIANT_LOCATION_UPSTREAM: VariantLocationChoice.UPSTREAM,
+    VariantLocation.VARIANT_LOCATION_EXON: VariantLocationChoice.EXON,
+    VariantLocation.VARIANT_LOCATION_INTRON: VariantLocationChoice.INTRON,
+    VariantLocation.VARIANT_LOCATION_DOWNSTREAM: VariantLocationChoice.DOWNSTREAM,
+}
+
+
+def _location_from_protobuf(
+    location: VariantLocation.ValueType,
+) -> VariantLocationChoice:
+    return VARIANT_LOCATION_MAPPING[location]
+
+
 def _consequences_from_protobuf(
     consequences: GeneRelatedConsequences,
 ) -> GeneRelatedConsequencesPydantic:
@@ -771,6 +787,11 @@ def _consequences_from_protobuf(
             _seqvars_variant_consequence_choice_from_protobuf(csq)
             for csq in consequences.consequences
         ],
+        tx_accession=consequences.tx_accession if consequences.HasField("tx_accession") else None,
+        tx_version=consequences.tx_version if consequences.HasField("tx_version") else None,
+        location=_location_from_protobuf(consequences.location),
+        rank_ord=consequences.rank_ord if consequences.HasField("rank_ord") else None,
+        rank_total=consequences.rank_total if consequences.HasField("rank_total") else None,
     )
 
 
