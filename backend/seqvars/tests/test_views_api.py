@@ -29,7 +29,6 @@ from seqvars.models.base import (
 )
 from seqvars.serializers import (
     SeqvarsPredefinedQuerySerializer,
-    SeqvarsQueryColumnsConfigSerializer,
     SeqvarsQueryDetailsSerializer,
     SeqvarsQueryExecutionDetailsSerializer,
     SeqvarsQueryExecutionSerializer,
@@ -46,6 +45,7 @@ from seqvars.serializers import (
     SeqvarsQueryPresetsVariantPrioSerializer,
     SeqvarsQuerySerializer,
     SeqvarsQuerySettingsClinvarSerializer,
+    SeqvarsQuerySettingsColumnsSerializer,
     SeqvarsQuerySettingsConsequenceSerializer,
     SeqvarsQuerySettingsDetailsSerializer,
     SeqvarsQuerySettingsFrequencySerializer,
@@ -60,7 +60,6 @@ from seqvars.serializers import (
 )
 from seqvars.tests.factories import (
     SeqvarsPredefinedQueryFactory,
-    SeqvarsQueryColumnsConfigFactory,
     SeqvarsQueryExecutionFactory,
     SeqvarsQueryFactory,
     SeqvarsQueryPresetsClinvarFactory,
@@ -74,6 +73,7 @@ from seqvars.tests.factories import (
     SeqvarsQueryPresetsSetVersionFactory,
     SeqvarsQueryPresetsVariantPrioFactory,
     SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsColumnsFactory,
     SeqvarsQuerySettingsConsequenceFactory,
     SeqvarsQuerySettingsFactory,
     SeqvarsQuerySettingsFrequencyFactory,
@@ -1689,6 +1689,9 @@ class TestQuerySettingsViewSet(ApiViewTestBase):
                     "clinvar": SeqvarsQuerySettingsClinvarSerializer(
                         SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
                     ).data,
+                    "columns": SeqvarsQuerySettingsColumnsSerializer(
+                        SeqvarsQuerySettingsColumnsFactory.build(querysettings=None)
+                    ).data,
                 },
                 format="json",
             )
@@ -1865,9 +1868,8 @@ class TestQueryViewSet(ApiViewTestBase):
             settings["clinvar"] = SeqvarsQuerySettingsClinvarSerializer(
                 SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
             ).data
-
-            columnsconfig = SeqvarsQueryColumnsConfigSerializer(
-                SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
+            settings["columns"] = SeqvarsQuerySettingsColumnsSerializer(
+                SeqvarsQuerySettingsColumnsFactory.build(querysettings=None)
             ).data
 
             response = self.client.post(
@@ -1880,7 +1882,6 @@ class TestQueryViewSet(ApiViewTestBase):
                 data={
                     "label": "test label",
                     "settings": settings,
-                    "columnsconfig": columnsconfig,
                 },
                 format="json",
             )
@@ -1941,6 +1942,7 @@ class TestQueryViewSet(ApiViewTestBase):
             "phenotypeprio",
             "variantprio",
             "clinvar",
+            "columns",
         ]
         for key in keys:
             if key not in data["settings"]:
