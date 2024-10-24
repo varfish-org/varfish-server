@@ -1070,20 +1070,31 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
         name="payload.variant_annotation.variant.clinvar.effective_germline_significance_description",
         description="ClinVar effective germline significance description for variant",
     ),
+    # -- scores from CADD annotation
     SeqvarsColumnConfigPydantic(
         label="CADD Phred",
         name="payload.variant_annotation.variant.scores.entries.cadd_phred",
         description="CADD score in PHRED-scale for variant",
     ),
     SeqvarsColumnConfigPydantic(
-        label="SIFT",
-        name="payload.variant_annotation.variant.scores.entries.sift",
-        description="SIFT score for variant (missense only)",
+        label="MMSplice",
+        name="payload.variant_annotation.variant.scores.entries.mmsplice",
+        description="MMSplice score for variant (max of all models)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="MMSplice model",
+        name="payload.variant_annotation.variant.scores.entries.mmsplice_argmax",
+        description="The model of the maximal MMSplice score",
     ),
     SeqvarsColumnConfigPydantic(
         label="Polyphen",
         name="payload.variant_annotation.variant.scores.entries.polyphen",
         description="Polyphen score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="SIFT",
+        name="payload.variant_annotation.variant.scores.entries.sift",
+        description="SIFT score for variant (missense only)",
     ),
     SeqvarsColumnConfigPydantic(
         label="SpliceAI",
@@ -1094,6 +1105,62 @@ ALL_COLUMNS: tuple[SeqvarsColumnConfigPydantic] = (
         label="SpliceAI model",
         name="payload.variant_annotation.variant.scores.entries.spliceai_argmax",
         description="The model of the maximal SpliceAI score",
+    ),
+    # -- scores from dbNSFP
+    SeqvarsColumnConfigPydantic(
+        label="AlphaMissense",
+        name="payload.variant_annotation.variant.scores.entries.alphamissense",
+        description="AlphaMissense score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="BayesDel",
+        name="payload.variant_annotation.variant.scores.entries.bayesdel_addaf",
+        description="BayesDel AddAF score for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="FATHMM",
+        name="payload.variant_annotation.variant.scores.entries.fathmm",
+        description="FATHMM score for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="integrated fitCons",
+        name="payload.variant_annotation.variant.scores.entries.fitcons_integrated",
+        description="Integrated fitCons score for variant",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="LRT",
+        name="payload.variant_annotation.variant.scores.entries.lrt",
+        description="LRT score",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="MetaSVM",
+        name="payload.variant_annotation.variant.scores.entries.metasvm",
+        description="MetaSVM score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Polyphen2 HDIV",
+        name="payload.variant_annotation.variant.scores.entries.polyphen2_hdiv",
+        description="Polyphen 2 HDIV score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="Polyphen2 HVAR",
+        name="payload.variant_annotation.variant.scores.entries.polyphen2_hvar",
+        description="Polyphen 2 HVAR score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="PrimateAI",
+        name="payload.variant_annotation.variant.scores.entries.primateai",
+        description="PrimateAI score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="PROVEAN",
+        name="payload.variant_annotation.variant.scores.entries.provean",
+        description="PROVEAN score for variant (missense only)",
+    ),
+    SeqvarsColumnConfigPydantic(
+        label="REVEL",
+        name="payload.variant_annotation.variant.scores.entries.revel",
+        description="REVEL score for variant (missense only)",
     ),
     # Ppredefined ``FORMAT`` columns.
     SeqvarsColumnConfigPydantic(
