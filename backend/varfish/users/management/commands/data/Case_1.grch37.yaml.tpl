@@ -140,19 +140,19 @@ family:
       metaData: *metadata-prototype
   pedigree:
     persons:
-      - familyId: {{ data_case }}
+      - familyId: {{ case_name }}
         individualId: index
         paternalId: father
         maternalId: mother
         sex: MALE
         affectedStatus: AFFECTED
-      - familyId: {{ data_case }}
+      - familyId: {{ case_name }}
         individualId: father
         paternalId: "0"
         maternalId: "0"
         sex: MALE
         affectedStatus: UNAFFECTED
-      - familyId: {{ data_case }}
+      - familyId: {{ case_name }}
         individualId: mother
         paternalId: "0"
         maternalId: "0"

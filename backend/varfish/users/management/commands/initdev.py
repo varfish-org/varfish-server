@@ -88,6 +88,7 @@ class Command(BaseCommand):
         data_release = options["data_release"]
         data_case = options["data_case"]
         data_create = options["data_create"]
+        reset_password = options["reset_password"]
 
         job_pk: Optional[int] = None
         with transaction.atomic():
@@ -98,6 +99,7 @@ class Command(BaseCommand):
                 data_release=data_release,
                 data_case=data_case,
                 data_create=data_create,
+                reset_password=reset_password,
             )
         self.stderr.write(self.style.SUCCESS("-- comitting transaction --"))
         if data_create == "job-create" and job_pk is not None:
@@ -119,6 +121,7 @@ class Command(BaseCommand):
         data_release: Literal["grch37", "grch38"],
         data_case: str,
         data_create: Literal["disabled", "job-create", "job-run"],
+        reset_password: bool,
     ) -> Optional[int]:
         """Handle the actual initialization, called within ``transaction.atomic()``.
 
@@ -128,9 +131,13 @@ class Command(BaseCommand):
         job_pk: Optional[int] = None
         try:
             self._setup_seqmeta()
-            self._create_user(username="root", is_superuser=True, is_staff=True)
-            self._create_user(username="devadmin", is_superuser=True, is_staff=True)
-            devuser = self._create_user(username="devuser")
+            self._create_user(
+                username="root", is_superuser=True, is_staff=True, reset_password=reset_password
+            )
+            self._create_user(
+                username="devadmin", is_superuser=True, is_staff=True, reset_password=reset_password
+            )
+            devuser = self._create_user(username="devuser", reset_password=reset_password)
             category = self._create_project(
                 title=category_name, owner=devuser, project_type="CATEGORY"
             )
@@ -211,6 +218,7 @@ class Command(BaseCommand):
         if created:
             password = str(uuid4())
             obj.set_password(password)
+            obj.save()
             self.stderr.write(
                 self.style.SUCCESS(f"Created user {username}. Password is '{password}'")
             )
@@ -218,6 +226,7 @@ class Command(BaseCommand):
             if reset_password:
                 password = str(uuid4())
                 obj.set_password(password)
+                obj.save()
                 self.stderr.write(
                     self.style.SUCCESS(
                         f"Reset password for user {username}. New password is '{password}'"
@@ -400,6 +409,8 @@ class Command(BaseCommand):
         Create an import job into the given ``project`` using the development
         data with the given ``name``.
         """
+        # Check whether the case already exists.
+        case_exists = Case.objects.filter(project=project, name=case_name).exists()
         # Read the phenopacket template and replace variables.
         data_path = pathlib.Path(__file__).parent / "data"
         with open(data_path / f"{data_case}.{data_release}.yaml.tpl") as f:
@@ -408,6 +419,7 @@ class Command(BaseCommand):
         pp_yaml = pp_yaml_tpl.render(
             Context(
                 {
+                    "case_name": case_name,
                     "data_case": data_case,
                     "data_path": str(data_path),
                 }
@@ -423,7 +435,11 @@ class Command(BaseCommand):
         job = CaseImportBackgroundJob.objects.create_full(
             caseimportaction=CaseImportAction.objects.create(
                 project=project,
-                action=CaseImportAction.ACTION_CREATE,
+                action=(
+                    CaseImportAction.ACTION_UPDATE
+                    if case_exists
+                    else CaseImportAction.ACTION_CREATE
+                ),
                 payload=payload,
             ),
             user=user,
