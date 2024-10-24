@@ -22,8 +22,7 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { isDeepEqual } from 'remeda'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useCaseRetrieveQuery } from '@/cases/queries/cases'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
@@ -482,8 +481,6 @@ watch(
 
 /** Whether the recessive mode collapsible group for genotype is opend. */
 const collapsibleGroupOpenGenotype = ref<boolean>(true)
-/** Whether the recessive mode collapsible group for genotype is opend. */
-const collapsibleGroupOpenColumns = ref<boolean>(true)
 /** Whether the collapsible group for the given ID is opened. */
 const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
   frequency: true,
