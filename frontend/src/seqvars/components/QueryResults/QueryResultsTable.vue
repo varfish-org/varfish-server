@@ -154,7 +154,7 @@ const headers = computed<HeaderDef[]>(() => {
   const formatColumns = []
 
   // Collect `INFO` headers.
-  for (const column of seqvarQueryRes.data.value?.columnsconfig
+  for (const column of seqvarQueryRes.data.value?.settings.columns
     .column_settings ?? []) {
     if (column.visible) {
       if (column.name.includes('__SAMPLE__')) {

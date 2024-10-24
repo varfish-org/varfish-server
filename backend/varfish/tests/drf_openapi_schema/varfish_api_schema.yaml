@@ -8317,8 +8317,6 @@ components:
           maxLength: 128
         settings:
           $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
-        columnsconfig:
-          $ref: '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
     PatchedSeqvarsQueryPresetsClinvarRequest:
       type: object
       description: |-
@@ -8791,6 +8789,8 @@ components:
           $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
         clinvar:
           $ref: '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+        columns:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsColumnsRequest'
     PatchedTargetBedFileRequest:
       type: object
       description: Serializer for ``TargetBedFile``.
@@ -9943,7 +9943,40 @@ components:
           - $ref: '#/components/schemas/SeqvarsQuerySettingsClinvarPydantic'
           - type: 'null'
           default: null
+        columns:
+          anyOf:
+          - $ref: '#/components/schemas/SeqvarsQuerySettingsColumnsPydantic'
+          - type: 'null'
+          default: null
       title: SeqvarsCaseQueryPydantic
+      type: object
+    SeqvarsColumnConfigPydantic:
+      description: Configuration for a single column in the result table.
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Description
+        width:
+          default: 100
+          title: Width
+          type: integer
+        visible:
+          default: false
+          title: Visible
+          type: boolean
+      required:
+      - name
+      - label
+      title: SeqvarsColumnConfigPydantic
       type: object
     SeqvarsColumnConfigPydanticList:
       type: array
@@ -10424,7 +10457,6 @@ components:
           readOnly: true
         columnsconfig:
           type: string
-          format: uuid
           readOnly: true
       required:
       - columnsconfig
@@ -10434,34 +10466,6 @@ components:
       - session
       - settings
       - sodar_uuid
-    SeqvarsQueryColumnsConfig:
-      type: object
-      description: Serializer for ``QueryColumnsConfig``.
-      properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-        column_settings:
-          $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
-      required:
-      - date_created
-      - date_modified
-      - sodar_uuid
-    SeqvarsQueryColumnsConfigRequest:
-      type: object
-      description: Serializer for ``QueryColumnsConfig``.
-      properties:
-        column_settings:
-          $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
     SeqvarsQueryCreateFromRequest:
       type: object
       description: Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
@@ -10509,7 +10513,8 @@ components:
         settings:
           $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
         columnsconfig:
-          $ref: '#/components/schemas/SeqvarsQueryColumnsConfig'
+          type: string
+          readOnly: true
       required:
       - columnsconfig
       - date_created
@@ -10535,10 +10540,7 @@ components:
           maxLength: 128
         settings:
           $ref: '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
-        columnsconfig:
-          $ref: '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
       required:
-      - columnsconfig
       - label
       - settings
     SeqvarsQueryExecution:
@@ -11980,9 +11982,14 @@ components:
           type: string
           format: uuid
           readOnly: true
+        columns:
+          type: string
+          format: uuid
+          readOnly: true
       required:
       - clinvar
       - clinvarpresets
+      - columns
       - columnspresets
       - consequence
       - consequencepresets
@@ -12068,6 +12075,50 @@ components:
         allow_conflicting_interpretations:
           type: boolean
           default: false
+    SeqvarsQuerySettingsColumns:
+      type: object
+      description: Serializer for ``QuerySettingsColumns``.
+      properties:
+        column_settings:
+          $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
+        sodar_uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_modified:
+          type: string
+          format: date-time
+          readOnly: true
+        querysettings:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - date_created
+      - date_modified
+      - querysettings
+      - sodar_uuid
+    SeqvarsQuerySettingsColumnsPydantic:
+      description: Pydantic representation of ``SeqvarsQuerySettingsColumns``.
+      properties:
+        column_settings:
+          default: []
+          items:
+            $ref: '#/components/schemas/SeqvarsColumnConfigPydantic'
+          title: Column Settings
+          type: array
+      title: SeqvarsQuerySettingsColumnsPydantic
+      type: object
+    SeqvarsQuerySettingsColumnsRequest:
+      type: object
+      description: Serializer for ``QuerySettingsColumns``.
+      properties:
+        column_settings:
+          $ref: '#/components/schemas/SeqvarsColumnConfigPydanticList'
     SeqvarsQuerySettingsConsequence:
       type: object
       description: Serializer for ``QuerySettingsConsequence``.
@@ -12237,8 +12288,11 @@ components:
           $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrio'
         clinvar:
           $ref: '#/components/schemas/SeqvarsQuerySettingsClinvar'
+        columns:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsColumns'
       required:
       - clinvar
+      - columns
       - consequence
       - date_created
       - date_modified
@@ -12321,8 +12375,11 @@ components:
           $ref: '#/components/schemas/SeqvarsQuerySettingsVariantPrioRequest'
         clinvar:
           $ref: '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+        columns:
+          $ref: '#/components/schemas/SeqvarsQuerySettingsColumnsRequest'
       required:
       - clinvar
+      - columns
       - consequence
       - frequency
       - genotype

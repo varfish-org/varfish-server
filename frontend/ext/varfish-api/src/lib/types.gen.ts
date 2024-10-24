@@ -1266,7 +1266,6 @@ export type PatchedSeqvarsQueryDetailsRequest = {
     rank?: number;
     label?: string;
     settings?: SeqvarsQuerySettingsDetailsRequest;
-    columnsconfig?: SeqvarsQueryColumnsConfigRequest;
 };
 
 /**
@@ -1457,6 +1456,7 @@ export type PatchedSeqvarsQuerySettingsDetailsRequest = {
     phenotypeprio?: SeqvarsQuerySettingsPhenotypePrioRequest;
     variantprio?: SeqvarsQuerySettingsVariantPrioRequest;
     clinvar?: SeqvarsQuerySettingsClinvarRequest;
+    columns?: SeqvarsQuerySettingsColumnsRequest;
 };
 
 /**
@@ -1960,6 +1960,18 @@ export type SeqvarsCaseQueryPydantic = {
     consequence?: (SeqvarsQuerySettingsConsequencePydantic | null);
     locus?: (SeqvarsQuerySettingsLocusPydantic | null);
     clinvar?: (SeqvarsQuerySettingsClinvarPydantic | null);
+    columns?: (SeqvarsQuerySettingsColumnsPydantic | null);
+};
+
+/**
+ * Configuration for a single column in the result table.
+ */
+export type SeqvarsColumnConfigPydantic = {
+    name: string;
+    label: string;
+    description?: (string | null);
+    width?: number;
+    visible?: boolean;
 };
 
 export type SeqvarsColumnConfigPydanticList = Array<{
@@ -2142,23 +2154,6 @@ export type SeqvarsQuery = {
 };
 
 /**
- * Serializer for ``QueryColumnsConfig``.
- */
-export type SeqvarsQueryColumnsConfig = {
-    readonly sodar_uuid: string;
-    readonly date_created: string;
-    readonly date_modified: string;
-    column_settings?: SeqvarsColumnConfigPydanticList;
-};
-
-/**
- * Serializer for ``QueryColumnsConfig``.
- */
-export type SeqvarsQueryColumnsConfigRequest = {
-    column_settings?: SeqvarsColumnConfigPydanticList;
-};
-
-/**
  * Serializer used for drf-spectacular arguments for ``SeqvarsQuerySettingsViewSet.create_from``.
  */
 export type SeqvarsQueryCreateFromRequest = {
@@ -2180,7 +2175,7 @@ export type SeqvarsQueryDetails = {
     label: string;
     readonly session: string;
     settings: SeqvarsQuerySettingsDetails;
-    columnsconfig: SeqvarsQueryColumnsConfig;
+    readonly columnsconfig: string;
 };
 
 /**
@@ -2193,7 +2188,6 @@ export type SeqvarsQueryDetailsRequest = {
     rank?: number;
     label: string;
     settings: SeqvarsQuerySettingsDetailsRequest;
-    columnsconfig: SeqvarsQueryColumnsConfigRequest;
 };
 
 /**
@@ -2697,6 +2691,7 @@ export type SeqvarsQuerySettings = {
     readonly phenotypeprio: string;
     readonly variantprio: string;
     readonly clinvar: string;
+    readonly columns: string;
 };
 
 /**
@@ -2728,6 +2723,31 @@ export type SeqvarsQuerySettingsClinvarRequest = {
     clinvar_presence_required?: boolean;
     clinvar_germline_aggregate_description?: ClinvarGermlineAggregateDescriptionChoiceList;
     allow_conflicting_interpretations?: boolean;
+};
+
+/**
+ * Serializer for ``QuerySettingsColumns``.
+ */
+export type SeqvarsQuerySettingsColumns = {
+    column_settings?: SeqvarsColumnConfigPydanticList;
+    readonly sodar_uuid: string;
+    readonly date_created: string;
+    readonly date_modified: string;
+    readonly querysettings: string;
+};
+
+/**
+ * Pydantic representation of ``SeqvarsQuerySettingsColumns``.
+ */
+export type SeqvarsQuerySettingsColumnsPydantic = {
+    column_settings?: Array<SeqvarsColumnConfigPydantic>;
+};
+
+/**
+ * Serializer for ``QuerySettingsColumns``.
+ */
+export type SeqvarsQuerySettingsColumnsRequest = {
+    column_settings?: SeqvarsColumnConfigPydanticList;
 };
 
 /**
@@ -2796,6 +2816,7 @@ export type SeqvarsQuerySettingsDetails = {
     phenotypeprio: SeqvarsQuerySettingsPhenotypePrio;
     variantprio: SeqvarsQuerySettingsVariantPrio;
     clinvar: SeqvarsQuerySettingsClinvar;
+    columns: SeqvarsQuerySettingsColumns;
 };
 
 /**
@@ -2824,6 +2845,7 @@ export type SeqvarsQuerySettingsDetailsRequest = {
     phenotypeprio: SeqvarsQuerySettingsPhenotypePrioRequest;
     variantprio: SeqvarsQuerySettingsVariantPrioRequest;
     clinvar: SeqvarsQuerySettingsClinvarRequest;
+    columns: SeqvarsQuerySettingsColumnsRequest;
 };
 
 /**
