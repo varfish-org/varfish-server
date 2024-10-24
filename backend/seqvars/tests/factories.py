@@ -22,7 +22,6 @@ from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsPrioServicePydantic,
     SeqvarsQuery,
-    SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
@@ -36,6 +35,7 @@ from seqvars.models.base import (
     SeqvarsQueryPresetsVariantPrio,
     SeqvarsQuerySettings,
     SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsColumns,
     SeqvarsQuerySettingsConsequence,
     SeqvarsQuerySettingsFrequency,
     SeqvarsQuerySettingsGenotype,
@@ -405,6 +405,10 @@ class SeqvarsQuerySettingsFactory(BaseModelFactory):
         "seqvars.tests.factories.SeqvarsQuerySettingsClinvarFactory",
         factory_related_name="querysettings",
     )
+    columns = factory.RelatedFactory(
+        "seqvars.tests.factories.SeqvarsQuerySettingsColumnsFactory",
+        factory_related_name="querysettings",
+    )
 
     class Meta:
         model = SeqvarsQuerySettings
@@ -499,6 +503,16 @@ class SeqvarsQuerySettingsClinvarFactory(ClinvarSettingsBaseFactory, BaseModelFa
         model = SeqvarsQuerySettingsClinvar
 
 
+class SeqvarsQuerySettingsColumnsFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
+
+    # We pass in columns=None to prevent creation of a second
+    # ``QuerySettingsColumns``.
+    querysettings = factory.SubFactory(SeqvarsQuerySettingsFactory, columns=None)
+
+    class Meta:
+        model = SeqvarsQuerySettingsColumns
+
+
 class SeqvarsQueryFactory(BaseModelFactory):
 
     rank = 1
@@ -506,16 +520,9 @@ class SeqvarsQueryFactory(BaseModelFactory):
 
     session = factory.SubFactory(CaseAnalysisSessionFactory)
     settings = factory.SubFactory(SeqvarsQuerySettingsFactory)
-    columnsconfig = factory.SubFactory("seqvars.tests.factories.SeqvarsQueryColumnsConfigFactory")
 
     class Meta:
         model = SeqvarsQuery
-
-
-class SeqvarsQueryColumnsConfigFactory(ColumnsSettingsBaseFactory, BaseModelFactory):
-
-    class Meta:
-        model = SeqvarsQueryColumnsConfig
 
 
 class SeqvarsQueryExecutionFactory(BaseModelFactory):

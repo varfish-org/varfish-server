@@ -13,7 +13,6 @@ from seqvars.models.base import (
     SeqvarsGenotypePresetsPydantic,
     SeqvarsPredefinedQuery,
     SeqvarsQuery,
-    SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
@@ -27,6 +26,7 @@ from seqvars.models.base import (
     SeqvarsQueryPresetsVariantPrio,
     SeqvarsQuerySettings,
     SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsColumns,
     SeqvarsQuerySettingsConsequence,
     SeqvarsQuerySettingsFrequency,
     SeqvarsQuerySettingsGenotype,
@@ -40,7 +40,6 @@ from seqvars.models.base import (
 )
 from seqvars.tests.factories import (
     SeqvarsPredefinedQueryFactory,
-    SeqvarsQueryColumnsConfigFactory,
     SeqvarsQueryExecutionFactory,
     SeqvarsQueryFactory,
     SeqvarsQueryPresetsClinvarFactory,
@@ -54,6 +53,7 @@ from seqvars.tests.factories import (
     SeqvarsQueryPresetsSetVersionFactory,
     SeqvarsQueryPresetsVariantPrioFactory,
     SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsColumnsFactory,
     SeqvarsQuerySettingsConsequenceFactory,
     SeqvarsQuerySettingsFactory,
     SeqvarsQuerySettingsFrequencyFactory,
@@ -293,6 +293,7 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 0)
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 0)
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 0)
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 0)
         querysettings = SeqvarsQuerySettings.objects.from_predefinedquery(
             session=session,
             predefinedquery=predefinedquery,
@@ -307,6 +308,7 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 1)
 
     def test_make_clone(self):
         predefinedquery = SeqvarsPredefinedQueryFactory()
@@ -324,6 +326,7 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 1)
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 1)
 
         cloned_querysettings = querysettings.make_clone()
         _ = cloned_querysettings
@@ -336,6 +339,7 @@ class TestSeqvarsQuerySettings(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsPhenotypePrio.objects.count(), 2)
         self.assertEqual(SeqvarsQuerySettingsQuality.objects.count(), 2)
         self.assertEqual(SeqvarsQuerySettingsClinvar.objects.count(), 2)
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 2)
 
 
 class TestSeqvarsQuerySettingsGenotype(TestCaseSnapshot, TestCase):
@@ -622,6 +626,35 @@ class TestSeqvarsQuerySettingsClinvar(TestCaseSnapshot, TestCase):
                 self.assertMatchSnapshot(getattr(clinvarsettings, key), key)
 
 
+class TestSeqvarsQuerySettingsColumns(TestCaseSnapshot, TestCase):
+
+    def test_create(self):
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 0)
+        SeqvarsQuerySettingsColumnsFactory()
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 1)
+
+    def test_str(self):
+        columnsconfig = SeqvarsQuerySettingsColumnsFactory()
+        self.assertEqual(
+            f"SeqvarsQuerySettingsColumns '{columnsconfig.sodar_uuid}'",
+            columnsconfig.__str__(),
+        )
+
+    def test_from_presets(self):
+        session = CaseAnalysisSessionFactory()
+        querysettings = SeqvarsQuerySettings.objects.create(session=session)
+        columnspresets = SeqvarsQueryPresetsColumnsFactory()
+
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 0)
+        columnssettings = SeqvarsQuerySettingsColumns.objects.from_presets(
+            querysettings=querysettings, columnspresets=columnspresets
+        )
+
+        self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 1)
+        for key in ("column_settings",):
+            self.assertMatchSnapshot(getattr(columnssettings, key), key)
+
+
 class TestSeqvarsPredefinedQuery(TestCase):
 
     def test_create(self):
@@ -630,10 +663,10 @@ class TestSeqvarsPredefinedQuery(TestCase):
         self.assertEqual(SeqvarsPredefinedQuery.objects.count(), 1)
 
     def test_str(self):
-        clinvar = SeqvarsPredefinedQueryFactory()
+        predefinedquery = SeqvarsPredefinedQueryFactory()
         self.assertEqual(
-            f"SeqvarsPredefinedQuery '{clinvar.sodar_uuid}'",
-            clinvar.__str__(),
+            f"SeqvarsPredefinedQuery '{predefinedquery.sodar_uuid}'",
+            predefinedquery.__str__(),
         )
 
 
@@ -662,7 +695,6 @@ class TestSeqvarsQuery(TestCase):
         session = CaseAnalysisSessionFactory()
         predefinedquery = SeqvarsPredefinedQueryFactory()
         self.assertEqual(SeqvarsQuery.objects.count(), 0)
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 0)
         query = SeqvarsQuery.objects.from_predefinedquery(
             session=session,
@@ -670,32 +702,7 @@ class TestSeqvarsQuery(TestCase):
         )
         _ = query
         self.assertEqual(SeqvarsQuery.objects.count(), 1)
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
         self.assertEqual(SeqvarsQuerySettings.objects.count(), 1)
-
-
-class TestSeqvarsQueryColumnsConfig(TestCase):
-
-    def test_create(self):
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
-        SeqvarsQueryColumnsConfigFactory()
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
-
-    def test_str(self):
-        columnsconfig = SeqvarsQueryColumnsConfigFactory()
-        self.assertEqual(
-            f"SeqvarsQueryColumnsConfig '{columnsconfig.sodar_uuid}'",
-            columnsconfig.__str__(),
-        )
-
-    def test_from_predefinedquery(self):
-        predefinedquery = SeqvarsPredefinedQueryFactory()
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 0)
-        columnsconfig = SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
-            predefinedquery=predefinedquery,
-        )
-        _ = columnsconfig
-        self.assertEqual(SeqvarsQueryColumnsConfig.objects.count(), 1)
 
 
 class TestSeqvarsQueryExecution(TestCase):

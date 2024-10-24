@@ -885,6 +885,9 @@ class SeqvarsQuerySettingsManager(models.Manager):
         SeqvarsQuerySettingsClinvar.objects.from_presets(
             querysettings=querysettings, clinvarpresets=predefinedquery.clinvar
         )
+        SeqvarsQuerySettingsColumns.objects.from_presets(
+            querysettings=querysettings, columnspresets=predefinedquery.columns
+        )
         return querysettings
 
 
@@ -903,6 +906,7 @@ class SeqvarsQuerySettings(model_clone.CloneMixin, BaseModel):
         "phenotypeprio",
         "quality",
         "clinvar",
+        "columns",
     ]
 
     #: Custom manager with ``from_predefinedquery()``.
@@ -1601,38 +1605,37 @@ class SeqvarsQuerySettingsClinvar(
         return f"SeqvarsQuerySettingsClinvar '{self.sodar_uuid}'"
 
 
-class SeqvarsQueryColumnsConfigManager(models.Manager):
-    """Manager for ``SeqvarsQueryColumnsConfig``."""
+class SeqvarsQuerySettingsColumnsManager(models.Manager):
+    """Manager for ``SeqvarsQuerySettingsColumns``."""
 
-    def from_predefinedquery(
+    def from_presets(
         self,
         *,
-        predefinedquery: SeqvarsPredefinedQuery,
-    ) -> "SeqvarsQueryColumnsConfig":
-        if predefinedquery.columns.column_settings:
-            return super().create(
-                column_settings=predefinedquery.columns.column_settings,
-            )
-        else:
-            return super().create(column_settings=[])
+        querysettings: SeqvarsQuerySettings,
+        columnspresets: SeqvarsQueryPresetsColumns,
+    ) -> "SeqvarsQuerySettingsColumns":
+        return super().create(
+            querysettings=querysettings,
+            column_settings=columnspresets.column_settings,
+        )
 
 
-class SeqvarsQueryColumnsConfig(model_clone.CloneMixin, SeqvarsColumnsSettingsBase, BaseModel):
-    """Per-query (not execution) configuration of columns.
-
-    This will be copied over from the presets to the query and not the query
-    settings.  Thus, it will not be persisted by query execution but is
-    editable after query execution.
-    """
+class SeqvarsQuerySettingsColumns(model_clone.CloneMixin, SeqvarsColumnsSettingsBase, BaseModel):
+    """Configuration of columns."""
 
     #: Let the ``sodar_uuid`` value be re-created when cloning.
     _clone_excluded_fields = ["sodar_uuid"]
 
     #: Custom manager with ``from_predefinedquery()``.
-    objects = SeqvarsQueryColumnsConfigManager()
+    objects = SeqvarsQuerySettingsColumnsManager()
+
+    #: The owning ``QuerySettings``.
+    querysettings = models.OneToOneField(
+        SeqvarsQuerySettings, on_delete=models.CASCADE, related_name="columns"
+    )
 
     def __str__(self):
-        return f"SeqvarsQueryColumnsConfig '{self.sodar_uuid}'"
+        return f"SeqvarsQuerySettingsColumns '{self.sodar_uuid}'"
 
 
 class SeqvarsQueryManager(models.Manager):
@@ -1657,9 +1660,6 @@ class SeqvarsQueryManager(models.Manager):
             session=session,
             settings=SeqvarsQuerySettings.objects.from_predefinedquery(
                 session=session, predefinedquery=predefinedquery
-            ),
-            columnsconfig=SeqvarsQueryColumnsConfig.objects.from_predefinedquery(
-                predefinedquery=predefinedquery
             ),
         )
         return query
@@ -1691,8 +1691,6 @@ class SeqvarsQuery(model_clone.CloneMixin, BaseModel):
     session = models.ForeignKey(CaseAnalysisSession, on_delete=models.CASCADE)
     #: Query settings to be edited in the next query execution.
     settings = models.OneToOneField(SeqvarsQuerySettings, on_delete=models.CASCADE)
-    #: The columns configuration of the query.
-    columnsconfig = models.OneToOneField(SeqvarsQueryColumnsConfig, on_delete=models.PROTECT)
 
     @property
     def case(self) -> typing.Optional[Case]:
@@ -1908,6 +1906,13 @@ class SeqvarsQuerySettingsClinvarPydantic(pydantic.BaseModel):
     allow_conflicting_interpretations: bool = False
 
 
+class SeqvarsQuerySettingsColumnsPydantic(pydantic.BaseModel):
+    """Pydantic representation of ``SeqvarsQuerySettingsColumns``."""
+
+    #: List of columns with their widths.
+    column_settings: typing.List[SeqvarsColumnConfigPydantic] = []
+
+
 class SeqvarsCaseQueryPydantic(pydantic.BaseModel):
     """Pydantic representation of ``SeqvarsCaseQuery``."""
 
@@ -1923,6 +1928,8 @@ class SeqvarsCaseQueryPydantic(pydantic.BaseModel):
     locus: typing.Optional[SeqvarsQuerySettingsLocusPydantic] = None
     #: ClinVar query settings.
     clinvar: typing.Optional[SeqvarsQuerySettingsClinvarPydantic] = None
+    #: Column settings.
+    columns: typing.Optional[SeqvarsQuerySettingsColumnsPydantic] = None
 
 
 class DataSourceInfoPydantic(pydantic.BaseModel):
@@ -1992,13 +1999,13 @@ class SeqvarsVariantScoreColumnTypeChoice(str, Enum):
 class SeqvarsVariantScoreColumnPydantic(pydantic.BaseModel):
     """Store information about the variant score columns in the output."""
 
-    #: Name of the scolumn.
+    #: Name of the column.
     name: str
-    #: Label for the scolumn.
+    #: Label for the column.
     label: str
-    #: Description of the scolumn.
+    #: Description of the column.
     description: typing.Optional[str] = None
-    #: Type of the scolumn.
+    #: Type of the column.
     type: SeqvarsVariantScoreColumnTypeChoice
 
 

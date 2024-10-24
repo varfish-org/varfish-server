@@ -2,7 +2,7 @@
 # snapshottest: v1 - https://goo.gl/zC4yUc
 from __future__ import unicode_literals
 
-from snapshottest import Snapshot
+from snapshottest import GenericRepr, Snapshot
 
 snapshots = Snapshot()
 
@@ -18,6 +18,12 @@ snapshots[
 ]
 
 snapshots["TestSeqvarsQuerySettingsClinvar::test_from_presets clinvar_presence_required"] = False
+
+snapshots["TestSeqvarsQuerySettingsColumns::test_from_presets column_settings"] = [
+    GenericRepr(
+        "SeqvarsColumnConfigPydantic(name='chromosome', label='Chromosome', description=None, width=300, visible=True)"
+    )
+]
 
 snapshots["TestSeqvarsQuerySettingsConsequence::test_from_presets max_distance_to_exon"] = 50
 

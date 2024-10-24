@@ -22,8 +22,7 @@ import {
   SeqvarsQueryPresetsQuality,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
-import { isDeepEqual } from 'remeda'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useCaseRetrieveQuery } from '@/cases/queries/cases'
 import { PedigreeObj } from '@/cases/stores/caseDetails'
@@ -53,8 +52,6 @@ import {
 } from '@/seqvars/queries/seqvarQuery'
 import { useSeqvarQueryExecutionStartMutation } from '@/seqvars/queries/seqvarQueryExecution'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-
-import ColumnControls from './ColumnControls.vue'
 
 /** This component's props. */
 const props = withDefaults(
@@ -476,59 +473,6 @@ const revertCategoryToPresets = async <G extends (typeof GROUPS)[number]>(
   }
 }
 
-/**
- * Check whether the columns match the preset.
- */
-const columnsMatchPreset = (
-  presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
-  columnsPresetsUuid: string,
-): boolean => {
-  const columnsPresets = presetsDetails.seqvarsquerypresetscolumns_set.find(
-    (p) => p.sodar_uuid === columnsPresetsUuid,
-  )
-  const lhs = (columnsPresets?.column_settings ?? []).map((c) => [
-    c.name,
-    c.visible,
-  ])
-  const rhs = (selectedQuery.value?.columnsconfig.column_settings ?? []).map(
-    (c) => [c.name, c.visible],
-  )
-  return columnsPresets !== undefined && isDeepEqual(lhs, rhs)
-}
-
-/**
- * Revert the columns configuration to match the given preset.
- */
-const revertColumnsToPresets = async (
-  presetsDetails: SeqvarsQueryPresetsSetVersionDetails,
-  columnsPresetsUuid: string,
-) => {
-  const columnsPresets = presetsDetails.seqvarsquerypresetscolumns_set.find(
-    (p) => p.sodar_uuid === columnsPresetsUuid,
-  )
-  if (!!selectedQuery.value && !!columnsPresets) {
-    await seqvarQueryUpdate.mutateAsync({
-      body: {
-        ...selectedQuery.value,
-        settings: {
-          ...selectedQuery.value.settings,
-          columnspresets: columnsPresetsUuid,
-        },
-        columnsconfig: {
-          ...selectedQuery.value.columnsconfig,
-          column_settings: structuredClone(
-            toRaw(columnsPresets.column_settings),
-          ),
-        },
-      },
-      path: {
-        session: sessionUuid.value,
-        query: selectedQuery.value.sodar_uuid,
-      },
-    })
-  }
-}
-
 // Observe changes in the queries and update the selected query UUID accordingly.
 watch(
   () => [seqvarQueries.value.values()],
@@ -537,8 +481,6 @@ watch(
 
 /** Whether the recessive mode collapsible group for genotype is opend. */
 const collapsibleGroupOpenGenotype = ref<boolean>(true)
-/** Whether the recessive mode collapsible group for genotype is opend. */
-const collapsibleGroupOpenColumns = ref<boolean>(true)
 /** Whether the collapsible group for the given ID is opened. */
 const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
   frequency: true,
@@ -553,6 +495,7 @@ const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
   phenotypeprio: true,
   variantprio: true,
   clinvar: true,
+  columns: true,
 })
 </script>
 
@@ -802,115 +745,6 @@ const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
             :model-value="selectedQuery"
             :hints-enabled="hintsEnabled"
           />
-        </template>
-      </CollapsibleGroup>
-
-      <CollapsibleGroup
-        v-model="collapsibleGroupOpenColumns"
-        title="Columns"
-        hint="Configure columns to show in the query results"
-        :hints-enabled="hintsEnabled"
-        :summary="
-          presetsDetails.seqvarsquerypresetscolumns_set.find(
-            (p) => p.sodar_uuid === selectedQuery?.settings.columnspresets,
-          )?.label
-        "
-        :modified="
-          !!baselinePredefinedQuery?.columns &&
-          !!presetsDetails.seqvarsquerypresetscolumns_set.find(
-            (p) => p.sodar_uuid === baselinePredefinedQuery?.columns,
-          ) &&
-          !!selectedQuery?.settings?.columnspresets &&
-          (baselinePredefinedQuery?.columns !==
-            selectedQuery?.settings?.columnspresets ||
-            !columnsMatchPreset(
-              presetsDetails,
-              selectedQuery.settings.columnspresets,
-            ))
-        "
-        storage-name="query-editor-columns"
-        @revert="
-          async () => {
-            if (!!baselinePredefinedQuery?.columns) {
-              await revertColumnsToPresets(
-                presetsDetails,
-                baselinePredefinedQuery?.columns,
-              )
-            }
-          }
-        "
-      >
-        <template #summary>
-          <Item
-            :modified="
-              !!selectedQuery?.settings?.columnspresets &&
-              !columnsMatchPreset(
-                presetsDetails,
-                selectedQuery.settings.columnspresets,
-              )
-            "
-            @revert="
-              async () => {
-                if (!!selectedQuery?.settings.columnspresets) {
-                  await revertColumnsToPresets(
-                    presetsDetails,
-                    selectedQuery?.settings.columnspresets,
-                  )
-                }
-              }
-            "
-          >
-            {{
-              presetsDetails.seqvarsquerypresetscolumns_set.find(
-                (p) => p.sodar_uuid === selectedQuery?.settings.columnspresets,
-              )?.label
-            }}
-          </Item>
-        </template>
-        <template #default>
-          <div role="listbox" class="w-100 d-flex flex-column">
-            <Item
-              v-for="preset in presetsDetails.seqvarsquerypresetscolumns_set"
-              :key="preset.sodar_uuid"
-              :selected="
-                preset.sodar_uuid == selectedQuery.settings.columnspresets
-              "
-              :modified="
-                preset.sodar_uuid == selectedQuery.settings.columnspresets &&
-                !!selectedQuery?.settings?.columnspresets &&
-                !columnsMatchPreset(
-                  presetsDetails,
-                  selectedQuery.settings.columnspresets,
-                )
-              "
-              @click="
-                async () => {
-                  if (pedigree) {
-                    await revertColumnsToPresets(
-                      presetsDetails,
-                      preset.sodar_uuid,
-                    )
-                  }
-                }
-              "
-              @revert="
-                async () => {
-                  if (pedigree) {
-                    await revertColumnsToPresets(
-                      presetsDetails,
-                      preset.sodar_uuid,
-                    )
-                  }
-                }
-              "
-            >
-              {{ preset.label }}
-            </Item>
-          </div>
-
-          <v-divider class="my-2" />
-
-          <ColumnControls :model-value="selectedQuery" />
         </template>
       </CollapsibleGroup>
     </template>

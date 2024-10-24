@@ -3730,9 +3730,6 @@ in detail.`,
         },
         settings: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
-        },
-        columnsconfig: {
-            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
         }
     }
 } as const;
@@ -4459,6 +4456,9 @@ owned category settings.`,
         },
         clinvar: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+        },
+        columns: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsColumnsRequest'
         }
     }
 } as const;
@@ -5880,9 +5880,59 @@ export const $SeqvarsCaseQueryPydantic = {
                 }
             ],
             default: null
+        },
+        columns: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/SeqvarsQuerySettingsColumnsPydantic'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null
         }
     },
     title: 'SeqvarsCaseQueryPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsColumnConfigPydantic = {
+    description: 'Configuration for a single column in the result table.',
+    properties: {
+        name: {
+            title: 'Name',
+            type: 'string'
+        },
+        label: {
+            title: 'Label',
+            type: 'string'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Description'
+        },
+        width: {
+            default: 100,
+            title: 'Width',
+            type: 'integer'
+        },
+        visible: {
+            default: false,
+            title: 'Visible',
+            type: 'boolean'
+        }
+    },
+    required: ['name', 'label'],
+    title: 'SeqvarsColumnConfigPydantic',
     type: 'object'
 } as const;
 
@@ -6567,47 +6617,10 @@ export const $SeqvarsQuery = {
         },
         columnsconfig: {
             type: 'string',
-            format: 'uuid',
             readOnly: true
         }
     },
     required: ['columnsconfig', 'date_created', 'date_modified', 'label', 'session', 'settings', 'sodar_uuid']
-} as const;
-
-export const $SeqvarsQueryColumnsConfig = {
-    type: 'object',
-    description: 'Serializer for ``QueryColumnsConfig``.',
-    properties: {
-        sodar_uuid: {
-            type: 'string',
-            format: 'uuid',
-            readOnly: true
-        },
-        date_created: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        date_modified: {
-            type: 'string',
-            format: 'date-time',
-            readOnly: true
-        },
-        column_settings: {
-            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
-        }
-    },
-    required: ['date_created', 'date_modified', 'sodar_uuid']
-} as const;
-
-export const $SeqvarsQueryColumnsConfigRequest = {
-    type: 'object',
-    description: 'Serializer for ``QueryColumnsConfig``.',
-    properties: {
-        column_settings: {
-            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
-        }
-    }
 } as const;
 
 export const $SeqvarsQueryCreateFromRequest = {
@@ -6666,7 +6679,8 @@ in detail.`,
             '$ref': '#/components/schemas/SeqvarsQuerySettingsDetails'
         },
         columnsconfig: {
-            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfig'
+            type: 'string',
+            readOnly: true
         }
     },
     required: ['columnsconfig', 'date_created', 'date_modified', 'label', 'session', 'settings', 'sodar_uuid']
@@ -6690,12 +6704,9 @@ in detail.`,
         },
         settings: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsDetailsRequest'
-        },
-        columnsconfig: {
-            '$ref': '#/components/schemas/SeqvarsQueryColumnsConfigRequest'
         }
     },
-    required: ['columnsconfig', 'label', 'settings']
+    required: ['label', 'settings']
 } as const;
 
 export const $SeqvarsQueryExecution = {
@@ -8643,9 +8654,14 @@ export const $SeqvarsQuerySettings = {
             type: 'string',
             format: 'uuid',
             readOnly: true
+        },
+        columns: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
         }
     },
-    required: ['clinvar', 'clinvarpresets', 'columnspresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
+    required: ['clinvar', 'clinvarpresets', 'columns', 'columnspresets', 'consequence', 'consequencepresets', 'date_created', 'date_modified', 'frequency', 'frequencypresets', 'genotype', 'locus', 'locuspresets', 'phenotypeprio', 'phenotypepriopresets', 'predefinedquery', 'presetssetversion', 'quality', 'qualitypresets', 'session', 'sodar_uuid', 'variantprio', 'variantpriopresets']
 } as const;
 
 export const $SeqvarsQuerySettingsClinvar = {
@@ -8727,6 +8743,63 @@ export const $SeqvarsQuerySettingsClinvarRequest = {
         allow_conflicting_interpretations: {
             type: 'boolean',
             default: false
+        }
+    }
+} as const;
+
+export const $SeqvarsQuerySettingsColumns = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsColumns``.',
+    properties: {
+        column_settings: {
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
+        },
+        sodar_uuid: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        },
+        date_created: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true
+        },
+        date_modified: {
+            type: 'string',
+            format: 'date-time',
+            readOnly: true
+        },
+        querysettings: {
+            type: 'string',
+            format: 'uuid',
+            readOnly: true
+        }
+    },
+    required: ['date_created', 'date_modified', 'querysettings', 'sodar_uuid']
+} as const;
+
+export const $SeqvarsQuerySettingsColumnsPydantic = {
+    description: 'Pydantic representation of ``SeqvarsQuerySettingsColumns``.',
+    properties: {
+        column_settings: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/SeqvarsColumnConfigPydantic'
+            },
+            title: 'Column Settings',
+            type: 'array'
+        }
+    },
+    title: 'SeqvarsQuerySettingsColumnsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsQuerySettingsColumnsRequest = {
+    type: 'object',
+    description: 'Serializer for ``QuerySettingsColumns``.',
+    properties: {
+        column_settings: {
+            '$ref': '#/components/schemas/SeqvarsColumnConfigPydanticList'
         }
     }
 } as const;
@@ -8962,9 +9035,12 @@ owned category settings.`,
         },
         clinvar: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvar'
+        },
+        columns: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsColumns'
         }
     },
-    required: ['clinvar', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
+    required: ['clinvar', 'columns', 'consequence', 'date_created', 'date_modified', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'predefinedquery', 'presetssetversion', 'quality', 'session', 'sodar_uuid', 'variantprio']
 } as const;
 
 export const $SeqvarsQuerySettingsDetailsRequest = {
@@ -9063,9 +9139,12 @@ owned category settings.`,
         },
         clinvar: {
             '$ref': '#/components/schemas/SeqvarsQuerySettingsClinvarRequest'
+        },
+        columns: {
+            '$ref': '#/components/schemas/SeqvarsQuerySettingsColumnsRequest'
         }
     },
-    required: ['clinvar', 'consequence', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'quality', 'variantprio']
+    required: ['clinvar', 'columns', 'consequence', 'frequency', 'genotype', 'locus', 'phenotypeprio', 'quality', 'variantprio']
 } as const;
 
 export const $SeqvarsQuerySettingsFrequency = {

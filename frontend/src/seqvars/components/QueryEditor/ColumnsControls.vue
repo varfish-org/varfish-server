@@ -33,17 +33,20 @@ const seqvarQueryUpdate = useSeqvarQueryUpdateMutation()
 const applyMutation = async (data: { name: string; visible: boolean }) => {
   const newData = {
     ...props.modelValue,
-    columnsconfig: {
-      ...props.modelValue.columnsconfig,
-      column_settings: (
-        props.modelValue.columnsconfig.column_settings || []
-      ).map((column) => {
-        const res = {
-          ...column,
-          visible: data.name === column.name ? data.visible : column.visible,
-        }
-        return res
-      }),
+    settings: {
+      ...props.modelValue.settings,
+      columns: {
+        ...props.modelValue.settings.columns,
+        column_settings: (
+          props.modelValue.settings.columns.column_settings || []
+        ).map((column) => {
+          const res = {
+            ...column,
+            visible: data.name === column.name ? data.visible : column.visible,
+          }
+          return res
+        }),
+      },
     },
   }
 
@@ -62,7 +65,7 @@ const applyMutation = async (data: { name: string; visible: boolean }) => {
 <template>
   <v-list density="compact">
     <v-list-item
-      v-for="column in props.modelValue.columnsconfig?.column_settings ?? []"
+      v-for="column in props.modelValue.settings.columns.column_settings ?? []"
       :key="column.name"
       density="compact"
       :title="column.label"

@@ -30,7 +30,6 @@ from seqvars.models.base import (
     SeqvarsPredefinedQuery,
     SeqvarsPrioServicePydantic,
     SeqvarsQuery,
-    SeqvarsQueryColumnsConfig,
     SeqvarsQueryExecution,
     SeqvarsQueryPresetsClinvar,
     SeqvarsQueryPresetsColumns,
@@ -45,6 +44,7 @@ from seqvars.models.base import (
     SeqvarsQuerySettings,
     SeqvarsQuerySettingsCategoryBase,
     SeqvarsQuerySettingsClinvar,
+    SeqvarsQuerySettingsColumns,
     SeqvarsQuerySettingsConsequence,
     SeqvarsQuerySettingsFrequency,
     SeqvarsQuerySettingsGenotype,
@@ -866,6 +866,20 @@ class SeqvarsQuerySettingsClinvarSerializer(
         read_only_fields = fields
 
 
+class SeqvarsQuerySettingsColumnsSerializer(
+    ColumnsSettingsBaseSerializer, SeqvarsQuerySettingsBaseSerializer
+):
+    """Serializer for ``QuerySettingsColumns``."""
+
+    class Meta:
+        model = SeqvarsQuerySettingsColumns
+        fields = (
+            ColumnsSettingsBaseSerializer.Meta.fields
+            + SeqvarsQuerySettingsBaseSerializer.Meta.fields
+        )
+        read_only_fields = fields
+
+
 class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     """Serializer for ``QuerySettings``."""
 
@@ -933,6 +947,8 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
     variantprio = serializers.ReadOnlyField(source="variantprio.sodar_uuid")
     #: Serialize ``clinvar`` as its ``sodar_uuid``.
     clinvar = serializers.ReadOnlyField(source="clinvar.sodar_uuid")
+    #: Serialize ``columns`` as its ``sodar_uuid``.
+    columns = serializers.ReadOnlyField(source="columns.sodar_uuid")
 
     def validate(self, attrs):
         """Augment the attributes by the case from context."""
@@ -963,6 +979,7 @@ class SeqvarsQuerySettingsSerializer(BaseModelSerializer):
             "phenotypeprio",
             "variantprio",
             "clinvar",
+            "columns",
         ]
         read_only_fields = fields
 
@@ -1025,6 +1042,8 @@ class SeqvarsQuerySettingsDetailsSerializer(
     variantprio = SeqvarsQuerySettingsVariantPrioSerializer()
     #: Nested serialization of the clinvar settings.
     clinvar = SeqvarsQuerySettingsClinvarSerializer()
+    #: Nested serialization of the columns settings.
+    columns = SeqvarsQuerySettingsColumnsSerializer()
 
     def validate(self, data):
         data = super().validate(data)
@@ -1091,22 +1110,8 @@ class SeqvarsQuerySettingsDetailsSerializer(
             "phenotypeprio",
             "variantprio",
             "clinvar",
+            "columns",
         ]
-        read_only_fields = fields
-
-
-class SeqvarsQueryColumnsConfigSerializer(ColumnsSettingsBaseSerializer, BaseModelSerializer):
-    """Serializer for ``QueryColumnsConfig``."""
-
-    def validate(self, attrs):
-        """Augment the attributes by the case from context."""
-        if "query" in self.context:
-            attrs["query"] = self.context["query"]
-        return attrs
-
-    class Meta:
-        model = SeqvarsQueryColumnsConfig
-        fields = BaseModelSerializer.Meta.fields + ColumnsSettingsBaseSerializer.Meta.fields
         read_only_fields = fields
 
 
@@ -1159,8 +1164,6 @@ class SeqvarsQueryDetailsSerializer(SeqvarsQuerySerializer, SodarUuidWritableNes
 
     #: For the details serializer, we use a nested details serializer.
     settings = SeqvarsQuerySettingsDetailsSerializer()
-    #: Render the columns configuration here.
-    columnsconfig = SeqvarsQueryColumnsConfigSerializer()
 
     class Meta:
         model = SeqvarsQuery

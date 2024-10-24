@@ -230,12 +230,12 @@ export const useSeqvarQueryUpdateMutation = () => {
           : deepmergeCustom({ mergeArrays: false })(previousValue, data.body)
       if (
         newValue !== undefined &&
-        data.body.columnsconfig.column_settings !== undefined
+        data.body.settings.columns.column_settings !== undefined
       ) {
         // Need to manually clone the column settings as we disable merging of
         // arrays in `deepmergeCustom()` call.
-        newValue.columnsconfig.column_settings = structuredClone(
-          toRaw(data.body.columnsconfig.column_settings),
+        newValue.settings.columns.column_settings = structuredClone(
+          toRaw(data.body.settings.columns.column_settings),
         )
       }
       queryClient.setQueryData(queryKey, newValue)

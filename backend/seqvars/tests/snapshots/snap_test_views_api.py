@@ -317,7 +317,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -359,7 +359,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -881,7 +881,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -923,7 +923,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {

@@ -19,8 +19,8 @@ from seqvars.models.base import (
     SeqvarsQuerySettings,
 )
 from seqvars.serializers import (
-    SeqvarsQueryColumnsConfigSerializer,
     SeqvarsQuerySettingsClinvarSerializer,
+    SeqvarsQuerySettingsColumnsSerializer,
     SeqvarsQuerySettingsConsequenceSerializer,
     SeqvarsQuerySettingsFrequencySerializer,
     SeqvarsQuerySettingsGenotypeSerializer,
@@ -31,7 +31,6 @@ from seqvars.serializers import (
 )
 from seqvars.tests.factories import (
     SeqvarsPredefinedQueryFactory,
-    SeqvarsQueryColumnsConfigFactory,
     SeqvarsQueryExecutionFactory,
     SeqvarsQueryFactory,
     SeqvarsQueryPresetsClinvarFactory,
@@ -45,6 +44,7 @@ from seqvars.tests.factories import (
     SeqvarsQueryPresetsSetVersionFactory,
     SeqvarsQueryPresetsVariantPrioFactory,
     SeqvarsQuerySettingsClinvarFactory,
+    SeqvarsQuerySettingsColumnsFactory,
     SeqvarsQuerySettingsConsequenceFactory,
     SeqvarsQuerySettingsFactory,
     SeqvarsQuerySettingsFrequencyFactory,
@@ -1795,6 +1795,9 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
             "clinvar": SeqvarsQuerySettingsClinvarSerializer(
                 SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
             ).data,
+            "columns": SeqvarsQuerySettingsColumnsSerializer(
+                SeqvarsQuerySettingsColumnsFactory.build(querysettings=None)
+            ).data,
         }
 
         querysettings_uuid = self.querysettings.sodar_uuid
@@ -1995,10 +1998,10 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
                 "clinvar": SeqvarsQuerySettingsClinvarSerializer(
                     SeqvarsQuerySettingsClinvarFactory.build(querysettings=None)
                 ).data,
+                "columns": SeqvarsQuerySettingsColumnsSerializer(
+                    SeqvarsQuerySettingsColumnsFactory.build(querysettings=None)
+                ).data,
             },
-            "columnsconfig": SeqvarsQueryColumnsConfigSerializer(
-                SeqvarsQueryColumnsConfigFactory.build(seqvarsquery=None)
-            ).data,
         }
 
         query_uuid = self.query.sodar_uuid

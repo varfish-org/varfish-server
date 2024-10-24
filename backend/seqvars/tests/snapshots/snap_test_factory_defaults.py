@@ -285,7 +285,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -327,7 +327,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -849,7 +849,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -891,7 +891,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -2942,7 +2942,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -2984,7 +2984,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -3506,7 +3506,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -3548,7 +3548,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -5599,7 +5599,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -5641,7 +5641,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -6163,7 +6163,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                             "description": "Chromosome and position",
                             "label": "chrom/pos",
                             "name": "__chrom_pos__",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {
@@ -6205,7 +6205,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                             "description": "HGVS description at protein level",
                             "label": "HGVS(p)",
                             "name": "payload.variant_annotation.gene.consequences.hgvs_p",
-                            "visible": True,
+                            "visible": False,
                             "width": 100,
                         },
                         {

@@ -15,6 +15,7 @@ import { PedigreeObj } from '@/cases/stores/caseDetails'
 
 import { isKeyOfObject } from '../utils'
 import ClinvarControls from './ClinvarControls.vue'
+import ColumnsControls from './ColumnsControls.vue'
 import EffectsControls from './EffectsControls.vue'
 import FrequencyControls from './FrequencyControls.vue'
 import LocusControls from './LocusControls.vue'
@@ -174,6 +175,13 @@ export const GROUPS = [
     title: 'Genes or Regions',
     getCompareFields: (v) => [v.gene_panels, v.genes, v.genome_regions],
     Component: LocusControls,
+  }),
+
+  new FilterGroup({
+    id: 'columns',
+    title: 'Columns',
+    getCompareFields: (v) => [v.column_settings],
+    Component: ColumnsControls,
   }),
 ]
 
