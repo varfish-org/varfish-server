@@ -142,6 +142,31 @@ const REVIEW_STATUS_STARS: Record<
   no_classification_for_the_single_variant: 0,
 } as const
 
+/**
+ * Obtain color for significance description.
+ */
+const significanceDescriptionColor = (description: string): string => {
+  if (
+    description === 'Pathogenic' ||
+    description === 'Pathogenic/Likely pathogenic'
+  ) {
+    return 'red'
+  } else if (description === 'Likely pathogenic') {
+    return 'orange'
+  } else if (
+    description === 'Benign' ||
+    description === 'Benign/Likely benign'
+  ) {
+    return 'green'
+  } else if (description === 'Likely benign') {
+    return 'light-green'
+  } else if (description === 'Uncertain significance') {
+    return 'blue'
+  } else {
+    return 'grey'
+  }
+}
+
 /** Query as retrieved via TanStack Query. */
 const seqvarQueryRes = useSeqvarQueryRetrieveQuery({
   sessionUuid: props.sessionUuid,
@@ -908,6 +933,37 @@ watch(
       </div>
     </template>
 
+    <template
+      #[`item.payload.variant_annotation.variant.clinvar.germline_significance_description`]="{
+        item,
+      }"
+    >
+      <div class="hide-overfloat-200" style="white-space: pre">
+        <template
+          v-if="
+            !item.payload?.variant_annotation?.variant?.clinvar
+              ?.germline_significance_description
+          "
+        >
+          -
+        </template>
+        <v-chip
+          v-else
+          :color="
+            significanceDescriptionColor(
+              item.payload?.variant_annotation?.variant?.clinvar
+                ?.germline_significance_description,
+            )
+          "
+        >
+          {{
+            item.payload?.variant_annotation?.variant?.clinvar
+              ?.germline_significance_description ?? '-'
+          }}
+        </v-chip>
+      </div>
+    </template>
+
     <!--
     Display number of stars from item.payload.variant_annotation.variant.clinvar.germline_review_status
     according to REVIEW_STATUS_STARS, displaying label via REVIEW_STATUS_LABELS as title.
@@ -917,7 +973,7 @@ watch(
         item,
       }"
     >
-      <div class="mono" style="white-space: pre">
+      <div class="hide-overfloat-250" style="white-space: pre">
         <template
           v-if="
             item.payload?.variant_annotation?.variant?.clinvar
@@ -1030,6 +1086,203 @@ watch(
         <div class="mono-width-10 text-right" style="white-space: pre">-</div>
       </template>
     </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.mmsplice`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.mmsplice,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.mmsplice_argmax`]="{
+        item,
+      }"
+    >
+      <template
+        v-if="
+          `${item.payload?.variant_annotation?.variant?.scores?.entries?.mmsplice_argmax ?? ''}` !=
+          ''
+        "
+      >
+        <div class="mono-width-14 text-right" style="white-space: pre">
+          {{
+            `${item.payload?.variant_annotation?.variant?.scores?.entries?.mmsplice_argmax}`.replace(
+              'MMSp_',
+              '',
+            )
+          }}
+        </div>
+      </template>
+      <template v-else>
+        <div class="mono-width-14 text-right" style="white-space: pre">-</div>
+      </template>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.alphamissense`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.alphamissense,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.bayesdel_addaf`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.bayesdel_addaf,
+            { precision: 3, decimal: 1, signed: true },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.fathmm`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.fathmm,
+            { precision: 2, decimal: 1, signed: true },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.fitcons_integrated`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-5 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.fitcons_integrated,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.lrt`]="{ item }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.lrt,
+            { precision: 4, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.metasvm`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.metasvm,
+            { precision: 3, decimal: 1, signed: true },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.polyphen2_hdiv`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.polyphen2_hdiv,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.polyphen2_hvar`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.polyphen2_hvar,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.primateai`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries
+              ?.primateai,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.provean`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.provean,
+            { precision: 3, decimal: 1, signed: true },
+          )
+        }}
+      </div>
+    </template>
+    <template
+      #[`item.payload.variant_annotation.variant.scores.entries.revel`]="{
+        item,
+      }"
+    >
+      <div class="mono-width-6 text-right" style="white-space: pre">
+        {{
+          formatFixedFloat(
+            item.payload?.variant_annotation?.variant?.scores?.entries?.revel,
+            { precision: 3, decimal: 1 },
+          )
+        }}
+      </div>
+    </template>
 
     <template #[`item.__effect__`]="{ item }">
       <template
@@ -1128,6 +1381,12 @@ watch(
 div.mono-width-5 {
   @include mono-width(5ch);
 }
+div.mono-width-6 {
+  @include mono-width(6ch);
+}
+div.mono-width-7 {
+  @include mono-width(7ch);
+}
 div.mono-width-8 {
   @include mono-width(8ch);
 }
@@ -1136,6 +1395,24 @@ div.mono-width-9 {
 }
 div.mono-width-10 {
   @include mono-width(10ch);
+}
+div.mono-width-11 {
+  @include mono-width(11ch);
+}
+div.mono-width-12 {
+  @include mono-width(12ch);
+}
+div.mono-width-13 {
+  @include mono-width(13ch);
+}
+div.mono-width-14 {
+  @include mono-width(14ch);
+}
+div.mono-width-15 {
+  @include mono-width(15ch);
+}
+div.mono-width-16 {
+  @include mono-width(16ch);
 }
 
 // Mixin for <div> with Monospaced font that can overflow when width is set.
@@ -1185,5 +1462,11 @@ div.hide-overfloat-120 {
 }
 div.hide-overfloat-150 {
   @include hide-overfloat(150px);
+}
+div.hide-overfloat-200 {
+  @include hide-overfloat(200px);
+}
+div.hide-overfloat-250 {
+  @include hide-overfloat(250px);
 }
 </style>
