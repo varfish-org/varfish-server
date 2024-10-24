@@ -395,6 +395,32 @@ watch(
       </div>
     </template>
 
+    <template #[`item.__tx_accession_version__`]="{ item }">
+      <div
+        v-if="
+          item.payload?.variant_annotation?.gene?.consequences?.tx_accession
+        "
+        class="hide-overfloat-120"
+        :title="`${item.payload?.variant_annotation?.gene?.consequences?.tx_accession}.${item.payload?.variant_annotation?.gene?.consequences?.tx_version}`"
+      >
+        {{ item.payload?.variant_annotation?.gene?.consequences }}
+        {{
+          `${item.payload?.variant_annotation?.gene?.consequences?.tx_accession}.${item.payload?.variant_annotation?.gene?.consequences?.tx_version}`
+        }}
+      </div>
+      <div v-else>-</div>
+    </template>
+
+    <template #[`item.__rank__`]="{ item }">
+      <div
+        v-if="item.payload?.variant_annotation?.gene?.consequences?.rank_ord"
+      >
+        {{ item.payload?.variant_annotation?.gene?.consequences.rank_ord }} /
+        {{ item.payload?.variant_annotation?.gene?.consequences.rank_total }}
+      </div>
+      <div v-else>-</div>
+    </template>
+
     <template
       #[`item.payload.variant_annotation.gene.constraints.gnomad.pli`]="{
         item,

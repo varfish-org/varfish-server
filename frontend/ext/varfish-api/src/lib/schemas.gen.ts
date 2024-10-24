@@ -2529,9 +2529,56 @@ export const $GeneRelatedConsequencesPydantic = {
             },
             title: 'Consequences',
             type: 'array'
+        },
+        tx_accession: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tx Accession'
+        },
+        tx_version: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tx Version'
+        },
+        location: {
+            '$ref': '#/components/schemas/VariantLocationChoice'
+        },
+        rank_ord: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Rank Ord'
+        },
+        rank_total: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Rank Total'
         }
     },
-    required: ['hgvs_t', 'hgvs_p', 'consequences'],
+    required: ['hgvs_t', 'hgvs_p', 'consequences', 'tx_accession', 'tx_version', 'location', 'rank_ord', 'rank_total'],
     title: 'GeneRelatedConsequencesPydantic',
     type: 'object'
 } as const;
@@ -11076,6 +11123,13 @@ export const $VarfishStats = {
         }
     },
     required: ['alignmentstats', 'readstats', 'samples', 'seqvarstats', 'strucvarstats']
+} as const;
+
+export const $VariantLocationChoice = {
+    description: 'Enumeration for the variant location.',
+    enum: ['upstream', 'exon', 'intron', 'downstream'],
+    title: 'VariantLocationChoice',
+    type: 'string'
 } as const;
 
 export const $strList = {

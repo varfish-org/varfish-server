@@ -894,6 +894,11 @@ export type GeneRelatedConsequencesPydantic = {
     hgvs_t: string;
     hgvs_p: (string | null);
     consequences: Array<SeqvarsVariantConsequenceChoice>;
+    tx_accession: (string | null);
+    tx_version: (number | null);
+    location: VariantLocationChoice;
+    rank_ord: (number | null);
+    rank_total: (number | null);
 };
 
 /**
@@ -3335,6 +3340,11 @@ export type VarfishStats = {
     seqvarstats: SampleSeqvarStatsList;
     strucvarstats: SampleStrucvarStatsList;
 };
+
+/**
+ * Enumeration for the variant location.
+ */
+export type VariantLocationChoice = 'upstream' | 'exon' | 'intron' | 'downstream';
 
 export type strList = Array<(string)>;
 

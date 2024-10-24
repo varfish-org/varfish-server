@@ -78,6 +78,68 @@ GENOME_RELEASE_GRCH38: GenomeRelease.ValueType  # 2
 """GRCh38."""
 global___GenomeRelease = GenomeRelease
 
+class _TranscriptType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _TranscriptTypeEnumTypeWrapper(
+    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_TranscriptType.ValueType],
+    builtins.type,
+):  # noqa: F821
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    TRANSCRIPT_TYPE_UNSPECIFIED: _TranscriptType.ValueType  # 0
+    """Unknown transcript type."""
+    TRANSCRIPT_TYPE_CODING: _TranscriptType.ValueType  # 1
+    """Coding transcript."""
+    TRANSCRIPT_TYPE_NON_CODING: _TranscriptType.ValueType  # 2
+    """Non-coding transcript."""
+
+class TranscriptType(_TranscriptType, metaclass=_TranscriptTypeEnumTypeWrapper):
+    """Transcript type."""
+
+TRANSCRIPT_TYPE_UNSPECIFIED: TranscriptType.ValueType  # 0
+"""Unknown transcript type."""
+TRANSCRIPT_TYPE_CODING: TranscriptType.ValueType  # 1
+"""Coding transcript."""
+TRANSCRIPT_TYPE_NON_CODING: TranscriptType.ValueType  # 2
+"""Non-coding transcript."""
+global___TranscriptType = TranscriptType
+
+class _VariantLocation:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _VariantLocationEnumTypeWrapper(
+    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_VariantLocation.ValueType],
+    builtins.type,
+):  # noqa: F821
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    VARIANT_LOCATION_UNSPECIFIED: _VariantLocation.ValueType  # 0
+    """Unspecified location."""
+    VARIANT_LOCATION_UPSTREAM: _VariantLocation.ValueType  # 1
+    """Upstream of gene."""
+    VARIANT_LOCATION_EXON: _VariantLocation.ValueType  # 2
+    """Exonic."""
+    VARIANT_LOCATION_INTRON: _VariantLocation.ValueType  # 3
+    """Intronic."""
+    VARIANT_LOCATION_DOWNSTREAM: _VariantLocation.ValueType  # 4
+    """Downstream of the gene."""
+
+class VariantLocation(_VariantLocation, metaclass=_VariantLocationEnumTypeWrapper):
+    """Location where the variant falls in relation to a transcript."""
+
+VARIANT_LOCATION_UNSPECIFIED: VariantLocation.ValueType  # 0
+"""Unspecified location."""
+VARIANT_LOCATION_UPSTREAM: VariantLocation.ValueType  # 1
+"""Upstream of gene."""
+VARIANT_LOCATION_EXON: VariantLocation.ValueType  # 2
+"""Exonic."""
+VARIANT_LOCATION_INTRON: VariantLocation.ValueType  # 3
+"""Intronic."""
+VARIANT_LOCATION_DOWNSTREAM: VariantLocation.ValueType  # 4
+"""Downstream of the gene."""
+global___VariantLocation = VariantLocation
+
 class _ModeOfInheritance:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
@@ -880,6 +942,11 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     HGVS_T_FIELD_NUMBER: builtins.int
     HGVS_P_FIELD_NUMBER: builtins.int
     CONSEQUENCES_FIELD_NUMBER: builtins.int
+    TX_ACCESSION_FIELD_NUMBER: builtins.int
+    TX_VERSION_FIELD_NUMBER: builtins.int
+    LOCATION_FIELD_NUMBER: builtins.int
+    RANK_ORD_FIELD_NUMBER: builtins.int
+    RANK_TOTAL_FIELD_NUMBER: builtins.int
     hgvs_t: builtins.str
     """HGVS. {c,n} code of variant."""
     hgvs_p: builtins.str
@@ -891,7 +958,16 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
         seqvars.protos.query_pb2.Consequence.ValueType
     ]:
         """Predicted variant consequences."""
-
+    tx_accession: builtins.str
+    """Transcript accession without version."""
+    tx_version: builtins.int
+    """Transcript version."""
+    location: global___VariantLocation.ValueType
+    """Whether exon or intron is hit."""
+    rank_ord: builtins.int
+    """Exon/intron number (1-based)."""
+    rank_total: builtins.int
+    """Exon/intron total count."""
     def __init__(
         self,
         *,
@@ -900,11 +976,39 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
         consequences: (
             collections.abc.Iterable[seqvars.protos.query_pb2.Consequence.ValueType] | None
         ) = ...,
+        tx_accession: builtins.str | None = ...,
+        tx_version: builtins.int | None = ...,
+        location: global___VariantLocation.ValueType = ...,
+        rank_ord: builtins.int | None = ...,
+        rank_total: builtins.int | None = ...,
     ) -> None: ...
     def HasField(
         self,
         field_name: typing_extensions.Literal[
-            "_hgvs_p", b"_hgvs_p", "_hgvs_t", b"_hgvs_t", "hgvs_p", b"hgvs_p", "hgvs_t", b"hgvs_t"
+            "_hgvs_p",
+            b"_hgvs_p",
+            "_hgvs_t",
+            b"_hgvs_t",
+            "_rank_ord",
+            b"_rank_ord",
+            "_rank_total",
+            b"_rank_total",
+            "_tx_accession",
+            b"_tx_accession",
+            "_tx_version",
+            b"_tx_version",
+            "hgvs_p",
+            b"hgvs_p",
+            "hgvs_t",
+            b"hgvs_t",
+            "rank_ord",
+            b"rank_ord",
+            "rank_total",
+            b"rank_total",
+            "tx_accession",
+            b"tx_accession",
+            "tx_version",
+            b"tx_version",
         ],
     ) -> builtins.bool: ...
     def ClearField(
@@ -914,12 +1018,30 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
             b"_hgvs_p",
             "_hgvs_t",
             b"_hgvs_t",
+            "_rank_ord",
+            b"_rank_ord",
+            "_rank_total",
+            b"_rank_total",
+            "_tx_accession",
+            b"_tx_accession",
+            "_tx_version",
+            b"_tx_version",
             "consequences",
             b"consequences",
             "hgvs_p",
             b"hgvs_p",
             "hgvs_t",
             b"hgvs_t",
+            "location",
+            b"location",
+            "rank_ord",
+            b"rank_ord",
+            "rank_total",
+            b"rank_total",
+            "tx_accession",
+            b"tx_accession",
+            "tx_version",
+            b"tx_version",
         ],
     ) -> None: ...
     @typing.overload
@@ -930,6 +1052,22 @@ class GeneRelatedConsequences(google.protobuf.message.Message):
     def WhichOneof(
         self, oneof_group: typing_extensions.Literal["_hgvs_t", b"_hgvs_t"]
     ) -> typing_extensions.Literal["hgvs_t"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_rank_ord", b"_rank_ord"]
+    ) -> typing_extensions.Literal["rank_ord"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_rank_total", b"_rank_total"]
+    ) -> typing_extensions.Literal["rank_total"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_tx_accession", b"_tx_accession"]
+    ) -> typing_extensions.Literal["tx_accession"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_tx_version", b"_tx_version"]
+    ) -> typing_extensions.Literal["tx_version"] | None: ...
 
 global___GeneRelatedConsequences = GeneRelatedConsequences
 

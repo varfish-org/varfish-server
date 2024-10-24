@@ -156,6 +156,30 @@ message GeneIdentity {
   string gene_symbol = 2;
 }
 
+// Transcript type.
+enum TranscriptType {
+  // Unknown transcript type.
+  TRANSCRIPT_TYPE_UNSPECIFIED = 0;
+  // Coding transcript.
+  TRANSCRIPT_TYPE_CODING = 1;
+  // Non-coding transcript.
+  TRANSCRIPT_TYPE_NON_CODING = 2;
+}
+
+// Location where the variant falls in relation to a transcript.
+enum VariantLocation {
+  // Unspecified location.
+  VARIANT_LOCATION_UNSPECIFIED = 0;
+  // Upstream of gene.
+  VARIANT_LOCATION_UPSTREAM = 1;
+  // Exonic.
+  VARIANT_LOCATION_EXON = 2;
+  // Intronic.
+  VARIANT_LOCATION_INTRON = 3;
+  // Downstream of the gene.
+  VARIANT_LOCATION_DOWNSTREAM = 4;
+}
+
 /// Gene-related consequences of a variant.
 message GeneRelatedConsequences {
   // HGVS. {c,n} code of variant.
@@ -164,6 +188,16 @@ message GeneRelatedConsequences {
   optional string hgvs_p = 2;
   // Predicted variant consequences.
   repeated seqvars.pbs.query.Consequence consequences = 3;
+  // Transcript accession without version.
+  optional string tx_accession = 4;
+  // Transcript version.
+  optional int32 tx_version = 5;
+  // Whether exon or intron is hit.
+  VariantLocation location = 6;
+  // Exon/intron number (1-based).
+  optional int32 rank_ord = 7;
+  // Exon/intron total count.
+  optional int32 rank_total = 8;
 }
 
 // Enumerations with modes of inheritance from HPO.
