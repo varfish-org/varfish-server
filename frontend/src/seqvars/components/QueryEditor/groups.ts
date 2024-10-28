@@ -106,7 +106,7 @@ export const GROUPS = [
     getCompareFields: (v) => [
       v.gnomad_exomes,
       v.gnomad_genomes,
-      v.gnomad_mitochondrial,
+      v.gnomad_mtdna,
       v.helixmtdb,
       v.inhouse,
     ],

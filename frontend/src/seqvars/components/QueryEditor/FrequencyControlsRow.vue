@@ -31,9 +31,9 @@ const props = defineProps<{
 }>()
 
 /** Values of mitochondrial counts. */
-const MITOCHONDRIAL_ATTRS = ['homoplasmic', 'heteroplasmic'] as const
+const MITOCHONDRIAL_ATTRS = ['max_hom', 'max_het'] as const
 /** Values of nuclear counts. */
-const NUCLEAR_ATTRS = ['homozygous', 'heterozygous', 'hemizygous'] as const
+const NUCLEAR_ATTRS = ['max_hom', 'max_het', 'max_hemi'] as const
 
 /**
  * Mutation for updating a seqvar query.
@@ -104,10 +104,10 @@ const applyMutation = async (
   <Input
     :model-value="
       // frequency editor in percent, stored as fractions
-      modelValue.settings.frequency[db]!.frequency === null ||
-      modelValue.settings.frequency[db]!.frequency === undefined
+      modelValue.settings.frequency[db]!.max_af === null ||
+      modelValue.settings.frequency[db]!.max_af === undefined
         ? null
-        : modelValue.settings.frequency[db]!.frequency! * 100.0
+        : modelValue.settings.frequency[db]!.max_af! * 100.0
     "
     type="number"
     aria-label="frequency"
@@ -118,7 +118,7 @@ const applyMutation = async (
       async (value) => {
         applyMutation({
           ...modelValue.settings.frequency[db],
-          frequency: value === null ? null : Number(value) / 100.0,
+          max_af: value === null ? null : Number(value) / 100.0,
         })
       }
     "
@@ -126,7 +126,7 @@ const applyMutation = async (
     <template #after> % </template>
   </Input>
 
-  <template v-if="db === 'gnomad_mitochondrial' || db === 'helixmtdb'">
+  <template v-if="db === 'gnomad_mtdna' || db === 'helixmtdb'">
     <template v-for="attr in MITOCHONDRIAL_ATTRS" :key="attr">
       <Input
         :model-value="modelValue.settings.frequency[db]![attr]"

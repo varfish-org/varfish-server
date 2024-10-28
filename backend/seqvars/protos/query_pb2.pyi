@@ -681,248 +681,264 @@ class QuerySettingsQuality(google.protobuf.message.Message):
 global___QuerySettingsQuality = QuerySettingsQuality
 
 class NuclearFrequencySettings(google.protobuf.message.Message):
-    """gnomAD and In-house nuclear filter options."""
+    """gnomAD filter options."""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ENABLED_FIELD_NUMBER: builtins.int
-    HETEROZYGOUS_FIELD_NUMBER: builtins.int
-    HOMOZYGOUS_FIELD_NUMBER: builtins.int
-    HEMIZYGOUS_FIELD_NUMBER: builtins.int
-    FREQUENCY_FIELD_NUMBER: builtins.int
+    MAX_HET_FIELD_NUMBER: builtins.int
+    MAX_HOM_FIELD_NUMBER: builtins.int
+    MAX_HEMI_FIELD_NUMBER: builtins.int
+    MAX_AF_FIELD_NUMBER: builtins.int
     enabled: builtins.bool
-    """Whether to enable filtration by 1000 Genomes."""
-    heterozygous: builtins.int
-    """Maximal number of in-house heterozygous carriers"""
-    homozygous: builtins.int
-    """Maximal number of in-house homozygous carriers"""
-    hemizygous: builtins.int
-    """Maximal number of in-house hemizygous carriers"""
-    frequency: builtins.float
+    """Whether to enable filtration."""
+    max_het: builtins.int
+    """Maximal number of heterozygous carriers"""
+    max_hom: builtins.int
+    """Maximal number of homozygous carriers"""
+    max_hemi: builtins.int
+    """Maximal number of hemizygous carriers"""
+    max_af: builtins.float
     """Maximal allele frequency."""
     def __init__(
         self,
         *,
         enabled: builtins.bool = ...,
-        heterozygous: builtins.int | None = ...,
-        homozygous: builtins.int | None = ...,
-        hemizygous: builtins.int | None = ...,
-        frequency: builtins.float | None = ...,
+        max_het: builtins.int | None = ...,
+        max_hom: builtins.int | None = ...,
+        max_hemi: builtins.int | None = ...,
+        max_af: builtins.float | None = ...,
     ) -> None: ...
     def HasField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_hemizygous",
-            b"_hemizygous",
-            "_heterozygous",
-            b"_heterozygous",
-            "_homozygous",
-            b"_homozygous",
-            "frequency",
-            b"frequency",
-            "hemizygous",
-            b"hemizygous",
-            "heterozygous",
-            b"heterozygous",
-            "homozygous",
-            b"homozygous",
+            "_max_af",
+            b"_max_af",
+            "_max_hemi",
+            b"_max_hemi",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
+            "max_af",
+            b"max_af",
+            "max_hemi",
+            b"max_hemi",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> builtins.bool: ...
     def ClearField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_hemizygous",
-            b"_hemizygous",
-            "_heterozygous",
-            b"_heterozygous",
-            "_homozygous",
-            b"_homozygous",
+            "_max_af",
+            b"_max_af",
+            "_max_hemi",
+            b"_max_hemi",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
             "enabled",
             b"enabled",
-            "frequency",
-            b"frequency",
-            "hemizygous",
-            b"hemizygous",
-            "heterozygous",
-            b"heterozygous",
-            "homozygous",
-            b"homozygous",
+            "max_af",
+            b"max_af",
+            "max_hemi",
+            b"max_hemi",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_frequency", b"_frequency"]
-    ) -> typing_extensions.Literal["frequency"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_af", b"_max_af"]
+    ) -> typing_extensions.Literal["max_af"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_hemizygous", b"_hemizygous"]
-    ) -> typing_extensions.Literal["hemizygous"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_hemi", b"_max_hemi"]
+    ) -> typing_extensions.Literal["max_hemi"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_heterozygous", b"_heterozygous"]
-    ) -> typing_extensions.Literal["heterozygous"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
+    ) -> typing_extensions.Literal["max_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_homozygous", b"_homozygous"]
-    ) -> typing_extensions.Literal["homozygous"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
+    ) -> typing_extensions.Literal["max_hom"] | None: ...
 
 global___NuclearFrequencySettings = NuclearFrequencySettings
 
-class GnomadMitochondrialFrequencySettings(google.protobuf.message.Message):
-    """gnomAD mitochondrial filter options."""
+class MitochondrialFrequencySettings(google.protobuf.message.Message):
+    """Mitochondrial filter options."""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ENABLED_FIELD_NUMBER: builtins.int
-    HETEROPLASMIC_FIELD_NUMBER: builtins.int
-    HOMOPLASMIC_FIELD_NUMBER: builtins.int
-    FREQUENCY_FIELD_NUMBER: builtins.int
+    MAX_HET_FIELD_NUMBER: builtins.int
+    MAX_HOM_FIELD_NUMBER: builtins.int
+    MAX_AF_FIELD_NUMBER: builtins.int
     enabled: builtins.bool
-    """Whether to enable filtration by 1000 Genomes."""
-    heteroplasmic: builtins.int
+    """Whether to enable filtration."""
+    max_het: builtins.int
     """Maximal number of heteroplasmic carriers."""
-    homoplasmic: builtins.int
+    max_hom: builtins.int
     """Maximal number of homoplasmic carriers."""
-    frequency: builtins.float
+    max_af: builtins.float
     """Maximal allele frequency."""
     def __init__(
         self,
         *,
         enabled: builtins.bool = ...,
-        heteroplasmic: builtins.int | None = ...,
-        homoplasmic: builtins.int | None = ...,
-        frequency: builtins.float | None = ...,
+        max_het: builtins.int | None = ...,
+        max_hom: builtins.int | None = ...,
+        max_af: builtins.float | None = ...,
     ) -> None: ...
     def HasField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_heteroplasmic",
-            b"_heteroplasmic",
-            "_homoplasmic",
-            b"_homoplasmic",
-            "frequency",
-            b"frequency",
-            "heteroplasmic",
-            b"heteroplasmic",
-            "homoplasmic",
-            b"homoplasmic",
+            "_max_af",
+            b"_max_af",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
+            "max_af",
+            b"max_af",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> builtins.bool: ...
     def ClearField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_heteroplasmic",
-            b"_heteroplasmic",
-            "_homoplasmic",
-            b"_homoplasmic",
+            "_max_af",
+            b"_max_af",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
             "enabled",
             b"enabled",
-            "frequency",
-            b"frequency",
-            "heteroplasmic",
-            b"heteroplasmic",
-            "homoplasmic",
-            b"homoplasmic",
+            "max_af",
+            b"max_af",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_frequency", b"_frequency"]
-    ) -> typing_extensions.Literal["frequency"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_af", b"_max_af"]
+    ) -> typing_extensions.Literal["max_af"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_heteroplasmic", b"_heteroplasmic"]
-    ) -> typing_extensions.Literal["heteroplasmic"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
+    ) -> typing_extensions.Literal["max_het"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_homoplasmic", b"_homoplasmic"]
-    ) -> typing_extensions.Literal["homoplasmic"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
+    ) -> typing_extensions.Literal["max_hom"] | None: ...
 
-global___GnomadMitochondrialFrequencySettings = GnomadMitochondrialFrequencySettings
+global___MitochondrialFrequencySettings = MitochondrialFrequencySettings
 
-class HelixMtDbFrequencySettings(google.protobuf.message.Message):
-    """HelixMtDb filter options."""
+class InhouseFrequencySettings(google.protobuf.message.Message):
+    """In-house filter options."""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     ENABLED_FIELD_NUMBER: builtins.int
-    HETEROPLASMIC_FIELD_NUMBER: builtins.int
-    HOMOPLASMIC_FIELD_NUMBER: builtins.int
-    FREQUENCY_FIELD_NUMBER: builtins.int
+    MAX_HET_FIELD_NUMBER: builtins.int
+    MAX_HOM_FIELD_NUMBER: builtins.int
+    MAX_HEMI_FIELD_NUMBER: builtins.int
+    MAX_CARRIERS_FIELD_NUMBER: builtins.int
     enabled: builtins.bool
-    """Whether to enable filtration by mtDB"""
-    heteroplasmic: builtins.int
-    """Maximal number of heterozygous carriers in HelixMtDb"""
-    homoplasmic: builtins.int
-    """Maximal number of homozygous carriers in HelixMtDb"""
-    frequency: builtins.float
-    """Maximal frequency in HelixMtDb"""
+    """Whether to enable filtration."""
+    max_het: builtins.int
+    """Maximal number of heterozygous carriers"""
+    max_hom: builtins.int
+    """Maximal number of homozygous carriers"""
+    max_hemi: builtins.int
+    """Maximal number of hemizygous carriers"""
+    max_carriers: builtins.int
+    """Maximal number of total carriers."""
     def __init__(
         self,
         *,
         enabled: builtins.bool = ...,
-        heteroplasmic: builtins.int | None = ...,
-        homoplasmic: builtins.int | None = ...,
-        frequency: builtins.float | None = ...,
+        max_het: builtins.int | None = ...,
+        max_hom: builtins.int | None = ...,
+        max_hemi: builtins.int | None = ...,
+        max_carriers: builtins.int | None = ...,
     ) -> None: ...
     def HasField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_heteroplasmic",
-            b"_heteroplasmic",
-            "_homoplasmic",
-            b"_homoplasmic",
-            "frequency",
-            b"frequency",
-            "heteroplasmic",
-            b"heteroplasmic",
-            "homoplasmic",
-            b"homoplasmic",
+            "_max_carriers",
+            b"_max_carriers",
+            "_max_hemi",
+            b"_max_hemi",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
+            "max_carriers",
+            b"max_carriers",
+            "max_hemi",
+            b"max_hemi",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> builtins.bool: ...
     def ClearField(
         self,
         field_name: typing_extensions.Literal[
-            "_frequency",
-            b"_frequency",
-            "_heteroplasmic",
-            b"_heteroplasmic",
-            "_homoplasmic",
-            b"_homoplasmic",
+            "_max_carriers",
+            b"_max_carriers",
+            "_max_hemi",
+            b"_max_hemi",
+            "_max_het",
+            b"_max_het",
+            "_max_hom",
+            b"_max_hom",
             "enabled",
             b"enabled",
-            "frequency",
-            b"frequency",
-            "heteroplasmic",
-            b"heteroplasmic",
-            "homoplasmic",
-            b"homoplasmic",
+            "max_carriers",
+            b"max_carriers",
+            "max_hemi",
+            b"max_hemi",
+            "max_het",
+            b"max_het",
+            "max_hom",
+            b"max_hom",
         ],
     ) -> None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_frequency", b"_frequency"]
-    ) -> typing_extensions.Literal["frequency"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_carriers", b"_max_carriers"]
+    ) -> typing_extensions.Literal["max_carriers"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_heteroplasmic", b"_heteroplasmic"]
-    ) -> typing_extensions.Literal["heteroplasmic"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_hemi", b"_max_hemi"]
+    ) -> typing_extensions.Literal["max_hemi"] | None: ...
     @typing.overload
     def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["_homoplasmic", b"_homoplasmic"]
-    ) -> typing_extensions.Literal["homoplasmic"] | None: ...
+        self, oneof_group: typing_extensions.Literal["_max_het", b"_max_het"]
+    ) -> typing_extensions.Literal["max_het"] | None: ...
+    @typing.overload
+    def WhichOneof(
+        self, oneof_group: typing_extensions.Literal["_max_hom", b"_max_hom"]
+    ) -> typing_extensions.Literal["max_hom"] | None: ...
 
-global___HelixMtDbFrequencySettings = HelixMtDbFrequencySettings
+global___InhouseFrequencySettings = InhouseFrequencySettings
 
 class QuerySettingsFrequency(google.protobuf.message.Message):
     """Population frequency filter options."""
@@ -943,15 +959,15 @@ class QuerySettingsFrequency(google.protobuf.message.Message):
         """gnomAD-genomes filter"""
 
     @property
-    def gnomad_mtdna(self) -> global___GnomadMitochondrialFrequencySettings:
+    def gnomad_mtdna(self) -> global___MitochondrialFrequencySettings:
         """gnomAD-MT filter"""
 
     @property
-    def helixmtdb(self) -> global___HelixMtDbFrequencySettings:
+    def helixmtdb(self) -> global___MitochondrialFrequencySettings:
         """HelixMtDb filter"""
 
     @property
-    def inhouse(self) -> global___NuclearFrequencySettings:
+    def inhouse(self) -> global___InhouseFrequencySettings:
         """In-house filter"""
 
     def __init__(
@@ -959,9 +975,9 @@ class QuerySettingsFrequency(google.protobuf.message.Message):
         *,
         gnomad_exomes: global___NuclearFrequencySettings | None = ...,
         gnomad_genomes: global___NuclearFrequencySettings | None = ...,
-        gnomad_mtdna: global___GnomadMitochondrialFrequencySettings | None = ...,
-        helixmtdb: global___HelixMtDbFrequencySettings | None = ...,
-        inhouse: global___NuclearFrequencySettings | None = ...,
+        gnomad_mtdna: global___MitochondrialFrequencySettings | None = ...,
+        helixmtdb: global___MitochondrialFrequencySettings | None = ...,
+        inhouse: global___InhouseFrequencySettings | None = ...,
     ) -> None: ...
     def HasField(
         self,
@@ -1071,19 +1087,19 @@ class Range(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     START_FIELD_NUMBER: builtins.int
-    END_FIELD_NUMBER: builtins.int
+    STOP_FIELD_NUMBER: builtins.int
     start: builtins.int
     """1-based start position."""
-    end: builtins.int
+    stop: builtins.int
     """1-based end position."""
     def __init__(
         self,
         *,
         start: builtins.int = ...,
-        end: builtins.int = ...,
+        stop: builtins.int = ...,
     ) -> None: ...
     def ClearField(
-        self, field_name: typing_extensions.Literal["end", b"end", "start", b"start"]
+        self, field_name: typing_extensions.Literal["start", b"start", "stop", b"stop"]
     ) -> None: ...
 
 global___Range = Range

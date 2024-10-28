@@ -28,10 +28,9 @@ from seqvars.models.base import (
     SeqvarsDbIdsPydantic,
     SeqvarsFrequencyAnnotationPydantic,
     SeqvarsGenotypeChoice,
-    SeqvarsGnomadMitochondrialFrequencyPydantic,
-    SeqvarsGnomadMitochondrialFrequencySettingsPydantic,
-    SeqvarsHelixMtDbFrequencyPydantic,
-    SeqvarsHelixMtDbFrequencySettingsPydantic,
+    SeqvarsInhouseFrequencySettingsPydantic,
+    SeqvarsMitochondrialFrequencyPydantic,
+    SeqvarsMitochondrialFrequencySettingsPydantic,
     SeqvarsModeOfInheritance,
     SeqvarsNuclearFrequencyPydantic,
     SeqvarsNuclearFrequencySettingsPydantic,
@@ -84,8 +83,7 @@ from seqvars.protos.output_pb2 import (
     GeneRelatedPhenotypes,
     GenomeRelease,
     GnomadConstraints,
-    GnomadMitochondrialFrequency,
-    HelixMtDbFrequency,
+    MitochondrialFrequency,
     ModeOfInheritance,
     NuclearFrequency,
     OutputHeader,
@@ -109,8 +107,8 @@ from seqvars.protos.query_pb2 import (
     Consequence,
     GenomicRegion,
     GenotypeChoice,
-    GnomadMitochondrialFrequencySettings,
-    HelixMtDbFrequencySettings,
+    InhouseFrequencySettings,
+    MitochondrialFrequencySettings,
     NuclearFrequencySettings,
     QuerySettingsClinVar,
     QuerySettingsConsequence,
@@ -194,36 +192,36 @@ def _frequency_to_protobuf(frequency: SeqvarsQuerySettingsFrequency) -> QuerySet
     return QuerySettingsFrequency(
         gnomad_exomes=NuclearFrequencySettings(
             enabled=frequency.gnomad_exomes.enabled,
-            heterozygous=frequency.gnomad_exomes.heterozygous,
-            homozygous=frequency.gnomad_exomes.homozygous,
-            hemizygous=frequency.gnomad_exomes.hemizygous,
-            frequency=frequency.gnomad_exomes.frequency,
+            max_het=frequency.gnomad_exomes.max_het,
+            max_hom=frequency.gnomad_exomes.max_hom,
+            max_hemi=frequency.gnomad_exomes.max_hemi,
+            max_af=frequency.gnomad_exomes.max_af,
         ),
         gnomad_genomes=NuclearFrequencySettings(
             enabled=frequency.gnomad_genomes.enabled,
-            heterozygous=frequency.gnomad_genomes.heterozygous,
-            homozygous=frequency.gnomad_genomes.homozygous,
-            hemizygous=frequency.gnomad_genomes.hemizygous,
-            frequency=frequency.gnomad_genomes.frequency,
+            max_het=frequency.gnomad_genomes.max_het,
+            max_hom=frequency.gnomad_genomes.max_hom,
+            max_hemi=frequency.gnomad_genomes.max_hemi,
+            max_af=frequency.gnomad_genomes.max_af,
         ),
-        gnomad_mtdna=GnomadMitochondrialFrequencySettings(
-            enabled=frequency.gnomad_mitochondrial.enabled,
-            heteroplasmic=frequency.gnomad_mitochondrial.heteroplasmic,
-            homoplasmic=frequency.gnomad_mitochondrial.homoplasmic,
-            frequency=frequency.gnomad_mitochondrial.frequency,
+        gnomad_mtdna=MitochondrialFrequencySettings(
+            enabled=frequency.gnomad_mtdna.enabled,
+            max_het=frequency.gnomad_mtdna.max_het,
+            max_hom=frequency.gnomad_mtdna.max_hom,
+            max_af=frequency.gnomad_mtdna.max_af,
         ),
-        helixmtdb=HelixMtDbFrequencySettings(
+        helixmtdb=MitochondrialFrequencySettings(
             enabled=frequency.helixmtdb.enabled,
-            heteroplasmic=frequency.helixmtdb.heteroplasmic,
-            homoplasmic=frequency.helixmtdb.homoplasmic,
-            frequency=frequency.helixmtdb.frequency,
+            max_het=frequency.helixmtdb.max_het,
+            max_hom=frequency.helixmtdb.max_hom,
+            max_af=frequency.helixmtdb.max_af,
         ),
-        inhouse=NuclearFrequencySettings(
+        inhouse=InhouseFrequencySettings(
             enabled=frequency.inhouse.enabled,
-            heterozygous=frequency.inhouse.heterozygous,
-            homozygous=frequency.inhouse.homozygous,
-            hemizygous=frequency.inhouse.hemizygous,
-            frequency=frequency.inhouse.frequency,
+            max_het=frequency.inhouse.max_het,
+            max_hom=frequency.inhouse.max_hom,
+            max_hemi=frequency.inhouse.max_hemi,
+            max_carriers=frequency.inhouse.max_carriers,
         ),
     )
 
@@ -453,32 +451,33 @@ def _seqvars_nuclear_frequency_settings_from_protobuf(
 ) -> SeqvarsNuclearFrequencySettingsPydantic:
     return SeqvarsNuclearFrequencySettingsPydantic(
         enabled=frequency.enabled,
-        heterozygous=frequency.heterozygous,
-        homozygous=frequency.homozygous,
-        hemizygous=frequency.hemizygous,
-        frequency=frequency.frequency,
+        max_het=frequency.max_het,
+        max_hom=frequency.max_hom,
+        max_hemi=frequency.max_hemi,
+        max_af=frequency.max_af,
     )
 
 
-def _seqvars_gnomad_mitochondrial_frequency_settings_from_protobuf(
-    frequency: GnomadMitochondrialFrequencySettings,
-) -> SeqvarsGnomadMitochondrialFrequencySettingsPydantic:
-    return SeqvarsGnomadMitochondrialFrequencySettingsPydantic(
+def _seqvars_mitochondrial_frequency_settings_from_protobuf(
+    frequency: SeqvarsMitochondrialFrequencySettingsPydantic,
+) -> SeqvarsMitochondrialFrequencySettingsPydantic:
+    return SeqvarsMitochondrialFrequencySettingsPydantic(
         enabled=frequency.enabled,
-        heteroplasmic=frequency.heteroplasmic,
-        homoplasmic=frequency.homoplasmic,
-        frequency=frequency.frequency,
+        max_het=frequency.max_het,
+        max_hom=frequency.max_hom,
+        frequency=frequency.max_af,
     )
 
 
-def _seqvars_helixmtdb_frequency_settings_from_protobuf(
-    frequency: HelixMtDbFrequencySettings,
-) -> SeqvarsHelixMtDbFrequencySettingsPydantic:
-    return SeqvarsHelixMtDbFrequencySettingsPydantic(
+def _seqvars_inhouse_frequency_settings_from_protobuf(
+    frequency: InhouseFrequencySettings,
+) -> SeqvarsInhouseFrequencySettingsPydantic:
+    return SeqvarsInhouseFrequencySettingsPydantic(
         enabled=frequency.enabled,
-        heteroplasmic=frequency.heteroplasmic,
-        homoplasmic=frequency.homoplasmic,
-        frequency=frequency.frequency,
+        max_het=frequency.max_het,
+        max_hom=frequency.max_hom,
+        max_hemi=frequency.max_hemi,
+        max_carriers=frequency.max_carriers,
     )
 
 
@@ -496,18 +495,18 @@ def _seqvars_query_settings_frequency_from_protobuf(
             if frequency.HasField("gnomad_genomes")
             else None
         ),
-        gnomad_mitochondrial=(
-            _seqvars_gnomad_mitochondrial_frequency_settings_from_protobuf(frequency.gnomad_mtdna)
+        gnomad_mtdna=(
+            _seqvars_mitochondrial_frequency_settings_from_protobuf(frequency.gnomad_mtdna)
             if frequency.HasField("gnomad_mtdna")
             else None
         ),
         helixmtdb=(
-            _seqvars_helixmtdb_frequency_settings_from_protobuf(frequency.helixmtdb)
+            _seqvars_mitochondrial_frequency_settings_from_protobuf(frequency.helixmtdb)
             if frequency.HasField("helixmtdb")
             else None
         ),
         inhouse=(
-            _seqvars_nuclear_frequency_settings_from_protobuf(frequency.inhouse)
+            _seqvars_inhouse_frequency_settings_from_protobuf(frequency.inhouse)
             if frequency.HasField("inhouse")
             else None
         ),
@@ -578,7 +577,7 @@ def _genome_region_from_protobuf(region: GenomicRegion) -> GenomeRegionPydantic:
             if region.range is None
             else OneBasedRangePydantic(
                 start=region.range.start,
-                end=region.range.end,
+                stop=region.range.end,
             )
         ),
     )
@@ -960,21 +959,10 @@ def _seqvars_nuclear_frequency_from_protobuf(
     )
 
 
-def _seqvars_gnomad_mitochondrial_frequency_from_protobuf(
-    frequency: GnomadMitochondrialFrequency,
-) -> SeqvarsGnomadMitochondrialFrequencyPydantic:
-    return SeqvarsGnomadMitochondrialFrequencyPydantic(
-        an=frequency.an,
-        het=frequency.het,
-        homalt=frequency.homalt,
-        af=frequency.af,
-    )
-
-
-def _seqvars_helixmtdb_frequency_from_protobuf(
-    frequency: HelixMtDbFrequency,
-) -> SeqvarsHelixMtDbFrequencyPydantic:
-    return SeqvarsHelixMtDbFrequencyPydantic(
+def _seqvars_mitochondrial_frequency_from_protobuf(
+    frequency: MitochondrialFrequency,
+) -> SeqvarsMitochondrialFrequencyPydantic:
+    return SeqvarsMitochondrialFrequencyPydantic(
         an=frequency.an,
         het=frequency.het,
         homalt=frequency.homalt,
@@ -996,13 +984,13 @@ def _frequency_annotation_from_protobuf(
             if frequency.HasField("gnomad_genomes")
             else None
         ),
-        gnomad_mitochondrial=(
-            _seqvars_gnomad_mitochondrial_frequency_from_protobuf(frequency.gnomad_mtdna)
+        gnomad_mtdna=(
+            _seqvars_mitochondrial_frequency_from_protobuf(frequency.gnomad_mtdna)
             if frequency.HasField("gnomad_mtdna")
             else None
         ),
         helixmtdb=(
-            _seqvars_helixmtdb_frequency_from_protobuf(frequency.helixmtdb)
+            _seqvars_mitochondrial_frequency_from_protobuf(frequency.helixmtdb)
             if frequency.HasField("helixmtdb")
             else None
         ),

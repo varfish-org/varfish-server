@@ -335,9 +335,9 @@ message FrequencyAnnotation {
   // gnomAD-genomes filter
   optional NuclearFrequency gnomad_genomes = 2;
   // gnomAD-MT filter
-  optional GnomadMitochondrialFrequency gnomad_mtdna = 3;
+  optional MitochondrialFrequency gnomad_mtdna = 3;
   // HelixMtDb filter
-  optional HelixMtDbFrequency helixmtdb = 4;
+  optional MitochondrialFrequency helixmtdb = 4;
   // In-house filter
   optional NuclearFrequency inhouse = 5;
 }
@@ -356,8 +356,8 @@ message NuclearFrequency {
   float af = 5;
 }
 
-// gnomAD mitochondrial frequency information.
-message GnomadMitochondrialFrequency {
+// Mitochondrial frequency information.
+message MitochondrialFrequency {
   // Number of covered alleles.
   int32 an = 1;
   // Number of heteroplasmic carriers.
@@ -365,18 +365,6 @@ message GnomadMitochondrialFrequency {
   // Number of homoplasmic carriers.
   int32 homalt = 3;
   // Allele frequency.
-  float af = 4;
-}
-
-// HelixMtDb frequency information.
-message HelixMtDbFrequency {
-  // Number of covered alleles.
-  int32 an = 1;
-  // Number of heterozygous carriers in HelixMtDb
-  int32 het = 2;
-  // Number of homozygous carriers in HelixMtDb
-  int32 homalt = 3;
-  // Frequency in HelixMtDb
   float af = 4;
 }
 

@@ -180,7 +180,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadNuclearFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -195,7 +195,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadNuclearFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -210,7 +210,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadMitochondrialFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsMitochondrialFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -225,7 +225,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.HelixmtDbFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsMitochondrialFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -239,7 +239,8 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.base.InhouseFrequencySettingsPydantic, type(None))
+                    typing.Union,
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -254,7 +255,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadNuclearFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -269,7 +270,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadNuclearFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -284,7 +285,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.GnomadMitochondrialFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsMitochondrialFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -299,7 +300,7 @@ class Migration(migrations.Migration):
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
                     typing.Union,
-                    (seqvars.models.base.HelixmtDbFrequencySettingsPydantic, type(None)),
+                    (seqvars.models.base.SeqvarsMitochondrialFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
@@ -313,7 +314,8 @@ class Migration(migrations.Migration):
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
                 null=True,
                 schema=django_pydantic_field.compat.django.GenericContainer(
-                    typing.Union, (seqvars.models.base.InhouseFrequencySettingsPydantic, type(None))
+                    typing.Union,
+                    (seqvars.models.base.SeqvarsNuclearFrequencySettingsPydantic, type(None)),
                 ),
             ),
         ),
