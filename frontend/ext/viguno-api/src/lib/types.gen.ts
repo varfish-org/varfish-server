@@ -85,6 +85,18 @@ export type Result = {
 };
 
 /**
+ * Container for the result.
+ */
+export type Result_ = {
+    version: Version;
+    query: Query;
+    /**
+     * The resulting records for the scored genes.
+     */
+    result: Array<ResultEntry>;
+};
+
+/**
  * Result entry for `handle`.
  */
 export type ResultEntry = {
@@ -132,18 +144,6 @@ export type ResultHpoTerm = {
      * The term name.
      */
     name: string;
-};
-
-/**
- * Container for the result.
- */
-export type Result_ = {
-    version: Version;
-    query: Query;
-    /**
-     * The resulting records for the scored genes.
-     */
-    result: Array<ResultEntry>;
 };
 
 /**

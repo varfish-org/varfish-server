@@ -16,7 +16,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.2.4",
+    "@hey-api/client-fetch": "^0.4.2",
     "@mdi/font": "^7.4.47",
     "@protobuf-ts/runtime": "^2.9.4",
     "@reactgular/chunks": "^1.0.1",
@@ -64,7 +64,7 @@
     "@babel/core": "^7.26.0",
     "@babel/eslint-parser": "^7.24.8",
     "@babel/preset-env": "^7.25.8",
-    "@hey-api/openapi-ts": "^0.52.11",
+    "@hey-api/openapi-ts": "^0.54.0",
     "@iconify-json/bi": "^1.1.23",
     "@iconify-json/carbon": "^1.2.3",
     "@iconify-json/cil": "^1.2.0",
