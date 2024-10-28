@@ -1346,7 +1346,7 @@ export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
-    max_af?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     rank?: number;
     label?: string;
@@ -2011,6 +2011,17 @@ export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 
 export type SeqvarsGenotypePresetChoice = 'any' | 'de_novo' | 'dominant' | 'homozygous_recessive' | 'compound_heterozygous_recessive' | 'recessive' | 'x_recessive' | 'affected_carriers';
 
 /**
+ * Settings for mitochondrial frequency filtering.
+ */
+export type SeqvarsInhouseFrequencySettingsPydantic = {
+    enabled?: boolean;
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
+};
+
+/**
  * Store mitochondrial frequency information.
  */
 export type SeqvarsMitochondrialFrequencyPydantic = {
@@ -2351,7 +2362,7 @@ export type SeqvarsQueryPresetsFrequency = {
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
-    max_af?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2399,7 +2410,7 @@ export type SeqvarsQueryPresetsFrequencyRequest = {
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
-    max_af?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     rank?: number;
     label: string;
@@ -2871,7 +2882,7 @@ export type SeqvarsQuerySettingsFrequency = {
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
-    max_af?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2887,7 +2898,7 @@ export type SeqvarsQuerySettingsFrequencyPydantic = {
     gnomad_genomes?: (SeqvarsNuclearFrequencySettingsPydantic | null);
     gnomad_mtdna?: (SeqvarsMitochondrialFrequencySettingsPydantic | null);
     helixmtdb?: (SeqvarsMitochondrialFrequencySettingsPydantic | null);
-    inhouse?: (SeqvarsNuclearFrequencySettingsPydantic | null);
+    inhouse?: (SeqvarsInhouseFrequencySettingsPydantic | null);
 };
 
 /**
@@ -2925,7 +2936,7 @@ export type SeqvarsQuerySettingsFrequencyRequest = {
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
-    max_af?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
 };
 

@@ -102,6 +102,7 @@ const applyMutation = async (
   </label>
 
   <Input
+    v-if="db !== 'inhouse'"
     :model-value="
       // frequency editor in percent, stored as fractions
       modelValue.settings.frequency[db]!.max_af === null ||
@@ -124,6 +125,23 @@ const applyMutation = async (
     "
   >
     <template #after> % </template>
+  </Input>
+  <Input
+    v-else
+    :model-value="modelValue.settings.frequency[db]!.max_carriers"
+    type="number"
+    aria-label="carriers"
+    style="grid-column: 2; margin-right: 8px; width: 56px"
+    :step="1"
+    @update:model-value="
+      async (value) => {
+        applyMutation({
+          ...modelValue.settings.frequency[db],
+          max_carriers: value === null ? null : Number(value),
+        })
+      }
+    "
+  >
   </Input>
 
   <template v-if="db === 'gnomad_mtdna' || db === 'helixmtdb'">

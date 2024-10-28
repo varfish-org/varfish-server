@@ -4093,10 +4093,7 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
         inhouse: {
             oneOf: [
                 {
-                    description: `Settings for nuclear frequency filtering.
-
-This can also be used for in-house filters where max_het/max_hom then refer
-to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
@@ -4139,20 +4136,20 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                             default: null,
                             title: 'Max Hemi'
                         },
-                        max_af: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Max Af'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -6084,6 +6081,67 @@ export const $SeqvarsGenotypePresetChoice = {
     type: 'string'
 } as const;
 
+export const $SeqvarsInhouseFrequencySettingsPydantic = {
+    description: 'Settings for mitochondrial frequency filtering.',
+    properties: {
+        enabled: {
+            default: false,
+            title: 'Enabled',
+            type: 'boolean'
+        },
+        max_het: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Het'
+        },
+        max_hom: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Hom'
+        },
+        max_hemi: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Hemi'
+        },
+        max_carriers: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Carriers'
+        }
+    },
+    title: 'SeqvarsInhouseFrequencySettingsPydantic',
+    type: 'object'
+} as const;
+
 export const $SeqvarsMitochondrialFrequencyPydantic = {
     description: 'Store mitochondrial frequency information.',
     properties: {
@@ -7301,10 +7359,7 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
         inhouse: {
             oneOf: [
                 {
-                    description: `Settings for nuclear frequency filtering.
-
-This can also be used for in-house filters where max_het/max_hom then refer
-to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
@@ -7347,20 +7402,20 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                             default: null,
                             title: 'Max Hemi'
                         },
-                        max_af: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Max Af'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7668,10 +7723,7 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
         inhouse: {
             oneOf: [
                 {
-                    description: `Settings for nuclear frequency filtering.
-
-This can also be used for in-house filters where max_het/max_hom then refer
-to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
@@ -7714,20 +7766,20 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                             default: null,
                             title: 'Max Hemi'
                         },
-                        max_af: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Max Af'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9366,10 +9418,7 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
         inhouse: {
             oneOf: [
                 {
-                    description: `Settings for nuclear frequency filtering.
-
-This can also be used for in-house filters where max_het/max_hom then refer
-to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
@@ -9412,20 +9461,20 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                             default: null,
                             title: 'Max Hemi'
                         },
-                        max_af: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Max Af'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9508,7 +9557,7 @@ export const $SeqvarsQuerySettingsFrequencyPydantic = {
         inhouse: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                    '$ref': '#/components/schemas/SeqvarsInhouseFrequencySettingsPydantic'
                 },
                 {
                     type: 'null'
@@ -9782,10 +9831,7 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
         inhouse: {
             oneOf: [
                 {
-                    description: `Settings for nuclear frequency filtering.
-
-This can also be used for in-house filters where max_het/max_hom then refer
-to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
@@ -9828,20 +9874,20 @@ to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                             default: null,
                             title: 'Max Hemi'
                         },
-                        max_af: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Max Af'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
