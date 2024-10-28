@@ -2214,6 +2214,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": None,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2255,6 +2256,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2296,6 +2298,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2337,6 +2340,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2378,6 +2382,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2419,6 +2424,7 @@ snapshots["TestQueryPresetsFactoryDefaultsViewSet::test_retrieve 1"] = {
                     "inhouse": {
                         "enabled": False,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },

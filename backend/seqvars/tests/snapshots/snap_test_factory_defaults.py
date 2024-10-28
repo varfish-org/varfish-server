@@ -2182,6 +2182,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": None,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2223,6 +2224,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2264,6 +2266,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2305,6 +2308,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2346,6 +2350,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -2387,6 +2392,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_legacy 
                     "inhouse": {
                         "enabled": False,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -4833,6 +4839,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": None,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -4874,6 +4881,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -4915,6 +4923,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -4956,6 +4965,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -4997,6 +5007,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -5038,6 +5049,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_exome_modern 
                     "inhouse": {
                         "enabled": False,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7484,6 +7496,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": None,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7525,6 +7538,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7566,6 +7580,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7607,6 +7622,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7648,6 +7664,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": True,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
@@ -7689,6 +7706,7 @@ snapshots["CreatePresetsSetTest::test_create_presetsset_short_read_genome 1"] = 
                     "inhouse": {
                         "enabled": False,
                         "max_carriers": 20,
+                        "max_hemi": None,
                         "max_het": None,
                         "max_hom": None,
                     },
