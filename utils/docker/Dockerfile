@@ -39,7 +39,7 @@ RUN npm run build --prefix frontend/
 # Python Base Image
 # ---------------------------------------------------------------------------
 
-FROM python:3.10-bookworm AS python-base
+FROM ubuntu:noble AS python-base
 
 LABEL org.opencontainers.image.authors="Manuel.Holtgrewe@bih-charite.de"
 LABEL org.opencontainers.image.source https://github.com/varfish-org/varfish-server
@@ -57,13 +57,19 @@ ENV SERVE_FRONTEND 1
 WORKDIR /usr/src/app
 
 # Add postgres 12 repository
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+RUN apt-get update && \
+    apt-get install -y wget gnupg2 && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | apt-key add - && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+    echo "deb http://apt.postgresql.org/pub/repos/apt noble-pgdg main" \
     > /etc/apt/sources.list.d/pgdg.list
+# Install software.
 RUN apt-get update && \
     apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev \
-        postgresql-client-12
+        postgresql-client-12 libpq-dev python3.12 python3-pip && \
+    update-alternatives --install /usr/local/bin/python python /usr/bin/python3.12 1
+ENV PATH="/usr/lib/postgresql/12/bin:$PATH"
+
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -83,10 +89,8 @@ RUN apt-get update && \
         make \
         wget \
         xmlsec1 \
-        gnupg2
-
-# Install pip and pipenv
-RUN python -m pip install -U pip pipenv
+        gnupg2 \
+        pipenv
 
 # Copy Pipfile and lock into the Docker image.
 COPY backend/Pipfile backend/Pipfile.lock ./
@@ -96,6 +100,8 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
         --python=/usr/local/bin/python \
         --categories=packages,prod-packages,ldap-packages \
         --deploy
+# Override installed Celery version (necessary until sodar-core v1)
+RUN pipenv run pip install -U celery==5.3.5
 
 
 # ---------------------------------------------------------------------------
@@ -132,14 +138,14 @@ RUN pipenv run make -C docs clean html
 FROM python-base as python-runtime
 
 # Install runtime dependencies
-RUN apt-get install -y libsqlite3-dev
+RUN apt-get install -y librocksdb8.9 libsqlite3-0
 
 # Add the wait script to the image
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /usr/local/bin/wait
 RUN chmod +x /usr/local/bin/wait
 
 # Copy the worker from the dedicated worker build.
-COPY --from=ghcr.io/varfish-org/varfish-server-worker:0.14.0 /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+COPY --from=ghcr.io/varfish-org/varfish-server-worker:0.16.0 /usr/local/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv
