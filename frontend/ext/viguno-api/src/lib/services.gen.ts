@@ -8,27 +8,33 @@ export const client = createClient(createConfig());
 /**
  * Query for genes in the HPO database.
  */
-export const hpoGenes = <ThrowOnError extends boolean = false>(options?: Options<HpoGenesData, ThrowOnError>) => { return (options?.client ?? client).get<HpoGenesResponse, HpoGenesError, ThrowOnError>({
-    ...options,
-    url: '/hpo/genes'
-}); };
+export const hpoGenes = <ThrowOnError extends boolean = false>(options?: Options<HpoGenesData, ThrowOnError>) => {
+    return (options?.client ?? client).get<HpoGenesResponse, HpoGenesError, ThrowOnError>({
+        ...options,
+        url: '/hpo/genes'
+    });
+};
 
 /**
  * Query for OMIM diseases in the HPO database.
  */
-export const hpoOmims = <ThrowOnError extends boolean = false>(options?: Options<HpoOmimsData, ThrowOnError>) => { return (options?.client ?? client).get<HpoOmimsResponse, HpoOmimsError, ThrowOnError>({
-    ...options,
-    url: '/hpo/omims'
-}); };
+export const hpoOmims = <ThrowOnError extends boolean = false>(options?: Options<HpoOmimsData, ThrowOnError>) => {
+    return (options?.client ?? client).get<HpoOmimsResponse, HpoOmimsError, ThrowOnError>({
+        ...options,
+        url: '/hpo/omims'
+    });
+};
 
 /**
  * Query for similarity between a set of terms to each entry in a
  * list of genes.
  */
-export const hpoSimTermGene = <ThrowOnError extends boolean = false>(options: Options<HpoSimTermGeneData, ThrowOnError>) => { return (options?.client ?? client).get<HpoSimTermGeneResponse, HpoSimTermGeneError, ThrowOnError>({
-    ...options,
-    url: '/hpo/sim/term-gene'
-}); };
+export const hpoSimTermGene = <ThrowOnError extends boolean = false>(options: Options<HpoSimTermGeneData, ThrowOnError>) => {
+    return (options?.client ?? client).get<HpoSimTermGeneResponse, HpoSimTermGeneError, ThrowOnError>({
+        ...options,
+        url: '/hpo/sim/term-gene'
+    });
+};
 
 /**
  * Query for pairwise term similarity.
@@ -38,10 +44,12 @@ export const hpoSimTermGene = <ThrowOnError extends boolean = false>(options: Op
  *
  * In the case that there is an error running the server.
  */
-export const hpoSimTermTerm = <ThrowOnError extends boolean = false>(options: Options<HpoSimTermTermData, ThrowOnError>) => { return (options?.client ?? client).get<HpoSimTermTermResponse, HpoSimTermTermError, ThrowOnError>({
-    ...options,
-    url: '/hpo/sim/term-term'
-}); };
+export const hpoSimTermTerm = <ThrowOnError extends boolean = false>(options: Options<HpoSimTermTermData, ThrowOnError>) => {
+    return (options?.client ?? client).get<HpoSimTermTermResponse, HpoSimTermTermError, ThrowOnError>({
+        ...options,
+        url: '/hpo/sim/term-term'
+    });
+};
 
 /**
  * Query for terms in the HPO database.
@@ -49,7 +57,9 @@ export const hpoSimTermTerm = <ThrowOnError extends boolean = false>(options: Op
  *
  * In the case that there is an error running the server.
  */
-export const hpoTerms = <ThrowOnError extends boolean = false>(options?: Options<HpoTermsData, ThrowOnError>) => { return (options?.client ?? client).get<HpoTermsResponse, HpoTermsError, ThrowOnError>({
-    ...options,
-    url: '/hpo/terms'
-}); };
+export const hpoTerms = <ThrowOnError extends boolean = false>(options?: Options<HpoTermsData, ThrowOnError>) => {
+    return (options?.client ?? client).get<HpoTermsResponse, HpoTermsError, ThrowOnError>({
+        ...options,
+        url: '/hpo/terms'
+    });
+};

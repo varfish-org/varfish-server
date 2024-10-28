@@ -13,7 +13,7 @@ type QueryKey<TOptions extends Options> = [
 ];
 
 const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean): QueryKey<TOptions>[0] => {
-    const params: QueryKey<TOptions>[0] = { _id: id, baseUrl: client.getConfig().baseUrl } as QueryKey<TOptions>[0];
+    const params: QueryKey<TOptions>[0] = { _id: id, baseUrl: (options?.client ?? client).getConfig().baseUrl } as QueryKey<TOptions>[0];
     if (infinite) {
         params._infinite = infinite;
     }
@@ -33,3251 +33,3669 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
 };
 
 export const casesAnalysisApiCaseanalysisListQueryKey = (options: Options<CasesAnalysisApiCaseanalysisListData>) => [
-    createQueryKey("casesAnalysisApiCaseanalysisList", options)
+    createQueryKey('casesAnalysisApiCaseanalysisList', options)
 ];
 
-export const casesAnalysisApiCaseanalysisListOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesAnalysisApiCaseanalysisList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysisListQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysisListOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesAnalysisApiCaseanalysisList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysisListQueryKey(options)
+    });
+};
+
+const createInfiniteParams = <K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>>(queryKey: QueryKey<Options>, page: K) => {
+    const params = queryKey[0];
+    if (page.body) {
+        params.body = {
+            ...queryKey[0].body as any,
+            ...page.body as any
+        };
+    }
+    if (page.headers) {
+        params.headers = {
+            ...queryKey[0].headers,
+            ...page.headers
+        };
+    }
+    if (page.path) {
+        params.path = {
+            ...queryKey[0].path,
+            ...page.path
+        };
+    }
+    if (page.query) {
+        params.query = {
+            ...queryKey[0].query,
+            ...page.query
+        };
+    }
+    return params as unknown as typeof page;
+};
 
 export const casesAnalysisApiCaseanalysisListInfiniteQueryKey = (options: Options<CasesAnalysisApiCaseanalysisListData>): QueryKey<Options<CasesAnalysisApiCaseanalysisListData>> => [
-    createQueryKey("casesAnalysisApiCaseanalysisList", options, true)
+    createQueryKey('casesAnalysisApiCaseanalysisList', options, true)
 ];
 
-export const casesAnalysisApiCaseanalysisListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => { return infiniteQueryOptions<CasesAnalysisApiCaseanalysisListResponse, CasesAnalysisApiCaseanalysisListError, InfiniteData<CasesAnalysisApiCaseanalysisListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                cursor: pageParam
-            }
-        };
-        const { data } = await casesAnalysisApiCaseanalysisList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysisListInfiniteQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysisListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysisListData>) => {
+    return infiniteQueryOptions<CasesAnalysisApiCaseanalysisListResponse, CasesAnalysisApiCaseanalysisListError, InfiniteData<CasesAnalysisApiCaseanalysisListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<CasesAnalysisApiCaseanalysisListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    cursor: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await casesAnalysisApiCaseanalysisList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysisListInfiniteQueryKey(options)
+    });
+};
 
 export const casesAnalysisApiCaseanalysisRetrieveQueryKey = (options: Options<CasesAnalysisApiCaseanalysisRetrieveData>) => [
-    createQueryKey("casesAnalysisApiCaseanalysisRetrieve", options)
+    createQueryKey('casesAnalysisApiCaseanalysisRetrieve', options)
 ];
 
-export const casesAnalysisApiCaseanalysisRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysisRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesAnalysisApiCaseanalysisRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysisRetrieveQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysisRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysisRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesAnalysisApiCaseanalysisRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysisRetrieveQueryKey(options)
+    });
+};
 
 export const casesAnalysisApiCaseanalysissessionListQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => [
-    createQueryKey("casesAnalysisApiCaseanalysissessionList", options)
+    createQueryKey('casesAnalysisApiCaseanalysissessionList', options)
 ];
 
-export const casesAnalysisApiCaseanalysissessionListOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesAnalysisApiCaseanalysissessionList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysissessionListQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysissessionListOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesAnalysisApiCaseanalysissessionList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysissessionListQueryKey(options)
+    });
+};
 
 export const casesAnalysisApiCaseanalysissessionListInfiniteQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionListData>): QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>> => [
-    createQueryKey("casesAnalysisApiCaseanalysissessionList", options, true)
+    createQueryKey('casesAnalysisApiCaseanalysissessionList', options, true)
 ];
 
-export const casesAnalysisApiCaseanalysissessionListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => { return infiniteQueryOptions<CasesAnalysisApiCaseanalysissessionListResponse, CasesAnalysisApiCaseanalysissessionListError, InfiniteData<CasesAnalysisApiCaseanalysissessionListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                cursor: pageParam
-            }
-        };
-        const { data } = await casesAnalysisApiCaseanalysissessionList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysissessionListInfiniteQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysissessionListInfiniteOptions = (options: Options<CasesAnalysisApiCaseanalysissessionListData>) => {
+    return infiniteQueryOptions<CasesAnalysisApiCaseanalysissessionListResponse, CasesAnalysisApiCaseanalysissessionListError, InfiniteData<CasesAnalysisApiCaseanalysissessionListResponse>, QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>, string | Pick<QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<CasesAnalysisApiCaseanalysissessionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    cursor: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await casesAnalysisApiCaseanalysissessionList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysissessionListInfiniteQueryKey(options)
+    });
+};
 
 export const casesAnalysisApiCaseanalysissessionRetrieveQueryKey = (options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>) => [
-    createQueryKey("casesAnalysisApiCaseanalysissessionRetrieve", options)
+    createQueryKey('casesAnalysisApiCaseanalysissessionRetrieve', options)
 ];
 
-export const casesAnalysisApiCaseanalysissessionRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesAnalysisApiCaseanalysissessionRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesAnalysisApiCaseanalysissessionRetrieveQueryKey(options)
-}); };
+export const casesAnalysisApiCaseanalysissessionRetrieveOptions = (options: Options<CasesAnalysisApiCaseanalysissessionRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesAnalysisApiCaseanalysissessionRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesAnalysisApiCaseanalysissessionRetrieveQueryKey(options)
+    });
+};
 
 export const casesImportApiCaseImportActionListQueryKey = (options: Options<CasesImportApiCaseImportActionListData>) => [
-    createQueryKey("casesImportApiCaseImportActionList", options)
+    createQueryKey('casesImportApiCaseImportActionList', options)
 ];
 
-export const casesImportApiCaseImportActionListOptions = (options: Options<CasesImportApiCaseImportActionListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesImportApiCaseImportActionList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesImportApiCaseImportActionListQueryKey(options)
-}); };
+export const casesImportApiCaseImportActionListOptions = (options: Options<CasesImportApiCaseImportActionListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesImportApiCaseImportActionList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesImportApiCaseImportActionListQueryKey(options)
+    });
+};
 
 export const casesImportApiCaseImportActionListInfiniteQueryKey = (options: Options<CasesImportApiCaseImportActionListData>): QueryKey<Options<CasesImportApiCaseImportActionListData>> => [
-    createQueryKey("casesImportApiCaseImportActionList", options, true)
+    createQueryKey('casesImportApiCaseImportActionList', options, true)
 ];
 
-export const casesImportApiCaseImportActionListInfiniteOptions = (options: Options<CasesImportApiCaseImportActionListData>) => { return infiniteQueryOptions<CasesImportApiCaseImportActionListResponse, CasesImportApiCaseImportActionListError, InfiniteData<CasesImportApiCaseImportActionListResponse>, QueryKey<Options<CasesImportApiCaseImportActionListData>>, number | Pick<QueryKey<Options<CasesImportApiCaseImportActionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<CasesImportApiCaseImportActionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await casesImportApiCaseImportActionList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesImportApiCaseImportActionListInfiniteQueryKey(options)
-}); };
+export const casesImportApiCaseImportActionListInfiniteOptions = (options: Options<CasesImportApiCaseImportActionListData>) => {
+    return infiniteQueryOptions<CasesImportApiCaseImportActionListResponse, CasesImportApiCaseImportActionListError, InfiniteData<CasesImportApiCaseImportActionListResponse>, QueryKey<Options<CasesImportApiCaseImportActionListData>>, number | Pick<QueryKey<Options<CasesImportApiCaseImportActionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<CasesImportApiCaseImportActionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await casesImportApiCaseImportActionList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesImportApiCaseImportActionListInfiniteQueryKey(options)
+    });
+};
 
 export const casesImportApiCaseImportActionCreateQueryKey = (options: Options<CasesImportApiCaseImportActionCreateData>) => [
-    createQueryKey("casesImportApiCaseImportActionCreate", options)
+    createQueryKey('casesImportApiCaseImportActionCreate', options)
 ];
 
-export const casesImportApiCaseImportActionCreateOptions = (options: Options<CasesImportApiCaseImportActionCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesImportApiCaseImportActionCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesImportApiCaseImportActionCreateQueryKey(options)
-}); };
+export const casesImportApiCaseImportActionCreateOptions = (options: Options<CasesImportApiCaseImportActionCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesImportApiCaseImportActionCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesImportApiCaseImportActionCreateQueryKey(options)
+    });
+};
 
-export const casesImportApiCaseImportActionCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionCreateResponse, CasesImportApiCaseImportActionCreateError, Options<CasesImportApiCaseImportActionCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesImportApiCaseImportActionCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesImportApiCaseImportActionCreateMutation = (options?: Partial<Options<CasesImportApiCaseImportActionCreateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionCreateResponse, CasesImportApiCaseImportActionCreateError, Options<CasesImportApiCaseImportActionCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesImportApiCaseImportActionCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesImportApiCaseImportActionRetrieveQueryKey = (options: Options<CasesImportApiCaseImportActionRetrieveData>) => [
-    createQueryKey("casesImportApiCaseImportActionRetrieve", options)
+    createQueryKey('casesImportApiCaseImportActionRetrieve', options)
 ];
 
-export const casesImportApiCaseImportActionRetrieveOptions = (options: Options<CasesImportApiCaseImportActionRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesImportApiCaseImportActionRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesImportApiCaseImportActionRetrieveQueryKey(options)
-}); };
+export const casesImportApiCaseImportActionRetrieveOptions = (options: Options<CasesImportApiCaseImportActionRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesImportApiCaseImportActionRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesImportApiCaseImportActionRetrieveQueryKey(options)
+    });
+};
 
-export const casesImportApiCaseImportActionUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionUpdateResponse, CasesImportApiCaseImportActionUpdateError, Options<CasesImportApiCaseImportActionUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesImportApiCaseImportActionUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesImportApiCaseImportActionUpdateMutation = (options?: Partial<Options<CasesImportApiCaseImportActionUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionUpdateResponse, CasesImportApiCaseImportActionUpdateError, Options<CasesImportApiCaseImportActionUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesImportApiCaseImportActionUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesImportApiCaseImportActionPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionPartialUpdateResponse, CasesImportApiCaseImportActionPartialUpdateError, Options<CasesImportApiCaseImportActionPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesImportApiCaseImportActionPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesImportApiCaseImportActionPartialUpdateMutation = (options?: Partial<Options<CasesImportApiCaseImportActionPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionPartialUpdateResponse, CasesImportApiCaseImportActionPartialUpdateError, Options<CasesImportApiCaseImportActionPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesImportApiCaseImportActionPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesImportApiCaseImportActionDestroyMutation = () => { const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionDestroyResponse, CasesImportApiCaseImportActionDestroyError, Options<CasesImportApiCaseImportActionDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesImportApiCaseImportActionDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesImportApiCaseImportActionDestroyMutation = (options?: Partial<Options<CasesImportApiCaseImportActionDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<CasesImportApiCaseImportActionDestroyResponse, CasesImportApiCaseImportActionDestroyError, Options<CasesImportApiCaseImportActionDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesImportApiCaseImportActionDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesQcApiCaseqcRetrieveRetrieveQueryKey = (options: Options<CasesQcApiCaseqcRetrieveRetrieveData>) => [
-    createQueryKey("casesQcApiCaseqcRetrieveRetrieve", options)
+    createQueryKey('casesQcApiCaseqcRetrieveRetrieve', options)
 ];
 
-export const casesQcApiCaseqcRetrieveRetrieveOptions = (options: Options<CasesQcApiCaseqcRetrieveRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesQcApiCaseqcRetrieveRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesQcApiCaseqcRetrieveRetrieveQueryKey(options)
-}); };
+export const casesQcApiCaseqcRetrieveRetrieveOptions = (options: Options<CasesQcApiCaseqcRetrieveRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesQcApiCaseqcRetrieveRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesQcApiCaseqcRetrieveRetrieveQueryKey(options)
+    });
+};
 
 export const casesQcApiVarfishstatsRetrieveRetrieveQueryKey = (options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>) => [
-    createQueryKey("casesQcApiVarfishstatsRetrieveRetrieve", options)
+    createQueryKey('casesQcApiVarfishstatsRetrieveRetrieve', options)
 ];
 
-export const casesQcApiVarfishstatsRetrieveRetrieveOptions = (options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesQcApiVarfishstatsRetrieveRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesQcApiVarfishstatsRetrieveRetrieveQueryKey(options)
-}); };
+export const casesQcApiVarfishstatsRetrieveRetrieveOptions = (options: Options<CasesQcApiVarfishstatsRetrieveRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesQcApiVarfishstatsRetrieveRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesQcApiVarfishstatsRetrieveRetrieveQueryKey(options)
+    });
+};
 
 export const casesApiAnnotationReleaseInfoListListQueryKey = (options: Options<CasesApiAnnotationReleaseInfoListListData>) => [
-    createQueryKey("casesApiAnnotationReleaseInfoListList", options)
+    createQueryKey('casesApiAnnotationReleaseInfoListList', options)
 ];
 
-export const casesApiAnnotationReleaseInfoListListOptions = (options: Options<CasesApiAnnotationReleaseInfoListListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiAnnotationReleaseInfoListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiAnnotationReleaseInfoListListQueryKey(options)
-}); };
+export const casesApiAnnotationReleaseInfoListListOptions = (options: Options<CasesApiAnnotationReleaseInfoListListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiAnnotationReleaseInfoListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiAnnotationReleaseInfoListListQueryKey(options)
+    });
+};
 
 export const casesApiCaseCommentListCreateListQueryKey = (options: Options<CasesApiCaseCommentListCreateListData>) => [
-    createQueryKey("casesApiCaseCommentListCreateList", options)
+    createQueryKey('casesApiCaseCommentListCreateList', options)
 ];
 
-export const casesApiCaseCommentListCreateListOptions = (options: Options<CasesApiCaseCommentListCreateListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCaseCommentListCreateList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseCommentListCreateListQueryKey(options)
-}); };
+export const casesApiCaseCommentListCreateListOptions = (options: Options<CasesApiCaseCommentListCreateListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCaseCommentListCreateList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseCommentListCreateListQueryKey(options)
+    });
+};
 
 export const casesApiCaseCommentListCreateCreateQueryKey = (options: Options<CasesApiCaseCommentListCreateCreateData>) => [
-    createQueryKey("casesApiCaseCommentListCreateCreate", options)
+    createQueryKey('casesApiCaseCommentListCreateCreate', options)
 ];
 
-export const casesApiCaseCommentListCreateCreateOptions = (options: Options<CasesApiCaseCommentListCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCaseCommentListCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseCommentListCreateCreateQueryKey(options)
-}); };
+export const casesApiCaseCommentListCreateCreateOptions = (options: Options<CasesApiCaseCommentListCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCaseCommentListCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseCommentListCreateCreateQueryKey(options)
+    });
+};
 
-export const casesApiCaseCommentListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseCommentListCreateCreateResponse, CasesApiCaseCommentListCreateCreateError, Options<CasesApiCaseCommentListCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCaseCommentListCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCaseCommentListCreateCreateMutation = (options?: Partial<Options<CasesApiCaseCommentListCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCaseCommentListCreateCreateResponse, CasesApiCaseCommentListCreateCreateError, Options<CasesApiCaseCommentListCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCaseCommentListCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesApiCasePhenotypeTermsListCreateListQueryKey = (options: Options<CasesApiCasePhenotypeTermsListCreateListData>) => [
-    createQueryKey("casesApiCasePhenotypeTermsListCreateList", options)
+    createQueryKey('casesApiCasePhenotypeTermsListCreateList', options)
 ];
 
-export const casesApiCasePhenotypeTermsListCreateListOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCasePhenotypeTermsListCreateList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCasePhenotypeTermsListCreateListQueryKey(options)
-}); };
+export const casesApiCasePhenotypeTermsListCreateListOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCasePhenotypeTermsListCreateList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCasePhenotypeTermsListCreateListQueryKey(options)
+    });
+};
 
 export const casesApiCasePhenotypeTermsListCreateCreateQueryKey = (options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>) => [
-    createQueryKey("casesApiCasePhenotypeTermsListCreateCreate", options)
+    createQueryKey('casesApiCasePhenotypeTermsListCreateCreate', options)
 ];
 
-export const casesApiCasePhenotypeTermsListCreateCreateOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCasePhenotypeTermsListCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCasePhenotypeTermsListCreateCreateQueryKey(options)
-}); };
+export const casesApiCasePhenotypeTermsListCreateCreateOptions = (options: Options<CasesApiCasePhenotypeTermsListCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCasePhenotypeTermsListCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCasePhenotypeTermsListCreateCreateQueryKey(options)
+    });
+};
 
-export const casesApiCasePhenotypeTermsListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsListCreateCreateResponse, CasesApiCasePhenotypeTermsListCreateCreateError, Options<CasesApiCasePhenotypeTermsListCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCasePhenotypeTermsListCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCasePhenotypeTermsListCreateCreateMutation = (options?: Partial<Options<CasesApiCasePhenotypeTermsListCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsListCreateCreateResponse, CasesApiCasePhenotypeTermsListCreateCreateError, Options<CasesApiCasePhenotypeTermsListCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCasePhenotypeTermsListCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>) => [
-    createQueryKey("casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve", options)
+    createQueryKey('casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve', options)
 ];
 
-export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveQueryKey(options)
-}); };
+export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCasePhenotypeTermsRetrieveUpdateDestroyRetrieveQueryKey(options)
+    });
+};
 
-export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateMutation = (options?: Partial<Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateMutation = (options?: Partial<Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyMutation = (options?: Partial<Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyResponse, CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyError, Options<CasesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCasePhenotypeTermsRetrieveUpdateDestroyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesApiCaseCountRetrieveQueryKey = (options: Options<CasesApiCaseCountRetrieveData>) => [
-    createQueryKey("casesApiCaseCountRetrieve", options)
+    createQueryKey('casesApiCaseCountRetrieve', options)
 ];
 
-export const casesApiCaseCountRetrieveOptions = (options: Options<CasesApiCaseCountRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCaseCountRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseCountRetrieveQueryKey(options)
-}); };
+export const casesApiCaseCountRetrieveOptions = (options: Options<CasesApiCaseCountRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCaseCountRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseCountRetrieveQueryKey(options)
+    });
+};
 
 export const casesApiCaseListListQueryKey = (options: Options<CasesApiCaseListListData>) => [
-    createQueryKey("casesApiCaseListList", options)
+    createQueryKey('casesApiCaseListList', options)
 ];
 
-export const casesApiCaseListListOptions = (options: Options<CasesApiCaseListListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCaseListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseListListQueryKey(options)
-}); };
+export const casesApiCaseListListOptions = (options: Options<CasesApiCaseListListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCaseListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseListListQueryKey(options)
+    });
+};
 
 export const casesApiCaseListListInfiniteQueryKey = (options: Options<CasesApiCaseListListData>): QueryKey<Options<CasesApiCaseListListData>> => [
-    createQueryKey("casesApiCaseListList", options, true)
+    createQueryKey('casesApiCaseListList', options, true)
 ];
 
-export const casesApiCaseListListInfiniteOptions = (options: Options<CasesApiCaseListListData>) => { return infiniteQueryOptions<CasesApiCaseListListResponse, CasesApiCaseListListError, InfiniteData<CasesApiCaseListListResponse>, QueryKey<Options<CasesApiCaseListListData>>, number | Pick<QueryKey<Options<CasesApiCaseListListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<CasesApiCaseListListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await casesApiCaseListList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseListListInfiniteQueryKey(options)
-}); };
+export const casesApiCaseListListInfiniteOptions = (options: Options<CasesApiCaseListListData>) => {
+    return infiniteQueryOptions<CasesApiCaseListListResponse, CasesApiCaseListListError, InfiniteData<CasesApiCaseListListResponse>, QueryKey<Options<CasesApiCaseListListData>>, number | Pick<QueryKey<Options<CasesApiCaseListListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<CasesApiCaseListListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await casesApiCaseListList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseListListInfiniteQueryKey(options)
+    });
+};
 
 export const casesApiCaseRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>) => [
-    createQueryKey("casesApiCaseRetrieveUpdateDestroyRetrieve", options)
+    createQueryKey('casesApiCaseRetrieveUpdateDestroyRetrieve', options)
 ];
 
-export const casesApiCaseRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiCaseRetrieveUpdateDestroyRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiCaseRetrieveUpdateDestroyRetrieveQueryKey(options)
-}); };
+export const casesApiCaseRetrieveUpdateDestroyRetrieveOptions = (options: Options<CasesApiCaseRetrieveUpdateDestroyRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiCaseRetrieveUpdateDestroyRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiCaseRetrieveUpdateDestroyRetrieveQueryKey(options)
+    });
+};
 
-export const casesApiCaseRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyUpdateResponse, CasesApiCaseRetrieveUpdateDestroyUpdateError, Options<CasesApiCaseRetrieveUpdateDestroyUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCaseRetrieveUpdateDestroyUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCaseRetrieveUpdateDestroyUpdateMutation = (options?: Partial<Options<CasesApiCaseRetrieveUpdateDestroyUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyUpdateResponse, CasesApiCaseRetrieveUpdateDestroyUpdateError, Options<CasesApiCaseRetrieveUpdateDestroyUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCaseRetrieveUpdateDestroyUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesApiCaseRetrieveUpdateDestroyPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse, CasesApiCaseRetrieveUpdateDestroyPartialUpdateError, Options<CasesApiCaseRetrieveUpdateDestroyPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCaseRetrieveUpdateDestroyPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCaseRetrieveUpdateDestroyPartialUpdateMutation = (options?: Partial<Options<CasesApiCaseRetrieveUpdateDestroyPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyPartialUpdateResponse, CasesApiCaseRetrieveUpdateDestroyPartialUpdateError, Options<CasesApiCaseRetrieveUpdateDestroyPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCaseRetrieveUpdateDestroyPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const casesApiCaseRetrieveUpdateDestroyDestroyMutation = () => { const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyDestroyResponse, CasesApiCaseRetrieveUpdateDestroyDestroyError, Options<CasesApiCaseRetrieveUpdateDestroyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await casesApiCaseRetrieveUpdateDestroyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const casesApiCaseRetrieveUpdateDestroyDestroyMutation = (options?: Partial<Options<CasesApiCaseRetrieveUpdateDestroyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<CasesApiCaseRetrieveUpdateDestroyDestroyResponse, CasesApiCaseRetrieveUpdateDestroyDestroyError, Options<CasesApiCaseRetrieveUpdateDestroyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await casesApiCaseRetrieveUpdateDestroyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const casesApiSvAnnotationReleaseInfoListListQueryKey = (options: Options<CasesApiSvAnnotationReleaseInfoListListData>) => [
-    createQueryKey("casesApiSvAnnotationReleaseInfoListList", options)
+    createQueryKey('casesApiSvAnnotationReleaseInfoListList', options)
 ];
 
-export const casesApiSvAnnotationReleaseInfoListListOptions = (options: Options<CasesApiSvAnnotationReleaseInfoListListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiSvAnnotationReleaseInfoListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiSvAnnotationReleaseInfoListListQueryKey(options)
-}); };
+export const casesApiSvAnnotationReleaseInfoListListOptions = (options: Options<CasesApiSvAnnotationReleaseInfoListListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiSvAnnotationReleaseInfoListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiSvAnnotationReleaseInfoListListQueryKey(options)
+    });
+};
 
 export const casesApiUserAndGlobalSettingsRetrieveQueryKey = (options?: Options) => [
-    createQueryKey("casesApiUserAndGlobalSettingsRetrieve", options)
+    createQueryKey('casesApiUserAndGlobalSettingsRetrieve', options)
 ];
 
-export const casesApiUserAndGlobalSettingsRetrieveOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await casesApiUserAndGlobalSettingsRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: casesApiUserAndGlobalSettingsRetrieveQueryKey(options)
-}); };
+export const casesApiUserAndGlobalSettingsRetrieveOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await casesApiUserAndGlobalSettingsRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: casesApiUserAndGlobalSettingsRetrieveQueryKey(options)
+    });
+};
 
 export const genepanelsApiGenepanelCategoryListListQueryKey = (options?: Options) => [
-    createQueryKey("genepanelsApiGenepanelCategoryListList", options)
+    createQueryKey('genepanelsApiGenepanelCategoryListList', options)
 ];
 
-export const genepanelsApiGenepanelCategoryListListOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await genepanelsApiGenepanelCategoryListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: genepanelsApiGenepanelCategoryListListQueryKey(options)
-}); };
+export const genepanelsApiGenepanelCategoryListListOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await genepanelsApiGenepanelCategoryListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: genepanelsApiGenepanelCategoryListListQueryKey(options)
+    });
+};
 
 export const genepanelsApiLookupGenepanelRetrieveQueryKey = (options?: Options) => [
-    createQueryKey("genepanelsApiLookupGenepanelRetrieve", options)
+    createQueryKey('genepanelsApiLookupGenepanelRetrieve', options)
 ];
 
-export const genepanelsApiLookupGenepanelRetrieveOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await genepanelsApiLookupGenepanelRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: genepanelsApiLookupGenepanelRetrieveQueryKey(options)
-}); };
+export const genepanelsApiLookupGenepanelRetrieveOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await genepanelsApiLookupGenepanelRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: genepanelsApiLookupGenepanelRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiCreateCreateQueryKey = (options: Options<ProjectApiCreateCreateData>) => [
-    createQueryKey("projectApiCreateCreate", options)
+    createQueryKey('projectApiCreateCreate', options)
 ];
 
-export const projectApiCreateCreateOptions = (options: Options<ProjectApiCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiCreateCreateQueryKey(options)
-}); };
+export const projectApiCreateCreateOptions = (options: Options<ProjectApiCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiCreateCreateQueryKey(options)
+    });
+};
 
-export const projectApiCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiCreateCreateResponse, ProjectApiCreateCreateError, Options<ProjectApiCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiCreateCreateMutation = (options?: Partial<Options<ProjectApiCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiCreateCreateResponse, ProjectApiCreateCreateError, Options<ProjectApiCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiInvitesCreateCreateQueryKey = (options: Options<ProjectApiInvitesCreateCreateData>) => [
-    createQueryKey("projectApiInvitesCreateCreate", options)
+    createQueryKey('projectApiInvitesCreateCreate', options)
 ];
 
-export const projectApiInvitesCreateCreateOptions = (options: Options<ProjectApiInvitesCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiInvitesCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiInvitesCreateCreateQueryKey(options)
-}); };
+export const projectApiInvitesCreateCreateOptions = (options: Options<ProjectApiInvitesCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiInvitesCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiInvitesCreateCreateQueryKey(options)
+    });
+};
 
-export const projectApiInvitesCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesCreateCreateResponse, ProjectApiInvitesCreateCreateError, Options<ProjectApiInvitesCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiInvitesCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiInvitesCreateCreateMutation = (options?: Partial<Options<ProjectApiInvitesCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiInvitesCreateCreateResponse, ProjectApiInvitesCreateCreateError, Options<ProjectApiInvitesCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiInvitesCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiInvitesListListQueryKey = (options: Options<ProjectApiInvitesListListData>) => [
-    createQueryKey("projectApiInvitesListList", options)
+    createQueryKey('projectApiInvitesListList', options)
 ];
 
-export const projectApiInvitesListListOptions = (options: Options<ProjectApiInvitesListListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiInvitesListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiInvitesListListQueryKey(options)
-}); };
+export const projectApiInvitesListListOptions = (options: Options<ProjectApiInvitesListListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiInvitesListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiInvitesListListQueryKey(options)
+    });
+};
 
 export const projectApiInvitesResendCreateQueryKey = (options: Options<ProjectApiInvitesResendCreateData>) => [
-    createQueryKey("projectApiInvitesResendCreate", options)
+    createQueryKey('projectApiInvitesResendCreate', options)
 ];
 
-export const projectApiInvitesResendCreateOptions = (options: Options<ProjectApiInvitesResendCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiInvitesResendCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiInvitesResendCreateQueryKey(options)
-}); };
+export const projectApiInvitesResendCreateOptions = (options: Options<ProjectApiInvitesResendCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiInvitesResendCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiInvitesResendCreateQueryKey(options)
+    });
+};
 
-export const projectApiInvitesResendCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesResendCreateResponse, ProjectApiInvitesResendCreateError, Options<ProjectApiInvitesResendCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiInvitesResendCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiInvitesResendCreateMutation = (options?: Partial<Options<ProjectApiInvitesResendCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiInvitesResendCreateResponse, ProjectApiInvitesResendCreateError, Options<ProjectApiInvitesResendCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiInvitesResendCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiInvitesRevokeCreateQueryKey = (options: Options<ProjectApiInvitesRevokeCreateData>) => [
-    createQueryKey("projectApiInvitesRevokeCreate", options)
+    createQueryKey('projectApiInvitesRevokeCreate', options)
 ];
 
-export const projectApiInvitesRevokeCreateOptions = (options: Options<ProjectApiInvitesRevokeCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiInvitesRevokeCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiInvitesRevokeCreateQueryKey(options)
-}); };
+export const projectApiInvitesRevokeCreateOptions = (options: Options<ProjectApiInvitesRevokeCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiInvitesRevokeCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiInvitesRevokeCreateQueryKey(options)
+    });
+};
 
-export const projectApiInvitesRevokeCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiInvitesRevokeCreateResponse, ProjectApiInvitesRevokeCreateError, Options<ProjectApiInvitesRevokeCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiInvitesRevokeCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiInvitesRevokeCreateMutation = (options?: Partial<Options<ProjectApiInvitesRevokeCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiInvitesRevokeCreateResponse, ProjectApiInvitesRevokeCreateError, Options<ProjectApiInvitesRevokeCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiInvitesRevokeCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiListRetrieveQueryKey = (options?: Options) => [
-    createQueryKey("projectApiListRetrieve", options)
+    createQueryKey('projectApiListRetrieve', options)
 ];
 
-export const projectApiListRetrieveOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiListRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiListRetrieveQueryKey(options)
-}); };
+export const projectApiListRetrieveOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiListRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiListRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiRemoteGetRetrieveQueryKey = (options: Options<ProjectApiRemoteGetRetrieveData>) => [
-    createQueryKey("projectApiRemoteGetRetrieve", options)
+    createQueryKey('projectApiRemoteGetRetrieve', options)
 ];
 
-export const projectApiRemoteGetRetrieveOptions = (options: Options<ProjectApiRemoteGetRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiRemoteGetRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiRemoteGetRetrieveQueryKey(options)
-}); };
+export const projectApiRemoteGetRetrieveOptions = (options: Options<ProjectApiRemoteGetRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiRemoteGetRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiRemoteGetRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiRetrieveRetrieveQueryKey = (options: Options<ProjectApiRetrieveRetrieveData>) => [
-    createQueryKey("projectApiRetrieveRetrieve", options)
+    createQueryKey('projectApiRetrieveRetrieve', options)
 ];
 
-export const projectApiRetrieveRetrieveOptions = (options: Options<ProjectApiRetrieveRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiRetrieveRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiRetrieveRetrieveQueryKey(options)
-}); };
+export const projectApiRetrieveRetrieveOptions = (options: Options<ProjectApiRetrieveRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiRetrieveRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiRetrieveRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiRolesCreateCreateQueryKey = (options: Options<ProjectApiRolesCreateCreateData>) => [
-    createQueryKey("projectApiRolesCreateCreate", options)
+    createQueryKey('projectApiRolesCreateCreate', options)
 ];
 
-export const projectApiRolesCreateCreateOptions = (options: Options<ProjectApiRolesCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiRolesCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiRolesCreateCreateQueryKey(options)
-}); };
+export const projectApiRolesCreateCreateOptions = (options: Options<ProjectApiRolesCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiRolesCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiRolesCreateCreateQueryKey(options)
+    });
+};
 
-export const projectApiRolesCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesCreateCreateResponse, ProjectApiRolesCreateCreateError, Options<ProjectApiRolesCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiRolesCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiRolesCreateCreateMutation = (options?: Partial<Options<ProjectApiRolesCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiRolesCreateCreateResponse, ProjectApiRolesCreateCreateError, Options<ProjectApiRolesCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiRolesCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const projectApiRolesDestroyDestroyMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesDestroyDestroyResponse, ProjectApiRolesDestroyDestroyError, Options<ProjectApiRolesDestroyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiRolesDestroyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiRolesDestroyDestroyMutation = (options?: Partial<Options<ProjectApiRolesDestroyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiRolesDestroyDestroyResponse, ProjectApiRolesDestroyDestroyError, Options<ProjectApiRolesDestroyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiRolesDestroyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiRolesOwnerTransferCreateQueryKey = (options: Options<ProjectApiRolesOwnerTransferCreateData>) => [
-    createQueryKey("projectApiRolesOwnerTransferCreate", options)
+    createQueryKey('projectApiRolesOwnerTransferCreate', options)
 ];
 
-export const projectApiRolesOwnerTransferCreateOptions = (options: Options<ProjectApiRolesOwnerTransferCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiRolesOwnerTransferCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiRolesOwnerTransferCreateQueryKey(options)
-}); };
+export const projectApiRolesOwnerTransferCreateOptions = (options: Options<ProjectApiRolesOwnerTransferCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiRolesOwnerTransferCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiRolesOwnerTransferCreateQueryKey(options)
+    });
+};
 
-export const projectApiRolesOwnerTransferCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesOwnerTransferCreateResponse, ProjectApiRolesOwnerTransferCreateError, Options<ProjectApiRolesOwnerTransferCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiRolesOwnerTransferCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiRolesOwnerTransferCreateMutation = (options?: Partial<Options<ProjectApiRolesOwnerTransferCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiRolesOwnerTransferCreateResponse, ProjectApiRolesOwnerTransferCreateError, Options<ProjectApiRolesOwnerTransferCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiRolesOwnerTransferCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const projectApiRolesUpdateUpdateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesUpdateUpdateResponse, ProjectApiRolesUpdateUpdateError, Options<ProjectApiRolesUpdateUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiRolesUpdateUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiRolesUpdateUpdateMutation = (options?: Partial<Options<ProjectApiRolesUpdateUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiRolesUpdateUpdateResponse, ProjectApiRolesUpdateUpdateError, Options<ProjectApiRolesUpdateUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiRolesUpdateUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const projectApiRolesUpdatePartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiRolesUpdatePartialUpdateResponse, ProjectApiRolesUpdatePartialUpdateError, Options<ProjectApiRolesUpdatePartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiRolesUpdatePartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiRolesUpdatePartialUpdateMutation = (options?: Partial<Options<ProjectApiRolesUpdatePartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiRolesUpdatePartialUpdateResponse, ProjectApiRolesUpdatePartialUpdateError, Options<ProjectApiRolesUpdatePartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiRolesUpdatePartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiSettingsRetrieveRetrieveQueryKey = (options: Options<ProjectApiSettingsRetrieveRetrieveData>) => [
-    createQueryKey("projectApiSettingsRetrieveRetrieve", options)
+    createQueryKey('projectApiSettingsRetrieveRetrieve', options)
 ];
 
-export const projectApiSettingsRetrieveRetrieveOptions = (options: Options<ProjectApiSettingsRetrieveRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiSettingsRetrieveRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiSettingsRetrieveRetrieveQueryKey(options)
-}); };
+export const projectApiSettingsRetrieveRetrieveOptions = (options: Options<ProjectApiSettingsRetrieveRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiSettingsRetrieveRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiSettingsRetrieveRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiSettingsRetrieveUserRetrieveQueryKey = (options?: Options) => [
-    createQueryKey("projectApiSettingsRetrieveUserRetrieve", options)
+    createQueryKey('projectApiSettingsRetrieveUserRetrieve', options)
 ];
 
-export const projectApiSettingsRetrieveUserRetrieveOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiSettingsRetrieveUserRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiSettingsRetrieveUserRetrieveQueryKey(options)
-}); };
+export const projectApiSettingsRetrieveUserRetrieveOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiSettingsRetrieveUserRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiSettingsRetrieveUserRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiSettingsSetCreateQueryKey = (options: Options<ProjectApiSettingsSetCreateData>) => [
-    createQueryKey("projectApiSettingsSetCreate", options)
+    createQueryKey('projectApiSettingsSetCreate', options)
 ];
 
-export const projectApiSettingsSetCreateOptions = (options: Options<ProjectApiSettingsSetCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiSettingsSetCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiSettingsSetCreateQueryKey(options)
-}); };
+export const projectApiSettingsSetCreateOptions = (options: Options<ProjectApiSettingsSetCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiSettingsSetCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiSettingsSetCreateQueryKey(options)
+    });
+};
 
-export const projectApiSettingsSetCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiSettingsSetCreateResponse, ProjectApiSettingsSetCreateError, Options<ProjectApiSettingsSetCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiSettingsSetCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiSettingsSetCreateMutation = (options?: Partial<Options<ProjectApiSettingsSetCreateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiSettingsSetCreateResponse, ProjectApiSettingsSetCreateError, Options<ProjectApiSettingsSetCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiSettingsSetCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiSettingsSetUserCreateQueryKey = (options?: Options) => [
-    createQueryKey("projectApiSettingsSetUserCreate", options)
+    createQueryKey('projectApiSettingsSetUserCreate', options)
 ];
 
-export const projectApiSettingsSetUserCreateOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiSettingsSetUserCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiSettingsSetUserCreateQueryKey(options)
-}); };
+export const projectApiSettingsSetUserCreateOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiSettingsSetUserCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiSettingsSetUserCreateQueryKey(options)
+    });
+};
 
-export const projectApiSettingsSetUserCreateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiSettingsSetUserCreateResponse, ProjectApiSettingsSetUserCreateError, Options> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiSettingsSetUserCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiSettingsSetUserCreateMutation = (options?: Partial<Options>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiSettingsSetUserCreateResponse, ProjectApiSettingsSetUserCreateError, Options> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiSettingsSetUserCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const projectApiUpdateUpdateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiUpdateUpdateResponse, ProjectApiUpdateUpdateError, Options<ProjectApiUpdateUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiUpdateUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiUpdateUpdateMutation = (options?: Partial<Options<ProjectApiUpdateUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiUpdateUpdateResponse, ProjectApiUpdateUpdateError, Options<ProjectApiUpdateUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiUpdateUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const projectApiUpdatePartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<ProjectApiUpdatePartialUpdateResponse, ProjectApiUpdatePartialUpdateError, Options<ProjectApiUpdatePartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await projectApiUpdatePartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const projectApiUpdatePartialUpdateMutation = (options?: Partial<Options<ProjectApiUpdatePartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<ProjectApiUpdatePartialUpdateResponse, ProjectApiUpdatePartialUpdateError, Options<ProjectApiUpdatePartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await projectApiUpdatePartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const projectApiUsersCurrentRetrieveQueryKey = (options?: Options) => [
-    createQueryKey("projectApiUsersCurrentRetrieve", options)
+    createQueryKey('projectApiUsersCurrentRetrieve', options)
 ];
 
-export const projectApiUsersCurrentRetrieveOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiUsersCurrentRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiUsersCurrentRetrieveQueryKey(options)
-}); };
+export const projectApiUsersCurrentRetrieveOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiUsersCurrentRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiUsersCurrentRetrieveQueryKey(options)
+    });
+};
 
 export const projectApiUsersListListQueryKey = (options?: Options) => [
-    createQueryKey("projectApiUsersListList", options)
+    createQueryKey('projectApiUsersListList', options)
 ];
 
-export const projectApiUsersListListOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await projectApiUsersListList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: projectApiUsersListListQueryKey(options)
-}); };
+export const projectApiUsersListListOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await projectApiUsersListList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: projectApiUsersListListQueryKey(options)
+    });
+};
 
 export const seqmetaApiEnrichmentkitListCreateListQueryKey = (options?: Options) => [
-    createQueryKey("seqmetaApiEnrichmentkitListCreateList", options)
+    createQueryKey('seqmetaApiEnrichmentkitListCreateList', options)
 ];
 
-export const seqmetaApiEnrichmentkitListCreateListOptions = (options?: Options) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiEnrichmentkitListCreateList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiEnrichmentkitListCreateListQueryKey(options)
-}); };
+export const seqmetaApiEnrichmentkitListCreateListOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiEnrichmentkitListCreateList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiEnrichmentkitListCreateListQueryKey(options)
+    });
+};
 
 export const seqmetaApiEnrichmentkitListCreateCreateQueryKey = (options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>) => [
-    createQueryKey("seqmetaApiEnrichmentkitListCreateCreate", options)
+    createQueryKey('seqmetaApiEnrichmentkitListCreateCreate', options)
 ];
 
-export const seqmetaApiEnrichmentkitListCreateCreateOptions = (options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiEnrichmentkitListCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiEnrichmentkitListCreateCreateQueryKey(options)
-}); };
+export const seqmetaApiEnrichmentkitListCreateCreateOptions = (options: Options<SeqmetaApiEnrichmentkitListCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiEnrichmentkitListCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiEnrichmentkitListCreateCreateQueryKey(options)
+    });
+};
 
-export const seqmetaApiEnrichmentkitListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitListCreateCreateResponse, SeqmetaApiEnrichmentkitListCreateCreateError, Options<SeqmetaApiEnrichmentkitListCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiEnrichmentkitListCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiEnrichmentkitListCreateCreateMutation = (options?: Partial<Options<SeqmetaApiEnrichmentkitListCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitListCreateCreateResponse, SeqmetaApiEnrichmentkitListCreateCreateError, Options<SeqmetaApiEnrichmentkitListCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiEnrichmentkitListCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>) => [
-    createQueryKey("seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve", options)
+    createQueryKey('seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve', options)
 ];
 
-export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveQueryKey(options)
-}); };
+export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiEnrichmentkitRetrieveUpdateDestroyRetrieveQueryKey(options)
+    });
+};
 
-export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateMutation = (options?: Partial<Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateMutation = (options?: Partial<Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyMutation = (options?: Partial<Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyResponse, SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyError, Options<SeqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiEnrichmentkitRetrieveUpdateDestroyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqmetaApiTargetbedfileListCreateListQueryKey = (options: Options<SeqmetaApiTargetbedfileListCreateListData>) => [
-    createQueryKey("seqmetaApiTargetbedfileListCreateList", options)
+    createQueryKey('seqmetaApiTargetbedfileListCreateList', options)
 ];
 
-export const seqmetaApiTargetbedfileListCreateListOptions = (options: Options<SeqmetaApiTargetbedfileListCreateListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiTargetbedfileListCreateList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiTargetbedfileListCreateListQueryKey(options)
-}); };
+export const seqmetaApiTargetbedfileListCreateListOptions = (options: Options<SeqmetaApiTargetbedfileListCreateListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiTargetbedfileListCreateList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiTargetbedfileListCreateListQueryKey(options)
+    });
+};
 
 export const seqmetaApiTargetbedfileListCreateCreateQueryKey = (options: Options<SeqmetaApiTargetbedfileListCreateCreateData>) => [
-    createQueryKey("seqmetaApiTargetbedfileListCreateCreate", options)
+    createQueryKey('seqmetaApiTargetbedfileListCreateCreate', options)
 ];
 
-export const seqmetaApiTargetbedfileListCreateCreateOptions = (options: Options<SeqmetaApiTargetbedfileListCreateCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiTargetbedfileListCreateCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiTargetbedfileListCreateCreateQueryKey(options)
-}); };
+export const seqmetaApiTargetbedfileListCreateCreateOptions = (options: Options<SeqmetaApiTargetbedfileListCreateCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiTargetbedfileListCreateCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiTargetbedfileListCreateCreateQueryKey(options)
+    });
+};
 
-export const seqmetaApiTargetbedfileListCreateCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileListCreateCreateResponse, SeqmetaApiTargetbedfileListCreateCreateError, Options<SeqmetaApiTargetbedfileListCreateCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiTargetbedfileListCreateCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiTargetbedfileListCreateCreateMutation = (options?: Partial<Options<SeqmetaApiTargetbedfileListCreateCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileListCreateCreateResponse, SeqmetaApiTargetbedfileListCreateCreateError, Options<SeqmetaApiTargetbedfileListCreateCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiTargetbedfileListCreateCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveQueryKey = (options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>) => [
-    createQueryKey("seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve", options)
+    createQueryKey('seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve', options)
 ];
 
-export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveQueryKey(options)
-}); };
+export const seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveOptions = (options: Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqmetaApiTargetbedfileRetrieveUpdateDestroyRetrieveQueryKey(options)
+    });
+};
 
-export const seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateMutation = (options?: Partial<Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateMutation = (options?: Partial<Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyMutation = (options?: Partial<Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyResponse, SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyError, Options<SeqmetaApiTargetbedfileRetrieveUpdateDestroyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqmetaApiTargetbedfileRetrieveUpdateDestroyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiPredefinedqueryListQueryKey = (options: Options<SeqvarsApiPredefinedqueryListData>) => [
-    createQueryKey("seqvarsApiPredefinedqueryList", options)
+    createQueryKey('seqvarsApiPredefinedqueryList', options)
 ];
 
-export const seqvarsApiPredefinedqueryListOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiPredefinedqueryList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiPredefinedqueryListQueryKey(options)
-}); };
+export const seqvarsApiPredefinedqueryListOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiPredefinedqueryList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiPredefinedqueryListQueryKey(options)
+    });
+};
 
 export const seqvarsApiPredefinedqueryListInfiniteQueryKey = (options: Options<SeqvarsApiPredefinedqueryListData>): QueryKey<Options<SeqvarsApiPredefinedqueryListData>> => [
-    createQueryKey("seqvarsApiPredefinedqueryList", options, true)
+    createQueryKey('seqvarsApiPredefinedqueryList', options, true)
 ];
 
-export const seqvarsApiPredefinedqueryListInfiniteOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => { return infiniteQueryOptions<SeqvarsApiPredefinedqueryListResponse, SeqvarsApiPredefinedqueryListError, InfiniteData<SeqvarsApiPredefinedqueryListResponse>, QueryKey<Options<SeqvarsApiPredefinedqueryListData>>, number | Pick<QueryKey<Options<SeqvarsApiPredefinedqueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiPredefinedqueryListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiPredefinedqueryList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiPredefinedqueryListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiPredefinedqueryListInfiniteOptions = (options: Options<SeqvarsApiPredefinedqueryListData>) => {
+    return infiniteQueryOptions<SeqvarsApiPredefinedqueryListResponse, SeqvarsApiPredefinedqueryListError, InfiniteData<SeqvarsApiPredefinedqueryListResponse>, QueryKey<Options<SeqvarsApiPredefinedqueryListData>>, number | Pick<QueryKey<Options<SeqvarsApiPredefinedqueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiPredefinedqueryListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiPredefinedqueryList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiPredefinedqueryListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiPredefinedqueryCreateQueryKey = (options: Options<SeqvarsApiPredefinedqueryCreateData>) => [
-    createQueryKey("seqvarsApiPredefinedqueryCreate", options)
+    createQueryKey('seqvarsApiPredefinedqueryCreate', options)
 ];
 
-export const seqvarsApiPredefinedqueryCreateOptions = (options: Options<SeqvarsApiPredefinedqueryCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiPredefinedqueryCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiPredefinedqueryCreateQueryKey(options)
-}); };
+export const seqvarsApiPredefinedqueryCreateOptions = (options: Options<SeqvarsApiPredefinedqueryCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiPredefinedqueryCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiPredefinedqueryCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiPredefinedqueryCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryCreateResponse, SeqvarsApiPredefinedqueryCreateError, Options<SeqvarsApiPredefinedqueryCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiPredefinedqueryCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiPredefinedqueryCreateMutation = (options?: Partial<Options<SeqvarsApiPredefinedqueryCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryCreateResponse, SeqvarsApiPredefinedqueryCreateError, Options<SeqvarsApiPredefinedqueryCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiPredefinedqueryCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiPredefinedqueryRetrieveQueryKey = (options: Options<SeqvarsApiPredefinedqueryRetrieveData>) => [
-    createQueryKey("seqvarsApiPredefinedqueryRetrieve", options)
+    createQueryKey('seqvarsApiPredefinedqueryRetrieve', options)
 ];
 
-export const seqvarsApiPredefinedqueryRetrieveOptions = (options: Options<SeqvarsApiPredefinedqueryRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiPredefinedqueryRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiPredefinedqueryRetrieveQueryKey(options)
-}); };
+export const seqvarsApiPredefinedqueryRetrieveOptions = (options: Options<SeqvarsApiPredefinedqueryRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiPredefinedqueryRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiPredefinedqueryRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiPredefinedqueryUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryUpdateResponse, SeqvarsApiPredefinedqueryUpdateError, Options<SeqvarsApiPredefinedqueryUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiPredefinedqueryUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiPredefinedqueryUpdateMutation = (options?: Partial<Options<SeqvarsApiPredefinedqueryUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryUpdateResponse, SeqvarsApiPredefinedqueryUpdateError, Options<SeqvarsApiPredefinedqueryUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiPredefinedqueryUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiPredefinedqueryPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryPartialUpdateResponse, SeqvarsApiPredefinedqueryPartialUpdateError, Options<SeqvarsApiPredefinedqueryPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiPredefinedqueryPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiPredefinedqueryPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiPredefinedqueryPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryPartialUpdateResponse, SeqvarsApiPredefinedqueryPartialUpdateError, Options<SeqvarsApiPredefinedqueryPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiPredefinedqueryPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiPredefinedqueryDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryDestroyResponse, SeqvarsApiPredefinedqueryDestroyError, Options<SeqvarsApiPredefinedqueryDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiPredefinedqueryDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiPredefinedqueryDestroyMutation = (options?: Partial<Options<SeqvarsApiPredefinedqueryDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiPredefinedqueryDestroyResponse, SeqvarsApiPredefinedqueryDestroyError, Options<SeqvarsApiPredefinedqueryDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiPredefinedqueryDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQueryListQueryKey = (options: Options<SeqvarsApiQueryListData>) => [
-    createQueryKey("seqvarsApiQueryList", options)
+    createQueryKey('seqvarsApiQueryList', options)
 ];
 
-export const seqvarsApiQueryListOptions = (options: Options<SeqvarsApiQueryListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryListQueryKey(options)
-}); };
+export const seqvarsApiQueryListOptions = (options: Options<SeqvarsApiQueryListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQueryListInfiniteQueryKey = (options: Options<SeqvarsApiQueryListData>): QueryKey<Options<SeqvarsApiQueryListData>> => [
-    createQueryKey("seqvarsApiQueryList", options, true)
+    createQueryKey('seqvarsApiQueryList', options, true)
 ];
 
-export const seqvarsApiQueryListInfiniteOptions = (options: Options<SeqvarsApiQueryListData>) => { return infiniteQueryOptions<SeqvarsApiQueryListResponse, SeqvarsApiQueryListError, InfiniteData<SeqvarsApiQueryListResponse>, QueryKey<Options<SeqvarsApiQueryListData>>, number | Pick<QueryKey<Options<SeqvarsApiQueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQueryListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQueryList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQueryListInfiniteOptions = (options: Options<SeqvarsApiQueryListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQueryListResponse, SeqvarsApiQueryListError, InfiniteData<SeqvarsApiQueryListResponse>, QueryKey<Options<SeqvarsApiQueryListData>>, number | Pick<QueryKey<Options<SeqvarsApiQueryListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQueryListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQueryList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQueryCreateQueryKey = (options: Options<SeqvarsApiQueryCreateData>) => [
-    createQueryKey("seqvarsApiQueryCreate", options)
+    createQueryKey('seqvarsApiQueryCreate', options)
 ];
 
-export const seqvarsApiQueryCreateOptions = (options: Options<SeqvarsApiQueryCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryCreateQueryKey(options)
-}); };
+export const seqvarsApiQueryCreateOptions = (options: Options<SeqvarsApiQueryCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQueryCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateResponse, SeqvarsApiQueryCreateError, Options<SeqvarsApiQueryCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryCreateMutation = (options?: Partial<Options<SeqvarsApiQueryCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateResponse, SeqvarsApiQueryCreateError, Options<SeqvarsApiQueryCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQueryRetrieveQueryKey = (options: Options<SeqvarsApiQueryRetrieveData>) => [
-    createQueryKey("seqvarsApiQueryRetrieve", options)
+    createQueryKey('seqvarsApiQueryRetrieve', options)
 ];
 
-export const seqvarsApiQueryRetrieveOptions = (options: Options<SeqvarsApiQueryRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQueryRetrieveOptions = (options: Options<SeqvarsApiQueryRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQueryUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryUpdateResponse, SeqvarsApiQueryUpdateError, Options<SeqvarsApiQueryUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryUpdateMutation = (options?: Partial<Options<SeqvarsApiQueryUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryUpdateResponse, SeqvarsApiQueryUpdateError, Options<SeqvarsApiQueryUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQueryPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryPartialUpdateResponse, SeqvarsApiQueryPartialUpdateError, Options<SeqvarsApiQueryPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQueryPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryPartialUpdateResponse, SeqvarsApiQueryPartialUpdateError, Options<SeqvarsApiQueryPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQueryDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryDestroyResponse, SeqvarsApiQueryDestroyError, Options<SeqvarsApiQueryDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryDestroyMutation = (options?: Partial<Options<SeqvarsApiQueryDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryDestroyResponse, SeqvarsApiQueryDestroyError, Options<SeqvarsApiQueryDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQueryCreateFromCreateQueryKey = (options: Options<SeqvarsApiQueryCreateFromCreateData>) => [
-    createQueryKey("seqvarsApiQueryCreateFromCreate", options)
+    createQueryKey('seqvarsApiQueryCreateFromCreate', options)
 ];
 
-export const seqvarsApiQueryCreateFromCreateOptions = (options: Options<SeqvarsApiQueryCreateFromCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryCreateFromCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryCreateFromCreateQueryKey(options)
-}); };
+export const seqvarsApiQueryCreateFromCreateOptions = (options: Options<SeqvarsApiQueryCreateFromCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryCreateFromCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryCreateFromCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQueryCreateFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateFromCreateResponse, SeqvarsApiQueryCreateFromCreateError, Options<SeqvarsApiQueryCreateFromCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryCreateFromCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryCreateFromCreateMutation = (options?: Partial<Options<SeqvarsApiQueryCreateFromCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryCreateFromCreateResponse, SeqvarsApiQueryCreateFromCreateError, Options<SeqvarsApiQueryCreateFromCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryCreateFromCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQueryexecutionListQueryKey = (options: Options<SeqvarsApiQueryexecutionListData>) => [
-    createQueryKey("seqvarsApiQueryexecutionList", options)
+    createQueryKey('seqvarsApiQueryexecutionList', options)
 ];
 
-export const seqvarsApiQueryexecutionListOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryexecutionList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryexecutionListQueryKey(options)
-}); };
+export const seqvarsApiQueryexecutionListOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryexecutionList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryexecutionListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQueryexecutionListInfiniteQueryKey = (options: Options<SeqvarsApiQueryexecutionListData>): QueryKey<Options<SeqvarsApiQueryexecutionListData>> => [
-    createQueryKey("seqvarsApiQueryexecutionList", options, true)
+    createQueryKey('seqvarsApiQueryexecutionList', options, true)
 ];
 
-export const seqvarsApiQueryexecutionListInfiniteOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => { return infiniteQueryOptions<SeqvarsApiQueryexecutionListResponse, SeqvarsApiQueryexecutionListError, InfiniteData<SeqvarsApiQueryexecutionListResponse>, QueryKey<Options<SeqvarsApiQueryexecutionListData>>, number | Pick<QueryKey<Options<SeqvarsApiQueryexecutionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQueryexecutionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQueryexecutionList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryexecutionListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQueryexecutionListInfiniteOptions = (options: Options<SeqvarsApiQueryexecutionListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQueryexecutionListResponse, SeqvarsApiQueryexecutionListError, InfiniteData<SeqvarsApiQueryexecutionListResponse>, QueryKey<Options<SeqvarsApiQueryexecutionListData>>, number | Pick<QueryKey<Options<SeqvarsApiQueryexecutionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQueryexecutionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQueryexecutionList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryexecutionListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQueryexecutionRetrieveQueryKey = (options: Options<SeqvarsApiQueryexecutionRetrieveData>) => [
-    createQueryKey("seqvarsApiQueryexecutionRetrieve", options)
+    createQueryKey('seqvarsApiQueryexecutionRetrieve', options)
 ];
 
-export const seqvarsApiQueryexecutionRetrieveOptions = (options: Options<SeqvarsApiQueryexecutionRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryexecutionRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryexecutionRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQueryexecutionRetrieveOptions = (options: Options<SeqvarsApiQueryexecutionRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryexecutionRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryexecutionRetrieveQueryKey(options)
+    });
+};
 
 export const seqvarsApiQueryexecutionStartCreateQueryKey = (options: Options<SeqvarsApiQueryexecutionStartCreateData>) => [
-    createQueryKey("seqvarsApiQueryexecutionStartCreate", options)
+    createQueryKey('seqvarsApiQueryexecutionStartCreate', options)
 ];
 
-export const seqvarsApiQueryexecutionStartCreateOptions = (options: Options<SeqvarsApiQueryexecutionStartCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQueryexecutionStartCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQueryexecutionStartCreateQueryKey(options)
-}); };
+export const seqvarsApiQueryexecutionStartCreateOptions = (options: Options<SeqvarsApiQueryexecutionStartCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQueryexecutionStartCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQueryexecutionStartCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQueryexecutionStartCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQueryexecutionStartCreateResponse, SeqvarsApiQueryexecutionStartCreateError, Options<SeqvarsApiQueryexecutionStartCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQueryexecutionStartCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQueryexecutionStartCreateMutation = (options?: Partial<Options<SeqvarsApiQueryexecutionStartCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQueryexecutionStartCreateResponse, SeqvarsApiQueryexecutionStartCreateError, Options<SeqvarsApiQueryexecutionStartCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQueryexecutionStartCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsclinvarListQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsclinvarList", options)
+    createQueryKey('seqvarsApiQuerypresetsclinvarList', options)
 ];
 
-export const seqvarsApiQuerypresetsclinvarListOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsclinvarListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsclinvarListOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsclinvarListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsclinvarListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarListData>): QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsclinvarList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsclinvarList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsclinvarListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsclinvarListResponse, SeqvarsApiQuerypresetsclinvarListError, InfiniteData<SeqvarsApiQuerypresetsclinvarListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsclinvarList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsclinvarListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsclinvarListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsclinvarListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsclinvarListResponse, SeqvarsApiQuerypresetsclinvarListError, InfiniteData<SeqvarsApiQuerypresetsclinvarListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsclinvarListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsclinvarList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsclinvarListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsclinvarCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsclinvarCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsclinvarCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsclinvarCreateOptions = (options: Options<SeqvarsApiQuerypresetsclinvarCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsclinvarCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsclinvarCreateOptions = (options: Options<SeqvarsApiQuerypresetsclinvarCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsclinvarCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsclinvarCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarCreateResponse, SeqvarsApiQuerypresetsclinvarCreateError, Options<SeqvarsApiQuerypresetsclinvarCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsclinvarCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsclinvarCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarCreateResponse, SeqvarsApiQuerypresetsclinvarCreateError, Options<SeqvarsApiQuerypresetsclinvarCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsclinvarRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsclinvarRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsclinvarRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsclinvarRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsclinvarRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsclinvarRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsclinvarRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsclinvarRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsclinvarUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarUpdateResponse, SeqvarsApiQuerypresetsclinvarUpdateError, Options<SeqvarsApiQuerypresetsclinvarUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsclinvarUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsclinvarUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarUpdateResponse, SeqvarsApiQuerypresetsclinvarUpdateError, Options<SeqvarsApiQuerypresetsclinvarUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsclinvarPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarPartialUpdateResponse, SeqvarsApiQuerypresetsclinvarPartialUpdateError, Options<SeqvarsApiQuerypresetsclinvarPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsclinvarPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsclinvarPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarPartialUpdateResponse, SeqvarsApiQuerypresetsclinvarPartialUpdateError, Options<SeqvarsApiQuerypresetsclinvarPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsclinvarDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarDestroyResponse, SeqvarsApiQuerypresetsclinvarDestroyError, Options<SeqvarsApiQuerypresetsclinvarDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsclinvarDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsclinvarDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsclinvarDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsclinvarDestroyResponse, SeqvarsApiQuerypresetsclinvarDestroyError, Options<SeqvarsApiQuerypresetsclinvarDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsclinvarDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetscolumnsListQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => [
-    createQueryKey("seqvarsApiQuerypresetscolumnsList", options)
+    createQueryKey('seqvarsApiQuerypresetscolumnsList', options)
 ];
 
-export const seqvarsApiQuerypresetscolumnsListOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetscolumnsListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetscolumnsListOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetscolumnsListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetscolumnsListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsListData>): QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>> => [
-    createQueryKey("seqvarsApiQuerypresetscolumnsList", options, true)
+    createQueryKey('seqvarsApiQuerypresetscolumnsList', options, true)
 ];
 
-export const seqvarsApiQuerypresetscolumnsListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetscolumnsListResponse, SeqvarsApiQuerypresetscolumnsListError, InfiniteData<SeqvarsApiQuerypresetscolumnsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetscolumnsList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetscolumnsListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetscolumnsListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetscolumnsListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetscolumnsListResponse, SeqvarsApiQuerypresetscolumnsListError, InfiniteData<SeqvarsApiQuerypresetscolumnsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetscolumnsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetscolumnsList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetscolumnsListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetscolumnsCreateQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetscolumnsCreate", options)
+    createQueryKey('seqvarsApiQuerypresetscolumnsCreate', options)
 ];
 
-export const seqvarsApiQuerypresetscolumnsCreateOptions = (options: Options<SeqvarsApiQuerypresetscolumnsCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetscolumnsCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetscolumnsCreateOptions = (options: Options<SeqvarsApiQuerypresetscolumnsCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetscolumnsCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetscolumnsCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsCreateResponse, SeqvarsApiQuerypresetscolumnsCreateError, Options<SeqvarsApiQuerypresetscolumnsCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetscolumnsCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetscolumnsCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsCreateResponse, SeqvarsApiQuerypresetscolumnsCreateError, Options<SeqvarsApiQuerypresetscolumnsCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetscolumnsRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetscolumnsRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetscolumnsRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetscolumnsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetscolumnsRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetscolumnsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetscolumnsRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetscolumnsRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetscolumnsUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsUpdateResponse, SeqvarsApiQuerypresetscolumnsUpdateError, Options<SeqvarsApiQuerypresetscolumnsUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetscolumnsUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetscolumnsUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsUpdateResponse, SeqvarsApiQuerypresetscolumnsUpdateError, Options<SeqvarsApiQuerypresetscolumnsUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetscolumnsPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsPartialUpdateResponse, SeqvarsApiQuerypresetscolumnsPartialUpdateError, Options<SeqvarsApiQuerypresetscolumnsPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetscolumnsPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetscolumnsPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsPartialUpdateResponse, SeqvarsApiQuerypresetscolumnsPartialUpdateError, Options<SeqvarsApiQuerypresetscolumnsPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetscolumnsDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsDestroyResponse, SeqvarsApiQuerypresetscolumnsDestroyError, Options<SeqvarsApiQuerypresetscolumnsDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetscolumnsDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetscolumnsDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetscolumnsDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetscolumnsDestroyResponse, SeqvarsApiQuerypresetscolumnsDestroyError, Options<SeqvarsApiQuerypresetscolumnsDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetscolumnsDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsconsequenceListQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsconsequenceList", options)
+    createQueryKey('seqvarsApiQuerypresetsconsequenceList', options)
 ];
 
-export const seqvarsApiQuerypresetsconsequenceListOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsconsequenceListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsconsequenceListOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsconsequenceListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsconsequenceListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>): QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsconsequenceList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsconsequenceList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsconsequenceListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsconsequenceListResponse, SeqvarsApiQuerypresetsconsequenceListError, InfiniteData<SeqvarsApiQuerypresetsconsequenceListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsconsequenceList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsconsequenceListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsconsequenceListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsconsequenceListResponse, SeqvarsApiQuerypresetsconsequenceListError, InfiniteData<SeqvarsApiQuerypresetsconsequenceListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsconsequenceListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsconsequenceList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsconsequenceListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsconsequenceCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsconsequenceCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsconsequenceCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsconsequenceCreateOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsconsequenceCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsconsequenceCreateOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsconsequenceCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsconsequenceCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceCreateResponse, SeqvarsApiQuerypresetsconsequenceCreateError, Options<SeqvarsApiQuerypresetsconsequenceCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsconsequenceCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsconsequenceCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceCreateResponse, SeqvarsApiQuerypresetsconsequenceCreateError, Options<SeqvarsApiQuerypresetsconsequenceCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsconsequenceRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsconsequenceRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsconsequenceRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsconsequenceRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsconsequenceRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsconsequenceRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsconsequenceRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsconsequenceRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsconsequenceUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceUpdateResponse, SeqvarsApiQuerypresetsconsequenceUpdateError, Options<SeqvarsApiQuerypresetsconsequenceUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsconsequenceUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsconsequenceUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceUpdateResponse, SeqvarsApiQuerypresetsconsequenceUpdateError, Options<SeqvarsApiQuerypresetsconsequenceUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsconsequencePartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequencePartialUpdateResponse, SeqvarsApiQuerypresetsconsequencePartialUpdateError, Options<SeqvarsApiQuerypresetsconsequencePartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsconsequencePartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsconsequencePartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsconsequencePartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequencePartialUpdateResponse, SeqvarsApiQuerypresetsconsequencePartialUpdateError, Options<SeqvarsApiQuerypresetsconsequencePartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsconsequencePartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsconsequenceDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceDestroyResponse, SeqvarsApiQuerypresetsconsequenceDestroyError, Options<SeqvarsApiQuerypresetsconsequenceDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsconsequenceDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsconsequenceDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsconsequenceDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsconsequenceDestroyResponse, SeqvarsApiQuerypresetsconsequenceDestroyError, Options<SeqvarsApiQuerypresetsconsequenceDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsconsequenceDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsfactorydefaultsListQueryKey = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options)
+    createQueryKey('seqvarsApiQuerypresetsfactorydefaultsList', options)
 ];
 
-export const seqvarsApiQuerypresetsfactorydefaultsListOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsfactorydefaultsList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfactorydefaultsListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfactorydefaultsListOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsfactorydefaultsList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfactorydefaultsListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteQueryKey = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>): QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsfactorydefaultsList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsfactorydefaultsListResponse, SeqvarsApiQuerypresetsfactorydefaultsListError, InfiniteData<SeqvarsApiQuerypresetsfactorydefaultsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsfactorydefaultsList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfactorydefaultsListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfactorydefaultsListInfiniteOptions = (options?: Options<SeqvarsApiQuerypresetsfactorydefaultsListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsfactorydefaultsListResponse, SeqvarsApiQuerypresetsfactorydefaultsListError, InfiniteData<SeqvarsApiQuerypresetsfactorydefaultsListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsfactorydefaultsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsfactorydefaultsList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfactorydefaultsListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsfactorydefaultsRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsfactorydefaultsRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsfactorydefaultsRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsfactorydefaultsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsfactorydefaultsRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfactorydefaultsRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfactorydefaultsRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfactorydefaultsRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsfactorydefaultsRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfactorydefaultsRetrieveQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsfrequencyListQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsfrequencyList", options)
+    createQueryKey('seqvarsApiQuerypresetsfrequencyList', options)
 ];
 
-export const seqvarsApiQuerypresetsfrequencyListOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfrequencyListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfrequencyListOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfrequencyListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsfrequencyListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>): QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsfrequencyList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsfrequencyList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsfrequencyListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsfrequencyListResponse, SeqvarsApiQuerypresetsfrequencyListError, InfiniteData<SeqvarsApiQuerypresetsfrequencyListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsfrequencyList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfrequencyListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfrequencyListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsfrequencyListResponse, SeqvarsApiQuerypresetsfrequencyListError, InfiniteData<SeqvarsApiQuerypresetsfrequencyListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsfrequencyListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsfrequencyList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfrequencyListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsfrequencyCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsfrequencyCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsfrequencyCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsfrequencyCreateOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfrequencyCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfrequencyCreateOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfrequencyCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsfrequencyCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyCreateResponse, SeqvarsApiQuerypresetsfrequencyCreateError, Options<SeqvarsApiQuerypresetsfrequencyCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsfrequencyCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsfrequencyCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyCreateResponse, SeqvarsApiQuerypresetsfrequencyCreateError, Options<SeqvarsApiQuerypresetsfrequencyCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsfrequencyRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsfrequencyRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsfrequencyRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsfrequencyRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsfrequencyRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsfrequencyRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsfrequencyRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsfrequencyRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsfrequencyUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyUpdateResponse, SeqvarsApiQuerypresetsfrequencyUpdateError, Options<SeqvarsApiQuerypresetsfrequencyUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsfrequencyUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsfrequencyUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyUpdateResponse, SeqvarsApiQuerypresetsfrequencyUpdateError, Options<SeqvarsApiQuerypresetsfrequencyUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsfrequencyPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse, SeqvarsApiQuerypresetsfrequencyPartialUpdateError, Options<SeqvarsApiQuerypresetsfrequencyPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsfrequencyPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsfrequencyPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyPartialUpdateResponse, SeqvarsApiQuerypresetsfrequencyPartialUpdateError, Options<SeqvarsApiQuerypresetsfrequencyPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsfrequencyDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyDestroyResponse, SeqvarsApiQuerypresetsfrequencyDestroyError, Options<SeqvarsApiQuerypresetsfrequencyDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsfrequencyDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsfrequencyDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsfrequencyDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsfrequencyDestroyResponse, SeqvarsApiQuerypresetsfrequencyDestroyError, Options<SeqvarsApiQuerypresetsfrequencyDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsfrequencyDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetslocusListQueryKey = (options: Options<SeqvarsApiQuerypresetslocusListData>) => [
-    createQueryKey("seqvarsApiQuerypresetslocusList", options)
+    createQueryKey('seqvarsApiQuerypresetslocusList', options)
 ];
 
-export const seqvarsApiQuerypresetslocusListOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetslocusList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetslocusListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetslocusListOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetslocusList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetslocusListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetslocusListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetslocusListData>): QueryKey<Options<SeqvarsApiQuerypresetslocusListData>> => [
-    createQueryKey("seqvarsApiQuerypresetslocusList", options, true)
+    createQueryKey('seqvarsApiQuerypresetslocusList', options, true)
 ];
 
-export const seqvarsApiQuerypresetslocusListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetslocusListResponse, SeqvarsApiQuerypresetslocusListError, InfiniteData<SeqvarsApiQuerypresetslocusListResponse>, QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetslocusList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetslocusListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetslocusListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetslocusListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetslocusListResponse, SeqvarsApiQuerypresetslocusListError, InfiniteData<SeqvarsApiQuerypresetslocusListResponse>, QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetslocusListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetslocusList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetslocusListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetslocusCreateQueryKey = (options: Options<SeqvarsApiQuerypresetslocusCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetslocusCreate", options)
+    createQueryKey('seqvarsApiQuerypresetslocusCreate', options)
 ];
 
-export const seqvarsApiQuerypresetslocusCreateOptions = (options: Options<SeqvarsApiQuerypresetslocusCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetslocusCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetslocusCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetslocusCreateOptions = (options: Options<SeqvarsApiQuerypresetslocusCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetslocusCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetslocusCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetslocusCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusCreateResponse, SeqvarsApiQuerypresetslocusCreateError, Options<SeqvarsApiQuerypresetslocusCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetslocusCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetslocusCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetslocusCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusCreateResponse, SeqvarsApiQuerypresetslocusCreateError, Options<SeqvarsApiQuerypresetslocusCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetslocusCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetslocusRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetslocusRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetslocusRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetslocusRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetslocusRetrieveOptions = (options: Options<SeqvarsApiQuerypresetslocusRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetslocusRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetslocusRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetslocusRetrieveOptions = (options: Options<SeqvarsApiQuerypresetslocusRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetslocusRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetslocusRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetslocusUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusUpdateResponse, SeqvarsApiQuerypresetslocusUpdateError, Options<SeqvarsApiQuerypresetslocusUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetslocusUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetslocusUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetslocusUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusUpdateResponse, SeqvarsApiQuerypresetslocusUpdateError, Options<SeqvarsApiQuerypresetslocusUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetslocusUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetslocusPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusPartialUpdateResponse, SeqvarsApiQuerypresetslocusPartialUpdateError, Options<SeqvarsApiQuerypresetslocusPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetslocusPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetslocusPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetslocusPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusPartialUpdateResponse, SeqvarsApiQuerypresetslocusPartialUpdateError, Options<SeqvarsApiQuerypresetslocusPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetslocusPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetslocusDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusDestroyResponse, SeqvarsApiQuerypresetslocusDestroyError, Options<SeqvarsApiQuerypresetslocusDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetslocusDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetslocusDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetslocusDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetslocusDestroyResponse, SeqvarsApiQuerypresetslocusDestroyError, Options<SeqvarsApiQuerypresetslocusDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetslocusDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsphenotypeprioListQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options)
+    createQueryKey('seqvarsApiQuerypresetsphenotypeprioList', options)
 ];
 
-export const seqvarsApiQuerypresetsphenotypeprioListOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsphenotypeprioListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsphenotypeprioListOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsphenotypeprioListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsphenotypeprioListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>): QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsphenotypeprioList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsphenotypeprioList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsphenotypeprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsphenotypeprioListResponse, SeqvarsApiQuerypresetsphenotypeprioListError, InfiniteData<SeqvarsApiQuerypresetsphenotypeprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsphenotypeprioListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsphenotypeprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsphenotypeprioListResponse, SeqvarsApiQuerypresetsphenotypeprioListError, InfiniteData<SeqvarsApiQuerypresetsphenotypeprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsphenotypeprioListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsphenotypeprioListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsphenotypeprioCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsphenotypeprioCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsphenotypeprioCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsphenotypeprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsphenotypeprioCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsphenotypeprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsphenotypeprioCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsphenotypeprioCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioCreateResponse, SeqvarsApiQuerypresetsphenotypeprioCreateError, Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsphenotypeprioCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioCreateResponse, SeqvarsApiQuerypresetsphenotypeprioCreateError, Options<SeqvarsApiQuerypresetsphenotypeprioCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsphenotypeprioRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsphenotypeprioRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsphenotypeprioRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsphenotypeprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsphenotypeprioRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsphenotypeprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsphenotypeprioRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsphenotypeprioRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsphenotypeprioUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioUpdateResponse, SeqvarsApiQuerypresetsphenotypeprioUpdateError, Options<SeqvarsApiQuerypresetsphenotypeprioUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsphenotypeprioUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsphenotypeprioUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioUpdateResponse, SeqvarsApiQuerypresetsphenotypeprioUpdateError, Options<SeqvarsApiQuerypresetsphenotypeprioUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsphenotypeprioPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse, SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError, Options<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsphenotypeprioPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateResponse, SeqvarsApiQuerypresetsphenotypeprioPartialUpdateError, Options<SeqvarsApiQuerypresetsphenotypeprioPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsphenotypeprioDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioDestroyResponse, SeqvarsApiQuerypresetsphenotypeprioDestroyError, Options<SeqvarsApiQuerypresetsphenotypeprioDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsphenotypeprioDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsphenotypeprioDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsphenotypeprioDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsphenotypeprioDestroyResponse, SeqvarsApiQuerypresetsphenotypeprioDestroyError, Options<SeqvarsApiQuerypresetsphenotypeprioDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsphenotypeprioDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsqualityListQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsqualityList", options)
+    createQueryKey('seqvarsApiQuerypresetsqualityList', options)
 ];
 
-export const seqvarsApiQuerypresetsqualityListOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsqualityList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsqualityListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsqualityListOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsqualityList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsqualityListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsqualityListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityListData>): QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsqualityList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsqualityList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsqualityListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsqualityListResponse, SeqvarsApiQuerypresetsqualityListError, InfiniteData<SeqvarsApiQuerypresetsqualityListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsqualityList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsqualityListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsqualityListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsqualityListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsqualityListResponse, SeqvarsApiQuerypresetsqualityListError, InfiniteData<SeqvarsApiQuerypresetsqualityListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsqualityListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsqualityList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsqualityListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsqualityCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsqualityCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsqualityCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsqualityCreateOptions = (options: Options<SeqvarsApiQuerypresetsqualityCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsqualityCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsqualityCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsqualityCreateOptions = (options: Options<SeqvarsApiQuerypresetsqualityCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsqualityCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsqualityCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsqualityCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityCreateResponse, SeqvarsApiQuerypresetsqualityCreateError, Options<SeqvarsApiQuerypresetsqualityCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsqualityCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsqualityCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsqualityCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityCreateResponse, SeqvarsApiQuerypresetsqualityCreateError, Options<SeqvarsApiQuerypresetsqualityCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsqualityCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsqualityRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsqualityRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsqualityRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsqualityRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsqualityRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsqualityRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsqualityRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsqualityRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsqualityRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsqualityRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsqualityUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityUpdateResponse, SeqvarsApiQuerypresetsqualityUpdateError, Options<SeqvarsApiQuerypresetsqualityUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsqualityUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsqualityUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsqualityUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityUpdateResponse, SeqvarsApiQuerypresetsqualityUpdateError, Options<SeqvarsApiQuerypresetsqualityUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsqualityUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsqualityPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityPartialUpdateResponse, SeqvarsApiQuerypresetsqualityPartialUpdateError, Options<SeqvarsApiQuerypresetsqualityPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsqualityPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsqualityPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsqualityPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityPartialUpdateResponse, SeqvarsApiQuerypresetsqualityPartialUpdateError, Options<SeqvarsApiQuerypresetsqualityPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsqualityPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsqualityDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityDestroyResponse, SeqvarsApiQuerypresetsqualityDestroyError, Options<SeqvarsApiQuerypresetsqualityDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsqualityDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsqualityDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsqualityDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsqualityDestroyResponse, SeqvarsApiQuerypresetsqualityDestroyError, Options<SeqvarsApiQuerypresetsqualityDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsqualityDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetListQueryKey = (options: Options<SeqvarsApiQuerypresetssetListData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetList", options)
+    createQueryKey('seqvarsApiQuerypresetssetList', options)
 ];
 
-export const seqvarsApiQuerypresetssetListOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetListOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetssetListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetssetListData>): QueryKey<Options<SeqvarsApiQuerypresetssetListData>> => [
-    createQueryKey("seqvarsApiQuerypresetssetList", options, true)
+    createQueryKey('seqvarsApiQuerypresetssetList', options, true)
 ];
 
-export const seqvarsApiQuerypresetssetListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetssetListResponse, SeqvarsApiQuerypresetssetListError, InfiniteData<SeqvarsApiQuerypresetssetListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetssetListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetssetList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetssetListResponse, SeqvarsApiQuerypresetssetListError, InfiniteData<SeqvarsApiQuerypresetssetListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetssetListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetssetList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetssetCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetCreate", options)
+    createQueryKey('seqvarsApiQuerypresetssetCreate', options)
 ];
 
-export const seqvarsApiQuerypresetssetCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCreateResponse, SeqvarsApiQuerypresetssetCreateError, Options<SeqvarsApiQuerypresetssetCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCreateResponse, SeqvarsApiQuerypresetssetCreateError, Options<SeqvarsApiQuerypresetssetCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetssetRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetssetRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetssetRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetUpdateResponse, SeqvarsApiQuerypresetssetUpdateError, Options<SeqvarsApiQuerypresetssetUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetUpdateResponse, SeqvarsApiQuerypresetssetUpdateError, Options<SeqvarsApiQuerypresetssetUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetssetPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetPartialUpdateResponse, SeqvarsApiQuerypresetssetPartialUpdateError, Options<SeqvarsApiQuerypresetssetPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetPartialUpdateResponse, SeqvarsApiQuerypresetssetPartialUpdateError, Options<SeqvarsApiQuerypresetssetPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetssetDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetDestroyResponse, SeqvarsApiQuerypresetssetDestroyError, Options<SeqvarsApiQuerypresetssetDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetDestroyResponse, SeqvarsApiQuerypresetssetDestroyError, Options<SeqvarsApiQuerypresetssetDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetCopyFromCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetCopyFromCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetCopyFromCreate", options)
+    createQueryKey('seqvarsApiQuerypresetssetCopyFromCreate', options)
 ];
 
-export const seqvarsApiQuerypresetssetCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCopyFromCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetCopyFromCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetCopyFromCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetCopyFromCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetCopyFromCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetCopyFromCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetCopyFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCopyFromCreateResponse, SeqvarsApiQuerypresetssetCopyFromCreateError, Options<SeqvarsApiQuerypresetssetCopyFromCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetCopyFromCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetCopyFromCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetCopyFromCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetCopyFromCreateResponse, SeqvarsApiQuerypresetssetCopyFromCreateError, Options<SeqvarsApiQuerypresetssetCopyFromCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetCopyFromCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetversionListQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetversionList", options)
+    createQueryKey('seqvarsApiQuerypresetssetversionList', options)
 ];
 
-export const seqvarsApiQuerypresetssetversionListOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetversionList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetversionListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetversionListOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetversionList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetversionListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetssetversionListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionListData>): QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>> => [
-    createQueryKey("seqvarsApiQuerypresetssetversionList", options, true)
+    createQueryKey('seqvarsApiQuerypresetssetversionList', options, true)
 ];
 
-export const seqvarsApiQuerypresetssetversionListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetssetversionListResponse, SeqvarsApiQuerypresetssetversionListError, InfiniteData<SeqvarsApiQuerypresetssetversionListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetssetversionList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetversionListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetversionListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetssetversionListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetssetversionListResponse, SeqvarsApiQuerypresetssetversionListError, InfiniteData<SeqvarsApiQuerypresetssetversionListResponse>, QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetssetversionListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetssetversionList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetversionListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetssetversionCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetversionCreate", options)
+    createQueryKey('seqvarsApiQuerypresetssetversionCreate', options)
 ];
 
-export const seqvarsApiQuerypresetssetversionCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetversionCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetversionCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetversionCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetversionCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetversionCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetversionCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCreateResponse, SeqvarsApiQuerypresetssetversionCreateError, Options<SeqvarsApiQuerypresetssetversionCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetversionCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetversionCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetversionCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCreateResponse, SeqvarsApiQuerypresetssetversionCreateError, Options<SeqvarsApiQuerypresetssetversionCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetversionCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetversionRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetversionRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetssetversionRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetssetversionRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetversionRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetversionRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetversionRetrieveOptions = (options: Options<SeqvarsApiQuerypresetssetversionRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetversionRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetversionRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetversionUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionUpdateResponse, SeqvarsApiQuerypresetssetversionUpdateError, Options<SeqvarsApiQuerypresetssetversionUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetversionUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetversionUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetversionUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionUpdateResponse, SeqvarsApiQuerypresetssetversionUpdateError, Options<SeqvarsApiQuerypresetssetversionUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetversionUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetssetversionPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionPartialUpdateResponse, SeqvarsApiQuerypresetssetversionPartialUpdateError, Options<SeqvarsApiQuerypresetssetversionPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetversionPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetversionPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetversionPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionPartialUpdateResponse, SeqvarsApiQuerypresetssetversionPartialUpdateError, Options<SeqvarsApiQuerypresetssetversionPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetversionPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetssetversionDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionDestroyResponse, SeqvarsApiQuerypresetssetversionDestroyError, Options<SeqvarsApiQuerypresetssetversionDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetversionDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetversionDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetversionDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionDestroyResponse, SeqvarsApiQuerypresetssetversionDestroyError, Options<SeqvarsApiQuerypresetssetversionDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetversionDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetssetversionCopyFromCreateQueryKey = (options: Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetssetversionCopyFromCreate", options)
+    createQueryKey('seqvarsApiQuerypresetssetversionCopyFromCreate', options)
 ];
 
-export const seqvarsApiQuerypresetssetversionCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetssetversionCopyFromCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetssetversionCopyFromCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetssetversionCopyFromCreateOptions = (options: Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetssetversionCopyFromCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetssetversionCopyFromCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetssetversionCopyFromCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCopyFromCreateResponse, SeqvarsApiQuerypresetssetversionCopyFromCreateError, Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetssetversionCopyFromCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetssetversionCopyFromCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetssetversionCopyFromCreateResponse, SeqvarsApiQuerypresetssetversionCopyFromCreateError, Options<SeqvarsApiQuerypresetssetversionCopyFromCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetssetversionCopyFromCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsvariantprioListQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => [
-    createQueryKey("seqvarsApiQuerypresetsvariantprioList", options)
+    createQueryKey('seqvarsApiQuerypresetsvariantprioList', options)
 ];
 
-export const seqvarsApiQuerypresetsvariantprioListOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsvariantprioListQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsvariantprioListOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsvariantprioListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsvariantprioListInfiniteQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>): QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>> => [
-    createQueryKey("seqvarsApiQuerypresetsvariantprioList", options, true)
+    createQueryKey('seqvarsApiQuerypresetsvariantprioList', options, true)
 ];
 
-export const seqvarsApiQuerypresetsvariantprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => { return infiniteQueryOptions<SeqvarsApiQuerypresetsvariantprioListResponse, SeqvarsApiQuerypresetsvariantprioListError, InfiniteData<SeqvarsApiQuerypresetsvariantprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerypresetsvariantprioList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsvariantprioListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsvariantprioListInfiniteOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerypresetsvariantprioListResponse, SeqvarsApiQuerypresetsvariantprioListError, InfiniteData<SeqvarsApiQuerypresetsvariantprioListResponse>, QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerypresetsvariantprioListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerypresetsvariantprioList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsvariantprioListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerypresetsvariantprioCreateQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>) => [
-    createQueryKey("seqvarsApiQuerypresetsvariantprioCreate", options)
+    createQueryKey('seqvarsApiQuerypresetsvariantprioCreate', options)
 ];
 
-export const seqvarsApiQuerypresetsvariantprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsvariantprioCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsvariantprioCreateOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsvariantprioCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsvariantprioCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioCreateResponse, SeqvarsApiQuerypresetsvariantprioCreateError, Options<SeqvarsApiQuerypresetsvariantprioCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsvariantprioCreateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsvariantprioCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioCreateResponse, SeqvarsApiQuerypresetsvariantprioCreateError, Options<SeqvarsApiQuerypresetsvariantprioCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerypresetsvariantprioRetrieveQueryKey = (options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerypresetsvariantprioRetrieve", options)
+    createQueryKey('seqvarsApiQuerypresetsvariantprioRetrieve', options)
 ];
 
-export const seqvarsApiQuerypresetsvariantprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerypresetsvariantprioRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerypresetsvariantprioRetrieveOptions = (options: Options<SeqvarsApiQuerypresetsvariantprioRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerypresetsvariantprioRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerypresetsvariantprioUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioUpdateResponse, SeqvarsApiQuerypresetsvariantprioUpdateError, Options<SeqvarsApiQuerypresetsvariantprioUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsvariantprioUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsvariantprioUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioUpdateResponse, SeqvarsApiQuerypresetsvariantprioUpdateError, Options<SeqvarsApiQuerypresetsvariantprioUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsvariantprioPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse, SeqvarsApiQuerypresetsvariantprioPartialUpdateError, Options<SeqvarsApiQuerypresetsvariantprioPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsvariantprioPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsvariantprioPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioPartialUpdateResponse, SeqvarsApiQuerypresetsvariantprioPartialUpdateError, Options<SeqvarsApiQuerypresetsvariantprioPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerypresetsvariantprioDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioDestroyResponse, SeqvarsApiQuerypresetsvariantprioDestroyError, Options<SeqvarsApiQuerypresetsvariantprioDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerypresetsvariantprioDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerypresetsvariantprioDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerypresetsvariantprioDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerypresetsvariantprioDestroyResponse, SeqvarsApiQuerypresetsvariantprioDestroyError, Options<SeqvarsApiQuerypresetsvariantprioDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerypresetsvariantprioDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerysettingsListQueryKey = (options: Options<SeqvarsApiQuerysettingsListData>) => [
-    createQueryKey("seqvarsApiQuerysettingsList", options)
+    createQueryKey('seqvarsApiQuerysettingsList', options)
 ];
 
-export const seqvarsApiQuerysettingsListOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerysettingsList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerysettingsListQueryKey(options)
-}); };
+export const seqvarsApiQuerysettingsListOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerysettingsList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerysettingsListQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerysettingsListInfiniteQueryKey = (options: Options<SeqvarsApiQuerysettingsListData>): QueryKey<Options<SeqvarsApiQuerysettingsListData>> => [
-    createQueryKey("seqvarsApiQuerysettingsList", options, true)
+    createQueryKey('seqvarsApiQuerysettingsList', options, true)
 ];
 
-export const seqvarsApiQuerysettingsListInfiniteOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => { return infiniteQueryOptions<SeqvarsApiQuerysettingsListResponse, SeqvarsApiQuerysettingsListError, InfiniteData<SeqvarsApiQuerysettingsListResponse>, QueryKey<Options<SeqvarsApiQuerysettingsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerysettingsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiQuerysettingsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiQuerysettingsList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerysettingsListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiQuerysettingsListInfiniteOptions = (options: Options<SeqvarsApiQuerysettingsListData>) => {
+    return infiniteQueryOptions<SeqvarsApiQuerysettingsListResponse, SeqvarsApiQuerysettingsListError, InfiniteData<SeqvarsApiQuerysettingsListResponse>, QueryKey<Options<SeqvarsApiQuerysettingsListData>>, number | Pick<QueryKey<Options<SeqvarsApiQuerysettingsListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiQuerysettingsListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiQuerysettingsList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerysettingsListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiQuerysettingsCreateQueryKey = (options: Options<SeqvarsApiQuerysettingsCreateData>) => [
-    createQueryKey("seqvarsApiQuerysettingsCreate", options)
+    createQueryKey('seqvarsApiQuerysettingsCreate', options)
 ];
 
-export const seqvarsApiQuerysettingsCreateOptions = (options: Options<SeqvarsApiQuerysettingsCreateData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerysettingsCreate({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerysettingsCreateQueryKey(options)
-}); };
+export const seqvarsApiQuerysettingsCreateOptions = (options: Options<SeqvarsApiQuerysettingsCreateData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerysettingsCreate({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerysettingsCreateQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerysettingsCreateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsCreateResponse, SeqvarsApiQuerysettingsCreateError, Options<SeqvarsApiQuerysettingsCreateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerysettingsCreate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerysettingsCreateMutation = (options?: Partial<Options<SeqvarsApiQuerysettingsCreateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsCreateResponse, SeqvarsApiQuerysettingsCreateError, Options<SeqvarsApiQuerysettingsCreateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerysettingsCreate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiQuerysettingsRetrieveQueryKey = (options: Options<SeqvarsApiQuerysettingsRetrieveData>) => [
-    createQueryKey("seqvarsApiQuerysettingsRetrieve", options)
+    createQueryKey('seqvarsApiQuerysettingsRetrieve', options)
 ];
 
-export const seqvarsApiQuerysettingsRetrieveOptions = (options: Options<SeqvarsApiQuerysettingsRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiQuerysettingsRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiQuerysettingsRetrieveQueryKey(options)
-}); };
+export const seqvarsApiQuerysettingsRetrieveOptions = (options: Options<SeqvarsApiQuerysettingsRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiQuerysettingsRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiQuerysettingsRetrieveQueryKey(options)
+    });
+};
 
-export const seqvarsApiQuerysettingsUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsUpdateResponse, SeqvarsApiQuerysettingsUpdateError, Options<SeqvarsApiQuerysettingsUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerysettingsUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerysettingsUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerysettingsUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsUpdateResponse, SeqvarsApiQuerysettingsUpdateError, Options<SeqvarsApiQuerysettingsUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerysettingsUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerysettingsPartialUpdateMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsPartialUpdateResponse, SeqvarsApiQuerysettingsPartialUpdateError, Options<SeqvarsApiQuerysettingsPartialUpdateData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerysettingsPartialUpdate({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerysettingsPartialUpdateMutation = (options?: Partial<Options<SeqvarsApiQuerysettingsPartialUpdateData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsPartialUpdateResponse, SeqvarsApiQuerysettingsPartialUpdateError, Options<SeqvarsApiQuerysettingsPartialUpdateData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerysettingsPartialUpdate({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
-export const seqvarsApiQuerysettingsDestroyMutation = () => { const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsDestroyResponse, SeqvarsApiQuerysettingsDestroyError, Options<SeqvarsApiQuerysettingsDestroyData>> = {
-    mutationFn: async (options) => {
-        const { data } = await seqvarsApiQuerysettingsDestroy({
-            ...options,
-            throwOnError: true
-        });
-        return data;
-    }
-}; return mutationOptions; };
+export const seqvarsApiQuerysettingsDestroyMutation = (options?: Partial<Options<SeqvarsApiQuerysettingsDestroyData>>) => {
+    const mutationOptions: UseMutationOptions<SeqvarsApiQuerysettingsDestroyResponse, SeqvarsApiQuerysettingsDestroyError, Options<SeqvarsApiQuerysettingsDestroyData>> = {
+        mutationFn: async (localOptions) => {
+            const { data } = await seqvarsApiQuerysettingsDestroy({
+                ...options,
+                ...localOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const seqvarsApiResultrowListQueryKey = (options: Options<SeqvarsApiResultrowListData>) => [
-    createQueryKey("seqvarsApiResultrowList", options)
+    createQueryKey('seqvarsApiResultrowList', options)
 ];
 
-export const seqvarsApiResultrowListOptions = (options: Options<SeqvarsApiResultrowListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiResultrowList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultrowListQueryKey(options)
-}); };
+export const seqvarsApiResultrowListOptions = (options: Options<SeqvarsApiResultrowListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiResultrowList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultrowListQueryKey(options)
+    });
+};
 
 export const seqvarsApiResultrowListInfiniteQueryKey = (options: Options<SeqvarsApiResultrowListData>): QueryKey<Options<SeqvarsApiResultrowListData>> => [
-    createQueryKey("seqvarsApiResultrowList", options, true)
+    createQueryKey('seqvarsApiResultrowList', options, true)
 ];
 
-export const seqvarsApiResultrowListInfiniteOptions = (options: Options<SeqvarsApiResultrowListData>) => { return infiniteQueryOptions<SeqvarsApiResultrowListResponse, SeqvarsApiResultrowListError, InfiniteData<SeqvarsApiResultrowListResponse>, QueryKey<Options<SeqvarsApiResultrowListData>>, number | Pick<QueryKey<Options<SeqvarsApiResultrowListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiResultrowListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiResultrowList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultrowListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiResultrowListInfiniteOptions = (options: Options<SeqvarsApiResultrowListData>) => {
+    return infiniteQueryOptions<SeqvarsApiResultrowListResponse, SeqvarsApiResultrowListError, InfiniteData<SeqvarsApiResultrowListResponse>, QueryKey<Options<SeqvarsApiResultrowListData>>, number | Pick<QueryKey<Options<SeqvarsApiResultrowListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiResultrowListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiResultrowList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultrowListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiResultrowRetrieveQueryKey = (options: Options<SeqvarsApiResultrowRetrieveData>) => [
-    createQueryKey("seqvarsApiResultrowRetrieve", options)
+    createQueryKey('seqvarsApiResultrowRetrieve', options)
 ];
 
-export const seqvarsApiResultrowRetrieveOptions = (options: Options<SeqvarsApiResultrowRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiResultrowRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultrowRetrieveQueryKey(options)
-}); };
+export const seqvarsApiResultrowRetrieveOptions = (options: Options<SeqvarsApiResultrowRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiResultrowRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultrowRetrieveQueryKey(options)
+    });
+};
 
 export const seqvarsApiResultsetListQueryKey = (options: Options<SeqvarsApiResultsetListData>) => [
-    createQueryKey("seqvarsApiResultsetList", options)
+    createQueryKey('seqvarsApiResultsetList', options)
 ];
 
-export const seqvarsApiResultsetListOptions = (options: Options<SeqvarsApiResultsetListData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiResultsetList({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultsetListQueryKey(options)
-}); };
+export const seqvarsApiResultsetListOptions = (options: Options<SeqvarsApiResultsetListData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiResultsetList({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultsetListQueryKey(options)
+    });
+};
 
 export const seqvarsApiResultsetListInfiniteQueryKey = (options: Options<SeqvarsApiResultsetListData>): QueryKey<Options<SeqvarsApiResultsetListData>> => [
-    createQueryKey("seqvarsApiResultsetList", options, true)
+    createQueryKey('seqvarsApiResultsetList', options, true)
 ];
 
-export const seqvarsApiResultsetListInfiniteOptions = (options: Options<SeqvarsApiResultsetListData>) => { return infiniteQueryOptions<SeqvarsApiResultsetListResponse, SeqvarsApiResultsetListError, InfiniteData<SeqvarsApiResultsetListResponse>, QueryKey<Options<SeqvarsApiResultsetListData>>, number | Pick<QueryKey<Options<SeqvarsApiResultsetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
-// @ts-ignore
-{
-    queryFn: async ({ pageParam, queryKey }) => {
-        // @ts-ignore
-        const page: Pick<QueryKey<Options<SeqvarsApiResultsetListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === "object" ? pageParam : {
-            query: {
-                page: pageParam
-            }
-        };
-        const { data } = await seqvarsApiResultsetList({
-            ...options,
-            ...queryKey[0],
-            // body: {
-            //     ...queryKey[0].body as any,
-            //     ...page.body as any
-            // },
-            headers: {
-                ...queryKey[0].headers,
-                ...page.headers
-            },
-            path: {
-                ...queryKey[0].path,
-                ...page.path
-            },
-            query: {
-                ...queryKey[0].query,
-                ...page.query
-            },
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultsetListInfiniteQueryKey(options)
-}); };
+export const seqvarsApiResultsetListInfiniteOptions = (options: Options<SeqvarsApiResultsetListData>) => {
+    return infiniteQueryOptions<SeqvarsApiResultsetListResponse, SeqvarsApiResultsetListError, InfiniteData<SeqvarsApiResultsetListResponse>, QueryKey<Options<SeqvarsApiResultsetListData>>, number | Pick<QueryKey<Options<SeqvarsApiResultsetListData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<SeqvarsApiResultsetListData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await seqvarsApiResultsetList({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultsetListInfiniteQueryKey(options)
+    });
+};
 
 export const seqvarsApiResultsetRetrieveQueryKey = (options: Options<SeqvarsApiResultsetRetrieveData>) => [
-    createQueryKey("seqvarsApiResultsetRetrieve", options)
+    createQueryKey('seqvarsApiResultsetRetrieve', options)
 ];
 
-export const seqvarsApiResultsetRetrieveOptions = (options: Options<SeqvarsApiResultsetRetrieveData>) => { return queryOptions({
-    queryFn: async ({ queryKey }) => {
-        const { data } = await seqvarsApiResultsetRetrieve({
-            ...options,
-            ...queryKey[0],
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: seqvarsApiResultsetRetrieveQueryKey(options)
-}); };
+export const seqvarsApiResultsetRetrieveOptions = (options: Options<SeqvarsApiResultsetRetrieveData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await seqvarsApiResultsetRetrieve({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: seqvarsApiResultsetRetrieveQueryKey(options)
+    });
+};

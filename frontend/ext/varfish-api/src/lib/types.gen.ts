@@ -1243,9 +1243,9 @@ export type PatchedSeqvarsPredefinedQueryRequest = {
     label?: string;
     description?: (string) | null;
     included_in_sop?: boolean;
-    genotype?: (({
+    genotype?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     quality?: (string) | null;
     frequency?: (string) | null;
     consequence?: (string) | null;
@@ -1315,39 +1315,39 @@ export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
  * Not used directly but used as base class.
  */
 export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
-    gnomad_exomes?: (({
+    gnomad_exomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_genomes?: (({
+} | null);
+    gnomad_genomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_mtdna?: (({
+} | null);
+    gnomad_mtdna?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    helixmtdb?: (({
+} | null);
+    helixmtdb?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    inhouse?: (({
+} | null);
+    inhouse?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_carriers?: (number | null);
-} | null) | null);
+} | null);
     rank?: number;
     label?: string;
     description?: (string) | null;
@@ -1437,9 +1437,9 @@ export type PatchedSeqvarsQueryPresetsVariantPrioRequest = {
  * owned category settings.
  */
 export type PatchedSeqvarsQuerySettingsDetailsRequest = {
-    genotypepresets?: (({
+    genotypepresets?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     qualitypresets?: (string) | null;
     consequencepresets?: (string) | null;
     locuspresets?: (string) | null;
@@ -1699,39 +1699,6 @@ export type RoleAssignmentRequest = {
     user: string;
 };
 
-/**
- * Serializer for the user model used in SODAR Core based sites
- */
-export type SODARUser = {
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username: string;
-    name?: string;
-    email?: string;
-    /**
-     * Designates that this user has all permissions without explicitly assigning them.
-     */
-    is_superuser?: boolean;
-    readonly sodar_uuid: string;
-};
-
-/**
- * Serializer for the user model used in SODAR Core based sites
- */
-export type SODARUserRequest = {
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username: string;
-    name?: string;
-    email?: string;
-    /**
-     * Designates that this user has all permissions without explicitly assigning them.
-     */
-    is_superuser?: boolean;
-};
-
 export type SampleAlignmentStatsList = Array<{
     sample: string;
     detailed_counts: DetailedAlignmentCounts;
@@ -1853,11 +1820,6 @@ export type SamtoolsStatsFqRecordList = Array<{
     counts: Array<(number)>;
 }>;
 
-export type SamtoolsStatsGcRecordList = Array<{
-    gc_content: number;
-    count: number;
-}>;
-
 export type SamtoolsStatsGcdRecordList = Array<{
     gc_content: number;
     unique_seq_percentiles: number;
@@ -1866,6 +1828,11 @@ export type SamtoolsStatsGcdRecordList = Array<{
     dp_percentile_50: number;
     dp_percentile_75: number;
     dp_percentile_90: number;
+}>;
+
+export type SamtoolsStatsGcRecordList = Array<{
+    gc_content: number;
+    count: number;
 }>;
 
 export type SamtoolsStatsHistoRecordList = Array<{
@@ -2099,9 +2066,9 @@ export type SeqvarsPredefinedQuery = {
     description?: (string) | null;
     readonly presetssetversion: string;
     included_in_sop?: boolean;
-    genotype?: (({
+    genotype?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     quality?: (string) | null;
     frequency?: (string) | null;
     consequence?: (string) | null;
@@ -2120,9 +2087,9 @@ export type SeqvarsPredefinedQueryRequest = {
     label: string;
     description?: (string) | null;
     included_in_sop?: boolean;
-    genotype?: (({
+    genotype?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     quality?: (string) | null;
     frequency?: (string) | null;
     consequence?: (string) | null;
@@ -2331,39 +2298,39 @@ export type SeqvarsQueryPresetsConsequenceRequest = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequency = {
-    gnomad_exomes?: (({
+    gnomad_exomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_genomes?: (({
+} | null);
+    gnomad_genomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_mtdna?: (({
+} | null);
+    gnomad_mtdna?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    helixmtdb?: (({
+} | null);
+    helixmtdb?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    inhouse?: (({
+} | null);
+    inhouse?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_carriers?: (number | null);
-} | null) | null);
+} | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2379,39 +2346,39 @@ export type SeqvarsQueryPresetsFrequency = {
  * Not used directly but used as base class.
  */
 export type SeqvarsQueryPresetsFrequencyRequest = {
-    gnomad_exomes?: (({
+    gnomad_exomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_genomes?: (({
+} | null);
+    gnomad_genomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_mtdna?: (({
+} | null);
+    gnomad_mtdna?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    helixmtdb?: (({
+} | null);
+    helixmtdb?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    inhouse?: (({
+} | null);
+    inhouse?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_carriers?: (number | null);
-} | null) | null);
+} | null);
     rank?: number;
     label: string;
     description?: (string) | null;
@@ -2671,9 +2638,9 @@ export type SeqvarsQuerySettings = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
-    genotypepresets?: (({
+    genotypepresets?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     readonly qualitypresets: (string) | null;
     readonly consequencepresets: (string) | null;
     readonly locuspresets: (string) | null;
@@ -2796,9 +2763,9 @@ export type SeqvarsQuerySettingsDetails = {
     readonly session: string;
     readonly presetssetversion: string;
     readonly predefinedquery: string;
-    genotypepresets?: (({
+    genotypepresets?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     qualitypresets?: (string) | null;
     consequencepresets?: (string) | null;
     locuspresets?: (string) | null;
@@ -2825,9 +2792,9 @@ export type SeqvarsQuerySettingsDetails = {
  * owned category settings.
  */
 export type SeqvarsQuerySettingsDetailsRequest = {
-    genotypepresets?: (({
+    genotypepresets?: ({
     choice?: (SeqvarsGenotypePresetChoice | null);
-} | null) | null);
+} | null);
     qualitypresets?: (string) | null;
     consequencepresets?: (string) | null;
     locuspresets?: (string) | null;
@@ -2851,39 +2818,39 @@ export type SeqvarsQuerySettingsDetailsRequest = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequency = {
-    gnomad_exomes?: (({
+    gnomad_exomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_genomes?: (({
+} | null);
+    gnomad_genomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_mtdna?: (({
+} | null);
+    gnomad_mtdna?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    helixmtdb?: (({
+} | null);
+    helixmtdb?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    inhouse?: (({
+} | null);
+    inhouse?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_carriers?: (number | null);
-} | null) | null);
+} | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
     readonly date_modified: string;
@@ -2905,39 +2872,39 @@ export type SeqvarsQuerySettingsFrequencyPydantic = {
  * Serializer for ``QuerySettingsFrequency``.
  */
 export type SeqvarsQuerySettingsFrequencyRequest = {
-    gnomad_exomes?: (({
+    gnomad_exomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_genomes?: (({
+} | null);
+    gnomad_genomes?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    gnomad_mtdna?: (({
+} | null);
+    gnomad_mtdna?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    helixmtdb?: (({
+} | null);
+    helixmtdb?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_af?: (number | null);
-} | null) | null);
-    inhouse?: (({
+} | null);
+    inhouse?: ({
     enabled?: boolean;
     max_het?: (number | null);
     max_hom?: (number | null);
     max_hemi?: (number | null);
     max_carriers?: (number | null);
-} | null) | null);
+} | null);
 };
 
 /**
@@ -3255,6 +3222,41 @@ export type ShetConstraintsPydantic = {
 };
 
 /**
+ * Serializer for the user model used in SODAR Core based sites
+ */
+export type SODARUser = {
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    username: string;
+    name?: string;
+    email?: string;
+    /**
+     * Designates that this user has all permissions without explicitly assigning them.
+     */
+    is_superuser?: boolean;
+    readonly sodar_uuid: string;
+};
+
+/**
+ * Serializer for the user model used in SODAR Core based sites
+ */
+export type SODARUserRequest = {
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    username: string;
+    name?: string;
+    email?: string;
+    /**
+     * Designates that this user has all permissions without explicitly assigning them.
+     */
+    is_superuser?: boolean;
+};
+
+export type strList = Array<(string)>;
+
+/**
  * Base serializer for any SODAR model with a sodar_uuid field
  */
 export type SvAnnotationReleaseInfo = {
@@ -3366,8 +3368,6 @@ export type VarfishStats = {
  * Enumeration for the variant location.
  */
 export type VariantLocationChoice = 'upstream' | 'exon' | 'intron' | 'downstream';
-
-export type strList = Array<(string)>;
 
 export type CasesAnalysisApiCaseanalysisListData = {
     path: {
