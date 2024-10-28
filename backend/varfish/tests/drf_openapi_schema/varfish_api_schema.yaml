@@ -7722,12 +7722,12 @@ components:
         start:
           title: Start
           type: integer
-        end:
-          title: End
+        stop:
+          title: Stop
           type: integer
       required:
       - start
-      - end
+      - stop
       title: OneBasedRangePydantic
       type: object
     PaginatedCaseAnalysisList:
@@ -8399,169 +8399,177 @@ components:
       properties:
         gnomad_exomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         gnomad_genomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
-        gnomad_mitochondrial:
+        gnomad_mtdna:
           oneOf:
-          - description: Settings for gnomAD mitochondrial frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadMitochondrialFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         helixmtdb:
           oneOf:
-          - description: Settings for HelixMtDb frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: HelixmtDbFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         inhouse:
           oneOf:
-          - description: Settings for in-house frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_carriers:
                 anyOf:
-                - type: number
+                - type: integer
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: InhouseFrequencySettingsPydantic
+                title: Max Carriers
+            title: SeqvarsInhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
@@ -10020,7 +10028,7 @@ components:
       title: SeqvarsDbIdsPydantic
       type: object
     SeqvarsFrequencyAnnotationPydantic:
-      description: SPopulation frequency information
+      description: Population frequency information
       properties:
         gnomad_exomes:
           anyOf:
@@ -10034,12 +10042,12 @@ components:
           default: null
         gnomad_mtdna:
           anyOf:
-          - $ref: '#/components/schemas/SeqvarsGnomadMitochondrialFrequencyPydantic'
+          - $ref: '#/components/schemas/SeqvarsMitochondrialFrequencyPydantic'
           - type: 'null'
           default: null
         helixmtdb:
           anyOf:
-          - $ref: '#/components/schemas/SeqvarsHelixMtDbFrequencyPydantic'
+          - $ref: '#/components/schemas/SeqvarsMitochondrialFrequencyPydantic'
           - type: 'null'
           default: null
         inhouse:
@@ -10077,8 +10085,41 @@ components:
       - affected_carriers
       title: SeqvarsGenotypePresetChoice
       type: string
-    SeqvarsGnomadMitochondrialFrequencyPydantic:
-      description: Store gnomAD mitochondrial frequency information.
+    SeqvarsInhouseFrequencySettingsPydantic:
+      description: Settings for mitochondrial frequency filtering.
+      properties:
+        enabled:
+          default: false
+          title: Enabled
+          type: boolean
+        max_het:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Max Het
+        max_hom:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Max Hom
+        max_hemi:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Max Hemi
+        max_carriers:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Max Carriers
+      title: SeqvarsInhouseFrequencySettingsPydantic
+      type: object
+    SeqvarsMitochondrialFrequencyPydantic:
+      description: Store mitochondrial frequency information.
       properties:
         an:
           default: 0
@@ -10096,82 +10137,34 @@ components:
           default: 0.0
           title: Af
           type: number
-      title: SeqvarsGnomadMitochondrialFrequencyPydantic
+      title: SeqvarsMitochondrialFrequencyPydantic
       type: object
-    SeqvarsGnomadMitochondrialFrequencySettingsPydantic:
-      description: gnomAD mitochondrial filter options.
+    SeqvarsMitochondrialFrequencySettingsPydantic:
+      description: Settings for mitochondrial frequency filtering.
       properties:
         enabled:
           default: false
           title: Enabled
           type: boolean
-        heteroplasmic:
+        max_het:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Heteroplasmic
-        homoplasmic:
+          title: Max Het
+        max_hom:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Homoplasmic
-        frequency:
+          title: Max Hom
+        max_af:
           anyOf:
           - type: number
           - type: 'null'
           default: null
-          title: Frequency
-      title: SeqvarsGnomadMitochondrialFrequencySettingsPydantic
-      type: object
-    SeqvarsHelixMtDbFrequencyPydantic:
-      description: Store HelixMtDb frequency information.
-      properties:
-        an:
-          default: 0
-          title: An
-          type: integer
-        het:
-          default: 0
-          title: Het
-          type: integer
-        homalt:
-          default: 0
-          title: Homalt
-          type: integer
-        af:
-          default: 0.0
-          title: Af
-          type: number
-      title: SeqvarsHelixMtDbFrequencyPydantic
-      type: object
-    SeqvarsHelixMtDbFrequencySettingsPydantic:
-      description: HelixMtDb filter options.
-      properties:
-        enabled:
-          default: false
-          title: Enabled
-          type: boolean
-        heteroplasmic:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Heteroplasmic
-        homoplasmic:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Homoplasmic
-        frequency:
-          anyOf:
-          - type: number
-          - type: 'null'
-          default: null
-          title: Frequency
-      title: SeqvarsHelixMtDbFrequencySettingsPydantic
+          title: Max Af
+      title: SeqvarsMitochondrialFrequencySettingsPydantic
       type: object
     SeqvarsModeOfInheritance:
       description: Mode of inheritance gene annotation.
@@ -10185,7 +10178,13 @@ components:
       title: SeqvarsModeOfInheritance
       type: string
     SeqvarsNuclearFrequencyPydantic:
-      description: Store gnomAD and in-house nuclear frequency information.
+      description: |-
+        Store nuclear frequency information.
+
+        This is also used for for storing chrMT frequencies in the case of in-house
+        data.  Here, the ``an`` field is the total number of samples with coverage,
+        and the ``het`` and ``homalt`` fields are the number of heteroplasmic and
+        homoplasmic carriers, respectively.
       properties:
         an:
           default: 0
@@ -10210,36 +10209,40 @@ components:
       title: SeqvarsNuclearFrequencyPydantic
       type: object
     SeqvarsNuclearFrequencySettingsPydantic:
-      description: gnomAD and in-house nuclear filter options.
+      description: |-
+        Settings for nuclear frequency filtering.
+
+        This can also be used for in-house filters where max_het/max_hom then refer
+        to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
       properties:
         enabled:
           default: false
           title: Enabled
           type: boolean
-        heterozygous:
+        max_het:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Heterozygous
-        homozygous:
+          title: Max Het
+        max_hom:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Homozygous
-        hemizygous:
+          title: Max Hom
+        max_hemi:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Hemizygous
-        frequency:
+          title: Max Hemi
+        max_af:
           anyOf:
           - type: number
           - type: 'null'
           default: null
-          title: Frequency
+          title: Max Af
       title: SeqvarsNuclearFrequencySettingsPydantic
       type: object
     SeqvarsOutputStatisticsPydantic:
@@ -10894,169 +10897,177 @@ components:
       properties:
         gnomad_exomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         gnomad_genomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
-        gnomad_mitochondrial:
+        gnomad_mtdna:
           oneOf:
-          - description: Settings for gnomAD mitochondrial frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadMitochondrialFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         helixmtdb:
           oneOf:
-          - description: Settings for HelixMtDb frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: HelixmtDbFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         inhouse:
           oneOf:
-          - description: Settings for in-house frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_carriers:
                 anyOf:
-                - type: number
+                - type: integer
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: InhouseFrequencySettingsPydantic
+                title: Max Carriers
+            title: SeqvarsInhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
@@ -11100,169 +11111,177 @@ components:
       properties:
         gnomad_exomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         gnomad_genomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
-        gnomad_mitochondrial:
+        gnomad_mtdna:
           oneOf:
-          - description: Settings for gnomAD mitochondrial frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadMitochondrialFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         helixmtdb:
           oneOf:
-          - description: Settings for HelixMtDb frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: HelixmtDbFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         inhouse:
           oneOf:
-          - description: Settings for in-house frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_carriers:
                 anyOf:
-                - type: number
+                - type: integer
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: InhouseFrequencySettingsPydantic
+                title: Max Carriers
+            title: SeqvarsInhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
@@ -12393,169 +12412,177 @@ components:
       properties:
         gnomad_exomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         gnomad_genomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
-        gnomad_mitochondrial:
+        gnomad_mtdna:
           oneOf:
-          - description: Settings for gnomAD mitochondrial frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadMitochondrialFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         helixmtdb:
           oneOf:
-          - description: Settings for HelixMtDb frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: HelixmtDbFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         inhouse:
           oneOf:
-          - description: Settings for in-house frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_carriers:
                 anyOf:
-                - type: number
+                - type: integer
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: InhouseFrequencySettingsPydantic
+                title: Max Carriers
+            title: SeqvarsInhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
@@ -12595,17 +12622,17 @@ components:
           default: null
         gnomad_mtdna:
           anyOf:
-          - $ref: '#/components/schemas/SeqvarsGnomadMitochondrialFrequencySettingsPydantic'
+          - $ref: '#/components/schemas/SeqvarsMitochondrialFrequencySettingsPydantic'
           - type: 'null'
           default: null
         helixmtdb:
           anyOf:
-          - $ref: '#/components/schemas/SeqvarsHelixMtDbFrequencySettingsPydantic'
+          - $ref: '#/components/schemas/SeqvarsMitochondrialFrequencySettingsPydantic'
           - type: 'null'
           default: null
         inhouse:
           anyOf:
-          - $ref: '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+          - $ref: '#/components/schemas/SeqvarsInhouseFrequencySettingsPydantic'
           - type: 'null'
           default: null
       title: SeqvarsQuerySettingsFrequencyPydantic
@@ -12616,169 +12643,177 @@ components:
       properties:
         gnomad_exomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         gnomad_genomes:
           oneOf:
-          - description: Settings for gnomAD nuclear frequency filtering.
+          - description: |-
+              Settings for nuclear frequency filtering.
+
+              This can also be used for in-house filters where max_het/max_hom then refer
+              to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadNuclearFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsNuclearFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
-        gnomad_mitochondrial:
+        gnomad_mtdna:
           oneOf:
-          - description: Settings for gnomAD mitochondrial frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: GnomadMitochondrialFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         helixmtdb:
           oneOf:
-          - description: Settings for HelixMtDb frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heteroplasmic:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heteroplasmic
-              homoplasmic:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homoplasmic
-              frequency:
+                title: Max Hom
+              max_af:
                 anyOf:
                 - type: number
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: HelixmtDbFrequencySettingsPydantic
+                title: Max Af
+            title: SeqvarsMitochondrialFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true
         inhouse:
           oneOf:
-          - description: Settings for in-house frequency filtering.
+          - description: Settings for mitochondrial frequency filtering.
             properties:
               enabled:
                 default: false
                 title: Enabled
                 type: boolean
-              heterozygous:
+              max_het:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Heterozygous
-              homozygous:
+                title: Max Het
+              max_hom:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Homozygous
-              hemizygous:
+                title: Max Hom
+              max_hemi:
                 anyOf:
                 - type: integer
                 - type: 'null'
                 default: null
-                title: Hemizygous
-              frequency:
+                title: Max Hemi
+              max_carriers:
                 anyOf:
-                - type: number
+                - type: integer
                 - type: 'null'
                 default: null
-                title: Frequency
-            title: InhouseFrequencySettingsPydantic
+                title: Max Carriers
+            title: SeqvarsInhouseFrequencySettingsPydantic
             type: object
           - type: 'null'
           nullable: true

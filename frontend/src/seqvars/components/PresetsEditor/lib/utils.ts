@@ -81,8 +81,8 @@ export const genomeRegionToString = (genomeRegion: GenomeRegion): string => {
     : `chr${genomeRegion.chromosome}`
   if (genomeRegion.range) {
     const start = formatLargeInt(genomeRegion.range.start)
-    const end = formatLargeInt(genomeRegion.range.end)
-    return `${chromStr}:${start}-${end}`
+    const stop = formatLargeInt(genomeRegion.range.stop)
+    return `${chromStr}:${start}-${stop}`
   } else {
     return chromStr
   }
@@ -137,15 +137,15 @@ export const parseGenomeRegion = (text: string): GenomeRegion => {
   range = range.replace(/,/g, '')
   // Split by hyphen and convert to number.
   const rangeArr = range.split('-').map((x) => parseInt(x, 10))
-  const [start, end] = rangeArr
+  const [start, stop] = rangeArr
   // Check whether conversion was successful.
-  if (isNaN(start) || isNaN(end)) {
+  if (isNaN(start) || isNaN(stop)) {
     throw new Error('Invalid range: NaN found')
   }
   // Check that start is not greater than end.
-  if (start > end) {
+  if (start > stop) {
     throw new Error('Invalid range: start greater than end')
   }
   // Otherwise, we are good.
-  return { chromosome, range: { start, end } }
+  return { chromosome, range: { start, stop } }
 }

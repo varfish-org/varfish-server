@@ -1,31 +1,31 @@
 /**
- * Frequency thresholds for gnomAD nuclear as returned from API.
+ * Frequency thresholds for nuclear variant frequencies as returned from API.
  */
-export interface GnomadFreqs {
+export interface NuclearFreqs {
   enabled?: boolean
-  homozygous?: number | null
-  heterozygous?: number | null
-  hemizygous?: number | null
-  frequency?: number | null
+  max_hom?: number | null
+  max_het?: number | null
+  max_hemi?: number | null
+  max_af?: number | null
 }
 
 /**
- * Frequency thresholds for mitochondrial variants as returned from API.
+ * Frequency thresholds for mitochondrial frequencies as returned from API.
  */
 export interface MitochondrialFreqs {
   enabled?: boolean
-  heteroplasmic?: number | null
-  homoplasmic?: number | null
-  frequency?: number | null
+  max_het?: number | null
+  max_hom?: number | null
+  max_af?: number | null
 }
 
 /**
- * Frequency thresholds for in-house data as returned from API.
+ * Frequency thresholds for inhouse frequencies as returned from API.
  */
 export interface InhouseFreqs {
   enabled?: boolean
-  homozygous?: number | null
-  heterozygous?: number | null
-  hemizygous?: number | null
-  carriers?: number | null
+  max_het?: number | null
+  max_hom?: number | null
+  max_hemi?: number | null
+  max_carriers?: number | null
 }

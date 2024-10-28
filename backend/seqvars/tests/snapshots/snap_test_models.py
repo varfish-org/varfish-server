@@ -41,40 +41,40 @@ snapshots["TestSeqvarsQuerySettingsConsequence::test_from_presets variant_types"
 
 snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets gnomad_exomes"] = {
     "enabled": False,
-    "frequency": None,
-    "hemizygous": None,
-    "heterozygous": None,
-    "homozygous": None,
+    "max_af": None,
+    "max_hemi": None,
+    "max_het": None,
+    "max_hom": None,
 }
 
 snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets gnomad_genomes"] = {
     "enabled": False,
-    "frequency": None,
-    "hemizygous": None,
-    "heterozygous": None,
-    "homozygous": None,
+    "max_af": None,
+    "max_hemi": None,
+    "max_het": None,
+    "max_hom": None,
 }
 
-snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets gnomad_mitochondrial"] = {
+snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets gnomad_mtdna"] = {
     "enabled": False,
-    "frequency": None,
-    "heteroplasmic": None,
-    "homoplasmic": None,
+    "max_af": None,
+    "max_het": None,
+    "max_hom": None,
 }
 
 snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets helixmtdb"] = {
     "enabled": False,
-    "frequency": None,
-    "heteroplasmic": None,
-    "homoplasmic": None,
+    "max_af": None,
+    "max_het": None,
+    "max_hom": None,
 }
 
 snapshots["TestSeqvarsQuerySettingsFrequency::test_from_presets inhouse"] = {
     "enabled": False,
-    "frequency": None,
-    "hemizygous": None,
-    "heterozygous": None,
-    "homozygous": None,
+    "max_carriers": None,
+    "max_hemi": None,
+    "max_het": None,
+    "max_hom": None,
 }
 
 snapshots["TestSeqvarsQuerySettingsGenotype::test_from_presets_0_any sample_genotype_choices"] = [

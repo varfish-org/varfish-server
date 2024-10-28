@@ -2905,12 +2905,12 @@ export const $OneBasedRangePydantic = {
             title: 'Start',
             type: 'integer'
         },
-        end: {
-            title: 'End',
+        stop: {
+            title: 'Stop',
             type: 'integer'
         }
     },
-    required: ['start', 'end'],
+    required: ['start', 'stop'],
     title: 'OneBasedRangePydantic',
     type: 'object'
 } as const;
@@ -3839,14 +3839,17 @@ Not used directly but used as base class.`,
         gnomad_exomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3856,9 +3859,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3868,9 +3871,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3880,9 +3883,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -3892,10 +3895,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -3907,14 +3910,17 @@ Not used directly but used as base class.`,
         gnomad_genomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3924,9 +3930,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3936,9 +3942,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3948,9 +3954,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -3960,10 +3966,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -3972,17 +3978,17 @@ Not used directly but used as base class.`,
             ],
             nullable: true
         },
-        gnomad_mitochondrial: {
+        gnomad_mtdna: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -3992,9 +3998,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4004,9 +4010,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -4016,10 +4022,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -4031,14 +4037,14 @@ Not used directly but used as base class.`,
         helixmtdb: {
             oneOf: [
                 {
-                    description: 'Settings for HelixMtDb frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4048,9 +4054,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4060,9 +4066,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -4072,10 +4078,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -4087,14 +4093,14 @@ Not used directly but used as base class.`,
         inhouse: {
             oneOf: [
                 {
-                    description: 'Settings for in-house frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4104,9 +4110,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4116,9 +4122,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -4128,22 +4134,22 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'InhouseFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -5999,7 +6005,7 @@ export const $SeqvarsDbIdsPydantic = {
 } as const;
 
 export const $SeqvarsFrequencyAnnotationPydantic = {
-    description: 'SPopulation frequency information',
+    description: 'Population frequency information',
     properties: {
         gnomad_exomes: {
             anyOf: [
@@ -6026,7 +6032,7 @@ export const $SeqvarsFrequencyAnnotationPydantic = {
         gnomad_mtdna: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsGnomadMitochondrialFrequencyPydantic'
+                    '$ref': '#/components/schemas/SeqvarsMitochondrialFrequencyPydantic'
                 },
                 {
                     type: 'null'
@@ -6037,7 +6043,7 @@ export const $SeqvarsFrequencyAnnotationPydantic = {
         helixmtdb: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsHelixMtDbFrequencyPydantic'
+                    '$ref': '#/components/schemas/SeqvarsMitochondrialFrequencyPydantic'
                 },
                 {
                     type: 'null'
@@ -6075,8 +6081,69 @@ export const $SeqvarsGenotypePresetChoice = {
     type: 'string'
 } as const;
 
-export const $SeqvarsGnomadMitochondrialFrequencyPydantic = {
-    description: 'Store gnomAD mitochondrial frequency information.',
+export const $SeqvarsInhouseFrequencySettingsPydantic = {
+    description: 'Settings for mitochondrial frequency filtering.',
+    properties: {
+        enabled: {
+            default: false,
+            title: 'Enabled',
+            type: 'boolean'
+        },
+        max_het: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Het'
+        },
+        max_hom: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Hom'
+        },
+        max_hemi: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Hemi'
+        },
+        max_carriers: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            title: 'Max Carriers'
+        }
+    },
+    title: 'SeqvarsInhouseFrequencySettingsPydantic',
+    type: 'object'
+} as const;
+
+export const $SeqvarsMitochondrialFrequencyPydantic = {
+    description: 'Store mitochondrial frequency information.',
     properties: {
         an: {
             default: 0,
@@ -6099,19 +6166,19 @@ export const $SeqvarsGnomadMitochondrialFrequencyPydantic = {
             type: 'number'
         }
     },
-    title: 'SeqvarsGnomadMitochondrialFrequencyPydantic',
+    title: 'SeqvarsMitochondrialFrequencyPydantic',
     type: 'object'
 } as const;
 
-export const $SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
-    description: 'gnomAD mitochondrial filter options.',
+export const $SeqvarsMitochondrialFrequencySettingsPydantic = {
+    description: 'Settings for mitochondrial frequency filtering.',
     properties: {
         enabled: {
             default: false,
             title: 'Enabled',
             type: 'boolean'
         },
-        heteroplasmic: {
+        max_het: {
             anyOf: [
                 {
                     type: 'integer'
@@ -6121,9 +6188,9 @@ export const $SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Heteroplasmic'
+            title: 'Max Het'
         },
-        homoplasmic: {
+        max_hom: {
             anyOf: [
                 {
                     type: 'integer'
@@ -6133,9 +6200,9 @@ export const $SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Homoplasmic'
+            title: 'Max Hom'
         },
-        frequency: {
+        max_af: {
             anyOf: [
                 {
                     type: 'number'
@@ -6145,87 +6212,10 @@ export const $SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Frequency'
+            title: 'Max Af'
         }
     },
-    title: 'SeqvarsGnomadMitochondrialFrequencySettingsPydantic',
-    type: 'object'
-} as const;
-
-export const $SeqvarsHelixMtDbFrequencyPydantic = {
-    description: 'Store HelixMtDb frequency information.',
-    properties: {
-        an: {
-            default: 0,
-            title: 'An',
-            type: 'integer'
-        },
-        het: {
-            default: 0,
-            title: 'Het',
-            type: 'integer'
-        },
-        homalt: {
-            default: 0,
-            title: 'Homalt',
-            type: 'integer'
-        },
-        af: {
-            default: 0,
-            title: 'Af',
-            type: 'number'
-        }
-    },
-    title: 'SeqvarsHelixMtDbFrequencyPydantic',
-    type: 'object'
-} as const;
-
-export const $SeqvarsHelixMtDbFrequencySettingsPydantic = {
-    description: 'HelixMtDb filter options.',
-    properties: {
-        enabled: {
-            default: false,
-            title: 'Enabled',
-            type: 'boolean'
-        },
-        heteroplasmic: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            default: null,
-            title: 'Heteroplasmic'
-        },
-        homoplasmic: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            default: null,
-            title: 'Homoplasmic'
-        },
-        frequency: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            default: null,
-            title: 'Frequency'
-        }
-    },
-    title: 'SeqvarsHelixMtDbFrequencySettingsPydantic',
+    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
     type: 'object'
 } as const;
 
@@ -6237,7 +6227,12 @@ export const $SeqvarsModeOfInheritance = {
 } as const;
 
 export const $SeqvarsNuclearFrequencyPydantic = {
-    description: 'Store gnomAD and in-house nuclear frequency information.',
+    description: `Store nuclear frequency information.
+
+This is also used for for storing chrMT frequencies in the case of in-house
+data.  Here, the \`\`an\`\` field is the total number of samples with coverage,
+and the \`\`het\`\` and \`\`homalt\`\` fields are the number of heteroplasmic and
+homoplasmic carriers, respectively.`,
     properties: {
         an: {
             default: 0,
@@ -6270,14 +6265,17 @@ export const $SeqvarsNuclearFrequencyPydantic = {
 } as const;
 
 export const $SeqvarsNuclearFrequencySettingsPydantic = {
-    description: 'gnomAD and in-house nuclear filter options.',
+    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
     properties: {
         enabled: {
             default: false,
             title: 'Enabled',
             type: 'boolean'
         },
-        heterozygous: {
+        max_het: {
             anyOf: [
                 {
                     type: 'integer'
@@ -6287,9 +6285,9 @@ export const $SeqvarsNuclearFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Heterozygous'
+            title: 'Max Het'
         },
-        homozygous: {
+        max_hom: {
             anyOf: [
                 {
                     type: 'integer'
@@ -6299,9 +6297,9 @@ export const $SeqvarsNuclearFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Homozygous'
+            title: 'Max Hom'
         },
-        hemizygous: {
+        max_hemi: {
             anyOf: [
                 {
                     type: 'integer'
@@ -6311,9 +6309,9 @@ export const $SeqvarsNuclearFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Hemizygous'
+            title: 'Max Hemi'
         },
-        frequency: {
+        max_af: {
             anyOf: [
                 {
                     type: 'number'
@@ -6323,7 +6321,7 @@ export const $SeqvarsNuclearFrequencySettingsPydantic = {
                 }
             ],
             default: null,
-            title: 'Frequency'
+            title: 'Max Af'
         }
     },
     title: 'SeqvarsNuclearFrequencySettingsPydantic',
@@ -7107,14 +7105,17 @@ Not used directly but used as base class.`,
         gnomad_exomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7124,9 +7125,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7136,9 +7137,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7148,9 +7149,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7160,10 +7161,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7175,14 +7176,17 @@ Not used directly but used as base class.`,
         gnomad_genomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7192,9 +7196,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7204,9 +7208,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7216,9 +7220,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7228,10 +7232,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7240,17 +7244,17 @@ Not used directly but used as base class.`,
             ],
             nullable: true
         },
-        gnomad_mitochondrial: {
+        gnomad_mtdna: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7260,9 +7264,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7272,9 +7276,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7284,10 +7288,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7299,14 +7303,14 @@ Not used directly but used as base class.`,
         helixmtdb: {
             oneOf: [
                 {
-                    description: 'Settings for HelixMtDb frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7316,9 +7320,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7328,9 +7332,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7340,10 +7344,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7355,14 +7359,14 @@ Not used directly but used as base class.`,
         inhouse: {
             oneOf: [
                 {
-                    description: 'Settings for in-house frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7372,9 +7376,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7384,9 +7388,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7396,22 +7400,22 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'InhouseFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7465,14 +7469,17 @@ Not used directly but used as base class.`,
         gnomad_exomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7482,9 +7489,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7494,9 +7501,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7506,9 +7513,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7518,10 +7525,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7533,14 +7540,17 @@ Not used directly but used as base class.`,
         gnomad_genomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7550,9 +7560,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7562,9 +7572,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7574,9 +7584,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7586,10 +7596,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7598,17 +7608,17 @@ Not used directly but used as base class.`,
             ],
             nullable: true
         },
-        gnomad_mitochondrial: {
+        gnomad_mtdna: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7618,9 +7628,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7630,9 +7640,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7642,10 +7652,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7657,14 +7667,14 @@ Not used directly but used as base class.`,
         helixmtdb: {
             oneOf: [
                 {
-                    description: 'Settings for HelixMtDb frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7674,9 +7684,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7686,9 +7696,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -7698,10 +7708,10 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -7713,14 +7723,14 @@ Not used directly but used as base class.`,
         inhouse: {
             oneOf: [
                 {
-                    description: 'Settings for in-house frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7730,9 +7740,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7742,9 +7752,9 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -7754,22 +7764,22 @@ Not used directly but used as base class.`,
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'InhouseFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9154,14 +9164,17 @@ export const $SeqvarsQuerySettingsFrequency = {
         gnomad_exomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9171,9 +9184,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9183,9 +9196,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9195,9 +9208,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9207,10 +9220,10 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9222,14 +9235,17 @@ export const $SeqvarsQuerySettingsFrequency = {
         gnomad_genomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9239,9 +9255,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9251,9 +9267,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9263,9 +9279,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9275,10 +9291,10 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9287,17 +9303,17 @@ export const $SeqvarsQuerySettingsFrequency = {
             ],
             nullable: true
         },
-        gnomad_mitochondrial: {
+        gnomad_mtdna: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9307,9 +9323,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9319,9 +9335,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9331,10 +9347,10 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9346,14 +9362,14 @@ export const $SeqvarsQuerySettingsFrequency = {
         helixmtdb: {
             oneOf: [
                 {
-                    description: 'Settings for HelixMtDb frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9363,9 +9379,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9375,9 +9391,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9387,10 +9403,10 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9402,14 +9418,14 @@ export const $SeqvarsQuerySettingsFrequency = {
         inhouse: {
             oneOf: [
                 {
-                    description: 'Settings for in-house frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9419,9 +9435,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9431,9 +9447,9 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9443,22 +9459,22 @@ export const $SeqvarsQuerySettingsFrequency = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'InhouseFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9519,7 +9535,7 @@ export const $SeqvarsQuerySettingsFrequencyPydantic = {
         gnomad_mtdna: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsGnomadMitochondrialFrequencySettingsPydantic'
+                    '$ref': '#/components/schemas/SeqvarsMitochondrialFrequencySettingsPydantic'
                 },
                 {
                     type: 'null'
@@ -9530,7 +9546,7 @@ export const $SeqvarsQuerySettingsFrequencyPydantic = {
         helixmtdb: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsHelixMtDbFrequencySettingsPydantic'
+                    '$ref': '#/components/schemas/SeqvarsMitochondrialFrequencySettingsPydantic'
                 },
                 {
                     type: 'null'
@@ -9541,7 +9557,7 @@ export const $SeqvarsQuerySettingsFrequencyPydantic = {
         inhouse: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/SeqvarsNuclearFrequencySettingsPydantic'
+                    '$ref': '#/components/schemas/SeqvarsInhouseFrequencySettingsPydantic'
                 },
                 {
                     type: 'null'
@@ -9561,14 +9577,17 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
         gnomad_exomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9578,9 +9597,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9590,9 +9609,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9602,9 +9621,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9614,10 +9633,10 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9629,14 +9648,17 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
         gnomad_genomes: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD nuclear frequency filtering.',
+                    description: `Settings for nuclear frequency filtering.
+
+This can also be used for in-house filters where max_het/max_hom then refer
+to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.`,
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9646,9 +9668,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9658,9 +9680,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9670,9 +9692,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9682,10 +9704,10 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadNuclearFrequencySettingsPydantic',
+                    title: 'SeqvarsNuclearFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9694,17 +9716,17 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
             ],
             nullable: true
         },
-        gnomad_mitochondrial: {
+        gnomad_mtdna: {
             oneOf: [
                 {
-                    description: 'Settings for gnomAD mitochondrial frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9714,9 +9736,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9726,9 +9748,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9738,10 +9760,10 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'GnomadMitochondrialFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9753,14 +9775,14 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
         helixmtdb: {
             oneOf: [
                 {
-                    description: 'Settings for HelixMtDb frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heteroplasmic: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9770,9 +9792,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Heteroplasmic'
+                            title: 'Max Het'
                         },
-                        homoplasmic: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9782,9 +9804,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Homoplasmic'
+                            title: 'Max Hom'
                         },
-                        frequency: {
+                        max_af: {
                             anyOf: [
                                 {
                                     type: 'number'
@@ -9794,10 +9816,10 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Af'
                         }
                     },
-                    title: 'HelixmtDbFrequencySettingsPydantic',
+                    title: 'SeqvarsMitochondrialFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {
@@ -9809,14 +9831,14 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
         inhouse: {
             oneOf: [
                 {
-                    description: 'Settings for in-house frequency filtering.',
+                    description: 'Settings for mitochondrial frequency filtering.',
                     properties: {
                         enabled: {
                             default: false,
                             title: 'Enabled',
                             type: 'boolean'
                         },
-                        heterozygous: {
+                        max_het: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9826,9 +9848,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Heterozygous'
+                            title: 'Max Het'
                         },
-                        homozygous: {
+                        max_hom: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9838,9 +9860,9 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Homozygous'
+                            title: 'Max Hom'
                         },
-                        hemizygous: {
+                        max_hemi: {
                             anyOf: [
                                 {
                                     type: 'integer'
@@ -9850,22 +9872,22 @@ export const $SeqvarsQuerySettingsFrequencyRequest = {
                                 }
                             ],
                             default: null,
-                            title: 'Hemizygous'
+                            title: 'Max Hemi'
                         },
-                        frequency: {
+                        max_carriers: {
                             anyOf: [
                                 {
-                                    type: 'number'
+                                    type: 'integer'
                                 },
                                 {
                                     type: 'null'
                                 }
                             ],
                             default: null,
-                            title: 'Frequency'
+                            title: 'Max Carriers'
                         }
                     },
-                    title: 'InhouseFrequencySettingsPydantic',
+                    title: 'SeqvarsInhouseFrequencySettingsPydantic',
                     type: 'object'
                 },
                 {

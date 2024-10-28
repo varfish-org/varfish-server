@@ -1950,7 +1950,7 @@ class TestQueryViewSet(ApiViewTestBase):
                     data["settings"][key] = {
                         "gnomad_genomes": {},
                         "gnomad_exomes": {},
-                        "gnomad_mitochondrial": {},
+                        "gnomad_mtdna": {},
                         "helixmtdb": {},
                     }
                 else:

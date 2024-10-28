@@ -231,7 +231,7 @@ class TestSeqvarsQueryPresetsFrequencySerializer(TestCase):
             # FrequencySettingsBase
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ]
@@ -246,7 +246,7 @@ class TestSeqvarsQueryPresetsFrequencySerializer(TestCase):
         for key in [
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ]:
@@ -1239,7 +1239,7 @@ class TestSeqvarsQuerySettingsFrequencySerializer(TestCase):
             # FrequencySettingsBase
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ]
@@ -1252,7 +1252,7 @@ class TestSeqvarsQuerySettingsFrequencySerializer(TestCase):
         for key in [
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ]:

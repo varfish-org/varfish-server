@@ -36,7 +36,7 @@ interface DbInfo {
 const DB_INFOS = [
   { label: 'gnomAD exomes', db: 'gnomad_exomes', size: 16 },
   { label: 'gnomAD genomes', db: 'gnomad_genomes', size: 126 },
-  { label: 'gnomAD mitochondrial', db: 'gnomad_mitochondrial', size: 56 },
+  { label: 'gnomAD mitochondrial', db: 'gnomad_mtdna', size: 56 },
   { label: 'HelixMTdb', db: 'helixmtdb', size: 197 },
   { label: 'in-house DB', db: 'inhouse', size: undefined },
 ] as const satisfies DbInfo[]

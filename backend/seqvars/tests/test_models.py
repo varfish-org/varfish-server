@@ -445,7 +445,7 @@ class TestSeqvarsQuerySettingsFrequency(TestCaseSnapshot, TestCase):
         for key in (
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ):

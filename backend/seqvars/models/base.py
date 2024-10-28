@@ -56,73 +56,82 @@ def copy_list(values: list[ExtendsBaseModel]) -> list[ExtendsBaseModel]:
 User = get_user_model()
 
 
-class GnomadNuclearFrequencySettingsPydantic(pydantic.BaseModel):
-    """Settings for gnomAD nuclear frequency filtering."""
+class SeqvarsNuclearFrequencySettingsPydantic(pydantic.BaseModel):
+    """Settings for nuclear frequency filtering.
 
+    This can also be used for in-house filters where max_het/max_hom then refer
+    to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
+    """
+
+    #: Whether to enable filtration.
     enabled: bool = False
-    heterozygous: int | None = None
-    homozygous: int | None = None
-    hemizygous: int | None = None
-    frequency: float | None = None
+    #: Maximal number of heterozygous carriers.
+    max_het: int | None = None
+    #: Maximal number of heterozygous carriers.
+    max_hom: int | None = None
+    #: Maximal number of hemizygous carriers (if applicable).
+    max_hemi: int | None = None
+    #: Maximal allele frequency.
+    max_af: float | None = None
 
 
-class GnomadMitochondrialFrequencySettingsPydantic(pydantic.BaseModel):
-    """Settings for gnomAD mitochondrial frequency filtering."""
+class SeqvarsMitochondrialFrequencySettingsPydantic(pydantic.BaseModel):
+    """Settings for mitochondrial frequency filtering."""
 
+    #: Whether to enable filtration.
     enabled: bool = False
-    heteroplasmic: int | None = None
-    homoplasmic: int | None = None
-    frequency: float | None = None
+    #: Maximal number of heteroplasmic carriers.
+    max_het: int | None = None
+    #: Maximal number of homoplasmic carriers.
+    max_hom: int | None = None
+    #: Maximal allele frequency.
+    max_af: float | None = None
 
 
-class HelixmtDbFrequencySettingsPydantic(pydantic.BaseModel):
-    """Settings for HelixMtDb frequency filtering."""
+class SeqvarsInhouseFrequencySettingsPydantic(pydantic.BaseModel):
+    """Settings for mitochondrial frequency filtering."""
 
+    #: Whether to enable filtration.
     enabled: bool = False
-    heteroplasmic: int | None = None
-    homoplasmic: int | None = None
-    frequency: float | None = None
-
-
-class InhouseFrequencySettingsPydantic(pydantic.BaseModel):
-    """Settings for in-house frequency filtering."""
-
-    enabled: bool = False
-    heterozygous: int | None = None
-    homozygous: int | None = None
-    hemizygous: int | None = None
-    frequency: float | None = None
+    #: Maximal number of heterozygous/heteroplasmic carriers.
+    max_het: int | None = None
+    #: Maximal number of homozygous/homoplasmic carriers.
+    max_hom: int | None = None
+    #: Maximal number of hemizygous carriers.
+    max_hemi: int | None = None
+    #: Maximal number of carriers.
+    max_carriers: int | None = None
 
 
 class SeqvarsFrequencySettingsBase(models.Model):
-    """Abstract model for storing frequency-related settings."""
+    """Abstract Django model for storing frequency-related settings."""
 
     gnomad_exomes = SchemaField(
-        schema=typing.Optional[GnomadNuclearFrequencySettingsPydantic],
+        schema=typing.Optional[SeqvarsNuclearFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
     gnomad_genomes = SchemaField(
-        schema=typing.Optional[GnomadNuclearFrequencySettingsPydantic],
+        schema=typing.Optional[SeqvarsNuclearFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
-    gnomad_mitochondrial = SchemaField(
-        schema=typing.Optional[GnomadMitochondrialFrequencySettingsPydantic],
+    gnomad_mtdna = SchemaField(
+        schema=typing.Optional[SeqvarsMitochondrialFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
     helixmtdb = SchemaField(
-        schema=typing.Optional[HelixmtDbFrequencySettingsPydantic],
+        schema=typing.Optional[SeqvarsMitochondrialFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
     )
     inhouse = SchemaField(
-        schema=typing.Optional[InhouseFrequencySettingsPydantic],
+        schema=typing.Optional[SeqvarsInhouseFrequencySettingsPydantic],
         blank=True,
         null=True,
         default=None,
@@ -329,7 +338,7 @@ class OneBasedRangePydantic(pydantic.BaseModel):
     #: The 1-based start position.
     start: int
     #: The 1-based end position.
-    end: int
+    stop: int
 
 
 class GenomeRegionPydantic(pydantic.BaseModel):
@@ -1468,7 +1477,7 @@ class SeqvarsQuerySettingsFrequencyManager(models.Manager):
             querysettings=querysettings,
             gnomad_exomes=copy_model(frequencypresets.gnomad_exomes),
             gnomad_genomes=copy_model(frequencypresets.gnomad_genomes),
-            gnomad_mitochondrial=copy_model(frequencypresets.gnomad_mitochondrial),
+            gnomad_mtdna=copy_model(frequencypresets.gnomad_mtdna),
             helixmtdb=copy_model(frequencypresets.helixmtdb),
             inhouse=copy_model(frequencypresets.inhouse),
         )
@@ -1817,47 +1826,6 @@ class SeqvarsQuerySettingsQualityPydantic(pydantic.BaseModel):
     sample_quality_settings: typing.List[SeqvarsSampleQualitySettingsPydantic] = []
 
 
-class SeqvarsNuclearFrequencySettingsPydantic(pydantic.BaseModel):
-    """gnomAD and in-house nuclear filter options."""
-
-    #: Whether to enable filtration by 1000 Genomes.
-    enabled: bool = False
-    #: Maximal number of in-house heterozygous carriers.
-    heterozygous: typing.Optional[int] = None
-    #: Maximal number of in-house homozygous carriers.
-    homozygous: typing.Optional[int] = None
-    #: Maximal number of in-house hemizygous carriers.
-    hemizygous: typing.Optional[int] = None
-    #: Maximal allele frequency.
-    frequency: typing.Optional[float] = None
-
-
-class SeqvarsGnomadMitochondrialFrequencySettingsPydantic(pydantic.BaseModel):
-    """gnomAD mitochondrial filter options."""
-
-    #: Whether to enable filtration by 1000 Genomes.
-    enabled: bool = False
-    #: Maximal number of heteroplasmic carriers.
-    heteroplasmic: typing.Optional[int] = None
-    #: Maximal number of homoplasmic carriers.
-    homoplasmic: typing.Optional[int] = None
-    #: Maximal allele frequency.
-    frequency: typing.Optional[float] = None
-
-
-class SeqvarsHelixMtDbFrequencySettingsPydantic(pydantic.BaseModel):
-    """HelixMtDb filter options."""
-
-    #: Whether to enable filtration by mtDB
-    enabled: bool = False
-    #: Maximal number of heterozygous carriers in HelixMtDb
-    heteroplasmic: typing.Optional[int] = None
-    #: Maximal number of homozygous carriers in HelixMtDb
-    homoplasmic: typing.Optional[int] = None
-    #: Maximal frequency in HelixMtDb
-    frequency: typing.Optional[float] = None
-
-
 class SeqvarsQuerySettingsFrequencyPydantic(pydantic.BaseModel):
     """Pydantic representation of ``SeqvarsQuerySettingsFrequency``."""
 
@@ -1866,11 +1834,11 @@ class SeqvarsQuerySettingsFrequencyPydantic(pydantic.BaseModel):
     #: gnomAD-genomes filter
     gnomad_genomes: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
     #: gnomAD mitochondrial filter options.
-    gnomad_mtdna: typing.Optional[SeqvarsGnomadMitochondrialFrequencySettingsPydantic] = None
+    gnomad_mtdna: typing.Optional[SeqvarsMitochondrialFrequencySettingsPydantic] = None
     #: HelixMtDb filter options.
-    helixmtdb: typing.Optional[SeqvarsHelixMtDbFrequencySettingsPydantic] = None
+    helixmtdb: typing.Optional[SeqvarsMitochondrialFrequencySettingsPydantic] = None
     #: In-house filter options.
-    inhouse: typing.Optional[SeqvarsNuclearFrequencySettingsPydantic] = None
+    inhouse: typing.Optional[SeqvarsInhouseFrequencySettingsPydantic] = None
 
 
 class SeqvarsQuerySettingsConsequencePydantic(pydantic.BaseModel):
@@ -2217,7 +2185,13 @@ class GeneRelatedAnnotationPydantic(pydantic.BaseModel):
 
 
 class SeqvarsNuclearFrequencyPydantic(pydantic.BaseModel):
-    """Store gnomAD and in-house nuclear frequency information."""
+    """Store nuclear frequency information.
+
+    This is also used for for storing chrMT frequencies in the case of in-house
+    data.  Here, the ``an`` field is the total number of samples with coverage,
+    and the ``het`` and ``homalt`` fields are the number of heteroplasmic and
+    homoplasmic carriers, respectively.
+    """
 
     #: Number of covered alleles.
     an: int = 0
@@ -2231,8 +2205,8 @@ class SeqvarsNuclearFrequencyPydantic(pydantic.BaseModel):
     af: float = 0.0
 
 
-class SeqvarsGnomadMitochondrialFrequencyPydantic(pydantic.BaseModel):
-    """Store gnomAD mitochondrial frequency information."""
+class SeqvarsMitochondrialFrequencyPydantic(pydantic.BaseModel):
+    """Store mitochondrial frequency information."""
 
     #: Number of covered alleles.
     an: int = 0
@@ -2244,30 +2218,17 @@ class SeqvarsGnomadMitochondrialFrequencyPydantic(pydantic.BaseModel):
     af: float = 0.0
 
 
-class SeqvarsHelixMtDbFrequencyPydantic(pydantic.BaseModel):
-    """Store HelixMtDb frequency information."""
-
-    #: Number of covered alleles.
-    an: int = 0
-    #: Number of heterozygous carriers in HelixMtDb.
-    het: int = 0
-    #: Number of homozygous carriers in HelixMtDb.
-    homalt: int = 0
-    #: Frequency in HelixMtDb.
-    af: float = 0.0
-
-
 class SeqvarsFrequencyAnnotationPydantic(pydantic.BaseModel):
-    """SPopulation frequency information"""
+    """Population frequency information"""
 
     #: gnomAD exomes filter.
     gnomad_exomes: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
     #: gnomAD genomes filter.
     gnomad_genomes: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
     #: gnomAD MT filter.
-    gnomad_mtdna: typing.Optional[SeqvarsGnomadMitochondrialFrequencyPydantic] = None
+    gnomad_mtdna: typing.Optional[SeqvarsMitochondrialFrequencyPydantic] = None
     #: HelixMtDb filter.
-    helixmtdb: typing.Optional[SeqvarsHelixMtDbFrequencyPydantic] = None
+    helixmtdb: typing.Optional[SeqvarsMitochondrialFrequencyPydantic] = None
     #: In-house filter.
     inhouse: typing.Optional[SeqvarsNuclearFrequencyPydantic] = None
 

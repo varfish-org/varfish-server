@@ -9,7 +9,7 @@ import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
-import { GnomadFreqs, InhouseFreqs, MitochondrialFreqs } from './types'
+import { InhouseFreqs, MitochondrialFreqs, NuclearFreqs } from './types'
 
 /** This component's props. */
 const props = withDefaults(
@@ -94,16 +94,16 @@ const fillData = () => {
 }
 
 /** Helper for guarding against undefined `data.value` for `gnomadExomes`. */
-const gnomadExomes = computed<GnomadFreqs>(
-  () => data.value?.gnomad_exomes ?? ({} as GnomadFreqs),
+const gnomadExomes = computed<NuclearFreqs>(
+  () => data.value?.gnomad_exomes ?? ({} as NuclearFreqs),
 )
 /** Helper for guarding against undefined `data.value` for `gnomadGenomes`. */
-const gnomadGenomes = computed<GnomadFreqs>(
-  () => data.value?.gnomad_genomes ?? ({} as GnomadFreqs),
+const gnomadGenomes = computed<NuclearFreqs>(
+  () => data.value?.gnomad_genomes ?? ({} as NuclearFreqs),
 )
 /** Helper for guarding against undefined `data.value` for `gnomadMitochondrial`. */
 const gnomadMitochondrial = computed<MitochondrialFreqs>(
-  () => data.value?.gnomad_mitochondrial ?? ({} as MitochondrialFreqs),
+  () => data.value?.gnomad_mtdna ?? ({} as MitochondrialFreqs),
 )
 /** Helper for guarding against undefined `data.value` for `helixMtDb`. */
 const helixMtDb = computed<MitochondrialFreqs>(
@@ -284,7 +284,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadExomes.homozygous"
+              v-model="gnomadExomes.max_hom"
               hide-details
               density="compact"
               clearable
@@ -294,7 +294,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadExomes.heterozygous"
+              v-model="gnomadExomes.max_het"
               hide-details
               density="compact"
               clearable
@@ -304,7 +304,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadExomes.hemizygous"
+              v-model="gnomadExomes.max_hemi"
               hide-details
               density="compact"
               clearable
@@ -314,7 +314,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadExomes.frequency"
+              v-model="gnomadExomes.max_af"
               hide-details
               density="compact"
               clearable
@@ -335,7 +335,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadGenomes.homozygous"
+              v-model="gnomadGenomes.max_hom"
               hide-details
               density="compact"
               clearable
@@ -345,7 +345,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadGenomes.heterozygous"
+              v-model="gnomadGenomes.max_het"
               hide-details
               density="compact"
               clearable
@@ -355,7 +355,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadGenomes.hemizygous"
+              v-model="gnomadGenomes.max_hemi"
               hide-details
               density="compact"
               clearable
@@ -365,7 +365,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadGenomes.frequency"
+              v-model="gnomadGenomes.max_af"
               hide-details
               density="compact"
               clearable
@@ -386,7 +386,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadMitochondrial.homoplasmic"
+              v-model="gnomadMitochondrial.max_hom"
               hide-details
               density="compact"
               clearable
@@ -396,7 +396,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadMitochondrial.heteroplasmic"
+              v-model="gnomadMitochondrial.max_het"
               hide-details
               density="compact"
               clearable
@@ -407,7 +407,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           <td class="px-1 text-center text-grey">N/A</td>
           <td class="px-1">
             <v-text-field
-              v-model="gnomadMitochondrial.frequency"
+              v-model="gnomadMitochondrial.max_af"
               hide-details
               density="compact"
               clearable
@@ -428,7 +428,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="helixMtDb.homoplasmic"
+              v-model="helixMtDb.max_hom"
               hide-details
               density="compact"
               clearable
@@ -438,7 +438,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="helixMtDb.heteroplasmic"
+              v-model="helixMtDb.max_het"
               hide-details
               density="compact"
               clearable
@@ -449,7 +449,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           <td class="px-1 text-center text-grey">N/A</td>
           <td class="px-1">
             <v-text-field
-              v-model="helixMtDb.frequency"
+              v-model="helixMtDb.max_af"
               hide-details
               density="compact"
               clearable
@@ -478,7 +478,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="inhouse.homozygous"
+              v-model="inhouse.max_hom"
               hide-details
               density="compact"
               clearable
@@ -488,7 +488,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="inhouse.heterozygous"
+              v-model="inhouse.max_het"
               hide-details
               density="compact"
               clearable
@@ -498,7 +498,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="inhouse.hemizygous"
+              v-model="inhouse.max_hemi"
               hide-details
               density="compact"
               clearable
@@ -508,7 +508,7 @@ watch(data, () => updateFrequencyPresetsDebounced(), { deep: true })
           </td>
           <td class="px-1">
             <v-text-field
-              v-model="inhouse.carriers"
+              v-model="inhouse.max_carriers"
               hide-details
               density="compact"
               clearable

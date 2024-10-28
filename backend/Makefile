@@ -146,9 +146,9 @@ protos-download:
 	rm -f protos/seqvars/protos/*_p*2*.py
 
 	wget -O protos/seqvars/protos/output.proto \
-		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/main/protos/varfish/v1/seqvars/output.proto
+		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/refactor-more-protobuf-cleaning-2/protos/varfish/v1/seqvars/output.proto
 	wget -O protos/seqvars/protos/query.proto \
-		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/main/protos/varfish/v1/seqvars/query.proto
+		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/refactor-more-protobuf-cleaning-2/protos/varfish/v1/seqvars/query.proto
 
 	mkdir -p seqvars/protos
 	touch seqvars/protos/__init__.py

@@ -995,7 +995,7 @@ export type NullEnum = unknown;
  */
 export type OneBasedRangePydantic = {
     start: number;
-    end: number;
+    stop: number;
 };
 
 export type PaginatedCaseAnalysisList = {
@@ -1317,36 +1317,36 @@ export type PatchedSeqvarsQueryPresetsConsequenceRequest = {
 export type PatchedSeqvarsQueryPresetsFrequencyRequest = {
     gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
-    gnomad_mitochondrial?: (({
+    gnomad_mtdna?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     inhouse?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     rank?: number;
     label?: string;
@@ -1990,13 +1990,13 @@ export type SeqvarsDbIdsPydantic = {
 };
 
 /**
- * SPopulation frequency information
+ * Population frequency information
  */
 export type SeqvarsFrequencyAnnotationPydantic = {
     gnomad_exomes?: (SeqvarsNuclearFrequencyPydantic | null);
     gnomad_genomes?: (SeqvarsNuclearFrequencyPydantic | null);
-    gnomad_mtdna?: (SeqvarsGnomadMitochondrialFrequencyPydantic | null);
-    helixmtdb?: (SeqvarsHelixMtDbFrequencyPydantic | null);
+    gnomad_mtdna?: (SeqvarsMitochondrialFrequencyPydantic | null);
+    helixmtdb?: (SeqvarsMitochondrialFrequencyPydantic | null);
     inhouse?: (SeqvarsNuclearFrequencyPydantic | null);
 };
 
@@ -2011,9 +2011,20 @@ export type SeqvarsGenotypeChoice = 'any' | 'ref' | 'het' | 'hom' | 'non_het' | 
 export type SeqvarsGenotypePresetChoice = 'any' | 'de_novo' | 'dominant' | 'homozygous_recessive' | 'compound_heterozygous_recessive' | 'recessive' | 'x_recessive' | 'affected_carriers';
 
 /**
- * Store gnomAD mitochondrial frequency information.
+ * Settings for mitochondrial frequency filtering.
  */
-export type SeqvarsGnomadMitochondrialFrequencyPydantic = {
+export type SeqvarsInhouseFrequencySettingsPydantic = {
+    enabled?: boolean;
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
+};
+
+/**
+ * Store mitochondrial frequency information.
+ */
+export type SeqvarsMitochondrialFrequencyPydantic = {
     an?: number;
     het?: number;
     homalt?: number;
@@ -2021,33 +2032,13 @@ export type SeqvarsGnomadMitochondrialFrequencyPydantic = {
 };
 
 /**
- * gnomAD mitochondrial filter options.
+ * Settings for mitochondrial frequency filtering.
  */
-export type SeqvarsGnomadMitochondrialFrequencySettingsPydantic = {
+export type SeqvarsMitochondrialFrequencySettingsPydantic = {
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
-};
-
-/**
- * Store HelixMtDb frequency information.
- */
-export type SeqvarsHelixMtDbFrequencyPydantic = {
-    an?: number;
-    het?: number;
-    homalt?: number;
-    af?: number;
-};
-
-/**
- * HelixMtDb filter options.
- */
-export type SeqvarsHelixMtDbFrequencySettingsPydantic = {
-    enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 };
 
 /**
@@ -2056,7 +2047,12 @@ export type SeqvarsHelixMtDbFrequencySettingsPydantic = {
 export type SeqvarsModeOfInheritance = 'autosomal_dominant' | 'autosomal_recessive' | 'x_linked_dominant' | 'x_linked_recessive' | 'y_linked' | 'mitochondrial';
 
 /**
- * Store gnomAD and in-house nuclear frequency information.
+ * Store nuclear frequency information.
+ *
+ * This is also used for for storing chrMT frequencies in the case of in-house
+ * data.  Here, the ``an`` field is the total number of samples with coverage,
+ * and the ``het`` and ``homalt`` fields are the number of heteroplasmic and
+ * homoplasmic carriers, respectively.
  */
 export type SeqvarsNuclearFrequencyPydantic = {
     an?: number;
@@ -2067,14 +2063,17 @@ export type SeqvarsNuclearFrequencyPydantic = {
 };
 
 /**
- * gnomAD and in-house nuclear filter options.
+ * Settings for nuclear frequency filtering.
+ *
+ * This can also be used for in-house filters where max_het/max_hom then refer
+ * to the maximal number of heteroplasmic/homoplasmic carriers on chrMT.
  */
 export type SeqvarsNuclearFrequencySettingsPydantic = {
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 };
 
 /**
@@ -2334,36 +2333,36 @@ export type SeqvarsQueryPresetsConsequenceRequest = {
 export type SeqvarsQueryPresetsFrequency = {
     gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
-    gnomad_mitochondrial?: (({
+    gnomad_mtdna?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     inhouse?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2382,36 +2381,36 @@ export type SeqvarsQueryPresetsFrequency = {
 export type SeqvarsQueryPresetsFrequencyRequest = {
     gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
-    gnomad_mitochondrial?: (({
+    gnomad_mtdna?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     inhouse?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     rank?: number;
     label: string;
@@ -2854,36 +2853,36 @@ export type SeqvarsQuerySettingsDetailsRequest = {
 export type SeqvarsQuerySettingsFrequency = {
     gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
-    gnomad_mitochondrial?: (({
+    gnomad_mtdna?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     inhouse?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
     readonly sodar_uuid: string;
     readonly date_created: string;
@@ -2897,9 +2896,9 @@ export type SeqvarsQuerySettingsFrequency = {
 export type SeqvarsQuerySettingsFrequencyPydantic = {
     gnomad_exomes?: (SeqvarsNuclearFrequencySettingsPydantic | null);
     gnomad_genomes?: (SeqvarsNuclearFrequencySettingsPydantic | null);
-    gnomad_mtdna?: (SeqvarsGnomadMitochondrialFrequencySettingsPydantic | null);
-    helixmtdb?: (SeqvarsHelixMtDbFrequencySettingsPydantic | null);
-    inhouse?: (SeqvarsNuclearFrequencySettingsPydantic | null);
+    gnomad_mtdna?: (SeqvarsMitochondrialFrequencySettingsPydantic | null);
+    helixmtdb?: (SeqvarsMitochondrialFrequencySettingsPydantic | null);
+    inhouse?: (SeqvarsInhouseFrequencySettingsPydantic | null);
 };
 
 /**
@@ -2908,36 +2907,36 @@ export type SeqvarsQuerySettingsFrequencyPydantic = {
 export type SeqvarsQuerySettingsFrequencyRequest = {
     gnomad_exomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     gnomad_genomes?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
-    gnomad_mitochondrial?: (({
+    gnomad_mtdna?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     helixmtdb?: (({
     enabled?: boolean;
-    heteroplasmic?: (number | null);
-    homoplasmic?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_af?: (number | null);
 } | null) | null);
     inhouse?: (({
     enabled?: boolean;
-    heterozygous?: (number | null);
-    homozygous?: (number | null);
-    hemizygous?: (number | null);
-    frequency?: (number | null);
+    max_het?: (number | null);
+    max_hom?: (number | null);
+    max_hemi?: (number | null);
+    max_carriers?: (number | null);
 } | null) | null);
 };
 

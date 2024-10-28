@@ -10,14 +10,13 @@ from seqvars.models.base import (
     GenePanelSourceChoice,
     GenePydantic,
     GenomeReleaseChoice,
-    GnomadMitochondrialFrequencySettingsPydantic,
-    GnomadNuclearFrequencySettingsPydantic,
-    HelixmtDbFrequencySettingsPydantic,
-    InhouseFrequencySettingsPydantic,
     SeqvarsColumnConfigPydantic,
     SeqvarsGenotypeChoice,
     SeqvarsGenotypePresetChoice,
     SeqvarsGenotypePresetsPydantic,
+    SeqvarsInhouseFrequencySettingsPydantic,
+    SeqvarsMitochondrialFrequencySettingsPydantic,
+    SeqvarsNuclearFrequencySettingsPydantic,
     SeqvarsOutputRecordPydantic,
     SeqvarsPredefinedQuery,
     SeqvarsPrioServicePydantic,
@@ -81,69 +80,58 @@ class SampleGenotypeSettingsBaseFactory(factory.django.DjangoModelFactory):
         abstract = True
 
 
-class GnomadNuclearFrequencySettingsFactory(factory.Factory):
+class NuclearFrequencySettingsFactory(factory.Factory):
 
     enabled = False
-    homozygous = None
-    heterozygous = None
-    hemizygous = None
-    frequency = None
+    max_hom = None
+    max_het = None
+    max_hemi = None
+    max_af = None
 
     class Meta:
-        model = GnomadNuclearFrequencySettingsPydantic
+        model = SeqvarsNuclearFrequencySettingsPydantic
 
 
-class GnomadMitochondrialFrequencySettingsFactory(factory.Factory):
+class MitochondrialFrequencySettingsFactory(factory.Factory):
 
     enabled = False
-    heteroplasmic = None
-    homoplasmic = None
-    frequency = None
+    max_het = None
+    max_hom = None
+    max_af = None
 
     class Meta:
-        model = GnomadMitochondrialFrequencySettingsPydantic
-
-
-class HelixMtDbFrequencySettingsFactory(factory.Factory):
-
-    enabled: bool = False
-    heteroplasmic = None
-    homoplasmic = None
-    frequency = None
-
-    class Meta:
-        model = HelixmtDbFrequencySettingsPydantic
+        model = SeqvarsMitochondrialFrequencySettingsPydantic
 
 
 class InhouseFrequencySettingsFactory(factory.Factory):
 
     enabled = False
-    heterozygous = None
-    homozygous = None
-    hemizygous = None
-    carriers = None
+    max_het = None
+    max_hom = None
+    max_hemi = None
+    max_carriers = None
 
     class Meta:
-        model = InhouseFrequencySettingsPydantic
+        model = SeqvarsInhouseFrequencySettingsPydantic
 
 
 class FrequencySettingsBaseFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def gnomad_exomes(self):
-        return GnomadNuclearFrequencySettingsFactory()
+        return NuclearFrequencySettingsFactory()
 
     @factory.lazy_attribute
     def gnomad_genomes(self):
-        return GnomadNuclearFrequencySettingsFactory()
+        return NuclearFrequencySettingsFactory()
 
     @factory.lazy_attribute
-    def gnomad_mitochondrial(self):
-        return GnomadMitochondrialFrequencySettingsFactory()
+    def gnomad_mtdna(self):
+        return MitochondrialFrequencySettingsFactory()
 
     @factory.lazy_attribute
     def helixmtdb(self):
-        return HelixMtDbFrequencySettingsFactory()
+        return MitochondrialFrequencySettingsFactory()
 
     @factory.lazy_attribute
     def inhouse(self):

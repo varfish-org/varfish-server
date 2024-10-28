@@ -2,6 +2,6 @@
 export type FrequencyDb =
   | 'gnomad_exomes'
   | 'gnomad_genomes'
-  | 'gnomad_mitochondrial'
+  | 'gnomad_mtdna'
   | 'helixmtdb'
   | 'inhouse'

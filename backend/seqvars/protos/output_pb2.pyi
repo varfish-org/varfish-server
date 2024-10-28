@@ -1500,11 +1500,11 @@ class FrequencyAnnotation(google.protobuf.message.Message):
         """gnomAD-genomes filter"""
 
     @property
-    def gnomad_mtdna(self) -> global___GnomadMitochondrialFrequency:
+    def gnomad_mtdna(self) -> global___MitochondrialFrequency:
         """gnomAD-MT filter"""
 
     @property
-    def helixmtdb(self) -> global___HelixMtDbFrequency:
+    def helixmtdb(self) -> global___MitochondrialFrequency:
         """HelixMtDb filter"""
 
     @property
@@ -1516,8 +1516,8 @@ class FrequencyAnnotation(google.protobuf.message.Message):
         *,
         gnomad_exomes: global___NuclearFrequency | None = ...,
         gnomad_genomes: global___NuclearFrequency | None = ...,
-        gnomad_mtdna: global___GnomadMitochondrialFrequency | None = ...,
-        helixmtdb: global___HelixMtDbFrequency | None = ...,
+        gnomad_mtdna: global___MitochondrialFrequency | None = ...,
+        helixmtdb: global___MitochondrialFrequency | None = ...,
         inhouse: global___NuclearFrequency | None = ...,
     ) -> None: ...
     def HasField(
@@ -1631,8 +1631,8 @@ class NuclearFrequency(google.protobuf.message.Message):
 
 global___NuclearFrequency = NuclearFrequency
 
-class GnomadMitochondrialFrequency(google.protobuf.message.Message):
-    """gnomAD mitochondrial frequency information."""
+class MitochondrialFrequency(google.protobuf.message.Message):
+    """Mitochondrial frequency information."""
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -1663,41 +1663,7 @@ class GnomadMitochondrialFrequency(google.protobuf.message.Message):
         ],
     ) -> None: ...
 
-global___GnomadMitochondrialFrequency = GnomadMitochondrialFrequency
-
-class HelixMtDbFrequency(google.protobuf.message.Message):
-    """HelixMtDb frequency information."""
-
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    AN_FIELD_NUMBER: builtins.int
-    HET_FIELD_NUMBER: builtins.int
-    HOMALT_FIELD_NUMBER: builtins.int
-    AF_FIELD_NUMBER: builtins.int
-    an: builtins.int
-    """Number of covered alleles."""
-    het: builtins.int
-    """Number of heterozygous carriers in HelixMtDb"""
-    homalt: builtins.int
-    """Number of homozygous carriers in HelixMtDb"""
-    af: builtins.float
-    """Frequency in HelixMtDb"""
-    def __init__(
-        self,
-        *,
-        an: builtins.int = ...,
-        het: builtins.int = ...,
-        homalt: builtins.int = ...,
-        af: builtins.float = ...,
-    ) -> None: ...
-    def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "af", b"af", "an", b"an", "het", b"het", "homalt", b"homalt"
-        ],
-    ) -> None: ...
-
-global___HelixMtDbFrequency = HelixMtDbFrequency
+global___MitochondrialFrequency = MitochondrialFrequency
 
 class DbIds(google.protobuf.message.Message):
     """Database identifiers."""

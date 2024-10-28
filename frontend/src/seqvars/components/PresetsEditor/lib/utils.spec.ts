@@ -18,18 +18,18 @@ describe('parseGenomeRegion - valid', () => {
     // region
     [
       'chr1:1,000,000-2,000,000',
-      { chromosome: '1', range: { start: 1000000, end: 2000000 } },
+      { chromosome: '1', range: { start: 1000000, stop: 2000000 } },
     ],
     [
       '1:1,000,000-2,000,000',
-      { chromosome: '1', range: { start: 1000000, end: 2000000 } },
+      { chromosome: '1', range: { start: 1000000, stop: 2000000 } },
     ],
     // 1bp length range
-    ['1:100-100', { chromosome: '1', range: { start: 100, end: 100 } }],
+    ['1:100-100', { chromosome: '1', range: { start: 100, stop: 100 } }],
     // "weird" formatting
     [
       '1:1,0,0,0,0,0,0-2,0,0,0,0,0,0',
-      { chromosome: '1', range: { start: 1000000, end: 2000000 } },
+      { chromosome: '1', range: { start: 1000000, stop: 2000000 } },
     ],
   ])('parses %s -> %s', (input, expected) => {
     expect(parseGenomeRegion(input)).toEqual(expected)

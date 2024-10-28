@@ -13,17 +13,16 @@ from seqvars.models.base import (
     GenePanelPydantic,
     GenePydantic,
     GenomeRegionPydantic,
-    GnomadMitochondrialFrequencySettingsPydantic,
-    GnomadNuclearFrequencySettingsPydantic,
-    HelixmtDbFrequencySettingsPydantic,
-    InhouseFrequencySettingsPydantic,
     SeqvarsClinvarSettingsBase,
     SeqvarsColumnConfigPydantic,
     SeqvarsColumnsSettingsBase,
     SeqvarsConsequenceSettingsBase,
     SeqvarsFrequencySettingsBase,
     SeqvarsGenotypePresetsPydantic,
+    SeqvarsInhouseFrequencySettingsPydantic,
     SeqvarsLocusSettingsBase,
+    SeqvarsMitochondrialFrequencySettingsPydantic,
+    SeqvarsNuclearFrequencySettingsPydantic,
     SeqvarsOutputHeaderPydantic,
     SeqvarsOutputRecordPydantic,
     SeqvarsPhenotypePrioSettingsBase,
@@ -96,19 +95,23 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
     """
 
     gnomad_exomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
+        schema=Optional[SeqvarsNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
     gnomad_genomes = SchemaField(
-        schema=Optional[GnomadNuclearFrequencySettingsPydantic], allow_null=True, default=None
+        schema=Optional[SeqvarsNuclearFrequencySettingsPydantic], allow_null=True, default=None
     )
-    gnomad_mitochondrial = SchemaField(
-        schema=Optional[GnomadMitochondrialFrequencySettingsPydantic], allow_null=True, default=None
+    gnomad_mtdna = SchemaField(
+        schema=Optional[SeqvarsMitochondrialFrequencySettingsPydantic],
+        allow_null=True,
+        default=None,
     )
     helixmtdb = SchemaField(
-        schema=Optional[HelixmtDbFrequencySettingsPydantic], allow_null=True, default=None
+        schema=Optional[SeqvarsMitochondrialFrequencySettingsPydantic],
+        allow_null=True,
+        default=None,
     )
     inhouse = SchemaField(
-        schema=Optional[InhouseFrequencySettingsPydantic], allow_null=True, default=None
+        schema=Optional[SeqvarsInhouseFrequencySettingsPydantic], allow_null=True, default=None
     )
 
     class Meta:
@@ -116,7 +119,7 @@ class FrequencySettingsBaseSerializer(serializers.ModelSerializer):
         fields = [
             "gnomad_exomes",
             "gnomad_genomes",
-            "gnomad_mitochondrial",
+            "gnomad_mtdna",
             "helixmtdb",
             "inhouse",
         ]
