@@ -2457,12 +2457,12 @@
         },
         "rich": {
             "hashes": [
-                "sha256:51a2c62057461aaf7152b4d611168f93a9fc73068f8ded2790f29fe2b5366d0c",
-                "sha256:8c82a3d3f8dcfe9e734771313e606b39d8247bb6b826e196f4914b333b743cf1"
+                "sha256:9836f5096eb2172c9e77df411c1b009bace4193d6a481d534fea75ebba758283",
+                "sha256:bc1e01b899537598cf02579d2b9f4a415104d3fc439313a7a2c165d76557a08e"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.8.0'",
-            "version": "==13.9.2"
+            "version": "==13.9.3"
         },
         "rpds-py": {
             "hashes": [
@@ -2939,7 +2939,7 @@
                 "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
                 "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_version < '3.11'",
             "version": "==4.12.2"
         },
         "tzdata": {
