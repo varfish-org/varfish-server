@@ -66,7 +66,7 @@ RUN apt-get update && \
 # Install software.
 RUN apt-get update && \
     apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev \
-        postgresql-client-12 python3.12 python3-pip && \
+        postgresql-client-12 libpq-dev python3.12 python3-pip && \
     update-alternatives --install /usr/local/bin/python python /usr/bin/python3.12 1
 
 RUN apt-get clean autoclean && \
