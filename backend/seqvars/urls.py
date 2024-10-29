@@ -6,11 +6,6 @@ from seqvars import views_api
 # Create a router and register our ViewSets with it.
 router = DefaultRouter()
 router.register(
-    r"api/querypresetsfactorydefaults",
-    views_api.SeqvarsQueryPresetsFactoryDefaultsViewSet,
-    basename="api-querypresetsfactorydefaults",
-)
-router.register(
     r"api/querypresetsset/(?P<project>[0-9a-f-]+)",
     views_api.SeqvarsQueryPresetsSetViewSet,
     basename="api-querypresetsset",

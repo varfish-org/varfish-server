@@ -524,6 +524,8 @@ class SeqvarsQueryPresetsSet(LabeledSortableBaseModel, ClusterableModel):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="seqvarspresetsset", null=True, blank=True
     )
+    #: Whether the preset set is a factory default.
+    is_factory_default = models.BooleanField(default=False, null=False, blank=False)
 
     @transaction.atomic
     def clone_with_latest_version(

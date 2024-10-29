@@ -634,10 +634,10 @@ class TestSeqvarsQuerySettingsColumns(TestCaseSnapshot, TestCase):
         self.assertEqual(SeqvarsQuerySettingsColumns.objects.count(), 1)
 
     def test_str(self):
-        columnsconfig = SeqvarsQuerySettingsColumnsFactory()
+        querysettingscolumns = SeqvarsQuerySettingsColumnsFactory()
         self.assertEqual(
-            f"SeqvarsQuerySettingsColumns '{columnsconfig.sodar_uuid}'",
-            columnsconfig.__str__(),
+            f"SeqvarsQuerySettingsColumns '{querysettingscolumns.sodar_uuid}'",
+            querysettingscolumns.__str__(),
         )
 
     def test_from_presets(self):

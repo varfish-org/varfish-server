@@ -2512,23 +2512,6 @@ export type SeqvarsQueryPresetsSetCopyFromRequest = {
 };
 
 /**
- * Serializer for ``QueryPresetsSet`` that renders all nested versions.
- */
-export type SeqvarsQueryPresetsSetDetails = {
-    readonly sodar_uuid: string;
-    readonly date_created: string;
-    readonly date_modified: string;
-    rank?: number;
-    label: string;
-    description?: (string) | null;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project: string;
-    readonly versions: Array<SeqvarsQueryPresetsSetVersionDetails>;
-};
-
-/**
  * Serializer for ``QueryPresetsSet``.
  */
 export type SeqvarsQueryPresetsSetRequest = {
@@ -4459,33 +4442,6 @@ export type SeqvarsApiQuerypresetsconsequenceDestroyData = {
 export type SeqvarsApiQuerypresetsconsequenceDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsconsequenceDestroyError = unknown;
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListData = {
-    query?: {
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * Number of results to return per page.
-         */
-        page_size?: number;
-    };
-};
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListResponse = (PaginatedSeqvarsQueryPresetsSetList);
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListError = unknown;
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveData = {
-    path: {
-        querypresetsset: string;
-    };
-};
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse = (SeqvarsQueryPresetsSetDetails);
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsfrequencyListData = {
     path: {

@@ -5,6 +5,8 @@ generation).  We use snapshot tests to ensure that this is true and
 that any changes will be tracked in source code.
 """
 
+import logging
+
 from dateutil.parser import parse as parse_datetime
 from django.db import models
 from faker import Faker
@@ -35,6 +37,8 @@ from seqvars.models.base import (
     SeqvarsVariantConsequenceChoice,
     SeqvarsVariantTypeChoice,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 #: DateTime for version 1.0 of the factory defaults.
 TIME_VERSION_1_0 = parse_datetime("2024-07-01T00:00:00Z")
@@ -1589,6 +1593,7 @@ def create_seqvarspresetsset_short_read_genome(rank: int = 1) -> SeqvarsQueryPre
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
+        is_factory_default=True,
         rank=1,
         label="short-read genome sequencing",
         description=(
@@ -1632,6 +1637,7 @@ def create_seqvarspresetsset_short_read_exome_modern(rank: int = 2) -> SeqvarsQu
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
+        is_factory_default=True,
         rank=2,
         label="short-read exome sequencing (modern)",
         description=(
@@ -1676,6 +1682,7 @@ def create_seqvarspresetsset_short_read_exome_legacy(rank: int = 3) -> SeqvarsQu
         sodar_uuid=faker.uuid4(),
         date_created=TIME_VERSION_1_0,
         date_modified=TIME_VERSION_1_0,
+        is_factory_default=True,
         rank=3,
         label="short-read exome sequencing (legacy)",
         description=(
@@ -1707,3 +1714,36 @@ def create_seqvarspresetsset_short_read_exome_legacy(rank: int = 3) -> SeqvarsQu
     version_1_0.seqvarspredefinedquery_set = create_seqvarspredefined_queries(version_1_0, faker)
     result.versions = [version_1_0]
     return result
+
+
+def store_factory_defaults():
+    """Creates factory defaults presets sets in-memory and them to the
+    database if they are not present yet.
+
+    The main assumption is that we only have to create/add preset sets and
+    versions, no modifications and no changes within versions.
+
+    The ``sodar_uuid`` values are used to identify the records.
+    """
+    all_default_sets = (
+        create_seqvarspresetsset_short_read_genome(),
+        create_seqvarspresetsset_short_read_exome_modern(),
+        create_seqvarspresetsset_short_read_exome_legacy(),
+    )
+
+    for default_set in all_default_sets:
+        if not SeqvarsQueryPresetsSet.objects.filter(sodar_uuid=default_set.sodar_uuid).exists():
+            print("Cloning factory default presets set %s" % default_set.label)
+            presetset = default_set.save()
+        else:
+            presetset = SeqvarsQueryPresetsSet.objects.get(sodar_uuid=default_set.sodar_uuid)
+            for version in default_set.versions.all():
+                if not SeqvarsQueryPresetsSetVersion.objects.filter(
+                    sodar_uuid=version.sodar_uuid
+                ).exists():
+                    print(
+                        "Cloning factory default presets set version %d.%d for %s"
+                        % (version.version_major, version.version_minor, default_set.label)
+                    )
+                    version.presetset = presetset
+                    version.save()
