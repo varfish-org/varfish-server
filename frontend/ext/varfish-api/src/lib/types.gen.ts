@@ -2116,7 +2116,6 @@ export type SeqvarsQuery = {
     label: string;
     readonly session: string;
     readonly settings: string;
-    readonly columnsconfig: string;
 };
 
 /**
@@ -2141,7 +2140,6 @@ export type SeqvarsQueryDetails = {
     label: string;
     readonly session: string;
     settings: SeqvarsQuerySettingsDetails;
-    readonly columnsconfig: string;
 };
 
 /**

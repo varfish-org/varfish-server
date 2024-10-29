@@ -10396,11 +10396,7 @@ components:
           type: string
           format: uuid
           readOnly: true
-        columnsconfig:
-          type: string
-          readOnly: true
       required:
-      - columnsconfig
       - date_created
       - date_modified
       - label
@@ -10453,11 +10449,7 @@ components:
           readOnly: true
         settings:
           $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
-        columnsconfig:
-          type: string
-          readOnly: true
       required:
-      - columnsconfig
       - date_created
       - date_modified
       - label
