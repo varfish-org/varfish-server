@@ -2500,6 +2500,7 @@ export type SeqvarsQueryPresetsSet = {
      * Project SODAR UUID
      */
     readonly project: string;
+    readonly is_factory_default: boolean;
 };
 
 /**

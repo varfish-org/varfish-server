@@ -64,9 +64,7 @@ import { EditableState, PresetSetVersionState } from './types'
  * The store holds the data for all query presets of a given project and of course
  * the builtin presets.
  *
- * The preset sets and preset versions are stored by their UUID.  To differentiate
- * between the builtin and the custom ones, the UUIDs of the builtin preset sets are
- * stored in `factoryDefaultPresetSetUuids`.
+ * The preset sets and preset versions are stored by their UUID.
  *
  * Eventually, we should probably use pinia-colada once it is ready:
  * https://github.com/posva/pinia-colada
@@ -77,8 +75,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
   /** The UUID of the project for the presets. */
   const projectUuid = ref<string | undefined>(undefined)
-  /** UUIDs of the factory default preset sets. */
-  const factoryDefaultPresetSetUuids = reactive<string[]>([])
   /** The preset sets by UUID. */
   const presetSets = reactive<Map<string, SeqvarsQueryPresetsSet>>(new Map())
   /** The presetpresetSetVersions set versions by UUID. */
@@ -1700,9 +1696,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const version = presetSetVersions.get(versionUuid)
     if (version === undefined) {
       return EditableState.IS_NOT_SET
-    } else if (
-      factoryDefaultPresetSetUuids.includes(version.presetsset.sodar_uuid)
-    ) {
+    } else if (version.presetsset.is_factory_default) {
       return EditableState.IS_FACTORY_DEFAULT
     } else if (version.status === PresetSetVersionState.ACTIVE) {
       return EditableState.IS_ACTIVE
@@ -1722,7 +1716,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     storeState.reset()
 
     projectUuid.value = undefined
-    factoryDefaultPresetSetUuids.splice(0, factoryDefaultPresetSetUuids.length)
     presetSets.clear()
     presetSetVersions.clear()
   }
@@ -1731,7 +1724,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // attributes
     storeState,
     projectUuid,
-    factoryDefaultPresetSetUuids,
     presetSets,
     presetSetVersions,
     activePresetSetVersions,

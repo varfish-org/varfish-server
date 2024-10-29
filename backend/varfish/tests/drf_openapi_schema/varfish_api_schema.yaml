@@ -11507,9 +11507,14 @@ components:
           format: uuid
           description: Project SODAR UUID
           readOnly: true
+        is_factory_default:
+          type: boolean
+          readOnly: true
+          default: false
       required:
       - date_created
       - date_modified
+      - is_factory_default
       - label
       - project
       - sodar_uuid

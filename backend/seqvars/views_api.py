@@ -111,7 +111,19 @@ class SeqvarsQueryPresetsPermission(SODARAPIProjectPermission):
 
     def get_project(self, request=None, kwargs=None):
         _ = request
-        return get_project(kwargs)
+        return get_project(kwargs or {})
+
+    def has_permission(self, request, view):
+        """Override default permission check to allow access if the project is explicitely ``None``.
+
+        This does not create a security hole as the ``get_project()`` call will throw
+        an exception if no valid project can bef found but falls back to ``presetset.version``
+        in the case when ``None`` is to be returned as desired.
+        """
+        if self.get_project(request=request, kwargs=view.kwargs) is None:
+            return True
+        else:
+            return super().has_permission(request, view)
 
 
 class VersioningViewSetMixin:

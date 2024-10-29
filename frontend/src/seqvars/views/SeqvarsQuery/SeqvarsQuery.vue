@@ -64,10 +64,7 @@ const selectedPresetSetVersionDetails = computed<
   SeqvarsQueryPresetsSetVersionDetails | undefined
 >(() => {
   return Array.from(seqvarsPresetsStore.presetSetVersions.values()).filter(
-    (entry) =>
-      !seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-        entry.presetsset.sodar_uuid,
-      ),
+    (entry) => !entry.presetsset.is_factory_default,
   )[0]
 })
 

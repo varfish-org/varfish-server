@@ -110,9 +110,6 @@ const updatePredefinedQueriesPresets = async (rankDelta: number = 0) => {
   if (
     props.predefinedQueriesPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.predefinedQueriesPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined

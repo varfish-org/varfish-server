@@ -569,6 +569,7 @@ class SeqvarsQueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
 
     #: Serialize ``project`` as its ``sodar_uuid``.
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
+    is_factory_default = serializers.BooleanField(default=False, allow_null=False, read_only=True)
 
     def validate(self, attrs):
         """Augment the attributes by the project from context."""
@@ -578,9 +579,7 @@ class SeqvarsQueryPresetsSetSerializer(LabeledSortableBaseModelSerializer):
 
     class Meta:
         model = SeqvarsQueryPresetsSet
-        fields = LabeledSortableBaseModelSerializer.Meta.fields + [
-            "project",
-        ]
+        fields = LabeledSortableBaseModelSerializer.Meta.fields + ["project", "is_factory_default"]
         read_only_fields = fields + ["is_factory_default"]
 
 

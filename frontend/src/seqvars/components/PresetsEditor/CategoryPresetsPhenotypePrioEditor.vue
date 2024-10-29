@@ -104,9 +104,6 @@ const updatePhenotypePrioPresets = async (rankDelta: number = 0) => {
   if (
     props.phenotypePrioPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.phenotypePrioPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined
