@@ -624,6 +624,7 @@ class TestSeqvarsQueryPresetsSetSerializer(TestCase):
             "rank",
             # QueryPresetsSet
             "project",
+            "is_factory_default",
         ]
         expected = model_to_dict(
             self.seqvarsquerypresetsset,
@@ -666,6 +667,7 @@ class TestSeqvarsQueryPresetsSetDetailsSerializer(TestCase):
             # QueryPresetsSet
             "project",
             "versions",
+            "is_factory_default",
         ]
         expected = model_to_dict(
             self.seqvarsquerypresetsset,

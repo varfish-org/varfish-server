@@ -38,6 +38,7 @@ def canonicalize_dicts(arg: dict) -> dict:
 
 
 class CreatePresetsSetTest(TestCaseSnapshot, TestCase):
+
     def test_create_presetsset_short_read_exome_legacy(self):
         presetsset = create_seqvarspresetsset_short_read_exome_legacy()
         result = SeqvarsQueryPresetsSetDetailsSerializer(presetsset).data
