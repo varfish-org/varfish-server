@@ -1,6 +1,9 @@
 from bgjobs.plugins import BackgroundJobsPluginPoint
 
-from seqvars.models.base import SeqvarsQueryExecutionBackgroundJob
+from seqvars.models.base import (
+    SeqvarsInhouseDbBuildBackgroundJob,
+    SeqvarsQueryExecutionBackgroundJob,
+)
 
 
 class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
@@ -11,6 +14,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
 
     job_specs = {
         SeqvarsQueryExecutionBackgroundJob.spec_name: SeqvarsQueryExecutionBackgroundJob,
+        SeqvarsInhouseDbBuildBackgroundJob.spec_name: SeqvarsInhouseDbBuildBackgroundJob,
     }
 
     def get_extra_data_link(self, _extra_data, _name):
