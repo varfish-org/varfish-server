@@ -2116,7 +2116,6 @@ export type SeqvarsQuery = {
     label: string;
     readonly session: string;
     readonly settings: string;
-    readonly columnsconfig: string;
 };
 
 /**
@@ -2141,7 +2140,6 @@ export type SeqvarsQueryDetails = {
     label: string;
     readonly session: string;
     settings: SeqvarsQuerySettingsDetails;
-    readonly columnsconfig: string;
 };
 
 /**
@@ -2502,6 +2500,7 @@ export type SeqvarsQueryPresetsSet = {
      * Project SODAR UUID
      */
     readonly project: string;
+    readonly is_factory_default: boolean;
 };
 
 /**
@@ -2509,23 +2508,6 @@ export type SeqvarsQueryPresetsSet = {
  */
 export type SeqvarsQueryPresetsSetCopyFromRequest = {
     label: string;
-};
-
-/**
- * Serializer for ``QueryPresetsSet`` that renders all nested versions.
- */
-export type SeqvarsQueryPresetsSetDetails = {
-    readonly sodar_uuid: string;
-    readonly date_created: string;
-    readonly date_modified: string;
-    rank?: number;
-    label: string;
-    description?: (string) | null;
-    /**
-     * Project SODAR UUID
-     */
-    readonly project: string;
-    readonly versions: Array<SeqvarsQueryPresetsSetVersionDetails>;
 };
 
 /**
@@ -4459,33 +4441,6 @@ export type SeqvarsApiQuerypresetsconsequenceDestroyData = {
 export type SeqvarsApiQuerypresetsconsequenceDestroyResponse = (void);
 
 export type SeqvarsApiQuerypresetsconsequenceDestroyError = unknown;
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListData = {
-    query?: {
-        /**
-         * A page number within the paginated result set.
-         */
-        page?: number;
-        /**
-         * Number of results to return per page.
-         */
-        page_size?: number;
-    };
-};
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListResponse = (PaginatedSeqvarsQueryPresetsSetList);
-
-export type SeqvarsApiQuerypresetsfactorydefaultsListError = unknown;
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveData = {
-    path: {
-        querypresetsset: string;
-    };
-};
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveResponse = (SeqvarsQueryPresetsSetDetails);
-
-export type SeqvarsApiQuerypresetsfactorydefaultsRetrieveError = unknown;
 
 export type SeqvarsApiQuerypresetsfrequencyListData = {
     path: {

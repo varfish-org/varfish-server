@@ -291,16 +291,10 @@ const doNewVersion = async () => {
  */
 const presetSetItems = computed<SeqvarsQueryPresetsSet[]>(() => {
   return Array.from(seqvarsPresetsStore.presetSets.values()).sort((a, b) => {
-    const aBuiltin = seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      a.sodar_uuid,
-    )
-    const bBuiltin = seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      b.sodar_uuid,
-    )
     return (
-      (aBuiltin ? 0 : 1000) +
+      (a.is_factory_default ? 0 : 1000) +
       (a.rank ?? 0) -
-      (bBuiltin ? 0 : 1000) -
+      (b.is_factory_default ? 0 : 1000) -
       (b.rank ?? 0)
     )
   })
@@ -408,14 +402,12 @@ watch(
             :items="presetSetItems"
             :item-props="
               (item: SeqvarsQueryPresetsSet) => {
-                const isBuiltin =
-                  seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-                    item.sodar_uuid,
-                  )
                 return {
                   value: item.sodar_uuid,
                   title: item.label,
-                  subtitle: isBuiltin ? 'Factory Default' : 'User-Defined',
+                  subtitle: item.is_factory_default
+                    ? 'Factory Default'
+                    : 'User-Defined',
                 }
               }
             "

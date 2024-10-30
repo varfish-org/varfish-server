@@ -24,8 +24,6 @@ import {
   seqvarsApiQuerypresetsconsequenceCreate,
   seqvarsApiQuerypresetsconsequenceDestroy,
   seqvarsApiQuerypresetsconsequencePartialUpdate,
-  seqvarsApiQuerypresetsfactorydefaultsList,
-  seqvarsApiQuerypresetsfactorydefaultsRetrieve,
   seqvarsApiQuerypresetsfrequencyCreate,
   seqvarsApiQuerypresetsfrequencyDestroy,
   seqvarsApiQuerypresetsfrequencyPartialUpdate,
@@ -66,9 +64,7 @@ import { EditableState, PresetSetVersionState } from './types'
  * The store holds the data for all query presets of a given project and of course
  * the builtin presets.
  *
- * The preset sets and preset versions are stored by their UUID.  To differentiate
- * between the builtin and the custom ones, the UUIDs of the builtin preset sets are
- * stored in `factoryDefaultPresetSetUuids`.
+ * The preset sets and preset versions are stored by their UUID.
  *
  * Eventually, we should probably use pinia-colada once it is ready:
  * https://github.com/posva/pinia-colada
@@ -79,8 +75,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
 
   /** The UUID of the project for the presets. */
   const projectUuid = ref<string | undefined>(undefined)
-  /** UUIDs of the factory default preset sets. */
-  const factoryDefaultPresetSetUuids = reactive<string[]>([])
   /** The preset sets by UUID. */
   const presetSets = reactive<Map<string, SeqvarsQueryPresetsSet>>(new Map())
   /** The presetpresetSetVersions set versions by UUID. */
@@ -128,9 +122,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     projectUuid.value = projectUuid$
 
     try {
-      await storeState.execAsync(async () =>
-        Promise.all([loadPresets(), loadFactoryDefaultsPresets()]),
-      )
+      await storeState.execAsync(async () => loadPresets())
     } catch (e) {
       console.error('error', e)
       storeState.message = `Error loading presets: ${e}`
@@ -215,69 +207,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
           detailResponse.data.sodar_uuid,
           Object.freeze(detailResponse.data),
         )
-      }
-    }
-  }
-
-  /**
-   * Load the factory default presets for the project with UUID from `projectUuid`.
-   */
-  const loadFactoryDefaultsPresets = async (): Promise<void> => {
-    // Paginate through all factory default preset sets.
-    let cursor: string | undefined = undefined
-    const tmpPresetsSet: SeqvarsQueryPresetsSet[] = []
-    do {
-      const response = await storeState.execAsync(async () =>
-        seqvarsApiQuerypresetsfactorydefaultsList({
-          client,
-          query: { cursor, page_size: 100 },
-        }),
-      )
-      if (response.data && response.data.results) {
-        for (const presetSet of response.data.results) {
-          factoryDefaultPresetSetUuids.push(presetSet.sodar_uuid)
-          tmpPresetsSet.push(presetSet)
-          presetSets.set(presetSet.sodar_uuid, presetSet)
-        }
-
-        if (response.data.next) {
-          const tmpCursor = new URL(response.data.next).searchParams.get(
-            'cursor',
-          )
-          if (tmpCursor !== null) {
-            cursor = tmpCursor
-          }
-        }
-      }
-    } while (cursor !== undefined)
-
-    // Fetch details of all factory defaults presets sets which will give us the
-    // versions directly.
-    const responses = await storeState.execAsync(async () =>
-      Promise.all(
-        tmpPresetsSet.map(({ sodar_uuid: querypresetsset }) =>
-          seqvarsApiQuerypresetsfactorydefaultsRetrieve({
-            client,
-            path: { querypresetsset },
-          }),
-        ),
-      ),
-    )
-    for (const response of responses) {
-      if (response.data) {
-        let tmpVersion = undefined // picked ones
-        for (const version of response.data.versions) {
-          if (version.status === 'ACTIVE') {
-            tmpVersion = version
-            break
-          }
-        }
-        if (!tmpVersion && response.data.versions.length > 0) {
-          tmpVersion = response.data.versions[0]
-        }
-        if (tmpVersion) {
-          presetSetVersions.set(tmpVersion.sodar_uuid, tmpVersion)
-        }
       }
     }
   }
@@ -1767,9 +1696,7 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     const version = presetSetVersions.get(versionUuid)
     if (version === undefined) {
       return EditableState.IS_NOT_SET
-    } else if (
-      factoryDefaultPresetSetUuids.includes(version.presetsset.sodar_uuid)
-    ) {
+    } else if (version.presetsset.is_factory_default) {
       return EditableState.IS_FACTORY_DEFAULT
     } else if (version.status === PresetSetVersionState.ACTIVE) {
       return EditableState.IS_ACTIVE
@@ -1789,7 +1716,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     storeState.reset()
 
     projectUuid.value = undefined
-    factoryDefaultPresetSetUuids.splice(0, factoryDefaultPresetSetUuids.length)
     presetSets.clear()
     presetSetVersions.clear()
   }
@@ -1798,7 +1724,6 @@ export const useSeqvarsPresetsStore = defineStore('seqvarPresets', () => {
     // attributes
     storeState,
     projectUuid,
-    factoryDefaultPresetSetUuids,
     presetSets,
     presetSetVersions,
     activePresetSetVersions,

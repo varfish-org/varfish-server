@@ -3348,68 +3348,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /seqvars/api/querypresetsfactorydefaults/:
-    get:
-      operationId: seqvars_api_querypresetsfactorydefaults_list
-      description: |-
-        ViewSet for listing the factory defaults.
-
-        This is a public view, no permissions are required.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      tags:
-      - seqvars
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                $ref: '#/components/schemas/PaginatedSeqvarsQueryPresetsSetList'
-          description: ''
-  /seqvars/api/querypresetsfactorydefaults/{querypresetsset}/:
-    get:
-      operationId: seqvars_api_querypresetsfactorydefaults_retrieve
-      description: |-
-        ViewSet for listing the factory defaults.
-
-        This is a public view, no permissions are required.
-      parameters:
-      - in: path
-        name: querypresetsset
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - seqvars
-      security:
-      - basicAuth: []
-      - cookieAuth: []
-      - knoxApiToken: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.bihealth.varfish+json:
-              schema:
-                $ref: '#/components/schemas/SeqvarsQueryPresetsSetDetails'
-          description: ''
   /seqvars/api/querypresetsfrequency/{querypresetssetversion}/:
     get:
       operationId: seqvars_api_querypresetsfrequency_list
@@ -10458,11 +10396,7 @@ components:
           type: string
           format: uuid
           readOnly: true
-        columnsconfig:
-          type: string
-          readOnly: true
       required:
-      - columnsconfig
       - date_created
       - date_modified
       - label
@@ -10515,11 +10449,7 @@ components:
           readOnly: true
         settings:
           $ref: '#/components/schemas/SeqvarsQuerySettingsDetails'
-        columnsconfig:
-          type: string
-          readOnly: true
       required:
-      - columnsconfig
       - date_created
       - date_modified
       - label
@@ -11577,9 +11507,14 @@ components:
           format: uuid
           description: Project SODAR UUID
           readOnly: true
+        is_factory_default:
+          type: boolean
+          readOnly: true
+          default: false
       required:
       - date_created
       - date_modified
+      - is_factory_default
       - label
       - project
       - sodar_uuid
@@ -11593,48 +11528,6 @@ components:
           maxLength: 128
       required:
       - label
-    SeqvarsQueryPresetsSetDetails:
-      type: object
-      description: Serializer for ``QueryPresetsSet`` that renders all nested versions.
-      properties:
-        sodar_uuid:
-          type: string
-          format: uuid
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_modified:
-          type: string
-          format: date-time
-          readOnly: true
-        rank:
-          type: integer
-          default: 1
-        label:
-          type: string
-          maxLength: 128
-        description:
-          type: string
-          nullable: true
-        project:
-          type: string
-          format: uuid
-          description: Project SODAR UUID
-          readOnly: true
-        versions:
-          type: array
-          items:
-            $ref: '#/components/schemas/SeqvarsQueryPresetsSetVersionDetails'
-          readOnly: true
-      required:
-      - date_created
-      - date_modified
-      - label
-      - project
-      - sodar_uuid
-      - versions
     SeqvarsQueryPresetsSetRequest:
       type: object
       description: Serializer for ``QueryPresetsSet``.

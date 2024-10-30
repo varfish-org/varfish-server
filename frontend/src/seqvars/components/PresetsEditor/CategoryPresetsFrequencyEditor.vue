@@ -126,9 +126,6 @@ const updateFrequencyPresets = async (rankDelta: number = 0) => {
   if (
     props.frequencyPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.frequencyPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined

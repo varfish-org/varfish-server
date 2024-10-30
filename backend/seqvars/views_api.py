@@ -3,10 +3,9 @@ import typing
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from modelcluster.queryset import FakeQuerySet
 from projectroles.models import Project
 from projectroles.views_api import SODARAPIProjectPermission
 from rest_framework import serializers, viewsets
@@ -45,7 +44,6 @@ from seqvars.serializers import (
     SeqvarsQueryPresetsPhenotypePrioSerializer,
     SeqvarsQueryPresetsQualitySerializer,
     SeqvarsQueryPresetsSetCopyFromSerializer,
-    SeqvarsQueryPresetsSetDetailsSerializer,
     SeqvarsQueryPresetsSetSerializer,
     SeqvarsQueryPresetsSetVersionDetailsSerializer,
     SeqvarsQueryPresetsSetVersionSerializer,
@@ -113,7 +111,19 @@ class SeqvarsQueryPresetsPermission(SODARAPIProjectPermission):
 
     def get_project(self, request=None, kwargs=None):
         _ = request
-        return get_project(kwargs)
+        return get_project(kwargs or {})
+
+    def has_permission(self, request, view):
+        """Override default permission check to allow access if the project is explicitely ``None``.
+
+        This does not create a security hole as the ``get_project()`` call will throw
+        an exception if no valid project can bef found but falls back to ``presetset.version``
+        in the case when ``None`` is to be returned as desired.
+        """
+        if self.get_project(request=request, kwargs=view.kwargs) is None:
+            return True
+        else:
+            return super().has_permission(request, view)
 
 
 class VersioningViewSetMixin:
@@ -195,7 +205,7 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         result = SeqvarsQueryPresetsSet.objects.all()
         if sys.argv[:2] == ["manage.py", "spectacular"]:
             return result  # short circuit in schema generation
-        result = result.filter(project__sodar_uuid=self.kwargs["project"])
+        result = result.filter(Q(project=None) | Q(project__sodar_uuid=self.kwargs["project"]))
         return result
 
     @extend_schema(request=SeqvarsQueryPresetsSetCopyFromSerializer)
@@ -221,64 +231,6 @@ class SeqvarsQueryPresetsSetViewSet(ProjectContextBaseViewSet, BaseViewSet):
         )
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-
-class FakeQueryPresetsSetQuerySet(FakeQuerySet):
-    """Helper class that fixes issue with calling ``get()`` with UUID.
-
-    The actual implementation uses the ``python_value()`` of the query value
-    but not the field.
-    """
-
-    def get(self, *args, **kwargs):
-        if "sodar_uuid" in kwargs:
-            filtered = [
-                obj for obj in self.results if str(obj.sodar_uuid) == str(kwargs["sodar_uuid"])
-            ]
-            if filtered:
-                return filtered[0]
-            else:
-                raise ObjectDoesNotExist()
-        else:
-            return super().get(*args, **kwargs)
-
-
-class SeqvarsQueryPresetsFactoryDefaultsViewSet(
-    VersioningViewSetMixin, viewsets.ReadOnlyModelViewSet
-):
-    """ViewSet for listing the factory defaults.
-
-    This is a public view, no permissions are required.
-    """
-
-    #: Use canonical lookup field ``sodar_uuid``.
-    lookup_field = "sodar_uuid"
-    #: Define lookup URL kwarg.
-    lookup_url_kwarg = "querypresetsset"
-    #: Use the app's standard pagination.
-    pagination_class = StandardPagination
-    #: Modify the schema operation ID to avoid name clashes with user-editable presets.
-    schema = AutoSchema(
-        # operation_id_base="QueryPresetsSetsFactoryDefaults"
-    )
-
-    def get_serializer_class(self):
-        """Allow overriding serializer class based on action."""
-        if self.action == "retrieve":
-            return SeqvarsQueryPresetsSetDetailsSerializer
-        else:
-            return SeqvarsQueryPresetsSetSerializer
-
-    def get_queryset(self):
-        """Return queryset with all ``QueryPresetsSetVersion`` records for the given presetsset."""
-        return FakeQueryPresetsSetQuerySet(
-            model=SeqvarsQueryPresetsSetVersion,
-            results=[
-                create_seqvarspresetsset_short_read_genome(),
-                create_seqvarspresetsset_short_read_exome_modern(),
-                create_seqvarspresetsset_short_read_exome_legacy(),
-            ],
-        )
 
 
 class SeqvarsQueryPresetsSetVersionViewSet(ProjectContextBaseViewSet, BaseViewSet):

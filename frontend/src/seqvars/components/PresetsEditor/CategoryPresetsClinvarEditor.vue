@@ -111,9 +111,6 @@ const updateClinvarPresets = async (rankDelta: number = 0) => {
   if (
     props.clinvarPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.clinvarPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined

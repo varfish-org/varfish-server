@@ -173,9 +173,6 @@ const updateConsequencePresets = async (rankDelta: number = 0) => {
   if (
     props.consequencePresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.consequencePresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined

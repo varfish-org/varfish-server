@@ -104,9 +104,6 @@ const updateVariantPrioPresets = async (rankDelta: number = 0) => {
   if (
     props.variantPrioPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.variantPrioPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined

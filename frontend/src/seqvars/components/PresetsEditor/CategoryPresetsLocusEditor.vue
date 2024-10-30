@@ -265,9 +265,6 @@ const updateLocusPresets = async (rankDelta: number = 0) => {
   if (
     props.locusPresets === undefined ||
     props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.factoryDefaultPresetSetUuids.includes(
-      props.locusPresets,
-    ) ||
     seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
       ?.status !== PresetSetVersionState.DRAFT ||
     data.value === undefined
