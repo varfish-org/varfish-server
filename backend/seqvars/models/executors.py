@@ -155,6 +155,19 @@ class SeqvarsQueryExecutionBackgroundJobExecutor:
             "--path-output",
             f"{bucket}/{self.path_internal_results}",
         ]
+        # Expand with inhouse-database if existing.
+        worker_rw_path = pathlib.Path(settings.WORKER_DB_PATH)
+        path_inhouse = (
+            worker_rw_path
+            / "worker"
+            / "seqvars"
+            / "inhouse"
+            / vcf_genome_release
+            / "active"
+            / "rocksdb"
+        )
+        if path_inhouse.exists():
+            args.extend(["--path-inhouse-db", str(path_inhouse)])
         # Setup environment so the worker can access the internal S3 storage.
         env = {
             **dict(os.environ.items()),

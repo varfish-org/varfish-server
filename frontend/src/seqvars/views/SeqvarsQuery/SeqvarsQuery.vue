@@ -63,9 +63,7 @@ const sessionUuid = computed<string | undefined>(
 const selectedPresetSetVersionDetails = computed<
   SeqvarsQueryPresetsSetVersionDetails | undefined
 >(() => {
-  return Array.from(seqvarsPresetsStore.presetSetVersions.values()).filter(
-    (entry) => !entry.presetsset.is_factory_default,
-  )[0]
+  return Array.from(seqvarsPresetsStore.presetSetVersions.values())[0]
 })
 
 /** The UUID of the currently selected query in the query results view. */
