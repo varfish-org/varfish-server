@@ -119,7 +119,7 @@ jobs:
         with:
           # We need to fix the patch version here otherwise, snapshot tests
           # with randomness will / may fail.
-          python-version: "3.10.13"
+          python-version: "3.10.15"
 
       - name: Install pip and Pipenv
         run: |
@@ -128,7 +128,7 @@ jobs:
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --verbose --categories=packages,dev-packages,ldap-packages
+          pipenv install --verbose --categories=packages,dev-packages
         working-directory: backend
 
       - name: Run collectstatic (will download icons and build frontend)
@@ -171,7 +171,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.10.15"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -179,13 +179,8 @@ jobs:
           submodules: 'recursive'
           lfs: true
 
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
       - name: Install pip and Pipenv
-        run: pip install pip pipenv
+        run: pip install -U pip pipenv
         working-directory: backend
 
       - name: Install project dependencies with pipenv

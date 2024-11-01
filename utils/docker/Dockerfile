@@ -69,7 +69,39 @@ RUN apt-get update && \
         postgresql-client-12 libpq-dev python3.12 python3-pip && \
     update-alternatives --install /usr/local/bin/python python /usr/bin/python3.12 1
 ENV PATH="/usr/lib/postgresql/12/bin:$PATH"
-
+# Install Python 3.10 using pyenv
+RUN apt-get install -y \
+        git \
+        wget \
+        build-essential \
+        libbz2-dev \
+        libffi-dev \
+        libgdbm-dev \
+        liblzma-dev \
+        libncurses5-dev \
+        libncurses-dev \
+        libnss3-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        pkg-config \
+        tk-dev \
+        zlib1g-dev
+RUN mkdir -p /opt && \
+    git clone https://github.com/yyuu/pyenv.git /opt/pyenv
+ENV PYENV_ROOT /opt/pyenv
+ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+RUN pyenv install 3.10.15 && \
+    pyenv global 3.10.15 && \
+    pyenv local 3.10.15 && \
+    pyenv rehash && \
+    set -x && \
+    which python && \
+    which pip && \
+    python --version && \
+    pip --version && \
+    pip install -U pipenv --break-system-packages
+# Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -97,11 +129,9 @@ COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/usr/local/bin/python \
+        --python=/opt/pyenv/shims/python \
         --categories=packages,prod-packages,ldap-packages \
         --deploy
-# Override installed Celery version (necessary until sodar-core v1)
-RUN pipenv run pip install -U celery==5.3.5
 
 
 # ---------------------------------------------------------------------------
