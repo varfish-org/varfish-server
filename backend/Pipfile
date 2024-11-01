@@ -9,7 +9,7 @@ altamisa = "~=0.2.5"
 attrs = "~=24.2"
 beautifulsoup4 = "~=4.9"
 cattrs = "*"
-django = "*"  # whatever django-sodar-core enforces
+django = "*"  # same as django-sodar-core
 django-clone = "*"
 django-cryptographic-fields-bihealth = "~=0.6.0"
 django-debug-toolbar = "*"

@@ -128,7 +128,7 @@ jobs:
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --verbose --categories=packages,dev-packages,ldap-packages
+          pipenv install --verbose --categories=packages,dev-packages
         working-directory: backend
 
       - name: Run collectstatic (will download icons and build frontend)
