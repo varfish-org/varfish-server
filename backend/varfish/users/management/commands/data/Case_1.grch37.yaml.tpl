@@ -171,3 +171,14 @@ family:
         variant_type: seqvars
         genomebuild: grch37
         mimetype: text/plain+x-bgzip+x-variant-call-format
+    - uri: file://{{ data_path }}/{{ data_case }}.grch37.delly2.vcf.gz
+      individualToFileIdentifiers:
+        index: {{ data_case }}_index
+        father: {{ data_case }}_father
+        mother: {{ data_case }}_mother
+      fileAttributes:
+        checksum: sha256:7104962533dec7a435cdc32785d7bd01caffc87bd68e6edf3c25d43c8136b622
+        designation: variant_calls
+        variant_type: strucvars
+        genomebuild: grch37
+        mimetype: text/plain+x-bgzip+x-variant-call-format
