@@ -69,7 +69,20 @@ RUN apt-get update && \
         postgresql-client-12 libpq-dev python3.12 python3-pip && \
     update-alternatives --install /usr/local/bin/python python /usr/bin/python3.12 1
 ENV PATH="/usr/lib/postgresql/12/bin:$PATH"
-
+# Install Python 3.10 using pyenv
+RUN apt-get install -y \
+    build-essential checkinstall libffi-dev python2-dev python2 \
+    python-dev-is-python3 libncursesw5-dev libssl-dev libsqlite3-dev \
+    tk-dev libgdbm-dev libc6-dev libbz2-dev
+RUN mkdir -p /opt && \
+    git clone https://github.com/yyuu/pyenv.git /opt/pyenv
+ENV PYENV_ROOT /opt/pyenv
+ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+RUN pyenv install 3.10.15 && \
+    pyenv global 3.10.15 && \
+    pyenv local 3.10.15 && \
+    pyenv rehash
+# Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
