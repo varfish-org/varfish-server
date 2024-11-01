@@ -72,7 +72,7 @@ ENV PATH="/usr/lib/postgresql/12/bin:$PATH"
 # Install Python 3.10 using pyenv
 RUN apt-get install -y \
     build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
-    libssl-dev libreadline-dev libffi-dev pkg-config wget
+    libssl-dev libreadline-dev libffi-dev pkg-config wget git
 RUN mkdir -p /opt && \
     git clone https://github.com/yyuu/pyenv.git /opt/pyenv
 ENV PYENV_ROOT /opt/pyenv
