@@ -502,6 +502,9 @@ SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
 # Path to database for the worker (base database with sub entries for mehari etc.).
 WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "/data/varfish-static/data")
 
+# Writeable path to database for the worker (e.g., for in-house data).
+WORKER_RW_PATH = env.str("VARFISH_WORKER_RW_PATH", "/data/varfish-dynamic/data")
+
 # Path to executable for worker.
 WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
 

@@ -32,6 +32,7 @@ if "production" in os.environ.get("DJANGO_SETTINGS_MODULE"):
         "*.clear_*": {"queue": "maintenance"},
         "*.compute_*": {"queue": "maintenance"},
         "*.sync_*": {"queue": "maintenance"},
+        "*.run_*inhousedbbuild*": {"queue": "maintenance"},
     }
 
     # Explicitely set the name of the default queue to default (is celery).

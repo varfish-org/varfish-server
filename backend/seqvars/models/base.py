@@ -22,6 +22,7 @@ import typing
 import uuid as uuid_object
 
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django_pydantic_field.v2.fields import PydanticSchemaField as SchemaField
@@ -2431,7 +2432,7 @@ class SeqvarsResultRow(models.Model):
 
 
 class SeqvarsQueryExecutionBackgroundJobManager(models.Manager):
-    """Custom manager class that allows to create a ``SeqvarsQueryExeuctionBackgroundJob``
+    """Custom manager class that allows to create a ``SeqvarsQueryExecutionBackgroundJob``
     together with the backing ``BackgroundJob``.
     """
 
@@ -2486,9 +2487,62 @@ class SeqvarsQueryExecutionBackgroundJob(JobModelMessageMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    #: The case import action to perform.
+    #: The query execution to run for.
     seqvarsqueryexecution = models.ForeignKey(
         SeqvarsQueryExecution, on_delete=models.CASCADE, null=False
+    )
+
+    def get_human_readable_type(self):
+        return self.task_desc
+
+    class Meta:
+        ordering = ["-pk"]
+
+
+class SeqvarsInhouseDbBuildBackgroundJobManager(models.Manager):
+    """Custom manager class that allows to create a ``SeqvarsInhouseDbBuildBackgroundJob``
+    together with the backing ``BackgroundJob``.
+    """
+
+    @transaction.atomic
+    def create_full(self):
+        bg_job = BackgroundJob.objects.create(
+            name="Building seqvars inhouse DB",
+            project=None,
+            job_type=SeqvarsInhouseDbBuildBackgroundJob.spec_name,
+            user=User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER),
+        )
+        instance = super().create(
+            bg_job=bg_job,
+        )
+        return instance
+
+
+class SeqvarsInhouseDbBuildBackgroundJob(JobModelMessageMixin, models.Model):
+    """Background job for re-building the seqvars inhouse DB."""
+
+    # We use a custom manager that provides creation together with the ``BackgroundJob``.
+    objects: SeqvarsInhouseDbBuildBackgroundJobManager = SeqvarsInhouseDbBuildBackgroundJobManager()
+
+    #: Task description for logging.
+    task_desc = "Seqvars Query Execution"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "seqvars.runinhousedbbuild"
+
+    #: The SODAR UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4,
+        unique=True,
+    )
+
+    #: The background job for state management etc.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="seqvarsinhousedbbuildbackgroundjob",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
     )
 
     def get_human_readable_type(self):
