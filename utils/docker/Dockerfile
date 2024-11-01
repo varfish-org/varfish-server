@@ -99,7 +99,8 @@ RUN pyenv install 3.10.15 && \
     which python && \
     which pip && \
     python --version && \
-    pip --version
+    pip --version && \
+    pip install -U pipenv --break-system-packages
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
@@ -128,11 +129,9 @@ COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
-        --python=/usr/local/bin/python \
+        --python=/opt/pyenv/shims/python \
         --categories=packages,prod-packages,ldap-packages \
         --deploy
-# Override installed Celery version (necessary until sodar-core v1)
-RUN pipenv run pip install -U celery==5.3.5
 
 
 # ---------------------------------------------------------------------------
