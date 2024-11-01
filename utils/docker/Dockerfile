@@ -80,7 +80,12 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 RUN pyenv install 3.10.15 && \
     pyenv global 3.10.15 && \
     pyenv local 3.10.15 && \
-    pyenv rehash
+    pyenv rehash && \
+    set -x && \
+    which python && \
+    which pip && \
+    python --version && \
+    pip --version
 # Some cleanup
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
