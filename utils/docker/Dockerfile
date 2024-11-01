@@ -71,9 +71,8 @@ RUN apt-get update && \
 ENV PATH="/usr/lib/postgresql/12/bin:$PATH"
 # Install Python 3.10 using pyenv
 RUN apt-get install -y \
-    build-essential checkinstall libffi-dev python2-dev python2 \
-    python-dev-is-python3 libncursesw5-dev libssl-dev libsqlite3-dev \
-    tk-dev libgdbm-dev libc6-dev libbz2-dev
+    build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
+    libssl-dev libreadline-dev libffi-dev pkg-config wget
 RUN mkdir -p /opt && \
     git clone https://github.com/yyuu/pyenv.git /opt/pyenv
 ENV PYENV_ROOT /opt/pyenv
