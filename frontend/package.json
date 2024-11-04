@@ -40,7 +40,7 @@
     "jquery": "^3.7.1",
     "lodash.debounce": "^4.0.8",
     "luxon": "^3.5.0",
-    "pinia": "^2.2.2",
+    "pinia": "^2.2.6",
     "plotly.js-dist": "^2.34.0",
     "remeda": "^2.6.0",
     "snakecase": "^1.0.0",
