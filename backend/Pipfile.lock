@@ -871,12 +871,12 @@
         },
         "faker": {
             "hashes": [
-                "sha256:37b5ab951f7367ea93edb865120e9717a7a649d6a4b223f1e4a47a8a20d9e85f",
-                "sha256:be0e548352c1be6f6d9c982003848a0d305868f160bb1fb7f945acffc347e676"
+                "sha256:4a82b2908cd19f3bba1a4da2060cc4eb18a40410ccdf9350d071d79dc92fe3ce",
+                "sha256:aa31b52cdae3673d6a78b4857c7bcdc0e98f201a5cb77d7827fa9e6b5876da94"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==30.6.0"
+            "version": "==30.8.2"
         },
         "frozenlist": {
             "hashes": [
@@ -2939,7 +2939,7 @@
                 "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
                 "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version >= '3.8'",
             "version": "==4.12.2"
         },
         "tzdata": {
