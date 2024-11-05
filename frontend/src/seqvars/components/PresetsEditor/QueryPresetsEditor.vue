@@ -291,7 +291,7 @@ watch(
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
-      <v-col cols="9">
+      <!-- <v-col cols="9">
         <v-sheet class="pa-3">
           <div v-if="selectedCategory === PresetsCategory.QUALITY">
             <CategoryPresetsQualityEditor
@@ -379,7 +379,7 @@ watch(
             color="error"
           />
         </v-sheet>
-      </v-col>
+      </v-col> -->
     </v-row>
   </div>
 </template>

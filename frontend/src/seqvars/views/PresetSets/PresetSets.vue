@@ -56,11 +56,11 @@ watch(
 <template>
   <v-app id="seqvars-presets-sets">
     <v-main>
-      <!-- <TheAppBar
+      <TheAppBar
         v-model:show-left-panel="navbarShown"
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-      /> -->
+      />
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"

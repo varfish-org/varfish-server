@@ -23,6 +23,76 @@ import { deepmerge } from 'deepmerge-ts'
 import { MaybeRefOrGetter, computed, toValue } from 'vue'
 
 /**
+ * Enumeration for preset set version states.
+ */
+export enum PresetSetVersionState {
+  ACTIVE = 'active',
+  DRAFT = 'draft',
+  RETIRED = 'retired',
+}
+
+/**
+ * Enumerations for representing that a presets version is editable or the reason
+ * why it is not.
+ */
+export enum EditableState {
+  EDITABLE,
+  IS_ACTIVE,
+  IS_RETIRED,
+  IS_FACTORY_DEFAULT,
+  IS_NOT_SET,
+}
+
+/**
+ * Return user-readable string for the editable state.
+ */
+export const getEditableStateLabel = (state: EditableState): string => {
+  let token = ''
+  switch (state) {
+    case EditableState.EDITABLE:
+      return (
+        'This preset set version is in draft state and thus editable. ' +
+        'You will need to activate it to make it useable in queries.'
+      )
+    case EditableState.IS_FACTORY_DEFAULT:
+      return (
+        'This preset set version is a factory default.  You can clone ' +
+        'the whole preset sets and make changes to the clone.'
+      )
+    case EditableState.IS_ACTIVE:
+      token = 'active'
+      break
+    case EditableState.IS_RETIRED:
+      token = 'retired'
+      break
+    case EditableState.IS_NOT_SET:
+      return 'Preset set is currently unset.'
+  }
+  return (
+    `This preset set version is ${token} and thus not editable. ` +
+    'You need to create a new draft version, make changes there, ' +
+    'and then activate it to make it useable in queries.'
+  )
+}
+
+/** Helper for obtaining editable state from a presets set version. */
+export const getEditableState = (
+  version: SeqvarsQueryPresetsSetVersionDetails,
+) => {
+  if (version === undefined) {
+    return EditableState.IS_NOT_SET
+  } else if (version.presetsset.is_factory_default) {
+    return EditableState.IS_FACTORY_DEFAULT
+  } else if (version.status === PresetSetVersionState.ACTIVE) {
+    return EditableState.IS_ACTIVE
+  } else if (version.status === PresetSetVersionState.RETIRED) {
+    return EditableState.IS_RETIRED
+  } else {
+    return EditableState.EDITABLE
+  }
+}
+
+/**
  * Helper to invalidate query keys for lists and retrieval for a single query presets set version.
  *
  * @param queryClient Query client to use.

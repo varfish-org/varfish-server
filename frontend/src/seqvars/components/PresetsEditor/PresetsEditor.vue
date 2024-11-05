@@ -37,10 +37,10 @@ const emit = defineEmits<{
     @message="emit('message', $event)"
   />
 
-  <!-- <QueryPresetsEditor
+  <QueryPresetsEditor
     :project-uuid="projectUuid"
     :preset-set="presetSet"
     :preset-set-version="presetSetVersion"
     @message="emit('message', $event)"
-  /> -->
+  />
 </template>

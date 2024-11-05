@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useIsFetching, useIsMutating } from '@tanstack/vue-query'
 import {
   SeqvarsQueryPresetsSet,
-  SeqvarsQueryPresetsSetVersion,
   SeqvarsQueryPresetsSetVersionDetails,
 } from '@varfish-org/varfish-api/lib'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -10,22 +10,18 @@ import { useRouter } from 'vue-router'
 import {
   useSeqvarQueryPresetsSetCopyFromMutation,
   useSeqvarQueryPresetsSetDestroyMutation,
-  useSeqvarQueryPresetsSetListQuery,
-  useSeqvarQueryPresetsSetRetrieveQuery,
+  useSeqvarQueryPresetsSetListQuery, // useSeqvarQueryPresetsSetRetrieveQuery,
   useSeqvarQueryPresetsSetUpdateMutation,
 } from '@/seqvars/queries/seqvarQueryPresetSet'
 import {
+  EditableState,
+  getEditableState,
+  getEditableStateLabel,
   useSeqvarQueryPresetsSetVersionDestroyMutation,
   useSeqvarQueryPresetsSetVersionListQuery,
-  useSeqvarQueryPresetsSetVersionRetrieveQueries,
-  useSeqvarQueryPresetsSetVersionRetrieveQuery,
+  useSeqvarQueryPresetsSetVersionRetrieveQueries, // useSeqvarQueryPresetsSetVersionRetrieveQuery,
   useSeqvarQueryPresetsSetVersionUpdateMutation,
 } from '@/seqvars/queries/seqvarQueryPresetSetVersion'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
-import {
-  EditableState,
-  getEditableStateLabel,
-} from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */
@@ -50,8 +46,8 @@ const router = useRouter()
 const projectUuid = computed(() => props.projectUuid)
 /** Wraps `props.presetSet` into a `ComputedRef` for use with queries. */
 const presetsSetUuid = computed(() => props.presetSet)
-/** Wraps `props.presetSetVersion` into a `ComputedRef` for use with queries. */
-const presetsSetVersionUuid = computed(() => props.presetSetVersion)
+// /** Wraps `props.presetSetVersion` into a `ComputedRef` for use with queries. */
+// const presetsSetVersionUuid = computed(() => props.presetSetVersion)
 
 /** List all presets sets for the current project. */
 const presetsSetListRes = useSeqvarQueryPresetsSetListQuery({
@@ -69,11 +65,11 @@ const presetsSetUpdate = useSeqvarQueryPresetsSetUpdateMutation()
 /** Mutation for deleting presets sets. */
 const presetsSetDestroy = useSeqvarQueryPresetsSetDestroyMutation()
 
-/** Provide detailed seqvar presets set for the one from props, if any. */
-const presetsSetRetrieveRes = useSeqvarQueryPresetsSetRetrieveQuery({
-  projectUuid,
-  presetsSetUuid,
-})
+// /** Provide detailed seqvar presets set for the one from props, if any. */
+// const presetsSetRetrieveRes = useSeqvarQueryPresetsSetRetrieveQuery({
+//   projectUuid,
+//   presetsSetUuid,
+// })
 /** List all presets set versions for the current presets set. */
 const presetsSetVersionListRes = useSeqvarQueryPresetsSetVersionListQuery({
   presetsSetUuid,
@@ -103,12 +99,20 @@ const presetsSetVersionDetailsByUuid = computed<
       ]),
     ),
 )
-/** Provide detailed seqvar query presets set version for the one from props, if any. */
-const presetsSetVersionRetrieveRes =
-  useSeqvarQueryPresetsSetVersionRetrieveQuery({
-    presetsSetUuid,
-    presetsSetVersionUuid,
-  })
+/** Provide access to the currently selected presets set version. */
+const selectedPresetsSetVersion = computed<
+  SeqvarsQueryPresetsSetVersionDetails | undefined
+>(() =>
+  presetsSetVersionDetailsByUuid.value.get(
+    selectedPresetsSetVersionUuid.value ?? '',
+  ),
+)
+// /** Provide detailed seqvar query presets set version for the one from props, if any. */
+// const presetsSetVersionRetrieveRes =
+//   useSeqvarQueryPresetsSetVersionRetrieveQuery({
+//     presetsSetUuid,
+//     presetsSetVersionUuid,
+//   })
 /** Mutation for copying one prests set version from another. */
 const presetsSetVersionCreateFromPresets =
   useSeqvarQueryPresetsSetVersionUpdateMutation()
@@ -118,14 +122,21 @@ const presetsSetVersionUpdate = useSeqvarQueryPresetsSetVersionUpdateMutation()
 const presetsSetVersionDestroy =
   useSeqvarQueryPresetsSetVersionDestroyMutation()
 
-/** The currently selected presets set, manged through route/props; component state */
+/** Returns number of true loads. */
+const isQueryFetching = useIsFetching({
+  predicate: (query) => query.state.status !== 'pending',
+})
+/** Returns number of mutations. */
+const isQueryMutating = useIsMutating()
+
+/** The currently selected presets set, managed through route/props; component state */
 const selectedPresetsSetUuid = computed<string | undefined>({
   get() {
     return props.presetSet
   },
   set(value) {
     if (value) {
-      router.push({ params: { presetSet: value } })
+      router.push({ params: { presetSet: value, presetSetVersion: '' } })
     }
   },
 })
@@ -427,7 +438,7 @@ const presetSetItems = computed<SeqvarsQueryPresetsSet[]>(() => {
  *
  * Ensures the ones for the selected version are displayed and sorted by `(major, minor)` version.
  */
-const presetSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
+const presetsSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
   () => {
     return Array.from(presetsSetVersionDetailsByUuid.value.values())
       .filter((item) => {
@@ -480,9 +491,16 @@ onMounted(() => {
   selectPresetsSetAndVersion()
 })
 
-/* Trigger selection of presets set and version when data becomes available. */
+/* Trigger selection of presets set and version when data becomes available or
+ * the selected presets set or version changes.
+ */
 watch(
-  () => [presetsSetListRes.status.value, presetsSetVersionListRes.status.value],
+  () => [
+    presetsSetListRes.status.value,
+    presetsSetVersionListRes.status.value,
+    selectedPresetsSetUuid.value,
+    selectedPresetsSetVersionUuid.value,
+  ],
   () => {
     selectPresetsSetAndVersion()
   },
@@ -503,7 +521,7 @@ watch(
       <v-row no-gutters class="d-flex flex-nowrap" justify="space-between">
         <v-col class="flex-grow-1 flex-shrink-0">
           <v-select
-            v-model="selectedPresetSetUuid"
+            v-model="selectedPresetsSetUuid"
             :items="presetSetItems"
             :item-props="
               (item: SeqvarsQueryPresetsSet) => {
@@ -516,7 +534,7 @@ watch(
                 }
               }
             "
-            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            :loading="isQueryMutating > 0 || isQueryFetching > 0"
             label="Presets Set"
             hint="Select presets set to work with."
             persistent-hint
@@ -524,20 +542,24 @@ watch(
         </v-col>
         <v-col class="flex-grow-1 flex-shrink-0 pl-3">
           <v-select
-            v-model="selectedPresetSetVersionUuid"
-            :items="presetSetVersionItems"
+            v-model="selectedPresetsSetVersionUuid"
+            :items="presetsSetVersionItems"
             :item-props="
-              (item: SeqvarsQueryPresetsSetVersionDetails) => {
-                return {
-                  value: item.sodar_uuid,
-                  title: item
-                    ? `${item.version_major}.${item.version_minor}`
-                    : undefined,
-                  subtitle: `${item.status}`,
+              (item?: SeqvarsQueryPresetsSetVersionDetails) => {
+                if (!item) {
+                  return undefined
+                } else {
+                  return {
+                    value: item.sodar_uuid,
+                    title: item
+                      ? `${item.version_major}.${item.version_minor}`
+                      : undefined,
+                    subtitle: `${item.status}`,
+                  }
                 }
               }
             "
-            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            :loading="isQueryMutating > 0 || isQueryFetching > 0"
             label="Presets Set Version"
             hint="Select the version to work with."
             persistent-hint
@@ -555,9 +577,7 @@ watch(
                 <v-btn
                   icon="mdi-dots-vertical"
                   v-bind="localProps"
-                  :loading="
-                    seqvarsPresetsStore.storeState.serverInteractions > 0
-                  "
+                  :loading="isQueryMutating > 0 || isQueryFetching > 0"
                 ></v-btn>
               </template>
 
@@ -567,8 +587,9 @@ watch(
                 </v-list-subheader>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.EDITABLE
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.EDITABLE
                   "
                 >
                   <v-list-item
@@ -598,8 +619,9 @@ watch(
                 </template>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.IS_ACTIVE
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.IS_ACTIVE
                   "
                 >
                   <v-list-item
@@ -622,8 +644,9 @@ watch(
                 </v-list-subheader>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.IS_FACTORY_DEFAULT
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.IS_FACTORY_DEFAULT
                   "
                 >
                   <v-list-item
@@ -673,16 +696,19 @@ watch(
         <v-col class="pt-3">
           <v-alert
             :icon="
-              seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-              EditableState.IS_FACTORY_DEFAULT
+              selectedPresetsSetVersion !== undefined &&
+              getEditableState(selectedPresetsSetVersion) ===
+                EditableState.IS_FACTORY_DEFAULT
                 ? 'mdi-factory'
                 : 'mdi-information'
             "
           >
             {{
-              getEditableStateLabel(
-                seqvarsPresetsStore.getEditableState(presetSetVersion),
-              )
+              selectedPresetsSetVersion === undefined
+                ? '-'
+                : getEditableStateLabel(
+                    getEditableState(selectedPresetsSetVersion),
+                  )
             }}
           </v-alert>
         </v-col>
@@ -785,7 +811,7 @@ watch(
     <v-dialog v-model="discardDialogShow" max-width="600px">
       <v-card>
         <v-card-title>Discard Presets Version</v-card-title>
-        <template v-if="presetSetVersionItems.length > 1">
+        <template v-if="presetsSetVersionItems.length > 1">
           <v-card-text> Confirm to discard the presets version. </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
