@@ -252,7 +252,7 @@ watch(
     v-if="!selectedPresetSetVersion?.presetsset"
     loading
     type="heading,paragraph"
-    class="pt-3"
+    class="mt-3 pt-3"
   />
   <div v-else class="pt-3">
     <h3 class="pb-3">

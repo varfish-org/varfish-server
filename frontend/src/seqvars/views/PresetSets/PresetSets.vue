@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { onMounted, ref, watch } from 'vue'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
@@ -55,11 +56,11 @@ watch(
 <template>
   <v-app id="seqvars-presets-sets">
     <v-main>
-      <TheAppBar
+      <!-- <TheAppBar
         v-model:show-left-panel="navbarShown"
         :show-left-panel-button="true"
         :show-right-panel-button="false"
-      />
+      /> -->
       <TheNavBar :navbar-shown="navbarShown">
         <v-list-item
           prepend-icon="mdi-arrow-left"
@@ -123,4 +124,5 @@ watch(
       close-on-content-click
     ></v-snackbar-queue>
   </v-app>
+  <VueQueryDevtools />
 </template>
