@@ -104,27 +104,27 @@ export const useSeqvarsQueryPresetsQualityListQuery = ({
  *
  * @param presetsSetVersionUuid
  *    UUID of the presets set version that contains the quality preset.
- * @param seqvarQueryUuid UUID of the quality presets to load.
+ * @param presetsQualityUuid UUID of the quality presets to load.
  */
 export const useSeqvarsQueryPresetsQualityRetrieveQuery = ({
   presetsSetVersionUuid,
-  presetsSetQualityUuid,
+  presetsQualityUuid,
 }: {
   presetsSetVersionUuid: MaybeRefOrGetter<string | undefined>
-  presetsSetQualityUuid: MaybeRefOrGetter<string | undefined>
+  presetsQualityUuid: MaybeRefOrGetter<string | undefined>
 }) =>
   useQuery({
     ...seqvarsApiQuerypresetsqualityRetrieveOptions({
       path: {
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        presetsset: () => toValue(presetsSetVersionUuid)!,
+        querypresetssetversion: () => toValue(presetsSetVersionUuid)!,
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        querypresetsquality: () => toValue(presetsSetQualityUuid)!,
+        querypresetsquality: () => toValue(presetsQualityUuid)!,
       },
     }),
     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
     enabled: () =>
-      !!toValue(presetsSetVersionUuid) && !!toValue(presetsSetQualityUuid),
+      !!toValue(presetsSetVersionUuid) && !!toValue(presetsQualityUuid),
   })
 
 /**
@@ -142,9 +142,9 @@ export const useSeqvarsQueryPresetsQualityCreateMutation = () => {
 }
 
 /**
- * Mutation for updating a `SeqvarsQueryPresetSetVersion` object.
+ * Mutation for updating a `SeqvarsQueryPresetsQuality` object.
  */
-export const useSeqvarQueryPresetsSetVersionUpdateMutation = () => {
+export const useSeqvarsQueryPresetsQualityUpdateMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     ...seqvarsApiQuerypresetsqualityUpdateMutation(),

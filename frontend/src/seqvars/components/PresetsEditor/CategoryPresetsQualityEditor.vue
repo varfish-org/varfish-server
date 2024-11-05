@@ -1,18 +1,25 @@
 <script setup lang="ts">
+import { useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
-import { debounce } from 'lodash'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import {
+  invalidateSeqvarQueryPresetsSetVersionKeys,
+  useSeqvarQueryPresetsSetVersionRetrieveQuery,
+} from '@/seqvars/queries/seqvarQueryPresetSetVersion'
+import {
+  useSeqvarsQueryPresetsQualityRetrieveQuery,
+  useSeqvarsQueryPresetsQualityUpdateMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsQuality'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 
 /** This component's props. */
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current presets set. */
+    presetSet?: string
     /** UUID of the current preset set version. */
     presetSetVersion?: string
     /** UUID of the query presets quality */
@@ -29,25 +36,42 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
+/** The `QueryClient` for explicit invalidation.*/
+const queryClient = useQueryClient()
 
-/** The data that is to be edited by this component; component state. */
-const data = ref<SeqvarsQueryPresetsQuality | undefined>(undefined)
+/** Presets set UUID as `ComputedRef` for queries. */
+const presetsSetUuid = computed<string | undefined>(() => {
+  return props.presetSet
+})
+/** Presets set version UUID as `ComputedRef` for queries. */
+const presetsSetVersionUuid = computed<string | undefined>(() => {
+  return props.presetSetVersion
+})
+/** Quality presets UUID as `ComputedRef` for queries. */
+const presetsQualityUuid = computed<string | undefined>(() => {
+  return props.qualityPresets
+})
+
+/** Query with the currently selected presets set version. */
+const presetsSetVersionRetrieveRes =
+  useSeqvarQueryPresetsSetVersionRetrieveQuery({
+    presetsSetUuid,
+    presetsSetVersionUuid,
+  })
+/** Query with the currently selected quality presets. */
+const presetsQualityRetrieveRes = useSeqvarsQueryPresetsQualityRetrieveQuery({
+  presetsSetVersionUuid,
+  presetsQualityUuid,
+})
+/** Mutation for updating the quality presets. */
+const qualityPresetsUpdate = useSeqvarsQueryPresetsQualityUpdateMutation()
 
 /** Shortcut to the number of quality presets, used for rank. */
-const maxRank = computed<number>(() => {
-  if (props.presetSetVersion === undefined) {
-    return 0
-  }
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    return 0
-  }
-  return presetSetVersion.seqvarsquerypresetsquality_set.length
-})
+const maxRank = computed<number>(
+  () =>
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsquality_set
+      .length ?? 0,
+)
 
 /** Rules for data validation. */
 const rules = {
@@ -57,166 +81,144 @@ const rules = {
 /** Ref to the form. */
 const formRef = ref<VForm | undefined>(undefined)
 
-/** Fill the data from the store. */
-const fillData = () => {
-  // Guard against missing preset set version or quality.
+/** Helper to apply a patch to the current `presetsQualityRetrieveRes.data.value`. */
+const applyMutation = async (
+  patch: Partial<SeqvarsQueryPresetsQuality>,
+  rankDelta: number = 0,
+) => {
+  console.log('applyMutation', patch, rankDelta)
+  // Short-circuit if patch is undefined or presets version undefine dor not in draft state.
   if (
+    props.presetSet === undefined ||
     props.presetSetVersion === undefined ||
-    props.qualityPresets === undefined
+    presetsQualityRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value.status !==
+      PresetSetVersionState.DRAFT
   ) {
     return
-  }
-  // Attempt to obtain the model from the store.
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    emit('message', {
-      text: 'Failed to find preset set version.',
-      color: 'error',
-    })
-    return
-  }
-  const qualityPresets = presetSetVersion?.seqvarsquerypresetsquality_set.find(
-    (elem) => elem.sodar_uuid === props.qualityPresets,
-  )
-  if (!qualityPresets) {
-    emit('message', {
-      text: 'Failed to find quality presets.',
-      color: 'error',
-    })
-    return
+  } else {
+    patch.rank = presetsQualityRetrieveRes.data.value.rank
   }
 
-  data.value = { ...qualityPresets }
-}
-
-/**
- * Update the quality presets in the store.
- *
- * Used directly when changing the rank (to minimize UI delay).
- *
- * @param rankDelta The delta to apply to the rank, if any.
- */
-const updateQualityPresets = async (rankDelta: number = 0) => {
-  // Guard against missing/readonly/non-draft preset set version or missing quality.
-  if (
-    props.qualityPresets === undefined ||
-    props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
-      ?.status !== PresetSetVersionState.DRAFT ||
-    data.value === undefined
-  ) {
-    return
-  }
-
-  // If necessary, update the rank of the other item as well via API and set
-  // the new rank to `data.value.rank`.
-  if (rankDelta !== 0) {
-    const version = seqvarsPresetsStore.presetSetVersions.get(
-      props.presetSetVersion,
-    )
-    if (
-      version === undefined ||
-      data.value.rank === undefined ||
-      data.value.rank + rankDelta < 1 ||
-      data.value.rank + rankDelta > maxRank.value
-    ) {
-      // Guard against invalid rank and version.
-      return
-    }
-    // Find the next smaller or larger item, sort by rank.
-    const others = version.seqvarsquerypresetsquality_set.filter((elem) => {
-      if (elem.sodar_uuid === props.qualityPresets) {
-        return false
+  // Helper to update the rank of the other item as well.
+  const updateOtherItemRank = async () => {
+    if (props.presetSetVersion !== undefined && rankDelta !== 0) {
+      const version = presetsSetVersionRetrieveRes.data.value
+      if (
+        version === undefined ||
+        patch.rank === undefined ||
+        patch.rank + rankDelta < 1 ||
+        patch.rank + rankDelta > maxRank.value
+      ) {
+        // Guard against invalid or missing data.
+        return
       }
-      if (rankDelta < 0) {
-        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
-      } else {
-        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
-      }
-    })
-    others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    // Then, pick the other item to flip ranks with.
-    const other = others[rankDelta < 0 ? others.length - 1 : 0]
-    // Store the other's rank in `data.value.rank` and update other via API.
-    if (other) {
-      const dataRank = data.value.rank
-      data.value.rank = other.rank
-      other.rank = dataRank
-      try {
-        await seqvarsPresetsStore.updateQueryPresetsQuality(
-          props.presetSetVersion,
-          other,
-        )
-      } catch (error) {
-        emit('message', {
-          text: 'Failed to update quality presets rank.',
-          color: 'error',
-        })
+      // Find the next smaller or larger item, sort by rank.
+      const others = version.seqvarsquerypresetsquality_set.filter((elem) => {
+        if (elem.sodar_uuid === props.qualityPresets) {
+          return false
+        }
+        if (rankDelta < 0) {
+          return (elem.rank ?? 0) < (patch?.rank ?? 0)
+        } else {
+          return (elem.rank ?? 0) > (patch?.rank ?? 0)
+        }
+      })
+      others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+      // Then, pick the other item to flip ranks with.
+      const other = { ...others[rankDelta < 0 ? others.length - 1 : 0] }
+      // Store the other's rank in `data.rank` and update other via API.
+      if (!!other) {
+        const newOtherRank = patch.rank
+        patch.rank = other.rank
+        other.rank = newOtherRank
+        try {
+          await qualityPresetsUpdate.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsquality: other.sodar_uuid,
+            },
+            body: {
+              ...other,
+              rank: newOtherRank,
+            },
+          })
+        } catch (error) {
+          emit('message', {
+            text: `Failed to update other quality presets rank: ${error}`,
+            color: 'error',
+          })
+        }
       }
     }
   }
 
-  // Guard against invalid form data.
-  const validateResult = await formRef.value?.validate()
-  if (validateResult?.valid !== true) {
-    return
-  }
+  // First, apply rank update to other data object and to patch if applicable.
+  // On success, the patch to the data object.
   try {
-    await seqvarsPresetsStore.updateQueryPresetsQuality(
-      props.presetSetVersion,
-      data.value,
-    )
+    await updateOtherItemRank()
+    await qualityPresetsUpdate.mutateAsync({
+      path: {
+        querypresetssetversion: props.presetSetVersion,
+        querypresetsquality: presetsQualityRetrieveRes.data.value.sodar_uuid,
+      },
+      body: {
+        ...presetsQualityRetrieveRes.data.value,
+        ...patch,
+      },
+    })
+    // Explicitely invalidate the query presets set version as the title and rank
+    // can change and the version stores the category presets as well.
+    invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+      querypresetsset: props.presetSet,
+      querypresetssetversion: props.presetSetVersion,
+    })
   } catch (error) {
     emit('message', {
-      text: 'Failed to update quality presets.',
+      text: `Failed to update quality presets: ${error}`,
       color: 'error',
     })
   }
 }
-
-/**
- * Update the quality presets in the store -- debounced.
- *
- * Used for updating non-rank fields so that the UI does not lag.
- */
-const updateQualityPresetsDebounced = debounce(
-  updateQualityPresets,
-  CATEGORY_PRESETS_DEBOUNCE_WAIT,
-  { leading: true, trailing: true },
-)
-
-// Load model data from store when the UUID changes.
-watch(
-  () => props.qualityPresets,
-  () => fillData(),
-)
-// Also, load model data from store when mounted.
-onMounted(() => fillData())
-
-// Watch the data and trigger a store update.
-watch(data, () => updateQualityPresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h4>Quality Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
+  <h4>
+    Quality Presets &raquo;{{
+      presetsQualityRetrieveRes.data.value?.label ?? 'UNDEFINED'
+    }}&laquo;
+  </h4>
 
-  <v-skeleton-loader v-if="!data" type="article" />
+  <v-skeleton-loader
+    v-if="presetsQualityRetrieveRes.status.value !== 'success'"
+    type="article"
+  />
   <v-form v-else ref="formRef">
     <v-checkbox
-      v-model="data.filter_active"
+      :model-value="presetsQualityRetrieveRes.data.value?.filter_active"
       label="Filter Active"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        applyMutation({
+          filter_active: !presetsQualityRetrieveRes.data.value?.filter_active,
+        })
+      "
     />
 
     <v-text-field
-      v-model="data.label"
+      :model-value="presetsQualityRetrieveRes.data.value?.label"
       :rules="[rules.required]"
       label="Label"
       clearable
       :disabled="readonly"
+      @update:model-value="
+        (label) =>
+          applyMutation({
+            label,
+          })
+      "
     />
 
     <div>
@@ -224,18 +226,22 @@ watch(data, () => updateQualityPresetsDebounced(), { deep: true })
         <v-btn
           prepend-icon="mdi-arrow-up-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank <= 1
+            props.readonly ||
+            presetsQualityRetrieveRes.data.value?.rank === undefined ||
+            presetsQualityRetrieveRes.data.value?.rank <= 1
           "
-          @click="updateQualityPresets(-1)"
+          @click="applyMutation({}, -1)"
         >
           Move Up
         </v-btn>
         <v-btn
           prepend-icon="mdi-arrow-down-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank >= maxRank
+            props.readonly ||
+            presetsQualityRetrieveRes.data.value?.rank === undefined ||
+            presetsQualityRetrieveRes.data.value?.rank >= maxRank
           "
-          @click="updateQualityPresets(1)"
+          @click="applyMutation({}, 1)"
         >
           Move Down
         </v-btn>
@@ -247,52 +253,58 @@ watch(data, () => updateQualityPresetsDebounced(), { deep: true })
     </div>
 
     <v-number-input
-      v-model="data.min_dp_het"
+      :model-value="presetsQualityRetrieveRes.data.value?.min_dp_het"
       label="Min DP Het: minimal depth required for heterozygous genotypes."
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(min_dp_het) => applyMutation({ min_dp_het })"
     />
 
     <v-number-input
-      v-model="data.min_dp_hom"
+      :model-value="presetsQualityRetrieveRes.data.value?.min_dp_hom"
       label="Min DP Hom: minimal depth required for homozygous genotypes."
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(min_dp_hom) => applyMutation({ min_dp_hom })"
     />
 
     <v-number-input
-      v-model="data.min_ab_het"
+      :model-value="presetsQualityRetrieveRes.data.value?.min_ab_het"
       label="Min AB Het: minimal allelic balance for heterozygous genotypes."
       :step="0.01"
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(min_ab_het) => applyMutation({ min_ab_het })"
     />
 
     <v-number-input
-      v-model="data.min_gq"
+      :model-value="presetsQualityRetrieveRes.data.value?.min_gq"
       label="Min GQ: minimal genotype quality required to pass."
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(min_gq) => applyMutation({ min_gq })"
     />
 
     <v-number-input
-      v-model="data.min_ad"
+      :model-value="presetsQualityRetrieveRes.data.value?.min_ad"
       label="Min AD: minimal alternate read depth required to pass."
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(min_ad) => applyMutation({ min_ad })"
     />
 
     <v-number-input
-      v-model="data.max_ad"
+      :model-value="presetsQualityRetrieveRes.data.value?.max_ad"
       label="Max AD: maximal alternate read depth allowed to pass."
       clearable
       control-variant="stacked"
       :disabled="readonly"
+      @update:model-value="(max_ad) => applyMutation({ max_ad })"
     />
   </v-form>
 </template>

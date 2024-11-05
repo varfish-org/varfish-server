@@ -80,7 +80,7 @@ const applyMutation = async (
     type="checkbox"
     @change="
       async () => {
-        applyMutation({
+        await applyMutation({
           ...modelValue.settings.frequency[db],
           enabled: !modelValue.settings.frequency[db]!.enabled,
         })

@@ -22,7 +22,6 @@ import {
   useSeqvarsQueryPresetsQualityCreateMutation,
   useSeqvarsQueryPresetsQualityDestroyMutation,
 } from '@/seqvars/queries/seqvarQueryPresetsQuality'
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { EditableState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -173,6 +172,9 @@ const doCreatePresets = async (category: PresetsCategory, label: string) => {
             },
             body: {
               label,
+              rank:
+                (selectedPresetsSetVersion.data.value
+                  ?.seqvarsquerypresetsquality_set.length ?? 0) + 1,
             },
           })
           // Note: we currently have to invalidate the presets version sets here
@@ -343,6 +345,7 @@ watch(
         <v-sheet class="pa-3">
           <div v-if="selectedCategory === PresetsCategory.QUALITY">
             <CategoryPresetsQualityEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :quality-presets="selectedPreset[PresetsCategory.QUALITY]"
               :readonly="presetSetVersionReadonly"
