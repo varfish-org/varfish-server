@@ -23,7 +23,7 @@ import { MaybeRefOrGetter, toValue } from 'vue'
  *
  * @param queryClient Query client to use.
  * @param project UUID of the project.
- * @param presetsSetUuid UUID of the query presets set, optional.
+ * @param querypresetsset UUID of the query presets set, optional.
  * @param destroy Whether to destroy the query instead of invalidating it.
  */
 const invalidateSeqvarQueryPresetsSetKeys = (
@@ -161,7 +161,7 @@ export const useSeqvarQueryPresetsSetRetrieveQuery = ({
 //   })
 
 /**
- * Mutation for the copying a `SeqvarsQueryPresetSet` object.
+ * Mutation for copying a `SeqvarsQueryPresetSet` object.
  */
 export const useSeqvarQueryPresetsSetCopyFromMutation = () => {
   const queryClient = useQueryClient()

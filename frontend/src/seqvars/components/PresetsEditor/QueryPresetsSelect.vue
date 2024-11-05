@@ -122,7 +122,7 @@ const presetsSetVersionUpdate = useSeqvarQueryPresetsSetVersionUpdateMutation()
 const presetsSetVersionDestroy =
   useSeqvarQueryPresetsSetVersionDestroyMutation()
 
-/** Returns number of true loads. */
+/** Returns number of true (non-background) loads. */
 const isQueryFetching = useIsFetching({
   predicate: (query) => query.state.status !== 'pending',
 })

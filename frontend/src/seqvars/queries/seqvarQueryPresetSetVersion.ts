@@ -97,10 +97,10 @@ export const getEditableState = (
  *
  * @param queryClient Query client to use.
  * @param querypresetsset UUID of the query presets set.
- * @param presetsSetVersionUuid UUID of the query presets set version, optional.
+ * @param querypresetssetversion UUID of the query presets set version, optional.
  * @param destroy Whether to destroy the query instead of invalidating it.
  */
-const invalidateSeqvarQueryPresetsSetVersionKeys = (
+export const invalidateSeqvarQueryPresetsSetVersionKeys = (
   queryClient: QueryClient,
   {
     querypresetsset,
@@ -150,7 +150,6 @@ export const useSeqvarQueryPresetsSetVersionListQuery = ({
 }: {
   presetsSetUuid: MaybeRefOrGetter<string | undefined>
 }) => {
-  console.log(presetsSetUuid)
   return useQuery({
     ...seqvarsApiQuerypresetssetversionListOptions({
       // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011

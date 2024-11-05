@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIsFetching, useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
@@ -12,6 +13,15 @@ import CategoryPresetsPredefinedQueriesEditor from '@/seqvars/components/Presets
 import CategoryPresetsQualityEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsQualityEditor.vue'
 import CategoryPresetsVariantPrioEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsVariantPrioEditor.vue'
 import PresetsList from '@/seqvars/components/PresetsEditor/PresetsList.vue'
+import {
+  getEditableState,
+  invalidateSeqvarQueryPresetsSetVersionKeys,
+  useSeqvarQueryPresetsSetVersionRetrieveQuery,
+} from '@/seqvars/queries/seqvarQueryPresetSetVersion'
+import {
+  useSeqvarsQueryPresetsQualityCreateMutation,
+  useSeqvarsQueryPresetsQualityDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsQuality'
 import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
 import { EditableState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
@@ -34,19 +44,27 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
-
-/* The currently selected preset set version (details, contains preset set info). */
-const selectedPresetSetVersion = computed<
-  SeqvarsQueryPresetsSetVersionDetails | undefined
->(() => {
-  if (props.presetSetVersion) {
-    return seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
-  } else {
-    return undefined
-  }
+/** Presets set UUID as `ComputedRef` for queries. */
+const presetsSetUuid = computed<string | undefined>(() => {
+  return props.presetSet
 })
+/** Presets set version UUID as `ComputedRef` for queries. */
+const presetsSetVersionUuid = computed<string | undefined>(() => {
+  return props.presetSetVersion
+})
+
+/** The `QueryClient` for explicit invalidation.*/
+const queryClient = useQueryClient()
+/** Query for the selected presets set version details. */
+const selectedPresetsSetVersion = useSeqvarQueryPresetsSetVersionRetrieveQuery({
+  presetsSetUuid,
+  presetsSetVersionUuid,
+})
+
+/** Mutation for creating a new quality preset. */
+const qualityPresetsCreate = useSeqvarsQueryPresetsQualityCreateMutation()
+/** Mutation for deleting a quality preset. */
+const qualityPresetsDestroy = useSeqvarsQueryPresetsQualityDestroyMutation()
 
 /** Category information/definition. */
 const categories = computed<PresetsCategoryInfo[]>(() => {
@@ -55,56 +73,63 @@ const categories = computed<PresetsCategoryInfo[]>(() => {
       label: 'Quality',
       category: PresetsCategory.QUALITY,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsquality_set ?? [],
+        selectedPresetsSetVersion.data.value?.seqvarsquerypresetsquality_set ??
+        [],
     },
     {
       label: 'Frequency',
       category: PresetsCategory.FREQUENCY,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsfrequency_set ?? [],
+        selectedPresetsSetVersion.data.value
+          ?.seqvarsquerypresetsfrequency_set ?? [],
     },
     {
       label: 'Consequence',
       category: PresetsCategory.CONSEQUENCE,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsconsequence_set ??
-        [],
+        selectedPresetsSetVersion.data.value
+          ?.seqvarsquerypresetsconsequence_set ?? [],
     },
     {
       label: 'Locus',
       category: PresetsCategory.LOCUS,
-      items: selectedPresetSetVersion.value?.seqvarsquerypresetslocus_set ?? [],
+      items:
+        selectedPresetsSetVersion.data.value?.seqvarsquerypresetslocus_set ??
+        [],
     },
     {
       label: 'Phenotype Prioritization',
       category: PresetsCategory.PHENOTYPE_PRIO,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsphenotypeprio_set ??
-        [],
+        selectedPresetsSetVersion.data.value
+          ?.seqvarsquerypresetsphenotypeprio_set ?? [],
     },
     {
       label: 'Variant Prioritization',
       category: PresetsCategory.VARIANT_PRIO,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsvariantprio_set ??
-        [],
+        selectedPresetsSetVersion.data.value
+          ?.seqvarsquerypresetsvariantprio_set ?? [],
     },
     {
       label: 'ClinVar',
       category: PresetsCategory.CLINVAR,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetsclinvar_set ?? [],
+        selectedPresetsSetVersion.data.value?.seqvarsquerypresetsclinvar_set ??
+        [],
     },
     {
       label: 'Columns',
       category: PresetsCategory.COLUMNS,
       items:
-        selectedPresetSetVersion.value?.seqvarsquerypresetscolumns_set ?? [],
+        selectedPresetsSetVersion.data.value?.seqvarsquerypresetscolumns_set ??
+        [],
     },
     {
       label: 'Predefined Queries',
       category: PresetsCategory.PREDEFINED_QUERIES,
-      items: selectedPresetSetVersion.value?.seqvarspredefinedquery_set ?? [],
+      items:
+        selectedPresetsSetVersion.data.value?.seqvarspredefinedquery_set ?? [],
     },
   ]
 })
@@ -134,18 +159,28 @@ const selectedPreset = reactive<{
  * @param label The label for the new presets.
  */
 const doCreatePresets = async (category: PresetsCategory, label: string) => {
-  // Guard against missing preset set version.
-  if (props.presetSetVersion) {
+  // Guard against missing preset set/version.
+  if (!!props.presetSet && !!props.presetSetVersion) {
     // Category text to show in the message.
     let msgCat: string = ''
     try {
       switch (category) {
         case PresetsCategory.QUALITY:
           msgCat = 'quality'
-          seqvarsPresetsStore.createQueryPresetsQuality(
-            props.presetSetVersion,
-            label,
-          )
+          await qualityPresetsCreate.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+            },
+            body: {
+              label,
+            },
+          })
+          // Note: we currently have to invalidate the presets version sets here
+          // because of limitations with hey-api.
+          invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+            querypresetsset: props.presetSet,
+            querypresetssetversion: props.presetSetVersion,
+          })
           break
         default:
           throw new Error(`Unknown category ${category}`)
@@ -171,18 +206,26 @@ const doCreatePresets = async (category: PresetsCategory, label: string) => {
  * @param uuid The UUID of the presets to delete.
  */
 const doDeletePresets = async (category: PresetsCategory, uuid: string) => {
-  // Guard against missing preset set version.
-  if (props.presetSetVersion) {
+  // Guard against missing preset set/version.
+  if (!!props.presetSet && !!props.presetSetVersion) {
     // Category text to show in the message.
     let msgCat: string = ''
     try {
       switch (category) {
         case PresetsCategory.QUALITY:
           msgCat = 'quality'
-          seqvarsPresetsStore.deleteQueryPresetsQuality(
-            props.presetSetVersion,
-            uuid,
-          )
+          await qualityPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsquality: uuid,
+            },
+          })
+          // Note: we currently have to invalidate the presets version sets here
+          // because of limitations with hey-api.
+          invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+            querypresetsset: props.presetSet,
+            querypresetssetversion: props.presetSetVersion,
+          })
           break
         default:
           throw new Error(`Unknown category ${category}`)
@@ -219,10 +262,15 @@ const selectFirstPresets = (options?: { onlyIfEmpty: boolean }) => {
 /** Whether the currently selected presets version is readonly. */
 const presetSetVersionReadonly = computed<boolean>(() => {
   return (
-    props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.getEditableState(props.presetSetVersion) !==
+    selectedPresetsSetVersion.data.value === undefined ||
+    getEditableState(selectedPresetsSetVersion.data.value) !==
       EditableState.EDITABLE
   )
+})
+
+/** Returns number of true (non-background) loads. */
+const isQueryFetching = useIsFetching({
+  predicate: (query) => query.state.status !== 'pending',
 })
 
 // Select first presets when mounted.
@@ -238,9 +286,9 @@ watch(
 )
 // When store finished loading, only select the first presets if it is not set.
 watch(
-  () => [seqvarsPresetsStore.storeState.serverInteractions],
+  () => [isQueryFetching.value],
   () => {
-    if (seqvarsPresetsStore.storeState.serverInteractions === 0) {
+    if (isQueryFetching.value === 0) {
       selectFirstPresets({ onlyIfEmpty: true })
     }
   },
@@ -249,7 +297,7 @@ watch(
 
 <template>
   <v-skeleton-loader
-    v-if="!selectedPresetSetVersion?.presetsset"
+    v-if="!selectedPresetsSetVersion.data.value?.presetsset"
     loading
     type="heading,paragraph"
     class="mt-3 pt-3"
@@ -257,11 +305,11 @@ watch(
   <div v-else class="pt-3">
     <h3 class="pb-3">
       Presets: &raquo;{{
-        selectedPresetSetVersion?.presetsset.label ?? 'UNDEFINED'
+        selectedPresetsSetVersion.data.value?.presetsset.label ?? 'UNDEFINED'
       }}
       {{
-        `v${selectedPresetSetVersion?.version_major ?? 'X'}` +
-        `.${selectedPresetSetVersion?.version_minor ?? 'Y'}`
+        `v${selectedPresetsSetVersion.data.value?.version_major ?? 'X'}` +
+        `.${selectedPresetsSetVersion.data.value?.version_minor ?? 'Y'}`
       }}&laquo;
     </h3>
 
@@ -291,7 +339,7 @@ watch(
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
-      <!-- <v-col cols="9">
+      <v-col cols="9">
         <v-sheet class="pa-3">
           <div v-if="selectedCategory === PresetsCategory.QUALITY">
             <CategoryPresetsQualityEditor
@@ -301,7 +349,7 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <div v-else-if="selectedCategory === PresetsCategory.FREQUENCY">
+          <!-- <div v-else-if="selectedCategory === PresetsCategory.FREQUENCY">
             <CategoryPresetsFrequencyEditor
               :preset-set-version="presetSetVersion"
               :frequency-presets="selectedPreset[PresetsCategory.FREQUENCY]"
@@ -377,9 +425,9 @@ watch(
             v-else
             :title="`Invalid category ${selectedCategory}`"
             color="error"
-          />
+          /> -->
         </v-sheet>
-      </v-col> -->
+      </v-col>
     </v-row>
   </div>
 </template>
