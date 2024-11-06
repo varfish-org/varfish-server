@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useIsFetching, useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { ComputedRef, computed, onMounted, reactive, ref, watch } from 'vue'
 
 import CategoryPresetsClinvarEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsClinvarEditor.vue'
 import CategoryPresetsColumnsEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsColumnsEditor.vue'
@@ -19,9 +19,41 @@ import {
   useSeqvarQueryPresetsSetVersionRetrieveQuery,
 } from '@/seqvars/queries/seqvarQueryPresetSetVersion'
 import {
+  useSeqvarsQueryPresetsClinvarCreateMutation,
+  useSeqvarsQueryPresetsClinvarDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsClinvar'
+import {
+  useSeqvarsQueryPresetsColumnsCreateMutation,
+  useSeqvarsQueryPresetsColumnsDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsColumns'
+import {
+  useSeqvarsQueryPresetsConsequenceCreateMutation,
+  useSeqvarsQueryPresetsConsequenceDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsConsequence'
+import {
+  useSeqvarsQueryPresetsFrequencyCreateMutation,
+  useSeqvarsQueryPresetsFrequencyDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsFrequency'
+import {
+  useSeqvarsQueryPresetsLocusCreateMutation,
+  useSeqvarsQueryPresetsLocusDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsLocus'
+import {
+  useSeqvarsQueryPresetsPhenotypePrioCreateMutation,
+  useSeqvarsQueryPresetsPhenotypePrioDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsPhenotypePrio'
+import {
+  useSeqvarsPredefinedQueryCreateMutation,
+  useSeqvarsPredefinedQueryDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsPredefinedQuery'
+import {
   useSeqvarsQueryPresetsQualityCreateMutation,
   useSeqvarsQueryPresetsQualityDestroyMutation,
 } from '@/seqvars/queries/seqvarQueryPresetsQuality'
+import {
+  useSeqvarsQueryPresetsVariantPrioCreateMutation,
+  useSeqvarsQueryPresetsVariantPrioDestroyMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsVariantPrio'
 import { EditableState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
@@ -64,6 +96,52 @@ const selectedPresetsSetVersion = useSeqvarQueryPresetsSetVersionRetrieveQuery({
 const qualityPresetsCreate = useSeqvarsQueryPresetsQualityCreateMutation()
 /** Mutation for deleting a quality preset. */
 const qualityPresetsDestroy = useSeqvarsQueryPresetsQualityDestroyMutation()
+
+/** Mutation for creating a new frequency preset. */
+const frequencyPresetsCreate = useSeqvarsQueryPresetsFrequencyCreateMutation()
+/** Mutation for deleting a frequency preset. */
+const frequencyPresetsDestroy = useSeqvarsQueryPresetsFrequencyDestroyMutation()
+
+/** Mutation for creating a new consequence preset. */
+const consequencePresetsCreate =
+  useSeqvarsQueryPresetsConsequenceCreateMutation()
+/** Mutation for deleting a consequence preset. */
+const consequencePresetsDestroy =
+  useSeqvarsQueryPresetsConsequenceDestroyMutation()
+
+/** Mutation for creating a new locus preset. */
+const locusPresetsCreate = useSeqvarsQueryPresetsLocusCreateMutation()
+/** Mutation for deleting a locus preset. */
+const locusPresetsDestroy = useSeqvarsQueryPresetsLocusDestroyMutation()
+
+/** Mutation for creating a new phenotype prio preset. */
+const phenotypePrioPresetsCreate =
+  useSeqvarsQueryPresetsPhenotypePrioCreateMutation()
+/** Mutation for deleting a phenotypep rio preset. */
+const phenotypePrioPresetsDestroy =
+  useSeqvarsQueryPresetsPhenotypePrioDestroyMutation()
+
+/** Mutation for creating a new variant prio preset. */
+const variantPrioPresetsCreate =
+  useSeqvarsQueryPresetsVariantPrioCreateMutation()
+/** Mutation for deleting a variant prio preset. */
+const variantPrioPresetsDestroy =
+  useSeqvarsQueryPresetsVariantPrioDestroyMutation()
+
+/** Mutation for creating a new clinvar preset. */
+const clinvarPresetsCreate = useSeqvarsQueryPresetsClinvarCreateMutation()
+/** Mutation for deleting a clinvar preset. */
+const clinvarPresetsDestroy = useSeqvarsQueryPresetsClinvarDestroyMutation()
+
+/** Mutation for creating a new columns preset. */
+const columnsPresetsCreate = useSeqvarsQueryPresetsColumnsCreateMutation()
+/** Mutation for deleting a columns preset. */
+const columnsPresetsDestroy = useSeqvarsQueryPresetsColumnsDestroyMutation()
+
+/** Mutation for creating a new predefined query. */
+const predefinedQueryCreate = useSeqvarsPredefinedQueryCreateMutation()
+/** Mutation for deleting a predefinedQuery. */
+const predefinedQueryDestroy = useSeqvarsPredefinedQueryDestroyMutation()
 
 /** Category information/definition. */
 const categories = computed<PresetsCategoryInfo[]>(() => {
@@ -133,23 +211,93 @@ const categories = computed<PresetsCategoryInfo[]>(() => {
   ]
 })
 
+/** Store category UUID together with preset set and version. */
+interface SelectedPreset {
+  uuid?: string
+  presetSet?: string
+  presetSetVersion?: string
+}
+
+/** Selected presets in each category. */
+const selectedPresetRef = ref<{
+  [key in PresetsCategory]: SelectedPreset
+}>({
+  [PresetsCategory.QUALITY]: {},
+  [PresetsCategory.FREQUENCY]: {},
+  [PresetsCategory.CONSEQUENCE]: {},
+  [PresetsCategory.LOCUS]: {},
+  [PresetsCategory.PHENOTYPE_PRIO]: {},
+  [PresetsCategory.VARIANT_PRIO]: {},
+  [PresetsCategory.CLINVAR]: {},
+  [PresetsCategory.COLUMNS]: {},
+  [PresetsCategory.PREDEFINED_QUERIES]: {},
+})
+
 /** Currently selected category. */
 const selectedCategory = ref<PresetsCategory>(PresetsCategory.QUALITY)
 
-/** Selected presets in each category. */
+/** Helper to create entries in `selectedPreset`. */
+const createSelectedPreset = (category: PresetsCategory) => {
+  return computed({
+    get: () => {
+      const value = selectedPresetRef.value[category]
+      if (
+        props.presetSet === undefined ||
+        props.presetSetVersion === undefined ||
+        value.presetSet !== props.presetSet ||
+        value.presetSetVersion !== props.presetSetVersion
+      ) {
+        // Guard against change in preset set and version.
+        return undefined
+      } else {
+        return selectedPresetRef.value[category].uuid
+      }
+    },
+    set: (value: string | undefined) => {
+      selectedPresetRef.value[category] = {
+        uuid: value,
+        presetSet: props.presetSet,
+        presetSetVersion: props.presetSetVersion,
+      }
+    },
+  })
+}
+
+/** Selected presets in each category */
 const selectedPreset = reactive<{
-  [key in PresetsCategory]: string | undefined
+  [key in PresetsCategory]: ComputedRef<string | undefined>
 }>({
-  [PresetsCategory.QUALITY]: undefined,
-  [PresetsCategory.FREQUENCY]: undefined,
-  [PresetsCategory.CONSEQUENCE]: undefined,
-  [PresetsCategory.LOCUS]: undefined,
-  [PresetsCategory.PHENOTYPE_PRIO]: undefined,
-  [PresetsCategory.VARIANT_PRIO]: undefined,
-  [PresetsCategory.CLINVAR]: undefined,
-  [PresetsCategory.COLUMNS]: undefined,
-  [PresetsCategory.PREDEFINED_QUERIES]: undefined,
+  [PresetsCategory.QUALITY]: createSelectedPreset(PresetsCategory.QUALITY),
+  [PresetsCategory.FREQUENCY]: createSelectedPreset(PresetsCategory.FREQUENCY),
+  [PresetsCategory.CONSEQUENCE]: createSelectedPreset(
+    PresetsCategory.CONSEQUENCE,
+  ),
+  [PresetsCategory.LOCUS]: createSelectedPreset(PresetsCategory.LOCUS),
+  [PresetsCategory.PHENOTYPE_PRIO]: createSelectedPreset(
+    PresetsCategory.PHENOTYPE_PRIO,
+  ),
+  [PresetsCategory.VARIANT_PRIO]: createSelectedPreset(
+    PresetsCategory.VARIANT_PRIO,
+  ),
+  [PresetsCategory.CLINVAR]: createSelectedPreset(PresetsCategory.CLINVAR),
+  [PresetsCategory.COLUMNS]: createSelectedPreset(PresetsCategory.COLUMNS),
+  [PresetsCategory.PREDEFINED_QUERIES]: createSelectedPreset(
+    PresetsCategory.PREDEFINED_QUERIES,
+  ),
 })
+
+/** Category labels. */
+const CAT_LABELS = {
+  [PresetsCategory.QUALITY]: 'quality',
+  [PresetsCategory.FREQUENCY]: 'frequency',
+  [PresetsCategory.CONSEQUENCE]: 'consequence',
+  [PresetsCategory.LOCUS]: 'locus',
+  [PresetsCategory.PHENOTYPE_PRIO]: 'phenotype priority',
+  [PresetsCategory.VARIANT_PRIO]: 'variant priority',
+  [PresetsCategory.CLINVAR]: 'clinvar',
+  [PresetsCategory.COLUMNS]: 'columns',
+  [PresetsCategory.PREDEFINED_QUERIES]: 'predefined queries',
+} as const
 
 /**
  * Create a new presets, emitting "message" for success/failure.
@@ -158,35 +306,81 @@ const selectedPreset = reactive<{
  * @param label The label for the new presets.
  */
 const doCreatePresets = async (category: PresetsCategory, label: string) => {
+  // Category text to show in the message.
+  const msgCat: string = CAT_LABELS[category]
+
   // Guard against missing preset set/version.
   if (!!props.presetSet && !!props.presetSetVersion) {
-    // Category text to show in the message.
-    let msgCat: string = ''
+    // Arguments to pass to the mutation's `mutateAsync()` method.
+    const createMutateArgs = (length?: number) => ({
+      path: {
+        querypresetssetversion: props.presetSetVersion!,
+      },
+      body: {
+        label,
+        rank: (length ?? 0) + 1,
+      },
+    })
+
     try {
+      const value = selectedPresetsSetVersion.data.value
       switch (category) {
         case PresetsCategory.QUALITY:
-          msgCat = 'quality'
-          await qualityPresetsCreate.mutateAsync({
-            path: {
-              querypresetssetversion: props.presetSetVersion,
-            },
-            body: {
-              label,
-              rank:
-                (selectedPresetsSetVersion.data.value
-                  ?.seqvarsquerypresetsquality_set.length ?? 0) + 1,
-            },
-          })
-          // Note: we currently have to invalidate the presets version sets here
-          // because of limitations with hey-api.
-          invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
-            querypresetsset: props.presetSet,
-            querypresetssetversion: props.presetSetVersion,
-          })
+          await qualityPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetsquality_set.length),
+          )
+          break
+        case PresetsCategory.FREQUENCY:
+          await frequencyPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetsfrequency_set.length),
+          )
+          break
+        case PresetsCategory.CONSEQUENCE:
+          await consequencePresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetsconsequence_set.length),
+          )
+          break
+        case PresetsCategory.LOCUS:
+          await locusPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetslocus_set.length),
+          )
+          break
+        case PresetsCategory.PHENOTYPE_PRIO:
+          await phenotypePrioPresetsCreate.mutateAsync(
+            createMutateArgs(
+              value?.seqvarsquerypresetsphenotypeprio_set.length,
+            ),
+          )
+          break
+        case PresetsCategory.VARIANT_PRIO:
+          await variantPrioPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetsvariantprio_set.length),
+          )
+          break
+        case PresetsCategory.CLINVAR:
+          await clinvarPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetsclinvar_set.length),
+          )
+          break
+        case PresetsCategory.COLUMNS:
+          await columnsPresetsCreate.mutateAsync(
+            createMutateArgs(value?.seqvarsquerypresetscolumns_set.length),
+          )
+          break
+        case PresetsCategory.PREDEFINED_QUERIES:
+          await predefinedQueryCreate.mutateAsync(
+            createMutateArgs(value?.seqvarspredefinedquery_set.length),
+          )
           break
         default:
           throw new Error(`Unknown category ${category}`)
       }
+      // Note: we currently have to invalidate the presets version sets here
+      // because of limitations with hey-api.
+      invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+        querypresetsset: props.presetSet,
+        querypresetssetversion: props.presetSetVersion,
+      })
     } catch (error) {
       emit('message', {
         text: `Failed to create ${msgCat} presets: ${error}`,
@@ -208,30 +402,95 @@ const doCreatePresets = async (category: PresetsCategory, label: string) => {
  * @param uuid The UUID of the presets to delete.
  */
 const doDeletePresets = async (category: PresetsCategory, uuid: string) => {
+  // Category text to show in the message.
+  const msgCat: string = CAT_LABELS[category]
+
   // Guard against missing preset set/version.
   if (!!props.presetSet && !!props.presetSetVersion) {
-    // Category text to show in the message.
-    let msgCat: string = ''
     try {
       switch (category) {
         case PresetsCategory.QUALITY:
-          msgCat = 'quality'
           await qualityPresetsDestroy.mutateAsync({
             path: {
               querypresetssetversion: props.presetSetVersion,
               querypresetsquality: uuid,
             },
           })
-          // Note: we currently have to invalidate the presets version sets here
-          // because of limitations with hey-api.
-          invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
-            querypresetsset: props.presetSet,
-            querypresetssetversion: props.presetSetVersion,
+          break
+        case PresetsCategory.FREQUENCY:
+          await frequencyPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsfrequency: uuid,
+            },
           })
+          break
+        case PresetsCategory.CONSEQUENCE:
+          await consequencePresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsconsequence: uuid,
+            },
+          })
+          break
+        case PresetsCategory.LOCUS:
+          await locusPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetslocus: uuid,
+            },
+          })
+          break
+        case PresetsCategory.PHENOTYPE_PRIO:
+          await phenotypePrioPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsphenotypeprio: uuid,
+            },
+          })
+          break
+        case PresetsCategory.VARIANT_PRIO:
+          await variantPrioPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsvariantprio: uuid,
+            },
+          })
+          break
+        case PresetsCategory.CLINVAR:
+          await clinvarPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsclinvar: uuid,
+            },
+          })
+          break
+        case PresetsCategory.COLUMNS:
+          await columnsPresetsDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetscolumns: uuid,
+            },
+          })
+          break
+        case PresetsCategory.PREDEFINED_QUERIES:
+          await predefinedQueryDestroy.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              predefinedquery: uuid,
+            },
+          })
+          break
           break
         default:
           throw new Error(`Unknown category ${category}`)
       }
+      // Note: we currently have to invalidate the presets version sets here
+      // because of limitations with hey-api.
+      invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+        querypresetsset: props.presetSet,
+        querypresetssetversion: props.presetSetVersion,
+      })
     } catch (error) {
       emit('message', {
         text: `Failed to delete ${msgCat} presets: ${error}`,

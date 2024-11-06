@@ -241,7 +241,7 @@ export const useSeqvarQueryPresetsSetVersionRetrieveQueries = ({
 /**
  * Mutation for the copying a `SeqvarsQueryPresetSetVersion` object.
  */
-export const useSeqvarQueryPresetsSetCopyFromMutation = () => {
+export const useSeqvarQueryPresetsSetVersionCopyFromMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     ...seqvarsApiQuerypresetssetversionCopyFromCreateMutation(),

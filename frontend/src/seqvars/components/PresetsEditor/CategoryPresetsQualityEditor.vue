@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
+import { merge } from 'object-deep-merge'
 import { computed, ref } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 
@@ -86,7 +87,11 @@ const applyMutation = async (
   patch: Partial<SeqvarsQueryPresetsQuality>,
   rankDelta: number = 0,
 ) => {
-  console.log('applyMutation', patch, rankDelta)
+  // Guard against invalid form data.
+  const validateResult = await formRef.value?.validate()
+  if (validateResult?.valid !== true) {
+    return
+  }
   // Short-circuit if patch is undefined or presets version undefine dor not in draft state.
   if (
     props.presetSet === undefined ||
@@ -163,10 +168,10 @@ const applyMutation = async (
         querypresetssetversion: props.presetSetVersion,
         querypresetsquality: presetsQualityRetrieveRes.data.value.sodar_uuid,
       },
-      body: {
-        ...presetsQualityRetrieveRes.data.value,
-        ...patch,
-      },
+      body: merge<
+        Partial<SeqvarsQueryPresetsQuality>,
+        SeqvarsQueryPresetsQuality
+      >(presetsQualityRetrieveRes.data.value, patch),
     })
     // Explicitely invalidate the query presets set version as the title and rank
     // can change and the version stores the category presets as well.
@@ -194,6 +199,7 @@ const applyMutation = async (
     v-if="presetsQualityRetrieveRes.status.value !== 'success'"
     type="article"
   />
+
   <v-form v-else ref="formRef">
     <v-checkbox
       :model-value="presetsQualityRetrieveRes.data.value?.filter_active"

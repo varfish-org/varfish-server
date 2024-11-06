@@ -17,6 +17,7 @@ import {
   EditableState,
   getEditableState,
   getEditableStateLabel,
+  useSeqvarQueryPresetsSetVersionCopyFromMutation,
   useSeqvarQueryPresetsSetVersionDestroyMutation,
   useSeqvarQueryPresetsSetVersionListQuery,
   useSeqvarQueryPresetsSetVersionRetrieveQueries, // useSeqvarQueryPresetsSetVersionRetrieveQuery,
@@ -115,7 +116,7 @@ const selectedPresetsSetVersion = computed<
 //   })
 /** Mutation for copying one prests set version from another. */
 const presetsSetVersionCreateFromPresets =
-  useSeqvarQueryPresetsSetVersionUpdateMutation()
+  useSeqvarQueryPresetsSetVersionCopyFromMutation()
 /** Mutation for updating presets set version. */
 const presetsSetVersionUpdate = useSeqvarQueryPresetsSetVersionUpdateMutation()
 /** Mutation for deleting presets set version. */
