@@ -629,7 +629,7 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <!--<div v-else-if="selectedCategory === PresetsCategory.LOCUS">
+          <div v-else-if="selectedCategory === PresetsCategory.LOCUS">
             <CategoryPresetsLocusEditor
               :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
@@ -638,7 +638,7 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <div v-else-if="selectedCategory === PresetsCategory.PHENOTYPE_PRIO">
+          <!--<div v-else-if="selectedCategory === PresetsCategory.PHENOTYPE_PRIO">
             <CategoryPresetsPhenotypePrioEditor
               :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
