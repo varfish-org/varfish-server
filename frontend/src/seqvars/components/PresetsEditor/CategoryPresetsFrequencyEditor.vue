@@ -14,6 +14,8 @@ import { InhouseFreqs, MitochondrialFreqs, NuclearFreqs } from './types'
 /** This component's props. */
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current presets set. */
+    presetSet?: string
     /** UUID of the current preset set version. */
     presetSetVersion?: string
     /** UUID of the query presets frequency */
@@ -31,10 +33,10 @@ const emit = defineEmits<{
 }>()
 
 /** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
+const seqvarsPresetsStore = useSeqvarsPresetsStore() // xxx
 
 /** The data that is to be edited by this component; component state. */
-const data = ref<SeqvarsQueryPresetsFrequency | undefined>(undefined)
+const data = ref<SeqvarsQueryPresetsFrequency | undefined>(undefined) // xxx
 
 /** Shortcut to the number of frequency presets, used for rank. */
 const maxRank = computed<number>(() => {

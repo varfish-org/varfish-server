@@ -352,15 +352,16 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <!-- <div v-else-if="selectedCategory === PresetsCategory.FREQUENCY">
+          <div v-else-if="selectedCategory === PresetsCategory.FREQUENCY">
             <CategoryPresetsFrequencyEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :frequency-presets="selectedPreset[PresetsCategory.FREQUENCY]"
               :readonly="presetSetVersionReadonly"
               @message="(event) => emit('message', event)"
             />
           </div>
-          <div v-else-if="selectedCategory === PresetsCategory.CONSEQUENCE">
+          <!-- <div v-else-if="selectedCategory === PresetsCategory.CONSEQUENCE">
             <CategoryPresetsConsequenceEditor
               :preset-set-version="presetSetVersion"
               :consequence-presets="selectedPreset[PresetsCategory.CONSEQUENCE]"
