@@ -193,11 +193,11 @@ const applyMutation = async (
 </script>
 
 <template>
-  <h4>
+  <h3>
     Frequency Presets &raquo;{{
       presetsFrequencyRetrieveRes.data.value?.label ?? 'UNDEFINED'
     }}&laquo;
-  </h4>
+  </h3>
 
   <v-skeleton-loader
     v-if="presetsFrequencyRetrieveRes.status.value !== 'success'"

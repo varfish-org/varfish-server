@@ -1,15 +1,22 @@
 <script setup lang="ts">
+import { useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsConsequence } from '@varfish-org/varfish-api/lib'
-import { debounce } from 'lodash'
-import { computed, onMounted, ref, watch } from 'vue'
+import { data } from 'jquery'
+import { computed, ref } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import {
+  invalidateSeqvarQueryPresetsSetVersionKeys,
+  useSeqvarQueryPresetsSetVersionRetrieveQuery,
+} from '@/seqvars/queries/seqvarQueryPresetSetVersion'
+import {
+  useSeqvarsQueryPresetsConsequenceRetrieveQuery,
+  useSeqvarsQueryPresetsConsequenceUpdateMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsConsequence'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 import {
-  CATEGORY_PRESETS_DEBOUNCE_WAIT,
   CODING_CONSEQUENCES,
   CONSEQUENCE_GROUP_INFOS,
   ConsequenceGroup,
@@ -22,6 +29,8 @@ import {
 /** This component's props. */
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current presets set. */
+    presetSet?: string
     /** UUID of the current preset set version. */
     presetSetVersion?: string
     /** UUID of the query presets consequence */
@@ -38,25 +47,44 @@ const emit = defineEmits<{
   message: [message: SnackbarMessage]
 }>()
 
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
+/** The `QueryClient` for explicit invalidation.*/
+const queryClient = useQueryClient()
 
-/** The data that is to be edited by this component; component state. */
-const data = ref<SeqvarsQueryPresetsConsequence | undefined>(undefined)
+/** Presets set UUID as `ComputedRef` for queries. */
+const presetsSetUuid = computed<string | undefined>(() => {
+  return props.presetSet
+})
+/** Presets set version UUID as `ComputedRef` for queries. */
+const presetsSetVersionUuid = computed<string | undefined>(() => {
+  return props.presetSetVersion
+})
+/** Consequence presets UUID as `ComputedRef` for queries. */
+const presetsConsequenceUuid = computed<string | undefined>(() => {
+  return props.consequencePresets
+})
+
+/** Query with the currently selected presets set version. */
+const presetsSetVersionRetrieveRes =
+  useSeqvarQueryPresetsSetVersionRetrieveQuery({
+    presetsSetUuid,
+    presetsSetVersionUuid,
+  })
+/** Query with the currently selected consequence presets. */
+const presetsConsequenceRetrieveRes =
+  useSeqvarsQueryPresetsConsequenceRetrieveQuery({
+    presetsSetVersionUuid,
+    presetsConsequenceUuid,
+  })
+/** Mutation for updating the consequence presets. */
+const consequencePresetsUpdate =
+  useSeqvarsQueryPresetsConsequenceUpdateMutation()
 
 /** Shortcut to the number of consequence presets, used for rank. */
-const maxRank = computed<number>(() => {
-  if (props.presetSetVersion === undefined) {
-    return 0
-  }
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    return 0
-  }
-  return presetSetVersion.seqvarsquerypresetsconsequence_set.length
-})
+const maxRank = computed<number>(
+  () =>
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsconsequence_set
+      .length ?? 0,
+)
 
 /** Rules for data validation. */
 const rules = {
@@ -66,39 +94,112 @@ const rules = {
 /** Ref to the form. */
 const formRef = ref<VForm | undefined>(undefined)
 
-/** Fill the data from the store. */
-const fillData = () => {
-  // Guard against missing preset set version or consequence.
+/** Helper to apply a patch to the current `presetsConsequenceRetrieveRes.data.value`. */
+const applyMutation = async (
+  patch: Partial<SeqvarsQueryPresetsConsequence>,
+  rankDelta: number = 0,
+) => {
+  // Guard against invalid form data.
+  const validateResult = await formRef.value?.validate()
+  if (validateResult?.valid !== true) {
+    return
+  }
+  // Short-circuit if patch is undefined or presets version undefine dor not in draft state.
   if (
+    props.presetSet === undefined ||
     props.presetSetVersion === undefined ||
-    props.consequencePresets === undefined
+    presetsConsequenceRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value.status !==
+      PresetSetVersionState.DRAFT
   ) {
     return
-  }
-  // Attempt to obtain the model from the store.
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    emit('message', {
-      text: 'Failed to find preset set version.',
-      color: 'error',
-    })
-    return
-  }
-  const consequencePresets =
-    presetSetVersion?.seqvarsquerypresetsconsequence_set.find(
-      (elem) => elem.sodar_uuid === props.consequencePresets,
-    )
-  if (!consequencePresets) {
-    emit('message', {
-      text: 'Failed to find consequence presets.',
-      color: 'error',
-    })
-    return
+  } else {
+    patch.rank = presetsConsequenceRetrieveRes.data.value.rank
   }
 
-  data.value = { ...consequencePresets }
+  // Helper to update the rank of the other item as well.
+  const updateOtherItemRank = async () => {
+    if (props.presetSetVersion !== undefined && rankDelta !== 0) {
+      const version = presetsSetVersionRetrieveRes.data.value
+      if (
+        version === undefined ||
+        patch.rank === undefined ||
+        patch.rank + rankDelta < 1 ||
+        patch.rank + rankDelta > maxRank.value
+      ) {
+        // Guard against invalid or missing data.
+        return
+      }
+      // Find the next smaller or larger item, sort by rank.
+      const others = version.seqvarsquerypresetsconsequence_set.filter(
+        (elem) => {
+          if (elem.sodar_uuid === props.consequencePresets) {
+            return false
+          }
+          if (rankDelta < 0) {
+            return (elem.rank ?? 0) < (patch?.rank ?? 0)
+          } else {
+            return (elem.rank ?? 0) > (patch?.rank ?? 0)
+          }
+        },
+      )
+      others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+      // Then, pick the other item to flip ranks with.
+      const other = { ...others[rankDelta < 0 ? others.length - 1 : 0] }
+      // Store the other's rank in `data.rank` and update other via API.
+      if (!!other) {
+        const newOtherRank = patch.rank
+        patch.rank = other.rank
+        other.rank = newOtherRank
+        try {
+          await consequencePresetsUpdate.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsconsequence: other.sodar_uuid,
+            },
+            body: {
+              ...other,
+              rank: newOtherRank,
+            },
+          })
+        } catch (error) {
+          emit('message', {
+            text: `Failed to update other consequence presets rank: ${error}`,
+            color: 'error',
+          })
+        }
+      }
+    }
+  }
+
+  // First, apply rank update to other data object and to patch if applicable.
+  // On success, the patch to the data object.
+  try {
+    await updateOtherItemRank()
+    await consequencePresetsUpdate.mutateAsync({
+      path: {
+        querypresetssetversion: props.presetSetVersion,
+        querypresetsconsequence:
+          presetsConsequenceRetrieveRes.data.value.sodar_uuid,
+      },
+      body: {
+        ...presetsConsequenceRetrieveRes.data.value,
+        ...patch,
+      },
+    })
+    // Explicitely invalidate the query presets set version as the title and rank
+    // can change and the version stores the category presets as well.
+    invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+      querypresetsset: props.presetSet,
+      querypresetssetversion: props.presetSetVersion,
+    })
+  } catch (error) {
+    emit('message', {
+      text: `Failed to update consequence presets: ${error}`,
+      color: 'error',
+    })
+  }
 }
 
 /** The consequence groups state. */
@@ -106,7 +207,7 @@ const consequenceGroups = computed<
   Record<ConsequenceGroup, ConsequenceGroupState>
 >(() => {
   // Guard in case of undefined `data`.
-  if (!data.value) {
+  if (!presetsConsequenceRetrieveRes.data.value) {
     return CONSEQUENCE_GROUP_INFOS.reduce(
       (acc, group) => {
         acc[group.key] = { checked: false, indeterminate: false }
@@ -118,12 +219,16 @@ const consequenceGroups = computed<
 
   const checkedGroups = CONSEQUENCE_GROUP_INFOS.filter((group) =>
     group.valueKeys.every((key) =>
-      data.value?.variant_consequences?.includes(key),
+      presetsConsequenceRetrieveRes.data.value?.variant_consequences?.includes(
+        key,
+      ),
     ),
   )
   const indeterminateGroups = CONSEQUENCE_GROUP_INFOS.filter((group) =>
     group.valueKeys.some((key) =>
-      data.value?.variant_consequences?.includes(key),
+      presetsConsequenceRetrieveRes.data.value?.variant_consequences?.includes(
+        key,
+      ),
     ),
   )
   return CONSEQUENCE_GROUP_INFOS.reduce(
@@ -140,164 +245,78 @@ const consequenceGroups = computed<
 })
 
 /** Toggles the given consequence group. */
-const toggleConsequenceGroup = (key: ConsequenceGroup) => {
+const toggleConsequenceGroup = async (key: ConsequenceGroup) => {
   // Guard in case of undefined `data`.
-  if (!data.value) {
+  if (!presetsConsequenceRetrieveRes.data.value) {
     return
   }
 
   if (consequenceGroups.value[key].checked) {
-    data.value.variant_consequences = data.value.variant_consequences!.filter(
-      (elem) =>
-        !CONSEQUENCE_GROUP_INFOS.find(
-          (group) => group.key === key,
-        )?.valueKeys.includes(elem),
-    )
+    await applyMutation({
+      variant_consequences:
+        presetsConsequenceRetrieveRes.data.value.variant_consequences!.filter(
+          (elem) =>
+            !CONSEQUENCE_GROUP_INFOS.find(
+              (group) => group.key === key,
+            )?.valueKeys.includes(elem),
+        ),
+    })
   } else {
-    data.value.variant_consequences = data.value.variant_consequences!.concat(
-      CONSEQUENCE_GROUP_INFOS.find((group) => group.key === key)?.valueKeys ??
-        [],
-    )
-  }
-}
-
-/**
- * Update the consequence presets in the store.
- *
- * Used directly when changing the rank (to minimize UI delay).
- *
- * @param rankDelta The delta to apply to the rank, if any.
- */
-const updateConsequencePresets = async (rankDelta: number = 0) => {
-  // Guard against missing/readonly/non-draft preset set version or missing consequence.
-  if (
-    props.consequencePresets === undefined ||
-    props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
-      ?.status !== PresetSetVersionState.DRAFT ||
-    data.value === undefined
-  ) {
-    return
-  }
-
-  // If necessary, update the rank of the other item as well via API and set
-  // the new rank to `data.value.rank`.
-  if (rankDelta !== 0) {
-    const version = seqvarsPresetsStore.presetSetVersions.get(
-      props.presetSetVersion,
-    )
-    if (
-      version === undefined ||
-      data.value.rank === undefined ||
-      data.value.rank + rankDelta < 1 ||
-      data.value.rank + rankDelta > maxRank.value
-    ) {
-      // Guard against invalid rank and version.
-      return
-    }
-    // Find the next smaller or larger item, sort by rank.
-    const others = version.seqvarsquerypresetsconsequence_set.filter((elem) => {
-      if (elem.sodar_uuid === props.consequencePresets) {
-        return false
-      }
-      if (rankDelta < 0) {
-        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
-      } else {
-        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
-      }
-    })
-    others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    // Then, pick the other item to flip ranks with.
-    const other = others[rankDelta < 0 ? others.length - 1 : 0]
-    // Store the other's rank in `data.value.rank` and update other via API.
-    if (other) {
-      const dataRank = data.value.rank
-      data.value.rank = other.rank
-      other.rank = dataRank
-      try {
-        await seqvarsPresetsStore.updateQueryPresetsConsequence(
-          props.presetSetVersion,
-          other,
-        )
-      } catch (error) {
-        emit('message', {
-          text: 'Failed to update consequence presets rank.',
-          color: 'error',
-        })
-      }
-    }
-  }
-
-  // Guard against invalid form data.
-  const validateResult = await formRef.value?.validate()
-  if (validateResult?.valid !== true) {
-    return
-  }
-  try {
-    await seqvarsPresetsStore.updateQueryPresetsConsequence(
-      props.presetSetVersion,
-      data.value,
-    )
-  } catch (error) {
-    emit('message', {
-      text: 'Failed to update consequence presets.',
-      color: 'error',
+    await applyMutation({
+      variant_consequences:
+        presetsConsequenceRetrieveRes.data.value.variant_consequences!.concat(
+          CONSEQUENCE_GROUP_INFOS.find((group) => group.key === key)
+            ?.valueKeys ?? [],
+        ),
     })
   }
 }
-
-/**
- * Update the consequence presets in the store -- debounced.
- *
- * Used for updating non-rank fields so that the UI does not lag.
- */
-const updateConsequencePresetsDebounced = debounce(
-  updateConsequencePresets,
-  CATEGORY_PRESETS_DEBOUNCE_WAIT,
-  { leading: true, trailing: true },
-)
-
-// Load model data from store when the UUID changes.
-watch(
-  () => props.consequencePresets,
-  () => fillData(),
-)
-// Also, load model data from store when mounted.
-onMounted(() => fillData())
-
-// Watch the data and trigger a store update.
-watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h3>Consequence Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h3>
+  <h3>
+    Consequence Presets &raquo;{{
+      presetsConsequenceRetrieveRes.data.value?.label ?? 'UNDEFINED'
+    }}&laquo;
+  </h3>
 
   <v-skeleton-loader v-if="!data" type="article" />
   <v-form v-else ref="formRef">
     <v-text-field
-      v-model="data.label"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.label"
       :rules="[rules.required]"
       label="Label"
       clearable
       :disabled="readonly"
+      @update:model-value="
+        (label) =>
+          applyMutation({
+            label,
+          })
+      "
     />
+
     <div>
       <v-btn-group variant="outlined" divided>
         <v-btn
           prepend-icon="mdi-arrow-up-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank <= 1
+            props.readonly ||
+            presetsConsequenceRetrieveRes.data.value?.rank === undefined ||
+            presetsConsequenceRetrieveRes.data.value?.rank <= 1
           "
-          @click="updateConsequencePresets(-1)"
+          @click="applyMutation({}, -1)"
         >
           Move Up
         </v-btn>
         <v-btn
           prepend-icon="mdi-arrow-down-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank >= maxRank
+            props.readonly ||
+            presetsConsequenceRetrieveRes.data.value?.rank === undefined ||
+            presetsConsequenceRetrieveRes.data.value?.rank >= maxRank
           "
-          @click="updateConsequencePresets(1)"
+          @click="applyMutation({}, 1)"
         >
           Move Down
         </v-btn>
@@ -306,59 +325,97 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
 
     <h4 class="pt-3">Distance</h4>
 
-    <v-text-field
-      v-model="data.max_distance_to_exon"
+    <v-number-input
+      :model-value="
+        presetsConsequenceRetrieveRes.data.value?.max_distance_to_exon
+      "
       label="Maximal distance to next exon (e.g., 2 for consensus splice sites)"
-      type="number"
-      hide-details
       clearable
+      control-variant="stacked"
+      hide-details
       :disabled="readonly"
+      @update:model-value="
+        (max_distance_to_exon) =>
+          applyMutation({
+            max_distance_to_exon,
+          })
+      "
     />
 
     <h4 class="pt-3">Variant Type</h4>
 
     <v-checkbox
-      v-model="data.variant_types"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.variant_types"
       value="snv"
       label="SNV"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_types) =>
+          applyMutation({
+            variant_types: variant_types ?? undefined,
+          })
+      "
     />
     <v-checkbox
-      v-model="data.variant_types"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.variant_types"
       value="indel"
       label="Indel"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_types) =>
+          applyMutation({
+            variant_types: variant_types ?? undefined,
+          })
+      "
     />
     <v-checkbox
-      v-model="data.variant_types"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.variant_types"
       value="mnv"
       label="MNV"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_types) =>
+          applyMutation({
+            variant_types: variant_types ?? undefined,
+          })
+      "
     />
 
     <h4 class="pt-3">Transcript Type</h4>
 
     <v-checkbox
-      v-model="data.transcript_types"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.transcript_types"
       value="coding"
       label="Coding"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (transcript_types) =>
+          applyMutation({
+            transcript_types: transcript_types ?? undefined,
+          })
+      "
     />
     <v-checkbox
-      v-model="data.transcript_types"
+      :model-value="presetsConsequenceRetrieveRes.data.value?.transcript_types"
       value="non_coding"
       label="Non-Coding"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (transcript_types) =>
+          applyMutation({
+            transcript_types: transcript_types ?? undefined,
+          })
+      "
     />
 
     <h4 class="pt-3">Effect Group</h4>
@@ -366,7 +423,7 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <v-checkbox
       v-for="group in CONSEQUENCE_GROUP_INFOS"
       :key="`group-${group.key}`"
-      v-model="consequenceGroups[group.key].checked"
+      :model-value="consequenceGroups[group.key].checked"
       :label="group.label"
       :indeterminate="consequenceGroups[group.key].indeterminate"
       density="compact"
@@ -382,12 +439,21 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <v-checkbox
       v-for="consequence in CODING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
-      v-model="data.variant_consequences"
+      :model-value="
+        presetsConsequenceRetrieveRes.data.value?.variant_consequences ?? []
+      "
       :value="consequence.key"
       :label="consequence.label"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_consequences) => {
+          applyMutation({
+            variant_consequences: variant_consequences ?? undefined,
+          })
+        }
+      "
     />
 
     <h5>Off-Exomes</h5>
@@ -395,12 +461,20 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <v-checkbox
       v-for="consequence in OFF_EXOMES_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
-      v-model="data.variant_consequences"
+      :model-value="
+        presetsConsequenceRetrieveRes.data.value?.variant_consequences ?? []
+      "
       :value="consequence.key"
       :label="consequence.label"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_consequences) =>
+          applyMutation({
+            variant_consequences: variant_consequences ?? undefined,
+          })
+      "
     />
 
     <h5>Non-coding</h5>
@@ -408,12 +482,20 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <v-checkbox
       v-for="consequence in NON_CODING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
-      v-model="data.variant_consequences"
+      :model-value="
+        presetsConsequenceRetrieveRes.data.value?.variant_consequences ?? []
+      "
       :value="consequence.key"
       :label="consequence.label"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_consequences) =>
+          applyMutation({
+            variant_consequences: variant_consequences ?? undefined,
+          })
+      "
     />
 
     <h5>Splicing</h5>
@@ -421,12 +503,20 @@ watch(data, () => updateConsequencePresetsDebounced(), { deep: true })
     <v-checkbox
       v-for="consequence in SPLICING_CONSEQUENCES"
       :key="`consequence-${consequence.key}`"
-      v-model="data.variant_consequences"
+      :model-value="
+        presetsConsequenceRetrieveRes.data.value?.variant_consequences
+      "
       :value="consequence.key"
       :label="consequence.label"
       density="compact"
       hide-details
       :disabled="readonly"
+      @update:model-value="
+        (variant_consequences) =>
+          applyMutation({
+            variant_consequences: variant_consequences ?? undefined,
+          })
+      "
     />
   </v-form>
 </template>

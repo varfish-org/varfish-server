@@ -620,16 +620,18 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <!-- <div v-else-if="selectedCategory === PresetsCategory.CONSEQUENCE">
+          <div v-else-if="selectedCategory === PresetsCategory.CONSEQUENCE">
             <CategoryPresetsConsequenceEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :consequence-presets="selectedPreset[PresetsCategory.CONSEQUENCE]"
               :readonly="presetSetVersionReadonly"
               @message="(event) => emit('message', event)"
             />
           </div>
-          <div v-else-if="selectedCategory === PresetsCategory.LOCUS">
+          <!--<div v-else-if="selectedCategory === PresetsCategory.LOCUS">
             <CategoryPresetsLocusEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :locus-presets="selectedPreset[PresetsCategory.LOCUS]"
               :readonly="presetSetVersionReadonly"
@@ -638,6 +640,7 @@ watch(
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.PHENOTYPE_PRIO">
             <CategoryPresetsPhenotypePrioEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :phenotype-prio-presets="
                 selectedPreset[PresetsCategory.PHENOTYPE_PRIO]
@@ -648,6 +651,7 @@ watch(
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.VARIANT_PRIO">
             <CategoryPresetsVariantPrioEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :variant-prio-presets="
                 selectedPreset[PresetsCategory.VARIANT_PRIO]
@@ -658,6 +662,7 @@ watch(
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.CLINVAR">
             <CategoryPresetsClinvarEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :clinvar-presets="selectedPreset[PresetsCategory.CLINVAR]"
               :readonly="presetSetVersionReadonly"
@@ -666,6 +671,7 @@ watch(
           </div>
           <div v-else-if="selectedCategory === PresetsCategory.COLUMNS">
             <CategoryPresetsColumnsEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :columns-presets="selectedPreset[PresetsCategory.COLUMNS]"
               :readonly="presetSetVersionReadonly"

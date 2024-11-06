@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsQuality } from '@varfish-org/varfish-api/lib'
-import { merge } from 'object-deep-merge'
 import { computed, ref } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 
@@ -168,10 +167,10 @@ const applyMutation = async (
         querypresetssetversion: props.presetSetVersion,
         querypresetsquality: presetsQualityRetrieveRes.data.value.sodar_uuid,
       },
-      body: merge<
-        Partial<SeqvarsQueryPresetsQuality>,
-        SeqvarsQueryPresetsQuality
-      >(presetsQualityRetrieveRes.data.value, patch),
+      body: {
+        ...presetsQualityRetrieveRes.data.value,
+        ...patch,
+      },
     })
     // Explicitely invalidate the query presets set version as the title and rank
     // can change and the version stores the category presets as well.
@@ -189,11 +188,11 @@ const applyMutation = async (
 </script>
 
 <template>
-  <h4>
+  <h3>
     Quality Presets &raquo;{{
       presetsQualityRetrieveRes.data.value?.label ?? 'UNDEFINED'
     }}&laquo;
-  </h4>
+  </h3>
 
   <v-skeleton-loader
     v-if="presetsQualityRetrieveRes.status.value !== 'success'"
