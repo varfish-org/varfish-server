@@ -104,14 +104,14 @@ export const useSeqvarsPredefinedQueryListQuery = ({
  *
  * @param presetsSetVersionUuid
  *    UUID of the presets set version that contains the columns preset.
- * @param presetsColumnsUuid UUID of the columns presets to load.
+ * @param presetsPredefinedQueryUuid UUID of the columns presets to load.
  */
 export const useSeqvarsPredefinedQueryRetrieveQuery = ({
   presetsSetVersionUuid,
-  presetsColumnsUuid,
+  presetsPredefinedQueryUuid,
 }: {
   presetsSetVersionUuid: MaybeRefOrGetter<string | undefined>
-  presetsColumnsUuid: MaybeRefOrGetter<string | undefined>
+  presetsPredefinedQueryUuid: MaybeRefOrGetter<string | undefined>
 }) =>
   useQuery({
     ...seqvarsApiPredefinedqueryRetrieveOptions({
@@ -119,12 +119,12 @@ export const useSeqvarsPredefinedQueryRetrieveQuery = ({
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
         querypresetssetversion: () => toValue(presetsSetVersionUuid)!,
         // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-        predefinedquery: () => toValue(presetsColumnsUuid)!,
+        predefinedquery: () => toValue(presetsPredefinedQueryUuid)!,
       },
     }),
     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
     enabled: () =>
-      !!toValue(presetsSetVersionUuid) && !!toValue(presetsColumnsUuid),
+      !!toValue(presetsSetVersionUuid) && !!toValue(presetsPredefinedQueryUuid),
   })
 
 /**

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useIsFetching, useQueryClient } from '@tanstack/vue-query'
-import { SeqvarsQueryPresetsSetVersionDetails } from '@varfish-org/varfish-api/lib'
 import { ComputedRef, computed, onMounted, reactive, ref, watch } from 'vue'
 
 import CategoryPresetsClinvarEditor from '@/seqvars/components/PresetsEditor/CategoryPresetsClinvarEditor.vue'
@@ -660,7 +659,7 @@ watch(
               @message="(event) => emit('message', event)"
             />
           </div>
-          <!--<div v-else-if="selectedCategory === PresetsCategory.CLINVAR">
+          <div v-else-if="selectedCategory === PresetsCategory.CLINVAR">
             <CategoryPresetsClinvarEditor
               :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
@@ -694,7 +693,7 @@ watch(
             v-else
             :title="`Invalid category ${selectedCategory}`"
             color="error"
-          /> -->
+          />
         </v-sheet>
       </v-col>
     </v-row>

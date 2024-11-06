@@ -1,18 +1,25 @@
 <script setup lang="ts">
+import { useQueryClient } from '@tanstack/vue-query'
 import { SeqvarsQueryPresetsClinvar } from '@varfish-org/varfish-api/lib'
-import { debounce } from 'lodash'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import {
+  invalidateSeqvarQueryPresetsSetVersionKeys,
+  useSeqvarQueryPresetsSetVersionRetrieveQuery,
+} from '@/seqvars/queries/seqvarQueryPresetSetVersion'
+import {
+  useSeqvarsQueryPresetsClinvarRetrieveQuery,
+  useSeqvarsQueryPresetsClinvarUpdateMutation,
+} from '@/seqvars/queries/seqvarQueryPresetsClinvar'
 import { PresetSetVersionState } from '@/seqvars/stores/presets/types'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
-
-import { CATEGORY_PRESETS_DEBOUNCE_WAIT } from './lib'
 
 /** This component's props. */
 const props = withDefaults(
   defineProps<{
+    /** UUID of the current presets set. */
+    presetSet?: string
     /** UUID of the current preset set version. */
     presetSetVersion?: string
     /** UUID of the query presets clinvar */
@@ -37,25 +44,42 @@ const LABELS = [
   'benign',
 ]
 
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
+/** The `QueryClient` for explicit invalidation.*/
+const queryClient = useQueryClient()
 
-/** The data that is to be edited by this component; component state. */
-const data = ref<SeqvarsQueryPresetsClinvar | undefined>(undefined)
+/** Presets set UUID as `ComputedRef` for queries. */
+const presetsSetUuid = computed<string | undefined>(() => {
+  return props.presetSet
+})
+/** Presets set version UUID as `ComputedRef` for queries. */
+const presetsSetVersionUuid = computed<string | undefined>(() => {
+  return props.presetSetVersion
+})
+/** Clinvar presets UUID as `ComputedRef` for queries. */
+const presetsClinvarUuid = computed<string | undefined>(() => {
+  return props.clinvarPresets
+})
+
+/** Query with the currently selected presets set version. */
+const presetsSetVersionRetrieveRes =
+  useSeqvarQueryPresetsSetVersionRetrieveQuery({
+    presetsSetUuid,
+    presetsSetVersionUuid,
+  })
+/** Query with the currently selected clinvar presets. */
+const presetsClinvarRetrieveRes = useSeqvarsQueryPresetsClinvarRetrieveQuery({
+  presetsSetVersionUuid,
+  presetsClinvarUuid,
+})
+/** Mutation for updating the clinvar presets. */
+const clinvarPresetsUpdate = useSeqvarsQueryPresetsClinvarUpdateMutation()
 
 /** Shortcut to the number of clinvar presets, used for rank. */
-const maxRank = computed<number>(() => {
-  if (props.presetSetVersion === undefined) {
-    return 0
-  }
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    return 0
-  }
-  return presetSetVersion.seqvarsquerypresetsclinvar_set.length
-})
+const maxRank = computed<number>(
+  () =>
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsclinvar_set
+      .length ?? 0,
+)
 
 /** Rules for data validation. */
 const rules = {
@@ -65,159 +89,136 @@ const rules = {
 /** Ref to the form. */
 const formRef = ref<VForm | undefined>(undefined)
 
-/** Fill the data from the store. */
-const fillData = () => {
-  // Guard against missing preset set version or clinvar.
-  if (
-    props.presetSetVersion === undefined ||
-    props.clinvarPresets === undefined
-  ) {
-    return
-  }
-  // Attempt to obtain the data from the store.
-  const presetSetVersion = seqvarsPresetsStore.presetSetVersions.get(
-    props.presetSetVersion,
-  )
-  if (!presetSetVersion) {
-    emit('message', {
-      text: 'Failed to find preset set version.',
-      color: 'error',
-    })
-    return
-  }
-  const clinvarPresets = presetSetVersion?.seqvarsquerypresetsclinvar_set.find(
-    (elem) => elem.sodar_uuid === props.clinvarPresets,
-  )
-  if (!clinvarPresets) {
-    emit('message', {
-      text: 'Failed to find clinvar presets.',
-      color: 'error',
-    })
-    return
-  }
-
-  data.value = { ...clinvarPresets }
-}
-
-/**
- * Update the clinvar presets in the store.
- *
- * Used directly when changing the rank (to minimize UI delay).
- *
- * @param rankDelta The delta to apply to the rank, if any.
- */
-const updateClinvarPresets = async (rankDelta: number = 0) => {
-  // Guard against missing/readonly/non-draft preset set version or missing clinvar.
-  if (
-    props.clinvarPresets === undefined ||
-    props.presetSetVersion === undefined ||
-    seqvarsPresetsStore.presetSetVersions.get(props.presetSetVersion)
-      ?.status !== PresetSetVersionState.DRAFT ||
-    data.value === undefined
-  ) {
-    return
-  }
-
-  // If necessary, update the rank of the other item as well via API and set
-  // the new rank to `data.value.rank`.
-  if (rankDelta !== 0) {
-    const version = seqvarsPresetsStore.presetSetVersions.get(
-      props.presetSetVersion,
-    )
-    if (
-      version === undefined ||
-      data.value.rank === undefined ||
-      data.value.rank + rankDelta < 1 ||
-      data.value.rank + rankDelta > maxRank.value
-    ) {
-      // Guard against invalid rank and version.
-      return
-    }
-    // Find the next smaller or larger item, sort by rank.
-    const others = version.seqvarsquerypresetsclinvar_set.filter((elem) => {
-      if (elem.sodar_uuid === props.clinvarPresets) {
-        return false
-      }
-      if (rankDelta < 0) {
-        return (elem.rank ?? 0) < (data.value?.rank ?? 0)
-      } else {
-        return (elem.rank ?? 0) > (data.value?.rank ?? 0)
-      }
-    })
-    others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    // Then, pick the other item to flip ranks with.
-    const other = others[rankDelta < 0 ? others.length - 1 : 0]
-    // Store the other's rank in `data.value.rank` and update other via API.
-    if (other) {
-      const dataRank = data.value.rank
-      data.value.rank = other.rank
-      other.rank = dataRank
-      try {
-        await seqvarsPresetsStore.updateQueryPresetsClinvar(
-          props.presetSetVersion,
-          other,
-        )
-      } catch (error) {
-        emit('message', {
-          text: 'Failed to update clinvar presets rank.',
-          color: 'error',
-        })
-      }
-    }
-  }
-
+/** Helper to apply a patch to the current `presetsClinvarRetrieveRes.data.value`. */
+const applyMutation = async (
+  patch: Partial<SeqvarsQueryPresetsClinvar>,
+  rankDelta: number = 0,
+) => {
   // Guard against invalid form data.
   const validateResult = await formRef.value?.validate()
   if (validateResult?.valid !== true) {
     return
   }
+  // Short-circuit if patch is undefined or presets version undefine dor not in draft state.
+  if (
+    props.presetSet === undefined ||
+    props.presetSetVersion === undefined ||
+    presetsClinvarRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value === undefined ||
+    presetsSetVersionRetrieveRes.data.value.status !==
+      PresetSetVersionState.DRAFT
+  ) {
+    return
+  } else {
+    patch.rank = presetsClinvarRetrieveRes.data.value.rank
+  }
+
+  // Helper to update the rank of the other item as well.
+  const updateOtherItemRank = async () => {
+    if (props.presetSetVersion !== undefined && rankDelta !== 0) {
+      const version = presetsSetVersionRetrieveRes.data.value
+      if (
+        version === undefined ||
+        patch.rank === undefined ||
+        patch.rank + rankDelta < 1 ||
+        patch.rank + rankDelta > maxRank.value
+      ) {
+        // Guard against invalid or missing data.
+        return
+      }
+      // Find the next smaller or larger item, sort by rank.
+      const others = version.seqvarsquerypresetsclinvar_set.filter((elem) => {
+        if (elem.sodar_uuid === props.clinvarPresets) {
+          return false
+        }
+        if (rankDelta < 0) {
+          return (elem.rank ?? 0) < (patch?.rank ?? 0)
+        } else {
+          return (elem.rank ?? 0) > (patch?.rank ?? 0)
+        }
+      })
+      others.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+      // Then, pick the other item to flip ranks with.
+      const other = { ...others[rankDelta < 0 ? others.length - 1 : 0] }
+      // Store the other's rank in `data.rank` and update other via API.
+      if (!!other) {
+        const newOtherRank = patch.rank
+        patch.rank = other.rank
+        other.rank = newOtherRank
+        try {
+          await clinvarPresetsUpdate.mutateAsync({
+            path: {
+              querypresetssetversion: props.presetSetVersion,
+              querypresetsclinvar: other.sodar_uuid,
+            },
+            body: {
+              ...other,
+              rank: newOtherRank,
+            },
+          })
+        } catch (error) {
+          emit('message', {
+            text: `Failed to update other clinvar presets rank: ${error}`,
+            color: 'error',
+          })
+        }
+      }
+    }
+  }
+
+  // First, apply rank update to other data object and to patch if applicable.
+  // On success, the patch to the data object.
   try {
-    await seqvarsPresetsStore.updateQueryPresetsClinvar(
-      props.presetSetVersion,
-      data.value,
-    )
+    await updateOtherItemRank()
+    await clinvarPresetsUpdate.mutateAsync({
+      path: {
+        querypresetssetversion: props.presetSetVersion,
+        querypresetsclinvar: presetsClinvarRetrieveRes.data.value.sodar_uuid,
+      },
+      body: {
+        ...presetsClinvarRetrieveRes.data.value,
+        ...patch,
+      },
+    })
+    // Explicitely invalidate the query presets set version as the title and rank
+    // can change and the version stores the category presets as well.
+    invalidateSeqvarQueryPresetsSetVersionKeys(queryClient, {
+      querypresetsset: props.presetSet,
+      querypresetssetversion: props.presetSetVersion,
+    })
   } catch (error) {
     emit('message', {
-      text: 'Failed to update clinvar presets.',
+      text: `Failed to update clinvar presets: ${error}`,
       color: 'error',
     })
   }
 }
-
-/**
- * Update the clinvar presets in the store -- debounced.
- *
- * Used for updating non-rank fields so that the UI does not lag.
- */
-const updateClinvarPresetsDebounced = debounce(
-  updateClinvarPresets,
-  CATEGORY_PRESETS_DEBOUNCE_WAIT,
-  { leading: true, trailing: true },
-)
-
-// Load data data from store when the UUID changes.
-watch(
-  () => props.clinvarPresets,
-  () => fillData(),
-)
-// Also, load data data from store when mounted.
-onMounted(() => fillData())
-
-// Watch the data and trigger a store update.
-watch(data, () => updateClinvarPresetsDebounced(), { deep: true })
 </script>
 
 <template>
-  <h4>Clinvar Presets &raquo;{{ data?.label ?? 'UNDEFINED' }}&laquo;</h4>
+  <h4>
+    Clinvar Presets &raquo;{{
+      presetsClinvarRetrieveRes.data.value?.label ?? 'UNDEFINED'
+    }}&laquo;
+  </h4>
 
-  <v-skeleton-loader v-if="!data" type="article" />
+  <v-skeleton-loader
+    v-if="!presetsClinvarRetrieveRes.data.value"
+    type="article"
+  />
   <v-form v-else ref="formRef">
     <v-text-field
-      v-model="data.label"
+      :model-value="presetsClinvarRetrieveRes.data.value?.label"
       :rules="[rules.required]"
       label="Label"
       clearable
       :disabled="readonly"
+      @update:model-value="
+        (label) =>
+          applyMutation({
+            label,
+          })
+      "
     />
 
     <div>
@@ -225,18 +226,22 @@ watch(data, () => updateClinvarPresetsDebounced(), { deep: true })
         <v-btn
           prepend-icon="mdi-arrow-up-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank <= 1
+            props.readonly ||
+            presetsClinvarRetrieveRes.data.value?.rank === undefined ||
+            presetsClinvarRetrieveRes.data.value?.rank <= 1
           "
-          @click="updateClinvarPresets(-1)"
+          @click="applyMutation({}, -1)"
         >
           Move Up
         </v-btn>
         <v-btn
           prepend-icon="mdi-arrow-down-circle-outline"
           :disabled="
-            props.readonly || data.rank === undefined || data.rank >= maxRank
+            props.readonly ||
+            presetsClinvarRetrieveRes.data.value?.rank === undefined ||
+            presetsClinvarRetrieveRes.data.value?.rank >= maxRank
           "
-          @click="updateClinvarPresets(1)"
+          @click="applyMutation({}, 1)"
         >
           Move Down
         </v-btn>
@@ -244,11 +249,19 @@ watch(data, () => updateClinvarPresetsDebounced(), { deep: true })
     </div>
 
     <v-checkbox
-      v-model="data.clinvar_presence_required"
+      :model-value="
+        presetsClinvarRetrieveRes.data.value?.clinvar_presence_required
+      "
       label="ClinVar presence required"
       hide-details
       density="compact"
       :disabled="readonly"
+      @update:model-value="
+        applyMutation({
+          clinvar_presence_required:
+            !presetsClinvarRetrieveRes.data.value?.clinvar_presence_required,
+        })
+      "
     />
 
     <div class="border-t-thin my-3"></div>
@@ -257,23 +270,43 @@ watch(data, () => updateClinvarPresetsDebounced(), { deep: true })
       <v-checkbox
         v-for="label in LABELS"
         :key="label"
-        v-model="data.clinvar_germline_aggregate_description"
+        :model-value="
+          presetsClinvarRetrieveRes.data.value
+            .clinvar_germline_aggregate_description ?? []
+        "
         :label="label"
         :value="label"
         hide-details
         density="compact"
         :disabled="readonly"
+        @update:model-value="
+          (clinvar_germline_aggregate_description) => {
+            applyMutation({
+              clinvar_germline_aggregate_description:
+                clinvar_germline_aggregate_description ?? undefined,
+            })
+          }
+        "
       />
     </div>
 
     <div class="border-t-thin my-3"></div>
 
     <v-checkbox
-      v-model="data.allow_conflicting_interpretations"
+      :model-value="
+        presetsClinvarRetrieveRes.data.value?.allow_conflicting_interpretations
+      "
       label="Allow conflicting interpretations"
       hide-details
       density="compact"
       :disabled="readonly"
+      @update:model-value="
+        applyMutation({
+          allow_conflicting_interpretations:
+            !presetsClinvarRetrieveRes.data.value
+              ?.allow_conflicting_interpretations,
+        })
+      "
     />
   </v-form>
 </template>
