@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 import { onMounted, ref, watch } from 'vue'
 
 import TheAppBar from '@/cases/components/TheAppBar/TheAppBar.vue'
@@ -123,4 +124,5 @@ watch(
       close-on-content-click
     ></v-snackbar-queue>
   </v-app>
+  <VueQueryDevtools />
 </template>

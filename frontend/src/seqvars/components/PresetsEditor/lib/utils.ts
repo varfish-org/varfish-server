@@ -149,3 +149,13 @@ export const parseGenomeRegion = (text: string): GenomeRegion => {
   // Otherwise, we are good.
   return { chromosome, range: { start, stop } }
 }
+
+/** Helper that parses the given string to an int or to null if empty. */
+export const parseToIntOrNull = (text: string): number | null => {
+  return text === '' ? null : parseInt(text, 10)
+}
+
+/** Helper that parses the given string to a float or to null if empty. */
+export const parseToFloatOrNull = (text: string): number | null => {
+  return text === '' ? null : parseFloat(text)
+}

@@ -126,6 +126,7 @@ class TestSeqvarsQueryPresetsSet(TestCase):
         # Note: only smoke test implemented so far.
         project = ProjectFactory()
         querypresetset = create_seqvarspresetsset_short_read_genome()
+        querypresetset.save()
         querypresetset.clone_with_latest_version(project=project)
 
 

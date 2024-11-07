@@ -2134,6 +2134,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
     def test_create_from(self):
         # TODO: change after https://github.com/varfish-org/varfish-server/issues/1920
         presetsset_factory = create_seqvarspresetsset_short_read_exome_legacy()
+        presetsset_factory.save()
         presetsset = presetsset_factory.clone_with_latest_version(project=self.project)
         version = presetsset.versions.all()[0]
         predefinedquery = version.seqvarspredefinedquery_set.all()[0]

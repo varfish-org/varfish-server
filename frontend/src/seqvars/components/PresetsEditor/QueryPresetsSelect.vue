@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIsFetching, useIsMutating } from '@tanstack/vue-query'
 import {
   SeqvarsQueryPresetsSet,
   SeqvarsQueryPresetsSetVersionDetails,
@@ -6,11 +7,22 @@ import {
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { useSeqvarsPresetsStore } from '@/seqvars/stores/presets'
+import {
+  useSeqvarQueryPresetsSetCopyFromMutation,
+  useSeqvarQueryPresetsSetDestroyMutation,
+  useSeqvarQueryPresetsSetListQuery, // useSeqvarQueryPresetsSetRetrieveQuery,
+  useSeqvarQueryPresetsSetUpdateMutation,
+} from '@/seqvars/queries/seqvarQueryPresetSet'
 import {
   EditableState,
+  getEditableState,
   getEditableStateLabel,
-} from '@/seqvars/stores/presets/types'
+  useSeqvarQueryPresetsSetVersionCopyFromMutation,
+  useSeqvarQueryPresetsSetVersionDestroyMutation,
+  useSeqvarQueryPresetsSetVersionListQuery,
+  useSeqvarQueryPresetsSetVersionRetrieveQueries, // useSeqvarQueryPresetsSetVersionRetrieveQuery,
+  useSeqvarQueryPresetsSetVersionUpdateMutation,
+} from '@/seqvars/queries/seqvarQueryPresetSetVersion'
 import { SnackbarMessage } from '@/seqvars/views/PresetSets/lib'
 
 /** Props used in this component. */
@@ -31,23 +43,107 @@ const emit = defineEmits<{
 /** Global router instance. */
 const router = useRouter()
 
-/** Store with the presets. */
-const seqvarsPresetsStore = useSeqvarsPresetsStore()
+/** Wraps `props.projectUuid` into a `ComputedRef` for use with queries. */
+const projectUuid = computed(() => props.projectUuid)
+/** Wraps `props.presetSet` into a `ComputedRef` for use with queries. */
+const presetsSetUuid = computed(() => props.presetSet)
+// /** Wraps `props.presetSetVersion` into a `ComputedRef` for use with queries. */
+// const presetsSetVersionUuid = computed(() => props.presetSetVersion)
 
-/** The currently selected presets set, manged through route/props; component state */
-const selectedPresetSetUuid = computed<string | undefined>({
+/** List all presets sets for the current project. */
+const presetsSetListRes = useSeqvarQueryPresetsSetListQuery({
+  projectUuid,
+})
+/** Provide the presets sets by from `seqvarsQueryPresetsSetListRes` by UUID. */
+const presetsSetByUuid = computed<Map<string, SeqvarsQueryPresetsSet>>(() => {
+  const presetsSets = presetsSetListRes.data.value?.results ?? []
+  return new Map(presetsSets.map((item) => [item.sodar_uuid, item]))
+})
+/** Mutation for coyping one presets set from another */
+const presetsSetCreateFromPresets = useSeqvarQueryPresetsSetCopyFromMutation()
+/** Mutation for updating presets sets. */
+const presetsSetUpdate = useSeqvarQueryPresetsSetUpdateMutation()
+/** Mutation for deleting presets sets. */
+const presetsSetDestroy = useSeqvarQueryPresetsSetDestroyMutation()
+
+// /** Provide detailed seqvar presets set for the one from props, if any. */
+// const presetsSetRetrieveRes = useSeqvarQueryPresetsSetRetrieveQuery({
+//   projectUuid,
+//   presetsSetUuid,
+// })
+/** List all presets set versions for the current presets set. */
+const presetsSetVersionListRes = useSeqvarQueryPresetsSetVersionListQuery({
+  presetsSetUuid,
+})
+/** UUIDs of the preset set versions, for use with queries. */
+const presetsSetVersionUuids = computed(() => {
+  return (presetsSetVersionListRes.data.value?.results ?? []).map(
+    (item) => item.sodar_uuid,
+  )
+})
+/** Query preset set version details for the current presets set. */
+const presetsSetVersionDetailsRetrieveRes =
+  useSeqvarQueryPresetsSetVersionRetrieveQueries({
+    presetsSetUuid,
+    presetsSetVersionUuids,
+  })
+
+/** Provide the presets set versions details by UUID. */
+const presetsSetVersionDetailsByUuid = computed<
+  Map<string, SeqvarsQueryPresetsSetVersionDetails>
+>(
+  () =>
+    new Map(
+      presetsSetVersionDetailsRetrieveRes.value.data.map((item) => [
+        item.sodar_uuid,
+        item,
+      ]),
+    ),
+)
+/** Provide access to the currently selected presets set version. */
+const selectedPresetsSetVersion = computed<
+  SeqvarsQueryPresetsSetVersionDetails | undefined
+>(() =>
+  presetsSetVersionDetailsByUuid.value.get(
+    selectedPresetsSetVersionUuid.value ?? '',
+  ),
+)
+// /** Provide detailed seqvar query presets set version for the one from props, if any. */
+// const presetsSetVersionRetrieveRes =
+//   useSeqvarQueryPresetsSetVersionRetrieveQuery({
+//     presetsSetUuid,
+//     presetsSetVersionUuid,
+//   })
+/** Mutation for copying one prests set version from another. */
+const presetsSetVersionCreateFromPresets =
+  useSeqvarQueryPresetsSetVersionCopyFromMutation()
+/** Mutation for updating presets set version. */
+const presetsSetVersionUpdate = useSeqvarQueryPresetsSetVersionUpdateMutation()
+/** Mutation for deleting presets set version. */
+const presetsSetVersionDestroy =
+  useSeqvarQueryPresetsSetVersionDestroyMutation()
+
+/** Returns number of true (non-background) loads. */
+const isQueryFetching = useIsFetching({
+  predicate: (query) => query.state.status !== 'pending',
+})
+/** Returns number of mutations. */
+const isQueryMutating = useIsMutating()
+
+/** The currently selected presets set, managed through route/props; component state */
+const selectedPresetsSetUuid = computed<string | undefined>({
   get() {
     return props.presetSet
   },
   set(value) {
     if (value) {
-      router.push({ params: { presetSet: value } })
+      router.push({ params: { presetSet: value, presetSetVersion: '' } })
     }
   },
 })
 
 /** The currently selected presets set version, manged through route/props; component state */
-const selectedPresetSetVersionUuid = computed<string | undefined>({
+const selectedPresetsSetVersionUuid = computed<string | undefined>({
   get() {
     return props.presetSetVersion
   },
@@ -80,10 +176,8 @@ const renameDialogShow = ref<boolean>(false)
  */
 const showCloneDialog = () => {
   // guard against undefined presets set
-  if (selectedPresetSetUuid.value) {
-    const presetSet = seqvarsPresetsStore.presetSets.get(
-      selectedPresetSetUuid.value,
-    )
+  if (selectedPresetsSetUuid.value) {
+    const presetSet = presetsSetByUuid.value.get(selectedPresetsSetUuid.value)
     if (presetSet) {
       cloneDialogModel.value = `Copy of ${presetSet.label}`
     } else {
@@ -99,14 +193,18 @@ const showCloneDialog = () => {
  */
 const doClone = async () => {
   // guard against undefined presets set
-  if (props.presetSet !== undefined) {
-    let presetsSet, presetsSetVersion
+  if (props.projectUuid !== undefined && props.presetSet !== undefined) {
+    let presetsSet
     try {
-      ;[presetsSet, presetsSetVersion] =
-        await seqvarsPresetsStore.copyPresetSet(
-          props.presetSet,
-          cloneDialogModel.value,
-        )
+      presetsSet = await presetsSetCreateFromPresets.mutateAsync({
+        body: {
+          label: cloneDialogModel.value,
+        },
+        path: {
+          project: props.projectUuid,
+          querypresetsset: props.presetSet,
+        },
+      })
     } catch (e) {
       emit('message', {
         text: `Cloning presets set failed: ${e}`,
@@ -121,7 +219,7 @@ const doClone = async () => {
     router.push({
       params: {
         presetSet: presetsSet.sodar_uuid,
-        presetSetVersion: presetsSetVersion.sodar_uuid,
+        presetSetVersion: '',
       },
     })
     cloneDialogShow.value = false
@@ -133,12 +231,10 @@ const doClone = async () => {
  */
 const showRenameDialog = () => {
   // guard against undefined presets set
-  if (selectedPresetSetUuid.value) {
-    const presetSet = seqvarsPresetsStore.presetSets.get(
-      selectedPresetSetUuid.value,
-    )
-    if (presetSet) {
-      renameDialogModel.value = presetSet.label
+  if (selectedPresetsSetUuid.value) {
+    const presetsSet = presetsSetByUuid.value.get(selectedPresetsSetUuid.value)
+    if (presetsSet) {
+      renameDialogModel.value = presetsSet.label
     } else {
       renameDialogModel.value = ''
     }
@@ -152,10 +248,19 @@ const showRenameDialog = () => {
  */
 const doRename = async () => {
   // guard against undefined presets set
-  if (selectedPresetSetUuid.value) {
+  if (
+    props.projectUuid !== undefined &&
+    selectedPresetsSetUuid.value !== undefined
+  ) {
     try {
-      await seqvarsPresetsStore.updatePresetsSet(selectedPresetSetUuid.value, {
-        label: renameDialogModel.value,
+      await presetsSetUpdate.mutateAsync({
+        body: {
+          label: renameDialogModel.value,
+        },
+        path: {
+          project: props.projectUuid,
+          querypresetsset: selectedPresetsSetUuid.value,
+        },
       })
     } catch (e) {
       emit('message', {
@@ -177,9 +282,17 @@ const doRename = async () => {
  */
 const doDeletePresetsSet = async () => {
   // guard against undefined presets set
-  if (selectedPresetSetUuid.value) {
+  if (
+    props.projectUuid !== undefined &&
+    selectedPresetsSetUuid.value !== undefined
+  ) {
     try {
-      await seqvarsPresetsStore.deletePresetsSet(selectedPresetSetUuid.value)
+      await presetsSetDestroy.mutateAsync({
+        path: {
+          project: props.projectUuid,
+          querypresetsset: selectedPresetsSetUuid.value,
+        },
+      })
     } catch (e) {
       emit('message', {
         text: `Deleting presets set failed: ${e}`,
@@ -201,11 +314,20 @@ const doDeletePresetsSet = async () => {
  */
 const doPublishVersion = async () => {
   // guard against undefined version
-  if (selectedPresetSetVersionUuid.value) {
+  if (
+    selectedPresetsSetUuid.value !== undefined &&
+    selectedPresetsSetVersionUuid.value !== undefined
+  ) {
     try {
-      await seqvarsPresetsStore.publishPresetSetVersion(
-        selectedPresetSetVersionUuid.value,
-      )
+      await presetsSetVersionUpdate.mutateAsync({
+        body: {
+          status: 'active',
+        },
+        path: {
+          querypresetsset: selectedPresetsSetUuid.value,
+          querypresetssetversion: selectedPresetsSetVersionUuid.value,
+        },
+      })
     } catch (e) {
       emit('message', {
         text: `Publishing presets version failed: ${e}`,
@@ -226,11 +348,17 @@ const doPublishVersion = async () => {
  */
 const doDiscardVersion = async () => {
   // guard against undefined version
-  if (selectedPresetSetVersionUuid.value) {
+  if (
+    selectedPresetsSetUuid.value !== undefined &&
+    selectedPresetsSetVersionUuid.value !== undefined
+  ) {
     try {
-      await seqvarsPresetsStore.discardPresetSetVersion(
-        selectedPresetSetVersionUuid.value,
-      )
+      await presetsSetVersionDestroy.mutateAsync({
+        path: {
+          querypresetsset: selectedPresetsSetUuid.value,
+          querypresetssetversion: selectedPresetsSetVersionUuid.value,
+        },
+      })
     } catch (e) {
       emit('message', {
         text: `Discarding presets version failed: ${e}`,
@@ -252,7 +380,7 @@ const doDiscardVersion = async () => {
  */
 const showNewVersionDialog = () => {
   // guard against undefined version
-  if (selectedPresetSetVersionUuid.value) {
+  if (selectedPresetsSetVersionUuid.value !== undefined) {
     newVersionDialogShow.value = true
   }
 }
@@ -262,12 +390,18 @@ const showNewVersionDialog = () => {
  */
 const doNewVersion = async () => {
   // guard against undefined version
-  if (selectedPresetSetVersionUuid.value) {
+  if (
+    selectedPresetsSetUuid.value !== undefined &&
+    selectedPresetsSetVersionUuid.value !== undefined
+  ) {
     let presetSetVersion
     try {
-      presetSetVersion = await seqvarsPresetsStore.copyPresetSetVersion(
-        selectedPresetSetVersionUuid.value,
-      )
+      presetSetVersion = await presetsSetVersionCreateFromPresets.mutateAsync({
+        path: {
+          querypresetsset: selectedPresetsSetUuid.value,
+          querypresetssetversion: selectedPresetsSetVersionUuid.value,
+        },
+      })
     } catch (e) {
       emit('message', {
         text: `Creating new presets version failed: ${e}`,
@@ -290,7 +424,7 @@ const doNewVersion = async () => {
  * Ensures a sorted order by rank where factory defaults come first.
  */
 const presetSetItems = computed<SeqvarsQueryPresetsSet[]>(() => {
-  return Array.from(seqvarsPresetsStore.presetSets.values()).sort((a, b) => {
+  return Array.from(presetsSetByUuid.value.values()).sort((a, b) => {
     return (
       (a.is_factory_default ? 0 : 1000) +
       (a.rank ?? 0) -
@@ -305,11 +439,11 @@ const presetSetItems = computed<SeqvarsQueryPresetsSet[]>(() => {
  *
  * Ensures the ones for the selected version are displayed and sorted by `(major, minor)` version.
  */
-const presetSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
+const presetsSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
   () => {
-    return Array.from(seqvarsPresetsStore.presetSetVersions.values())
+    return Array.from(presetsSetVersionDetailsByUuid.value.values())
       .filter((item) => {
-        return item.presetsset.sodar_uuid === selectedPresetSetUuid.value
+        return item.presetsset.sodar_uuid === selectedPresetsSetUuid.value
       })
       .sort((a, b) => {
         return (
@@ -322,35 +456,27 @@ const presetSetVersionItems = computed<SeqvarsQueryPresetsSetVersionDetails[]>(
   },
 )
 
-/** (Re-)initialize the stores if necessary. */
-const initializeStores = async () => {
-  try {
-    await seqvarsPresetsStore.initialize(props.projectUuid)
-  } catch (e) {
-    emit('message', {
-      text: `Communication with server failed: ${e}`,
-      color: 'error',
-    })
-  }
-}
-
 /**
- * Companion to initializeStores()
+ * Ensures that when no presets set or version been selected yet via props then
+ * this is done via the router.  The first preset set and version are selected.
  *
- * Ensures that when no preset has been selected yet via props then this is done
- * via the router.
- *
- * @param force Whether to force the selection of the presets set and version.
+ * @param force
+ *    Whether to force the selection of the presets set and version even if
+ *    present already.
  */
-const selectPresetSetAndVersion = (force: boolean = false) => {
+const selectPresetsSetAndVersion = (force: boolean = false) => {
   let presetSet = props.presetSet
-  if (force || (!presetSet && presetSetItems.value.length)) {
-    presetSet = presetSetItems.value[0].sodar_uuid
+  if (force || (!presetSet && presetsSetListRes.data.value?.results?.length)) {
+    presetSet = presetsSetListRes.data.value!.results![0].sodar_uuid
   }
 
   let presetSetVersion = props.presetSetVersion
-  if (force || (!presetSetVersion && presetSetVersionItems.value.length)) {
-    presetSetVersion = presetSetVersionItems.value[0].sodar_uuid
+  if (
+    force ||
+    (!presetSetVersion && presetsSetVersionListRes.data.value?.results?.length)
+  ) {
+    presetSetVersion =
+      presetsSetVersionListRes.data.value!.results![0].sodar_uuid
   }
 
   if (
@@ -361,33 +487,31 @@ const selectPresetSetAndVersion = (force: boolean = false) => {
   }
 }
 
-/**
- * Trigger selection of presets set and version when the store, and/or
- * the computed component state changes.
+/* Trigger selection of presets set and version on mount. */
+onMounted(() => {
+  selectPresetsSetAndVersion()
+})
+
+/* Trigger selection of presets set and version when data becomes available or
+ * the selected presets set or version changes.
  */
 watch(
   () => [
-    seqvarsPresetsStore.storeState?.state,
-    presetSetItems.value,
-    presetSetVersionItems.value,
+    presetsSetListRes.status.value,
+    presetsSetVersionListRes.status.value,
+    selectedPresetsSetUuid.value,
+    selectedPresetsSetVersionUuid.value,
   ],
   () => {
-    selectPresetSetAndVersion()
+    selectPresetsSetAndVersion()
   },
 )
 
-/* Initialize case list store on mount. */
-onMounted(async () => {
-  await initializeStores()
-  selectPresetSetAndVersion()
-})
-
-/* Re-initialize case list store when the project changes. */
+/* Trigger presets set and version selection when the project UUID changes */
 watch(
   () => props.projectUuid,
-  async () => {
-    await initializeStores()
-    selectPresetSetAndVersion()
+  () => {
+    selectPresetsSetAndVersion(true)
   },
 )
 </script>
@@ -398,7 +522,7 @@ watch(
       <v-row no-gutters class="d-flex flex-nowrap" justify="space-between">
         <v-col class="flex-grow-1 flex-shrink-0">
           <v-select
-            v-model="selectedPresetSetUuid"
+            v-model="selectedPresetsSetUuid"
             :items="presetSetItems"
             :item-props="
               (item: SeqvarsQueryPresetsSet) => {
@@ -411,7 +535,7 @@ watch(
                 }
               }
             "
-            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            :loading="isQueryMutating > 0 || isQueryFetching > 0"
             label="Presets Set"
             hint="Select presets set to work with."
             persistent-hint
@@ -419,20 +543,24 @@ watch(
         </v-col>
         <v-col class="flex-grow-1 flex-shrink-0 pl-3">
           <v-select
-            v-model="selectedPresetSetVersionUuid"
-            :items="presetSetVersionItems"
+            v-model="selectedPresetsSetVersionUuid"
+            :items="presetsSetVersionItems"
             :item-props="
-              (item: SeqvarsQueryPresetsSetVersionDetails) => {
-                return {
-                  value: item.sodar_uuid,
-                  title: item
-                    ? `${item.version_major}.${item.version_minor}`
-                    : undefined,
-                  subtitle: `${item.status}`,
+              (item?: SeqvarsQueryPresetsSetVersionDetails) => {
+                if (!item) {
+                  return undefined
+                } else {
+                  return {
+                    value: item.sodar_uuid,
+                    title: item
+                      ? `${item.version_major}.${item.version_minor}`
+                      : undefined,
+                    subtitle: `${item.status}`,
+                  }
                 }
               }
             "
-            :loading="seqvarsPresetsStore.storeState.serverInteractions !== 0"
+            :loading="isQueryMutating > 0 || isQueryFetching > 0"
             label="Presets Set Version"
             hint="Select the version to work with."
             persistent-hint
@@ -450,9 +578,7 @@ watch(
                 <v-btn
                   icon="mdi-dots-vertical"
                   v-bind="localProps"
-                  :loading="
-                    seqvarsPresetsStore.storeState.serverInteractions > 0
-                  "
+                  :loading="isQueryMutating > 0 || isQueryFetching > 0"
                 ></v-btn>
               </template>
 
@@ -462,8 +588,9 @@ watch(
                 </v-list-subheader>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.EDITABLE
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.EDITABLE
                   "
                 >
                   <v-list-item
@@ -493,8 +620,9 @@ watch(
                 </template>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.IS_ACTIVE
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.IS_ACTIVE
                   "
                 >
                   <v-list-item
@@ -517,8 +645,9 @@ watch(
                 </v-list-subheader>
                 <template
                   v-if="
-                    seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-                    EditableState.IS_FACTORY_DEFAULT
+                    selectedPresetsSetVersion !== undefined &&
+                    getEditableState(selectedPresetsSetVersion) ===
+                      EditableState.IS_FACTORY_DEFAULT
                   "
                 >
                   <v-list-item
@@ -568,16 +697,19 @@ watch(
         <v-col class="pt-3">
           <v-alert
             :icon="
-              seqvarsPresetsStore.getEditableState(presetSetVersion) ===
-              EditableState.IS_FACTORY_DEFAULT
+              selectedPresetsSetVersion !== undefined &&
+              getEditableState(selectedPresetsSetVersion) ===
+                EditableState.IS_FACTORY_DEFAULT
                 ? 'mdi-factory'
                 : 'mdi-information'
             "
           >
             {{
-              getEditableStateLabel(
-                seqvarsPresetsStore.getEditableState(presetSetVersion),
-              )
+              selectedPresetsSetVersion === undefined
+                ? '-'
+                : getEditableStateLabel(
+                    getEditableState(selectedPresetsSetVersion),
+                  )
             }}
           </v-alert>
         </v-col>
@@ -680,7 +812,7 @@ watch(
     <v-dialog v-model="discardDialogShow" max-width="600px">
       <v-card>
         <v-card-title>Discard Presets Version</v-card-title>
-        <template v-if="presetSetVersionItems.length > 1">
+        <template v-if="presetsSetVersionItems.length > 1">
           <v-card-text> Confirm to discard the presets version. </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
