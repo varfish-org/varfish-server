@@ -29,7 +29,7 @@
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "@vueuse/core": "^11.0.3",
-    "@wdns/vuetify-resize-drawer": "^3.1.6",
+    "@wdns/vuetify-resize-drawer": "^3.2.0",
     "bootstrap": "^4.6.2",
     "camelcase": "^8.0.0",
     "core-js": "^3.39.0",

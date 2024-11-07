@@ -108,7 +108,7 @@ const seqvarQueryUuids = computed<string[] | undefined>(() =>
   (seqvarQueryListRes.data?.value?.results ?? []).map((q) => q.sodar_uuid),
 )
 /** Provide detailed seqvar queries for the `seqvarQueryListRes` via UUIDs in `sevarQueryListRes`. */
-const seqvarQueryRetrieveRes = useSeqvarQueryRetrieveQueries({
+const seqvarQueriesRetrieveRes = useSeqvarQueryRetrieveQueries({
   sessionUuid,
   seqvarQueryUuids,
 })
@@ -117,7 +117,7 @@ const seqvarQueryRetrieveRes = useSeqvarQueryRetrieveQueries({
 const seqvarQueries = computed<Map<string, SeqvarsQueryDetails>>(() => {
   return new Map(
     // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
-    seqvarQueryRetrieveRes.value.data?.map((q) => [q.sodar_uuid, q]) ?? [],
+    seqvarQueriesRetrieveRes.value.data?.map((q) => [q.sodar_uuid, q]) ?? [],
   )
 })
 
@@ -492,306 +492,305 @@ const collapsibleGroupOpenGeneric = ref<Record<QueryKey, boolean>>({
 </script>
 
 <template>
-  <div v-if="pedigree" class="h-100 overflow-y-auto overflow-x-hidden pr-2">
-    <QueryList
-      v-if="!!pedigree && seqvarQueries.size > 0"
-      :selected-query-uuid="selectedQueryUuid"
-      :presets-details="presetsDetails"
-      :queries="seqvarQueries"
-      :pedigree="pedigree"
-      :hints-enabled="hintsEnabled"
-      @update:selected-query-uuid="
-        (queryUuid: string) => {
-          selectedQueryUuid = queryUuid
-        }
-      "
-      @remove="deleteQuery"
-      @revert="revertQueryToPresets"
-      @start="startQuery"
-      @update-query="
-        (queryUuid: string) => {
-          selectedQueryUuid = queryUuid
-          updateDialogTitle = seqvarQueries.get(queryUuid)?.label ?? ''
-          showUpdateDialog = true
-        }
-      "
-    />
-
-    <!-- Teleport out the query list when hidden. -->
-    <Teleport
-      v-if="collapsed && teleportToWhenCollapsed && seqvarQueries.size > 0"
-      :to="teleportToWhenCollapsed"
-    >
-      <v-list-subheader v-if="teleportedQueriesLabels" class="text-uppercase">
-        Queries / Results
-      </v-list-subheader>
-      <v-divider v-else class="mt-1 mb-1"></v-divider>
-
-      <v-list-item
-        v-for="(query, index) in seqvarQueries.values()"
-        :key="query.sodar_uuid"
-        :variant="
-          !!selectedQuery && selectedQueryUuid === query.sodar_uuid
-            ? 'tonal'
-            : undefined
-        "
-        :title="query.label"
-        :prepend-icon="'mdi-numeric-' + (index + 1) + '-box-outline'"
-        @click="selectedQueryUuid = query.sodar_uuid"
-      />
-    </Teleport>
-
-    <PredefinedQueryList
-      :hints-enabled="hintsEnabled"
-      :presets="presetsDetails"
-      :selected-id="selectedQuery?.settings.predefinedquery"
-      :query="selectedQuery"
-      :pedigree="pedigree"
-      @revert="revertQueryToPresets"
-      @add-query="createQuery"
-    />
-
-    <v-divider class="my-3" />
-
-    <template v-if="!!selectedQuery">
-      <CollapsibleGroup
-        v-model="collapsibleGroupOpenGenotype"
-        title="Genotype"
+  <div>
+    <div v-if="pedigree" class="h-100 overflow-y-auto overflow-x-hidden pr-2">
+      <QueryList
+        v-if="!!pedigree && seqvarQueries.size > 0"
+        :selected-query-uuid="selectedQueryUuid"
+        :presets-details="presetsDetails"
+        :queries="seqvarQueries"
+        :pedigree="pedigree"
         :hints-enabled="hintsEnabled"
-        hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
-        :modified="
-          !!baselinePredefinedQuery?.genotype?.choice &&
-          !!selectedQuery?.settings.genotypepresets?.choice &&
-          selectedQuery?.settings.genotypepresets?.choice !==
-            baselinePredefinedQuery?.genotype?.choice
+        @update:selected-query-uuid="
+          (queryUuid: string) => {
+            selectedQueryUuid = queryUuid
+          }
         "
-        :summary="
-          selectedQuery.settings.genotypepresets?.choice
-            ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
-                selectedQuery.settings.genotypepresets?.choice
-              ]
-            : ''
+        @remove="deleteQuery"
+        @revert="revertQueryToPresets"
+        @start="startQuery"
+        @update-query="
+          (queryUuid: string) => {
+            selectedQueryUuid = queryUuid
+            updateDialogTitle = seqvarQueries.get(queryUuid)?.label ?? ''
+            showUpdateDialog = true
+          }
         "
-        storage-name="query-editor-genotype"
-        @revert="revertGenotypeToPresets"
-      >
-        <template
-          v-if="selectedQuery.settings.genotypepresets?.choice"
-          #summary
-        >
-          <Item
-            :modified="
-              !!baselinePredefinedQuery &&
-              !matchesGenotypePreset(
-                pedigree,
-                selectedQuery.settings.genotypepresets?.choice,
-                selectedQuery.settings,
-              )
-            "
-            @revert="
-              async () =>
-                await updateGenotypeToPresets(
-                  selectedQuery!.settings.genotypepresets?.choice!,
-                )
-            "
-          >
-            {{
-              SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
-                (pedigree, selectedQuery.settings.genotypepresets?.choice)
-              ]
-            }}
-          </Item>
-        </template>
+      />
 
-        <template #default>
-          <div
-            role="listbox"
-            style="width: 100%; display: flex; flex-direction: column"
+      <!-- Teleport out the query list when hidden. -->
+      <Teleport
+        v-if="collapsed && teleportToWhenCollapsed && seqvarQueries.size > 0"
+        :to="teleportToWhenCollapsed"
+      >
+        <v-list-item
+          v-for="(query, index) in seqvarQueries.values()"
+          :key="query.sodar_uuid"
+          :variant="
+            !!selectedQuery && selectedQueryUuid === query.sodar_uuid
+              ? 'tonal'
+              : undefined
+          "
+          :title="query.label"
+          :prepend-icon="'mdi-numeric-' + (index + 1) + '-box-outline'"
+          @click="selectedQueryUuid = query.sodar_uuid"
+        />
+      </Teleport>
+
+      <PredefinedQueryList
+        :hints-enabled="hintsEnabled"
+        :presets="presetsDetails"
+        :selected-id="selectedQuery?.settings.predefinedquery"
+        :query="selectedQuery"
+        :pedigree="pedigree"
+        @revert="revertQueryToPresets"
+        @add-query="createQuery"
+      />
+
+      <v-divider class="my-3" />
+
+      <template v-if="!!selectedQuery">
+        <CollapsibleGroup
+          v-model="collapsibleGroupOpenGenotype"
+          title="Genotype"
+          :hints-enabled="hintsEnabled"
+          hint="For the genotype, you first select whether you want to enable filtering for any of the recessive variant modes.  For the recessive mode, you have to chose the index and parent roles in the pedigree.  If you disable the recessive mode then you can set a filter on the genotypes for each individual."
+          :modified="
+            !!baselinePredefinedQuery?.genotype?.choice &&
+            !!selectedQuery?.settings.genotypepresets?.choice &&
+            selectedQuery?.settings.genotypepresets?.choice !==
+              baselinePredefinedQuery?.genotype?.choice
+          "
+          :summary="
+            selectedQuery.settings.genotypepresets?.choice
+              ? SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
+                  selectedQuery.settings.genotypepresets?.choice
+                ]
+              : ''
+          "
+          storage-name="query-editor-genotype"
+          @revert="revertGenotypeToPresets"
+        >
+          <template
+            v-if="selectedQuery.settings.genotypepresets?.choice"
+            #summary
           >
             <Item
-              v-for="key in Object.keys(
-                GENOTYPE_PRESET_TO_RECESSIVE_MODE,
-              ) as SeqvarsGenotypePresetChoice[]"
-              :key="key"
-              :selected="selectedQuery.settings.genotypepresets?.choice === key"
               :modified="
-                !!pedigree &&
-                selectedQuery.settings.genotypepresets?.choice === key &&
-                baselinePredefinedQuery &&
+                !!baselinePredefinedQuery &&
                 !matchesGenotypePreset(
                   pedigree,
                   selectedQuery.settings.genotypepresets?.choice,
                   selectedQuery.settings,
                 )
               "
-              @click="async () => await updateGenotypeToPresets(key)"
-              @revert="async () => await updateGenotypeToPresets(key)"
-            >
-              {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
-            </Item>
-          </div>
-          <v-divider class="my-2" />
-          <GenotypeControls
-            :seqvars-query="selectedQuery"
-            :pedigree="pedigree"
-            :hints-enabled="hintsEnabled"
-          />
-        </template>
-      </CollapsibleGroup>
-
-      <CollapsibleGroup
-        v-for="group in GROUPS"
-        :key="group.id"
-        v-model="collapsibleGroupOpenGeneric[group.id]"
-        :title="group.title"
-        :hint="group.hint"
-        :hints-enabled="hintsEnabled"
-        :summary="
-          presetsDetails[group.presetSetKey].find(
-            (p) =>
-              p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
-          )?.label
-        "
-        :modified="
-          !!baselinePredefinedQuery?.[group.id] &&
-          presetsDetails[group.presetSetKey].find(
-            (p) =>
-              p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
-          )?.sodar_uuid !== baselinePredefinedQuery?.[group.id]
-        "
-        :storage-name="`query-editor-${group.id}`"
-        @revert="() => revertGroupToPresets(group)"
-      >
-        <template #summary>
-          <PresetSummaryItem
-            :pedigree="pedigree"
-            :presets-details="presetsDetails"
-            :query="selectedQuery"
-            :group="group"
-            :preset="
-              presetsDetails[group.presetSetKey].find(
-                (p) =>
-                  p.sodar_uuid ===
-                  selectedQuery?.settings[group.queryPresetKey],
-              )
-            "
-            @revert="
-              async (preset: any) => {
-                if (!!pedigree) {
-                  await revertCategoryToPresets(pedigree, group, preset)
-                }
-              }
-            "
-          />
-        </template>
-        <template #default>
-          <div role="listbox" class="w-100 d-flex flex-column">
-            <Item
-              v-for="preset in presetsDetails[group.presetSetKey]"
-              :key="preset.sodar_uuid"
-              :selected="
-                preset.sodar_uuid ==
-                selectedQuery.settings[group.queryPresetKey]
+              @revert="
+                async () =>
+                  await updateGenotypeToPresets(
+                    selectedQuery!.settings.genotypepresets?.choice!,
+                  )
               "
-              :modified="
-                preset.sodar_uuid ==
-                  selectedQuery.settings[group.queryPresetKey] &&
-                !(
+            >
+              {{
+                SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[
+                  (pedigree, selectedQuery.settings.genotypepresets?.choice)
+                ]
+              }}
+            </Item>
+          </template>
+
+          <template #default>
+            <div
+              role="listbox"
+              style="width: 100%; display: flex; flex-direction: column"
+            >
+              <Item
+                v-for="key in Object.keys(
+                  GENOTYPE_PRESET_TO_RECESSIVE_MODE,
+                ) as SeqvarsGenotypePresetChoice[]"
+                :key="key"
+                :selected="
+                  selectedQuery.settings.genotypepresets?.choice === key
+                "
+                :modified="
                   !!pedigree &&
+                  selectedQuery.settings.genotypepresets?.choice === key &&
                   baselinePredefinedQuery &&
-                  (group.id == 'quality'
-                    ? matchesQualityPreset(
-                        pedigree,
-                        presetsDetails,
-                        selectedQuery.settings,
-                      )
-                    : group.matchesPreset(
-                        presetsDetails,
-                        selectedQuery.settings,
-                      ))
+                  !matchesGenotypePreset(
+                    pedigree,
+                    selectedQuery.settings.genotypepresets?.choice,
+                    selectedQuery.settings,
+                  )
+                "
+                @click="async () => await updateGenotypeToPresets(key)"
+                @revert="async () => await updateGenotypeToPresets(key)"
+              >
+                {{ SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS[key] }}
+              </Item>
+            </div>
+            <v-divider class="my-2" />
+            <GenotypeControls
+              :seqvars-query="selectedQuery"
+              :pedigree="pedigree"
+              :hints-enabled="hintsEnabled"
+            />
+          </template>
+        </CollapsibleGroup>
+
+        <CollapsibleGroup
+          v-for="group in GROUPS"
+          :key="group.id"
+          v-model="collapsibleGroupOpenGeneric[group.id]"
+          :title="group.title"
+          :hint="group.hint"
+          :hints-enabled="hintsEnabled"
+          :summary="
+            presetsDetails[group.presetSetKey].find(
+              (p) =>
+                p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
+            )?.label
+          "
+          :modified="
+            !!baselinePredefinedQuery?.[group.id] &&
+            presetsDetails[group.presetSetKey].find(
+              (p) =>
+                p.sodar_uuid === selectedQuery?.settings[group.queryPresetKey],
+            )?.sodar_uuid !== baselinePredefinedQuery?.[group.id]
+          "
+          :storage-name="`query-editor-${group.id}`"
+          @revert="() => revertGroupToPresets(group)"
+        >
+          <template #summary>
+            <PresetSummaryItem
+              :pedigree="pedigree"
+              :presets-details="presetsDetails"
+              :query="selectedQuery"
+              :group="group"
+              :preset="
+                presetsDetails[group.presetSetKey].find(
+                  (p) =>
+                    p.sodar_uuid ===
+                    selectedQuery?.settings[group.queryPresetKey],
                 )
               "
+              @revert="
+                async (preset: any) => {
+                  if (!!pedigree) {
+                    await revertCategoryToPresets(pedigree, group, preset)
+                  }
+                }
+              "
+            />
+          </template>
+          <template #default>
+            <div role="listbox" class="w-100 d-flex flex-column">
+              <Item
+                v-for="preset in presetsDetails[group.presetSetKey]"
+                :key="preset.sodar_uuid"
+                :selected="
+                  preset.sodar_uuid ==
+                  selectedQuery.settings[group.queryPresetKey]
+                "
+                :modified="
+                  preset.sodar_uuid ==
+                    selectedQuery.settings[group.queryPresetKey] &&
+                  !(
+                    !!pedigree &&
+                    baselinePredefinedQuery &&
+                    (group.id == 'quality'
+                      ? matchesQualityPreset(
+                          pedigree,
+                          presetsDetails,
+                          selectedQuery.settings,
+                        )
+                      : group.matchesPreset(
+                          presetsDetails,
+                          selectedQuery.settings,
+                        ))
+                  )
+                "
+                @click="
+                  async () => {
+                    if (pedigree) {
+                      await revertCategoryToPresets(pedigree, group, preset)
+                    }
+                  }
+                "
+                @revert="
+                  async () => {
+                    if (pedigree) {
+                      await revertCategoryToPresets(pedigree, group, preset)
+                    }
+                  }
+                "
+              >
+                {{ preset.label }}
+              </Item>
+            </div>
+
+            <v-divider class="my-2" />
+
+            <component
+              :is="group.Component"
+              :model-value="selectedQuery"
+              :hints-enabled="hintsEnabled"
+            />
+          </template>
+        </CollapsibleGroup>
+      </template>
+    </div>
+
+    <!-- Dialog to update query. -->
+    <v-dialog v-model="showUpdateDialog" max-width="600">
+      <template #default>
+        <v-card>
+          <v-card-title class="d-flex justify-space-between align-center">
+            <div class="text-h5 text-medium-emphasis ps-2">
+              Update Query Title
+            </div>
+
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              @click="showUpdateDialog = false"
+            ></v-btn>
+          </v-card-title>
+          <v-divider class="mb-4"></v-divider>
+
+          <v-card-text>
+            <v-text-field
+              v-model="updateDialogTitle"
+              variant="outlined"
+              label="Query title"
+            />
+          </v-card-text>
+
+          <v-divider class="mt-2"></v-divider>
+          <v-card-actions class="my-2 d-flex justify-end">
+            <v-btn
+              class="text-none"
+              rounded="xl"
+              text="Cancel"
+              @click="showUpdateDialog = false"
+            ></v-btn>
+
+            <v-btn
+              class="text-none"
+              color="primary"
+              rounded="xl"
+              text="Save"
+              variant="flat"
               @click="
                 async () => {
-                  if (pedigree) {
-                    await revertCategoryToPresets(pedigree, group, preset)
+                  if (await updateQueryLabel(updateDialogTitle)) {
+                    showUpdateDialog = false
                   }
                 }
               "
-              @revert="
-                async () => {
-                  if (pedigree) {
-                    await revertCategoryToPresets(pedigree, group, preset)
-                  }
-                }
-              "
-            >
-              {{ preset.label }}
-            </Item>
-          </div>
-
-          <v-divider class="my-2" />
-
-          <component
-            :is="group.Component"
-            :model-value="selectedQuery"
-            :hints-enabled="hintsEnabled"
-          />
-        </template>
-      </CollapsibleGroup>
-    </template>
+            ></v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </div>
-
-  <!-- Dialog to update query. -->
-  <v-dialog v-model="showUpdateDialog" max-width="600">
-    <template #default>
-      <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <div class="text-h5 text-medium-emphasis ps-2">
-            Update Query Title
-          </div>
-
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="showUpdateDialog = false"
-          ></v-btn>
-        </v-card-title>
-        <v-divider class="mb-4"></v-divider>
-
-        <v-card-text>
-          <v-text-field
-            v-model="updateDialogTitle"
-            variant="outlined"
-            label="Query title"
-          />
-        </v-card-text>
-
-        <v-divider class="mt-2"></v-divider>
-        <v-card-actions class="my-2 d-flex justify-end">
-          <v-btn
-            class="text-none"
-            rounded="xl"
-            text="Cancel"
-            @click="showUpdateDialog = false"
-          ></v-btn>
-
-          <v-btn
-            class="text-none"
-            color="primary"
-            rounded="xl"
-            text="Save"
-            variant="flat"
-            @click="
-              async () => {
-                if (await updateQueryLabel(updateDialogTitle)) {
-                  showUpdateDialog = false
-                }
-              }
-            "
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
 </template>
