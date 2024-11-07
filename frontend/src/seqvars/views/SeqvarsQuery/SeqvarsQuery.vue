@@ -56,7 +56,7 @@ const caseRetrieveRes = useCaseRetrieveQuery({ caseUuid })
 const sessionRetrieveRes = useCaseAnalysisSessionListQuery({ caseUuid })
 /** Wraps the session UUID into a `ComputedRef` for easier access. */
 const sessionUuid = computed<string | undefined>(
-  () => sessionRetrieveRes.data!.value?.pages?.[0]?.results?.[0]?.sodar_uuid,
+  () => sessionRetrieveRes.data!.value?.results?.[0]?.sodar_uuid,
 )
 
 /** The currently selected preset set for the case. */
