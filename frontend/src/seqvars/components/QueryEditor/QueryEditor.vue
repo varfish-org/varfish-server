@@ -46,7 +46,7 @@ import { SEQVARS_GENOTYPE_PRESET_CHOICES_LABELS } from '@/seqvars/lib/constants'
 import {
   useCopySeqvarQueryFromPresetCreateMutation,
   useSeqvarQueryDestroyMutation,
-  useSeqvarQueryListInfiniteQuery,
+  useSeqvarQueryListQuery,
   useSeqvarQueryRetrieveQueries,
   useSeqvarQueryUpdateMutation,
 } from '@/seqvars/queries/seqvarQuery'
@@ -102,19 +102,11 @@ const sessionUuid = computed(() => props.sessionUuid)
 /** Retrieve Case through TanStack Query. */
 const caseRetrieveRes = useCaseRetrieveQuery({ caseUuid })
 /** List all queries for the given case in the given session. */
-const seqvarQueryListRes = useSeqvarQueryListInfiniteQuery({ sessionUuid })
+const seqvarQueryListRes = useSeqvarQueryListQuery({ sessionUuid })
 /** Provide the UUIDs from `seqvarsQueryListRes` as an `ComputedRef<string[]>` for use with queries. */
-const seqvarQueryUuids = computed<string[] | undefined>(() => {
-  const res = seqvarQueryListRes.data?.value?.pages?.reduce(
-    (acc, page) => acc.concat(page.results?.map((q) => q.sodar_uuid) ?? []),
-    [] as string[],
-  )
-  if ((res?.length ?? 0) > 0) {
-    return res
-  } else {
-    return undefined
-  }
-})
+const seqvarQueryUuids = computed<string[] | undefined>(() =>
+  (seqvarQueryListRes.data?.value?.results ?? []).map((q) => q.sodar_uuid),
+)
 /** Provide detailed seqvar queries for the `seqvarQueryListRes` via UUIDs in `sevarQueryListRes`. */
 const seqvarQueryRetrieveRes = useSeqvarQueryRetrieveQueries({
   sessionUuid,

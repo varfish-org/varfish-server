@@ -14,6 +14,7 @@ import {
   seqvarsApiQueryCreateFromCreateMutation,
   seqvarsApiQueryDestroyMutation,
   seqvarsApiQueryListInfiniteOptions,
+  seqvarsApiQueryListOptions,
   seqvarsApiQueryRetrieveOptions,
   seqvarsApiQueryUpdateMutation,
 } from '@varfish-org/varfish-api/lib/@tanstack/vue-query.gen'
@@ -46,6 +47,15 @@ const invalidateSeqvarQueryKeys = (
     queryKey: seqvarsApiQueryListInfiniteOptions({ path: { session } })
       .queryKey,
   })
+  queryClient.invalidateQueries({
+    queryKey: seqvarsApiQueryListOptions({
+      path: { session },
+      query: {
+        page: 1,
+        page_size: 100,
+      },
+    }).queryKey,
+  })
   if (query !== undefined) {
     const arg = {
       queryKey: seqvarsApiQueryRetrieveOptions({
@@ -61,6 +71,37 @@ const invalidateSeqvarQueryKeys = (
       queryClient.invalidateQueries(arg)
     }
   }
+}
+
+/**
+ * Query for a list of seqvar queries within a case analysis session.
+ *
+ * Uses the list API of TanStack Query and query for 100 items for now as the infinite
+ * query API breaks the TanStack Query devtools plugin.
+ *
+ * The objects returned when listed are fairly flat and contain UUIDs to
+ * related objects.
+ *
+ * @param sessionUuid UUID of the case analysis session to load queries for.
+ * @returns Query result with page of seqvars queries.
+ */
+export const useSeqvarQueryListQuery = ({
+  sessionUuid,
+}: {
+  sessionUuid: MaybeRefOrGetter<string | undefined>
+}) => {
+  return useQuery({
+    ...seqvarsApiQueryListOptions({
+      // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+      path: { session: () => toValue(sessionUuid)! },
+      query: {
+        page: 1,
+        page_size: 100,
+      },
+    }),
+    // @ts-ignore // https://github.com/hey-api/openapi-ts/issues/653#issuecomment-2314847011
+    enabled: () => !!toValue(sessionUuid),
+  })
 }
 
 /**
