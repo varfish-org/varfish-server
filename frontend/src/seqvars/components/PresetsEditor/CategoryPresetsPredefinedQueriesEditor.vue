@@ -194,12 +194,62 @@ const applyMutation = async (
  * Helper that extracts items for the dropdowns.
  */
 const extractItems = (
-  rawItems: { sodar_uuid: string; label: string }[],
+  rawItems?: { sodar_uuid: string; label: string }[],
 ): { value: string; title: string }[] =>
-  rawItems.map((elem) => ({
+  (rawItems ?? []).map((elem) => ({
     value: elem.sodar_uuid,
     title: elem.label,
   }))
+
+/** Dynamically updated list of quality presets items. */
+const qualityPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsquality_set,
+  ),
+)
+/** Dynamically updated list of frequency presets items. */
+const frequencyPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsfrequency_set,
+  ),
+)
+/** Dynamically updated list of consequence presets items. */
+const consequencePresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsconsequence_set,
+  ),
+)
+/** Dynamically updated list of locus presets items. */
+const locusPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetslocus_set,
+  ),
+)
+/** Dynamically updated list of phenotypePrio presets items. */
+const phenotypePrioPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value
+      ?.seqvarsquerypresetsphenotypeprio_set,
+  ),
+)
+/** Dynamically updated list of variantPrio presets items. */
+const variantPrioPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsvariantprio_set,
+  ),
+)
+/** Dynamically updated list of clinvar presets items. */
+const clinvarPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetsclinvar_set,
+  ),
+)
+/** Dynamically updated list of columns presets items. */
+const columnsPresetsItems = computed(() =>
+  extractItems(
+    presetsSetVersionRetrieveRes.data.value?.seqvarsquerypresetscolumns_set,
+  ),
+)
 </script>
 
 <template>
@@ -293,12 +343,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.quality"
       label="Quality Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsquality_set ?? [],
-        )
-      "
+      :items="qualityPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -313,12 +358,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.frequency"
       label="Frequency Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsfrequency_set ?? [],
-        )
-      "
+      :items="frequencyPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -333,12 +373,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.consequence"
       label="Consequence Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsconsequence_set ?? [],
-        )
-      "
+      :items="consequencePresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -353,12 +388,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.locus"
       label="Locus Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetslocus_set ?? [],
-        )
-      "
+      :items="locusPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -373,12 +403,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.phenotypeprio"
       label="Phenotype Priority Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsphenotypeprio_set ?? [],
-        )
-      "
+      :items="phenotypePrioPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -393,12 +418,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.variantprio"
       label="Variant Priority Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsvariantprio_set ?? [],
-        )
-      "
+      :items="variantPrioPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -413,12 +433,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.clinvar"
       label="Clinvar Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetsclinvar_set ?? [],
-        )
-      "
+      :items="clinvarPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="
@@ -433,12 +448,7 @@ const extractItems = (
     <v-select
       :model-value="presetsPredefinedQueryRetrieveRes.data.value?.columns"
       label="Columns Preset"
-      :items="
-        extractItems(
-          presetsSetVersionRetrieveRes.data.value
-            ?.seqvarsquerypresetscolumns_set ?? [],
-        )
-      "
+      :items="columnsPresetsItems"
       item-props
       :disabled="readonly"
       @update:model-value="

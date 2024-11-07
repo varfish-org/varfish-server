@@ -681,6 +681,7 @@ watch(
             v-else-if="selectedCategory === PresetsCategory.PREDEFINED_QUERIES"
           >
             <CategoryPresetsPredefinedQueriesEditor
+              :preset-set="presetSet"
               :preset-set-version="presetSetVersion"
               :predefined-queries-presets="
                 selectedPreset[PresetsCategory.PREDEFINED_QUERIES]
