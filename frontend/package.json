@@ -96,7 +96,7 @@
     "@vitejs/plugin-vue": "^5.1.4",
     "@vitest/coverage-istanbul": "^2.0.5",
     "@vue/compiler-sfc": "^3.4.38",
-    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.5",
     "babel-core": "^7.0.0-bridge.0",
