@@ -847,11 +847,11 @@
         },
         "drf-writable-nested": {
             "hashes": [
-                "sha256:154c0381e8a3a477e0fd539d5e1caf8ff4c1097a9c0c0fe741d4858b11b0455b"
+                "sha256:d8ddc606dc349e56373810842965712a5789e6a5ca7704729d15429b95f8f2ee"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==0.7.0"
+            "markers": "python_version >= '3.8'",
+            "version": "==0.7.1"
         },
         "elementpath": {
             "hashes": [
