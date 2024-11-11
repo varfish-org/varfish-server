@@ -6072,8 +6072,7 @@ components:
         index:
           type: string
           maxLength: 512
-        pedigree:
-          readOnly: true
+        pedigree: {}
         notes:
           type: string
           nullable: true
@@ -6153,6 +6152,7 @@ components:
           type: string
           minLength: 1
           maxLength: 512
+        pedigree: {}
         notes:
           type: string
           nullable: true
@@ -6172,6 +6172,7 @@ components:
       required:
       - index
       - name
+      - pedigree
     CaseSerializerNgStateEnum:
       enum:
       - importing
@@ -8091,6 +8092,7 @@ components:
           type: string
           minLength: 1
           maxLength: 512
+        pedigree: {}
         notes:
           type: string
           nullable: true
