@@ -167,7 +167,6 @@ class CaseSerializerNg(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "presetset",  # made writable in to_internal_value
             "state",
             "caseqc",
-            "pedigree",
             "pedigree_obj",
         )
 
