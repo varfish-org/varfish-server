@@ -25,7 +25,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/luxon": "^3.4.2",
     "@types/sprintf-js": "^1.1.4",
-    "@vueform/multiselect": "^2.6.10",
+    "@vueform/multiselect": "^2.6.11",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "@vueuse/core": "^11.0.3",
