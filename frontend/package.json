@@ -64,7 +64,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/eslint-parser": "^7.24.8",
-    "@babel/preset-env": "^7.25.8",
+    "@babel/preset-env": "^7.26.0",
     "@hey-api/openapi-ts": "^0.55.2",
     "@iconify-json/bi": "^1.1.23",
     "@iconify-json/carbon": "^1.2.4",
