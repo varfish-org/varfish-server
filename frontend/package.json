@@ -16,7 +16,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.4.2",
+    "@hey-api/client-fetch": "^0.5.7",
     "@mdi/font": "^7.4.47",
     "@protobuf-ts/runtime": "^2.9.4",
     "@reactgular/chunks": "^1.0.1",
