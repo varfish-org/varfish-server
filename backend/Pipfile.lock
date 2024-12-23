@@ -2995,12 +2995,12 @@
         },
         "universal-pathlib": {
             "hashes": [
-                "sha256:a634f700eca827b4ad03bfa0267e51161560dd1de83b051cf0fccf39b3e56b32",
-                "sha256:ea5d4fb8178c2ab469cf4fa46d0ceb16ccb378da46dbbc28a8b9c1eebdccc655"
+                "sha256:50817aaeaa9f4163cb1e76f5bdf84207fa05ce728b23fd779479b3462e5430ac",
+                "sha256:700dec2b58ef34b87998513de6d2ae153b22f083197dfafb8544744edabd1b18"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==0.2.5"
+            "version": "==0.2.6"
         },
         "uritemplate": {
             "hashes": [
