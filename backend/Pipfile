@@ -65,7 +65,7 @@ clinvar-this = "==0.18.3"
 [dev-packages]
 # packages for testing
 black = "~=24.10.0"
-click = "~=8.0"
+click = "~=8.1"
 coveralls = "*"
 django-coverage-plugin = "~=3.1.0"
 django-test-plus = "~=2.2.4"
