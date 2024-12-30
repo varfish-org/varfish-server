@@ -94,7 +94,7 @@ ipython==8.24.0
 isort==5.13.2
 iterable-orm==0.4
 jedi==0.19.1
-Jinja2==3.1.4
+Jinja2==3.1.5
 jmespath==1.0.1
 jsonmatch==0.4
 jsonpointer==2.4
