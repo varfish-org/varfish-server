@@ -3261,11 +3261,11 @@
         },
         "attrs": {
             "hashes": [
-                "sha256:5cfb1b9148b5b086569baec03f20d7b6bf3bcacc9a42bebf87ffaaca362f6346",
-                "sha256:81921eb96de3191c8258c199618104dd27ac608d9366f5e35d011eae1867ede2"
+                "sha256:8f5c07333d543103541ba7be0e2ce16eeee8130cb0b3f9238ab904ce1e85baff",
+                "sha256:ac96cd038792094f438ad1f6ff80837353805ac950cd2aa0e0625ef19850c308"
             ],
-            "markers": "python_version >= '3.7'",
-            "version": "==24.2.0"
+            "markers": "python_version >= '3.8'",
+            "version": "==24.3.0"
         },
         "black": {
             "hashes": [
@@ -3298,11 +3298,11 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8",
-                "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"
+                "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56",
+                "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==2024.8.30"
+            "version": "==2024.12.14"
         },
         "charset-normalizer": {
             "hashes": [
@@ -3979,12 +3979,12 @@
         },
         "selenium": {
             "hashes": [
-                "sha256:5296c425a75ff1b44d0d5199042b36a6d1ef76c04fb775b97b40be739a9caae2",
-                "sha256:b89b1f62b5cfe8025868556fe82360d6b649d464f75d2655cb966c8f8447ea18"
+                "sha256:0072d08670d7ec32db901bd0107695a330cecac9f196e3afb3fa8163026e022a",
+                "sha256:4238847e45e24e4472cfcf3554427512c7aab9443396435b1623ef406fff1cc1"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==4.27.1"
+            "markers": "python_version >= '3.9'",
+            "version": "==4.28.1"
         },
         "setuptools": {
             "hashes": [
@@ -4067,11 +4067,11 @@
         },
         "trio": {
             "hashes": [
-                "sha256:1dcc95ab1726b2da054afea8fd761af74bad79bd52381b84eae408e983c76831",
-                "sha256:68eabbcf8f457d925df62da780eff15ff5dc68fd6b367e2dde59f7aaf2a0b884"
+                "sha256:4e547896fe9e8a5658e54e4c7c5fa1db748cbbbaa7c965e7d40505b928c73c05",
+                "sha256:56d58977acc1635735a96581ec70513cc781b8b6decd299c487d3be2a721cd94"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==0.27.0"
+            "markers": "python_version >= '3.9'",
+            "version": "==0.28.0"
         },
         "trio-websocket": {
             "hashes": [
@@ -4119,11 +4119,11 @@
                 "socks"
             ],
             "hashes": [
-                "sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac",
-                "sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9"
+                "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df",
+                "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==2.2.3"
+            "markers": "python_version >= '3.9'",
+            "version": "==2.3.0"
         },
         "wasmer": {
             "hashes": [
