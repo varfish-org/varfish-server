@@ -202,8 +202,8 @@ defineExpose({ v$ })
           <td class="text-muted">{{ props.case.name }}</td>
           <td>{{ displayName(item.name) }}</td>
           <td>{{ getRole(item.name) }}</td>
-          <td>{{ displayName(item.name) }}</td>
-          <td>{{ displayName(item.name) }}</td>
+          <td>{{ displayName(item.father) }}</td>
+          <td>{{ displayName(item.mother) }}</td>
           <td class="text-center">
             <FilterFormGenotypePaneSex :sex="item.sex" />
           </td>
