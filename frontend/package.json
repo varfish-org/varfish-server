@@ -115,7 +115,7 @@
     "flush-promises": "^1.0.2",
     "happy-dom": "^15.10.2",
     "msw": "^2.3.2",
-    "msw-storybook-addon": "^2.0.3",
+    "msw-storybook-addon": "^2.0.4",
     "ndb": "^1.1.5",
     "node-fetch": "^3.3.2",
     "npm-check-updates": "^16.14.20",
