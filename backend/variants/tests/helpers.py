@@ -2,8 +2,8 @@
 
 from django.conf import settings
 from django.test import RequestFactory
-from projectroles.tests.test_permissions import TestProjectPermissionBase
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions import ProjectPermissionTestBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 from test_plus.test import TestCase
 
 from beaconsite.models import Site
@@ -31,7 +31,7 @@ class ViewTestBaseMixin:
         self.request_factory = RequestFactory()
 
 
-class ApiViewTestBase(ViewTestBaseMixin, TestProjectAPIPermissionBase):
+class ApiViewTestBase(ViewTestBaseMixin, ProjectAPIPermissionTestBase):
     """Base class for API view testing (and file export)"""
 
     media_type = settings.SODAR_API_MEDIA_TYPE
@@ -44,7 +44,7 @@ class ApiViewTestBase(ViewTestBaseMixin, TestProjectAPIPermissionBase):
         self.knox_token = self.get_token(self.superuser)
 
 
-class ViewTestBase(ViewTestBaseMixin, TestProjectPermissionBase):
+class ViewTestBase(ViewTestBaseMixin, ProjectPermissionTestBase):
     """Base class for UI view testing (and file export)"""
 
 

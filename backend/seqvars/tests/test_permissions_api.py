@@ -1,5 +1,5 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from seqvars.factory_defaults import create_seqvarspresetsset_short_read_exome_legacy
@@ -59,7 +59,7 @@ from seqvars.tests.factories import (
 from variants.tests.factories import CaseFactory
 
 
-class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsSetViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -202,7 +202,7 @@ class TestQueryPresetsSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsVersionSetViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -353,7 +353,7 @@ class TestQueryPresetsVersionSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsFrequencyViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -507,7 +507,7 @@ class TestQueryPresetsFrequencyViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsQualityViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -659,7 +659,7 @@ class TestQueryPresetsQualityViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsConsequenceViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -813,7 +813,7 @@ class TestQueryPresetsConsequenceViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsLocusViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -963,7 +963,7 @@ class TestQueryPresetsLocusViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsPhenotypePrioViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1117,7 +1117,7 @@ class TestQueryPresetsPhenotypePrioViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsVariantPrioViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1271,7 +1271,7 @@ class TestQueryPresetsVariantPrioViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsColumnsViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1423,7 +1423,7 @@ class TestQueryPresetsColumnsViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
+class TestQueryPresetsClinvarViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1575,7 +1575,7 @@ class TestQueryPresetsClinvarViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
+class TestPredefinedQueryViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1725,7 +1725,7 @@ class TestPredefinedQueryViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
+class TestQuerySettingsViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -1926,7 +1926,7 @@ class TestQuerySettingsViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestQueryViewSet(TestProjectAPIPermissionBase):
+class TestQueryViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -2196,7 +2196,7 @@ class TestQueryViewSet(TestProjectAPIPermissionBase):
         )
 
 
-class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):
+class TestQueryExecutionViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -2250,7 +2250,7 @@ class TestQueryExecutionViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestResultSetViewSet(TestProjectAPIPermissionBase):
+class TestResultSetViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()
@@ -2305,7 +2305,7 @@ class TestResultSetViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestResultRowViewSet(TestProjectAPIPermissionBase):
+class TestResultRowViewSet(ProjectAPIPermissionTestBase):
 
     def setUp(self):
         super().setUp()

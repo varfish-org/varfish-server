@@ -109,13 +109,16 @@ ci: \
 docs:
 	pipenv run $(MAKE) -C ../docs clean html
 
-.PHONY: _migrate
-_migrate:
+.PHONY: _makemigrations
+_makemigrations:
 	pipenv run $(MANAGE) makemigrations
-	pipenv run $(MANAGE) migrate
+
+.PHONY: makemigrations
+makemigrations: _makemigrations format
 
 .PHONY: migrate
-migrate: _migrate format
+migrate:
+	pipenv run $(MANAGE) migrate
 
 .PHONY: shell
 shell:

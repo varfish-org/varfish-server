@@ -1,11 +1,11 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from cases_analysis.tests.factories import CaseAnalysisFactory, CaseAnalysisSessionFactory
 from variants.tests.factories import CaseFactory
 
 
-class TestCaseAnalysisViewSet(TestProjectAPIPermissionBase):
+class TestCaseAnalysisViewSet(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``Case``."""
 
     def setUp(self):
@@ -52,7 +52,7 @@ class TestCaseAnalysisViewSet(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestCasenalysisSessionViewSet(TestProjectAPIPermissionBase):
+class TestCasenalysisSessionViewSet(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``Case``."""
 
     def setUp(self):

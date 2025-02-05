@@ -59,10 +59,10 @@ const defaultPresetSetModel = computed({
   <div class="mr-2 mt-2">
     <div class="form-check">
       <input
-        class="form-check-input"
-        type="checkbox"
         :id="'defaultPresetSet' + props.idSuffix"
         v-model="defaultPresetSetModel"
+        class="form-check-input"
+        type="checkbox"
       />
       <label class="form-check-label" :for="'defaultPresetSet' + idSuffix">
         Set as Default PresetSet for Project

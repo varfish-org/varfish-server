@@ -291,7 +291,7 @@ class Command(BaseCommand):
             for setting_name, value in setting_value.items():
                 if project_settings.get(setting_name) != value:
                     app_settings.set(
-                        app_name="cases_import",
+                        plugin_name="cases_import",
                         setting_name=setting_name,
                         value=value,
                         project=project,

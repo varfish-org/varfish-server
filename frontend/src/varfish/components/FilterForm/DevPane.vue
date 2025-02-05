@@ -65,10 +65,10 @@ const toggleEditMode = () => {
 
     <div>
       <textarea
-        class="form-control"
-        rows="20"
         ref="rawFilterCriteriaRef"
         v-model="settingsValue"
+        class="form-control"
+        rows="20"
         :readonly="!editSettingsRef"
       />
       <div class="form-inline">
@@ -84,9 +84,9 @@ const toggleEditMode = () => {
         </div>
         <div class="custom-control custom-switch ml-2">
           <input
+            id="customSwitch1"
             type="checkbox"
             class="custom-control-input"
-            id="customSwitch1"
             @click="toggleEditMode"
           />
           <label class="custom-control-label" for="customSwitch1">

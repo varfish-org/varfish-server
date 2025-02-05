@@ -3,7 +3,7 @@
 import json
 
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.models import SmallVariantQuery
 from variants.tests.factories import (
@@ -15,7 +15,7 @@ from variants.tests.factories import (
 )
 
 
-class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryListCreateApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -57,7 +57,7 @@ class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryRetrieveUpdateDestroyApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -122,7 +122,7 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestSmallVariantQueryResultSetListApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryResultSetListApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -150,7 +150,7 @@ class TestSmallVariantQueryResultSetListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSmallVariantQueryResultSetRetrieveApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryResultSetRetrieveApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -178,7 +178,7 @@ class TestSmallVariantQueryResultSetRetrieveApiView(TestProjectAPIPermissionBase
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSmallVariantQueryResultRowListApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryResultRowListApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -206,7 +206,7 @@ class TestSmallVariantQueryResultRowListApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSmallVariantQueryResultRowRetrieveApiView(TestProjectAPIPermissionBase):
+class TestSmallVariantQueryResultRowRetrieveApiView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
