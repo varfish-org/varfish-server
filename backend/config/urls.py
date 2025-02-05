@@ -165,7 +165,7 @@ if settings.SERVE_FRONTEND:
                 return HttpResponse(content, content_type="text/html")
 
     urlpatterns += [
-        path(
+        re_path(
             "-.*",
             ServeStringView.as_view(),
             name="vueapp-entrypoint",
