@@ -7,7 +7,7 @@ import cattr
 from django.shortcuts import reverse
 from django.utils import timezone
 import httpsig
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.tests.factories import SmallVariantFactory
 
@@ -42,7 +42,7 @@ class AcceptHeaderMixin:
         return {_header_canonical(k): v for k, v in signed_headers_dict.items()}
 
 
-class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
+class TestBeaconInfoApiView(AcceptHeaderMixin, ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()
@@ -110,7 +110,7 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         self.get_date = old_get_date
 
 
-class TestBeaconQueryApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
+class TestBeaconQueryApiView(AcceptHeaderMixin, ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()

@@ -1,13 +1,13 @@
 import json
 
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.models import Case, CaseComments, CasePhenotypeTerms
 from variants.tests.factories import CaseCommentsFactory, CaseFactory, CasePhenotypeTermsFactory
 
 
-class TestCaseAjaxView(TestProjectAPIPermissionBase):
+class TestCaseAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``Case``."""
 
     def setUp(self):
@@ -94,7 +94,7 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsCreateListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the create/list API views dealing with ``CasePhenotypeTerms``."""
 
     def setUp(self):
@@ -149,7 +149,7 @@ class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
         )
 
 
-class TestAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
+class TestAnnotationReleaseInfoListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the list AJAX views dealing with ``AnnotationReleaseInfo``."""
 
     def setUp(self):
@@ -175,7 +175,7 @@ class TestAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSvAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
+class TestSvAnnotationReleaseInfoListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the list AJAX views dealing with ``SvAnnotationReleaseInfo``."""
 
     def setUp(self):
@@ -201,7 +201,7 @@ class TestSvAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the retrieve/update/destroy AJAX views dealing with ``CasePhenotypeTerms``."""
 
     def setUp(self):
@@ -285,7 +285,7 @@ class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissi
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestCaseCommentCreateListAjaxView(TestProjectAPIPermissionBase):
+class TestCaseCommentCreateListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the create/list API views dealing with ``CaseComment``."""
 
     def setUp(self):
@@ -333,7 +333,7 @@ class TestCaseCommentCreateListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="POST", data=data)
 
 
-class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
+class TestCaseCommentRetrieveUpdateDestroyAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the retrieve/update/destroy AJAX views dealing with ``CaseComment``."""
 
     def setUp(self):
@@ -413,7 +413,7 @@ class TestCaseCommentRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase)
         self.assert_response(url, bad_users_403, 403, method="DELETE", cleanup_method=cleanup)
 
 
-class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
+class TestCaseGeneAnnotationListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CaseGeneAnnotation``."""
 
     def setUp(self):
@@ -439,7 +439,7 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
+class TestProjectUserPermissionsAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views returning permissions."""
 
     def setUp(self):
@@ -462,7 +462,7 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, good_users, 200, method="GET")
 
 
-class TestCaseAlignmentStatsListAjaxView(TestProjectAPIPermissionBase):
+class TestCaseAlignmentStatsListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``CaseAlignmentStats``."""
 
     def setUp(self):
@@ -488,7 +488,7 @@ class TestCaseAlignmentStatsListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestSampleVariantStatisticsListAjaxView(TestProjectAPIPermissionBase):
+class TestSampleVariantStatisticsListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``SampleVariantStatistics``."""
 
     def setUp(self):
@@ -514,7 +514,7 @@ class TestSampleVariantStatisticsListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_403, 403, method="GET")
 
 
-class TestPedigreeRelatednessListAjaxView(TestProjectAPIPermissionBase):
+class TestPedigreeRelatednessListAjaxView(ProjectAPIPermissionTestBase):
     """Permission tests for the API views dealing with ``PedigreeRelatedness``."""
 
     def setUp(self):

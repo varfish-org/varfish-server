@@ -408,7 +408,7 @@ const handleDeleteClicked = async (category, presetsUuid) => {
 }
 
 const setUpQuickPresetSortable = () => {
-  var el = document.getElementById('quickpresets')
+  const el = document.getElementById('quickpresets')
   sortable.value = Sortable.create(el, {
     dataIdAttr: 'id',
     draggable: '.drag-item',
@@ -418,8 +418,8 @@ const setUpQuickPresetSortable = () => {
        * @param {Sortable}  sortable
        */
       set: async (sortable) => {
-        var uuids = sortable.toArray()
-        var uuidsToPresets = {}
+        const uuids = sortable.toArray()
+        const uuidsToPresets = {}
         for (const presets of presetSet.value[
           `${selectedCategory.value}_set`
         ]) {

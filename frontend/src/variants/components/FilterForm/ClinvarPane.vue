@@ -16,8 +16,8 @@ const interpretations = [
 
 <template>
   <div
-    class="row p-2"
     v-if="querySettings !== null && querySettings !== undefined"
+    class="row p-2"
   >
     <div class="col-lg-6 col-md-12">
       <div

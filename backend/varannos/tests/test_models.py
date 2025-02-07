@@ -17,7 +17,7 @@ class TestVarAnnoSet(TestCase):
 
     def test_get_absolute_url(self):
         obj = VarAnnoSetFactory()
-        self.assertEqual(obj.get_absolute_url(), f"/varannos/varannoset/details/{obj.sodar_uuid}")
+        self.assertEqual(obj.get_absolute_url(), f"/varannos/varannoset/details/{obj.sodar_uuid}/")
 
     def test_days_since_modification(self):
         with freeze_time((datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")):
