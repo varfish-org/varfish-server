@@ -329,7 +329,7 @@ def run_sv_query_bg_job(pk):  # noqa: C901
         }
         # Mapping of key from database JSON keys to VCF coercion function.
         coerce_db_to_vcf = {
-            "cn": lambda x: int(x),
+            "cn": lambda x: x if x == "." else int(x),
         }
 
         # Dump the SVs to a TSV file for processing by the worker
