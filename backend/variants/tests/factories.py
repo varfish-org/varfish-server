@@ -187,6 +187,15 @@ class FormDataFactory(FormDataFactoryBase):
     effect_3_prime_UTR_intron_variant: bool = True
     effect_transcript_ablation: bool = True
     effect_upstream_gene_variant: bool = True
+    effect_coding_sequence_variant: bool = True
+    effect_conservative_inframe_deletion: bool = True
+    effect_conservative_inframe_insertion: bool = True
+    effect_intron_variant: bool = True
+    effect_splice_donor_5th_base_variant: bool = True
+    effect_splice_donor_region_variant: bool = True
+    effect_splice_polypyrimidine_tract_variant: bool = True
+    effect_start_retained_variant: bool = True
+    effect_transcript_amplification: bool = True
     gene_blocklist: str = ""
     genomic_region: str = ""
     gene_allowlist: str = ""
