@@ -38,7 +38,38 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_3_prime_UTR_intron_variant": "3_prime_UTR_intron_variant",
     "effect_transcript_ablation": "transcript_ablation",
     "effect_upstream_gene_variant": "upstream_gene_variant",
+    # new mehari effects
+    "effect_coding_sequence_variant": "coding_sequence_variant",
+    "effect_conservative_inframe_deletion": "conservative_inframe_deletion",
+    "effect_conservative_inframe_insertion": "conservative_inframe_insertion",
+    "effect_intron_variant": "intron_variant",
+    "effect_splice_donor_5th_base_variant": "splice_donor_5th_base_variant",
+    "effect_splice_donor_region_variant": "splice_donor_region_variant",
+    "effect_splice_polypyrimidine_tract_variant": "splice_polypyrimidine_tract_variant",
+    "effect_start_retained_variant": "start_retained_variant",
+    "effect_transcript_amplification": "transcript_amplification",
 }
+
+
+#: The following effects are might be used by mehari but are not really considered in the filter form.
+EFFECTS_NOT_IN_FILTER_FORM = {
+    "feature_elongation",
+    "downstream_gene_variant",
+    "intergenic_variant",
+    "non_coding_transcript_exon_variant",
+    "non_coding_transcript_intron_variant",
+    "upstream_gene_variant",
+    "gene_variant",
+    "mature_miRNA_variant",
+    "rare_amino_acid_variant",
+    "regulatory_region_ablation",
+    "regulatory_region_amplification",
+    "regulatory_region_variant",
+    "TF_binding_site_variant",
+    "TFBS_ablation",
+    "TFBS_amplification",
+}
+
 
 FILTER_FORM_TRANSLATE_INHERITANCE = {
     "any": None,

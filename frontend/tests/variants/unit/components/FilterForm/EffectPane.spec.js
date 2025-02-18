@@ -15,7 +15,7 @@ describe('FilterFormEffectPane.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('input').length).toBe(47)
+    expect(wrapper.findAll('input').length).toBe(56)
     expect(wrapper.findAll('.alert-secondary').length).toBe(6)
   })
 
@@ -229,6 +229,33 @@ describe('FilterFormEffectPane.vue', () => {
     const detailedEffectComplexSubstitution = wrapper.get(
       '#detailed-effect-complex_substitution',
     )
+    const detailedEffectCodingSequenceVariant = wrapper.get(
+      '#detailed-effect-coding_sequence_variant',
+    )
+    const detailedEffectConservativeInframeInsertion = wrapper.get(
+      '#detailed-effect-conservative_inframe_insertion',
+    )
+    const detailedEffectConservativeInframeDeletion = wrapper.get(
+      '#detailed-effect-conservative_inframe_deletion',
+    )
+    const detailedEffectIntronVariant = wrapper.get(
+      '#detailed-effect-intron_variant',
+    )
+    const detailedEffectSpliceDonor5thBaseVariant = wrapper.get(
+      '#detailed-effect-splice_donor_5th_base_variant',
+    )
+    const detailedEffectSpliceDonorRegionVariant = wrapper.get(
+      '#detailed-effect-splice_donor_region_variant',
+    )
+    const detailedEffectSplicePolypyrimidineTractVariant = wrapper.get(
+      '#detailed-effect-splice_polypyrimidine_tract_variant',
+    )
+    const detailedEffectStartRetainedVariant = wrapper.get(
+      '#detailed-effect-start_retained_variant',
+    )
+    const detailedEffectTranscriptAmplification = wrapper.get(
+      '#detailed-effect-transcript_amplification',
+    )
 
     await detailedEffectDisruptiveInframeDeletion.setValue()
     await detailedEffectDisruptiveInframeInsertion.setValue()
@@ -264,6 +291,15 @@ describe('FilterFormEffectPane.vue', () => {
     await detailedEffectStructuralVariant.setValue()
     await detailedEffectTranscriptAblation.setValue()
     await detailedEffectComplexSubstitution.setValue()
+    await detailedEffectCodingSequenceVariant.setValue()
+    await detailedEffectConservativeInframeInsertion.setValue()
+    await detailedEffectConservativeInframeDeletion.setValue()
+    await detailedEffectIntronVariant.setValue()
+    await detailedEffectSpliceDonor5thBaseVariant.setValue()
+    await detailedEffectSpliceDonorRegionVariant.setValue()
+    await detailedEffectSplicePolypyrimidineTractVariant.setValue()
+    await detailedEffectStartRetainedVariant.setValue()
+    await detailedEffectTranscriptAmplification.setValue()
 
     expect(detailedEffectDisruptiveInframeDeletion.element.checked).toBeTruthy()
     expect(
@@ -307,6 +343,21 @@ describe('FilterFormEffectPane.vue', () => {
     expect(detailedEffectStructuralVariant.element.checked).toBeTruthy()
     expect(detailedEffectTranscriptAblation.element.checked).toBeTruthy()
     expect(detailedEffectComplexSubstitution.element.checked).toBeTruthy()
+    expect(detailedEffectCodingSequenceVariant.element.checked).toBeTruthy()
+    expect(
+      detailedEffectConservativeInframeInsertion.element.checked,
+    ).toBeTruthy()
+    expect(
+      detailedEffectConservativeInframeDeletion.element.checked,
+    ).toBeTruthy()
+    expect(detailedEffectIntronVariant.element.checked).toBeTruthy()
+    expect(detailedEffectSpliceDonor5thBaseVariant.element.checked).toBeTruthy()
+    expect(detailedEffectSpliceDonorRegionVariant.element.checked).toBeTruthy()
+    expect(
+      detailedEffectSplicePolypyrimidineTractVariant.element.checked,
+    ).toBeTruthy()
+    expect(detailedEffectStartRetainedVariant.element.checked).toBeTruthy()
+    expect(detailedEffectTranscriptAmplification.element.checked).toBeTruthy()
   })
 
   test('effects empty', () => {
