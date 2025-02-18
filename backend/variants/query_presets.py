@@ -571,6 +571,8 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
+            # new mehari effects
+            "transcript_amplification",
         ],
     }
     #: Presets for "amino acid change and splicing" impact
@@ -604,6 +606,13 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
+            # new mehari effects
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "transcript_amplification",
         ],
     }
     #: Presets for "all coding and deep intronic" impact
@@ -639,6 +648,16 @@ class _ImpactPresets:
             "structural_variant",
             "synonymous_variant",
             "transcript_ablation",
+            # new mehari effects
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
         ],
     }
     #: Presets for "whole transcript" impact
@@ -683,6 +702,16 @@ class _ImpactPresets:
             "synonymous_variant",
             "transcript_ablation",
             "upstream_gene_variant",
+            # new mehari effects
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
         ],
     }
     #: Presets for "any" impact
@@ -728,6 +757,16 @@ class _ImpactPresets:
             "synonymous_variant",
             "transcript_ablation",
             "upstream_gene_variant",
+            # new mehari effects
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
         ],
     }
 

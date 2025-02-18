@@ -143,6 +143,40 @@ export const detailedEffectGroups = Object.freeze([
         explanation:
           'A tandem duplication where the individual regions are in the same orientation.',
       },
+      {
+        id: 'coding_sequence_variant',
+        label: 'coding variant',
+        so: 'SO:0001580',
+        explanation: 'A sequence variant that changes the coding sequence.',
+      },
+      {
+        id: 'conservative_inframe_insertion',
+        label: 'conservative in-frame insertion',
+        so: 'SO:0001823',
+        explanation:
+          'An inframe increase in cds length that inserts bases into the coding sequence without changing the amino acid sequence.',
+      },
+      {
+        id: 'conservative_inframe_deletion',
+        label: 'conservative in-frame deletion',
+        so: 'SO:0001825',
+        explanation:
+          'An inframe decrease in cds length that deletes bases from the coding sequence without changing the amino acid sequence.',
+      },
+      {
+        id: 'start_retained_variant',
+        label: 'start retained',
+        so: 'SO:0002019',
+        explanation:
+          'A sequence variant where at least one base in the start codon is changed, but the start remains.',
+      },
+      {
+        id: 'transcript_amplification',
+        label: 'transcript amplification',
+        so: 'SO:0001889',
+        explanation:
+          'A feature amplification of a region containing a transcript.',
+      },
     ],
   },
   {
@@ -180,6 +214,12 @@ export const detailedEffectGroups = Object.freeze([
         so: 'SO:0001572',
         explanation:
           'A sequence variant whereby an exon is lost from the transcript.',
+      },
+      {
+        id: 'intron_variant',
+        label: 'intron variant',
+        so: 'SO:0001627',
+        explanation: 'A transcript variant occurring within an intron.',
       },
     ],
   },
@@ -250,6 +290,27 @@ export const detailedEffectGroups = Object.freeze([
         explanation:
           'A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron.',
       },
+      {
+        id: 'splice_donor_5th_base_variant',
+        label: 'splice donor 5th base',
+        so: 'SO:0001787',
+        explanation:
+          "A splice variant that changes the 5th base of the 5 base pair region at the 5' end of an intron.",
+      },
+      {
+        id: 'splice_donor_region_variant',
+        label: 'splice donor region',
+        so: 'SO:0001789',
+        explanation:
+          "A sequence variant that changes the 5 base pair region at the 5' end of an intron.",
+      },
+      {
+        id: 'splice_polypyrimidine_tract_variant',
+        label: 'splice polypyrimidine tract',
+        so: 'SO:0001624',
+        explanation:
+          'A variant that changes the polypyrimidine tract of a splice site.',
+      },
     ],
   },
   {
@@ -307,19 +368,34 @@ const _effectGroups = {
     'stop_lost',
     'structural_variant',
     'transcript_ablation',
+    'coding_sequence_variant',
+    'conservative_inframe_insertion',
+    'conservative_inframe_deletion',
+    'transcript_amplification',
   ],
   splicing: [
     'splice_acceptor_variant',
     'splice_donor_variant',
     'splice_region_variant',
+    'splice_donor_5th_base_variant',
+    'splice_donor_region_variant',
+    'splice_polypyrimidine_tract_variant',
   ],
-  coding: ['stop_retained_variant', 'synonymous_variant'],
+  coding: [
+    'stop_retained_variant',
+    'synonymous_variant',
+    'coding_sequence_variant',
+    'conservative_inframe_insertion',
+    'conservative_inframe_deletion',
+    'start_retained_variant',
+  ],
   utr_intronic: [
     'coding_transcript_intron_variant',
     '5_prime_UTR_exon_variant',
     '5_prime_UTR_intron_variant',
     '3_prime_UTR_exon_variant',
     '3_prime_UTR_intron_variant',
+    'intron_variant',
   ],
   noncoding: [
     'downstream_gene_variant',
