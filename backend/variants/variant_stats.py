@@ -1,12 +1,14 @@
 """Helper code for creating/updating ``CaseVariantStats`` and related records."""
 
+from itertools import chain
+
 from django.db import transaction
 import numpy as np
 from projectroles.plugins import get_backend_api
 
 from var_stats_qc.qc import compute_het_hom_chrx, compute_relatedness, compute_relatedness_many
 
-from .forms import FILTER_FORM_TRANSLATE_EFFECTS
+from .forms import EFFECTS_NOT_IN_FILTER_FORM, FILTER_FORM_TRANSLATE_EFFECTS
 from .models import CaseVariantStats, ProjectVariantStats, SmallVariant
 
 #: Effects to ignore when computing stats.
@@ -52,7 +54,11 @@ def gather_variant_stats(variant_set):  # noqa: C901
     indels = {name: 0 for name in samples}
     mnvs = {name: 0 for name in samples}
     effect_counts = {
-        name: {effect: 0 for effect in FILTER_FORM_TRANSLATE_EFFECTS.values()} for name in samples
+        name: {
+            effect: 0
+            for effect in chain(FILTER_FORM_TRANSLATE_EFFECTS.values(), EFFECTS_NOT_IN_FILTER_FORM)
+        }
+        for name in samples
     }
     max_indel_size = 10
     indel_sizes = {name: {} for name in samples}

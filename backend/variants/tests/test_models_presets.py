@@ -180,6 +180,7 @@ class TestImpactPresetsFactory(TestCase):
                 "stop_lost",
                 "structural_variant",
                 "transcript_ablation",
+                "transcript_amplification",
             ],
         }
         self.assertDictEqual(result, expected)

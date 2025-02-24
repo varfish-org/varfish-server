@@ -16,15 +16,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         """Add the command's argument to the ``parser``."""
-        parser.add_argument("--async", help="Run the rebuild asynchronously.", action="store_false")
+        parser.add_argument("--async", help="Run the rebuild asynchronously.", action="store_true")
 
     @transaction.atomic
     def handle(self, *args, **options):
         """Perform rebuilding the statistics."""
         if options["async"]:
-            models.refresh_variants_smallvariantsummary()
-            msg = "Done rebuilding variant summary."
-        else:
             refresh_variants_smallvariantsummary.delay()
             msg = "Pushed rebuilding variant summary to background."
+        else:
+            models.refresh_variants_smallvariantsummary()
+            msg = "Done rebuilding variant summary."
         self.stdout.write(self.style.SUCCESS(msg))
