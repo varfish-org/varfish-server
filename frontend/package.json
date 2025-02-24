@@ -129,7 +129,7 @@
     "unplugin-fonts": "^1.1.1",
     "unplugin-icons": "^0.22.0",
     "unplugin-vue-components": "^0.27.4",
-    "vite": "^5.4.14",
+    "vite": "^6.1.1",
     "vite-plugin-dynamic-import": "^1.5.0",
     "vitest": "^2.1.9",
     "vitest-fetch-mock": "^0.4.3",
