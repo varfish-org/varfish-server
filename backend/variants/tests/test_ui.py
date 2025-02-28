@@ -235,4 +235,5 @@ EFFECT_FIELDS = {
     "id_effect_splice_polypyrimidine_tract_variant": False,
     "id_effect_start_retained_variant": False,
     "id_effect_transcript_amplification": False,
+    "id_effect_protein_altering_variant": False,
 }

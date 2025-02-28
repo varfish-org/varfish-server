@@ -102,6 +102,7 @@ class Effects(Enum):
     SPLICE_POLYPYRIMIDINE_TRACT_VARIANT = "splice_polypyrimidine_tract_variant"
     START_RETAINED_VARIANT = "start_retained_variant"
     TRANSCRIPT_AMPLIFICATION = "transcript_amplification"
+    PROTEIN_ALTERING_VARIANT = "protein_altering_variant"
 
 
 @unique

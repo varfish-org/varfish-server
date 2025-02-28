@@ -613,6 +613,7 @@ class _ImpactPresets:
             "splice_donor_region_variant",
             "splice_polypyrimidine_tract_variant",
             "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "all coding and deep intronic" impact
@@ -658,6 +659,7 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "whole transcript" impact
@@ -712,6 +714,7 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "any" impact
@@ -767,6 +770,7 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
 

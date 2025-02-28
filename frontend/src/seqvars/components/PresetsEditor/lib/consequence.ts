@@ -62,6 +62,12 @@ export const CODING_CONSEQUENCES: ConsequenceChoice[] = [
   { label: 'stop retained', key: 'stop_retained_variant' },
   { label: 'synonymous', key: 'synonymous_variant' },
   { label: 'coding', key: 'coding_sequence_variant' },
+  { label: 'protein altering', key: 'protein_altering_variant' },
+  { label: 'feature truncation', key: 'feature_truncation' },
+  { label: 'feature elongation', key: 'feature_elongation' },
+  { label: 'frameshift truncation', key: 'frameshift_truncation' },
+  { label: 'frameshift elongation', key: 'frameshift_elongation' },
+  { label: 'rare_amino_acid_variant', key: 'rare_amino_acid_variant' },
 ] as const
 
 /** Consequence choices in "off-exomes" category. */
@@ -122,6 +128,11 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
       'conservative_inframe_insertion',
       'conservative_inframe_deletion',
       'missense_variant',
+      'protein_altering_variant',
+      'feature_elongation',
+      'feature_truncation',
+      'frameshift_elongation',
+      'frameshift_truncation',
     ],
   },
   {
@@ -156,6 +167,8 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
       'conservative_inframe_deletion',
       'missense_variant',
       'synonymous_variant',
+      'protein_altering_variant',
+      'rare_amino_acid_variant',
     ],
   },
   {
@@ -193,6 +206,8 @@ export const CONSEQUENCE_GROUP_INFOS: ConsequenceGroupInfo[] = [
       'transcript_ablation',
       'exon_loss_variant',
       'frameshift_variant',
+      'frameshift_elongation',
+      'frameshift_truncation',
       'splice_acceptor_variant',
       'splice_donor_variant',
       'start_lost',

@@ -1997,6 +1997,7 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
                     "splice_polypyrimidine_tract_variant",
                     "start_retained_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
             4,

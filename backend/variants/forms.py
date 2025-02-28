@@ -48,12 +48,14 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_splice_polypyrimidine_tract_variant": "splice_polypyrimidine_tract_variant",
     "effect_start_retained_variant": "start_retained_variant",
     "effect_transcript_amplification": "transcript_amplification",
+    "effect_protein_altering_variant": "protein_altering_variant",
+    "effect_feature_elongation": "feature_elongation",
+    "effect_rare_amino_acid_variant": "rare_amino_acid_variant",
 }
 
 
 #: The following effects are might be used by mehari but are not really considered in the filter form.
 EFFECTS_NOT_IN_FILTER_FORM = {
-    "feature_elongation",
     "downstream_gene_variant",
     "intergenic_variant",
     "non_coding_transcript_exon_variant",
@@ -61,7 +63,6 @@ EFFECTS_NOT_IN_FILTER_FORM = {
     "upstream_gene_variant",
     "gene_variant",
     "mature_miRNA_variant",
-    "rare_amino_acid_variant",
     "regulatory_region_ablation",
     "regulatory_region_amplification",
     "regulatory_region_variant",

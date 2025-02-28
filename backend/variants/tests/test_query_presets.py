@@ -1114,6 +1114,7 @@ class TestEnumImpact(TestCase):
                     "splice_donor_region_variant",
                     "splice_polypyrimidine_tract_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1162,6 +1163,7 @@ class TestEnumImpact(TestCase):
                     "splice_polypyrimidine_tract_variant",
                     "start_retained_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1219,6 +1221,7 @@ class TestEnumImpact(TestCase):
                     "splice_polypyrimidine_tract_variant",
                     "start_retained_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1277,6 +1280,7 @@ class TestEnumImpact(TestCase):
                     "splice_polypyrimidine_tract_variant",
                     "start_retained_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1781,6 +1785,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                     "splice_donor_region_variant",
                     "splice_polypyrimidine_tract_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
                 "exac_enabled": True,
                 "exac_frequency": 0.002,
