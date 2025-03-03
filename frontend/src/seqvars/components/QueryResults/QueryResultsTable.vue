@@ -70,6 +70,8 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   splice_donor_variant: 'spl donor',
   stop_gained: 'stop gained',
   frameshift_variant: 'frameshift',
+  frameshift_elongation: 'frameshift elongation',
+  frameshift_truncation: 'frameshift_truncation',
   stop_lost: 'stop-loss',
   start_lost: 'start-loss',
   transcript_amplification: 'tx amplification',
@@ -106,6 +108,9 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   intergenic_variant: 'intergenic',
   intron_variant: 'intronic',
   gene_variant: 'gene variant',
+  protein_altering_variant: 'protein altering variant',
+  rare_amino_acid_variant: 'rare_amino_acid_variant'
+
 }
 
 /** Review status labels. */

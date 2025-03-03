@@ -726,6 +726,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                     "splice_donor_region_variant",
                     "splice_polypyrimidine_tract_variant",
                     "transcript_amplification",
+                    "protein_altering_variant",
                 ],
                 "quality": {
                     f"{self.case.index}": {
