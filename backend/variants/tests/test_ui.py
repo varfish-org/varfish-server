@@ -225,7 +225,6 @@ EFFECT_FIELDS = {
     "id_effect_structural_variant": False,
     "id_effect_transcript_ablation": False,
     "id_effect_complex_substitution": False,
-    # new mehari effects
     "id_effect_coding_sequence_variant": False,
     "id_effect_conservative_inframe_deletion": False,
     "id_effect_conservative_inframe_insertion": False,

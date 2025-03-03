@@ -38,7 +38,6 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_3_prime_UTR_intron_variant": "3_prime_UTR_intron_variant",
     "effect_transcript_ablation": "transcript_ablation",
     "effect_upstream_gene_variant": "upstream_gene_variant",
-    # new mehari effects
     "effect_coding_sequence_variant": "coding_sequence_variant",
     "effect_conservative_inframe_deletion": "conservative_inframe_deletion",
     "effect_conservative_inframe_insertion": "conservative_inframe_insertion",

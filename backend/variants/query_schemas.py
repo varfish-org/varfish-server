@@ -92,7 +92,6 @@ class Effects(Enum):
     SYNONYMOUS_VARIANT = "synonymous_variant"
     TRANSCRIPT_ABLATION = "transcript_ablation"
     UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
-    # new mehari effects
     CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
     CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
     CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"

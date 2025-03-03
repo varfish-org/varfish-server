@@ -136,6 +136,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
                 SeqvarsVariantConsequenceChoice.PROTEIN_ALTERING_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -195,6 +196,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 # SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 # SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
                 # SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                # SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
                 # SeqvarsVariantConsequenceChoice.PROTEIN_ALTERING_VARIANT,
                 # # low impact
                 # SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -254,6 +256,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
                 SeqvarsVariantConsequenceChoice.PROTEIN_ALTERING_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -314,6 +317,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
                 SeqvarsVariantConsequenceChoice.PROTEIN_ALTERING_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
@@ -374,6 +378,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_INSERTION,
                 SeqvarsVariantConsequenceChoice.CONSERVATIVE_INFRAME_DELETION,
                 SeqvarsVariantConsequenceChoice.MISSENSE_VARIANT,
+                SeqvarsVariantConsequenceChoice.RARE_AMINO_ACID_VARIANT,
                 SeqvarsVariantConsequenceChoice.PROTEIN_ALTERING_VARIANT,
                 # low impact
                 SeqvarsVariantConsequenceChoice.SPLICE_DONOR_5TH_BASE_VARIANT,
