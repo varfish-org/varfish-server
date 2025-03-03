@@ -109,8 +109,7 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   intron_variant: 'intronic',
   gene_variant: 'gene variant',
   protein_altering_variant: 'protein altering variant',
-  rare_amino_acid_variant: 'rare_amino_acid_variant'
-
+  rare_amino_acid_variant: 'rare_amino_acid_variant',
 }
 
 /** Review status labels. */
