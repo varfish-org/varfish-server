@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "550b99ff5a9db057299e1f378b86b9dfc8a122a3f96648545812114fbd013bb0"
+            "sha256": "0c1a1e49d8796f4837e8e6fff39ea05db5d5322b7060626b469d1ad6318cce14"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -733,11 +733,11 @@
         },
         "django-sodar-core": {
             "hashes": [
-                "sha256:5bf9c1fec53812940742cf89a29c63d4ac214060af67321c8c04d32f0d8f31ff"
+                "sha256:f095892b4647935ce6162196ef7a757b3e2d379f347ddf0b8e34a8c872d9971e"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==1.0.4"
+            "version": "==1.0.5"
         },
         "django-su": {
             "hashes": [
