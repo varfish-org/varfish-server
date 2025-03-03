@@ -201,94 +201,94 @@ class _ConsequenceEnumTypeWrapper(
     """Stop gained"""
     CONSEQUENCE_FRAMESHIFT_VARIANT: _Consequence.ValueType  # 6
     """Frameshift variant"""
-    CONSEQUENCE_FRAMESHIFT_ELONGATION: _Consequence.ValueType  # 7
+    CONSEQUENCE_FRAMESHIFT_ELONGATION: _Consequence.ValueType  # 43
     """Frameshift elongation"""
-    CONSEQUENCE_FRAMESHIFT_TRUNCATION: _Consequence.ValueType  # 8
+    CONSEQUENCE_FRAMESHIFT_TRUNCATION: _Consequence.ValueType  # 44
     """Frameshift truncation"""
-    CONSEQUENCE_STOP_LOST: _Consequence.ValueType  # 9
+    CONSEQUENCE_STOP_LOST: _Consequence.ValueType  # 7
     """Stop lost"""
-    CONSEQUENCE_START_LOST: _Consequence.ValueType  # 10
+    CONSEQUENCE_START_LOST: _Consequence.ValueType  # 8
     """Start lost"""
-    CONSEQUENCE_TRANSCRIPT_AMPLIFICATION: _Consequence.ValueType  # 11
+    CONSEQUENCE_TRANSCRIPT_AMPLIFICATION: _Consequence.ValueType  # 9
     """Transcript amplification"""
-    CONSEQUENCE_FEATURE_ELONGATION: _Consequence.ValueType  # 12
+    CONSEQUENCE_FEATURE_ELONGATION: _Consequence.ValueType  # 10
     """Feature elongation."""
-    CONSEQUENCE_FEATURE_TRUNCATION: _Consequence.ValueType  # 13
+    CONSEQUENCE_FEATURE_TRUNCATION: _Consequence.ValueType  # 11
     """Feature truncation.
 
     moderate impact
     """
-    CONSEQUENCE_DISRUPTIVE_INFRAME_INSERTION: _Consequence.ValueType  # 14
+    CONSEQUENCE_DISRUPTIVE_INFRAME_INSERTION: _Consequence.ValueType  # 12
     """Disruptive inframe insertion"""
-    CONSEQUENCE_DISRUPTIVE_INFRAME_DELETION: _Consequence.ValueType  # 15
+    CONSEQUENCE_DISRUPTIVE_INFRAME_DELETION: _Consequence.ValueType  # 13
     """Disruptive inframe deletion"""
-    CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION: _Consequence.ValueType  # 16
+    CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION: _Consequence.ValueType  # 14
     """Conservative inframe insertion"""
-    CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: _Consequence.ValueType  # 17
+    CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: _Consequence.ValueType  # 15
     """Conservative inframe deletion"""
-    CONSEQUENCE_MISSENSE_VARIANT: _Consequence.ValueType  # 18
+    CONSEQUENCE_MISSENSE_VARIANT: _Consequence.ValueType  # 16
     """Missense variant"""
-    CONSEQUENCE_RARE_AMINO_ACID_VARIANT: _Consequence.ValueType  # 19
+    CONSEQUENCE_RARE_AMINO_ACID_VARIANT: _Consequence.ValueType  # 45
     """Rare amino acid variant"""
-    CONSEQUENCE_PROTEIN_ALTERING_VARIANT: _Consequence.ValueType  # 20
+    CONSEQUENCE_PROTEIN_ALTERING_VARIANT: _Consequence.ValueType  # 46
     """Protein altering variant
 
     low impact
     """
-    CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT: _Consequence.ValueType  # 21
+    CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT: _Consequence.ValueType  # 17
     """Splice donor 5th base variant."""
-    CONSEQUENCE_SPLICE_REGION_VARIANT: _Consequence.ValueType  # 22
+    CONSEQUENCE_SPLICE_REGION_VARIANT: _Consequence.ValueType  # 18
     """Splice region variant."""
-    CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: _Consequence.ValueType  # 23
+    CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: _Consequence.ValueType  # 19
     """Splice donor region variant."""
-    CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: _Consequence.ValueType  # 24
+    CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: _Consequence.ValueType  # 20
     """Splice polypyrimidine tract variant."""
-    CONSEQUENCE_START_RETAINED_VARIANT: _Consequence.ValueType  # 25
+    CONSEQUENCE_START_RETAINED_VARIANT: _Consequence.ValueType  # 21
     """Start retained variant."""
-    CONSEQUENCE_STOP_RETAINED_VARIANT: _Consequence.ValueType  # 26
+    CONSEQUENCE_STOP_RETAINED_VARIANT: _Consequence.ValueType  # 22
     """Stop retained variant."""
-    CONSEQUENCE_SYNONYMOUS_VARIANT: _Consequence.ValueType  # 27
+    CONSEQUENCE_SYNONYMOUS_VARIANT: _Consequence.ValueType  # 23
     """Synonymous variant.
 
     modifier
     """
-    CONSEQUENCE_CODING_SEQUENCE_VARIANT: _Consequence.ValueType  # 28
+    CONSEQUENCE_CODING_SEQUENCE_VARIANT: _Consequence.ValueType  # 24
     """Coding sequence variant."""
-    CONSEQUENCE_MATURE_MIRNA_VARIANT: _Consequence.ValueType  # 29
+    CONSEQUENCE_MATURE_MIRNA_VARIANT: _Consequence.ValueType  # 25
     """Mature miRNA variant."""
-    CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT: _Consequence.ValueType  # 30
+    CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT: _Consequence.ValueType  # 26
     """5' UTR exon variant."""
-    CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 31
+    CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 27
     """5' UTR intron variant."""
-    CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: _Consequence.ValueType  # 32
+    CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: _Consequence.ValueType  # 28
     """3' UTR exon variant."""
-    CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 33
+    CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: _Consequence.ValueType  # 29
     """3' UTR intron variant."""
-    CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: _Consequence.ValueType  # 34
+    CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: _Consequence.ValueType  # 30
     """Non-coding transcript exon variant."""
-    CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 35
+    CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 31
     """Non-coding transcript intron variant."""
-    CONSEQUENCE_UPSTREAM_GENE_VARIANT: _Consequence.ValueType  # 36
+    CONSEQUENCE_UPSTREAM_GENE_VARIANT: _Consequence.ValueType  # 32
     """Upstream gene variant."""
-    CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: _Consequence.ValueType  # 37
+    CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: _Consequence.ValueType  # 33
     """Downstream gene variant."""
-    CONSEQUENCE_TFBS_ABLATION: _Consequence.ValueType  # 38
+    CONSEQUENCE_TFBS_ABLATION: _Consequence.ValueType  # 34
     """TFBS ablation."""
-    CONSEQUENCE_TFBS_AMPLIFICATION: _Consequence.ValueType  # 39
+    CONSEQUENCE_TFBS_AMPLIFICATION: _Consequence.ValueType  # 35
     """TFBS amplification."""
-    CONSEQUENCE_TF_BINDING_SITE_VARIANT: _Consequence.ValueType  # 40
+    CONSEQUENCE_TF_BINDING_SITE_VARIANT: _Consequence.ValueType  # 36
     """TFBS binding site variant."""
-    CONSEQUENCE_REGULATORY_REGION_ABLATION: _Consequence.ValueType  # 41
+    CONSEQUENCE_REGULATORY_REGION_ABLATION: _Consequence.ValueType  # 37
     """Regulatory region ablation."""
-    CONSEQUENCE_REGULATORY_REGION_AMPLIFICATION: _Consequence.ValueType  # 42
+    CONSEQUENCE_REGULATORY_REGION_AMPLIFICATION: _Consequence.ValueType  # 38
     """Regulatory region amplification."""
-    CONSEQUENCE_REGULATORY_REGION_VARIANT: _Consequence.ValueType  # 43
+    CONSEQUENCE_REGULATORY_REGION_VARIANT: _Consequence.ValueType  # 39
     """Regulatory region variant."""
-    CONSEQUENCE_INTERGENIC_VARIANT: _Consequence.ValueType  # 44
+    CONSEQUENCE_INTERGENIC_VARIANT: _Consequence.ValueType  # 40
     """Intergenic variant."""
-    CONSEQUENCE_INTRON_VARIANT: _Consequence.ValueType  # 45
+    CONSEQUENCE_INTRON_VARIANT: _Consequence.ValueType  # 41
     """Intron variant."""
-    CONSEQUENCE_GENE_VARIANT: _Consequence.ValueType  # 46
+    CONSEQUENCE_GENE_VARIANT: _Consequence.ValueType  # 42
     """Gene variant."""
 
 class Consequence(_Consequence, metaclass=_ConsequenceEnumTypeWrapper):
@@ -311,94 +311,94 @@ CONSEQUENCE_STOP_GAINED: Consequence.ValueType  # 5
 """Stop gained"""
 CONSEQUENCE_FRAMESHIFT_VARIANT: Consequence.ValueType  # 6
 """Frameshift variant"""
-CONSEQUENCE_FRAMESHIFT_ELONGATION: Consequence.ValueType  # 7
+CONSEQUENCE_FRAMESHIFT_ELONGATION: Consequence.ValueType  # 43
 """Frameshift elongation"""
-CONSEQUENCE_FRAMESHIFT_TRUNCATION: Consequence.ValueType  # 8
+CONSEQUENCE_FRAMESHIFT_TRUNCATION: Consequence.ValueType  # 44
 """Frameshift truncation"""
-CONSEQUENCE_STOP_LOST: Consequence.ValueType  # 9
+CONSEQUENCE_STOP_LOST: Consequence.ValueType  # 7
 """Stop lost"""
-CONSEQUENCE_START_LOST: Consequence.ValueType  # 10
+CONSEQUENCE_START_LOST: Consequence.ValueType  # 8
 """Start lost"""
-CONSEQUENCE_TRANSCRIPT_AMPLIFICATION: Consequence.ValueType  # 11
+CONSEQUENCE_TRANSCRIPT_AMPLIFICATION: Consequence.ValueType  # 9
 """Transcript amplification"""
-CONSEQUENCE_FEATURE_ELONGATION: Consequence.ValueType  # 12
+CONSEQUENCE_FEATURE_ELONGATION: Consequence.ValueType  # 10
 """Feature elongation."""
-CONSEQUENCE_FEATURE_TRUNCATION: Consequence.ValueType  # 13
+CONSEQUENCE_FEATURE_TRUNCATION: Consequence.ValueType  # 11
 """Feature truncation.
 
 moderate impact
 """
-CONSEQUENCE_DISRUPTIVE_INFRAME_INSERTION: Consequence.ValueType  # 14
+CONSEQUENCE_DISRUPTIVE_INFRAME_INSERTION: Consequence.ValueType  # 12
 """Disruptive inframe insertion"""
-CONSEQUENCE_DISRUPTIVE_INFRAME_DELETION: Consequence.ValueType  # 15
+CONSEQUENCE_DISRUPTIVE_INFRAME_DELETION: Consequence.ValueType  # 13
 """Disruptive inframe deletion"""
-CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION: Consequence.ValueType  # 16
+CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION: Consequence.ValueType  # 14
 """Conservative inframe insertion"""
-CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: Consequence.ValueType  # 17
+CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: Consequence.ValueType  # 15
 """Conservative inframe deletion"""
-CONSEQUENCE_MISSENSE_VARIANT: Consequence.ValueType  # 18
+CONSEQUENCE_MISSENSE_VARIANT: Consequence.ValueType  # 16
 """Missense variant"""
-CONSEQUENCE_RARE_AMINO_ACID_VARIANT: Consequence.ValueType  # 19
+CONSEQUENCE_RARE_AMINO_ACID_VARIANT: Consequence.ValueType  # 45
 """Rare amino acid variant"""
-CONSEQUENCE_PROTEIN_ALTERING_VARIANT: Consequence.ValueType  # 20
+CONSEQUENCE_PROTEIN_ALTERING_VARIANT: Consequence.ValueType  # 46
 """Protein altering variant
 
 low impact
 """
-CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT: Consequence.ValueType  # 21
+CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT: Consequence.ValueType  # 17
 """Splice donor 5th base variant."""
-CONSEQUENCE_SPLICE_REGION_VARIANT: Consequence.ValueType  # 22
+CONSEQUENCE_SPLICE_REGION_VARIANT: Consequence.ValueType  # 18
 """Splice region variant."""
-CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: Consequence.ValueType  # 23
+CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: Consequence.ValueType  # 19
 """Splice donor region variant."""
-CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: Consequence.ValueType  # 24
+CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: Consequence.ValueType  # 20
 """Splice polypyrimidine tract variant."""
-CONSEQUENCE_START_RETAINED_VARIANT: Consequence.ValueType  # 25
+CONSEQUENCE_START_RETAINED_VARIANT: Consequence.ValueType  # 21
 """Start retained variant."""
-CONSEQUENCE_STOP_RETAINED_VARIANT: Consequence.ValueType  # 26
+CONSEQUENCE_STOP_RETAINED_VARIANT: Consequence.ValueType  # 22
 """Stop retained variant."""
-CONSEQUENCE_SYNONYMOUS_VARIANT: Consequence.ValueType  # 27
+CONSEQUENCE_SYNONYMOUS_VARIANT: Consequence.ValueType  # 23
 """Synonymous variant.
 
 modifier
 """
-CONSEQUENCE_CODING_SEQUENCE_VARIANT: Consequence.ValueType  # 28
+CONSEQUENCE_CODING_SEQUENCE_VARIANT: Consequence.ValueType  # 24
 """Coding sequence variant."""
-CONSEQUENCE_MATURE_MIRNA_VARIANT: Consequence.ValueType  # 29
+CONSEQUENCE_MATURE_MIRNA_VARIANT: Consequence.ValueType  # 25
 """Mature miRNA variant."""
-CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 30
+CONSEQUENCE_FIVE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 26
 """5' UTR exon variant."""
-CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 31
+CONSEQUENCE_FIVE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 27
 """5' UTR intron variant."""
-CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 32
+CONSEQUENCE_THREE_PRIME_UTR_EXON_VARIANT: Consequence.ValueType  # 28
 """3' UTR exon variant."""
-CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 33
+CONSEQUENCE_THREE_PRIME_UTR_INTRON_VARIANT: Consequence.ValueType  # 29
 """3' UTR intron variant."""
-CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: Consequence.ValueType  # 34
+CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: Consequence.ValueType  # 30
 """Non-coding transcript exon variant."""
-CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 35
+CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 31
 """Non-coding transcript intron variant."""
-CONSEQUENCE_UPSTREAM_GENE_VARIANT: Consequence.ValueType  # 36
+CONSEQUENCE_UPSTREAM_GENE_VARIANT: Consequence.ValueType  # 32
 """Upstream gene variant."""
-CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: Consequence.ValueType  # 37
+CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: Consequence.ValueType  # 33
 """Downstream gene variant."""
-CONSEQUENCE_TFBS_ABLATION: Consequence.ValueType  # 38
+CONSEQUENCE_TFBS_ABLATION: Consequence.ValueType  # 34
 """TFBS ablation."""
-CONSEQUENCE_TFBS_AMPLIFICATION: Consequence.ValueType  # 39
+CONSEQUENCE_TFBS_AMPLIFICATION: Consequence.ValueType  # 35
 """TFBS amplification."""
-CONSEQUENCE_TF_BINDING_SITE_VARIANT: Consequence.ValueType  # 40
+CONSEQUENCE_TF_BINDING_SITE_VARIANT: Consequence.ValueType  # 36
 """TFBS binding site variant."""
-CONSEQUENCE_REGULATORY_REGION_ABLATION: Consequence.ValueType  # 41
+CONSEQUENCE_REGULATORY_REGION_ABLATION: Consequence.ValueType  # 37
 """Regulatory region ablation."""
-CONSEQUENCE_REGULATORY_REGION_AMPLIFICATION: Consequence.ValueType  # 42
+CONSEQUENCE_REGULATORY_REGION_AMPLIFICATION: Consequence.ValueType  # 38
 """Regulatory region amplification."""
-CONSEQUENCE_REGULATORY_REGION_VARIANT: Consequence.ValueType  # 43
+CONSEQUENCE_REGULATORY_REGION_VARIANT: Consequence.ValueType  # 39
 """Regulatory region variant."""
-CONSEQUENCE_INTERGENIC_VARIANT: Consequence.ValueType  # 44
+CONSEQUENCE_INTERGENIC_VARIANT: Consequence.ValueType  # 40
 """Intergenic variant."""
-CONSEQUENCE_INTRON_VARIANT: Consequence.ValueType  # 45
+CONSEQUENCE_INTRON_VARIANT: Consequence.ValueType  # 41
 """Intron variant."""
-CONSEQUENCE_GENE_VARIANT: Consequence.ValueType  # 46
+CONSEQUENCE_GENE_VARIANT: Consequence.ValueType  # 42
 """Gene variant."""
 global___Consequence = Consequence
 
