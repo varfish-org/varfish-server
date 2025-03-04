@@ -1966,6 +1966,7 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
                     "downstream_gene_variant",
                     "exon_loss_variant",
                     "feature_truncation",
+                    "feature_elongation",
                     "frameshift_elongation",
                     "frameshift_truncation",
                     "frameshift_variant",

@@ -1281,6 +1281,8 @@ class TestEnumImpact(TestCase):
                     "start_retained_variant",
                     "transcript_amplification",
                     "protein_altering_variant",
+                    "feature_elongation",
+                    "rare_amino_acid_variant",
                 ],
             },
         )
