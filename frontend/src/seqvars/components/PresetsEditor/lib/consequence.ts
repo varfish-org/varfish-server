@@ -67,7 +67,7 @@ export const CODING_CONSEQUENCES: ConsequenceChoice[] = [
   { label: 'feature elongation', key: 'feature_elongation' },
   { label: 'frameshift truncation', key: 'frameshift_truncation' },
   { label: 'frameshift elongation', key: 'frameshift_elongation' },
-  { label: 'rare_amino_acid_variant', key: 'rare_amino_acid_variant' },
+  { label: 'rare amino acid variant', key: 'rare_amino_acid_variant' },
 ] as const
 
 /** Consequence choices in "off-exomes" category. */
