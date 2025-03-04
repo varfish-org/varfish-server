@@ -142,27 +142,9 @@ gen-api-schema:
 	pipenv run $(MANAGE) spectacular \
 		--file ./varfish/tests/drf_openapi_schema/varfish_api_schema.yaml
 
-# Download the .proto files and modify them.
-.PHONY: protos-download
-protos-download:
-	mkdir -p protos/seqvars/protos
-	rm -f protos/seqvars/protos/*_p*2*.py
-
-	wget -O protos/seqvars/protos/output.proto \
-		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/refactor-more-protobuf-cleaning-2/protos/varfish/v1/seqvars/output.proto
-	wget -O protos/seqvars/protos/query.proto \
-		https://raw.githubusercontent.com/varfish-org/varfish-server-worker/refactor-more-protobuf-cleaning-2/protos/varfish/v1/seqvars/query.proto
-
-	mkdir -p seqvars/protos
-	touch seqvars/protos/__init__.py
-
-	sed -i \
-		-e 's|package varfish.v1.seqvars|package seqvars.pbs|' \
-		-e 's|package varfish.v1.seqvars;|package seqvars.pbs|' \
-		-e 's|varfish\.v1\.seqvars\.query|seqvars.pbs.query|' \
-		-e 's|varfish/v1/seqvars|seqvars/protos|' \
-		protos/seqvars/protos/*.proto
-
+# Build the .proto files and modify them.
+.PHONY: protos-build
+protos-build:
 	PYTHONPATH=. \
 		protoc \
 		-Iprotos \
@@ -172,4 +154,4 @@ protos-download:
 
 # Build the protobuf Python files, then format.
 .PHONY: protos
-protos: protos-download format lint
+protos: protos-build format lint

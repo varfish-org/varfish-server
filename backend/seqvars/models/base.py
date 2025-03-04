@@ -189,6 +189,10 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     STOP_GAINED = "stop_gained"
     #: Frameshift variant
     FRAMESHIFT_VARIANT = "frameshift_variant"
+    #: Frameshift elongation
+    FRAMESHIFT_ELONGATION = "frameshift_elongation"
+    #: Frameshift truncation
+    FRAMESHIFT_TRUNCATION = "frameshift_truncation"
     #: Stop lost
     STOP_LOST = "stop_lost"
     #: Start lost
@@ -212,6 +216,10 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
     #: Missense variant
     MISSENSE_VARIANT = "missense_variant"
+    #: Rare amino acid variant
+    RARE_AMINO_ACID_VARIANT = "rare_amino_acid_variant"
+    #: Protein altering variant
+    PROTEIN_ALTERING_VARIANT = "protein_altering_variant"
 
     # low impact
 

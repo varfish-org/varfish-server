@@ -201,6 +201,10 @@ class _ConsequenceEnumTypeWrapper(
     """Stop gained"""
     CONSEQUENCE_FRAMESHIFT_VARIANT: _Consequence.ValueType  # 6
     """Frameshift variant"""
+    CONSEQUENCE_FRAMESHIFT_ELONGATION: _Consequence.ValueType  # 43
+    """Frameshift elongation"""
+    CONSEQUENCE_FRAMESHIFT_TRUNCATION: _Consequence.ValueType  # 44
+    """Frameshift truncation"""
     CONSEQUENCE_STOP_LOST: _Consequence.ValueType  # 7
     """Stop lost"""
     CONSEQUENCE_START_LOST: _Consequence.ValueType  # 8
@@ -223,7 +227,11 @@ class _ConsequenceEnumTypeWrapper(
     CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: _Consequence.ValueType  # 15
     """Conservative inframe deletion"""
     CONSEQUENCE_MISSENSE_VARIANT: _Consequence.ValueType  # 16
-    """Missense variant
+    """Missense variant"""
+    CONSEQUENCE_RARE_AMINO_ACID_VARIANT: _Consequence.ValueType  # 45
+    """Rare amino acid variant"""
+    CONSEQUENCE_PROTEIN_ALTERING_VARIANT: _Consequence.ValueType  # 46
+    """Protein altering variant
 
     low impact
     """
@@ -303,6 +311,10 @@ CONSEQUENCE_STOP_GAINED: Consequence.ValueType  # 5
 """Stop gained"""
 CONSEQUENCE_FRAMESHIFT_VARIANT: Consequence.ValueType  # 6
 """Frameshift variant"""
+CONSEQUENCE_FRAMESHIFT_ELONGATION: Consequence.ValueType  # 43
+"""Frameshift elongation"""
+CONSEQUENCE_FRAMESHIFT_TRUNCATION: Consequence.ValueType  # 44
+"""Frameshift truncation"""
 CONSEQUENCE_STOP_LOST: Consequence.ValueType  # 7
 """Stop lost"""
 CONSEQUENCE_START_LOST: Consequence.ValueType  # 8
@@ -325,7 +337,11 @@ CONSEQUENCE_CONSERVATIVE_INFRAME_INSERTION: Consequence.ValueType  # 14
 CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION: Consequence.ValueType  # 15
 """Conservative inframe deletion"""
 CONSEQUENCE_MISSENSE_VARIANT: Consequence.ValueType  # 16
-"""Missense variant
+"""Missense variant"""
+CONSEQUENCE_RARE_AMINO_ACID_VARIANT: Consequence.ValueType  # 45
+"""Rare amino acid variant"""
+CONSEQUENCE_PROTEIN_ALTERING_VARIANT: Consequence.ValueType  # 46
+"""Protein altering variant
 
 low impact
 """

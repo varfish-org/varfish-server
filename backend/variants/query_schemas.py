@@ -92,6 +92,16 @@ class Effects(Enum):
     SYNONYMOUS_VARIANT = "synonymous_variant"
     TRANSCRIPT_ABLATION = "transcript_ablation"
     UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
+    CODING_SEQUENCE_VARIANT = "coding_sequence_variant"
+    CONSERVATIVE_INFRAME_DELETION = "conservative_inframe_deletion"
+    CONSERVATIVE_INFRAME_INSERTION = "conservative_inframe_insertion"
+    INTRON_VARIANT = "intron_variant"
+    SPLICE_DONOR_5TH_BASE_VARIANT = "splice_donor_5th_base_variant"
+    SPLICE_DONOR_REGION_VARIANT = "splice_donor_region_variant"
+    SPLICE_POLYPYRIMIDINE_TRACT_VARIANT = "splice_polypyrimidine_tract_variant"
+    START_RETAINED_VARIANT = "start_retained_variant"
+    TRANSCRIPT_AMPLIFICATION = "transcript_amplification"
+    PROTEIN_ALTERING_VARIANT = "protein_altering_variant"
 
 
 @unique

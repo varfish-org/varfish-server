@@ -185,6 +185,10 @@ enum Consequence {
   CONSEQUENCE_STOP_GAINED = 5;
   // Frameshift variant
   CONSEQUENCE_FRAMESHIFT_VARIANT = 6;
+  // Frameshift elongation
+  CONSEQUENCE_FRAMESHIFT_ELONGATION = 43;
+  // Frameshift truncation
+  CONSEQUENCE_FRAMESHIFT_TRUNCATION = 44;
   // Stop lost
   CONSEQUENCE_STOP_LOST = 7;
   // Start lost
@@ -208,6 +212,10 @@ enum Consequence {
   CONSEQUENCE_CONSERVATIVE_INFRAME_DELETION = 15;
   // Missense variant
   CONSEQUENCE_MISSENSE_VARIANT = 16;
+  // Rare amino acid variant
+  CONSEQUENCE_RARE_AMINO_ACID_VARIANT = 45;
+  // Protein altering variant
+  CONSEQUENCE_PROTEIN_ALTERING_VARIANT = 46;
   /*
    * low impact
    */

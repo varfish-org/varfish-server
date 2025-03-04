@@ -720,6 +720,13 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
                 ],
                 "quality": {
                     f"{self.case.index}": {

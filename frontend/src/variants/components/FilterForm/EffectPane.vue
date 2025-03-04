@@ -359,13 +359,13 @@ defineExpose({
         <div class="row">
           <div
             v-for="group in detailedEffectGroups"
-            class="col-xl-3 col-lg-4 pl-0 pr-0 mt-3"
+            class="col-xl-3 col-lg-4 mt-3"
           >
             <strong>{{ group.title }}</strong>
             <br />
             <div
               v-for="field in group.fields"
-              class="custom-control custom-checkbox custom-control-inline"
+              class="d-flex custom-control custom-checkbox custom-control-inline"
               :title="`${field.explanation} [${field.so}]`"
             >
               <input

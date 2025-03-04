@@ -24,8 +24,8 @@ DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "seqvars.protos.output_pb2", _globals)
-if _descriptor._USE_C_DESCRIPTORS == False:
-    DESCRIPTOR._options = None
+if not _descriptor._USE_C_DESCRIPTORS:
+    DESCRIPTOR._loaded_options = None
     _globals["_VARIANTSCORECOLUMNTYPE"]._serialized_start = 5106
     _globals["_VARIANTSCORECOLUMNTYPE"]._serialized_end = 5249
     _globals["_GENOMERELEASE"]._serialized_start = 5251

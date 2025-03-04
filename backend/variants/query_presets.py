@@ -571,6 +571,7 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
+            "transcript_amplification",
         ],
     }
     #: Presets for "amino acid change and splicing" impact
@@ -604,6 +605,13 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "all coding and deep intronic" impact
@@ -639,6 +647,16 @@ class _ImpactPresets:
             "structural_variant",
             "synonymous_variant",
             "transcript_ablation",
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "whole transcript" impact
@@ -683,6 +701,16 @@ class _ImpactPresets:
             "synonymous_variant",
             "transcript_ablation",
             "upstream_gene_variant",
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
+            "protein_altering_variant",
         ],
     }
     #: Presets for "any" impact
@@ -728,6 +756,18 @@ class _ImpactPresets:
             "synonymous_variant",
             "transcript_ablation",
             "upstream_gene_variant",
+            "coding_sequence_variant",
+            "conservative_inframe_insertion",
+            "conservative_inframe_deletion",
+            "intron_variant",
+            "splice_donor_5th_base_variant",
+            "splice_donor_region_variant",
+            "splice_polypyrimidine_tract_variant",
+            "start_retained_variant",
+            "transcript_amplification",
+            "protein_altering_variant",
+            "feature_elongation",
+            "rare_amino_acid_variant",
         ],
     }
 

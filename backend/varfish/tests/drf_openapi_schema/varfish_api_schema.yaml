@@ -12390,6 +12390,8 @@ components:
       - splice_donor_variant
       - stop_gained
       - frameshift_variant
+      - frameshift_elongation
+      - frameshift_truncation
       - stop_lost
       - start_lost
       - transcript_amplification
@@ -12400,6 +12402,8 @@ components:
       - conservative_inframe_insertion
       - conservative_inframe_deletion
       - missense_variant
+      - rare_amino_acid_variant
+      - protein_altering_variant
       - splice_donor_5th_base_variant
       - splice_region_variant
       - splice_donor_region_variant
@@ -12440,6 +12444,8 @@ components:
         - splice_donor_variant
         - stop_gained
         - frameshift_variant
+        - frameshift_elongation
+        - frameshift_truncation
         - stop_lost
         - start_lost
         - transcript_amplification
@@ -12450,6 +12456,8 @@ components:
         - conservative_inframe_insertion
         - conservative_inframe_deletion
         - missense_variant
+        - rare_amino_acid_variant
+        - protein_altering_variant
         - splice_donor_5th_base_variant
         - splice_region_variant
         - splice_donor_region_variant

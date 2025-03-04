@@ -76,6 +76,7 @@ class TestQuerySchema(TestCase):
 
     def test_conversion_json_to_filter_form(self):
         """Test conversion from query settings to small variant filter form"""
+        self.maxDiff = None
         case = CaseFactory(name="Case_1", index="Case_1_index-N1-DNA1-WGS1")
         result, version = convert_query_json_to_small_variant_filter_form(case, QUERY_SETTINGS)
         self.assertEqual(result, QUERY_SETTINGS_CONVERTED)

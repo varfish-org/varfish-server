@@ -73,7 +73,16 @@
           "structural_variant",
           "synonymous_variant",
           "transcript_ablation",
-          "upstream_gene_variant"
+          "upstream_gene_variant",
+          "coding_sequence_variant",
+          "conservative_inframe_deletion",
+          "conservative_inframe_insertion",
+          "intron_variant",
+          "splice_donor_5th_base_variant",
+          "splice_donor_region_variant",
+          "splice_polypyrimidine_tract_variant",
+          "start_retained_variant",
+          "transcript_amplification"
         ]
       }
     },

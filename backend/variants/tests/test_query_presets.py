@@ -1033,6 +1033,10 @@ class TestEnumFrequency(TestCase):
 
 
 class TestEnumImpact(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.maxDiff = None
+
     def testValues(self):
         self.assertEqual(query_presets.Impact.NULL_VARIANT.value, "null_variant")
         self.assertEqual(query_presets.Impact.AA_CHANGE_SPLICING.value, "aa_change_splicing")
@@ -1066,6 +1070,7 @@ class TestEnumImpact(TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
+                    "transcript_amplification",
                 ],
             },
         )
@@ -1103,6 +1108,13 @@ class TestEnumImpact(TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1142,6 +1154,16 @@ class TestEnumImpact(TestCase):
                     "structural_variant",
                     "synonymous_variant",
                     "transcript_ablation",
+                    "coding_sequence_variant",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "intron_variant",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "start_retained_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1190,6 +1212,16 @@ class TestEnumImpact(TestCase):
                     "synonymous_variant",
                     "transcript_ablation",
                     "upstream_gene_variant",
+                    "coding_sequence_variant",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "intron_variant",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "start_retained_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
                 ],
             },
         )
@@ -1239,6 +1271,18 @@ class TestEnumImpact(TestCase):
                     "synonymous_variant",
                     "transcript_ablation",
                     "upstream_gene_variant",
+                    "coding_sequence_variant",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "intron_variant",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "start_retained_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
+                    "feature_elongation",
+                    "rare_amino_acid_variant",
                 ],
             },
         )
@@ -1737,6 +1781,13 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
+                    "conservative_inframe_insertion",
+                    "conservative_inframe_deletion",
+                    "splice_donor_5th_base_variant",
+                    "splice_donor_region_variant",
+                    "splice_polypyrimidine_tract_variant",
+                    "transcript_amplification",
+                    "protein_altering_variant",
                 ],
                 "exac_enabled": True,
                 "exac_frequency": 0.002,
