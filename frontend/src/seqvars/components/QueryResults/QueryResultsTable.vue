@@ -71,7 +71,7 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   stop_gained: 'stop gained',
   frameshift_variant: 'frameshift',
   frameshift_elongation: 'frameshift elongation',
-  frameshift_truncation: 'frameshift_truncation',
+  frameshift_truncation: 'frameshift truncation',
   stop_lost: 'stop-loss',
   start_lost: 'start-loss',
   transcript_amplification: 'tx amplification',
