@@ -8,7 +8,7 @@ from phenopackets import Family, File, MetaData, Pedigree, Phenopacket, Resource
 
 
 def get_case_name_from_family_payload(
-    json_dict: typing.Dict[str, typing.Any]
+    json_dict: typing.Dict[str, typing.Any],
 ) -> typing.Optional[str]:
     """Return case name from ``json_dict`` (``phenopackets.Family``) or by the ``familyId``
     in the pedigree.  Return ``None`` if there is none.

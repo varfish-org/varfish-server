@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Setup ``svs`` tables as partitioned.
-"""
+"""Setup ``svs`` tables as partitioned."""
 
 import uuid
 

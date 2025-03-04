@@ -1,5 +1,4 @@
-"""URL configuration for the ``beaconsite`` app.
-"""
+"""URL configuration for the ``beaconsite`` app."""
 
 from django.urls import path
 

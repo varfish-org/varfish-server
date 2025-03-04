@@ -1,5 +1,4 @@
-"""URL configuration for the ``importer`` app.
-"""
+"""URL configuration for the ``importer`` app."""
 
 from django.urls import path
 

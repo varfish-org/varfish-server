@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Setup ``variants_smallvariants`` table as partitioned.
-"""
+"""Setup ``variants_smallvariants`` table as partitioned."""
 
 from django.conf import settings
 from django.db import migrations

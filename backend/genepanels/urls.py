@@ -1,5 +1,4 @@
-"""URL configuration for the ``genepanels`` app.
-"""
+"""URL configuration for the ``genepanels`` app."""
 
 from django.urls import path
 
