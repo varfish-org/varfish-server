@@ -9231,6 +9231,8 @@ components:
           additionalProperties:
             type: integer
           default: {}
+          propertyNames:
+            $ref: '#/components/schemas/SeqvarsVariantConsequenceChoice'
           title: Passed By Consequences
           type: object
       title: SeqvarsOutputStatisticsPydantic

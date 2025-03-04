@@ -688,17 +688,7 @@ REST_FRAMEWORK = {
 }
 
 
-def custom_preprocessing_hook(endpoints):
-    filtered = []
-    for path, path_regex, method, callback in endpoints:
-        # Remove all but DRF API endpoints
-        if path.startswith(("/project/", "/timeline/")):
-            continue
-        else:
-            filtered.append((path, path_regex, method, callback))
-    return filtered
-
-
+SILENCED_SYSTEM_CHECKS += ["projectroles.E001", "projectroles.W001", "projectroles.W002"]
 SPECTACULAR_SETTINGS = {
     # Basic Settings
     "TITLE": "VarFish",
@@ -709,7 +699,6 @@ SPECTACULAR_SETTINGS = {
     # Skip schema generation for some paths.
     "PREPROCESSING_HOOKS": [
         "varfish.spectacular_utils.spectacular_preprocess_hook",
-        "config.settings.base.custom_preprocessing_hook",
     ],
     # We add some explicit choices naming to work around warning.
     "ENUM_NAME_OVERRIDES": {
