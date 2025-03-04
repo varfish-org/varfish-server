@@ -1,14 +1,14 @@
 """User annotation--related urls."""
 
-from django.conf.urls import url
+from django.urls import path
 
 from variants.views.ajax.annos import CaseUserAnnotatedVariantsAjaxView
 
 ui_urlpatterns = []
 
 ajax_urlpatterns = [
-    url(
-        regex=r"^ajax/smallvariant/user-annotated-case/(?P<case>[0-9a-f-]+)/?$",
+    path(
+        "ajax/smallvariant/user-annotated-case/<uuid:case>/",
         view=CaseUserAnnotatedVariantsAjaxView.as_view(),
         name="ajax-smallvariant-userannotatedcase",
     ),

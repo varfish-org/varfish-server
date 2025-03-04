@@ -1,5 +1,4 @@
-"""Models for ``svdb``, storage of structural variant databases.
-"""
+"""Models for ``svdb``, storage of structural variant databases."""
 
 from postgres_copy import CopyManager
 

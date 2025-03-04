@@ -1,10 +1,10 @@
 from django.urls import reverse
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 
 from variants.tests.factories import CaseFactory
 
 
-class TestCaseUserAnnotatedVariantsAjaxView(TestProjectAPIPermissionBase):
+class TestCaseUserAnnotatedVariantsAjaxView(ProjectAPIPermissionTestBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)

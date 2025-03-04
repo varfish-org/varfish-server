@@ -1,11 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
 
 from varfish.vueapp import views_ajax
 
 app_name = "vueapp"
 ajax_urlpatterns = [
-    url(
-        regex=r"^ajax/user-setting/(?P<setting_name>[0-9a-zA-Z\._-]+)/$",
+    path(
+        "ajax/user-setting/<str:setting_name>/",
         view=views_ajax.UserSettingView.as_view(),
         name="user-setting",
     ),

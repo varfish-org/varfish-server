@@ -1,5 +1,4 @@
-"""Common fixture code.
-"""
+"""Common fixture code."""
 
 import aldjemy.core
 import binning

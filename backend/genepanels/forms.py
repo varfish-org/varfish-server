@@ -24,8 +24,11 @@ class GenePanelForm(forms.ModelForm):
         self.fields["genes"] = self._build_genes_field()
 
     def _build_genes_field(self):
-        rows = [entry.symbol for entry in self.instance.genepanelentry_set.all()]
-        initial_value = "\n".join(rows)
+        if self.instance.pk:
+            rows = [entry.symbol for entry in self.instance.genepanelentry_set.all()]
+            initial_value = "\n".join(rows)
+        else:
+            initial_value = ""
         return forms.CharField(
             label="Genes",
             widget=forms.Textarea,

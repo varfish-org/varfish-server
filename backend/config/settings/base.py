@@ -77,11 +77,12 @@ THIRD_PARTY_APPS = [
     "markupfield",
     "rest_framework",
     "knox",
+    "social_django",  # For OIDC authentication
     "aldjemy",
     "adminalerts",
+    "projectroles.apps.ProjectrolesConfig",
     "appalerts.apps.AppalertsConfig",
     "userprofile.apps.UserprofileConfig",
-    "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
     "siteinfo.apps.SiteinfoConfig",
     "docs",  # For the online user documentation/manual
@@ -89,7 +90,6 @@ THIRD_PARTY_APPS = [
     "dal_select2",
     "cryptographic_fields",
     "rest_framework_httpsignature",
-    "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
     "drf_spectacular",
     "drf_spectacular_sidecar",
@@ -435,7 +435,7 @@ AUTOSLUG_SLUGIFY_FUNCTION = "slugify.slugify"
 
 
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
-ADMIN_URL = r"^admin/"
+ADMIN_URL = "admin/"
 
 # Celery
 # ------------------------------------------------------------------------------
@@ -687,6 +687,8 @@ REST_FRAMEWORK = {
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%SZ",
 }
 
+
+SILENCED_SYSTEM_CHECKS += ["projectroles.E001", "projectroles.W001", "projectroles.W002"]
 SPECTACULAR_SETTINGS = {
     # Basic Settings
     "TITLE": "VarFish",
@@ -864,85 +866,36 @@ DJANGO_SU_LOGIN_CALLBACK = None
 DJANGO_SU_CUSTOM_LOGIN_ACTION = None
 
 
-# SAML configuration
+# OpenID Connect (OIDC) configuration
 # ------------------------------------------------------------------------------
 
+ENABLE_OIDC = env.bool("ENABLE_OIDC", False)
 
-ENABLE_SAML = env.bool("ENABLE_SAML", False)
-SAML2_AUTH = {
-    # Required setting
-    #
-    # Pysaml2 Saml client settings, cf.
-    # https://pysaml2.readthedocs.io/en/latest/howto/config.html
-    "SAML_CLIENT_SETTINGS": {
-        # The optional entity ID string to be passed in the 'Issuer'
-        # element of authn request, if required by the IDP.
-        "entityid": env.str("SAML_CLIENT_ENTITY_ID", "SODARcore"),
-        "entitybaseurl": env.str("SAML_CLIENT_ENTITY_URL", "https://localhost:8000"),
-        "metadata": {
-            "local": [
-                env.str(
-                    "SAML_CLIENT_METADATA_FILE", "metadata.xml"
-                ),  # The auto(dynamic) metadata configuration URL of SAML2
-            ],
-        },
-        "service": {
-            "sp": {
-                "idp": env.str(
-                    "SAML_CLIENT_IDP",
-                    "https://sso.hpc.bihealth.org/auth/realms/cubi",
-                ),
-                # Keycloak expects client signature
-                "authn_requests_signed": "true",
-                # Enforce POST binding which is required by keycloak
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            },
-        },
-        "key_file": env.str("SAML_CLIENT_KEY_FILE", "key.pem"),
-        "cert_file": env.str("SAML_CLIENT_CERT_FILE", "cert.pem"),
-        "xmlsec_binary": env.str("SAML_CLIENT_XMLSEC1", "/usr/bin/xmlsec1"),
-        "encryption_keypairs": [
-            {
-                "key_file": env.str("SAML_CLIENT_KEY_FILE", "key.pem"),
-                "cert_file": env.str("SAML_CLIENT_CERT_FILE", "cert.pem"),
-            }
-        ],
-    },
-    # Custom target redirect URL after the user get logged in. Default to
-    # /admin if not set. This setting will be overwritten if you have parameter
-    # ?next= specificed in the login URL.
-    "DEFAULT_NEXT_URL": "/",
-    # Optional settings
-    "NEW_USER_PROFILE": {
-        "USER_GROUPS": env.list("SAML_NEW_USER_GROUPS", default=[]),
-        "ACTIVE_STATUS": env.bool("SAML_NEW_USER_ACTIVE_STATUS", True),
-        "STAFF_STATUS": env.bool("SAML_NEW_USER_STAFF_STATUS", True),
-        "SUPERUSER_STATUS": env.bool("SAML_NEW_USER_SUPERUSER_STATUS", False),
-    },
-    "ATTRIBUTES_MAP": env.dict(
-        "SAML_ATTRIBUTES_MAP",
-        default={
-            "email": "urn:oid:1.2.840.113549.1.9.1",
-            "username": "username",
-            "first_name": "urn:oid:2.5.4.42",
-            "last_name": "urn:oid:2.5.4.4",
-        },
-    ),
-    # Optional SAML Trigger
-    # Very unlikely to be needed in configuration, since it requires
-    # changes to the codebase
-    # 'TRIGGER': {
-    #     'FIND_USER': 'path.to.your.find.user.hook.method',
-    #     'NEW_USER': 'path.to.your.new.user.hook.method',
-    #     'CREATE_USER': 'path.to.your.create.user.hook.method',
-    #     'BEFORE_LOGIN': 'path.to.your.login.hook.method',
-    # },
-}
-
-# 'ASSERTION_URL': 'https://your.url.here',  # Custom URL to validate incoming SAML requests against
-assertion_url = env.str("SAML_ASSERTION_URL", None)
-if assertion_url is not None:
-    SAML2_AUTH = {**SAML2_AUTH, **{"ASSERTION_URL": assertion_url}}
+if ENABLE_OIDC:
+    AUTHENTICATION_BACKENDS = tuple(
+        itertools.chain(
+            ("social_core.backends.open_id_connect.OpenIdConnectAuth",),
+            AUTHENTICATION_BACKENDS,
+        )
+    )
+    TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+        "social_django.context_processors.backends",
+        "social_django.context_processors.login_redirect",
+    ]
+    SOCIAL_AUTH_JSONFIELD_ENABLED = True
+    SOCIAL_AUTH_JSONFIELD_CUSTOM = "django.db.models.JSONField"
+    SOCIAL_AUTH_USER_MODEL = AUTH_USER_MODEL
+    SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = [
+        "username",
+        "name",
+        "first_name",
+        "last_name",
+        "email",
+    ]
+    SOCIAL_AUTH_OIDC_OIDC_ENDPOINT = env.str("SOCIAL_AUTH_OIDC_OIDC_ENDPOINT", None)
+    SOCIAL_AUTH_OIDC_KEY = env.str("SOCIAL_AUTH_OIDC_KEY", "CHANGEME")
+    SOCIAL_AUTH_OIDC_SECRET = env.str("SOCIAL_AUTH_OIDC_SECRET", "CHANGEME")
+    SOCIAL_AUTH_OIDC_USERNAME_KEY = env.str("SOCIAL_AUTH_OIDC_USERNAME_KEY", "username")
 
 
 # STORAGE CONFIGURATION

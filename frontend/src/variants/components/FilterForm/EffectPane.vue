@@ -140,9 +140,9 @@ defineExpose({
 
 <template>
   <div
+    v-if="props.querySettings !== null && props.querySettings !== undefined"
     style="position: relative"
     class="mr-2 mt-2"
-    v-if="props.querySettings !== null && props.querySettings !== undefined"
   >
     <small
       v-if="props.filtrationComplexityMode != 'advanced'"

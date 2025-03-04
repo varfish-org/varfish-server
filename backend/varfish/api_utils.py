@@ -1,5 +1,4 @@
-"""Constants and utility code for the VarFish REST API.
-"""
+"""Constants and utility code for the VarFish REST API."""
 
 from projectroles.views_api import SODARAPIRenderer, SODARAPIVersioning
 from rest_framework.pagination import PageNumberPagination

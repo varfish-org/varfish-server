@@ -15,9 +15,9 @@ const props = defineProps({
 
 <template>
   <div
+    v-if="querySettings !== null && querySettings !== undefined"
     style="position: relative"
     class="p-2"
-    v-if="querySettings !== null && querySettings !== undefined"
   >
     <div
       v-if="props.showFiltrationInlineHelp"

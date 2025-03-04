@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.test import RequestFactory
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from projectroles.tests.test_permissions_api import ProjectAPIPermissionTestBase
 from test_plus import TestCase
 
 from variants.tests.factories import ProjectFactory
@@ -11,7 +11,7 @@ VARFISH_INVALID_MIMETYPE = "application/vnd.bihealth.invalid+json"
 VARFISH_INVALID_VERSION = "0.0.0"
 
 
-class TestViewsBase(TestCase):
+class ViewTestBase(TestCase):
     def setUp(self):
         super().setUp()
         self.superuser = self.make_user("superuser")
@@ -28,7 +28,7 @@ class ViewTestBaseMixin:
         self.request_factory = RequestFactory()
 
 
-class ApiViewTestBase(ViewTestBaseMixin, TestProjectAPIPermissionBase):
+class ApiViewTestBase(ViewTestBaseMixin, ProjectAPIPermissionTestBase):
     """Base class for API view testing (and file export)"""
 
     media_type = settings.SODAR_API_MEDIA_TYPE

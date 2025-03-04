@@ -99,6 +99,8 @@ def spectacular_preprocess_hook(endpoints):
         "/svs/",
         "/varannos/",
         "/variants/",
+        "/project/",
+        "/timeline/",
     )
     blocked_infixes = ("/ajax/",)
     filtered = []

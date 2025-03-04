@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Setup ``svs`` tables as partitioned.
-"""
+"""Setup ``svs`` tables as partitioned."""
 
 from django.conf import settings
 from django.db import migrations

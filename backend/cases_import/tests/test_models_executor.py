@@ -51,7 +51,7 @@ class ExecutorTestMixin:
 
         app_settings = AppSettingAPI()
         app_settings.set(
-            app_name="cases_import",
+            plugin_name="cases_import",
             setting_name="import_data_protocol",
             value="file",
             project=self.project,

@@ -1,88 +1,87 @@
-"""URL configuration for the ``genepanels`` app.
-"""
+"""URL configuration for the ``genepanels`` app."""
 
-from django.conf.urls import url
+from django.urls import path
 
 from genepanels import views, views_api
 
 app_name = "genepanels"
 
 ui_urlpatterns = [
-    url(
-        regex=r"^$",
+    path(
+        "",
         view=views.IndexView.as_view(),
         name="index",
     ),
-    url(
-        regex=r"^category/$",
+    path(
+        "category/",
         view=views.GenePanelCategoryListView.as_view(),
         name="category-list",
     ),
-    url(
-        regex=r"^category/create/$",
+    path(
+        "category/create/",
         view=views.GenePanelCategoryCreateView.as_view(),
         name="category-create",
     ),
-    url(
-        regex=r"^category/update/(?P<category>[0-9a-f-]+)$",
+    path(
+        "category/update/<uuid:category>/",
         view=views.GenePanelCategoryUpdateView.as_view(),
         name="category-update",
     ),
-    url(
-        regex=r"^category/(?P<category>[0-9a-f-]+)$",
+    path(
+        "category/<uuid:category>/",
         view=views.GenePanelCategoryDetailView.as_view(),
         name="category-detail",
     ),
-    url(
-        regex=r"^category/delete/(?P<category>[0-9a-f-]+)$",
+    path(
+        "category/delete/<uuid:category>/",
         view=views.GenePanelCategoryDeleteView.as_view(),
         name="category-delete",
     ),
-    url(
-        regex=r"^panel/create/$",
+    path(
+        "panel/create/",
         view=views.GenePanelCreateView.as_view(),
         name="genepanel-create",
     ),
-    url(
-        regex=r"^panel/update/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/update/<uuid:panel>/",
         view=views.GenePanelUpdateView.as_view(),
         name="genepanel-update",
     ),
-    url(
-        regex=r"^panel/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/<uuid:panel>/",
         view=views.GenePanelDetailView.as_view(),
         name="genepanel-detail",
     ),
-    url(
-        regex=r"^panel/delete/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/delete/<uuid:panel>/",
         view=views.GenePanelDeleteView.as_view(),
         name="genepanel-delete",
     ),
-    url(
-        regex=r"^panel/copy-as-draft/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/copy-as-draft/<uuid:panel>/",
         view=views.GenePanelCopyAsDraftView.as_view(),
         name="genepanel-copy-as-draft",
     ),
-    url(
-        regex=r"^panel/release/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/release/<uuid:panel>/",
         view=views.GenePanelReleaseView.as_view(),
         name="genepanel-release",
     ),
-    url(
-        regex=r"^panel/retire/(?P<panel>[0-9a-f-]+)$",
+    path(
+        "panel/retire/<uuid:panel>/",
         view=views.GenePanelRetireView.as_view(),
         name="genepanel-retire",
     ),
 ]
 
 api_patterns = [
-    url(
-        regex=r"^api/genepanel-category/list/$",
+    path(
+        "api/genepanel-category/list/",
         view=views_api.GenePanelCategoryListApiView.as_view(),
         name="genepanel-category-list",
     ),
-    url(
-        regex=r"^api/lookup-genepanel/$",
+    path(
+        "api/lookup-genepanel/",
         view=views_api.LookupGenePanelApiView.as_view(),
         name="lookup-genepanel",
     ),
