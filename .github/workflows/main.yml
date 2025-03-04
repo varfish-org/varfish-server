@@ -201,7 +201,7 @@ jobs:
       - name: Check for OpenAPI schema changes
         run: |
           pipenv run python manage.py spectacular \
-            --file /tmp/varfish_api_schema.yaml
+            --file /tmp/varfish_api_schema.yaml 2>/dev/null
           diff \
             varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
             /tmp/varfish_api_schema.yaml
