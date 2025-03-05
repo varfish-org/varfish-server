@@ -15,7 +15,7 @@ describe('FilterFormEffectPane.vue', () => {
       },
     })
 
-    expect(wrapper.findAll('input').length).toBe(56)
+    expect(wrapper.findAll('input').length).toBe(59)
     expect(wrapper.findAll('.alert-secondary').length).toBe(6)
   })
 

@@ -168,6 +168,7 @@ class TestImpactPresetsFactory(TestCase):
             "max_exon_dist": None,
             "effects": [
                 "exon_loss_variant",
+                "feature_elongation",
                 "feature_truncation",
                 "frameshift_elongation",
                 "frameshift_truncation",
@@ -180,7 +181,6 @@ class TestImpactPresetsFactory(TestCase):
                 "stop_lost",
                 "structural_variant",
                 "transcript_ablation",
-                "transcript_amplification",
             ],
         }
         self.assertDictEqual(result, expected)

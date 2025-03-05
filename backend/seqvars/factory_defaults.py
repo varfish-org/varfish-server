@@ -129,6 +129,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.STOP_LOST,
                 SeqvarsVariantConsequenceChoice.START_LOST,
                 SeqvarsVariantConsequenceChoice.TRANSCRIPT_AMPLIFICATION,
+                SeqvarsVariantConsequenceChoice.FEATURE_ELONGATION,
                 SeqvarsVariantConsequenceChoice.FEATURE_TRUNCATION,
                 # moderate impact
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
@@ -189,6 +190,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.STOP_LOST,
                 SeqvarsVariantConsequenceChoice.START_LOST,
                 SeqvarsVariantConsequenceChoice.TRANSCRIPT_AMPLIFICATION,
+                SeqvarsVariantConsequenceChoice.FEATURE_ELONGATION,
                 SeqvarsVariantConsequenceChoice.FEATURE_TRUNCATION,
                 # # moderate impact
                 # SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
@@ -249,6 +251,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.STOP_LOST,
                 SeqvarsVariantConsequenceChoice.START_LOST,
                 SeqvarsVariantConsequenceChoice.TRANSCRIPT_AMPLIFICATION,
+                SeqvarsVariantConsequenceChoice.FEATURE_ELONGATION,
                 SeqvarsVariantConsequenceChoice.FEATURE_TRUNCATION,
                 # moderate impact
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
@@ -310,6 +313,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.STOP_LOST,
                 SeqvarsVariantConsequenceChoice.START_LOST,
                 SeqvarsVariantConsequenceChoice.TRANSCRIPT_AMPLIFICATION,
+                SeqvarsVariantConsequenceChoice.FEATURE_ELONGATION,
                 SeqvarsVariantConsequenceChoice.FEATURE_TRUNCATION,
                 # moderate impact
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
@@ -371,6 +375,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 SeqvarsVariantConsequenceChoice.STOP_LOST,
                 SeqvarsVariantConsequenceChoice.START_LOST,
                 SeqvarsVariantConsequenceChoice.TRANSCRIPT_AMPLIFICATION,
+                SeqvarsVariantConsequenceChoice.FEATURE_ELONGATION,
                 SeqvarsVariantConsequenceChoice.FEATURE_TRUNCATION,
                 # moderate impact
                 SeqvarsVariantConsequenceChoice.DISRUPTIVE_INFRAME_INSERTION,
