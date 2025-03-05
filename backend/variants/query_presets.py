@@ -559,6 +559,7 @@ class _ImpactPresets:
         "max_exon_dist": None,
         "effects": [
             "exon_loss_variant",
+            "feature_elongation",
             "feature_truncation",
             "frameshift_elongation",
             "frameshift_truncation",
@@ -571,7 +572,6 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
-            "transcript_amplification",
         ],
     }
     #: Presets for "amino acid change and splicing" impact
@@ -588,6 +588,7 @@ class _ImpactPresets:
             "disruptive_inframe_deletion",
             "disruptive_inframe_insertion",
             "exon_loss_variant",
+            "feature_elongation",
             "feature_truncation",
             "frameshift_elongation",
             "frameshift_truncation",
@@ -611,6 +612,7 @@ class _ImpactPresets:
             "splice_donor_region_variant",
             "splice_polypyrimidine_tract_variant",
             "transcript_amplification",
+            "rare_amino_acid_variant",
             "protein_altering_variant",
         ],
     }
@@ -629,6 +631,7 @@ class _ImpactPresets:
             "disruptive_inframe_deletion",
             "disruptive_inframe_insertion",
             "exon_loss_variant",
+            "feature_elongation",
             "feature_truncation",
             "frameshift_elongation",
             "frameshift_truncation",
@@ -656,6 +659,7 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
+            "rare_amino_acid_variant",
             "protein_altering_variant",
         ],
     }
@@ -679,6 +683,7 @@ class _ImpactPresets:
             "disruptive_inframe_insertion",
             "downstream_gene_variant",
             "exon_loss_variant",
+            "feature_elongation",
             "feature_truncation",
             "frameshift_elongation",
             "frameshift_truncation",
@@ -710,6 +715,7 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
+            "rare_amino_acid_variant",
             "protein_altering_variant",
         ],
     }
@@ -733,6 +739,7 @@ class _ImpactPresets:
             "disruptive_inframe_insertion",
             "downstream_gene_variant",
             "exon_loss_variant",
+            "feature_elongation",
             "feature_truncation",
             "frameshift_elongation",
             "frameshift_truncation",
@@ -765,9 +772,8 @@ class _ImpactPresets:
             "splice_polypyrimidine_tract_variant",
             "start_retained_variant",
             "transcript_amplification",
-            "protein_altering_variant",
-            "feature_elongation",
             "rare_amino_acid_variant",
+            "protein_altering_variant",
         ],
     }
 

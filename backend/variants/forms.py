@@ -11,6 +11,7 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_disruptive_inframe_insertion": "disruptive_inframe_insertion",
     "effect_downstream_gene_variant": "downstream_gene_variant",
     "effect_exon_loss_variant": "exon_loss_variant",
+    "effect_feature_elongation": "feature_elongation",
     "effect_feature_truncation": "feature_truncation",
     "effect_5_prime_UTR_exon_variant": "5_prime_UTR_exon_variant",
     "effect_5_prime_UTR_intron_variant": "5_prime_UTR_intron_variant",
@@ -48,18 +49,12 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_start_retained_variant": "start_retained_variant",
     "effect_transcript_amplification": "transcript_amplification",
     "effect_protein_altering_variant": "protein_altering_variant",
-    "effect_feature_elongation": "feature_elongation",
     "effect_rare_amino_acid_variant": "rare_amino_acid_variant",
 }
 
 
 #: The following effects are might be used by mehari but are not really considered in the filter form.
 EFFECTS_NOT_IN_FILTER_FORM = {
-    "downstream_gene_variant",
-    "intergenic_variant",
-    "non_coding_transcript_exon_variant",
-    "non_coding_transcript_intron_variant",
-    "upstream_gene_variant",
     "gene_variant",
     "mature_miRNA_variant",
     "regulatory_region_ablation",
