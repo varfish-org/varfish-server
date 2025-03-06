@@ -39,6 +39,13 @@ export const detailedEffectGroups = Object.freeze([
           'An inframe increase in cds length that inserts one or more codons into the coding sequence within an existing codon.',
       },
       {
+        id: 'feature_elongation',
+        label: 'feature elongation',
+        so: 'SO:0001907',
+        explanation:
+          'A sequence variant that causes the extension of a genomic feature, with regard to the reference sequence.',
+      },
+      {
         id: 'feature_truncation',
         label: 'feature truncation',
         so: 'SO:0001906',
@@ -176,6 +183,20 @@ export const detailedEffectGroups = Object.freeze([
         so: 'SO:0001889',
         explanation:
           'A feature amplification of a region containing a transcript.',
+      },
+      {
+        id: 'rare_amino_acid_variant',
+        label: 'rare amino acid variant',
+        so: 'SO:0002008',
+        explanation:
+          'A rare amino acid variant is a missense variant that changes an amino acid to one that is rarely used in the human proteome.',
+      },
+      {
+        id: 'protein_altering_variant',
+        label: 'protein altering variant',
+        so: 'SO:0001818',
+        explanation:
+          'A sequence variant which is predicted to change the protein encoded in the sequence.',
       },
     ],
   },
@@ -354,6 +375,7 @@ const _effectGroups = {
     'disruptive_inframe_deletion',
     'disruptive_inframe_insertion',
     'exon_loss_variant',
+    'feature_elongation',
     'feature_truncation',
     'frameshift_elongation',
     'frameshift_truncation',
@@ -372,6 +394,7 @@ const _effectGroups = {
     'conservative_inframe_insertion',
     'conservative_inframe_deletion',
     'transcript_amplification',
+    'protein_altering_variant',
   ],
   splicing: [
     'splice_acceptor_variant',
@@ -388,6 +411,8 @@ const _effectGroups = {
     'conservative_inframe_insertion',
     'conservative_inframe_deletion',
     'start_retained_variant',
+    'rare_amino_acid_variant',
+    'protein_altering_variant',
   ],
   utr_intronic: [
     'coding_transcript_intron_variant',
@@ -411,6 +436,8 @@ const _effectGroups = {
     'start_lost',
     'stop_gained',
     'stop_lost',
+    'splice_donor_5th_base_variant',
+    'splice_donor_region_variant',
     'splice_acceptor_variant',
     'splice_donor_variant',
   ],

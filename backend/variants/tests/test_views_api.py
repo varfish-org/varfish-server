@@ -703,6 +703,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                     "disruptive_inframe_deletion",
                     "disruptive_inframe_insertion",
                     "exon_loss_variant",
+                    "feature_elongation",
                     "feature_truncation",
                     "frameshift_elongation",
                     "frameshift_truncation",
@@ -726,6 +727,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                     "splice_donor_region_variant",
                     "splice_polypyrimidine_tract_variant",
                     "transcript_amplification",
+                    "rare_amino_acid_variant",
                     "protein_altering_variant",
                 ],
                 "quality": {
