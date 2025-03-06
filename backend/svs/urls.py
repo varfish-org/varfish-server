@@ -32,7 +32,7 @@ urlpatterns_ajax = [
         name="ajax-variants-fetch",
     ),
     path(
-        "ajax/query-case/quick-presets",
+        "ajax/query-case/quick-presets/",
         view=views.SvQuickPresetsAjaxView.as_view(),
         name="ajax-quick-presets",
     ),
