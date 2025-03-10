@@ -814,12 +814,12 @@
         },
         "faker": {
             "hashes": [
-                "sha256:7cb2bbd4c8f040e4a340ae4019e9a48b6cf1db6a71bda4e5a61d8d13b7bef28d",
-                "sha256:ad1f1be7fd692ec0256517404a9d7f007ab36ac5d4674082fa72404049725eaa"
+                "sha256:2598f78b76710a4ed05e197dda5235be409b4c291ba5c9c7514989cfbc7a5144",
+                "sha256:d2e4e2a30d459a8ec0ae52a552aa51c48973cb32cf51107dee90f58a8322a880"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==36.1.1"
+            "version": "==37.0.0"
         },
         "frozenlist": {
             "hashes": [
