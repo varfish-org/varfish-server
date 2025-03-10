@@ -18,19 +18,19 @@
     "default": {
         "aiobotocore": {
             "hashes": [
-                "sha256:03d64a41e313ebce76fd7c3e4c854e560032ac5cf71f4d5072616ca6fb9701b5",
-                "sha256:05b4e29690a07913297686d819dc8dac341a5361f14fedf444bdd77ae1e36554"
+                "sha256:010357f43004413e92a9d066bb0db1f241aeb29ffed306e9197061ffc94e6577",
+                "sha256:bd7c49a6d6f8a3d9444b0a94417c8da13813b5c7eec1c4f0ec2db7e8ce8f23e7"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2.21.0"
+            "version": "==2.21.1"
         },
         "aiohappyeyeballs": {
             "hashes": [
-                "sha256:147ec992cf873d74f5062644332c539fcd42956dc69453fe5204195e560517e1",
-                "sha256:9b05052f9042985d32ecbe4b59a77ae19c006a78f1344d7fdad69d28ded3d0b0"
+                "sha256:0850b580748c7071db98bffff6d4c94028d0d3035acc20fd721a0ce7e8cac35d",
+                "sha256:18fde6204a76deeabc97c48bdd01d5801cfda5d6b9c8bbeb1aaaee9d648ca191"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==2.4.6"
+            "version": "==2.5.0"
         },
         "aiohttp": {
             "hashes": [
@@ -921,11 +921,11 @@
         },
         "fsspec": {
             "hashes": [
-                "sha256:1c24b16eaa0a1798afa0337aa0db9b256718ab2a89c425371f5628d22c3b6afd",
-                "sha256:9de2ad9ce1f85e1931858535bc882543171d197001a0a5eb2ddc04f1781ab95b"
+                "sha256:a935fd1ea872591f2b5148907d103488fc523295e6c64b835cfad8c3eca44972",
+                "sha256:efb87af3efa9103f94ca91a7f8cb7a4df91af9f74fc106c9c7ea0efd7277c1b3"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2025.2.0"
+            "version": "==2025.3.0"
         },
         "greenlet": {
             "hashes": [
@@ -2528,12 +2528,12 @@
         },
         "s3fs": {
             "hashes": [
-                "sha256:4b66b773519c1983e3071e13a42a2f2498d87da13dee40fda0622f4ed1b55664",
-                "sha256:d94b985f55add51c655e9ca9b4ceecb5c4b6389aecde162bdebc89f489a4e9f2"
+                "sha256:446dd539eb0d0678209723cb7ad1bedbb172185b0d34675b09be1ad81843a644",
+                "sha256:88d803615baa04945156ca0e1498009b7acd3132c07198bd81b3e874846e0aa2"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==2025.2.0"
+            "version": "==2025.3.0"
         },
         "sentry-sdk": {
             "hashes": [
