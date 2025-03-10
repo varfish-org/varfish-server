@@ -13,11 +13,9 @@ def run_seqvarsqueryexecutionbackgroundjob(_self, *, seqvarsqueryexecutionbackgr
 
 
 @app.task(bind=True)
-def run_seqvarsinhousedbbuildbackgroundjob(_self, *, seqvarsinhousedbbuildbackgroundjob_pk: int):
+def run_seqvarsinhousedbbuildbackgroundjob(_self):
     """Task to execute a ``cases_import.models.SeqvarsInhouseDbBuildBackgroundJob``."""
-    return executors.run_seqvarsinhousedbbuildbackgroundjob(
-        pk=seqvarsinhousedbbuildbackgroundjob_pk
-    )
+    return executors.run_seqvarsbuildinhousedbbackgroundjob()
 
 
 @app.on_after_finalize.connect

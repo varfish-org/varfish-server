@@ -8,6 +8,7 @@ import traceback
 import typing
 
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 from google.protobuf.json_format import MessageToJson, Parse
 from projectroles.templatetags.projectroles_common_tags import get_app_setting
@@ -327,7 +328,9 @@ class InhouseDbBuildBackgroundJobExecutor:
         return len(paths)
 
 
-def run_seqvarsbuildinhousedbbackgroundjob(*, pk: int):
+@transaction.atomic
+def run_seqvarsbuildinhousedbbackgroundjob():
     """Execute the work for a ``SeqvarsInhouseDbBuildBackgroundJob``."""
-    executor = InhouseDbBuildBackgroundJobExecutor(pk)
+    bgjob = SeqvarsInhouseDbBuildBackgroundJob.objects.create_full()
+    executor = InhouseDbBuildBackgroundJobExecutor(bgjob.pk)
     executor.run()
