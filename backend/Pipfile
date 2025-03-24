@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 aldjemy = "~=2.2"
 altamisa = "~=0.3.0"
-attrs = "~=25.1"
+attrs = "~=25.3"
 beautifulsoup4 = "~=4.13"
 cattrs = "*"
 django = "*"  # same as django-sodar-core
