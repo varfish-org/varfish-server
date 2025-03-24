@@ -806,11 +806,11 @@
         },
         "drf-writable-nested": {
             "hashes": [
-                "sha256:d8ddc606dc349e56373810842965712a5789e6a5ca7704729d15429b95f8f2ee"
+                "sha256:4a3d2737c1cbfafa690e30236b169112e5b23cfe3d288f3992b0651a1b828c4d"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==0.7.1"
+            "markers": "python_version >= '3.9'",
+            "version": "==0.7.2"
         },
         "faker": {
             "hashes": [
