@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8f9aa2c92d380856e0be069a3a518ca3db085c73952fe0314b904d294a9f62cc"
+            "sha256": "5bfe75559fdcfdfcf841ad4a72ce6758cb45047377109ca2480cec08ed0a8764"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -145,12 +145,12 @@
         },
         "aldjemy": {
             "hashes": [
-                "sha256:8fbd9085fef12debc51eaed74fa8babd9a9ff4d7bc2d0349facdbaf32be29c35",
-                "sha256:a739e2924bf7940daee3a17ccec99fd7175363a160d6e8c3329e61d6534a165e"
+                "sha256:06092f5caaa6290ff49be76829b2841ed5e1d2792404cefd976b6d46cdd4aa9b",
+                "sha256:8147fd5ad4591d2776156f8dc5883c0bccc6589f53200686816baf34e248b324"
             ],
             "index": "pypi",
-            "markers": "python_full_version >= '3.6.1' and python_version < '4.0'",
-            "version": "==2.6"
+            "markers": "python_version >= '3.8'",
+            "version": "==3.2"
         },
         "altamisa": {
             "hashes": [
