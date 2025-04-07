@@ -84,7 +84,7 @@ protolint-bin = "*"
 requests-mock = "~=1.9"
 selenium = "*"
 snapshottest = "*"
-tblib = "~=3.0.0"
+tblib = "~=3.1.0"
 types-protobuf = "*"
 # packages for local development
 ipdb = "*"
