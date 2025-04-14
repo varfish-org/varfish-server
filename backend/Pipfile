@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aldjemy = "~=2.2"
+aldjemy = "~=3.2"
 altamisa = "~=0.3.0"
 attrs = "~=25.3"
 beautifulsoup4 = "~=4.13"
