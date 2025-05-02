@@ -2016,6 +2016,7 @@ class TestCaseOneQueryExonDistance(SupportQueryTestBase):
         SmallVariantFactory(release=case.release, refseq_exon_dist=None, variant_set=variant_set)
         SmallVariantFactory(release=case.release, refseq_exon_dist=1, variant_set=variant_set)
         SmallVariantFactory(release=case.release, refseq_exon_dist=10, variant_set=variant_set)
+        SmallVariantFactory(release=case.release, refseq_exon_dist=-10, variant_set=variant_set)
 
     def test_exon_dist_none_filter(self):
         self.run_query(CasePrefetchQuery, {"max_exon_dist": 0}, 0)
@@ -2036,22 +2037,22 @@ class TestCaseOneQueryExonDistance(SupportQueryTestBase):
         self.run_query(CasePrefetchQuery, {"max_exon_dist": 1}, 1)
 
     def test_exon_dist_two_filter(self):
-        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 3)
 
     def test_exon_dist_two_export(self):
-        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 3)
 
     def test_exon_dist_two_vcf(self):
-        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 3)
 
     def test_exon_dist_all_filter(self):
-        self.run_query(CasePrefetchQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 4)
 
     def test_exon_dist_all_export(self):
-        self.run_query(CasePrefetchQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 4)
 
     def test_exon_dist_all_vcf(self):
-        self.run_query(CasePrefetchQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 4)
 
 
 class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
