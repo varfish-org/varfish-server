@@ -25,6 +25,10 @@ export const CaseStates = new Map<string, CaseStateInfo>([
   ['initial', { label: 'initial', color: 'secondary' }],
   ['active', { label: 'active', color: 'info' }],
   ['closed-unsolved', { label: 'closed as unsolved', color: 'success' }],
+  [
+    'closed-partially-solved',
+    { label: 'closed as partially solved', color: 'warning' },
+  ],
   ['closed-uncertain', { label: 'closed as uncertain', color: 'warning' }],
   ['closed-solved', { label: 'closed as solved', color: 'danger' }],
 ])

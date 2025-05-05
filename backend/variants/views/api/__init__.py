@@ -153,7 +153,7 @@ class CaseRetrieveApiView(
     - ``release`` - genome build (``str``, one of ``["GRCh37", "GRCh37"]``)
     - ``sodar_uuid`` - case UUID (``str``)
     - ``status`` - status of case (``str``, one of ``"initial"``, ``"active"``, ``"closed-unsolved"``,
-      ``"closed-uncertain"``, ``"closed-solved"``)
+      ``"closed-partially-solved"``, ``"closed-uncertain"``, ``"closed-solved"``)
     - ``tags`` - ``list`` of ``str`` tags
     """
 
