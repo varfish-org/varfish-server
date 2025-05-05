@@ -969,7 +969,9 @@ class ExtendQueryPartsExonDistanceFilter(ExtendQueryPartsBase):
         exon_dist = self.kwargs.get("max_exon_dist")
         if exon_dist is None:
             return []
-        return [getattr(SmallVariant.sa, "%s_exon_dist" % self.transcript_db) <= exon_dist]
+        return [
+            func.abs(getattr(SmallVariant.sa, "%s_exon_dist" % self.transcript_db)) <= exon_dist
+        ]
 
 
 class ExtendQueryPartsTranscriptCodingFilter(ExtendQueryPartsBase):

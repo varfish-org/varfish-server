@@ -5,3 +5,6 @@ lint:
   rules_option:
     max_line_length:
       max_chars: 120
+  rules:
+    remove:
+      - REPEATED_FIELD_NAMES_PLURALIZED
