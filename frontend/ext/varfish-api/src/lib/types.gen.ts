@@ -398,9 +398,10 @@ export type CaseSerializerNgStateEnum = 'importing' | 'updating' | 'active' | 'd
  * * `active` - active
  * * `closed-unsolved` - closed as unsolved
  * * `closed-uncertain` - closed as uncertain
+ * * `closed-partially-solved` - closed as partially solved
  * * `closed-solved` - closed as solved
  */
-export type CaseStatusEnum = 'initial' | 'active' | 'closed-unsolved' | 'closed-uncertain' | 'closed-solved';
+export type CaseStatusEnum = 'initial' | 'active' | 'closed-unsolved' | 'closed-uncertain' | 'closed-partially-solved' | 'closed-solved';
 
 /**
  * Store Clingen dosage annotation.

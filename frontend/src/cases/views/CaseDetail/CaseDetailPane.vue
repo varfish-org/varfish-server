@@ -288,6 +288,7 @@ const handleEditCaseStatusClicked = async () => {
     { value: 'active', label: 'active' },
     { value: 'closed-unsolved', label: 'closed as unsolved' },
     { value: 'closed-uncertain', label: 'closed as uncertain' },
+    { value: 'closed-partially-solved', label: 'closed as partially solved' },
     { value: 'closed-solved', label: 'closed as solved' },
   ]
 

@@ -35,6 +35,7 @@ CASE_STATUS_TO_ICON = {
     "initial": "fa-solid:asterisk",
     "active": "fa-solid:filter",
     "closed-solved": "fa-solid:check",
+    "closed-partially-solved": "fa-solid:star-half-alt",
     "closed-uncertain": "fa-solid:question",
     "closed-unsolved": "fa-solid:times",
 }
@@ -51,6 +52,7 @@ CASE_STATUS_TO_COLOR = {
     "initial": "secondary",
     "active": "info",
     "closed-solved": "success",
+    "closed-partially-solved": "warning",
     "closed-uncertain": "warning",
     "closed-unsolved": "danger",
 }
@@ -67,6 +69,7 @@ CASE_STATUS_TO_CLASS = {
     "initial": "text-secondary",
     "active": "text-info",
     "closed-solved": "text-success",
+    "closed-partially-solved": "text-warning",
     "closed-uncertain": "text-warning",
     "closed-unsolved": "text-danger",
 }
@@ -83,6 +86,7 @@ CASE_STATUS_TO_ORDER = {
     "initial": 0,
     "active": 4,
     "closed-solved": 3,
+    "closed-partially-solved": 5,
     "closed-unsolved": 1,
     "closed-uncertain": 2,
 }

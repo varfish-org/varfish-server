@@ -23,6 +23,7 @@ CASE_STATUS_TO_COLOR = {
     "initial": "secondary",
     "active": "info",
     "closed-solved": "success",
+    "closed-partially-solved": "warning",
     "closed-uncertain": "warning",
     "closed-unsolved": "danger",
 }
@@ -37,6 +38,7 @@ CASE_STATUS_TO_CLASS = {
     "initial": "text-secondary",
     "active": "text-info",
     "closed-solved": "text-success",
+    "closed-partially-solved": "text-warning",
     "closed-uncertain": "text-warning",
     "closed-unsolved": "text-danger",
 }

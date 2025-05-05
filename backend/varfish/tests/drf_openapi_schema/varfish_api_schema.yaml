@@ -5422,6 +5422,7 @@ components:
       - active
       - closed-unsolved
       - closed-uncertain
+      - closed-partially-solved
       - closed-solved
       type: string
       description: |-
@@ -5429,6 +5430,7 @@ components:
         * `active` - active
         * `closed-unsolved` - closed as unsolved
         * `closed-uncertain` - closed as uncertain
+        * `closed-partially-solved` - closed as partially solved
         * `closed-solved` - closed as solved
     ClingenDosageAnnotationPydantic:
       description: Store Clingen dosage annotation.
