@@ -125,7 +125,7 @@ pillow==10.3.0
 platformdirs==4.2.2
 prettytable==3.10.0
 prompt-toolkit==3.0.43
-protobuf==3.20.3
+protobuf==4.25.8
 psutil==5.9.8
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
