@@ -137,8 +137,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.assertTrue(results[0].disease_gene)
         self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
         self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
-        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
-        self.assertIsNone(results[1].mgi_id)
         self.assertFalse(results[1].disease_gene)
 
     def test_load_prefetched_project_cases_results(self):
@@ -150,10 +148,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertEqual(results[0].acmg_symbol, self.acmg.symbol)
         self.assertIsNone(results[1].acmg_symbol)
-        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
-        self.assertIsNone(results[1].mgi_id)
 
 
 class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):

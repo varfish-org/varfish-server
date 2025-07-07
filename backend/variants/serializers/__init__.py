@@ -294,9 +294,6 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     # Joined fields (ExtendQueryPartsAcmgJoin)
     acmg_symbol = serializers.CharField()
 
-    # Joined fields (ExtendQueryPartsMgiJoin)
-    mgi_id = serializers.CharField()
-
     # Joined fields (ExtendQueryPartsFlagsJoinAndFilter)
     flag_count = serializers.IntegerField()
     flag_bookmarked = serializers.BooleanField()

@@ -314,24 +314,6 @@ class ExtendQueryPartsGeneSymbolJoin(ExtendQueryPartsBase):
         return [func.coalesce(self.subquery.c.gene_symbol, "").label("gene_symbol")]
 
 
-class ExtendQueryPartsMgiJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.subquery = (
-            select([func.max(MgiMapping.sa.mgi_id).label("mgi_id")])
-            .select_from(MgiMapping.sa)
-            .where(MgiMapping.sa.human_entrez_id == SmallVariant.sa.refseq_gene_id)
-            .group_by(MgiMapping.sa.human_entrez_id)
-            .lateral("mgi_subquery")
-        )
-
-    def extend_fields(self, _query_parts):
-        return [self.subquery.c.mgi_id]
-
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
 class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1591,7 +1573,6 @@ class QueryPartsBuilder:
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
         ]
 
 
@@ -1605,7 +1586,6 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsFlagsJoinAndFilter,
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsCommentsExtraAnnoJoin,
@@ -1638,7 +1618,6 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsGnomadConstraintsJoin,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsInHouseJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsMitochondrialFrequenciesJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
         ] + get_qp_extender_classes_from_plugins()
@@ -1652,7 +1631,6 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
             *extender_classes_base,
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
@@ -1676,7 +1654,6 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsDbsnpJoin,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsAcmgJoin,
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsCommentsJoin,
@@ -1696,7 +1673,6 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
