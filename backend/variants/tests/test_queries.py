@@ -8,14 +8,12 @@ Remarks:
 
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
-from conservation.tests.factories import KnownGeneAAFactory
 from dbsnp.tests.factories import DbsnpFactory
 from extra_annos.tests.factories import ExtraAnnoFactory
 from frequencies.tests.factories import HelixMtDbFactory, MitomapFactory, MtDbFactory
 from geneinfo.tests.factories import (
     AcmgFactory,
     EnsemblToGeneSymbolFactory,
-    ExacConstraintsFactory,
     GeneIdInHpoFactory,
     GeneIdToInheritanceFactory,
     GnomadConstraintsFactory,
@@ -31,7 +29,6 @@ from variants.queries import (
     CaseExportVcfQuery,
     CaseLoadPrefetchedQuery,
     CasePrefetchQuery,
-    KnownGeneAAQuery,
     ProjectLoadPrefetchedQuery,
     ProjectPrefetchQuery,
     SmallVariantUserAnnotationQuery,
@@ -100,9 +97,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.gnomad_constraints = GnomadConstraintsFactory(
             ensembl_gene_id=small_vars[0].ensembl_gene_id
         )
-        self.exac_constraints = ExacConstraintsFactory(
-            ensembl_transcript_id=small_vars[0].ensembl_transcript_id
-        )
         # Prepare MGI records
         self.mgi = MgiMappingFactory(human_entrez_id=small_vars[0].refseq_gene_id)
         # Prepare smallvariant query results
@@ -136,9 +130,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertTrue(results[0].disease_gene)
         self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
-        self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
-        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
-        self.assertIsNone(results[1].mgi_id)
         self.assertFalse(results[1].disease_gene)
 
     def test_load_prefetched_project_cases_results(self):
@@ -150,10 +141,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertEqual(results[0].acmg_symbol, self.acmg.symbol)
         self.assertIsNone(results[1].acmg_symbol)
-        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
-        self.assertIsNone(results[1].mgi_id)
 
 
 class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
@@ -196,16 +185,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
                 pLI=0.4,
             ),
         ]
-        self.exac_constraints = [
-            ExacConstraintsFactory(
-                ensembl_transcript_id=small_vars[0].ensembl_transcript_id,
-                pLI=1.0,
-            ),
-            ExacConstraintsFactory(
-                ensembl_transcript_id=small_vars[1].ensembl_transcript_id,
-                pLI=0.5,
-            ),
-        ]
         # Prepare smallvariant query results
         self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
@@ -228,8 +207,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
             2,
             query_type="project",
         )
-        self.assertEqual(results[0].exac_pLI, 0.5)
-        self.assertEqual(results[1].exac_pLI, 0.5)
         self.assertEqual(results[0].gnomad_pLI, 0.4)
         self.assertEqual(results[1].gnomad_pLI, 0.4)
 
@@ -240,8 +217,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
             2,
             query_type="project",
         )
-        self.assertEqual(results[0].exac_pLI, 1.0)
-        self.assertEqual(results[1].exac_pLI, 0.5)
         self.assertEqual(results[0].gnomad_pLI, 0.8)
         self.assertEqual(results[1].gnomad_pLI, 0.4)
 
@@ -5218,84 +5193,6 @@ class TestQueryCohort(TestCohortBase, SupportQueryTestBase):
             12,
             query_type="cohort",
             user=user,
-        )
-
-
-class TestKnownGeneAAQuery(TestBase):
-    """Test the knowngeneaa query."""
-
-    def run_query(self, query_class, kwargs, length):
-        query = query_class(get_engine())
-        results = list(query.run(kwargs))
-        self.assertEqual(len(results), length)
-
-    def setUp(self):
-        super().setUp()
-        self.knowngene = KnownGeneAAFactory(chromosome="1", start=100)
-
-    def test_query_pre_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start - 1,
-                "end": self.knowngene.end - 1,
-                "reference": "A",
-            },
-            0,
-        )
-
-    def test_query_first_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start,
-                "end": self.knowngene.start,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_second_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 1,
-                "end": self.knowngene.end + 1,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_third_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 2,
-                "end": self.knowngene.start + 2,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_post_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 3,
-                "end": self.knowngene.end + 3,
-                "reference": "A",
-            },
-            0,
         )
 
 

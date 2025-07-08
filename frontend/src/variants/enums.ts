@@ -143,18 +143,6 @@ export const DisplayFrequencies = Object.freeze({
 })
 
 export const DisplayConstraints = Object.freeze({
-  ExacPli: {
-    value: 0,
-    text: 'ExAC pLI',
-  },
-  ExacZSyn: {
-    value: 1,
-    text: 'ExAC Z syn',
-  },
-  ExacZMis: {
-    value: 2,
-    text: 'ExAC Z mis',
-  },
   GnomadLoeuf: {
     value: 3,
     text: 'gnomAD LOEUF',

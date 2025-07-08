@@ -294,9 +294,6 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     # Joined fields (ExtendQueryPartsAcmgJoin)
     acmg_symbol = serializers.CharField()
 
-    # Joined fields (ExtendQueryPartsMgiJoin)
-    mgi_id = serializers.CharField()
-
     # Joined fields (ExtendQueryPartsFlagsJoinAndFilter)
     flag_count = serializers.IntegerField()
     flag_bookmarked = serializers.BooleanField()
@@ -337,11 +334,6 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     gnomad_oe_lof_upper = serializers.FloatField()
     gnomad_oe_lof_lower = serializers.FloatField()
     gnomad_loeuf = serializers.FloatField()
-
-    # Joined fields (ExtendQueryPartsExacConstraintsJoin)
-    exac_pLI = serializers.FloatField()
-    exac_mis_z = serializers.FloatField()
-    exac_syn_z = serializers.FloatField()
 
     # Joined fields (ExtendQueryPartsExacConstraintsJoin)
     inhouse_hom_ref = serializers.IntegerField()

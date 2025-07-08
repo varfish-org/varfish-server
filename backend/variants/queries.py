@@ -24,12 +24,10 @@ from frequencies.models import HelixMtDb, Mitomap, MtDb
 from geneinfo.models import (
     Acmg,
     EnsemblToGeneSymbol,
-    ExacConstraints,
     GeneIdInHpo,
     GeneIdToInheritance,
     GnomadConstraints,
     Hgnc,
-    MgiMapping,
     RefseqToEnsembl,
     RefseqToGeneSymbol,
     RefseqToHgnc,
@@ -312,24 +310,6 @@ class ExtendQueryPartsGeneSymbolJoin(ExtendQueryPartsBase):
 
     def extend_fields(self, _query_parts):
         return [func.coalesce(self.subquery.c.gene_symbol, "").label("gene_symbol")]
-
-
-class ExtendQueryPartsMgiJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.subquery = (
-            select([func.max(MgiMapping.sa.mgi_id).label("mgi_id")])
-            .select_from(MgiMapping.sa)
-            .where(MgiMapping.sa.human_entrez_id == SmallVariant.sa.refseq_gene_id)
-            .group_by(MgiMapping.sa.human_entrez_id)
-            .lateral("mgi_subquery")
-        )
-
-    def extend_fields(self, _query_parts):
-        return [self.subquery.c.mgi_id]
-
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(self.subquery, true())
 
 
 class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
@@ -1423,71 +1403,6 @@ class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
-class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields = ["pLI", "mis_z", "syn_z"]
-        self.subquery = self._build_subquery()
-        self.subquery = self._build_subquery()
-
-    def _build_subquery(self):
-        """Build sub query, depending on selected database (refseq/ensembl)."""
-        if self.transcript_db == "ensembl":
-            return (
-                select(
-                    [
-                        func.max(getattr(ExacConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                )
-                .select_from(ExacConstraints.sa)
-                .where(
-                    func.split_part(SmallVariant.sa.ensembl_transcript_id, ".", 1)
-                    == ExacConstraints.sa.ensembl_transcript_id
-                )
-                .group_by(ExacConstraints.sa.ensembl_transcript_id)
-                .lateral("exac_constraints_subquery")
-            )
-        else:
-            self.subquery_refseq_to_ensembl = (
-                select(
-                    [
-                        func.max(RefseqToEnsembl.sa.ensembl_transcript_id).label(
-                            "ensembl_transcript_id"
-                        )
-                    ]
-                )
-                .select_from(RefseqToEnsembl.sa)
-                .where(SmallVariant.sa.refseq_gene_id == RefseqToEnsembl.sa.entrez_id)
-                .group_by(RefseqToEnsembl.sa.entrez_id)
-                .lateral("refseqtoensembl_subquery_exac_constraints")
-            )
-            link = (
-                self.subquery_refseq_to_ensembl.c.ensembl_transcript_id
-                == ExacConstraints.sa.ensembl_transcript_id
-            )
-            return (
-                select(
-                    [
-                        func.max(getattr(ExacConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                )
-                .select_from(ExacConstraints.sa)
-                .where(link)
-                .group_by(ExacConstraints.sa.ensembl_transcript_id)
-                .lateral("exac_constraints_subquery")
-            )
-
-    def extend_fields(self, _query_parts):
-        return [getattr(self.subquery.c, field).label("exac_%s" % field) for field in self.fields]
-
-    def extend_selectable(self, query_parts):
-        if self.transcript_db == "refseq":
-            query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
 class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
     """Extend query parts to only fetch variants that have a user annotation."""
 
@@ -1591,7 +1506,6 @@ class QueryPartsBuilder:
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
         ]
 
 
@@ -1605,7 +1519,6 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsFlagsJoinAndFilter,
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsCommentsExtraAnnoJoin,
@@ -1613,7 +1526,6 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsInHouseJoinAndFilter,
             ExtendQueryPartsClinvarJoin,
         ] + get_qp_extender_classes_from_plugins()
@@ -1631,14 +1543,12 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsDbsnpJoin,
             ExtendQueryPartsDiseaseGeneJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsGenomicRegionFilter,
             ExtendQueryPartsGnomadConstraintsJoin,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsInHouseJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsMitochondrialFrequenciesJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
         ] + get_qp_extender_classes_from_plugins()
@@ -1652,7 +1562,6 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
             *extender_classes_base,
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
@@ -1676,13 +1585,11 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsDbsnpJoin,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsGeneSymbolJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsAcmgJoin,
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsAcmgCriteriaJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsClinvarJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
@@ -1696,7 +1603,6 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsMgiJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
@@ -1942,45 +1848,6 @@ class ProjectExportTableQuery(ProjectPrefetchQuery):
 
 class ProjectExportVcfQuery(ProjectPrefetchQuery):
     builder = ProjectExportVcfQueryPartsBuilder
-
-
-# Query for obtaining the knownGene alignments (used from JSON query).
-
-
-class KnownGeneAAQuery:
-    """Query database for the ``knownGeneAA`` information."""
-
-    def __init__(self, engine):
-        #: The Aldjemy engine to use
-        self.engine = engine
-
-    def run(self, kwargs):
-        """Execute the query."""
-        # TODO: Replace kwargs with actual parameters
-        #
-        # TODO: we should load the alignment based on UCSC transcript ID (without version) and then post-filter
-        # TODO: by column...
-        distinct_fields = [
-            KnowngeneAA.sa.release,
-            KnowngeneAA.sa.chromosome,
-            KnowngeneAA.sa.start,
-            KnowngeneAA.sa.end,
-        ]
-        query = (
-            select(distinct_fields + [KnowngeneAA.sa.alignment])
-            .select_from(KnowngeneAA.sa.table)
-            .where(
-                and_(
-                    KnowngeneAA.sa.release == kwargs["release"],
-                    KnowngeneAA.sa.chromosome == kwargs["chromosome"],
-                    KnowngeneAA.sa.start <= int(kwargs["start"]) + (len(kwargs["reference"]) - 1),
-                    KnowngeneAA.sa.end >= int(kwargs["start"]),
-                )
-            )
-            .order_by(KnowngeneAA.sa.start)
-            .distinct(*distinct_fields)  # DISTINCT ON
-        )
-        return self.engine.execute(query)
 
 
 # Query for deleting the variants of a case.
