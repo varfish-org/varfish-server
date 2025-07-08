@@ -8,7 +8,6 @@ Remarks:
 
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
-from conservation.tests.factories import KnownGeneAAFactory
 from dbsnp.tests.factories import DbsnpFactory
 from extra_annos.tests.factories import ExtraAnnoFactory
 from frequencies.tests.factories import HelixMtDbFactory, MitomapFactory, MtDbFactory
@@ -31,7 +30,6 @@ from variants.queries import (
     CaseExportVcfQuery,
     CaseLoadPrefetchedQuery,
     CasePrefetchQuery,
-    KnownGeneAAQuery,
     ProjectLoadPrefetchedQuery,
     ProjectPrefetchQuery,
     SmallVariantUserAnnotationQuery,
@@ -5214,84 +5212,6 @@ class TestQueryCohort(TestCohortBase, SupportQueryTestBase):
             12,
             query_type="cohort",
             user=user,
-        )
-
-
-class TestKnownGeneAAQuery(TestBase):
-    """Test the knowngeneaa query."""
-
-    def run_query(self, query_class, kwargs, length):
-        query = query_class(get_engine())
-        results = list(query.run(kwargs))
-        self.assertEqual(len(results), length)
-
-    def setUp(self):
-        super().setUp()
-        self.knowngene = KnownGeneAAFactory(chromosome="1", start=100)
-
-    def test_query_pre_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start - 1,
-                "end": self.knowngene.end - 1,
-                "reference": "A",
-            },
-            0,
-        )
-
-    def test_query_first_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start,
-                "end": self.knowngene.start,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_second_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 1,
-                "end": self.knowngene.end + 1,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_third_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 2,
-                "end": self.knowngene.start + 2,
-                "reference": "A",
-            },
-            1,
-        )
-
-    def test_query_post_triplet(self):
-        self.run_query(
-            KnownGeneAAQuery,
-            {
-                "release": self.knowngene.release,
-                "chromosome": self.knowngene.chromosome,
-                "start": self.knowngene.start + 3,
-                "end": self.knowngene.end + 3,
-                "reference": "A",
-            },
-            0,
         )
 
 

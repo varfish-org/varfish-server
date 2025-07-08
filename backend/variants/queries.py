@@ -29,7 +29,6 @@ from geneinfo.models import (
     GeneIdToInheritance,
     GnomadConstraints,
     Hgnc,
-    MgiMapping,
     RefseqToEnsembl,
     RefseqToGeneSymbol,
     RefseqToHgnc,
@@ -1919,44 +1918,6 @@ class ProjectExportTableQuery(ProjectPrefetchQuery):
 class ProjectExportVcfQuery(ProjectPrefetchQuery):
     builder = ProjectExportVcfQueryPartsBuilder
 
-
-# Query for obtaining the knownGene alignments (used from JSON query).
-
-
-class KnownGeneAAQuery:
-    """Query database for the ``knownGeneAA`` information."""
-
-    def __init__(self, engine):
-        #: The Aldjemy engine to use
-        self.engine = engine
-
-    def run(self, kwargs):
-        """Execute the query."""
-        # TODO: Replace kwargs with actual parameters
-        #
-        # TODO: we should load the alignment based on UCSC transcript ID (without version) and then post-filter
-        # TODO: by column...
-        distinct_fields = [
-            KnowngeneAA.sa.release,
-            KnowngeneAA.sa.chromosome,
-            KnowngeneAA.sa.start,
-            KnowngeneAA.sa.end,
-        ]
-        query = (
-            select(distinct_fields + [KnowngeneAA.sa.alignment])
-            .select_from(KnowngeneAA.sa.table)
-            .where(
-                and_(
-                    KnowngeneAA.sa.release == kwargs["release"],
-                    KnowngeneAA.sa.chromosome == kwargs["chromosome"],
-                    KnowngeneAA.sa.start <= int(kwargs["start"]) + (len(kwargs["reference"]) - 1),
-                    KnowngeneAA.sa.end >= int(kwargs["start"]),
-                )
-            )
-            .order_by(KnowngeneAA.sa.start)
-            .distinct(*distinct_fields)  # DISTINCT ON
-        )
-        return self.engine.execute(query)
 
 
 # Query for deleting the variants of a case.
