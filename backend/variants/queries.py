@@ -24,7 +24,6 @@ from frequencies.models import HelixMtDb, Mitomap, MtDb
 from geneinfo.models import (
     Acmg,
     EnsemblToGeneSymbol,
-    ExacConstraints,
     GeneIdInHpo,
     GeneIdToInheritance,
     GnomadConstraints,
