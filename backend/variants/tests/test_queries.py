@@ -14,7 +14,6 @@ from frequencies.tests.factories import HelixMtDbFactory, MitomapFactory, MtDbFa
 from geneinfo.tests.factories import (
     AcmgFactory,
     EnsemblToGeneSymbolFactory,
-    ExacConstraintsFactory,
     GeneIdInHpoFactory,
     GeneIdToInheritanceFactory,
     GnomadConstraintsFactory,
@@ -98,9 +97,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.gnomad_constraints = GnomadConstraintsFactory(
             ensembl_gene_id=small_vars[0].ensembl_gene_id
         )
-        self.exac_constraints = ExacConstraintsFactory(
-            ensembl_transcript_id=small_vars[0].ensembl_transcript_id
-        )
         # Prepare MGI records
         self.mgi = MgiMappingFactory(human_entrez_id=small_vars[0].refseq_gene_id)
         # Prepare smallvariant query results
@@ -134,7 +130,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertTrue(results[0].disease_gene)
         self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
-        self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
         self.assertFalse(results[1].disease_gene)
 
     def test_load_prefetched_project_cases_results(self):
@@ -190,16 +185,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
                 pLI=0.4,
             ),
         ]
-        self.exac_constraints = [
-            ExacConstraintsFactory(
-                ensembl_transcript_id=small_vars[0].ensembl_transcript_id,
-                pLI=1.0,
-            ),
-            ExacConstraintsFactory(
-                ensembl_transcript_id=small_vars[1].ensembl_transcript_id,
-                pLI=0.5,
-            ),
-        ]
         # Prepare smallvariant query results
         self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
@@ -222,8 +207,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
             2,
             query_type="project",
         )
-        self.assertEqual(results[0].exac_pLI, 0.5)
-        self.assertEqual(results[1].exac_pLI, 0.5)
         self.assertEqual(results[0].gnomad_pLI, 0.4)
         self.assertEqual(results[1].gnomad_pLI, 0.4)
 
@@ -234,8 +217,6 @@ class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
             2,
             query_type="project",
         )
-        self.assertEqual(results[0].exac_pLI, 1.0)
-        self.assertEqual(results[1].exac_pLI, 0.5)
         self.assertEqual(results[0].gnomad_pLI, 0.8)
         self.assertEqual(results[1].gnomad_pLI, 0.4)
 

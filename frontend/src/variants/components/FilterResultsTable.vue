@@ -410,21 +410,15 @@ const displayHomozygousContent = (item) => {
 }
 
 const constraintFieldName = computed(() => {
-  return displayConstraint.value === DisplayConstraints.ExacPli.value
-    ? 'exac_pLI'
-    : displayConstraint.value === DisplayConstraints.ExacZMis.value
-      ? 'exac_mis_z'
-      : displayConstraint.value === DisplayConstraints.ExacZSyn.value
-        ? 'exac_syn_z'
-        : displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
-          ? 'gnomad_loeuf'
-          : displayConstraint.value === DisplayConstraints.GnomadPli.value
-            ? 'gnomad_pLI'
-            : displayConstraint.value === DisplayConstraints.GnomadZMis.value
-              ? 'gnomad_mis_z'
-              : displayConstraint.value === DisplayConstraints.GnomadZSyn.value
-                ? 'gnomad_syn_z'
-                : null
+  return displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
+    ? 'gnomad_loeuf'
+    : displayConstraint.value === DisplayConstraints.GnomadPli.value
+      ? 'gnomad_pLI'
+      : displayConstraint.value === DisplayConstraints.GnomadZMis.value
+        ? 'gnomad_mis_z'
+        : displayConstraint.value === DisplayConstraints.GnomadZSyn.value
+          ? 'gnomad_syn_z'
+          : null
 })
 
 const displayConstraintsContent = (item) => {

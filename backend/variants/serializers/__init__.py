@@ -336,11 +336,6 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     gnomad_loeuf = serializers.FloatField()
 
     # Joined fields (ExtendQueryPartsExacConstraintsJoin)
-    exac_pLI = serializers.FloatField()
-    exac_mis_z = serializers.FloatField()
-    exac_syn_z = serializers.FloatField()
-
-    # Joined fields (ExtendQueryPartsExacConstraintsJoin)
     inhouse_hom_ref = serializers.IntegerField()
     inhouse_het = serializers.IntegerField()
     inhouse_hom_alt = serializers.IntegerField()

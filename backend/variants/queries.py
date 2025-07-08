@@ -1404,71 +1404,6 @@ class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
-class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields = ["pLI", "mis_z", "syn_z"]
-        self.subquery = self._build_subquery()
-        self.subquery = self._build_subquery()
-
-    def _build_subquery(self):
-        """Build sub query, depending on selected database (refseq/ensembl)."""
-        if self.transcript_db == "ensembl":
-            return (
-                select(
-                    [
-                        func.max(getattr(ExacConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                )
-                .select_from(ExacConstraints.sa)
-                .where(
-                    func.split_part(SmallVariant.sa.ensembl_transcript_id, ".", 1)
-                    == ExacConstraints.sa.ensembl_transcript_id
-                )
-                .group_by(ExacConstraints.sa.ensembl_transcript_id)
-                .lateral("exac_constraints_subquery")
-            )
-        else:
-            self.subquery_refseq_to_ensembl = (
-                select(
-                    [
-                        func.max(RefseqToEnsembl.sa.ensembl_transcript_id).label(
-                            "ensembl_transcript_id"
-                        )
-                    ]
-                )
-                .select_from(RefseqToEnsembl.sa)
-                .where(SmallVariant.sa.refseq_gene_id == RefseqToEnsembl.sa.entrez_id)
-                .group_by(RefseqToEnsembl.sa.entrez_id)
-                .lateral("refseqtoensembl_subquery_exac_constraints")
-            )
-            link = (
-                self.subquery_refseq_to_ensembl.c.ensembl_transcript_id
-                == ExacConstraints.sa.ensembl_transcript_id
-            )
-            return (
-                select(
-                    [
-                        func.max(getattr(ExacConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                )
-                .select_from(ExacConstraints.sa)
-                .where(link)
-                .group_by(ExacConstraints.sa.ensembl_transcript_id)
-                .lateral("exac_constraints_subquery")
-            )
-
-    def extend_fields(self, _query_parts):
-        return [getattr(self.subquery.c, field).label("exac_%s" % field) for field in self.fields]
-
-    def extend_selectable(self, query_parts):
-        if self.transcript_db == "refseq":
-            query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
 class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
     """Extend query parts to only fetch variants that have a user annotation."""
 
@@ -1592,7 +1527,6 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsInHouseJoinAndFilter,
             ExtendQueryPartsClinvarJoin,
         ] + get_qp_extender_classes_from_plugins()
@@ -1610,7 +1544,6 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsDbsnpJoin,
             ExtendQueryPartsDiseaseGeneJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsGenomicRegionFilter,
@@ -1658,7 +1591,6 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsAcmgCriteriaJoin,
             ExtendQueryPartsGnomadConstraintsJoin,
-            ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsClinvarJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
@@ -1917,7 +1849,6 @@ class ProjectExportTableQuery(ProjectPrefetchQuery):
 
 class ProjectExportVcfQuery(ProjectPrefetchQuery):
     builder = ProjectExportVcfQueryPartsBuilder
-
 
 
 # Query for deleting the variants of a case.
