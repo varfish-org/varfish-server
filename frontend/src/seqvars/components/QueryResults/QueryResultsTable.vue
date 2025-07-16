@@ -82,8 +82,11 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   conservative_inframe_insertion: 'inframe ins',
   conservative_inframe_deletion: 'inframe del',
   missense_variant: 'missense',
+  rare_amino_acid_variant: 'rare amino acid variant',
+  protein_altering_variant: 'protein altering variant',
   splice_donor_5th_base_variant: 'spl donor 5th',
   splice_region_variant: 'spl region',
+  exonic_splice_region_variant: 'exonic spl region',
   splice_donor_region_variant: 'spl region',
   splice_polypyrimidine_tract_variant: 'spl polypyrimidine tract',
   start_retained_variant: 'start retained',
@@ -97,6 +100,7 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   '3_prime_UTR_intron_variant': "3' UTR intron",
   non_coding_transcript_exon_variant: 'nc tx exon',
   non_coding_transcript_intron_variant: 'nc tx intron',
+  coding_transcript_intron_variant: 'coding tx intron',
   upstream_gene_variant: 'upstream',
   downstream_gene_variant: 'downstream',
   TFBS_ablation: 'TFBS ablation',
@@ -108,8 +112,6 @@ const CONSEQUENCE_LABEL: Record<SeqvarsVariantConsequenceChoice, string> = {
   intergenic_variant: 'intergenic',
   intron_variant: 'intronic',
   gene_variant: 'gene variant',
-  protein_altering_variant: 'protein altering variant',
-  rare_amino_acid_variant: 'rare amino acid variant',
 }
 
 /** Review status labels. */

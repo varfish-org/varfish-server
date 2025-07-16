@@ -224,9 +224,11 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     # low impact
 
     #: Splice donor 5th base variant.
-    SPLICE_DONOR_5TH_BASE_VARIANT = "splice_donor_5th_base_variant"
+    SPLICE_DONOR_FIFTH_BASE_VARIANT = "splice_donor_5th_base_variant"
     #: Splice region variant.
     SPLICE_REGION_VARIANT = "splice_region_variant"
+    #: Exonic splice region variant.
+    EXONIC_SPLICE_REGION_VARIANT = "exonic_splice_region_variant"
     #: Splice donor region variant.
     SPLICE_DONOR_REGION_VARIANT = "splice_donor_region_variant"
     #: Splice polypyrimidine tract variant.
@@ -256,6 +258,8 @@ class SeqvarsVariantConsequenceChoice(str, Enum):
     NON_CODING_TRANSCRIPT_EXON_VARIANT = "non_coding_transcript_exon_variant"
     #: Non-coding transcript intron variant.
     NON_CODING_TRANSCRIPT_INTRON_VARIANT = "non_coding_transcript_intron_variant"
+    #: Coding transcript intron variant.
+    CODING_TRANSCRIPT_INTRON_VARIANT = "coding_transcript_intron_variant"
     #: Upstream gene variant.
     UPSTREAM_GENE_VARIANT = "upstream_gene_variant"
     #: Downstream gene variant.
