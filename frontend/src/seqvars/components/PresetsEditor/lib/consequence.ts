@@ -68,6 +68,10 @@ export const CODING_CONSEQUENCES: ConsequenceChoice[] = [
   { label: 'frameshift truncation', key: 'frameshift_truncation' },
   { label: 'frameshift elongation', key: 'frameshift_elongation' },
   { label: 'rare amino acid variant', key: 'rare_amino_acid_variant' },
+  {
+    label: 'coding transcript intron',
+    key: 'coding_transcript_intron_variant',
+  },
 ] as const
 
 /** Consequence choices in "off-exomes" category. */

@@ -12408,6 +12408,7 @@ components:
       - protein_altering_variant
       - splice_donor_5th_base_variant
       - splice_region_variant
+      - exonic_splice_region_variant
       - splice_donor_region_variant
       - splice_polypyrimidine_tract_variant
       - start_retained_variant
@@ -12421,6 +12422,7 @@ components:
       - 3_prime_UTR_intron_variant
       - non_coding_transcript_exon_variant
       - non_coding_transcript_intron_variant
+      - coding_transcript_intron_variant
       - upstream_gene_variant
       - downstream_gene_variant
       - TFBS_ablation
@@ -12462,6 +12464,7 @@ components:
         - protein_altering_variant
         - splice_donor_5th_base_variant
         - splice_region_variant
+        - exonic_splice_region_variant
         - splice_donor_region_variant
         - splice_polypyrimidine_tract_variant
         - start_retained_variant
@@ -12475,6 +12478,7 @@ components:
         - 3_prime_UTR_intron_variant
         - non_coding_transcript_exon_variant
         - non_coding_transcript_intron_variant
+        - coding_transcript_intron_variant
         - upstream_gene_variant
         - downstream_gene_variant
         - TFBS_ablation

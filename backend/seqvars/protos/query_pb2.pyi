@@ -239,6 +239,8 @@ class _ConsequenceEnumTypeWrapper(
     """Splice donor 5th base variant."""
     CONSEQUENCE_SPLICE_REGION_VARIANT: _Consequence.ValueType  # 18
     """Splice region variant."""
+    CONSEQUENCE_EXONIC_SPLICE_REGION_VARIANT: _Consequence.ValueType  # 47
+    """Exonic splice region variant."""
     CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: _Consequence.ValueType  # 19
     """Splice donor region variant."""
     CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: _Consequence.ValueType  # 20
@@ -268,6 +270,8 @@ class _ConsequenceEnumTypeWrapper(
     """Non-coding transcript exon variant."""
     CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 31
     """Non-coding transcript intron variant."""
+    CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT: _Consequence.ValueType  # 48
+    """Coding transcript intron variant."""
     CONSEQUENCE_UPSTREAM_GENE_VARIANT: _Consequence.ValueType  # 32
     """Upstream gene variant."""
     CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: _Consequence.ValueType  # 33
@@ -349,6 +353,8 @@ CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT: Consequence.ValueType  # 17
 """Splice donor 5th base variant."""
 CONSEQUENCE_SPLICE_REGION_VARIANT: Consequence.ValueType  # 18
 """Splice region variant."""
+CONSEQUENCE_EXONIC_SPLICE_REGION_VARIANT: Consequence.ValueType  # 47
+"""Exonic splice region variant."""
 CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT: Consequence.ValueType  # 19
 """Splice donor region variant."""
 CONSEQUENCE_SPLICE_POLYPYRIMIDINE_TRACT_VARIANT: Consequence.ValueType  # 20
@@ -378,6 +384,8 @@ CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT: Consequence.ValueType  # 30
 """Non-coding transcript exon variant."""
 CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 31
 """Non-coding transcript intron variant."""
+CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT: Consequence.ValueType  # 48
+"""Coding transcript intron variant."""
 CONSEQUENCE_UPSTREAM_GENE_VARIANT: Consequence.ValueType  # 32
 """Upstream gene variant."""
 CONSEQUENCE_DOWNSTREAM_GENE_VARIANT: Consequence.ValueType  # 33

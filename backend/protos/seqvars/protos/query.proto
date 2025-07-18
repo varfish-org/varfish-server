@@ -223,6 +223,8 @@ enum Consequence {
   CONSEQUENCE_SPLICE_DONOR_FIFTH_BASE_VARIANT = 17;
   // Splice region variant.
   CONSEQUENCE_SPLICE_REGION_VARIANT = 18;
+  // Exonic splice region variant.
+  CONSEQUENCE_EXONIC_SPLICE_REGION_VARIANT = 47;
   // Splice donor region variant.
   CONSEQUENCE_SPLICE_DONOR_REGION_VARIANT = 19;
   // Splice polypyrimidine tract variant.
@@ -252,6 +254,8 @@ enum Consequence {
   CONSEQUENCE_NON_CODING_TRANSCRIPT_EXON_VARIANT = 30;
   // Non-coding transcript intron variant.
   CONSEQUENCE_NON_CODING_TRANSCRIPT_INTRON_VARIANT = 31;
+  // Coding transcript intron variant.
+  CONSEQUENCE_CODING_TRANSCRIPT_INTRON_VARIANT = 48;
   // Upstream gene variant.
   CONSEQUENCE_UPSTREAM_GENE_VARIANT = 32;
   // Downstream gene variant.
