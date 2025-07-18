@@ -454,7 +454,7 @@ def create_seqvarsquerypresetsconsequence(faker: Faker) -> list[SeqvarsQueryPres
                 # SeqvarsVariantConsequenceChoice.REGULATORY_REGION_VARIANT,
                 # SeqvarsVariantConsequenceChoice.INTERGENIC_VARIANT,
                 SeqvarsVariantConsequenceChoice.INTRON_VARIANT,
-                # SeqvarsVariantConsequenceChoice.GENE_VARIANT
+                SeqvarsVariantConsequenceChoice.GENE_VARIANT,
             ],
             max_distance_to_exon=None,
         ),

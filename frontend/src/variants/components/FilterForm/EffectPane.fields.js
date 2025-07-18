@@ -285,6 +285,13 @@ export const detailedEffectGroups = Object.freeze([
         explanation:
           'A transcript variant occurring within an intron of a non coding transcript.',
       },
+      {
+        id: 'gene_variant',
+        label: 'gene variant',
+        so: 'SO:0001564',
+        explanation:
+          'A sequence variant where the structure of the gene is changed.',
+      },
     ],
   },
   {
@@ -385,6 +392,7 @@ const _effectGroups = {
     'disruptive_inframe_deletion',
     'disruptive_inframe_insertion',
     'exon_loss_variant',
+    'exonic_splice_region_variant',
     'feature_elongation',
     'feature_truncation',
     'frameshift_elongation',
@@ -434,6 +442,7 @@ const _effectGroups = {
   ],
   noncoding: [
     'downstream_gene_variant',
+    'gene_variant',
     'intergenic_variant',
     'non_coding_transcript_exon_variant',
     'non_coding_transcript_intron_variant',
