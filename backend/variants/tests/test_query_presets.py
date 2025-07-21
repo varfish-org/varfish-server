@@ -1268,6 +1268,7 @@ class TestEnumImpact(TestCase):
                     "frameshift_elongation",
                     "frameshift_truncation",
                     "frameshift_variant",
+                    "gene_variant",
                     "inframe_deletion",
                     "inframe_insertion",
                     "intergenic_variant",
