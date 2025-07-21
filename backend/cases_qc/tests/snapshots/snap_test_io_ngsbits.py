@@ -4,23 +4,22 @@ from __future__ import unicode_literals
 
 from snapshottest import GenericRepr, Snapshot
 
-
 snapshots = Snapshot()
 
-snapshots['NgsbitsMappingqcLoadTest::test_load 1'] = [
-    '_state',
-    'id',
-    'sodar_uuid',
-    'date_created',
-    'date_modified',
-    'caseqc_id',
-    'sample',
-    'region_name',
-    'records'
+snapshots["NgsbitsMappingqcLoadTest::test_load 1"] = [
+    "_state",
+    "id",
+    "sodar_uuid",
+    "date_created",
+    "date_modified",
+    "caseqc_id",
+    "sample",
+    "region_name",
+    "records",
 ]
 
-snapshots['NgsbitsMappingqcLoadTest::test_load 2'] = {
-    'records': [
+snapshots["NgsbitsMappingqcLoadTest::test_load 2"] = {
+    "records": [
         GenericRepr("NgsbitsMappingqcRecord(key='trimmed base percentage', value=0.57)"),
         GenericRepr("NgsbitsMappingqcRecord(key='clipped base percentage', value=0.91)"),
         GenericRepr("NgsbitsMappingqcRecord(key='mapped read percentage', value=99.89)"),
@@ -39,10 +38,12 @@ snapshots['NgsbitsMappingqcLoadTest::test_load 2'] = {
         GenericRepr("NgsbitsMappingqcRecord(key='target region 100x percentage', value=0.05)"),
         GenericRepr("NgsbitsMappingqcRecord(key='target region 200x percentage', value=0.01)"),
         GenericRepr("NgsbitsMappingqcRecord(key='target region 500x percentage', value=0.0)"),
-        GenericRepr("NgsbitsMappingqcRecord(key='target region half depth percentage', value=96.6)"),
+        GenericRepr(
+            "NgsbitsMappingqcRecord(key='target region half depth percentage', value=96.6)"
+        ),
         GenericRepr("NgsbitsMappingqcRecord(key='AT dropout', value=0.13)"),
         GenericRepr("NgsbitsMappingqcRecord(key='GC dropout', value=2.12)"),
-        GenericRepr("NgsbitsMappingqcRecord(key='SNV allele frequency deviation', value=2.17)")
+        GenericRepr("NgsbitsMappingqcRecord(key='SNV allele frequency deviation', value=2.17)"),
     ],
-    'sample': 'sample'
+    "sample": "sample",
 }
