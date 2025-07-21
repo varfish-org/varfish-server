@@ -53,6 +53,7 @@
           "disruptive_inframe_deletion",
           "disruptive_inframe_insertion",
           "downstream_gene_variant",
+          "exonic_splice_region_variant",
           "exon_loss_variant",
           "feature_elongation",
           "feature_truncation",

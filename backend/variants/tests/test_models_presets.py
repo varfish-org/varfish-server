@@ -151,6 +151,7 @@ class TestImpactPresetsFactory(TestCase):
         self.assertEqual(ImpactPresets.objects.count(), 1)
 
     def test_create_as_copy_of_factory_preset(self):
+        self.maxDiff = None
         presetset = PresetSetFactory()
         result = ImpactPresets.objects.create_as_copy_of_factory_preset(
             "null_variant", "new-null_variant", presetset
@@ -181,6 +182,7 @@ class TestImpactPresetsFactory(TestCase):
                 "stop_lost",
                 "structural_variant",
                 "transcript_ablation",
+                "transcript_amplification",
             ],
         }
         self.assertDictEqual(result, expected)
