@@ -25,6 +25,7 @@ from .models import (
     SmallVariantComment,
     VariantScoresFactory,
     annotate_with_gm_scores,
+    annotate_with_gnomad_constraints,
     annotate_with_joint_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_pedia_scores,
@@ -398,7 +399,8 @@ class CaseExporterBase:
         self.job.add_log_entry("Executing database query...")
         with contextlib.closing(self.query.run(self.query_args)) as result:
             self.job.add_log_entry("Executing phenotype score query...")
-            _result = annotate_with_transcripts(list(result), self.query_args["database_select"])
+            _result = annotate_with_gnomad_constraints(list(result))
+            _result = annotate_with_transcripts(_result, self.query_args["database_select"])
             if self._is_prioritization_enabled():
                 gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in _result])
                 _result = annotate_with_phenotype_scores(_result, gene_scores)
