@@ -12,21 +12,21 @@ import toml
 GLOBAL_CONFIG_PATHS = ("~/.varfishrc.toml",)
 
 #: Endpoint to generate export tsv file
-ENDPOINT_DOWNLOAD_GENERATE_TSV = "/variants/api/query-case/download/generate/tsv/{query_uuid}"
+ENDPOINT_DOWNLOAD_GENERATE_TSV = "/variants/api/query-case/download/generate/tsv/{query_uuid}/"
 #: Endpoint to generate export vcf file
-ENDPOINT_DOWNLOAD_GENERATE_VCF = "/variants/api/query-case/download/generate/vcf/{query_uuid}"
+ENDPOINT_DOWNLOAD_GENERATE_VCF = "/variants/api/query-case/download/generate/vcf/{query_uuid}/"
 #: Endpoint to generate export xlsx file
-ENDPOINT_DOWNLOAD_GENERATE_XLSX = "/variants/api/query-case/download/generate/xlsx/{query_uuid}"
+ENDPOINT_DOWNLOAD_GENERATE_XLSX = "/variants/api/query-case/download/generate/xlsx/{query_uuid}/"
 #: Endpoint to download file
-ENDPOINT_DOWNLOAD_SERVE = "/variants/api/query-case/download/serve/{sodar_uuid}"
+ENDPOINT_DOWNLOAD_SERVE = "/variants/api/query-case/download/serve/{sodar_uuid}/"
 #: Endpoint to check download status
-ENDPOINT_DOWNLOAD_STATUS = "/variants/api/query-case/download/status/{sodar_uuid}"
+ENDPOINT_DOWNLOAD_STATUS = "/variants/api/query-case/download/status/{sodar_uuid}/"
 #: Endpoint to case list
-ENDPOINT_CASE_LIST = "/cases/api/case/list/{project_uuid}"
+ENDPOINT_CASE_LIST = "/cases/api/case/list/{project_uuid}/"
 #: Endpoint to smallvariant query settings
-ENDPOINT_SM_SETTINGS = "/variants/api/query-case/query-settings-shortcut/{case_uuid}"
+ENDPOINT_SM_SETTINGS = "/variants/api/query-case/query-settings-shortcut/{case_uuid}/"
 #: Endpoint to smallvariant list-create query
-ENDPOINT_SM_LISTCREATE_QUERY = "/variants/api/query/list-create/{case_uuid}"
+ENDPOINT_SM_LISTCREATE_QUERY = "/variants/api/query/list-create/{case_uuid}/"
 #: Endpoint to smallvariant retrieve query
 ENDPOINT_SM_RETRIEVE_QUERY = "/variants/api/query/retrieve-update-destroy/{query_uuid}/"
 #: Endpoint to structuralvariant query settings
