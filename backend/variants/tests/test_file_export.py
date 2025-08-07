@@ -20,7 +20,7 @@ from timeline.models import TimelineEvent
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
 from extra_annos.tests.factories import ExtraAnnoFactory, ExtraAnnoFieldFactory
-from geneinfo.tests.factories import GnomadConstraintsFactory, RefseqToEnsemblFactory
+from geneinfo.tests.factories import GnomadConstraintsFactory, HgncFactory, RefseqToEnsemblFactory
 from variants.tests.factories import (
     CaseWithVariantSetFactory,
     ExportProjectCasesFileBgJobFactory,
@@ -75,6 +75,41 @@ class MehariMockerMixin:
             )
 
 
+class AnnonarsMockerMixin:
+    def _set_annonars_mocker(self, mock_):
+        self.gnomad_constraints = []
+        for i, hgnc in enumerate(self.hgnc, start=1):
+            gnomad_constraints = {
+                "ensemblGeneId": "ENSG00000121410",
+                "entrezId": "1",
+                "geneSymbol": "A1BG",
+                "expLof": i * 1.1,
+                "expMis": i * 1.1,
+                "expSyn": i * 1.1,
+                "misZ": i * 0.1,
+                "obsLof": i * 10,
+                "obsMis": i * 10,
+                "obsSyn": i * 10,
+                "oeLof": i * 0.3,
+                "oeLofLower": i * 0.2,
+                "oeLofUpper": i * 0.4,
+                "oeMis": i * 0.1,
+                "oeMisLower": i * 0.1,
+                "oeMisUpper": i * 0.1,
+                "oeSyn": i * 0.1,
+                "oeSynLower": i * 0.1,
+                "oeSynUpper": i * 0.1,
+                "pli": i * 0.01,
+                "synZ": i * 0.1,
+            }
+            mock_.get(
+                f"https://annonars.com/genes/info?hgnc_id={hgnc.hgnc_id}",
+                status_code=200,
+                json={"genes": {hgnc.hgnc_id: {"gnomadConstraints": gnomad_constraints}}},
+            )
+            self.gnomad_constraints.append(gnomad_constraints)
+
+
 class ExportTestBase(TestCase):
     """Base class for testing exports.
 
@@ -84,7 +119,22 @@ class ExportTestBase(TestCase):
     def setUp(self):
         self.superuser = self.make_user("superuser")
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        SmallVariantFactory.chromosome.reset()
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.hgnc = [
+            HgncFactory(
+                entrez_id=self.small_vars[0].refseq_gene_id,
+                ensembl_gene_id=self.small_vars[0].ensembl_gene_id,
+            ),
+            HgncFactory(
+                entrez_id=self.small_vars[1].refseq_gene_id,
+                ensembl_gene_id=self.small_vars[1].ensembl_gene_id,
+            ),
+            HgncFactory(
+                entrez_id=self.small_vars[2].refseq_gene_id,
+                ensembl_gene_id=self.small_vars[2].ensembl_gene_id,
+            ),
+        ]
         self.small_vars.sort(key=lambda x: x.chromosome_no)
         self.extra_anno = [
             ExtraAnnoFactory(
@@ -222,7 +272,7 @@ class ExportTestBase(TestCase):
         )
 
 
-class CaseExporterTest(MehariMockerMixin, ExportTestBase):
+class CaseExporterTest(MehariMockerMixin, AnnonarsMockerMixin, ExportTestBase):
     def setUp(self):
         super().setUp()
         # Here, the query arguments actually matter
@@ -235,6 +285,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         self._set_cada_mocker(mock_)
         self._set_pedia_mocker(mock_)
         self._set_cadd_mocker(mock_)
+        self._set_annonars_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
@@ -251,6 +302,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
 
     def _test_export_tsv(self, database, mock_):
         self._set_mehari_mocker(mock_)
+        self._set_annonars_mocker(mock_)
 
         self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:
@@ -259,11 +311,13 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         self._test_tabular(arrs, True, settings.VARFISH_BACKEND_URL_MEHARI, database)
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
     @Mocker()
     def test_export_tsv(self, mock_):
         self._test_export_tsv("refseq", mock_)
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
     @Mocker()
     def test_export_tsv_refseq(self, mock_):
         self._test_export_tsv("refseq", mock_)
@@ -319,18 +373,18 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
                 self.assertSequenceEqual(arrs[i + 1][-6:-5], ["10.78"])
             self.assertSequenceEqual(
                 [
-                    arrs[i + 1][31][0:6],
-                    arrs[i + 1][32][0:6],
-                    arrs[i + 1][33][0:6],
-                    arrs[i + 1][34][0:6],
-                    arrs[i + 1][35][0:6],
+                    f"{float(arrs[i + 1][31]):.2f}",
+                    f"{float(arrs[i + 1][32]):.1f}",
+                    f"{float(arrs[i + 1][33]):.1f}",
+                    f"{float(arrs[i + 1][34]):.1f}",
+                    f"{float(arrs[i + 1][35]):.1f}",
                 ],
                 [
-                    str(1 / 2 ** (i % 12) + 1.234)[0:6],
-                    str(1 / 2 ** (i % 12))[0:6],
-                    str(1 / 2 ** (i % 12))[0:6],
-                    str(1 / 3 ** (i % 12))[0:6],
-                    str((1 / 0.75) ** (i % 12))[0:6],
+                    f"{float(self.gnomad_constraints[i]['pli']):.2f}",
+                    f"{float(self.gnomad_constraints[i]['misZ']):.1f}",
+                    f"{float(self.gnomad_constraints[i]['oeLof']):.1f}",
+                    f"{float(self.gnomad_constraints[i]['oeLofUpper']):.1f}",
+                    f"{float(self.gnomad_constraints[i]['oeLofLower']):.1f}",
                 ],
             )
             if mehari_enable:
@@ -357,6 +411,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
             self.assertSequenceEqual(arrs[4], [""])
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
     @Mocker()
     def test_export_vcf(self, mock_):
         self._set_mehari_mocker(mock_)
@@ -407,6 +462,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @patch("django.conf.settings.VARFISH_PEDIA_REST_API_URL", "https://pedia.com")
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
     @Mocker()
     def test_export_xlsx(self, mock):
         self.export_job.query_args["pedia_enabled"] = True
@@ -419,6 +475,7 @@ class CaseExporterTest(MehariMockerMixin, ExportTestBase):
         self._test_export_xlsx("refseq", mock)
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", "https://mehari.com")
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", "https://annonars.com")
     @Mocker()
     def test_export_xlsx_refseq(self, mock):
         self._test_export_xlsx("refseq", mock)
@@ -473,6 +530,7 @@ class ProjectExportTest(TestCase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_tsv(self):
         with file_export.CaseExporterTsv(self.export_job, self.project) as exporter:
             result = str(exporter.generate(), "utf-8")
@@ -523,6 +581,7 @@ class ProjectExportTest(TestCase):
             self.assertSequenceEqual(arrs[5], [""])
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_vcf(self):
         with file_export.CaseExporterVcf(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -614,6 +673,7 @@ class ProjectExportTest(TestCase):
         self.assertEquals(content[3], "")
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_xlsx(self):
         with file_export.CaseExporterXlsx(self.export_job, self.project) as exporter:
             result = exporter.generate()
@@ -640,6 +700,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_tsv_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -659,6 +720,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_tsv_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -691,6 +753,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_tsv_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -707,6 +770,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
@@ -791,6 +855,7 @@ class CohortExporterTest(TestCohortBase):
         self.assertEquals(content[ref - 1], "")
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_vcf_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -810,6 +875,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_vcf_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -826,6 +892,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_vcf_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -842,6 +909,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_vcf_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2
@@ -858,6 +926,7 @@ class CohortExporterTest(TestCohortBase):
         )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_xlsx_as_superuser(self):
         user = self.superuser
         project = self.project1
@@ -884,6 +953,7 @@ class CohortExporterTest(TestCohortBase):
             )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_xlsx_as_contributor(self):
         user = self.contributor
         project = self.project2
@@ -907,6 +977,7 @@ class CohortExporterTest(TestCohortBase):
             )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_xlsx_as_superuser_for_cohort_by_contributor(self):
         user = self.superuser
         project = self.project2
@@ -930,6 +1001,7 @@ class CohortExporterTest(TestCohortBase):
             )
 
     @patch("django.conf.settings.VARFISH_BACKEND_URL_MEHARI", None)
+    @patch("django.conf.settings.VARFISH_BACKEND_URL_ANNONARS", None)
     def test_export_xlsx_as_contributor_for_cohort_by_superuser(self):
         user = self.contributor
         project = self.project2

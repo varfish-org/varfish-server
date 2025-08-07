@@ -16,10 +16,8 @@ from geneinfo.tests.factories import (
     EnsemblToGeneSymbolFactory,
     GeneIdInHpoFactory,
     GeneIdToInheritanceFactory,
-    GnomadConstraintsFactory,
     HgncFactory,
     MgiMappingFactory,
-    RefseqToEnsemblFactory,
     RefseqToGeneSymbolFactory,
 )
 from variants.helpers import get_engine
@@ -93,10 +91,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             ensembl_gene_id=small_vars[0].ensembl_gene_id,
             entrez_id=small_vars[0].refseq_gene_id,
         ),
-        # Prepare constraints
-        self.gnomad_constraints = GnomadConstraintsFactory(
-            ensembl_gene_id=small_vars[0].ensembl_gene_id
-        )
         # Prepare MGI records
         self.mgi = MgiMappingFactory(human_entrez_id=small_vars[0].refseq_gene_id)
         # Prepare smallvariant query results
@@ -107,11 +101,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             project=case.project
         )
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
-        RefseqToEnsemblFactory(
-            entrez_id=small_vars[0].refseq_gene_id,
-            ensembl_gene_id=small_vars[0].ensembl_gene_id,
-            ensembl_transcript_id=small_vars[0].ensembl_transcript_id,
-        )
 
     def test_load_prefetched_case_results(self):
         results = self.run_query(
@@ -129,7 +118,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             ],
         )
         self.assertTrue(results[0].disease_gene)
-        self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
         self.assertFalse(results[1].disease_gene)
 
     def test_load_prefetched_project_cases_results(self):
@@ -143,82 +131,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.assertIsNone(results[1].acmg_symbol)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
-
-
-class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
-    """Test the case that the entrez ID does not correspond to the ensembl ID
-
-    cf. bug in https://github.com/varfish-org/varfish-server/issues/622
-    """
-
-    def setUp(self):
-        super().setUp()
-        case, variant_set, _ = CaseWithVariantSetFactory.get("small")
-        self.acmg_0 = AcmgFactory(entrez_id="1000", ensembl_gene_id="ENSG1001")
-        self.acmg_1 = AcmgFactory(entrez_id="1000", ensembl_gene_id="ENSG1000")
-        small_vars = [
-            SmallVariantFactory(
-                chromosome=normalize_chrom("1", case.release),
-                ensembl_effect=["missense_variant"],
-                refseq_effect=["intergenic_variant"],
-                refseq_gene_id=self.acmg_1.entrez_id,
-                ensembl_gene_id=self.acmg_0.ensembl_gene_id,
-                variant_set=variant_set,
-            ),
-            SmallVariantFactory(
-                chromosome=normalize_chrom("1", case.release),
-                ensembl_effect=["missense_variant"],
-                refseq_effect=["missense_variant_variant"],
-                refseq_gene_id=self.acmg_1.entrez_id,
-                ensembl_gene_id=self.acmg_1.ensembl_gene_id,
-                variant_set=variant_set,
-            ),
-        ]
-        # Prepare constraints
-        self.gnomad_constraints = [
-            GnomadConstraintsFactory(
-                ensembl_gene_id=small_vars[0].ensembl_gene_id,
-                pLI=0.8,
-            ),
-            GnomadConstraintsFactory(
-                ensembl_gene_id=small_vars[1].ensembl_gene_id,
-                pLI=0.4,
-            ),
-        ]
-        # Prepare smallvariant query results
-        self.smallvariantquery = SmallVariantQueryFactory(case=case)
-        self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
-        # Prepare projectcases smallvariant query results
-        self.projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(
-            project=case.project
-        )
-        self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
-        # Create appropriate refseq to ensembl mappings
-        RefseqToEnsemblFactory(
-            entrez_id="1000",
-            ensembl_gene_id="ENSG1000",
-            ensembl_transcript_id=small_vars[1].ensembl_transcript_id,
-        )
-
-    def test_run_query_refseq(self):
-        results = self.run_query(
-            ProjectLoadPrefetchedQuery,
-            {"filter_job_id": self.projectcasessmallvariantquery.id, "database_select": "refseq"},
-            2,
-            query_type="project",
-        )
-        self.assertEqual(results[0].gnomad_pLI, 0.4)
-        self.assertEqual(results[1].gnomad_pLI, 0.4)
-
-    def test_run_query_ensembl(self):
-        results = self.run_query(
-            ProjectLoadPrefetchedQuery,
-            {"filter_job_id": self.projectcasessmallvariantquery.id, "database_select": "ensembl"},
-            2,
-            query_type="project",
-        )
-        self.assertEqual(results[0].gnomad_pLI, 0.8)
-        self.assertEqual(results[1].gnomad_pLI, 0.4)
 
 
 class TestCaseLoadPrefetchedSorting(SupportQueryTestBase):

@@ -18,7 +18,11 @@ from ext_gestaltmatcher.models import (
     SmallVariantQueryPediaScores,
 )
 from variants.helpers import get_engine, get_meta
-from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
+from variants.models import (
+    SmallVariantQueryGeneScores,
+    SmallVariantQueryVariantScores,
+    load_gnomad_constraints,
+)
 from variants.models.queries import (
     FilterBgJob,
     SmallVariantQuery,
@@ -110,6 +114,7 @@ def run_query_bg_job(pk):
         pedia_scores=None,
     ):
         """Read and yield ``SmallVariantQueryResultRow`` objects by reading ``inputf`` for the given ``SmallVariantQueryResultSet``."""
+
         for line in inputf:
             payload = dict(line)
             del payload["id"]
@@ -135,6 +140,19 @@ def run_query_bg_job(pk):
                     payload["patho_pheno_score"] = (
                         payload["pathogenicity_score"] * payload["phenotype_score"]
                     )
+
+            constraints = load_gnomad_constraints(line.hgnc_id)
+            oe_lof_upper = constraints.get("oeLofUpper", None)
+            payload["gnomad_pLI"] = constraints.get("pli", None)
+            payload["gnomad_mis_z"] = constraints.get("misZ", None)
+            payload["gnomad_syn_z"] = constraints.get("synZ", None)
+            payload["gnomad_oe_mis"] = constraints.get("oeMis", None)
+            payload["gnomad_oe_mis_upper"] = constraints.get("oeMisUpper", None)
+            payload["gnomad_oe_mis_lower"] = constraints.get("oeMisLower", None)
+            payload["gnomad_oe_lof"] = constraints.get("oeLof", None)
+            payload["gnomad_oe_lof_upper"] = oe_lof_upper
+            payload["gnomad_oe_lof_lower"] = constraints.get("oeLofLower", None)
+            payload["gnomad_loeuf"] = oe_lof_upper + 0.001 if oe_lof_upper else None
 
             yield SmallVariantQueryResultRow(
                 smallvariantqueryresultset=smallvariantqueryresultset,

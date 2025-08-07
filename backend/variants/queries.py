@@ -26,9 +26,7 @@ from geneinfo.models import (
     EnsemblToGeneSymbol,
     GeneIdInHpo,
     GeneIdToInheritance,
-    GnomadConstraints,
     Hgnc,
-    RefseqToEnsembl,
     RefseqToGeneSymbol,
     RefseqToHgnc,
 )
@@ -1335,74 +1333,6 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsDiseaseGeneJoinBase):
     gene_id_model = SmallVariant
 
 
-class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields = [
-            "pLI",
-            "mis_z",
-            "syn_z",
-            "oe_mis",
-            "oe_mis_upper",
-            "oe_mis_lower",
-            "oe_lof",
-            "oe_lof_upper",
-            "oe_lof_lower",
-        ]
-        self.subquery = self._build_subquery()
-        self.fields.append("loeuf")
-
-    def _build_subquery(self):
-        """Build sub query, depending on selected database (refseq/ensembl)."""
-        if self.transcript_db == "ensembl":
-            return (
-                select(
-                    [
-                        func.max(getattr(GnomadConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                    + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
-                )
-                .select_from(GnomadConstraints.sa)
-                .where(SmallVariant.sa.ensembl_gene_id == GnomadConstraints.sa.ensembl_gene_id)
-                .group_by(GnomadConstraints.sa.ensembl_gene_id)
-                .lateral("gnomad_constraints_subquery")
-            )
-        else:
-            self.subquery_refseq_to_ensembl = (
-                select([func.max(RefseqToEnsembl.sa.ensembl_gene_id).label("ensembl_gene_id")])
-                .select_from(RefseqToEnsembl.sa)
-                .where(SmallVariant.sa.refseq_gene_id == RefseqToEnsembl.sa.entrez_id)
-                .group_by(RefseqToEnsembl.sa.entrez_id)
-                .lateral("refseqtoensembl_subquery_gnomad_constraints")
-            )
-            link = (
-                self.subquery_refseq_to_ensembl.c.ensembl_gene_id
-                == GnomadConstraints.sa.ensembl_gene_id
-            )
-            return (
-                select(
-                    [
-                        func.max(getattr(GnomadConstraints.sa, field)).label(field)
-                        for field in self.fields
-                    ]
-                    + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
-                )
-                .select_from(GnomadConstraints.sa)
-                .where(link)
-                .group_by(GnomadConstraints.sa.ensembl_gene_id)
-                .lateral("gnomad_constraints_subquery")
-            )
-
-    def extend_fields(self, _query_parts):
-        return [getattr(self.subquery.c, field).label("gnomad_%s" % field) for field in self.fields]
-
-    def extend_selectable(self, query_parts):
-        if self.transcript_db == "refseq":
-            query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
 class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
     """Extend query parts to only fetch variants that have a user annotation."""
 
@@ -1525,7 +1455,6 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsAcmgCriteriaJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
-            ExtendQueryPartsGnomadConstraintsJoin,
             ExtendQueryPartsInHouseJoinAndFilter,
             ExtendQueryPartsClinvarJoin,
         ] + get_qp_extender_classes_from_plugins()
@@ -1546,7 +1475,6 @@ class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsGenomicRegionFilter,
-            ExtendQueryPartsGnomadConstraintsJoin,
             ExtendQueryPartsHgncJoin,
             ExtendQueryPartsInHouseJoin,
             ExtendQueryPartsMitochondrialFrequenciesJoin,
@@ -1562,7 +1490,6 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
             *extender_classes_base,
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
 
@@ -1589,7 +1516,6 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsFlagsJoin,
             ExtendQueryPartsCommentsJoin,
             ExtendQueryPartsAcmgCriteriaJoin,
-            ExtendQueryPartsGnomadConstraintsJoin,
             ExtendQueryPartsClinvarJoin,
             ExtendQueryPartsModesOfInheritanceJoin,
             ExtendQueryPartsDiseaseGeneJoin,
@@ -1603,7 +1529,6 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsHgncAndConservationJoin,
             ExtendQueryPartsGeneSymbolJoin,
             ExtendQueryPartsAcmgJoin,
-            ExtendQueryPartsGnomadConstraintsJoin,
         ] + get_qp_extender_classes_from_plugins()
 
 

@@ -58,6 +58,31 @@ def load_molecular_impact(kwargs):
         raise ConnectionError("ERROR: mehari not responding.") from e
 
 
+def load_gnomad_constraints(hgnc_id=None):
+    """Load gnomAD constraints from annonars REST API."""
+    base_url = settings.VARFISH_BACKEND_URL_ANNONARS
+    if not base_url:
+        return {}
+
+    if not hgnc_id:
+        return {}
+
+    url = "{base_url}/genes/info?hgnc_id={hgnc_id}".format(base_url=base_url, hgnc_id=hgnc_id)
+
+    try:
+        res = requests.request(method="get", url=url)
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
+            )
+        else:
+            return res.json().get("genes", {}).get(hgnc_id, {}).get("gnomadConstraints", {}) or {}
+    except requests.ConnectionError as e:
+        raise ConnectionError("ERROR: annonars not responding.") from e
+
+
 class SmallVariantQueryGeneScores(models.Model):
     """Annotate ``SmallVariantQuery`` with gene scores (if configured to do so)."""
 
@@ -360,6 +385,127 @@ class RowWithTranscripts(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithGnomadConstraints(wrapt.ObjectProxy):
+    """Wrap a result row and add members for gnomAD constraints."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_gnomad_pLI = None
+        self._self_gnomad_mis_z = None
+        self._self_gnomad_syn_z = None
+        self._self_gnomad_oe_mis = None
+        self._self_gnomad_oe_mis_upper = None
+        self._self_gnomad_oe_mis_lower = None
+        self._self_gnomad_oe_lof = None
+        self._self_gnomad_oe_lof_upper = None
+        self._self_gnomad_oe_lof_lower = None
+        self._self_gnomad_loeuf = None
+
+    @property
+    def gnomad_pLI(self):
+        return self._self_gnomad_pLI
+
+    @property
+    def gnomad_mis_z(self):
+        return self._self_gnomad_mis_z
+
+    @property
+    def gnomad_syn_z(self):
+        return self._self_gnomad_syn_z
+
+    @property
+    def gnomad_oe_mis(self):
+        return self._self_gnomad_oe_mis
+
+    @property
+    def gnomad_oe_mis_upper(self):
+        return self._self_gnomad_oe_mis_upper
+
+    @property
+    def gnomad_oe_mis_lower(self):
+        return self._self_gnomad_oe_mis_lower
+
+    @property
+    def gnomad_oe_lof(self):
+        return self._self_gnomad_oe_lof
+
+    @property
+    def gnomad_oe_lof_upper(self):
+        return self._self_gnomad_oe_lof_upper
+
+    @property
+    def gnomad_oe_lof_lower(self):
+        return self._self_gnomad_oe_lof_lower
+
+    @property
+    def gnomad_loeuf(self):
+        return self._self_gnomad_loeuf
+
+    @gnomad_pLI.setter
+    def gnomad_pLI(self, value):
+        self._self_gnomad_pLI = value
+
+    @gnomad_mis_z.setter
+    def gnomad_mis_z(self, value):
+        self._self_gnomad_mis_z = value
+
+    @gnomad_syn_z.setter
+    def gnomad_syn_z(self, value):
+        self._self_gnomad_syn_z = value
+
+    @gnomad_oe_mis.setter
+    def gnomad_oe_mis(self, value):
+        self._self_gnomad_oe_mis = value
+
+    @gnomad_oe_mis_upper.setter
+    def gnomad_oe_mis_upper(self, value):
+        self._self_gnomad_oe_mis_upper = value
+
+    @gnomad_oe_mis_lower.setter
+    def gnomad_oe_mis_lower(self, value):
+        self._self_gnomad_oe_mis_lower = value
+
+    @gnomad_oe_lof.setter
+    def gnomad_oe_lof(self, value):
+        self._self_gnomad_oe_lof = value
+
+    @gnomad_oe_lof_upper.setter
+    def gnomad_oe_lof_upper(self, value):
+        self._self_gnomad_oe_lof_upper = value
+
+    @gnomad_oe_lof_lower.setter
+    def gnomad_oe_lof_lower(self, value):
+        self._self_gnomad_oe_lof_lower = value
+
+    @gnomad_loeuf.setter
+    def gnomad_loeuf(self, value):
+        self._self_gnomad_loeuf = value
+
+    def __getitem__(self, key):
+        if key == "gnomad_pLI":
+            return self.gnomad_pLI
+        elif key == "gnomad_mis_z":
+            return self.gnomad_mis_z
+        elif key == "gnomad_syn_z":
+            return self.gnomad_syn_z
+        elif key == "gnomad_oe_mis":
+            return self.gnomad_oe_mis
+        elif key == "gnomad_oe_mis_upper":
+            return self.gnomad_oe_mis_upper
+        elif key == "gnomad_oe_mis_lower":
+            return self.gnomad_oe_mis_lower
+        elif key == "gnomad_oe_lof":
+            return self.gnomad_oe_lof
+        elif key == "gnomad_oe_lof_upper":
+            return self.gnomad_oe_lof_upper
+        elif key == "gnomad_oe_lof_lower":
+            return self.gnomad_oe_lof_lower
+        elif key == "gnomad_loeuf":
+            return self.gnomad_loeuf
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 def annotate_with_phenotype_scores(rows, gene_scores):
     """Annotate the results in ``rows`` with phenotype scores stored in ``small_variant_query``.
 
@@ -458,6 +604,27 @@ def annotate_with_transcripts(rows, database):
             ]
         )
 
+    return rows
+
+
+def annotate_with_gnomad_constraints(rows):
+    """Annotate the results in ``rows`` with gnomAD constraints."""
+    rows = [RowWithGnomadConstraints(row) for row in rows]
+    for row in rows:
+        # Get the gnomAD constraint for the gene
+        constraints = load_gnomad_constraints(row.hgnc_id if hasattr(row, "hgnc_id") else None)
+        # Add the constraint to the row
+        oe_lof_upper = constraints.get("oeLofUpper", None)
+        row.gnomad_pLI = constraints.get("pli", None)
+        row.gnomad_mis_z = constraints.get("misZ", None)
+        row.gnomad_syn_z = constraints.get("synZ", None)
+        row.gnomad_oe_mis = constraints.get("oeMis", None)
+        row.gnomad_oe_mis_upper = constraints.get("oeMisUpper", None)
+        row.gnomad_oe_mis_lower = constraints.get("oeMisLower", None)
+        row.gnomad_oe_lof = constraints.get("oeLof", None)
+        row.gnomad_oe_lof_upper = oe_lof_upper
+        row.gnomad_oe_lof_lower = constraints.get("oeLofLower", None)
+        row.gnomad_loeuf = oe_lof_upper + 0.001 if oe_lof_upper else None
     return rows
 
 
