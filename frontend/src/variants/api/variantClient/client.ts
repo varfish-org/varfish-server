@@ -391,7 +391,7 @@ export class VariantClient extends ClientBase {
 
   async generateDownloadResults(fileType: string, queryUuid: string) {
     return await this.fetchHelper(
-      `/variants/ajax/query-case/download/generate/${fileType}/${queryUuid}`, // no trailing slash!!!
+      `/variants/ajax/query-case/download/generate/${fileType}/${queryUuid}/`,
       'GET',
     )
   }
