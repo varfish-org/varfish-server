@@ -1,0 +1,451 @@
+syntax = "proto3";
+
+package seqvars.pbs.output;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+import "seqvars/protos/query.proto";
+
+
+// Store meta information about query results.
+message OutputHeader {
+  // Genome release.
+  GenomeRelease genome_release = 1;
+  // Versions for each used database or software.
+  repeated VersionEntry versions = 2;
+  // The used query settings.
+  optional seqvars.pbs.query.CaseQuery query = 3;
+  // Case UUID.
+  string case_uuid = 4;
+  // Resources used.
+  optional ResourcesUsed resources = 5;
+  // Statistics about results.
+  optional OutputStatistics statistics = 6;
+  // Information about the variant scores in the output.
+  repeated VariantScoreColumn variant_score_columns = 7;
+}
+
+// Store information about the variant scores in the output.
+message VariantScoreColumn {
+  // Name of the score.
+  string name = 1;
+  // Label for the score.
+  string label = 2;
+  // Description of the score.
+  string description = 3;
+  // Type of the score.
+  VariantScoreColumnType type = 4;
+}
+
+// Enumeration of the variant score type.
+enum VariantScoreColumnType {
+  // Unspecified variant score type.
+  VARIANT_SCORE_COLUMN_TYPE_UNSPECIFIED = 0;
+  // Number
+  VARIANT_SCORE_COLUMN_TYPE_NUMBER = 1;
+  // String
+  VARIANT_SCORE_COLUMN_TYPE_STRING = 2;
+}
+
+// Enumeration of the genome release.
+enum GenomeRelease {
+  // Unspecified genome release.
+  GENOME_RELEASE_UNSPECIFIED = 0;
+  // GRCh37.
+  GENOME_RELEASE_GRCH37 = 1;
+  // GRCh38.
+  GENOME_RELEASE_GRCH38 = 2;
+}
+
+// Store version information.
+message VersionEntry {
+  // Name of the version.
+  string name = 1;
+  // Version string.
+  string version = 2;
+}
+
+// Query resource requirements.
+message ResourcesUsed {
+  // Start time.
+  optional google.protobuf.Timestamp start_time = 1;
+  // End time.
+  optional google.protobuf.Timestamp end_time = 2;
+  // RAM usage in bytes.
+  uint64 memory_used = 3;
+}
+
+// Store statistics about the output.
+message OutputStatistics {
+  // Total number of records.
+  uint64 count_total = 1;
+  // Number of passed records.
+  uint64 count_passed = 2;
+  // Passed records by consequence.
+  repeated ConsequenceCount passed_by_consequences = 3;
+}
+
+// Store consequence statistics.
+message ConsequenceCount {
+  // Consequence.
+  seqvars.pbs.query.Consequence consequence = 1;
+  // Number of records.
+  uint32 count = 2;
+}
+
+// Store one record in the output.
+message OutputRecord {
+  // UUID of the record.
+  string uuid = 1;
+  // Case UUID.
+  string case_uuid = 2;
+  // The description.
+  optional VcfVariant vcf_variant = 3;
+  // The variant annotation payload.
+  optional VariantAnnotation variant_annotation = 4;
+}
+
+// Store a sequnce variant in VCF representation.
+message VcfVariant {
+  // Genome release.
+  GenomeRelease genome_release = 1;
+  // Chromosome, normalized.
+  string chrom = 2;
+  // Chromosome number for sorting.
+  int32 chrom_no = 3;
+  // 1-based position.
+  int32 pos = 4;
+  // Reference allele.
+  string ref_allele = 5;
+  // Alternative allele.
+  string alt_allele = 6;
+}
+
+// Store the variant annotation payload (always for a single gene).
+message VariantAnnotation {
+  // Gene-related annotation.
+  optional GeneRelatedAnnotation gene = 1;
+  // Variant-related annotation.
+  optional VariantRelatedAnnotation variant = 2;
+  // Call-related annotation.
+  optional CallRelatedAnnotation call = 3;
+}
+
+/*
+ * Gene-related annotation.
+ */
+
+// Store gene-related annotation (always for a single gene).
+message GeneRelatedAnnotation {
+  // Gene ID information.
+  optional GeneIdentity identity = 1;
+  // Gene-related consequences, if any (none if intergenic).
+  optional GeneRelatedConsequences consequences = 2;
+  // Gene-related phenotype information, if any.
+  optional GeneRelatedPhenotypes phenotypes = 3;
+  // Gene-wise constraints on the gene, if any.
+  optional GeneRelatedConstraints constraints = 4;
+}
+
+// Gene identity related information.
+message GeneIdentity {
+  // HGNC ID.
+  string hgnc_id = 1;
+  // HGNC symbol.
+  string gene_symbol = 2;
+}
+
+// Transcript type.
+enum TranscriptType {
+  // Unknown transcript type.
+  TRANSCRIPT_TYPE_UNSPECIFIED = 0;
+  // Coding transcript.
+  TRANSCRIPT_TYPE_CODING = 1;
+  // Non-coding transcript.
+  TRANSCRIPT_TYPE_NON_CODING = 2;
+}
+
+// Location where the variant falls in relation to a transcript.
+enum VariantLocation {
+  // Unspecified location.
+  VARIANT_LOCATION_UNSPECIFIED = 0;
+  // Upstream of gene.
+  VARIANT_LOCATION_UPSTREAM = 1;
+  // Exonic.
+  VARIANT_LOCATION_EXON = 2;
+  // Intronic.
+  VARIANT_LOCATION_INTRON = 3;
+  // Downstream of the gene.
+  VARIANT_LOCATION_DOWNSTREAM = 4;
+}
+
+/// Gene-related consequences of a variant.
+message GeneRelatedConsequences {
+  // HGVS. {c,n} code of variant.
+  optional string hgvs_t = 1;
+  // HGVS.p code of variant.
+  optional string hgvs_p = 2;
+  // Predicted variant consequences.
+  repeated seqvars.pbs.query.Consequence consequences = 3;
+  // Transcript accession without version.
+  optional string tx_accession = 4;
+  // Transcript version.
+  optional int32 tx_version = 5;
+  // Whether exon or intron is hit.
+  VariantLocation location = 6;
+  // Exon/intron number (1-based).
+  optional int32 rank_ord = 7;
+  // Exon/intron total count.
+  optional int32 rank_total = 8;
+}
+
+// Enumerations with modes of inheritance from HPO.
+enum ModeOfInheritance {
+  // Unspecified mode of inheritance.
+  MODE_OF_INHERITANCE_UNSPECIFIED = 0;
+  // Autosomal dominant inheritance (HP:0000006).
+  MODE_OF_INHERITANCE_AUTOSOMAL_DOMINANT = 1;
+  // Autosomal recessive inheritance (HP:0000007).
+  MODE_OF_INHERITANCE_AUTOSOMAL_RECESSIVE = 2;
+  // X-linked dominant inheritance (HP:0001419).
+  MODE_OF_INHERITANCE_X_LINKED_DOMINANT = 3;
+  // X-linked recessive inheritance (HP:0001423).
+  MODE_OF_INHERITANCE_X_LINKED_RECESSIVE = 4;
+  // Y-linked inheritance (HP:0001450).
+  MODE_OF_INHERITANCE_Y_LINKED = 5;
+  // Mitochondrial inheritance (HP:0001427).
+  MODE_OF_INHERITANCE_MITOCHONDRIAL = 6;
+}
+
+// Phenotype-related information, if any.
+message GeneRelatedPhenotypes {
+  // ACMG supplementary finding list.
+  bool is_acmg_sf = 1;
+  // Whether is a known disease gene.
+  bool is_disease_gene = 2;
+  // Linked modes of inheritance.
+  repeated ModeOfInheritance mode_of_inheritances = 3;
+}
+
+// Gene-wise constraints.
+message GeneRelatedConstraints {
+  // gnomAD constraints
+  optional GnomadConstraints gnomad = 1;
+  // DECIPHER constraints
+  optional DecipherConstraints decipher = 2;
+  // RCNV constraints
+  optional RcnvConstraints rcnv = 3;
+  // sHET constraints
+  optional ShetConstraints shet = 4;
+  // ClinGen dosage annotation
+  optional ClingenDosageAnnotation clingen = 5;
+}
+
+// gnomAD constraint information.
+message GnomadConstraints {
+  // mis_z score
+  float mis_z = 1;
+  // oe_lof score
+  float oe_lof = 2;
+  // oe_lof_lower score
+  float oe_lof_lower = 3;
+  // oe_lof_upper score (LOEF)
+  float oe_lof_upper = 4;
+  // oe_mis score
+  float oe_mis = 5;
+  // oe_mis_lower score
+  float oe_mis_lower = 6;
+  // oe_mis_upper score
+  float oe_mis_upper = 7;
+  // pLI score
+  float pli = 8;
+  // syn_z score
+  float syn_z = 9;
+}
+
+// DECIPHER constraint information.
+message DecipherConstraints {
+  // HI percentile
+  float p_hi = 1;
+  // HI raw score
+  float hi_index = 2;
+}
+
+// RCNV constraint information from PMID:35917817
+message RcnvConstraints {
+  // pHaplo score
+  float p_haplo = 1;
+  // pTriplo score
+  float p_triplo = 2;
+}
+
+// sHET constraint information from  PMID:31004148
+message ShetConstraints {
+  // sHet score
+  float s_het = 1;
+}
+
+// ClinGen dosage annotation.
+message ClingenDosageAnnotation {
+  // Haploinsufficiency score.
+  ClingenDosageScore haplo = 1;
+  // Triplosensitivity score.
+  ClingenDosageScore triplo = 2;
+}
+
+/// Enumeration for Haploinsufficiency / Triplosensitivity scores.
+enum ClingenDosageScore {
+  // Unspecified
+  CLINGEN_DOSAGE_SCORE_UNSPECIFIED = 0;
+  // Sufficient evidence for dosage pathogenicity
+  CLINGEN_DOSAGE_SCORE_SUFFICIENT_EVIDENCE_AVAILABLE = 1;
+  // Some evidence for dosage pathogenicity
+  CLINGEN_DOSAGE_SCORE_SOME_EVIDENCE_AVAILABLE = 2;
+  // Little evidence for dosage pathogenicity
+  CLINGEN_DOSAGE_SCORE_LITTLE_EVIDENCE = 3;
+  // No evidence available
+  CLINGEN_DOSAGE_SCORE_NO_EVIDENCE_AVAILABLE = 4;
+  // Gene associated with autosomal recessive phenotype
+  CLINGEN_DOSAGE_SCORE_RECESSIVE = 5;
+  // Dosage sensitivity unlikely
+  CLINGEN_DOSAGE_SCORE_UNLIKELY = 6;
+}
+
+/*
+ * Variant-related annotation.
+ */
+
+// Store variant-related annotation.
+message VariantRelatedAnnotation {
+  // Database identifiers.
+  optional DbIds dbids = 1;
+  // Frequency annotation.
+  optional FrequencyAnnotation frequency = 2;
+  // ClinVar annotation.
+  optional ClinvarAnnotation clinvar = 3;
+  // Score annotations.
+  optional ScoreAnnotations scores = 4;
+}
+
+// Population frequency information.
+message FrequencyAnnotation {
+  // gnomAD-exomes filter
+  optional NuclearFrequency gnomad_exomes = 1;
+  // gnomAD-genomes filter
+  optional NuclearFrequency gnomad_genomes = 2;
+  // gnomAD-MT filter
+  optional MitochondrialFrequency gnomad_mtdna = 3;
+  // HelixMtDb filter
+  optional MitochondrialFrequency helixmtdb = 4;
+  // In-house filter
+  optional NuclearFrequency inhouse = 5;
+}
+
+// gnomAD and in-house frequency information.
+message NuclearFrequency {
+  // Number of covered alleles.
+  int32 an = 1;
+  // Number of in-house heterozygous carriers
+  int32 het = 2;
+  // Number of in-house homozygous carriers
+  int32 homalt = 3;
+  // Number of in-house hemizygous carriers
+  int32 hemialt = 4;
+  // Allele frequency.
+  float af = 5;
+}
+
+// Mitochondrial frequency information.
+message MitochondrialFrequency {
+  // Number of covered alleles.
+  int32 an = 1;
+  // Number of heteroplasmic carriers.
+  int32 het = 2;
+  // Number of homoplasmic carriers.
+  int32 homalt = 3;
+  // Allele frequency.
+  float af = 4;
+}
+
+// Database identifiers.
+message DbIds {
+  // dbSNP ID.
+  optional string dbsnp_id = 1;
+}
+
+// ClinVar-related annotation.
+message ClinvarAnnotation {
+  // VCV accession.
+  string vcv_accession = 1;
+  // Aggregate germline significance description.
+  string germline_significance_description = 2;
+  // Aggregate germline review status.
+  AggregateGermlineReviewStatus germline_review_status = 3;
+  // Effective (aka "worst") germline significance description.
+  string effective_germline_significance_description = 4;
+}
+
+// Enumeration describing aggregate germline review status value.
+enum AggregateGermlineReviewStatus {
+  // unspecified aggregate germline review status value
+  AGGREGATE_GERMLINE_REVIEW_STATUS_UNSPECIFIED = 0;
+  // corresponds to "no classification provided"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_NO_CLASSIFICATION_PROVIDED = 1;
+  // corresponds to "no assertion criteria provided"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_NO_ASSERTION_CRITERIA_PROVIDED = 2;
+  // corresponds to "criteria provided, single submitter"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_CRITERIA_PROVIDED_SINGLE_SUBMITTER = 3;
+  // corresponds to "criteria provided, multiple submitters, no conflicts"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_CRITERIA_PROVIDED_MULTIPLE_SUBMITTERS_NO_CONFLICTS = 4;
+  // corresponds to "criteria provided, conflicting classifications"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_CRITERIA_PROVIDED_CONFLICTING_CLASSIFICATIONS = 5;
+  // corresponds to "reviewed by expert panel"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_REVIEWED_BY_EXPERT_PANEL = 6;
+  // corresponds to "practice guideline"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_PRACTICE_GUIDELINE = 7;
+  // corresponds to "no classifications from unflagged records"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_NO_CLASSIFICATIONS_FROM_UNFLAGGED_RECORDS = 8;
+  // corresponds to "no classification for the single variant"
+  AGGREGATE_GERMLINE_REVIEW_STATUS_NO_CLASSIFICATION_FOR_THE_SINGLE_VARIANT = 9;
+}
+
+// Score annotations.
+message ScoreAnnotations {
+  // Key/value pairs for scores.
+  repeated ScoreEntry entries = 1;
+}
+
+// Score entry.
+message ScoreEntry {
+  // Key.
+  string key = 1;
+  // Value.
+  optional google.protobuf.Value value = 2;
+}
+
+/*
+ * Gene-related annotation.
+ */
+
+// Store call-related annotation.
+message CallRelatedAnnotation {
+  // Store call information for each sample.
+  repeated SampleCallInfo call_infos = 1;
+}
+
+// Store call information for one sample.
+message SampleCallInfo {
+  // Name of the sample.
+  string sample = 1;
+  // Genotype.
+  optional string genotype = 2;
+  // Depth of coverage.
+  optional int32 dp = 3;
+  // Alternate read depth.
+  optional int32 ad = 4;
+  // Genotype quality.
+  optional float gq = 5;
+  // Phase set ID.
+  optional int32 ps = 6;
+}

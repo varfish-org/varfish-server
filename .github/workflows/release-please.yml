@@ -11,7 +11,7 @@ jobs:
     steps:
 
       - name: Create GitHub release
-        uses: GoogleCloudPlatform/release-please-action@v3
+        uses: GoogleCloudPlatform/release-please-action@v4
         id: release
         with:
           release-type: python
@@ -24,11 +24,15 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
+        with:
+          fetch-depth: '1'
+          submodules: 'recursive'
+          lfs: true
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3.3.0
         if: ${{ steps.release.outputs.release_created }}
         with:
           registry: ghcr.io
@@ -37,7 +41,7 @@ jobs:
 
       - name: Build and push Docker prerelease image
         if: ${{ steps.release.outputs.release_created && github.event.release.prerelease }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: docker
           push: true
@@ -46,7 +50,7 @@ jobs:
 
       - name: Build and push Docker release image
         if: ${{ steps.release.outputs.release_created && !github.event.release.prerelease }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: docker
           push: true

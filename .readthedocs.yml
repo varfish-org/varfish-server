@@ -5,9 +5,9 @@ build:
   tools:
     python: "3.10"
 
-# Build documentation in the "docs_manual/" directory with Sphinx
+# Build documentation in the "docs/" directory with Sphinx
 sphinx:
-  configuration: docs_manual/conf.py
+  configuration: docs/conf.py
 
 formats:
   - pdf
@@ -15,4 +15,4 @@ formats:
 
 python:
    install:
-     - requirements: docs_manual/requirements.txt
+     - requirements: docs/requirements.txt

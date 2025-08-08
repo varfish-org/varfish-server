@@ -1,0 +1,28 @@
+{% extends 'projectroles/base.html' %}
+{% load projectroles_common_tags %}
+{% load vite_tags %}
+
+{% block css_custom %}
+<style type="text/css">
+  /* make space more narrow and put on gray background */
+  .sodar-app-content-project {
+    padding: 14px;
+    background-color: rgb(238, 238, 238);
+  }
+</style>
+{% endblock css_custom %}
+
+{% block title %}
+  Cases {{ project.name }}
+{% endblock title %}
+
+{% block projectroles %}
+  <div id="app" class="h-100">
+    Redirecting...
+  </div>
+  <script>
+    $(function() {
+      window.location.replace('/-/cases/{{project.sodar_uuid}}/')
+    })
+  </script>
+{% endblock %}

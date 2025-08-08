@@ -1,0 +1,167 @@
+"""Presets-related urls."""
+
+from django.urls import path
+
+import variants.views.ajax.presets as views_ajax
+
+presets_ajax_urlpatterns = [
+    ###################################
+    ### "Regular" PresetSet members ###
+    ###################################
+    # FrequencyPresets
+    path(
+        "ajax/frequencypresets/list-create/<uuid:presetset>/",
+        view=views_ajax.FrequencyPresetsListCreateAjaxView.as_view(),
+        name="ajax-frequencypresets-listcreate",
+    ),
+    path(
+        "ajax/frequencypresets/retrieve-update-destroy/<uuid:frequencypresets>/",
+        view=views_ajax.FrequencyPresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-frequencypresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/frequencypresets/clone-factory-presets/<slug:name>/",
+        view=views_ajax.FrequencyPresetsCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-frequencypresets-clonefactorypresets",
+    ),
+    path(
+        "ajax/frequencypresets/clone-other/<uuid:frequencypresets>/",
+        view=views_ajax.FrequencyPresetsCloneOtherAjaxView.as_view(),
+        name="ajax-frequencypresets-cloneother",
+    ),
+    # FlagsEtcPresets
+    path(
+        "ajax/flagsetcpresets/list-create/<uuid:presetset>/",
+        view=views_ajax.FlagsEtcPresetsListCreateAjaxView.as_view(),
+        name="ajax-flagsetcpresets-listcreate",
+    ),
+    path(
+        "ajax/flagsetcpresets/retrieve-update-destroy/<uuid:flagsetcpresets>/",
+        view=views_ajax.FlagsEtcPresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-flagsetcpresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/flagsetcpresets/clone-factory-presets/<slug:name>/",
+        view=views_ajax.FlagsEtcPresetsCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-flagsetcpresets-clonefactorypresets",
+    ),
+    path(
+        "ajax/flagsetcpresets/clone-other/<uuid:flagsetcpresets>/",
+        view=views_ajax.FlagsEtcPresetsCloneOtherAjaxView.as_view(),
+        name="ajax-flagsetcpresets-cloneother",
+    ),
+    # ImpactPresets
+    path(
+        "ajax/impactpresets/list-create/<uuid:presetset>/",
+        view=views_ajax.ImpactPresetsListCreateAjaxView.as_view(),
+        name="ajax-impactpresets-listcreate",
+    ),
+    path(
+        "ajax/impactpresets/retrieve-update-destroy/<uuid:impactpresets>/",
+        view=views_ajax.ImpactPresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-impactpresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/impactpresets/clone-factory-presets/<slug:name>/",
+        view=views_ajax.ImpactPresetsCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-impactpresets-clonefactorypresets",
+    ),
+    path(
+        "ajax/impactpresets/clone-other/<uuid:impactpresets>/",
+        view=views_ajax.ImpactPresetsCloneOtherAjaxView.as_view(),
+        name="ajax-impactpresets-cloneother",
+    ),
+    # QualityPresets
+    path(
+        "ajax/qualitypresets/list-create/<uuid:presetset>/",
+        view=views_ajax.QualityPresetsListCreateAjaxView.as_view(),
+        name="ajax-qualitypresets-listcreate",
+    ),
+    path(
+        "ajax/qualitypresets/retrieve-update-destroy/<uuid:qualitypresets>/",
+        view=views_ajax.QualityPresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-qualitypresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/qualitypresets/clone-factory-presets/<slug:name>/",
+        view=views_ajax.QualityPresetsCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-qualitypresets-clonefactorypresets",
+    ),
+    path(
+        "ajax/qualitypresets/clone-other/<uuid:qualitypresets>/",
+        view=views_ajax.QualityPresetsCloneOtherAjaxView.as_view(),
+        name="ajax-qualitypresets-cloneother",
+    ),
+    # ChromosomePresets
+    path(
+        "ajax/chromosomepresets/list-create/<uuid:presetset>/",
+        view=views_ajax.ChromosomePresetsListCreateAjaxView.as_view(),
+        name="ajax-chromosomepresets-listcreate",
+    ),
+    path(
+        "ajax/chromosomepresets/retrieve-update-destroy/<uuid:chromosomepresets>/",
+        view=views_ajax.ChromosomePresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-chromosomepresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/chromosomepresets/clone-factory-presets/<slug:name>/",
+        view=views_ajax.ChromosomePresetsCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-chromosomepresets-clonefactorypresets",
+    ),
+    path(
+        "ajax/chromosomepresets/clone-other/<uuid:chromosomepresets>/",
+        view=views_ajax.ChromosomePresetsCloneOtherAjaxView.as_view(),
+        name="ajax-chromosomepresets-cloneother",
+    ),
+    #############################################
+    ### Quick Presets (only clone from other) ###
+    #############################################
+    path(
+        "ajax/quickpresets/list-create/<uuid:presetset>/",
+        view=views_ajax.QuickPresetsListCreateAjaxView.as_view(),
+        name="ajax-quickpresets-listcreate",
+    ),
+    path(
+        "ajax/quickpresets/retrieve-update-destroy/<uuid:quickpresets>/",
+        view=views_ajax.QuickPresetsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-quickpresets-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/quickpresets/clone-other/<uuid:quickpresets>/",
+        view=views_ajax.QuickPresetsCloneOtherAjaxView.as_view(),
+        name="ajax-quickpresets-cloneother",
+    ),
+    #################
+    ### PresetSet ###
+    #################
+    path(
+        "ajax/presetset/list/",
+        view=views_ajax.PresetSetListAllAjaxView.as_view(),
+        name="ajax-presetset-listall",
+    ),
+    path(
+        "ajax/presetset/list-create/<uuid:project>/",
+        view=views_ajax.PresetSetListCreateAjaxView.as_view(),
+        name="ajax-presetset-listcreate",
+    ),
+    path(
+        "ajax/presetset/retrieve-update-destroy/<uuid:presetset>/",
+        view=views_ajax.PresetSetRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-presetset-retrieveupdatedestroy",
+    ),
+    path(
+        "ajax/presetset/clone-factory-presets/",
+        view=views_ajax.PresetSetCloneFactoryPresetsAjaxView.as_view(),
+        name="ajax-presetset-clonefactorypresets",
+    ),
+    path(
+        "ajax/presetset/clone-other/<uuid:presetset>/",
+        view=views_ajax.PresetSetCloneOtherAjaxView.as_view(),
+        name="ajax-presetset-cloneother",
+    ),
+    path(
+        "ajax/project-default-presetset/retrieve/<uuid:project>/",
+        view=views_ajax.ProjectDefaultPresetSetRetrieveAjaxView.as_view(),
+        name="ajax-project-default-presetset-retrieve",
+    ),
+]

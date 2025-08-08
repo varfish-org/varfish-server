@@ -3,12 +3,17 @@
 
 version: 2
 updates:
-  - package-ecosystem: "pip"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
 
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "npm"
-    directory: "/varfish/vueapp"
+    directory: "/frontend"
     schedule:
       interval: "weekly"

@@ -1,0 +1,1507 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/varfish-org/varfish-server/main/variants/schemas/case-query-v1.json",
+  "type": "object",
+  "title": "varfish-server case query settings",
+  "description": "Single case query settings for varfish-server",
+  "required": [
+    "effects",
+    "quality",
+    "genotype"
+  ],
+  "properties": {
+    "database": {
+      "$id": "#/properties/database",
+      "type": "string",
+      "title": "The transcript database to use",
+      "description": "You can select between either using refseq or ensembl transcripts, defaults to refseq",
+      "default": "refseq",
+      "examples": [
+        "refseq",
+        "ensembl"
+      ]
+    },
+    "effects": {
+      "$id": "#/properties/effects",
+      "type": "array",
+      "title": "The effects schema",
+      "description": "An explanation about the purpose of this instance.",
+      "uniqueItems": true,
+      "default": [],
+      "examples": [
+        [
+          "missense_variant",
+          "stop_gained",
+          "stop_lost"
+        ]
+      ],
+      "additionalItems": false,
+      "items": {
+        "$id": "#/properties/effects/items",
+        "type": "string",
+        "enum": [
+          "3_prime_UTR_exon_variant",
+          "3_prime_UTR_intron_variant",
+          "5_prime_UTR_exon_variant",
+          "5_prime_UTR_intron_variant",
+          "coding_sequence_variant",
+          "coding_transcript_intron_variant",
+          "complex_substitution",
+          "conservative_inframe_deletion",
+          "conservative_inframe_insertion",
+          "direct_tandem_duplication",
+          "disruptive_inframe_deletion",
+          "disruptive_inframe_insertion",
+          "downstream_gene_variant",
+          "exonic_splice_region_variant",
+          "exon_loss_variant",
+          "feature_elongation",
+          "feature_truncation",
+          "frameshift_elongation",
+          "frameshift_truncation",
+          "frameshift_variant",
+          "gene_variant",
+          "inframe_deletion",
+          "inframe_insertion",
+          "intergenic_variant",
+          "internal_feature_elongation",
+          "intron_variant",
+          "mature_miRNA_variant",
+          "missense_variant",
+          "mnv",
+          "non_coding_transcript_exon_variant",
+          "non_coding_transcript_intron_variant",
+          "protein_altering_variant",
+          "rare_amino_acid_variant",
+          "regulatory_region_ablation",
+          "regulatory_region_amplification",
+          "regulatory_region_variant",
+          "splice_acceptor_variant",
+          "splice_donor_5th_base_variant",
+          "splice_donor_region_variant",
+          "splice_donor_variant",
+          "splice_polypyrimidine_tract_variant",
+          "splice_region_variant",
+          "start_lost",
+          "start_retained_variant",
+          "stop_gained",
+          "stop_lost",
+          "stop_retained_variant",
+          "structural_variant",
+          "synonymous_variant",
+          "TF_binding_site_variant",
+          "TFBS_ablation",
+          "TFBS_amplification",
+          "transcript_ablation",
+          "transcript_amplification",
+          "upstream_gene_variant"
+        ]
+      }
+    },
+    "exac_enabled": {
+      "$id": "#/properties/exac_enabled",
+      "type": "boolean",
+      "title": "Whether to enable ExAC frequency filter",
+      "description": "Set to ``true`` to enable ExAC frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "exac_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at an allele frequency of ``exac_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
+      ]
+    },
+    "exac_heterozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "exac_homozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "exac_hemizygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_exomes_enabled": {
+      "$id": "#/properties/gnomad_exomes_enabled",
+      "type": "boolean",
+      "title": "Whether to enable gnomAD exomes frequency filter",
+      "description": "Set to ``true`` to enable gnomAD exomes frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "gnomad_exomes_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at an allele frequency of ``gnomad_exomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
+      ]
+    },
+    "gnomad_exomes_heterozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_exomes_homozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_exomes_hemizygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_genomes_enabled": {
+      "$id": "#/properties/gnomad_genomes_enabled",
+      "type": "boolean",
+      "title": "Whether to enable gnomAD genomes frequency filter",
+      "description": "Set to ``true`` to enable gnomAD genomes frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "gnomad_genomes_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at an allele frequency of ``gnomad_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
+      ]
+    },
+    "gnomad_genomes_heterozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_genomes_homozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "gnomad_genomes_hemizygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "thousand_genomes_enabled": {
+      "$id": "#/properties/thousand_genomes_enabled",
+      "type": "boolean",
+      "title": "Whether to enable thousand genomes frequency filter",
+      "description": "Set to ``true`` to enable thousand genomes frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "thousand_genomes_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at an allele frequency of ``thousand_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
+      ]
+    },
+    "thousand_genomes_heterozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "thousand_genomes_homozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "thousand_genomes_hemizygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "inhouse_enabled": {
+      "$id": "#/properties/inhouse_enabled",
+      "type": "boolean",
+      "title": "Whether to enable thousand genomes frequency filter",
+      "description": "Set to ``true`` to enable in-house frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "inhouse_carriers": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_carriers",
+          "type": "integer",
+          "title": "Maximal carrier count in in-house database",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_carriers`` carriers in the in-house database will pass the filter, use ``null``, for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            20
+          ]
+        }
+      ]
+    },
+    "inhouse_heterozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
+      ]
+    },
+    "inhouse_homozygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
+      ]
+    },
+    "inhouse_hemizygous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
+      ]
+    },
+    "mtdb_enabled": {
+      "$id": "#/properties/mtdb_enabled",
+      "type": "boolean",
+      "title": "Whether to enable mtdb frequency filter",
+      "description": "Set to ``true`` to enable mtdb frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "mtdb_count": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mtdb_count",
+          "type": "integer",
+          "title": "Maximal number/absolute frequency of carriers in mtdb",
+          "description": "When ``mtdb_enabled`` then only variants with at most ``mtdb_count`` carriers will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "mtdb_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mtdb_frequency",
+          "type": "number",
+          "title": "Maximal relative frequencey of carriers in mtdb",
+          "description": "When ``mtdb_enabled`` then only variants with a fraction (between 0 and 0.05) of at most ``mtdb_frequency``, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 1,
+          "examples": [
+            0.05, 0.15
+          ]
+        }
+      ]
+    },
+    "helixmtdb_enabled": {
+      "$id": "#/properties/helixmtdb_enabled",
+      "type": "boolean",
+      "title": "Whether to enable helixmtdb frequency filter",
+      "description": "Set to ``true`` to enable helixmtdb frequency filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "helixmtdb_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_frequency",
+          "type": "number",
+          "title": "Maximal carrier frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at a carrier frequency of ``helixmtdb_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 1,
+          "examples": [
+            0.001,
+            0.05
+          ]
+        }
+      ]
+    },
+    "helixmtdb_het_count": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_het_count",
+          "type": "integer",
+          "title": "Maximal heteroplasmy frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in heteroplasmic state of ``helixmtdb_het_count`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "helixmtdb_hom_count": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_hom_count",
+          "type": "integer",
+          "title": "Maximal homoplasmy frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in homoplasmic state of ``helixmtdb_hom_count`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "mitomap_enabled": {
+      "$id": "#/properties/mitomap_enabled",
+      "type": "boolean",
+      "title": "Whether to enable the mitomap carrier filter",
+      "description": "Set to ``true`` to enable mitomap carrier filter",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "mitomap_count": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mitomap_count",
+          "type": "integer",
+          "title": "Maximal number of carriers in mtDB",
+          "description": "When ``mitomap_enabled`` then only variants with at most ``mitomap_count`` carriers will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
+      ]
+    },
+    "mitomap_frequency": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mitomap_frequency",
+          "type": "number",
+          "title": "The mitomap_frequency schema",
+          "description": "When ``mitomap_enabled`` then only variants with a relative frequency (between 0 and 1) will pass the filter, use ``null`` for not enabling threshold",
+          "minimum": 0,
+          "maximum": 1,
+          "examples": [
+            0.001,
+            0.05
+          ]
+        }
+      ]
+    },
+    "transcripts_coding": {
+      "$id": "#/properties/transcripts_coding",
+      "type": "boolean",
+      "title": "Include variants on coding transcripts",
+      "description": "When enabled then variants whose most pathogenic effect is on a coding transcripts",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "transcripts_noncoding": {
+      "$id": "#/properties/transcripts_noncoding",
+      "type": "boolean",
+      "title": "Include variants on non-coding transcripts",
+      "description": "When enabled then variants whose most pathogenic effect is on a non-coding transcripts",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "var_type_snv": {
+      "$id": "#/properties/var_type_snv",
+      "type": "boolean",
+      "title": "Include SNV variants",
+      "description": "When set to ``true`` then include singlenucleotide variants in the results",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "var_type_indel": {
+      "$id": "#/properties/var_type_indel",
+      "type": "boolean",
+      "title": "Include indel variants",
+      "description": "When set to ``true`` then include insertion and deletion variants (e.g., ``CGA>C`` and ``C>CGA``) in the results",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "var_type_mnv": {
+      "$id": "#/properties/var_type_mnv",
+      "type": "boolean",
+      "title": "Include MVN variants",
+      "description": "When set to ``true`` then include multinucleotide variants (e.g., ``CG>TT``) in the results",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "max_exon_dist": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/max_exon_dist",
+          "type": "integer",
+          "title": "The largest distance to exons",
+          "description": "When set then only variants with at most ``max_exon_dist`` to the next exon are included, leave unset to not filter based on this",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    "flag_simple_empty": {
+      "$id": "#/properties/flag_simple_empty",
+      "type": "boolean",
+      "title": "Include variants marked with no flag",
+      "description": "When set (default) then variants that have no simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_bookmarked": {
+      "$id": "#/properties/flag_bookmarked",
+      "type": "boolean",
+      "title": "Include variants marked with \"bookmarked\" flag",
+      "description": "When set (default) then variants that have the \"bookmarked\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_incidental": {
+      "$id": "#/properties/flag_incidental",
+      "type": "boolean",
+      "title": "Include variants marked with \"incidental\" flag",
+      "description": "When set (default) then variants that have the \"incidental\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_candidate": {
+      "$id": "#/properties/flag_candidate",
+      "type": "boolean",
+      "title": "Include variants marked with \"candidate\" flag",
+      "description": "When set (default) then variants that have the \"candidate\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_doesnt_segregate": {
+      "$id": "#/properties/flag_doesnt_segregate",
+      "type": "boolean",
+      "title": "Include variants marked with \"does not segregate\" flag",
+      "description": "When set (default) then variants that have the \"does not segregate\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_final_causative": {
+      "$id": "#/properties/flag_final_causative",
+      "type": "boolean",
+      "title": "Include variants marked with \"final report\" flag",
+      "description": "When set (default) then variants that have the \"final report\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_for_validation": {
+      "$id": "#/properties/flag_for_validation",
+      "type": "boolean",
+      "title": "Include variants marked with \"for validation\" flag",
+      "description": "When set (default) then variants that have the \"for validation\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_no_disease_association": {
+      "$id": "#/properties/flag_no_disease_association",
+      "type": "boolean",
+      "title": "Include variants marked with \"no disease association\" flag",
+      "description": "When set (default) then variants that have the \"no disease association\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_segregates": {
+      "$id": "#/properties/flag_segregates",
+      "type": "boolean",
+      "title": "Include variants marked with \"segregates\" flag",
+      "description": "When set (default) then variants that have the \"segregates\" simple flag set are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_molecular_empty": {
+      "$id": "#/properties/flag_molecular_empty",
+      "type": "boolean",
+      "title": "Include variants that have the \"molecular\" flag unset",
+      "description": "When set (default) then variants that have the \"molecular\" flag unset are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_molecular_negative": {
+      "$id": "#/properties/flag_molecular_negative",
+      "type": "boolean",
+      "title": "Include variants marked with \"molecular\" flag set to \"negative\"",
+      "description": "When set (default) then variants that have the \"molecular\" flag set to \"negative\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_molecular_positive": {
+      "$id": "#/properties/flag_molecular_positive",
+      "type": "boolean",
+      "title": "Include variants marked with \"molecular\" flag set to \"positive\"",
+      "description": "When set (default) then variants that have the \"molecular\" flag set to \"positive\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_molecular_uncertain": {
+      "$id": "#/properties/flag_molecular_uncertain",
+      "type": "boolean",
+      "title": "Include variants marked with \"molecular\" flag set to \"uncertain\"",
+      "description": "When set (default) then variants that have the \"molecular\" flag set to \"uncertain\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_phenotype_match_empty": {
+      "$id": "#/properties/flag_phenotype_match_empty",
+      "type": "boolean",
+      "title": "Include variants that have the \"phenotype match\" flag unset",
+      "description": "When set (default) then variants that have the \"phenotype match\" flag unset are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_phenotype_match_negative": {
+      "$id": "#/properties/flag_phenotype_match_negative",
+      "type": "boolean",
+      "title": "Include variants marked with \"phenotype match\" flag set to \"negative\"",
+      "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"negative\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_phenotype_match_positive": {
+      "$id": "#/properties/flag_phenotype_match_positive",
+      "type": "boolean",
+      "title": "Include variants marked with \"phenotype match\" flag set to \"positive\"",
+      "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"positive\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_phenotype_match_uncertain": {
+      "$id": "#/properties/flag_phenotype_match_uncertain",
+      "type": "boolean",
+      "title": "Include variants marked with \"phenotype match\" flag set to \"uncertain\"",
+      "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"uncertain\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_summary_empty": {
+      "$id": "#/properties/flag_summary_empty",
+      "type": "boolean",
+      "title": "Include variants that have the \"summary\" flag unset",
+      "description": "When set (default) then variants that have the \"summary\" flag unset are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_summary_negative": {
+      "$id": "#/properties/flag_summary_negative",
+      "type": "boolean",
+      "title": "Include variants marked with \"summary\" flag set to \"negative\"",
+      "description": "When set (default) then variants that have the \"summary\" flag set to \"negative\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_summary_positive": {
+      "$id": "#/properties/flag_summary_positive",
+      "type": "boolean",
+      "title": "Include variants marked with \"summary\" flag set to \"positive\"",
+      "description": "When set (default) then variants that have the \"summary\" flag set to \"positive\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_summary_uncertain": {
+      "$id": "#/properties/flag_summary_uncertain",
+      "type": "boolean",
+      "title": "Include variants marked with \"summary\" flag set to \"uncertain\"",
+      "description": "When set (default) then variants that have the \"summary\" flag set to \"uncertain\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_validation_empty": {
+      "$id": "#/properties/flag_validation_empty",
+      "type": "boolean",
+      "title": "Include variants that have the \"validation\" flag unset",
+      "description": "When set (default) then variants that have the \"validation\" flag unset are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_validation_negative": {
+      "$id": "#/properties/flag_validation_negative",
+      "type": "boolean",
+      "title": "Include variants marked with \"validation\" flag set to \"negative\"",
+      "description": "When set (default) then variants that have the \"validation\" flag set to \"negative\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_validation_positive": {
+      "$id": "#/properties/flag_validation_positive",
+      "type": "boolean",
+      "title": "Include variants marked with \"validation\" flag set to \"positive\"",
+      "description": "When set (default) then variants that have the \"validation\" flag set to \"positive\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_validation_uncertain": {
+      "$id": "#/properties/flag_validation_uncertain",
+      "type": "boolean",
+      "title": "Include variants marked with \"validation\" flag set to \"uncertain\"",
+      "description": "When set (default) then variants that have the \"validation\" flag set to \"uncertain\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_visual_empty": {
+      "$id": "#/properties/flag_visual_empty",
+      "type": "boolean",
+      "title": "Include variants that have the \"visual\" flag unset",
+      "description": "When set (default) then variants that have the \"visual\" flag unset are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_visual_negative": {
+      "$id": "#/properties/flag_visual_negative",
+      "type": "boolean",
+      "title": "Include variants marked with \"visual\" flag set to \"negative\"",
+      "description": "When set (default) then variants that have the \"visual\" flag set to \"negative\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_visual_positive": {
+      "$id": "#/properties/flag_visual_positive",
+      "type": "boolean",
+      "title": "Include variants marked with \"visual\" flag set to \"positive\"",
+      "description": "When set (default) then variants that have the \"visual\" flag set to \"positive\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "flag_visual_uncertain": {
+      "$id": "#/properties/flag_visual_uncertain",
+      "type": "boolean",
+      "title": "Include variants marked with \"visual\" flag set to \"uncertain\"",
+      "description": "When set (default) then variants that have the \"visual\" flag set to \"uncertain\" are included in the result",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "gene_allowlist": {
+      "$id": "#/properties/gene_allowlist",
+      "type": "array",
+      "title": "List of genes to restrict the resulting variants to",
+      "description": "List of gene symbols, entrez gene identifiers, or ENSEMBL gene identifiers to limit variants for (for a variant affecting multiple genes, the combinations of the variants and genes will be reported independently), leave empty to apply no such filter",
+      "default": [],
+      "examples": [
+        [
+          "TTN"
+        ],
+        []
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/gene_allowlist/items",
+        "type": "string",
+        "pattern": "^([a-zA-Z0-9.:_-]+)$"
+      }
+    },
+    "gene_blocklist": {
+      "$id": "#/properties/gene_blocklist",
+      "type": "array",
+      "title": "List of genes to exclude from the result",
+      "description": "List of gene symbols, entrez gene identifiers, or ENSEMBL gene identifiers to exclude variants for (for a variant affecting multiple genes, the combinations of the variants and genes will be reported independently), leave empty to apply no such filter",
+      "default": [],
+      "examples": [
+        [
+          "TTN"
+        ],
+        []
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/gene_blocklist/items",
+        "type": "string",
+        "pattern": "^([a-zA-Z0-9_-]+)$"
+      }
+    },
+    "require_in_clinvar": {
+      "$id": "#/properties/require_in_clinvar",
+      "type": "boolean",
+      "title": "Restrict variants to those in local copy of Clinvar",
+      "description": "Set to true to restrict variants to those present in local copy of Clinvar",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_paranoid_mode": {
+      "$id": "#/properties/clinvar_paranoid_mode",
+      "type": "boolean",
+      "title": "Weaken weight of 'criteria provided' in variant assessment",
+      "description": "When set, then variant assessments with and without assertion are interpreted as equally important. By default, they are not those with assessment override the others.",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_include_benign": {
+      "$id": "#/properties/clinvar_include_benign",
+      "type": "boolean",
+      "title": "Whether to include variants marked as benign in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true (default) to make variants pass the filter that are marked as benign in the local Clinvar copy, set to false to make them not pass the filter",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_include_pathogenic": {
+      "$id": "#/properties/clinvar_include_pathogenic",
+      "type": "boolean",
+      "title": "Whether to include variants marked as pathogenic in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true (default) to make variants pass the filter that are marked as pathogenic in the local Clinvar copy, set to false to make them not pass the filter",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_include_likely_benign": {
+      "$id": "#/properties/clinvar_include_likely_benign",
+      "type": "boolean",
+      "title": "Whether to include variants marked as likely benign in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true (default) to make variants pass the filter that are marked as likely benign in the local Clinvar copy, set to false to make them not pass the filter",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_include_likely_pathogenic": {
+      "$id": "#/properties/clinvar_include_likely_pathogenic",
+      "type": "boolean",
+      "title": "Whether to include variants marked as likely pathogenic in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true (default) to make variants pass the filter that are marked as likely pathogenic in the local Clinvar copy, set to false to make them not pass the filter",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "clinvar_include_uncertain_significance": {
+      "$id": "#/properties/clinvar_include_uncertain_significance",
+      "type": "boolean",
+      "title": "Whether to include variants marked as unknown certificance in local Clinvar copy if ``require_in_clinvar``",
+      "description": "Set to true (default) to make variants pass the filter that are marked as of unknown significance in the local Clinvar copy, set to false to make them not pass the filter",
+      "default": true,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "genomic_region": {
+      "$id": "#/properties/genomic_region",
+      "type": "array",
+      "title": "List of genomic regions to limit the query to",
+      "description": "When set thenonly variants contained in or overlapping with the given genomic regions pass the filter, leave empty to apply no region filter",
+      "default": [],
+      "examples": [
+        [
+          [
+            "chr1:100,000,00-110,00,00",
+            "chrY"
+          ],
+          [
+            "X",
+            "Y"
+          ],
+          []
+        ]
+      ],
+      "items": {
+        "$id": "#/properties/genomic_region/items",
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9]+(:(\\d+(,\\d+)*)-(\\d+(,\\d+)*))?$"
+      }
+    },
+    "patho_enabled": {
+      "$id": "#/properties/patho_enabled",
+      "type": "boolean",
+      "title": "Enable pathogenicity annotation",
+      "description": "Set to true to enable annotation with pathogenicity, requires setting a value for ``patho_score``",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "patho_score": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/patho_score",
+          "type": "string",
+          "title": "The pathogenicity score to use for annotating variants",
+          "description": "Select pathogenicity score to use if ``patho_enabled``. Must be one of the pathogenicity scores enabled in the VarFish server instance (depends on the installation)",
+          "examples": [
+            "cadd",
+            "mutationtaster"
+          ]
+        }
+      ]
+    },
+    "prio_enabled": {
+      "$id": "#/properties/prio_enabled",
+      "type": "boolean",
+      "title": "Enable phenotype-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "prio_algorithm": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/prio_algorithm",
+          "type": "string",
+          "title": "The phenotype-based prioritization algorithm to use for priorizing variants",
+          "description": "Select algorithm to use if ``prio_enabled``. Must be one of the algorithms enabled in the VarFish server instance (depends on the installation)",
+          "examples": [
+            "phenix",
+            "hiphive",
+            "hiphive-human",
+            "hiphive-mouse"
+          ]
+        }
+      ]
+    },
+    "prio_hpo_terms": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/prio_hpo_terms",
+          "type": "array",
+          "title": "The prio_hpo_terms schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": [],
+          "examples": [
+            []
+          ],
+          "additionalItems": true,
+          "items": {
+            "$id": "#/properties/prio_hpo_terms/items",
+            "type": "string",
+            "pattern": "(HP|OMIM|DECIPHER|ORPHA):\\d+"
+          }
+        }
+      ]
+    },
+    "prio_gm": {
+      "$id": "#/properties/prio_gm",
+      "type": "string",
+      "title": "The prio_gm schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "gm_enabled": {
+      "$id": "#/properties/gm_enabled",
+      "type": "boolean",
+      "title": "Enable face-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "pedia_enabled": {
+      "$id": "#/properties/pedia_enabled",
+      "type": "boolean",
+      "title": "Enable PEDIA-based prioritization of variants",
+      "description": "Select ",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "photo_file": {
+      "$id": "#/properties/photo_file",
+      "type": ["string", "null"],
+      "title": "photo_file for prioritization of variants",
+      "description": " ",
+      "default": "Empty"
+    },
+    "recessive_mode": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/recessive_mode",
+          "type": "string",
+          "title": "Enable and select the biallelic recessive inheritance filter",
+          "description": "Use \"compound-recessive\" to restrict to variants compatible with compound recessive mode of inheritance and \"recessive\" to restrict to compatibility with either compound and homozygous recessive mode of inheritance. Use ``recessive_index`` to select the index for recessive inheritance",
+          "enum": [
+            "recessive",
+            "compound-recessive"
+          ]
+        }
+      ]
+    },
+    "recessive_index": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/recessive_index",
+          "type": "string",
+          "title": "Select the recessive index",
+          "description": "Set to the identifier of the recessive index",
+          "examples": [
+            "CHILD-NAME"
+          ]
+        }
+      ]
+    },
+    "quality": {
+      "$id": "#/properties/quality",
+      "type": "object",
+      "title": "Quality filter threshold",
+      "description": "Set quality thresholds for each individual. The key are the individual names and the values follows the defined schema from below",
+      "examples": [
+        {
+          "SAMPLE": {
+            "dp_het": 10,
+            "dp_hom": 5,
+            "ab": 0.3,
+            "gq": 20,
+            "ad": 3,
+            "ad_max": 200,
+            "fail": "drop-variant"
+          }
+        },
+        {
+          "FATHER": {
+            "gq": 40,
+            "fail": "ignore"
+          },
+          "MOTHER": {
+            "gq": 40,
+            "fail": "ignore"
+          },
+          "CHILD": {
+            "gq": 40,
+            "fail": "drop-variant"
+          }
+        }
+      ],
+      "patternProperties": {
+        ".*": {
+          "$id": "#/properties/qual_thresholds/values",
+          "type": "object",
+          "properties": {
+            "dp_het": {
+              "$id": "#/properties/qual_thresholds/items/dp_het",
+              "type": "integer",
+              "title": "Minimal total depth of coverage for heterozygous variants",
+              "description": "If set then exclude variants with lower total depth of coverage in sample's genotype call for heterozygous variants",
+              "minimum": 0,
+              "default": 0
+            },
+            "dp_hom": {
+              "$id": "#/properties/qual_thresholds/items/dp_hom",
+              "type": "integer",
+              "title": "Minimal total depth coverage for homozygous and hemizygous variants",
+              "description": "If set then exclude variants with lower total depth of coverage in sample's genotype call for homozygous variants",
+              "minimum": 0,
+              "default": 0
+            },
+            "ab": {
+              "$id": "#/properties/qual_thresholds/items/ab",
+              "type": "number",
+              "title": "Minimal allelic balance for heterozygous variants",
+              "description": "If set then exclude variants with lower allelic balance in sample's genotype call",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
+            },
+            "gq": {
+              "$id": "#/properties/qual_thresholds/items/gq",
+              "type": "integer",
+              "title": "Minimal genotype call quality",
+              "description": "If set then exclude variants with lower genotype quality in sample's genotype call",
+              "minimum": 0,
+              "default": 0
+            },
+            "ad": {
+              "$id": "#/properties/qual_thresholds/items/ad",
+              "type": "integer",
+              "title": "Minimal number of read in alternative allele",
+              "description": "If set then exclude variants with lower depth of coverage on alternate allele in sample's genotype call",
+              "minimum": 0,
+              "default": 0
+            },
+            "ad_max": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$id": "#/properties/qual_thresholds/items/ad_max",
+                  "type": "integer",
+                  "title": "Maximal alternate allele depth of coverage",
+                  "description": "If set then exclude variants with higher depth of coverage on alternate allele in sample's genotype call",
+                  "minimum": 0
+                }
+              ]
+            },
+            "fail": {
+              "$id": "#/properties/qual_thresholds/items/fail",
+              "type": "string",
+              "title": "Action to perform when genotype filter threshold is not passed",
+              "description": "Actions: ignore: ignore failure, drop-variant: drop whole variant (if ONE genotype in the variant fails filter), no-call: interpret as no-call",
+              "default": "ignore",
+              "enum": [
+                "ignore",
+                "drop-variant",
+                "no-call"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "genotype": {
+      "$id": "#/properties/genotype",
+      "type": "object",
+      "title": "Genotype filter settings",
+      "description": "Set genotype filter for each individual, must be given for each individual in query with genotype data",
+      "examples": [
+        {
+          "SAMPLE": "hom"
+        },
+        {
+          "FATHER": "ref",
+          "MOTHER": "ref",
+          "CHILD": "het"
+        }
+      ],
+      "patternProperties": {
+        ".*": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$id": "#/properties/genotype/values",
+              "type": "string",
+              "enum": [
+                "any",
+                "ref",
+                "het",
+                "hom",
+                "non-hom",
+                "variant",
+                "non-variant",
+                "non-reference",
+                "comphet-index",
+                "recessive-index",
+                "recessive-parent"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

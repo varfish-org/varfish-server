@@ -1,0 +1,37 @@
+{% load cases_tags %}
+{% load projectroles_common_tags %}
+
+<table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+  <thead>
+    <tr>
+      <th style="width:10px">#</th>
+      <th style="width: 200px">Updated <i class="iconify" data-icon="fa-solid:sort-down"></i></th>
+      <th style="width: 50px">Status</th>
+      <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
+      <th id="sodar-case-list-header-individuals">Individuals</th>
+      <th style="width: 120px" id="sodar-case-list-header-vars">Small Vars</th>
+      <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+      <th style="width: 0px;">Genome</th>
+      <th style="width: 0px;" class="no-sort"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% get_details_cases project as cases %}
+    {% if cases.count > 0 %}
+      {% for case in cases %}
+        {% include 'cases/case/item.html' with item=case details_card_mode=True %}
+      {% endfor %}
+      <tr>
+        <td class="bg-faded" colspan="9">
+          <a href="/-/cases/{{ project.sodar_uuid }}" class="btn btn-secondary btn-small">
+            <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> See list of all cases
+          </a>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td class="bg-faded font-italic text-center" colspan="9">No cases (yet)</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>

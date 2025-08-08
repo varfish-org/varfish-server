@@ -1,0 +1,6 @@
+/varfish/media/
+/src/
+
+/celerybeat-schedule.*
+
+/VERSION

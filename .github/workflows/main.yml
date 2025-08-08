@@ -14,7 +14,7 @@ jobs:
           - 6379:6379
 
       postgres:
-        image: postgres:14
+        image: postgres:16
         env:
           POSTGRES_DB: varfish_web
           POSTGRES_USER: varfish_web
@@ -109,39 +109,41 @@ jobs:
               libldap2-dev libsasl2-dev
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           # We need to fix the patch version here otherwise, snapshot tests
           # with randomness will / may fail.
-          python-version: "3.10.13"
+          python-version: "3.11"
 
       - name: Install pip and Pipenv
         run: |
           pip install -U pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --verbose --categories=packages,dev-packages,ldap-packages
+          pipenv install --verbose --categories=packages,dev-packages
+        working-directory: backend
 
-      - name: Download icons
-        run: pipenv run python manage.py geticons
-
-      - name: Run collectstatic
-        run: pipenv run python manage.py collectstatic --noinput
+      - name: Run collectstatic (will download icons and build frontend)
+        run: make collectstatic
+        working-directory: backend
 
       - name: Build Vue app as that can be tested via selenium.
         run: |
-          npm ci --prefix varfish/vueapp
-          npm run build --prefix varfish/vueapp
-          nohup npm run serve --prefix varfish/vueapp &
+          npm ci
+          npm run build
+          nohup npm run serve &
+        working-directory: frontend
 
       - name: Setup environment with worker
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environment.yaml
           init-shell: bash
@@ -150,94 +152,118 @@ jobs:
 
       - name: Run tests
         run: |
-          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
-          pipenv run coverage xml
-          pipenv run coverage report
+          make test
         # Important: use shell that was initialized by micromamba.
         shell: bash -el {0}
+        working-directory: backend
 
       - name: Upload Python coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           flags: python
+          directory: backend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   Python-Lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Install Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install pip and Pipenv
-        run: |
-            pip install pip pipenv
+        run: pip install -U pip pipenv
+        working-directory: backend
 
       - name: Install project dependencies with pipenv
-        run: |
-          pipenv install --categories=packages,dev-packages
+        run: make deps
+        working-directory: backend
 
-      - name: Check import order with isort
+      - name: Run all lints
         run: |
           rm -rf src
-          pipenv run isort --force-sort-within-sections --profile=black --check .
+          make lint
+        working-directory: backend
 
-      - name: Check style with black
+      - name: Check for OpenAPI schema changes
         run: |
-          pipenv run black --check --line-length 100 .
-
-      - name: Run linting
-        run: |
-          pipenv run flake8
+          pipenv run python manage.py spectacular \
+            --file /tmp/varfish_api_schema.yaml 2>/dev/null
+          diff \
+            varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+            /tmp/varfish_api_schema.yaml
+        shell: bash -euo pipefail {0}
+        working-directory: backend
 
   Node-Lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          make deps
+        working-directory: frontend
 
       - name: Run linting
         run: |
-          make vue_lint
+          make lint
+        working-directory: frontend
+
+#       # TODO: it appears that this is not stable
+#       - name: Check for OpenAPI schema changes.
+#         run: |
+#           npx openapi-typescript \
+#             ../backend/varfish/tests/drf_openapi_schema/varfish_api_schema.yaml \
+#             -o /tmp/varfish.d.ts
+# 
+#           diff \
+#             src/varfish/api/varfish.d.ts \
+#             /tmp/varfish.d.ts
+#         shell: bash -euo pipefail {0}
+#         working-directory: frontend
 
 
   Node-Test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           lfs: true
 
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix varfish/vueapp
+          make deps
+        working-directory: frontend
 
       - name: Run Vue app tests
         run: |
-          make vue_test-coverage
+          make test
+        working-directory: frontend
 
       - name: Upload nodejs coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           flags: nodejs
+          directory: frontend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

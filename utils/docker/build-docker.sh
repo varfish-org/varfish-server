@@ -14,15 +14,15 @@ git describe --tags >$DIR/../../VERSION
 IMAGE_TAG=${IMAGE_TAG:-adhoc}
 
 # Explicitely set organization and repository name for Docker image.
-ORG=bihealth
+ORG=varfish-org
 REPO=varfish-server
 
-# Set value for WORKER_GIT_TREEISH.
-WORKER_GIT_TREEISH=${WORKER_GIT_TREEISH:-main}
+# Write out VERSION file for Docker
+git describe --tags > VERSION
 
 # Actually start the Docker build.
 docker build . \
-    --build-arg WORKER_GIT_TREEISH=${WORKER_GIT_TREEISH} \
+    $(if [[ ${SINGLE_THREAD-0} -eq 1 ]]; then echo --config $DIR/buildkitd.toml; fi) \
     --file $DIR/Dockerfile \
     -t ghcr.io/$ORG/$REPO:$IMAGE_TAG \
     "$@"
