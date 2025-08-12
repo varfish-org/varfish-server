@@ -37,7 +37,7 @@ export function isKeyOfObject<T extends object>(
 }
 
 export async function queryHpoAndOmimTerms(query: string) {
-  const vigunoClient = new VigunoClient('/proxy/varfish/viguno')
+  const vigunoClient = new VigunoClient()
   const queryArg = encodeURIComponent(query)
   let results: (HpoTerm | HpoOmim)[]
   if (query.startsWith('HP:')) {
