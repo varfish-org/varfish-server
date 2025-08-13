@@ -37,7 +37,7 @@ class MehariMockerMixin:
         for small_var in self.small_vars:
             mock_.get(
                 (
-                    "https://mehari.com/seqvars/csq?genome_release={genome_release}"
+                    "https://mehari.com/api/v1/seqvars/csq?genome_release={genome_release}"
                     "&chromosome={chromosome}&position={position}&reference={reference}"
                     "&alternative={alternative}"
                 ).format(
