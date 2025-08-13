@@ -28,7 +28,7 @@ def load_molecular_impact(kwargs):
     if not base_url:
         return []
     url_tpl = (
-        "{base_url}/seqvars/csq?genome_release={genome_release}"
+        "{base_url}/api/v1/seqvars/csq?genome_release={genome_release}"
         "&chromosome={chromosome}&position={position}&reference={reference}"
         "&alternative={alternative}"
     )
