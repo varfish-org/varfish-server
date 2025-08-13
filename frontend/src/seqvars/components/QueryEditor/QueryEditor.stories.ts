@@ -24,7 +24,7 @@ export const Example: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/proxy/varfish/viguno/hpo/terms', async () => {
+        http.get('/proxy/varfish/viguno/api/v1/hpo/terms', async () => {
           await delay(1000)
           return HttpResponse.json({
             version: { hpo: '2023-06-06', viguno: '0.2.0' },
@@ -37,7 +37,7 @@ export const Example: Story = {
             result: [],
           })
         }),
-        http.get('/proxy/varfish/viguno/hpo/omims', async () => {
+        http.get('/proxy/varfish/viguno/api/v1/hpo/omims', async () => {
           await delay(1000)
           return HttpResponse.json({
             version: { hpo: '2023-06-06', viguno: '0.2.0' },

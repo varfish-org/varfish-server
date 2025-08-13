@@ -87,7 +87,7 @@ def query_settings_validator(value):
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
     # Validate HPO term list.
     if "prio_hpo_terms" in query_settings:
-        url = settings.VARFISH_BACKEND_URL_VIGUNO + "/hpo/terms?term_id=%s"
+        url = settings.VARFISH_BACKEND_URL_VIGUNO + "/api/v1/hpo/terms?term_id=%s"
         missing = []
         for term in query_settings["prio_hpo_terms"] or []:
             try:
