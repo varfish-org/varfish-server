@@ -22,6 +22,7 @@ module.exports = {
     "**/QueryPresets/**", // TODO: temporary
     "**/QueryPresets/**", // TODO: temporary
     "**/FilterForm/**",  // TODO: temporary
+    "**/ext/reev-frontend-lib/**"
   ],
   extends: [
     '@vue/typescript/recommended',
