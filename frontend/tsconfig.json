@@ -36,13 +36,11 @@
   },
   "include": [
     "env.d.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.json", "src/**/*.vue", "src/**/*.js",
-    "ext/**/*.ts", "ext/**/*.vue", "tests/**/*.json"
+    "ext/varfish-api/**/*.ts", "ext/varfish-api/**/*.vue", "ext/viguno-api/**/*.ts", "ext/viguno-api/**/*.vue", "tests/**/*.json"
   ],
   "exclude": [
     "node_modules",
-    "ext/reev-frontend-lib/node_modules",
-    "ext/reev-frontend-lib/openapi-ts.config.*.ts",
-    "ext/reev-frontend-lib/**/*.stories.ts"
+    "ext/reev-frontend-lib"
   ],
   "references": [
     {
