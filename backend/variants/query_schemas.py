@@ -265,6 +265,7 @@ class CaseQuery:
     genomic_region: typing.Optional[typing.List[GenomicRegion]] = None
 
     require_in_clinvar: bool = False
+    clinvar_paranoid_mode: bool = False
     clinvar_include_benign: bool = True
     clinvar_include_pathogenic: bool = True
     clinvar_include_likely_benign: bool = True
@@ -367,6 +368,7 @@ class QueryJsonToFormConverter:
             "transcripts_coding": query.transcripts_coding,
             "transcripts_noncoding": query.transcripts_noncoding,
             "require_in_clinvar": query.require_in_clinvar,
+            "clinvar_paranoid_mode": query.clinvar_paranoid_mode,
             "clinvar_include_benign": query.clinvar_include_benign,
             "clinvar_include_likely_benign": query.clinvar_include_likely_benign,
             "clinvar_include_uncertain_significance": query.clinvar_include_uncertain_significance,
