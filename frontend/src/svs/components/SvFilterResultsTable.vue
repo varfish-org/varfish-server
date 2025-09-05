@@ -269,22 +269,6 @@ const flagAsArtifact = async (svRecord) => {
   }
 }
 
-// Return label for effective genotype.
-const effectiveGenotype = (callInfo) => {
-  switch (callInfo.effective_genotype) {
-    case 'hom':
-      return 'hom.'
-    case 'het':
-      return 'het.'
-    case 'variant':
-      return 'var.'
-    case 'ref':
-      return 'ref.'
-    case 'non-variant':
-      return 'non-var.'
-  }
-}
-
 const getAcmgRating = (payload) => {
   return svAcmgRatingStore.getAcmgRating(
     new LinearStrucvarImpl(
@@ -875,7 +859,7 @@ watch(
           class="text-center text-nowrap"
           :class="{ 'text-danger': alertOnRefGt(call_info[name]) }"
         >
-          {{ effectiveGenotype(call_info[name]) }}
+          {{ call_info[name].genotype }}
           <span
             v-if="alertOnRefGt(call_info[name])"
             title="REF genotype but variant evidence!"
