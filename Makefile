@@ -16,6 +16,7 @@ help:
 	@echo "  test    Run tests"
 	@echo "  ci      Install dependencies, run lints and tests"
 	@echo "  docs    Generate the documentation"
+	@echo "  update-submodules  Update git submodules"
 
 .PHONY: deps
 deps:
@@ -45,3 +46,7 @@ ci:
 .PHONY: docs
 docs:
 	$(MAKE) -C backend docs
+
+.PHONY: update-submodules
+update-submodules:
+	git submodule update --remote --merge
