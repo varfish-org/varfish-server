@@ -1,0 +1,5 @@
+## VEP output generated at 2025-01-28 19:30:00
+## Using cache in /cache
+## Command: vep --input_file variant_input.txt --output_file variant_output.txt --format vcf --tab --force_overwrite --species homo_sapiens --assembly GRCh38 --offline --cache --symbol --hgvs --hgvsc --hgvsp --af_gnomad --clin_sig
+#Uploaded_variation	Location	Allele	Gene	Feature	Feature_type	Consequence	cDNA_position	CDS_position	Protein_position	Amino_acids	Codons	Existing_variation	Extra	HGVSc	HGVSp	gnomAD_AF	CLIN_SIG
+COL5A2_variant	2:189873659	T	COL5A2	NM_000393.5	Transcript	splice_region_variant	1158+5	-	-	-	-	rs123456789	SYMBOL=COL5A2;SYMBOL_SOURCE=HGNC;HGNC_ID=HGNC:2210	NM_000393.5:c.1158+5A>T	-	0.0001	uncertain_significance
