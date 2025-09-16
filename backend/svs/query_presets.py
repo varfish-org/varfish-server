@@ -795,7 +795,7 @@ class _QuickPresetList:
         frequency=Frequency.RELAXED,
         impact=Impact.EXONIC,
         sv_type=SvType.CNVS_EXTRA_LARGE,
-        chromosomes=Chromosomes.WHOLE_GENOME,
+        chromosomes=Chromosomes.X_CHROMOSOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
