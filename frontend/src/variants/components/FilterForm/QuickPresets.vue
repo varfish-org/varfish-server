@@ -258,7 +258,12 @@ const makeWrapper = (name) =>
           props.categoryPresets[name][newValue],
         )) {
           if (!_keysToStrip.includes(key)) {
-            props.querySettings[key] = value
+            // Special handling for 'effects' array to replace rather than merge
+            if (key === 'effects' && Array.isArray(value)) {
+              props.querySettings[key] = [...value]
+            } else {
+              props.querySettings[key] = value
+            }
           }
         }
         blockRefresh.value = oldBlockRefresh
