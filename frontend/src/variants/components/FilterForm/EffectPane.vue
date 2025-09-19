@@ -335,7 +335,13 @@ defineExpose({
       </div>
     </div>
     <!-- Row 3: Detailed Effects -->
-    <div v-if="props.filtrationComplexityMode === 'advanced'" class="row p-2">
+    <div
+      v-if="
+        props.filtrationComplexityMode === 'advanced' ||
+        props.filtrationComplexityMode === 'dev'
+      "
+      class="row p-2"
+    >
       <div class="col-12">
         <h5 class="mb-0">Detailed Effects</h5>
         <div
