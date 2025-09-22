@@ -453,7 +453,9 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 500)
         response_data = json.loads(response.content)
         self.assertIn("error", response_data)
-        self.assertIn("Internal server error while exporting filter settings", response_data["error"])
+        self.assertIn(
+            "Internal server error while exporting filter settings", response_data["error"]
+        )
 
     def test_export_csrf_exempt(self):
         """Test that the export endpoint is CSRF exempt."""
