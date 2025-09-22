@@ -581,6 +581,96 @@ const scrollToLastPosition = () => {
   }
 }
 
+/** Export current filter settings as Word document */
+const exportFilterSettings = async () => {
+  try {
+    // Get the applied filter settings from the current result set's query
+    let filterSettings = null
+
+    if (variantResultSetStore.query?.query_settings) {
+      // Use settings from the applied query (result set)
+      filterSettings = variantResultSetStore.query.query_settings
+    } else if (variantQueryStore.querySettings) {
+      // Fallback to current query settings if no applied query available
+      filterSettings = variantQueryStore.querySettings
+    }
+
+    if (!filterSettings) {
+      alert('No filter settings available to export')
+      return
+    }
+
+    // Get case and pedigree information
+    const caseInfo = caseDetailsStore.caseObj
+      ? {
+          name: caseDetailsStore.caseObj.name,
+          pedigree: caseDetailsStore.caseObj.pedigree,
+        }
+      : null
+
+    // Send to backend to generate DOCX
+    const response = await fetch('/variants/api/export-filter-settings/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': ctxStore.csrfToken,
+      },
+      body: JSON.stringify({
+        filter_settings: filterSettings,
+        case_info: caseInfo,
+        source: variantResultSetStore.query
+          ? 'applied_query'
+          : 'current_settings',
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    // Get the blob and create download link
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.docx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Error exporting filter settings:', error)
+    alert('Failed to export filter settings. Creating fallback JSON file...')
+
+    // Fallback: create JSON file if backend fails
+    try {
+      let filterSettings = null
+      if (variantResultSetStore.query?.query_settings) {
+        filterSettings = variantResultSetStore.query.query_settings
+      } else if (variantQueryStore.querySettings) {
+        filterSettings = variantQueryStore.querySettings
+      }
+
+      if (filterSettings) {
+        const jsonContent = JSON.stringify(filterSettings, null, 2)
+        const blob = new Blob([jsonContent], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }
+    } catch (fallbackError) {
+      console.error('Fallback export also failed:', fallbackError)
+    }
+  }
+}
+
 /** Update display when pagination or sorting changed. */
 watch(
   [
@@ -646,7 +736,16 @@ watch(
         v-model:display-columns="displayColumns"
         :extra-anno-fields="extraAnnoFields"
       />
-      <ExportResults />
+      <div class="align-self-center ml-auto">
+        <button
+          class="btn btn-outline-secondary mr-2"
+          title="Export filter settings as Word document"
+          @click="exportFilterSettings"
+        >
+          <i-mdi-file-export />
+        </button>
+        <ExportResults />
+      </div>
     </div>
     <div class="card-body p-0 b-0">
       <EasyDataTable

@@ -451,6 +451,11 @@ api_urlpatterns = [
         view=views_api.ProjectSettingsRetrieveApiView.as_view(),
         name="api-project-settings-retrieve",
     ),
+    path(
+        "api/export-filter-settings/",
+        view=views_api.export_filter_settings,
+        name="api-export-filter-settings",
+    ),
 ]
 
 
