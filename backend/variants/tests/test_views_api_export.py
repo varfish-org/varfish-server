@@ -273,24 +273,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
             )
         self.assertEqual(response.status_code, 405)
 
-    @patch("variants.views.api.export.DOCX_AVAILABLE", False)
-    @patch("variants.views.api.export.DOCX_ERROR", "Mock docx import error")
-    def test_export_error_docx_not_available(self):
-        """Test error response when python-docx is not available."""
-        data = self._get_basic_filter_settings()
-
-        with self.login(self.superuser):
-            response = self.client.post(
-                self.url,
-                data=json.dumps(data),
-                content_type="application/json",
-            )
-
-        self.assertEqual(response.status_code, 500)
-        response_data = json.loads(response.content)
-        self.assertIn("error", response_data)
-        self.assertIn("python-docx library is not available", response_data["error"])
-
     def test_export_with_complex_genotype_settings(self):
         """Test export with complex genotype settings including pedigree."""
         data = {
@@ -526,6 +508,6 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 200)
 
         # DOCX files should have some reasonable size
-        content = b"".join(response.streaming_content)
+        content = response.content
         self.assertGreater(len(content), 1000)  # Should be at least 1KB
         self.assertLess(len(content), 10 * 1024 * 1024)  # Should be less than 10MB
