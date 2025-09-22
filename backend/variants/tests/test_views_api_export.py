@@ -253,7 +253,7 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 400)
         response_data = json.loads(response.content)
         self.assertIn("error", response_data)
-        self.assertIn("Invalid JSON", response_data["error"])
+        self.assertIn("The request contained invalid JSON", response_data["error"])
 
     def test_export_only_allows_post_method(self):
         """Test that only POST method is allowed."""
@@ -453,7 +453,7 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         self.assertEqual(response.status_code, 500)
         response_data = json.loads(response.content)
         self.assertIn("error", response_data)
-        self.assertIn("Failed to export filter settings", response_data["error"])
+        self.assertIn("Internal server error while exporting filter settings", response_data["error"])
 
     def test_export_csrf_exempt(self):
         """Test that the export endpoint is CSRF exempt."""
