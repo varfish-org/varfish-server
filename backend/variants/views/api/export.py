@@ -381,13 +381,13 @@ def add_key_value_table(doc, title, data):
         # Add some spacing
         doc.add_paragraph()
     except Exception as e:
-        logger.error(f"Error adding section {title}: {str(e)}")
+        logger.exception(f"Error adding section {title}: {str(e)}")
         # Add at least the title if formatting fails
         try:
             doc.add_heading(f"{title} (formatting error)", level=1)
             doc.add_paragraph(f"Raw data: {str(data)}")
         except Exception as inner_e:
-            logger.error(f"Error adding fallback section for {title}: {str(inner_e)}")
+            logger.exception(f"Error adding fallback section for {title}: {str(inner_e)}")
 
 
 def add_quality_settings_table(doc, data):
@@ -1395,10 +1395,10 @@ def export_filter_settings(request):
         return response
 
     except json.JSONDecodeError as e:
-        error_msg = f"Invalid JSON in request: {str(e)}"
-        logger.error(error_msg)
-        return JsonResponse({"error": error_msg}, status=400)
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        return JsonResponse({"error": "The request contained invalid JSON."}, status=400)
     except Exception as e:
-        error_msg = f"Failed to export filter settings: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        return JsonResponse({"error": error_msg}, status=500)
+        logger.error(f"Failed to export filter settings: {str(e)}", exc_info=True)
+        return JsonResponse(
+            {"error": "Internal server error while exporting filter settings."}, status=500
+        )

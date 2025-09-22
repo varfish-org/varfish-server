@@ -608,9 +608,6 @@ const exportFilterSettings = async () => {
         }
       : null
 
-    console.log('Filter settings to export:', filterSettings) // Debug log
-    console.log('Case info to export:', caseInfo) // Debug log
-
     // Send to backend to generate DOCX
     const response = await fetch('/variants/api/export-filter-settings/', {
       method: 'POST',
