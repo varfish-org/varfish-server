@@ -62,6 +62,7 @@ django-modelcluster = "*"
 faker = "*"
 drf-spectacular = {extras = ["sidecar"], version = "*"}
 clinvar-this = "==0.18.5"
+python-docx = "*"
 
 [dev-packages]
 # packages for testing
