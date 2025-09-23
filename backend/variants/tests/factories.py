@@ -640,6 +640,26 @@ CHROMOSOME_MAPPING = {str(chrom): i + 1 for i, chrom in enumerate(list(range(1, 
 CHROMOSOME_MAPPING.update({f"chr{chrom}": i for chrom, i in CHROMOSOME_MAPPING.items()})
 
 
+def get_chromosome_for_build(base_chromosome, genome_build):
+    """Get properly formatted chromosome name for the given genome build."""
+    # Remove any existing chr prefix
+    clean_chrom = base_chromosome
+    if clean_chrom.startswith("chr"):
+        clean_chrom = clean_chrom[3:]
+
+    # Handle mitochondrial special case
+    if clean_chrom in ("M", "MT"):
+        return "MT" if genome_build == "GRCh37" else "chrM"
+
+    # Format according to build
+    if genome_build == "GRCh37":
+        return clean_chrom
+    elif genome_build == "GRCh38":
+        return f"chr{clean_chrom}"
+    else:
+        return clean_chrom  # fallback to input)
+
+
 class SmallVariantFactory(factory.django.DjangoModelFactory):
     """Factory for creating ``SmallVariant`` objects."""
 
@@ -652,8 +672,30 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
         genotypes = default_genotypes
 
     release = "GRCh37"
-    chromosome = factory.Iterator(CHROMOSOME_LIST_TESTING)
-    chromosome_no = factory.LazyAttribute(lambda o: CHROMOSOME_MAPPING[o.chromosome])
+
+    @factory.lazy_attribute
+    def chromosome(self):
+        """Generate chromosome name appropriate for the genome build."""
+        base_chromosomes = [str(i) for i in range(1, 23)] + ["X", "Y"]
+        # Pick a random chromosome from the list
+        import random
+
+        base_chrom = random.choice(base_chromosomes)
+        # Format it correctly for the genome build
+        return get_chromosome_for_build(base_chrom, self.release)
+
+    @factory.lazy_attribute
+    def chromosome_no(self):
+        """Generate chromosome number, handling both naming schemes."""
+        # Strip chr prefix if present for mapping lookup
+        clean_chrom = self.chromosome
+        if clean_chrom.startswith("chr"):
+            clean_chrom = clean_chrom[3:]
+        # Handle mitochondrial special case
+        if clean_chrom in ("M", "MT"):
+            clean_chrom = "MT"
+        return CHROMOSOME_MAPPING.get(clean_chrom, 0)
+
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0
@@ -746,6 +788,19 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
         obj.save()
+
+
+class SmallVariantGRCh38Factory(SmallVariantFactory):
+    """Factory for creating ``SmallVariant`` objects with GRCh38 genome build.
+
+    This factory demonstrates proper chromosome naming for GRCh38 (with chr prefix).
+    Inherits all attributes from SmallVariantFactory but uses GRCh38 build.
+    """
+
+    release = "GRCh38"
+
+    # The chromosome and chromosome_no attributes are automatically handled
+    # by the parent factory's lazy attributes based on the release
 
 
 class SmallVariantQueryResultSetFactory(factory.django.DjangoModelFactory):

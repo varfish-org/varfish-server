@@ -8,9 +8,108 @@ from sqlalchemy.sql import and_, func, not_, select
 
 from .models import ReferenceSite
 
+#: Valid chromosome names for GRCh37 (no chr prefix)
+VALID_CHROMOSOMES_GRCH37 = set(map(str, range(1, 23))) | {"X", "Y", "MT"}
+
+#: Valid chromosome names for GRCh38 (with chr prefix except MT -> chrM)
+VALID_CHROMOSOMES_GRCH38 = set(f"chr{i}" for i in range(1, 23)) | {"chrX", "chrY", "chrM"}
+
+
+def validate_chromosome_for_build(chromosome, genome_build):
+    """Validate that chromosome name is correct for the given genome build.
+
+    Args:
+        chromosome: Chromosome name to validate
+        genome_build: Genome build ("GRCh37" or "GRCh38")
+
+    Returns:
+        bool: True if chromosome name is valid for the build
+
+    Raises:
+        ValueError: If genome_build is not recognized
+    """
+    if genome_build == "GRCh37":
+        return chromosome in VALID_CHROMOSOMES_GRCH37
+    elif genome_build == "GRCh38":
+        return chromosome in VALID_CHROMOSOMES_GRCH38
+    else:
+        raise ValueError(f"Unknown genome build: {genome_build}")
+
+
+def normalize_chromosome_for_build(chromosome, genome_build):
+    """Normalize chromosome name for the given genome build.
+
+    This is similar to variants.queries.normalize_chrom but specifically
+    designed for QC operations and includes validation.
+
+    Args:
+        chromosome: Input chromosome name (with or without chr prefix)
+        genome_build: Target genome build ("GRCh37" or "GRCh38")
+
+    Returns:
+        str: Properly formatted chromosome name for the build
+
+    Raises:
+        ValueError: If chromosome cannot be normalized for the build
+    """
+    # Remove chr prefix for normalization
+    clean_chrom = chromosome
+    while clean_chrom.startswith("chr"):
+        clean_chrom = clean_chrom[len("chr") :]
+
+    # Handle mitochondrial chromosome special case
+    if clean_chrom in ("M", "MT"):
+        return "MT" if genome_build == "GRCh37" else "chrM"
+
+    # Validate the clean chromosome name
+    if clean_chrom not in (set(map(str, range(1, 23))) | {"X", "Y"}):
+        raise ValueError(f"Invalid chromosome: {chromosome}")
+
+    # Format according to build
+    if genome_build == "GRCh37":
+        return clean_chrom
+    elif genome_build == "GRCh38":
+        return f"chr{clean_chrom}"
+    else:
+        raise ValueError(f"Unknown genome build: {genome_build}")
+
+
+#: Take the min(60_000[hg19], 10_000[hg38]) start of PAR1
+PSEUDOAUTO_REGION_X_PAR1_START = 10_000
+#: Take the max(2_699_520[hg19], 2_781_479[hg38]) end of PAR1
+PSEUDOAUTO_REGION_X_PAR1_END = 2_781_479
+#: Take the min(154_931_044[hg19], 155_701_383[hg38]) start of PAR2
+PSEUDOAUTO_REGION_X_PAR2_START = 154_931_044
+#: Take the max(155_260_560[hg19], 156_030_895[hg38]) end of PAR2
+PSEUDOAUTO_REGION_X_PAR2_END = 156_030_895
+
 
 def _compute_het_hom_chrx_stmt(variant_model, variant_set):
-    """Build SQL Alchemy statement given the variant model class and the case object."""
+    """Build SQL Alchemy statement for X chromosome het/hom analysis.
+
+    This function correctly handles chromosome naming differences between genome builds:
+    - GRCh37: Uses "X" for X chromosome
+    - GRCh38: Uses "chrX" for X chromosome
+
+    The function excludes pseudoautosomal regions (PAR1 and PAR2) which behave
+    like autosomal chromosomes and should not be included in X chromosome
+    het/hom ratio calculations.
+
+    Args:
+        variant_model: SQLAlchemy model class for variants
+        variant_set: VariantSet object containing case and genome build info
+
+    Returns:
+        SQLAlchemy select statement for X chromosome variants
+    """
+    # Use "X" for GRCh37, "chrX" for GRCh38 - critical for correct data retrieval
+    chrx_name = "X" if variant_set.case.release == "GRCh37" else "chrX"
+
+    # Validate chromosome name is expected for the build
+    expected_chrx = normalize_chromosome_for_build("X", variant_set.case.release)
+    if chrx_name != expected_chrx:
+        raise ValueError(f"Chromosome naming mismatch: expected {expected_chrx}, got {chrx_name}")
+
     return (
         select([variant_model.sa.genotype])
         .select_from(variant_model.sa.table)
@@ -18,12 +117,18 @@ def _compute_het_hom_chrx_stmt(variant_model, variant_set):
             and_(
                 variant_model.sa.case_id == variant_set.case.id,
                 variant_model.sa.set_id == variant_set.id,
-                variant_model.sa.chromosome == "X",
+                variant_model.sa.chromosome == chrx_name,
                 # Exclude pseudoautosomal regions on chrX; works for both GRCh37 and GRCh38.
-                not_(and_(variant_model.sa.start >= 10000, variant_model.sa.start <= 2_781_479)),
                 not_(
                     and_(
-                        variant_model.sa.start >= 154_931_044, variant_model.sa.start <= 156_030_895
+                        variant_model.sa.start >= PSEUDOAUTO_REGION_X_PAR1_START,
+                        variant_model.sa.start <= PSEUDOAUTO_REGION_X_PAR1_END,
+                    )
+                ),
+                not_(
+                    and_(
+                        variant_model.sa.start >= PSEUDOAUTO_REGION_X_PAR2_START,
+                        variant_model.sa.start <= PSEUDOAUTO_REGION_X_PAR2_END,
                     )
                 ),
             )
@@ -73,7 +178,24 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
 
 
 def _compute_relatedness_stmt(variant_model, variant_set):
-    """Build SQL Alchemy statement given the variant model class and the case object."""
+    """Build SQL Alchemy statement for relatedness computation.
+
+    This function correctly handles chromosome naming differences between genome builds
+    by excluding both GRCh37 ("X", "Y") and GRCh38 ("chrX", "chrY") sex chromosome
+    naming patterns. This ensures relatedness calculations work for both genome builds.
+
+    The function:
+    1. Joins with ReferenceSite table to use only high-quality reference sites
+    2. Excludes sex chromosomes (X, Y) in both naming schemes
+    3. Groups genotypes for downstream statistical analysis
+
+    Args:
+        variant_model: SQLAlchemy model class for variants
+        variant_set: VariantSet object containing case and genome build info
+
+    Returns:
+        SQLAlchemy select statement for autosomal variants at reference sites
+    """
     return (
         select([func.jsonb_agg(variant_model.sa.genotype).label("genotype")])
         .select_from(
@@ -90,7 +212,7 @@ def _compute_relatedness_stmt(variant_model, variant_set):
             and_(
                 variant_model.sa.set_id == variant_set.id,
                 variant_model.sa.case_id == variant_set.case.id,
-                not_(variant_model.sa.chromosome.in_(("X", "Y"))),
+                not_(variant_model.sa.chromosome.in_(("X", "Y", "chrX", "chrY"))),
             )
         )
         .group_by(
@@ -204,7 +326,10 @@ def _compute_relatedness_stmt_many(variant_model, cases):
             )
         )
         .where(
-            and_(or_(*variant_set_conditions), not_(variant_model.sa.chromosome.in_(("X", "Y"))))
+            and_(
+                or_(*variant_set_conditions),
+                not_(variant_model.sa.chromosome.in_(("X", "Y", "chrX", "chrY"))),
+            )
         )
         .group_by(
             variant_model.sa.chromosome,
