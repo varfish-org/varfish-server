@@ -432,9 +432,12 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Check filename format in Content-Disposition header
+        # Check filename format in Content-Disposition header includes case name
         content_disposition = response["Content-Disposition"]
-        self.assertIn("applied-filter-settings-2012-01-14.docx", content_disposition)
+        # Should include case name in filename, e.g. applied-filter-settings-case_001_singleton-2012-01-14.docx
+        self.assertIn("applied-filter-settings-", content_disposition)
+        self.assertIn("-2012-01-14.docx", content_disposition)
+        self.assertIn("singleton", content_disposition)  # Case structure should be in filename
 
     @patch("variants.views.api.export.Document")
     def test_export_document_creation_error(self, mock_document):

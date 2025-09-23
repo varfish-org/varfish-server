@@ -181,18 +181,9 @@ const handleEditClicked = async () => {
 /** Export current preset settings as Word document */
 const exportPresetSettings = async () => {
   try {
-    // For factory defaults, use label approach. For custom presets, use UUID directly
-    let requestData
-    if (presetSetModel.value === 'factory-defaults') {
-      requestData = {
-        project_uuid: props.projectUuid,
-        presetset_label: 'factory-defaults',
-      }
-    } else {
-      requestData = {
-        project_uuid: props.projectUuid,
-        presetset_uuid: presetSetModel.value,
-      }
+    const requestData = {
+      project_uuid: props.projectUuid,
+      presetset_uuid: presetSetModel.value,
     }
 
     // Send to backend to generate DOCX
@@ -213,17 +204,19 @@ const exportPresetSettings = async () => {
     const blob = await response.blob()
     const url = URL.createObjectURL(blob)
 
-    // Create filename - use label for display purposes
-    let displayLabel = 'factory-defaults'
-    if (presetSetModel.value !== 'factory-defaults') {
-      const currentPresetSet =
-        queryPresetsStore.presetSets[presetSetModel.value]
-      displayLabel = currentPresetSet?.label || 'unknown-preset'
+    // Extract filename from Content-Disposition header if available
+    const contentDisposition = response.headers.get('Content-Disposition')
+    let filename = 'preset-settings.docx'
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
+      if (filenameMatch) {
+        filename = filenameMatch[1]
+      }
     }
 
     const link = document.createElement('a')
     link.href = url
-    link.download = `preset-settings-${displayLabel}-${new Date().toISOString().split('T')[0]}.docx`
+    link.download = filename
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
