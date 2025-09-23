@@ -657,7 +657,7 @@ def get_chromosome_for_build(base_chromosome, genome_build):
     elif genome_build == "GRCh38":
         return f"chr{clean_chrom}"
     else:
-        return clean_chrom  # fallback to input)
+        return clean_chrom  # fallback to input
 
 
 class SmallVariantFactory(factory.django.DjangoModelFactory):
@@ -673,28 +673,33 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
 
-    @factory.lazy_attribute
-    def chromosome(self):
-        """Generate chromosome name appropriate for the genome build."""
-        base_chromosomes = [str(i) for i in range(1, 23)] + ["X", "Y"]
-        # Pick a random chromosome from the list
-        import random
+    # Use Iterator for chromosome to maintain compatibility with existing tests
+    # Tests expect to be able to call SmallVariantFactory.chromosome.reset()
+    chromosome = factory.Iterator(CHROMOSOME_LIST_TESTING)
+    chromosome_no = factory.LazyAttribute(lambda o: CHROMOSOME_MAPPING[o.chromosome])
 
-        base_chrom = random.choice(base_chromosomes)
-        # Format it correctly for the genome build
-        return get_chromosome_for_build(base_chrom, self.release)
+    @factory.post_generation
+    def normalize_chromosome_for_build(obj, create, extracted, **kwargs):
+        """Normalize chromosome name after object creation based on genome build."""
+        if create:
+            # Apply genome build-specific formatting
+            raw_chromosome = obj.chromosome
+            normalized_chromosome = get_chromosome_for_build(raw_chromosome, obj.release)
 
-    @factory.lazy_attribute
-    def chromosome_no(self):
-        """Generate chromosome number, handling both naming schemes."""
-        # Strip chr prefix if present for mapping lookup
-        clean_chrom = self.chromosome
-        if clean_chrom.startswith("chr"):
-            clean_chrom = clean_chrom[3:]
-        # Handle mitochondrial special case
-        if clean_chrom in ("M", "MT"):
-            clean_chrom = "MT"
-        return CHROMOSOME_MAPPING.get(clean_chrom, 0)
+            # Update the chromosome field with the normalized value
+            obj.chromosome = normalized_chromosome
+
+            # Recalculate chromosome_no for the normalized chromosome
+            clean_chrom = normalized_chromosome
+            if clean_chrom.startswith("chr"):
+                clean_chrom = clean_chrom[3:]
+            if clean_chrom in ("M", "MT"):
+                clean_chrom = "MT"
+            obj.chromosome_no = CHROMOSOME_MAPPING.get(clean_chrom, 0)
+
+            # Save the changes if this is a database object
+            if hasattr(obj, "save"):
+                obj.save(update_fields=["chromosome", "chromosome_no"])
 
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
