@@ -12,6 +12,7 @@ import ModalConfirm from '@/varfish/components/ModalConfirm.vue'
 import ModalInput from '@/varfish/components/ModalInput.vue'
 import Overlay from '@/varfish/components/Overlay.vue'
 import Toast from '@/varfish/components/Toast.vue'
+import { useCtxStore } from '@/varfish/stores/ctx'
 import QueryPresetsSetEditor from '@/variants/components/QueryPresets/SetEditor.vue'
 import { useQueryPresetsStore } from '@/variants/stores/queryPresets'
 
@@ -29,6 +30,8 @@ const props = defineProps({
 const queryPresetsStore = useQueryPresetsStore()
 /** Access the router. */
 const router = useRouter()
+/** Access the context store. */
+const ctxStore = useCtxStore()
 
 /** Ref to the input modal. */
 const modalInputRef = ref(null)
@@ -175,6 +178,69 @@ const handleEditClicked = async () => {
   }
 }
 
+/** Export current preset settings as Word document */
+const exportPresetSettings = async () => {
+  try {
+    const requestData = {
+      project_uuid: props.projectUuid,
+      presetset_uuid: presetSetModel.value,
+    }
+
+    // Send to backend to generate DOCX
+    const response = await fetch('/variants/api/export-preset-settings/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': ctxStore.csrfToken,
+      },
+      body: JSON.stringify(requestData),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    // Get the blob and create download link
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+
+    // Extract filename from Content-Disposition header if available
+    const contentDisposition = response.headers.get('Content-Disposition')
+    let filename = 'preset-settings.docx'
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
+      if (filenameMatch) {
+        filename = filenameMatch[1]
+      }
+    }
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toastRef.value.show({
+      title: 'Success!',
+      level: 'success',
+      text: 'Preset settings exported successfully!',
+      autohide: true,
+      delay: 3000,
+    })
+  } catch (error) {
+    console.error('Error exporting preset settings:', error)
+    toastRef.value.show({
+      title: 'Error!',
+      level: 'error',
+      text: 'Failed to export preset settings.',
+      autohide: true,
+      delay: 5000,
+    })
+  }
+}
+
 /** Initialize store on first mount. */
 onMounted(async () => {
   await queryPresetsStore.initialize(props.projectUuid)
@@ -241,6 +307,15 @@ const presetSetModel = computed({
               <a class="btn btn-outline-primary" @click="handleCloneClicked()">
                 <i-mdi-content-copy />
                 Clone
+              </a>
+              <a
+                class="btn btn-outline-primary"
+                title="Export preset settings as Word document"
+                :class="{ disabled: presetSetModel === 'factory-defaults' }"
+                @click="exportPresetSettings()"
+              >
+                <i-mdi-file-export />
+                Export
               </a>
               <a
                 class="btn btn-outline-primary"

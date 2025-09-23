@@ -84,7 +84,7 @@ from variants.serializers import (
 )
 from variants.tasks import export_file_task, single_case_filter_task
 
-from .export import export_filter_settings  # noqa: F401
+from .export import export_filter_settings, export_preset_settings  # noqa: F401
 
 
 class CreatedAtCursorPagination(CursorPagination):

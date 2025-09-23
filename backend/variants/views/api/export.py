@@ -6,12 +6,24 @@ import json
 import logging
 import re
 
+from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
+from projectroles.models import Project
+
+from variants.models.presets import (
+    ChromosomePresets,
+    FlagsEtcPresets,
+    FrequencyPresets,
+    ImpactPresets,
+    PresetSet,
+    QualityPresets,
+    QuickPresets,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1388,7 +1400,21 @@ def export_filter_settings(request):
             bio.getvalue(),
             content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
-        filename = f"applied-filter-settings-{datetime.datetime.now().strftime('%Y-%m-%d')}.docx"
+
+        # Generate filename with case name if available
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+        filename = f"applied-filter-settings-{timestamp}.docx"
+
+        if case_info and case_info.get("name"):
+            # Sanitize case name for filename
+            case_name = str(case_info["name"]).strip()
+            case_name = re.sub(r'[<>:"/\\|?*]', "_", case_name)
+            case_name = re.sub(r"[^\w\-_\.]", "_", case_name)
+            case_name = re.sub(r"_+", "_", case_name).strip("_")
+
+            if case_name:  # Use case name if it's not empty after sanitization
+                filename = f"applied-filter-settings-{case_name}-{timestamp}.docx"
+
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         logger.info(f"Successfully generated DOCX file: {filename}")
@@ -1401,4 +1427,219 @@ def export_filter_settings(request):
         logger.error(f"Failed to export filter settings: {str(e)}", exc_info=True)
         return JsonResponse(
             {"error": "Internal server error while exporting filter settings."}, status=500
+        )
+
+
+def _clean_preset_dict(preset_dict):
+    """Clean preset dictionary by removing metadata and unwanted fields."""
+    if preset_dict is None:
+        return {}
+
+    cleaned = preset_dict.copy()
+
+    # Remove metadata keys
+    for key in ["sodar_uuid", "presetset", "date_created", "date_modified"]:
+        cleaned.pop(key, None)
+
+    # Remove frequency keys starting with specific prefixes
+    keys_to_remove = [k for k in cleaned.keys() if k.startswith(("gene_blocklist",))]
+    for key in keys_to_remove:
+        cleaned.pop(key, None)
+
+    return cleaned
+
+
+def _add_preset_key_value_table(doc, data_dict):
+    """Add a key-value table to the document for preset data."""
+    if not data_dict:
+        doc.add_paragraph("No additional configuration")
+        return
+
+    # Create table with 2 columns
+    table = doc.add_table(rows=1, cols=2)
+    table.style = "Table Grid"
+
+    # Add header row
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = "Setting"
+    hdr_cells[1].text = "Value"
+
+    # Make header text bold
+    for cell in hdr_cells:
+        for paragraph in cell.paragraphs:
+            for run in paragraph.runs:
+                run.bold = True
+
+    # Add data rows
+    for key, value in data_dict.items():
+        if key != "label":  # Skip label as it's used as heading
+            row_cells = table.add_row().cells
+            row_cells[0].text = str(key)
+
+            # Handle different value types
+            if isinstance(value, list):
+                # Special handling for lists that should be bullet points
+                if key in ["effects", "gene_allowlist", "genomic_region"]:
+                    # Create bullet list in the cell
+                    if value:  # Only if list is not empty
+                        bullet_text = "\n".join([f"• {item}" for item in value])
+                        row_cells[1].text = bullet_text
+                    else:
+                        row_cells[1].text = "(empty list)"
+                else:
+                    # For other lists, use JSON format
+                    row_cells[1].text = json.dumps(value, indent=2)
+            elif isinstance(value, dict):
+                row_cells[1].text = json.dumps(value, indent=2)
+            else:
+                row_cells[1].text = str(value)
+
+
+def _validate_preset_export_request(data):
+    """Validate the request data for preset settings export."""
+    project_uuid = data.get("project_uuid")
+    presetset_uuid = data.get("presetset_uuid")
+
+    if not project_uuid:
+        return None, "project_uuid is required"
+    if not presetset_uuid:
+        return None, "presetset_uuid is required"
+
+    return {
+        "project_uuid": project_uuid,
+        "presetset_uuid": presetset_uuid,
+    }, None
+
+
+def _find_presetset(project, presetset_uuid):
+    """Find the presetset by UUID and return it with display label."""
+    try:
+        target_presetset = PresetSet.objects.get(sodar_uuid=presetset_uuid, project=project)
+        return target_presetset, target_presetset.label, None
+    except PresetSet.DoesNotExist:
+        return None, None, "Preset set not found"
+
+
+def _add_quickpreset_content(doc, quickpreset, preset_models):
+    """Add content for a single quickpreset to the document."""
+    # Add main heading with quickpreset label
+    label = quickpreset.label or "Unnamed Preset"
+    doc.add_heading(label, level=1)
+
+    # Process inheritance (string value)
+    inheritance = quickpreset.inheritance or ""
+    if inheritance:
+        doc.add_heading("Inheritance", level=2)
+        doc.add_paragraph(inheritance)
+
+    # Process other preset categories
+    for model_class, category_key, category_title in preset_models:
+        preset_obj = getattr(quickpreset, category_key, None)
+        if preset_obj:
+            # Add subheading with preset label
+            preset_label = preset_obj.label or f"Unnamed {category_title}"
+            doc.add_heading(f'{category_title}: "{preset_label}"', level=2)
+
+            # Get preset data and clean it
+            preset_dict = model_to_dict(preset_obj, exclude=["id", "date_created", "date_modified"])
+            cleaned_data = _clean_preset_dict(preset_dict)
+            _add_preset_key_value_table(doc, cleaned_data)
+
+            # Add some spacing
+            doc.add_paragraph()
+
+
+def _create_preset_document(target_presetset, presetset_display_label):
+    """Create the DOCX document with preset settings."""
+    doc = Document()
+    _setup_document_styles(doc)
+    doc.add_heading(f"Query Presets - {presetset_display_label}", 0)
+
+    # Get preset models and their categories
+    preset_models = [
+        (ChromosomePresets, "chromosome", "Chromosomes"),
+        (QualityPresets, "quality", "Quality"),
+        (ImpactPresets, "impact", "Impact"),
+        (FrequencyPresets, "frequency", "Frequency"),
+        (FlagsEtcPresets, "flagsetc", "Flags"),
+    ]
+
+    quickpresets = QuickPresets.objects.filter(presetset=target_presetset)
+    if not quickpresets.exists():
+        doc.add_paragraph("No quick presets found for this preset set.")
+    else:
+        for quickpreset in quickpresets:
+            _add_quickpreset_content(doc, quickpreset, preset_models)
+
+    return doc
+
+
+def _create_export_response(doc, presetset_display_label):
+    """Create the HTTP response with the DOCX file."""
+    bio = BytesIO()
+    doc.save(bio)
+    bio.seek(0)
+
+    response = HttpResponse(
+        bio.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+    filename = f"preset-settings-{presetset_display_label}-{timestamp}.docx"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return response, filename
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def export_preset_settings(request):
+    """Export preset settings as DOCX file."""
+    logger.info("Export preset settings endpoint called")
+
+    try:
+        # Parse and validate request
+        if not request.body:
+            return JsonResponse({"error": "Empty request body"}, status=400)
+
+        data = json.loads(request.body)
+        validated_data, error = _validate_preset_export_request(data)
+        if error:
+            return JsonResponse({"error": error}, status=400)
+
+        logger.info(
+            f"Processing preset settings export for project: {validated_data['project_uuid']}, "
+            f"presetset_uuid: {validated_data['presetset_uuid']}"
+        )
+
+        # Get the project
+        try:
+            src_project = Project.objects.get(sodar_uuid=validated_data["project_uuid"])
+        except Project.DoesNotExist:
+            return JsonResponse(
+                {"error": f"Project not found: {validated_data['project_uuid']}"}, status=404
+            )
+
+        # Find the presetset
+        target_presetset, presetset_display_label, error = _find_presetset(
+            src_project, validated_data["presetset_uuid"]
+        )
+        if error:
+            return JsonResponse({"error": error}, status=404)
+
+        # Create document with preset data
+        doc = _create_preset_document(target_presetset, presetset_display_label)
+
+        # Create and return response
+        response, filename = _create_export_response(doc, presetset_display_label)
+        logger.info(f"Successfully generated DOCX file: {filename}")
+        return response
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in request: {str(e)}")
+        return JsonResponse({"error": "The request contained invalid JSON."}, status=400)
+    except Exception as e:
+        logger.error(f"Failed to export preset settings: {str(e)}", exc_info=True)
+        return JsonResponse(
+            {"error": "Internal server error while exporting preset settings."}, status=500
         )
