@@ -632,9 +632,19 @@ const exportFilterSettings = async () => {
     const blob = await response.blob()
     const url = URL.createObjectURL(blob)
 
+    // Extract filename from Content-Disposition header or use fallback
+    let filename = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.docx`
+    const contentDisposition = response.headers.get('Content-Disposition')
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/)
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1]
+      }
+    }
+
     const link = document.createElement('a')
     link.href = url
-    link.download = `applied-filter-settings-${new Date().toISOString().split('T')[0]}.docx`
+    link.download = filename
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

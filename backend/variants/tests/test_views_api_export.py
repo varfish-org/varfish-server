@@ -513,3 +513,73 @@ class TestExportFilterSettingsApiView(ApiViewTestBase):
         content = response.content
         self.assertGreater(len(content), 1000)  # Should be at least 1KB
         self.assertLess(len(content), 10 * 1024 * 1024)  # Should be less than 10MB
+
+
+@freeze_time("2012-01-14 12:00:01")
+class TestExportPresetSettingsApiView(ApiViewTestBase):
+    """Tests for the export preset settings API view."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.url = reverse("variants:api-export-preset-settings")
+
+    def test_export_error_missing_project_uuid(self):
+        """Test that missing project_uuid returns an error."""
+        data = {
+            "presetset_uuid": "some-uuid",
+        }
+
+        with self.login(self.superuser):
+            response = self.client.post(
+                self.url,
+                data=json.dumps(data),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertIn("project_uuid is required", response_data["error"])
+
+    def test_export_error_missing_presetset_uuid(self):
+        """Test that missing presetset_uuid returns an error."""
+        data = {
+            "project_uuid": str(self.case.project.sodar_uuid),
+        }
+
+        with self.login(self.superuser):
+            response = self.client.post(
+                self.url,
+                data=json.dumps(data),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertIn("presetset_uuid is required", response_data["error"])
+
+    def test_export_error_invalid_json(self):
+        """Test that invalid JSON in request body returns an error."""
+        with self.login(self.superuser):
+            response = self.client.post(
+                self.url,
+                data="invalid json",
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertIn("The request contained invalid JSON", response_data["error"])
+
+    def test_export_error_empty_request(self):
+        """Test that empty request body returns an error."""
+        with self.login(self.superuser):
+            response = self.client.post(
+                self.url,
+                data="",
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertIn("Empty request body", response_data["error"])
