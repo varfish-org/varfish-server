@@ -638,6 +638,8 @@ class SmallVariantSetFactory(factory.django.DjangoModelFactory):
 CHROMOSOME_LIST_TESTING = [str(chrom) for chrom in list(range(1, 23)) + ["X", "Y"]]
 CHROMOSOME_MAPPING = {str(chrom): i + 1 for i, chrom in enumerate(list(range(1, 23)) + ["X", "Y"])}
 CHROMOSOME_MAPPING.update({f"chr{chrom}": i for chrom, i in CHROMOSOME_MAPPING.items()})
+# Add mitochondrial chromosomes with chromosome_no 25
+CHROMOSOME_MAPPING.update({"MT": 25, "chrM": 25, "M": 25})
 
 
 def get_chromosome_for_build(base_chromosome, genome_build):
@@ -677,29 +679,6 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
     # Tests expect to be able to call SmallVariantFactory.chromosome.reset()
     chromosome = factory.Iterator(CHROMOSOME_LIST_TESTING)
     chromosome_no = factory.LazyAttribute(lambda o: CHROMOSOME_MAPPING[o.chromosome])
-
-    @factory.post_generation
-    def normalize_chromosome_for_build(obj, create, extracted, **kwargs):
-        """Normalize chromosome name after object creation based on genome build."""
-        if create:
-            # Apply genome build-specific formatting
-            raw_chromosome = obj.chromosome
-            normalized_chromosome = get_chromosome_for_build(raw_chromosome, obj.release)
-
-            # Update the chromosome field with the normalized value
-            obj.chromosome = normalized_chromosome
-
-            # Recalculate chromosome_no for the normalized chromosome
-            clean_chrom = normalized_chromosome
-            if clean_chrom.startswith("chr"):
-                clean_chrom = clean_chrom[3:]
-            if clean_chrom in ("M", "MT"):
-                clean_chrom = "MT"
-            obj.chromosome_no = CHROMOSOME_MAPPING.get(clean_chrom, 0)
-
-            # Save the changes if this is a database object
-            if hasattr(obj, "save"):
-                obj.save(update_fields=["chromosome", "chromosome_no"])
 
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
@@ -799,13 +778,30 @@ class SmallVariantGRCh38Factory(SmallVariantFactory):
     """Factory for creating ``SmallVariant`` objects with GRCh38 genome build.
 
     This factory demonstrates proper chromosome naming for GRCh38 (with chr prefix).
-    Inherits all attributes from SmallVariantFactory but uses GRCh38 build.
+    Inherits all attributes from SmallVariantFactory but uses GRCh38 build and
+    applies proper chromosome normalization.
     """
 
     release = "GRCh38"
 
-    # The chromosome and chromosome_no attributes are automatically handled
-    # by the parent factory's lazy attributes based on the release
+    @factory.post_generation
+    def normalize_chromosome_for_grch38(obj, create, extracted, **kwargs):
+        """Normalize chromosome name for GRCh38 after object creation."""
+        if create:
+            # Apply GRCh38-specific formatting
+            raw_chromosome = obj.chromosome
+            normalized_chromosome = get_chromosome_for_build(raw_chromosome, "GRCh38")
+
+            # Update the chromosome field with the normalized value
+            obj.chromosome = normalized_chromosome
+
+            # Recalculate chromosome_no for the normalized chromosome
+            # Use the normalized chromosome directly for lookup
+            obj.chromosome_no = CHROMOSOME_MAPPING.get(normalized_chromosome, 0)
+
+            # Save the changes if this is a database object
+            if hasattr(obj, "save"):
+                obj.save(update_fields=["chromosome", "chromosome_no"])
 
 
 class SmallVariantQueryResultSetFactory(factory.django.DjangoModelFactory):
