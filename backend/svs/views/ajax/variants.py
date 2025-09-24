@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from svs.models import StructuralVariant
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from variants.models import Case
+from variants.queries import normalize_chrom
 
 
 class SvFetchVariantsAjaxViewPermission(SODARAPIProjectPermission):
@@ -53,10 +54,8 @@ class SvFetchVariantsAjaxView(APIView):
         case = Case.objects.get(sodar_uuid=self.kwargs["case"])
         structuralvariantset = case.latest_structural_variant_set
         chromosome = request.GET.get("chromosome")
-        if chromosome.startswith("chr"):
-            chromosome = chromosome[3:]
-        if structuralvariantset.release == "GRCh38":
-            chromosome = f"chr{chromosome}"
+        # Normalize chromosome name based on genome build
+        chromosome = normalize_chrom(chromosome, structuralvariantset.release)
         start = int(float(request.GET.get("start", "1")))
         end = int(float(request.GET.get("end", start)))
         if start > end:
